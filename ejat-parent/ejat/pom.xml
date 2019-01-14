@@ -16,6 +16,7 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
+				ejat-parent/ejat-framework/pom.xml
 				<extensions>true</extensions>
 			</plugin>
 		</plugins>
