@@ -6,7 +6,7 @@
 	
 	<name>ejat-framework</name>
 	
-	<artifactId>ejat</artifactId>
+	<artifactId>ejat-framework</artifactId>
 	<version>3.0.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<groupId>ejat</groupId>
