@@ -6,7 +6,7 @@
 	
 	<name>ejat-maven-plugin</name>
 	
-	<artifactId>ejat</artifactId>
+	<artifactId>ejat-maven-plugin</artifactId>
 	<version>3.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<groupId>ejat</groupId>
