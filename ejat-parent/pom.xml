@@ -28,8 +28,7 @@
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 	</properties>
 	
-	<build>
-	
+	<build>	
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -55,8 +54,7 @@
 			<resource>
 				<directory>src/main/resources</directory>
 			</resource>
-		</resources>
-		
+		</resources>		
 	</build>
 	
 	<distributionManagement>
