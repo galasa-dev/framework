@@ -7,7 +7,10 @@
 	<name>ejat</name>
 	
 	<artifactId>ejat-obr</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<groupId>ejat</groupId>
+	<parent>
+		<groupId>ejat</groupId>
+		<artifactId>ejat-parent</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+	</parent>
 </project>
