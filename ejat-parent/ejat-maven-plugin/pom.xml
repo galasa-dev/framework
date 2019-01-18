@@ -7,6 +7,7 @@
 	<artifactId>ejat-maven-plugin</artifactId>
 	<version>3.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
+	
 	<parent>
 		<groupId>ejat</groupId>
 		<artifactId>ejat-parent</artifactId>
