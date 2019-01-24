@@ -1,7 +1,5 @@
 package io.ejat.framework.spi;
 
-import java.util.Properties;
-
 import javax.validation.constraints.NotNull;
 
 /**
@@ -17,14 +15,6 @@ import javax.validation.constraints.NotNull;
  *
  */
 public interface IFramework {
-	
-	/**
-	 * Retrieves the bootstrap properties used to initiate the eJAT Framework 
-	 * 
-	 * @return {@link java.util.Properties}
-	 */
-	@NotNull
-	Properties getBootstrap(); 
 	
 	/**
 	 * <p>Retrieve the Configuration Property Store service from the framework.  This will allow you to access the 
