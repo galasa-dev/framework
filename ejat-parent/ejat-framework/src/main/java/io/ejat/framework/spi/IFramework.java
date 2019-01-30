@@ -33,5 +33,23 @@ public interface IFramework {
 	 */
 	@NotNull
 	IConfigurationPropertyStore getConfigurationPropertyStore(@NotNull String namespace) throws ConfigurationPropertyStoreException;
+	
+	/**
+	 * <p>Retrieve the Dynamic Status Store service from the framework.  This will allow you to access the 
+	 * dynamic status store.</p>
+	 * 
+	 * <p>The namespace is used to departmentalise the status properties to prevent managers from
+	 * directly accessing another manager's properties.</p>
+	 * 
+	 * <p>the namespace can be alphanumeric, but no '.', cannot be an empty string and cannot be null</p>
+	 * 
+	 * <p>As an example,  the zOS Batch Manager would have a namespace of 'zosbatch'.  The zOS Manager with be 'zos'.</p>
+	 * 
+	 * @param namespace - The string used to identify the manager/service to the dynamic status store
+	 * @return A {@link IDynamicStatusStore},   cannot be null
+	 * @throws ConfigurationPropertyStoreException
+	 */
+	@NotNull
+	IConfigurationPropertyStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException;
 
 }

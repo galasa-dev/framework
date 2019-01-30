@@ -32,6 +32,16 @@ public interface IFrameworkInitialisation {
 	void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore) throws ConfigurationPropertyStoreException;
 	
 	/**
+	 * <p>Register the active Dynamic Status Store.  This can only be called once per test run or service instance
+	 * and will be one of the first things done during initialisation.
+	 * If a second DSS attempts register itself, {@link DynamicStatusStoreException} will be thrown.</p>
+	 * 
+	 * @param dynamicStatusStore - the configuration property store chosen to be active
+	 * @throws DynamicStatusStoreException - Only if a 2nd attempt to register a DSS was performed
+	 */
+	void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException;
+	
+	/**
 	 * <p>Retrieve the IFramework object.  Not all the methods will be valid during the initialisation period.
 	 * Review the Framework Lifecycle to determine when parts of the Framework is initialised</p>
 	 * 

@@ -1,6 +1,6 @@
 package io.ejat.framework.spi;
 
-public class ConfigurationPropertyStoreException extends Exception {
+public class ConfigurationPropertyStoreException extends FrameworkException {
 	private static final long serialVersionUID = 1L;
 
 	public ConfigurationPropertyStoreException() {
