@@ -21,15 +21,13 @@
 				<groupId>ejat</groupId>
 				<artifactId>ejat</artifactId>
 				<version>3.0.0-SNAPSHOT</version>
-				<type>bundle</type>
 			</dependency>
 			<dependency>
 				<groupId>ejat</groupId>
 				<artifactId>ejat-framework</artifactId>
 				<version>3.0.0-SNAPSHOT</version>
-				<type>bundle</type>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
+
 </project>
