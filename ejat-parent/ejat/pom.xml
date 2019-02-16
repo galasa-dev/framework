@@ -14,7 +14,7 @@
 	<version>3.0.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 
-	<name>eJAT Framework</name>
+	<name>eJAT TPI</name>
 
 	<build>
 		<plugins>
