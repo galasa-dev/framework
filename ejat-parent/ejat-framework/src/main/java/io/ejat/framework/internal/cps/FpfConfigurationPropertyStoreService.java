@@ -1,6 +1,7 @@
 package io.ejat.framework.internal.cps;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -15,6 +16,12 @@ public class FpfConfigurationPropertyStoreService implements IConfigurationPrope
 	public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
 			throws ConfigurationPropertyStoreException {
 		// Temporary empty to test the SCR in Karaf
+	}
+
+	@Override
+	public @Null String getProperty(@NotNull String key) throws ConfigurationPropertyStoreException {
+		// Temporary empty to test the SCR in Karaf
+		return null;
 	}
 
 }

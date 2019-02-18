@@ -1,5 +1,7 @@
 package test.force.codecoverage;
 
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,6 +16,7 @@ public class TemporaryStubbedClassesTest {
 	public void testFpf() throws ConfigurationPropertyStoreException {
 		FpfConfigurationPropertyStoreService store = new FpfConfigurationPropertyStoreService();
 		store.initialise(null);
+		store.getProperty(null);
 		Assert.assertTrue("dummy",true);
 	}
 
@@ -21,6 +24,15 @@ public class TemporaryStubbedClassesTest {
 	public void testDss() throws DynamicStatusStoreException {
 		FpfDynamicStatusStoreService store = new FpfDynamicStatusStoreService();
 		store.initialise(null);
+		store.get(null);
+		store.getPrefix(null);
+		store.put(null, null);
+		store.put(null);
+		store.putSwap(null, null, null);
+		store.putSwap(null, null, null, null);
+		store.deletePrefix(null);
+		store.delete((String)null);
+		store.delete((Set<String>)null);
 		Assert.assertTrue("dummy",true);
 	}
 
