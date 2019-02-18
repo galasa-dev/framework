@@ -45,6 +45,12 @@
 				<artifactId>org.osgi.service.obr</artifactId>
 				<version>1.0.2</version>
 			</dependency>
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.service.component.annotations</artifactId>
+				<version>1.3.0</version>
+			</dependency>
+
 
 			<dependency>
 				<groupId>javax.validation</groupId>
@@ -63,7 +69,7 @@
 				<artifactId>commons-codec</artifactId>
 				<version>1.11</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -82,6 +88,11 @@
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.osgi.service.obr</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component.annotations</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
@@ -119,7 +130,7 @@
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
-					<version>3.5.0</version>
+					<version>4.1.0</version>
 				</plugin>
 
 				<plugin>

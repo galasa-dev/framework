@@ -21,13 +21,10 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
 				<configuration>
 					<supportedProjectTypes>bundle</supportedProjectTypes>
 					<instructions>
-						<Bundle-Version>$[versionmask;===;$[maven_version;${project.version}]].${maven.build.timestamp}</Bundle-Version>
 						<Bundle-SymbolicName>io.ejat</Bundle-SymbolicName>
-						<Private-Package>io.ejat.internal.*</Private-Package>
 					</instructions>
 				</configuration>
 			</plugin>
