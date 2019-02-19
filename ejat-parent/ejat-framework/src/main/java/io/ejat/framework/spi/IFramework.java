@@ -29,7 +29,7 @@ public interface IFramework {
 	 * 
 	 * @param namespace - The string used to identify the manager/service to the configuration store
 	 * @return A {@link IConfigurationPropertyStore},   cannot be null
-	 * @throws ConfigurationPropertyStoreException
+	 * @throws ConfigurationPropertyStoreException - If an invalid namespace is given
 	 */
 	@NotNull
 	IConfigurationPropertyStore getConfigurationPropertyStore(@NotNull String namespace) throws ConfigurationPropertyStoreException;
@@ -47,9 +47,9 @@ public interface IFramework {
 	 * 
 	 * @param namespace - The string used to identify the manager/service to the dynamic status store
 	 * @return A {@link IDynamicStatusStore},   cannot be null
-	 * @throws ConfigurationPropertyStoreException
+	 * @throws ConfigurationPropertyStoreException - If an invalid namespace is given
 	 */
 	@NotNull
-	IConfigurationPropertyStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException;
+	IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException;
 
 }
