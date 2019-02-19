@@ -20,7 +20,7 @@
 			<dependency>
 				<groupId>ejat</groupId>
 				<artifactId>ejat-bom</artifactId>
-				<version>3.0.0-SNAPSHOT</version>
+				<version>0.2.0-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
