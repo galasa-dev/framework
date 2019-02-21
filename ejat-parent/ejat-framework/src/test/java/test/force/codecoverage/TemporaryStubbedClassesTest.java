@@ -9,16 +9,12 @@ import io.ejat.framework.internal.cps.FpfConfigurationPropertyStoreService;
 import io.ejat.framework.internal.dss.FpfDynamicStatusStoreService;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
-
+/**
+ * <p> Simple stubbed test class</p>
+ * 
+ * @author James Davies
+ */
 public class TemporaryStubbedClassesTest {
-	
-	@Test
-	public void testFpf() throws ConfigurationPropertyStoreException {
-		FpfConfigurationPropertyStoreService store = new FpfConfigurationPropertyStoreService();
-		store.initialise(null);
-		store.getProperty(null);
-		Assert.assertTrue("dummy",true);
-	}
 
 	@Test
 	public void testDss() throws DynamicStatusStoreException {

@@ -82,7 +82,7 @@ public class FrameworkPropertyFileTest {
     @Test
     public void testReadFile() throws FrameworkPropertyFileException, URISyntaxException, IOException {
         FrameworkPropertyFile fpf = new FrameworkPropertyFile(testProp.toURI());
-        assertNotNull(fpf);
+        assertNotNull("FPF did not initialise",fpf);
     }
 
     /**
