@@ -22,24 +22,24 @@ public interface IFrameworkInitialisation {
 	URI getBootstrapConfigurationPropertyStore(); 
 	
 	/**
-	 * <p>Register the active Configuration Property Store.  This can only be called once per test run or service instance
+	 * <p>Register the active Configuration Property StoreService.  This can only be called once per test run or service instance
 	 * and will be one of the very first things done during initialisation.
 	 * If a second CPS attempts register itself, {@link ConfigurationPropertyStoreException} will be thrown.</p>
 	 * 
-	 * @param configurationPropertyStore - the configuration property store chosen to be active
+	 * @param configurationPropertyStoreService - the configuration property store service chosen to be active
 	 * @throws ConfigurationPropertyStoreException - Only if a 2nd attempt to register a CPS was performed
 	 */
-	void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore) throws ConfigurationPropertyStoreException;
+	void registerConfigurationPropertyStoreService(@NotNull IConfigurationPropertyStoreService configurationPropertyStoreService) throws ConfigurationPropertyStoreException;
 	
 	/**
-	 * <p>Register the active Dynamic Status Store.  This can only be called once per test run or service instance
+	 * <p>Register the active Dynamic Status Store Service.  This can only be called once per test run or service instance
 	 * and will be one of the first things done during initialisation.
 	 * If a second DSS attempts register itself, {@link DynamicStatusStoreException} will be thrown.</p>
 	 * 
-	 * @param dynamicStatusStore - the configuration property store chosen to be active
+	 * @param dynamicStatusStoreService - the configuration property store service chosen to be active
 	 * @throws DynamicStatusStoreException - Only if a 2nd attempt to register a DSS was performed
 	 */
-	void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException;
+	void registerDynamicStatusStoreService(@NotNull IDynamicStatusStoreService dynamicStatusStoreService) throws DynamicStatusStoreException;
 	
 	/**
 	 * <p>Retrieve the IFramework object.  Not all the methods will be valid during the initialisation period.
