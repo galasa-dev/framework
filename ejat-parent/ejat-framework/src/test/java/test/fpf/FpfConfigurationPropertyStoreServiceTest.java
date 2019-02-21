@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -17,10 +18,7 @@ import org.junit.Test;
 
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStoreService;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
-import io.ejat.framework.spi.FrameworkPropertyFileException;
-import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
-import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
@@ -132,6 +130,12 @@ public class FpfConfigurationPropertyStoreServiceTest {
         public void registerConfigurationPropertyStoreService(@NotNull IConfigurationPropertyStoreService configurationPropertyStoreService)
                 throws ConfigurationPropertyStoreException {
         }
+
+		@Override
+		public URI getDynamicStatusStoreUri() {return null;}
+
+		@Override
+		public List<URI> getResultArchiveStoreUris() {return null;}
     }
 
 }
