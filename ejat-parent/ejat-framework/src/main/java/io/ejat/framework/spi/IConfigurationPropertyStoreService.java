@@ -9,7 +9,7 @@ import javax.validation.constraints.Null;
  * 
  * <p>The CPS should request from the framework the URI that is defined in the bootstrap.  It should examine the returned URI to 
  * determine if it is this CPS that is required to be initialised.  If the CPS should be initialised, the CPS should do so 
- * and then register itself in the Framework.
+ * and then register itself in the Framework.</p>
  *  
  * @author Michael Baylis
  *
@@ -25,7 +25,6 @@ public interface IConfigurationPropertyStoreService {
 	 * @param frameworkInitialisation - Initialisation object containing access to various initialisation methods
 	 * @throws ConfigurationPropertyStoreException - If there is a problem initialising the underlying store
 	 */
-	@Null
 	void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws ConfigurationPropertyStoreException;
 
 	/**

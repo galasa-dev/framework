@@ -5,9 +5,7 @@ import javax.validation.constraints.NotNull;
 /**
  * <p>IFramework provides access to the services the Framework specifically controls, although will be provided by 
  * other OSGi bundles.  Examples being the Configuration Properties Store service,  authentication services etc.</p>
- * <p>An implement object of IFramework can be obtained using org.osgi.framework.BundleContext.getServiceReferences(IFramework.class.getName(), null)<br>
- * or<br>
- * By using the provided abstract BundleActivator class EjatBundleActivator.getFramework().</p>
+ * <p>Access to the IFramework object will be via the initialisation methods of the services and managers</p>
  * <p>There must only be 1 provider of the IFramework service and the Framework bundle will always be started before any other 
  * eJAT bundle.</p>
  * 
@@ -51,5 +49,13 @@ public interface IFramework {
 	 */
 	@NotNull
 	IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException;
+	
+	/**
+	 * <p>Retrieve the Result Archive Store from the framework.</p>
+	 * 
+	 * @return A {@link IResultArchiveStore},   cannot be null
+	 */
+	@NotNull
+	IResultArchiveStore getResultArchiveStore();
 
 }

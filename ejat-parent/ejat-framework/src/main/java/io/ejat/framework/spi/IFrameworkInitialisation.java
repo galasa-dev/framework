@@ -1,6 +1,7 @@
 package io.ejat.framework.spi;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
@@ -20,6 +21,11 @@ public interface IFrameworkInitialisation {
 	 */
 	@NotNull
 	URI getBootstrapConfigurationPropertyStore(); 
+	
+	
+	URI getDynamicStatusStoreUri();
+	
+	List<URI> getResultArchiveStoreUris();
 	
 	/**
 	 * <p>Register the active Configuration Property StoreService.  This can only be called once per test run or service instance
