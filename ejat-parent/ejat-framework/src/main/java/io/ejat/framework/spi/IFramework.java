@@ -58,4 +58,12 @@ public interface IFramework {
 	@NotNull
 	IResultArchiveStore getResultArchiveStore();
 
+	
+	/**
+	 * <p>Provide access to the Resource Pooling Service</p>
+	 * 
+	 * @return {@link IResourcePoolingService} The Resource Pooling Service
+	 */
+	@NotNull
+	IResourcePoolingService getResourcePoolingService();
 }
