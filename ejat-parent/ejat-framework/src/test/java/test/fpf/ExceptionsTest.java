@@ -19,6 +19,7 @@ import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkPropertyFile;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
 import io.ejat.framework.spi.IFrameworkPropertyFileWatcher;
+import io.ejat.framework.spi.ResultArchiveStoreException;
 
 /**
  * <p>This test class checks that exceptions are behavoing as expected.</p>
@@ -37,6 +38,19 @@ public class ExceptionsTest {
 		new DynamicStatusStoreException("Message", throwable);		
 		new DynamicStatusStoreException(throwable);		
 		new DynamicStatusStoreException("Message", throwable, false, false);		
+		Assert.assertTrue("dummy",true);
+	}
+
+	/**
+	 * <p>This test class checks the exception class has no problems using any of the exception methods.</p>
+	 */
+	@Test
+	public void testResultArchiveStoreException() {
+		Throwable throwable = new ResultArchiveStoreException();
+		new ResultArchiveStoreException("Message");		
+		new ResultArchiveStoreException("Message", throwable);		
+		new ResultArchiveStoreException(throwable);		
+		new ResultArchiveStoreException("Message", throwable, false, false);		
 		Assert.assertTrue("dummy",true);
 	}
 
