@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
+import io.ejat.IConfidentialTextService;
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStoreService;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyStore;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
@@ -166,6 +167,9 @@ public class FrameworkConfigurationPropertyStoreTest {
         }
         public IResultArchiveStore getResultArchiveStore(){return null;}
         public IResourcePoolingService getResourcePoolingService(){return null;}
+
+		@Override
+		public @NotNull IConfidentialTextService getConfidentialTextService() {return null;}
         
     } 
 
