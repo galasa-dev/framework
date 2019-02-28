@@ -1,5 +1,6 @@
 package io.ejat.framework;
 
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +18,7 @@ import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
+import io.ejat.framework.spi.IResultArchiveStoreService;
 
 public class Framework implements IFramework {
 	
@@ -27,6 +29,8 @@ public class Framework implements IFramework {
 	
 	private IConfigurationPropertyStoreService cpsService;
 	private IDynamicStatusStoreService         dssService;
+	
+	private ArrayList<IResultArchiveStoreService> rasServices = new ArrayList<>();
 	
 	protected Framework(Properties overrideProperties,
 			Properties recordProperties) {
@@ -125,6 +129,17 @@ public class Framework implements IFramework {
 	}
 
 	/**
+	 * Add a new Result Archive Store Service to the framework 
+	 * 
+	 * @param resultArchiveStoreService - a new result archive store service
+	 */
+	public void addResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+		if (!this.rasServices.contains(resultArchiveStoreService)) {
+			this.rasServices.add(resultArchiveStoreService);
+		}
+	}
+
+	/**
 	 * Retrieve the active CPS Service
 	 * 
 	 * @return The CPS Service
@@ -140,6 +155,22 @@ public class Framework implements IFramework {
 	 */
 	protected IDynamicStatusStoreService getDynamicStatusStoreService() {
 		return this.dssService;
+	}
+
+	/* (non-Javadoc)
+	 * @see io.ejat.framework.spi.IFramework#getTestRunId()
+	 */
+	@Override
+	public String getTestRunId() {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see io.ejat.framework.spi.IFramework#getTestRunName()
+	 */
+	@Override
+	public String getTestRunName() {
+		return null;
 	}
 
 }

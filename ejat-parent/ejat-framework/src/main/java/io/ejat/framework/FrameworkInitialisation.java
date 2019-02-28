@@ -22,6 +22,7 @@ import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
+import io.ejat.framework.spi.IResultArchiveStoreService;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
@@ -107,21 +108,33 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		logger.error("Framework implementation is incomplete");
 	}
 
+	/* (non-Javadoc)
+	 * @see io.ejat.framework.spi.IFrameworkInitialisation#getBootstrapConfigurationPropertyStore()
+	 */
 	@Override
 	public @NotNull URI getBootstrapConfigurationPropertyStore() {
 		return this.uriConfigurationPropertyStore;
 	}
 
+	/* (non-Javadoc)
+	 * @see io.ejat.framework.spi.IFrameworkInitialisation#getDynamicStatusStoreUri()
+	 */
 	@Override
 	public URI getDynamicStatusStoreUri() {
 		return this.uriDynamicStatusStore;
 	}
 
+	/* (non-Javadoc)
+	 * @see io.ejat.framework.spi.IFrameworkInitialisation#getResultArchiveStoreUris()
+	 */
 	@Override
 	public List<URI> getResultArchiveStoreUris() {
 		throw new UnsupportedOperationException("No implemented yet");
 	}
 
+	/* (non-Javadoc)
+	 * @see io.ejat.framework.spi.IFrameworkInitialisation#registerConfigurationPropertyStoreService(io.ejat.framework.spi.IConfigurationPropertyStoreService)
+	 */
 	@Override
 	public void registerConfigurationPropertyStoreService(
 			@NotNull IConfigurationPropertyStoreService configurationPropertyStoreService)
@@ -129,10 +142,22 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		this.framework.setConfigurationPropertyStoreService(configurationPropertyStoreService);
 	}
 
+	/* (non-Javadoc)
+	 * @see io.ejat.framework.spi.IFrameworkInitialisation#registerDynamicStatusStoreService(io.ejat.framework.spi.IDynamicStatusStoreService)
+	 */
 	@Override
 	public void registerDynamicStatusStoreService(@NotNull IDynamicStatusStoreService dynamicStatusStoreService)
 			throws DynamicStatusStoreException {
 		this.framework.setDynamicStatusStoreService(dynamicStatusStoreService);
+	}
+	
+	/* (non-Javadoc)
+	 * @see io.ejat.framework.spi.IFrameworkInitialisation#registerResultArchiveStoreService(io.ejat.framework.spi.IResultArchiveStoreService)
+	 */
+	@Override
+	public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+		this.framework.addResultArchiveStoreService(resultArchiveStoreService);
+		
 	}
 
 	/* (non-Javadoc)
@@ -142,5 +167,6 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 	public @NotNull IFramework getFramework() {
 		return this.framework;
 	}
+
 
 }

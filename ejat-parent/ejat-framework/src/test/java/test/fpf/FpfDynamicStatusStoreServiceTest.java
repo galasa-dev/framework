@@ -2,30 +2,29 @@ package test.fpf;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Properties;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
 import io.ejat.framework.internal.dss.FpfDynamicStatusStoreService;
-import io.ejat.framework.spi.DynamicStatusStoreException;
-import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
+import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
+import io.ejat.framework.spi.IFrameworkInitialisation;
+import io.ejat.framework.spi.IResultArchiveStoreService;
 
 /**
  * <p>This test class checks the behaviour of registering a local DSS using the FPF class in functional</p>
@@ -252,6 +251,10 @@ import io.ejat.framework.spi.IFramework;
 
 		@Override
 		public List<URI> getResultArchiveStoreUris() {return null;}
+
+		@Override
+		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+		}
     }
 
  }
