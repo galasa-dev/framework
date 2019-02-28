@@ -2,6 +2,8 @@ package io.ejat.framework.spi;
 
 import javax.validation.constraints.NotNull;
 
+import io.ejat.IConfidentialTextService;
+
 /**
  * <p>IFramework provides access to the services the Framework specifically controls, although will be provided by 
  * other OSGi bundles.  Examples being the Configuration Properties Store service,  authentication services etc.</p>
@@ -66,4 +68,13 @@ public interface IFramework {
 	 */
 	@NotNull
 	IResourcePoolingService getResourcePoolingService();
+	
+	
+	/**
+	 * <p>Provide access to the Confidential Text Service</p>
+	 * 
+	 * @return {@link io.ejat.IConfidentialTextService} The Confidential Text Service
+	 */
+	@NotNull
+	IConfidentialTextService getConfidentialTextService();
 }
