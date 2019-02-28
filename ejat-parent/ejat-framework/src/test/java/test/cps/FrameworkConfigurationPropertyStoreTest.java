@@ -178,6 +178,32 @@ public class FrameworkConfigurationPropertyStoreTest {
         assertEquals("Unexpected Value retrieved from CPS", "tab!=space", test.getProperty("image", "credentialid", null));
     }
 
+    @Test
+        public void testReportOfSearchKeys() throws ConfigurationPropertyStoreException, IOException {
+        File testProp = File.createTempFile("ejatfpf_", ".properties");
+        testProp.deleteOnExit();
+        Properties overrides = new Properties();
+        Properties record = new Properties();
+
+        Properties testProps = new Properties();
+        
+        testProps.setProperty("zos.image.PLEXMA.credentialid", "Waddup");
+        testProps.setProperty("zos.image.PLEXMA.MVMA.credentialid", "Spoon");
+        testProps.setProperty("zos.image.credentialid", "tab!=space");
+
+        FileOutputStream out = new FileOutputStream(testProp);
+        testProps.store(out, null);
+        out.close();
+
+        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
+        fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
+
+        FrameworkConfigurationPropertyStore test = new FrameworkConfigurationPropertyStore(new Framework(), fpfcps, overrides, record, "zos");
+        assertEquals("Unexpected Key retrieved from CPS", "zos.image.PLEXMA.MVMA.credentialid", test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[0]);
+        assertEquals("Unexpected Key retrieved from CPS", "zos.image.PLEXMA.credentialid", test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[1]);
+        assertEquals("Unexpected Key retrieved from CPS", "zos.image.credentialid", test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[2]);
+    }
+
     /**
      * <p>This is a private class used to implement the IFramework for testing purposes.</p>
      */
