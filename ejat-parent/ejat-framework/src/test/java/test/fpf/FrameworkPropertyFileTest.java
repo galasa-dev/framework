@@ -59,6 +59,8 @@ public class FrameworkPropertyFileTest {
 
         testProps.setProperty("Test1", "SomeString");
         testProps.setProperty("Test2", "SomeString");
+        testProps.setProperty("prefix.infix.suffix1", "SomeString1");
+        testProps.setProperty("prefix.infix.suffix2", "SomeString2");
         testProps.setProperty("RootPasswordForEverySystemEver", "admin");
         testProps.setProperty("anotherString", "anotherString");
 
@@ -215,6 +217,21 @@ public class FrameworkPropertyFileTest {
         assertNull("Value recieved was not null",fpf.get("Test1"));
         assertNull("Second value was not null",fpf.get("Test2"));
         assertNull("Third value from get was not null",fpf.get("RootPasswordForEverySystemEver"));
+
+        fpf.destroy();
+    }
+
+    /**
+     * <p>This tests that keys with a certain prefix can be removed from the properties file and their corresponding 
+     *  values.</p>
+     */
+    @Test
+    public void testDeletePrefix() throws FrameworkPropertyFileException {
+        FrameworkPropertyFile fpf = new FrameworkPropertyFile(testPropUri);
+
+        fpf.deletePrefix("prefix");
+
+        assertNull("Value was not null", fpf.get("prefix"));
 
         fpf.destroy();
     }
