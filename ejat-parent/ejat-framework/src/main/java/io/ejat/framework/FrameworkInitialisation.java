@@ -17,6 +17,7 @@ import org.osgi.framework.ServiceReference;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
@@ -30,6 +31,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 	private final Properties recordProperties = new Properties();
 
 	private final URI        uriConfigurationPropertyStore;
+	private final URI        uriDynamicStatusStore;
+	
+	private IConfigurationPropertyStore  cpsFramework;
 
 	private Log              logger = LogFactory.getLog(this.getClass());
 
@@ -67,7 +71,21 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			throw new FrameworkException("Failed to initialise a Configuration Property Store, unable to continue");
 		}
 		logger.debug("Selected CPS Service is " + this.framework.getConfigurationPropertyStoreService().getClass().getName());
-
+		
+		//*** Set up a CPS store for framework
+		this.cpsFramework = this.framework.getConfigurationPropertyStore("framework");
+		
+		//*** Work out the dss uri
+		try {
+			String dssProperty = this.cpsFramework.getProperty("dynamicstatus", "store");
+			if (dssProperty == null || dssProperty.isEmpty()) {
+				this.uriDynamicStatusStore = new URI("file://" + System.getProperty("user.home") + "/.ejat/dss.properties");
+			} else {
+				this.uriDynamicStatusStore = new URI(dssProperty);
+			}
+		} catch(ConfigurationPropertyStoreException e) {
+			throw new FrameworkException("Unable to resolve the Dynamic Status Store URI", e);
+		}
 
 		//*** Initialise the Dynamic Status Store
 		logger.trace("Searching for DSS providers");
@@ -80,10 +98,10 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			logger.trace("Found DSS Provider " + dssService.getClass().getName());
 			dssService.initialise(this);
 		}
-//		if (this.framework.getDynamicStatusStoreService() == null) {
-//			throw new FrameworkException("Failed to initialise a Dynamic Status Store, unable to continue");
-//		}
-//		logger.debug("Selected DSS Service is " + this.framework.getDynamicStatusStoreService().getClass().getName());
+		if (this.framework.getDynamicStatusStoreService() == null) {
+			throw new FrameworkException("Failed to initialise a Dynamic Status Store, unable to continue");
+		}
+		logger.debug("Selected DSS Service is " + this.framework.getDynamicStatusStoreService().getClass().getName());
 
 
 		logger.error("Framework implementation is incomplete");
@@ -96,7 +114,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
 	@Override
 	public URI getDynamicStatusStoreUri() {
-		throw new UnsupportedOperationException("No implemented yet");
+		return this.uriDynamicStatusStore;
 	}
 
 	@Override
