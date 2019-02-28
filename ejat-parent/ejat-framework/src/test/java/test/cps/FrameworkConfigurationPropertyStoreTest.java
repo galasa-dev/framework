@@ -154,6 +154,30 @@ public class FrameworkConfigurationPropertyStoreTest {
         assertEquals("Unexpected Value retrieved from CPS", "Sever2", test.getProperty("image", "credentialid", "PLEXMA"));
     }
 
+    @Test
+        public void testNullInfixes() throws ConfigurationPropertyStoreException, IOException {
+        File testProp = File.createTempFile("ejatfpf_", ".properties");
+        testProp.deleteOnExit();
+        Properties overrides = new Properties();
+        Properties record = new Properties();
+
+        Properties testProps = new Properties();
+        
+        testProps.setProperty("zos.image.PLEXMA.credentialid", "Waddup");
+        testProps.setProperty("zos.image.PLEXMA.MVMA.credentialid", "Spoon");
+        testProps.setProperty("zos.image.credentialid", "tab!=space");
+
+        FileOutputStream out = new FileOutputStream(testProp);
+        testProps.store(out, null);
+        out.close();
+
+        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
+        fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
+
+        FrameworkConfigurationPropertyStore test = new FrameworkConfigurationPropertyStore(new Framework(), fpfcps, overrides, record, "zos");
+        assertEquals("Unexpected Value retrieved from CPS", "tab!=space", test.getProperty("image", "credentialid", null));
+    }
+
     /**
      * <p>This is a private class used to implement the IFramework for testing purposes.</p>
      */

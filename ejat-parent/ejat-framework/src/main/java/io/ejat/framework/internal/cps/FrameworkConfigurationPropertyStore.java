@@ -55,6 +55,9 @@ public class FrameworkConfigurationPropertyStore implements IConfigurationProper
      *  @throws ConfigurationPropertyStoreException - throws the caught exception from the getValueAndMakeAccessRecord() method.
      */
     public String getProperty(@NotNull String prefix, @NotNull String suffix, String... infixes) throws ConfigurationPropertyStoreException {
+        if(infixes==null) {
+            infixes = new String[0];
+        }
         String[] keys = createOrderedKeyList(prefix, suffix, infixes);
         String value = null;
         for (String key: keys){
