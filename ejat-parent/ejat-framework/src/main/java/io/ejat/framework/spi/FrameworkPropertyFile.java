@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -147,6 +148,26 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 			}
 		}
 	}
+
+	/**
+	 * <p> This method deletes the set of key values with a certain prefix.</>p
+	 * 
+	 * @param prefix - a prefix of keys to remove from properties
+	 * @throws FrameworkPropertyFileException
+	 */
+	public synchronized void deletePrefix(String prefix) throws FrameworkPropertyFileException{
+        Set<String> deleteKeys = new HashSet<String>();
+        synchronized(FrameworkPropertyFile.class) {
+            observer.checkAndNotify();
+            for (Object k:currentProperties.keySet()){
+                String key = (String)k;
+                if (key.startsWith(prefix)){
+                    deleteKeys.add(key);
+                }
+            }
+            delete(deleteKeys);
+        }
+    }
 
 	/**
 	 * <p> This method is used for the writing of the current properties in memory to be stored in the java properties file defined 

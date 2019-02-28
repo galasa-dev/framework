@@ -68,6 +68,23 @@ public class FrameworkConfigurationPropertyStore implements IConfigurationProper
         }
         return null;
     }
+    /**
+     * <p>This method retrievs all the keys that would be serached in the order that they would be searched. For example:
+     *  zos.image.PLEXMA.MVMA.credentialid
+     *  zos.image.PLEXMA.credentialid
+     *  zos.image.credentialid</p>
+     * 
+     * @param prefix - in the above example is "image"
+     *  @param suffix - in the above example is "credentialid"
+     *  @param infixes - the hierachal structure above, supplied in order, e.g "PLEXMA", "MVMA"
+     *  @return - an array of the keys as strings in the order they would be serached
+     */
+    public String[] reportPropertyVariants(@NotNull String prefix, @NotNull String suffix, String... infixes) {
+        if(infixes==null) {
+            infixes = new String[0];
+        }
+        return createOrderedKeyList(prefix, suffix, infixes);
+    }
 
     /**
      * <p>This private method is used by the getProperty() method to return a String value for a given key and record any key/value accessed.
