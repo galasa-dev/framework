@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>ejat-boot</artifactId>
+	<packaging>maven-plugin</packaging>
+
+	<name>eJAT Boot</name>
+
+	<parent>
+		<groupId>ejat</groupId>
+		<artifactId>ejat-parent</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
+	</parent>
+	
+	<dependencies>
+		<dependency>
+			<groupId>ejat</groupId>
+			<artifactId>ejat-framework</artifactId>
+			<version>0.2.0-SNAPSHOT</version>
+			<type>bundle</type>
+		</dependency>
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.bundlerepository</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugin-tools</groupId>
+			<artifactId>maven-plugin-annotations</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-core</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-api</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.1.1</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<artifactItems>
+						<artifactItem>
+							<groupId>org.apache.logging.log4j</groupId>
+							<artifactId>log4j-api</artifactId>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.apache.logging.log4j</groupId>
+							<artifactId>log4j-core</artifactId>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.apache.felix</groupId>
+							<artifactId>org.apache.felix.bundlerepository</artifactId>
+						</artifactItem>
+					</artifactItems>
+					<type>jar</type>
+					<overWrite>false</overWrite>
+					<outputDirectory>${project.build.directory}/bundle</outputDirectory>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.1</version>
+				<configuration>
+					<finalName>ejat-boot</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<manifestEntries>
+										<Main-Class>io.ejat.boot.Launcher</Main-Class>
+										<Class-Path>bundle/log4j-core-2.11.2.jar bundle/log4j-api-2.11.2.jar bundle/org.apache.felix.bundlerepository-2.0.2.jar</Class-Path>
+									</manifestEntries>
+								</transformer>
+                				<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                    				<resource>bundle/log4j-api-2.11.2.jar</resource>
+                    				<file>target/bundle/log4j-api-2.11.2.jar</file>
+                				</transformer>
+                				<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                    				<resource>bundle/log4j-core-2.11.2.jar</resource>
+                    				<file>target/bundle/log4j-core-2.11.2.jar</file>
+                				</transformer>
+                				<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                    				<resource>bundle/org.apache.felix.bundlerepository-2.0.2.jar</resource>
+                    				<file>target/bundle/org.apache.felix.bundlerepository-2.0.2.jar</file>
+                				</transformer>
+							</transformers>
+							<artifactSet>
+								<includes>
+									<include>org.apache.felix:org.apache.felix.framework</include>
+									<include>commons-cli</include>
+									<include>commons-io</include>
+								</includes>
+              				</artifactSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.22.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

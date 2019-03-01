@@ -20,7 +20,7 @@
 			<dependency>
 				<groupId>ejat</groupId>
 				<artifactId>ejat-bom</artifactId>
-				<version>3.0.0-SNAPSHOT</version>
+				<version>0.2.0-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -36,16 +36,45 @@
 			<groupId>ejat</groupId>
 			<artifactId>ejat-framework</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.scr</artifactId>
+		</dependency>		
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.gogo.shell</artifactId>
+		</dependency>		
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.gogo.runtime</artifactId>
+		</dependency>		
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.gogo.command</artifactId>
+		</dependency>		
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 		</dependency>
+		<dependency>
+    		<groupId>org.apache.logging.log4j</groupId>
+    		<artifactId>log4j-core</artifactId>
+		</dependency>		
+		<dependency>
+    		<groupId>org.apache.logging.log4j</groupId>
+    		<artifactId>log4j-api</artifactId>
+		</dependency>				
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+		</dependency>				
+		<dependency>
+		    <groupId>org.apache.bcel</groupId>
+		    <artifactId>bcel</artifactId>
+		</dependency>
 	</dependencies>
-
 </project>
