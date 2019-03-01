@@ -22,6 +22,8 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 	
 	private File       runDirectory;
 	
+	private FileSystem artifactFileSystem;
+	
 	@Override
 	public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
 			throws ResultArchiveStoreException {
