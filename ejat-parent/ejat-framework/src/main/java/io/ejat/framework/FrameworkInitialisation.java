@@ -23,6 +23,7 @@ import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.ResultArchiveStoreException;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
@@ -155,7 +156,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 	 * @see io.ejat.framework.spi.IFrameworkInitialisation#registerResultArchiveStoreService(io.ejat.framework.spi.IResultArchiveStoreService)
 	 */
 	@Override
-	public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+	public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) throws ResultArchiveStoreException {
 		this.framework.addResultArchiveStoreService(resultArchiveStoreService);
 		
 	}

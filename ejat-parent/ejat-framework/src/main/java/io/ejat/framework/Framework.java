@@ -19,6 +19,7 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.ResultArchiveStoreException;
 
 public class Framework implements IFramework {
 	
@@ -132,9 +133,13 @@ public class Framework implements IFramework {
 	 * Add a new Result Archive Store Service to the framework 
 	 * 
 	 * @param resultArchiveStoreService - a new result archive store service
+	 * @throws ResultArchiveStoreException 
 	 */
-	public void addResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+	public void addResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) throws ResultArchiveStoreException {
 		if (!this.rasServices.contains(resultArchiveStoreService)) {
+			if (!this.rasServices.isEmpty()) {
+				throw new ResultArchiveStoreException("For the purposes of the MVP, only 1 RASS will be allowed");
+			}
 			this.rasServices.add(resultArchiveStoreService);
 		}
 	}

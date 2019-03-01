@@ -58,8 +58,9 @@ public interface IFrameworkInitialisation {
 	 * and will be one of the first things done during initialisation.
 	 * 
 	 * @param resultArchiveStoreService - the result archive store service to be registered
+	 * @throws ResultArchiveStoreException If there is a problem registering the service
 	 */
-	void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService);
+	void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) throws ResultArchiveStoreException;
 	
 	/**
 	 * <p>Retrieve the IFramework object.  Not all the methods will be valid during the initialisation period.

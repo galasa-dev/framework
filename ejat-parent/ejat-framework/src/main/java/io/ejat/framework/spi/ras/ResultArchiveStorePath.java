@@ -1,4 +1,4 @@
-package io.ejat.framework.internal.ras.filesystem;
+package io.ejat.framework.spi.ras;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,15 +18,19 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-public class DirectoryResultArchiveStorePath implements Path {
+public class ResultArchiveStorePath implements Path {
 
-	private final DirectoryResultArchiveStoreFileSystem fileSystem;
+	private final FileSystem fileSystem;
 	private final List<String> nameElements = new ArrayList<>();
 	private final boolean absolute;
 
-	protected DirectoryResultArchiveStorePath(@NotNull DirectoryResultArchiveStoreFileSystem fileSystem,
+	protected ResultArchiveStorePath(@NotNull FileSystem fileSystem,
 			String path) {
 		this.fileSystem = fileSystem;
+
+		if (path == null) {
+			throw new NullPointerException();
+		}
 
 		//*** Normalise the path name by stripping out double // and any trailing /
 		while(path.contains("//")) {
@@ -44,14 +48,15 @@ public class DirectoryResultArchiveStorePath implements Path {
 				if (firstChar != -1) {
 					nameElements.add(path.substring(firstChar, i));
 					firstChar = -1;
-				} else {
-					if (firstChar == -1) {
-						firstChar = i;
-					}
+				} 
+			} else {
+				if (firstChar == -1) {
+					firstChar = i;
 				}
 			}
 		}
-		if (firstChar > 0) {
+
+		if (firstChar >= 0) {
 			nameElements.add(path.substring(firstChar, path.length()));
 		}
 
@@ -68,9 +73,15 @@ public class DirectoryResultArchiveStorePath implements Path {
 			}
 		}
 
+		//*** finally,  check it can be converted to an URI
+		try {
+			toUri();
+		} catch(AssertionError e) {
+			throw new AssertionError("Invalid path, would have conversion to URI", e);
+		}
 	}
 
-	public DirectoryResultArchiveStorePath(DirectoryResultArchiveStoreFileSystem fileSystem, boolean absolute,
+	private ResultArchiveStorePath(FileSystem fileSystem, boolean absolute,
 			List<String> nameElements, int start, int end) {
 		this.fileSystem = fileSystem;
 		this.absolute = absolute;
@@ -91,7 +102,7 @@ public class DirectoryResultArchiveStorePath implements Path {
 
 	@Override
 	public Path getRoot() {
-		return new DirectoryResultArchiveStorePath(fileSystem, "/");
+		return new ResultArchiveStorePath(fileSystem, true, new ArrayList<>(), 0, 0);
 	}
 
 	@Override
@@ -100,7 +111,7 @@ public class DirectoryResultArchiveStorePath implements Path {
 			return null;
 		}
 
-		return new DirectoryResultArchiveStorePath(fileSystem, nameElements.get(nameElements.size() -1));
+		return new ResultArchiveStorePath(fileSystem, nameElements.get(nameElements.size() -1));
 	}
 
 	@Override
@@ -108,7 +119,7 @@ public class DirectoryResultArchiveStorePath implements Path {
 		if (this.nameElements.size() <= 1) {
 			return null;
 		}
-		return new DirectoryResultArchiveStorePath(fileSystem, absolute, nameElements, 0, nameElements.size() - 1);
+		return new ResultArchiveStorePath(fileSystem, absolute, nameElements, 0, nameElements.size() - 1);
 	}
 
 	@Override
@@ -121,26 +132,35 @@ public class DirectoryResultArchiveStorePath implements Path {
 		if (index < 0 || index >= this.nameElements.size()) {
 			return null;
 		}
-		return new DirectoryResultArchiveStorePath(fileSystem, this.nameElements.get(index));
+		return new ResultArchiveStorePath(fileSystem, this.nameElements.get(index));
 	}
 
 	@Override
 	public Path subpath(int beginIndex, int endIndex) {
-		if (beginIndex < 0 || beginIndex >= this.nameElements.size()) {
-			return null;
-		}
-		if (endIndex < 0 || endIndex >= this.nameElements.size()) {
-			return null;
-		}
 		if (endIndex <= beginIndex) {
 			return null;
 		}
-		return new DirectoryResultArchiveStorePath(fileSystem, absolute, nameElements, beginIndex, endIndex);
+		if (beginIndex < 0 || beginIndex >= this.nameElements.size()) {
+			return null;
+		}
+		if (endIndex >= this.nameElements.size()) {
+			return null;
+		}
+
+		boolean newAbolute = this.absolute;
+		if (beginIndex > 0) {
+			newAbolute = false;
+		}
+		return new ResultArchiveStorePath(fileSystem, newAbolute, nameElements, beginIndex, endIndex);
 	}
 
 	@Override
 	public boolean startsWith(Path other) {
-		DirectoryResultArchiveStorePath o = checkPath(other);
+		ResultArchiveStorePath o = checkPath(other);
+
+		if (this.absolute != o.absolute) {
+			return false;
+		}
 
 		if (o.nameElements.size() > this.nameElements.size()) {
 			return false;
@@ -154,26 +174,32 @@ public class DirectoryResultArchiveStorePath implements Path {
 		return true;
 	}
 
-	private DirectoryResultArchiveStorePath checkPath(Path path) {
+	private ResultArchiveStorePath checkPath(Path path) {
 		if (path == null)
 			throw new NullPointerException();
-		if (!(path instanceof DirectoryResultArchiveStorePath))
+		if (!(path instanceof ResultArchiveStorePath))
 			throw new ProviderMismatchException();
-		return (DirectoryResultArchiveStorePath) path;
+		return (ResultArchiveStorePath) path;
 	}
 
 
 	@Override
 	public boolean startsWith(String other) {
-		return startsWith(fileSystem.getPath(other));
+		return startsWith(new ResultArchiveStorePath(fileSystem, other));
 	}
 
 	@Override
 	public boolean endsWith(Path other) {
-		DirectoryResultArchiveStorePath o = checkPath(other);
+		ResultArchiveStorePath o = checkPath(other);
 
 		if (o.nameElements.size() > this.nameElements.size()) {
 			return false;
+		}
+
+		if (o.nameElements.size() == this.nameElements.size()) {
+			if (o.absolute != this.absolute) {
+				return false;
+			}
 		}
 
 		for(int i = o.nameElements.size() - 1, j = this.nameElements.size() - 1; i >= 0; i--, j--) {
@@ -181,12 +207,12 @@ public class DirectoryResultArchiveStorePath implements Path {
 				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean endsWith(String other) {
-		return endsWith(fileSystem.getPath(other));
+		return endsWith(new ResultArchiveStorePath(fileSystem, other));
 	}
 
 	@Override
@@ -197,7 +223,7 @@ public class DirectoryResultArchiveStorePath implements Path {
 
 	@Override
 	public Path resolve(Path other) {
-		DirectoryResultArchiveStorePath o = checkPath(other);
+		ResultArchiveStorePath o = checkPath(other);
 
 		if (o.absolute) {
 			return o;
@@ -206,17 +232,17 @@ public class DirectoryResultArchiveStorePath implements Path {
 		ArrayList<String> combined = new ArrayList<>(this.nameElements);
 		combined.addAll(o.nameElements);
 
-		return new DirectoryResultArchiveStorePath(fileSystem, absolute, combined, 0, combined.size() -1);
+		return new ResultArchiveStorePath(fileSystem, absolute, combined, 0, combined.size());
 	}
 
 	@Override
 	public Path resolve(String other) {
-		return resolve(fileSystem.getPath(other));
+		return resolve(new ResultArchiveStorePath(fileSystem, other));
 	}
 
 	@Override
 	public Path resolveSibling(Path other) {
-		DirectoryResultArchiveStorePath o = checkPath(other);
+		ResultArchiveStorePath o = checkPath(other);
 
 		if (o.absolute || this.nameElements.isEmpty()) {
 			return o;
@@ -225,27 +251,41 @@ public class DirectoryResultArchiveStorePath implements Path {
 		combined.remove(combined.size() -1);
 		combined.addAll(o.nameElements);
 
-		return new DirectoryResultArchiveStorePath(fileSystem, absolute, combined, 0, combined.size() -1);
+		return new ResultArchiveStorePath(fileSystem, absolute, combined, 0, combined.size());
 	}
 
 	@Override
 	public Path resolveSibling(String other) {
-		return resolveSibling(fileSystem.getPath(other));
+		return resolveSibling(new ResultArchiveStorePath(fileSystem, other));
 	}
 
 	@Override
 	public Path relativize(Path other) {
-		DirectoryResultArchiveStorePath o = checkPath(other);
+		ResultArchiveStorePath o = checkPath(other);
 		
+		if (o.absolute && !this.absolute) {
+			return o;
+		}
 		
-		// TODO Auto-generated method stub
-		return null;
+		if (absolute && !o.absolute) {
+			return null;
+		}
+		
+		if (equals(o)) {
+			return new ResultArchiveStorePath(fileSystem, "");
+		}
+		
+		if (!o.startsWith(this)) {
+			return null;
+		}
+		
+		return new ResultArchiveStorePath(fileSystem, false, o.nameElements, this.nameElements.size(), o.nameElements.size());
 	}
 
 	@Override
 	public URI toUri() {
 		try {
-			return new URI(DirectoryResultArchiveStoreFileSystemProvider.SCHEME + ":" + toAbsolutePath().toString());
+			return new URI(fileSystem.provider().getScheme() + ":" + toAbsolutePath().toString());
 		} catch(Exception e) {
 			throw new AssertionError(e);
 		}
@@ -253,6 +293,10 @@ public class DirectoryResultArchiveStorePath implements Path {
 
 	@Override
 	public String toString() {
+		if (this.absolute && this.nameElements.isEmpty()) {
+			return "/";
+		}
+
 		StringBuilder sb = new StringBuilder();
 		boolean prefixSeperator = absolute;
 		for(String element : nameElements) {
@@ -262,7 +306,7 @@ public class DirectoryResultArchiveStorePath implements Path {
 			sb.append(element);
 			prefixSeperator = true;
 		}
-		return super.toString();
+		return sb.toString();
 	}
 
 	@Override
@@ -271,7 +315,7 @@ public class DirectoryResultArchiveStorePath implements Path {
 			return this;
 		}
 
-		return new DirectoryResultArchiveStorePath(fileSystem, true, nameElements, 0, nameElements.size() - 1);
+		return new ResultArchiveStorePath(fileSystem, true, nameElements, 0, nameElements.size());
 	}
 
 	@Override
@@ -281,7 +325,7 @@ public class DirectoryResultArchiveStorePath implements Path {
 
 	@Override
 	public File toFile() {
-		throw new UnsupportedOperationException("Unable to translate to a File");
+		throw new UnsupportedOperationException("Unable to translate to a java.ioFile");
 	}
 
 	@Override
@@ -298,14 +342,49 @@ public class DirectoryResultArchiveStorePath implements Path {
 	public Iterator<Path> iterator() {
 		ArrayList<Path> it = new ArrayList<>();
 		for(String element : nameElements) {
-			it.add(new DirectoryResultArchiveStorePath(fileSystem, element));
+			it.add(new ResultArchiveStorePath(fileSystem, element));
 		}
 		return it.iterator();
 	}
 
 	@Override
 	public int compareTo(Path other) {
-		// TODO Auto-generated method stub
+		if (!(other instanceof ResultArchiveStorePath))
+			throw new ProviderMismatchException();		
+		ResultArchiveStorePath o = (ResultArchiveStorePath) other;
+
+		if (this.nameElements.size() == 0 && o.nameElements.size() == 0) {
+			return 0;
+		}
+
+		if (this.nameElements.size() == 0) {
+			return -1;
+		}
+
+		if (o.nameElements.size() == 0) {
+			return 1;
+		}
+
+		int maxSize = Math.max(this.nameElements.size(), o.nameElements.size());
+		for(int i = 0; i < maxSize; i++) {
+			if (i >= this.nameElements.size()) {
+				return -1;
+			}
+			if (i >= o.nameElements.size()) {
+				return 1;
+			}
+
+			int c = this.nameElements.get(i).compareTo(o.nameElements.get(i));
+
+			if (c < 0) {
+				return -1;
+			}
+
+			if (c > 0) {
+				return 1;
+			}
+		}
+
 		return 0;
 	}
 
