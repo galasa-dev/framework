@@ -1,6 +1,6 @@
 package io.ejat.framework.internal.ras;
 
-import java.nio.file.FileSystem;
+import java.nio.file.Path;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -8,43 +8,63 @@ import javax.validation.constraints.NotNull;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
-import io.ejat.framework.spi.ITestStructure;
+import io.ejat.framework.spi.ResultArchiveStoreException;
+import io.ejat.framework.spi.teststructure.ITestStructure;
 
+/**
+ * Stub for the Result Archive Store. It is intended that this code will be able
+ * to drive 2+ RASs
+ *
+ * @author Michael Baylis
+ *
+ */
 public class FrameworkResultArchiveStore implements IResultArchiveStore {
-	
-	private final List<IResultArchiveStoreService> rasServices;
-	
-	public FrameworkResultArchiveStore(IFramework framework, List<IResultArchiveStoreService> rasServices) {
-		this.rasServices = rasServices;
-		
-		// If there are no RAS services, create a dummy one to make the code cleaner
-		if (this.rasServices.isEmpty()) {
-			this.rasServices.add(new DummyResultArchiveStoreService());
-		}
-	}
 
-	@Override
-	public void writeLog(@NotNull String message) {
-		// TODO Auto-generated method stub
-		
-	}
+    private final IResultArchiveStoreService rasService;
 
-	@Override
-	public void writeLog(@NotNull List<String> messages) {
-		// TODO Auto-generated method stub
-		
-	}
+    public FrameworkResultArchiveStore(IFramework framework, IResultArchiveStoreService rasService) { // NOSONAR
+        this.rasService = rasService;
+    }
 
-	@Override
-	public void updateTestStructure(@NotNull ITestStructure testStructure) {
-		// TODO Auto-generated method stub
-		
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see io.ejat.framework.spi.IResultArchiveStore#writeLog(java.lang.String)
+     */
+    @Override
+    public void writeLog(@NotNull String message) throws ResultArchiveStoreException {
+        this.rasService.writeLog(message);
+    }
 
-	@Override
-	public FileSystem getStoredArtifactsFileSystem() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see io.ejat.framework.spi.IResultArchiveStore#writeLog(java.util.List)
+     */
+    @Override
+    public void writeLog(@NotNull List<String> messages) throws ResultArchiveStoreException {
+        this.rasService.writeLog(messages);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see io.ejat.framework.spi.IResultArchiveStore#updateTestStructure(io.ejat.
+     * framework.spi.teststructure.ITestStructure)
+     */
+    @Override
+    public void updateTestStructure(@NotNull ITestStructure testStructure) throws ResultArchiveStoreException {
+        this.rasService.updateTestStructure(testStructure);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see io.ejat.framework.spi.IResultArchiveStore#getStoredArtifactsRoot()
+     */
+    @Override
+    public Path getStoredArtifactsRoot() {
+        return this.rasService.getStoredArtifactsRoot();
+    }
 
 }
