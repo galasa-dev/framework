@@ -25,6 +25,12 @@ public interface IFrameworkInitialisation {
 	
 	URI getDynamicStatusStoreUri();
 	
+	/**
+	 * Retrieves a list of Result Archive URIs that need to be initialised
+	 * 
+	 * @return A list of URIs describing the RASs to be activated
+	 */
+	@NotNull
 	List<URI> getResultArchiveStoreUris();
 	
 	/**
@@ -42,10 +48,19 @@ public interface IFrameworkInitialisation {
 	 * and will be one of the first things done during initialisation.
 	 * If a second DSS attempts register itself, {@link DynamicStatusStoreException} will be thrown.</p>
 	 * 
-	 * @param dynamicStatusStoreService - the configuration property store service chosen to be active
+	 * @param dynamicStatusStoreService - the dynamic status store service chosen to be active
 	 * @throws DynamicStatusStoreException - Only if a 2nd attempt to register a DSS was performed
 	 */
 	void registerDynamicStatusStoreService(@NotNull IDynamicStatusStoreService dynamicStatusStoreService) throws DynamicStatusStoreException;
+	
+	/**
+	 * <p>Register a Result Archive Store Service.  Multiple Result Archive stores can be registered per test run or service instance
+	 * and will be one of the first things done during initialisation.
+	 * 
+	 * @param resultArchiveStoreService - the result archive store service to be registered
+	 * @throws ResultArchiveStoreException If there is a problem registering the service
+	 */
+	void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) throws ResultArchiveStoreException;
 	
 	/**
 	 * <p>Retrieve the IFramework object.  Not all the methods will be valid during the initialisation period.

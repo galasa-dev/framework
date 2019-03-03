@@ -26,5 +26,5 @@ public interface IResultArchiveStoreService extends IResultArchiveStore {
 	 * @param frameworkInitialisation - Initialisation object containing access to various initialisation methods
 	 * @throws ResultArchiveStoreException - If there is a problem initialising the underlying store
 	 */
-	void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws ConfigurationPropertyStoreException;
+	void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws ResultArchiveStoreException;
 }
