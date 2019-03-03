@@ -8,8 +8,10 @@ import javax.validation.constraints.NotNull;
 
 import io.ejat.IConfidentialTextService;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyStore;
+import io.ejat.framework.internal.dss.FrameworkDynamicStatusStore;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
+import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStore;
@@ -45,7 +47,11 @@ public class Framework implements IFramework {
             throw new ConfigurationPropertyStoreException("The Configuration Property Store has not been initialised");
         }
 
-        validateNamespace(namespace);
+        try {
+            validateNamespace(namespace);
+        } catch (FrameworkException e) {
+            throw new ConfigurationPropertyStoreException("Unable to provide Configuration Property Store", e);
+        }
 
         return new FrameworkConfigurationPropertyStore(this, this.cpsService, this.overrideProperties,
                 this.recordProperties, namespace);
@@ -59,7 +65,17 @@ public class Framework implements IFramework {
     @Override
     public @NotNull IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace)
             throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("DSS has not been implemented yet");
+        if (this.dssService == null) {
+            throw new DynamicStatusStoreException("The Dynamic Status Store has not been initialised");
+        }
+
+        try {
+            validateNamespace(namespace);
+        } catch (FrameworkException e) {
+            throw new DynamicStatusStoreException("Unable to provide Dynamic Status Store", e);
+        }
+
+        return new FrameworkDynamicStatusStore(this, this.dssService, namespace);
     }
 
     /**
@@ -69,14 +85,14 @@ public class Framework implements IFramework {
      * @throws ConfigurationPropertyStoreException - if the namespace does meet the
      *                                             standards
      */
-    private void validateNamespace(String namespace) throws ConfigurationPropertyStoreException {
+    private void validateNamespace(String namespace) throws FrameworkException {
         if (namespace == null) {
-            throw new ConfigurationPropertyStoreException("Namespace has not been provided");
+            throw new FrameworkException("Namespace has not been provided");
         }
 
         final Matcher matcher = namespacePattern.matcher(namespace);
         if (!matcher.matches()) {
-            throw new ConfigurationPropertyStoreException("Invalid namespace");
+            throw new FrameworkException("Invalid namespace");
         }
     }
 
