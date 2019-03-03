@@ -1,9 +1,11 @@
 package io.ejat.framework.spi;
 
-import java.nio.file.FileSystem;
+import java.nio.file.Path;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
+
+import io.ejat.framework.spi.teststructure.ITestStructure;
 
 /**
  * <p>Used to gain access to the Result Archive Store (RAS)</p>
@@ -22,46 +24,34 @@ import javax.validation.constraints.NotNull;
 public interface IResultArchiveStore {
 	
 	/**
-	 * The type of artifacts that can be stored in the Result Archive Store
-	 * 
-	 * @author Michael Baylis
-	 *
-	 */
-	public enum ARTIFACT_TYPES {
-		TEXT,
-		BINARY,
-		XML,
-		JSON,
-		PNG,
-		TERMINAL
-	}
-	
-	/**
 	 * Write a message to the run log in the RASs
 	 * 
 	 * @param message - a Message to write to the run log
+     * @throws ResultArchiveStoreException - If there is a problem writing to the store
 	 */
-	void writeLog(@NotNull String message);
+	void writeLog(@NotNull String message) throws ResultArchiveStoreException;
 	
 	/**
 	 * Write multiple messages to the run log in the RASs
 	 * 
 	 * @param messages - Messages to write
+     * @throws ResultArchiveStoreException - If there is a problem writing to the store
 	 */
-	void writeLog(@NotNull List<String> messages);
+	void writeLog(@NotNull List<String> messages) throws ResultArchiveStoreException;
 	
 	/**
 	 * Update the Test Structure object in the RASs with the current status
 	 * 
-	 * @param testStructure
+	 * @param testStructure - The Test Structure
+	 * @throws ResultArchiveStoreException - If there is a problem writing to the store
 	 */
-	void updateTestStructure(@NotNull ITestStructure testStructure);
+	void updateTestStructure(@NotNull ITestStructure testStructure) throws ResultArchiveStoreException;
 	
 	/**
-	 * Obtain the Filesystem that represents the RASs for storing Stored Artifacts
+	 * Obtain the root directory of the stored artifacts file system
 	 * 
-	 * @return a {@link java.nio.file.FileSystem}
+	 * @return a {@link java.nio.file.Path}
 	 */
-	FileSystem getStoredArtifactsFileSystem();
+	Path getStoredArtifactsRoot();
 	
 }
