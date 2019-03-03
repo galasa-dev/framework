@@ -11,13 +11,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import io.ejat.framework.internal.dss.FpfDynamicStatusStoreService;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
@@ -34,6 +34,20 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
  */
 
  public class FpfDynamicStatusStoreServiceTest {
+     
+     private File testFile;
+     
+     @Before
+     public void setup() throws IOException {
+         this.testFile = File.createTempFile("ejatfpf_", ".properties");
+     }
+     
+     @After
+     public void teardown() {
+         if (testFile != null && testFile.exists()) {
+             testFile.delete();
+         }
+     }
 
     /**
      * <p>This test checks the returned boolean from a class that checks if a URI is a local file. Expected False.</p>
@@ -51,7 +65,6 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test
     public void testTheIsFileUriMethodWithLocalFile() throws IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         assertTrue("Return the incorrect scheme for the provided URI", FpfDynamicStatusStoreService.isFileUri(testFile.toURI()));
     }
 
@@ -62,7 +75,6 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test
     public void testInitialise() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();       
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         assertTrue("Exception during initialisation", true);
@@ -75,7 +87,6 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test
     public void testPutSingle() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         fpfdss.put("testKey", "testValue");
@@ -89,10 +100,9 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test 
     public void testPutMultiple() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
-        Map keyValuePairs = new HashMap();
+        HashMap<String, String> keyValuePairs = new HashMap<>();
         keyValuePairs.put("key1", "value1");
         keyValuePairs.put("key2", "value2");
         fpfdss.put(keyValuePairs);
@@ -106,7 +116,6 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test 
     public void testPutSwap1() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         fpfdss.put("testKey", "testValue2");
@@ -120,7 +129,6 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test 
     public void testPutSwap2() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         fpfdss.put("testKey", "testValue1");
@@ -135,11 +143,10 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test
     public void testPutSwapMultiple1() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         fpfdss.put("testKey", "testValue2");
-        Map keyValuePairs = new HashMap();
+        HashMap<String, String> keyValuePairs = new HashMap<>();
         keyValuePairs.put("key1", "value1");
         keyValuePairs.put("key2", "value2");
         assertFalse("Swap occured when not required", fpfdss.putSwap("testKey", "testValue1", "testValue2", keyValuePairs));
@@ -152,11 +159,10 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test
     public void testPutSwapMultiple2() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         fpfdss.put("testKey", "testValue1");
-        Map keyValuePairs = new HashMap();
+        HashMap<String, String> keyValuePairs = new HashMap<>();
         keyValuePairs.put("key1", "value1");
         keyValuePairs.put("key2", "value2");
         assertTrue("Swap did not successfully occur", fpfdss.putSwap("testKey", "testValue1", "testValue2", keyValuePairs));
@@ -169,7 +175,6 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test
     public void testGet() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         fpfdss.put("testKey", "testValue");
@@ -183,12 +188,11 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test
     public void testGetPrefix() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         fpfdss.put("prefix.infix1.suffix", "testValue1");
         fpfdss.put("prefix.infix2.suffix", "testValue2");
-        Map keyValuePairs = new HashMap();
+        HashMap<String, String> keyValuePairs = new HashMap<>();
         keyValuePairs.put("prefix.infix1.suffix", "testValue1");
         keyValuePairs.put("prefix.infix2.suffix", "testValue2");
         assertEquals("Incorrect values retrieved", keyValuePairs, fpfdss.getPrefix("prefix"));
@@ -201,7 +205,6 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test
     public void testDelete() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         fpfdss.put("testKey", "testValue");
@@ -216,7 +219,6 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
      */
     @Test
     public void testDeletePrefix() throws DynamicStatusStoreException, IOException {
-        File testFile = File.createTempFile("ejatfpf_", ".properties");
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         fpfdss.put("prefix.infix1.suffix", "testValue1");
