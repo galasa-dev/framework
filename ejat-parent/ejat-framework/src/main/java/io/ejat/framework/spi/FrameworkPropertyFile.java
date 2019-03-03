@@ -156,7 +156,7 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 	 * @throws FrameworkPropertyFileException
 	 */
 	public synchronized void deletePrefix(String prefix) throws FrameworkPropertyFileException{
-        Set<String> deleteKeys = new HashSet<String>();
+        Set<String> deleteKeys = new HashSet<>();
         synchronized(FrameworkPropertyFile.class) {
             observer.checkAndNotify();
             for (Object k:currentProperties.keySet()){
