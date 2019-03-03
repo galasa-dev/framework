@@ -156,11 +156,13 @@ public class FrameworkDynamicStatusStoreTest {
             delayForFileTimestampChange();
             Assert.assertEquals("Key values differ", value1a, this.fpf.get(PREFIX + key1));
             Assert.assertFalse("2nd swap should false", this.dss.putSwap(key1, value1b, value1a));
+            Assert.assertEquals("Key values differ", value1a, this.fpf.get(PREFIX + key1));
         }
 
         Assert.assertTrue("3rd swap should work", this.dss.putSwap(key1, value1a, value1b));
         delayForFileTimestampChange();
         Thread.sleep(1000);
+        Assert.assertEquals("Key values differ", value1b, this.dss.get(PREFIX));
         Assert.assertEquals("Key values differ", value1b, this.fpf.get(PREFIX + key1));
 
         Assert.assertTrue("1st Map swap should work", this.dss.putSwap(key1, value1b, value1a, map));
