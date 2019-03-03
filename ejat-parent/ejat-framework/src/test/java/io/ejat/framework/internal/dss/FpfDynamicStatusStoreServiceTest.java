@@ -1,4 +1,4 @@
-package test.fpf;
+package io.ejat.framework.internal.dss;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -25,6 +25,7 @@ import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.ResultArchiveStoreException;
 
 /**
  * <p>This test class checks the behaviour of registering a local DSS using the FPF class in functional</p>
@@ -245,6 +246,10 @@ import io.ejat.framework.spi.IResultArchiveStoreService;
         public void registerConfigurationPropertyStoreService(@NotNull IConfigurationPropertyStoreService configurationPropertyStoreService)
                 throws ConfigurationPropertyStoreException {
         }
+        @Override
+        public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService)
+                throws ResultArchiveStoreException {
+        }
 
 		@Override
 		public URI getDynamicStatusStoreUri() {return uri;}
@@ -252,9 +257,6 @@ import io.ejat.framework.spi.IResultArchiveStoreService;
 		@Override
 		public List<URI> getResultArchiveStoreUris() {return null;}
 
-		@Override
-		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
-		}
     }
 
  }
