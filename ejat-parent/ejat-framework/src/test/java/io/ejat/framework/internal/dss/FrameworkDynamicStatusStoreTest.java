@@ -131,14 +131,14 @@ public class FrameworkDynamicStatusStoreTest {
     }
 
     @Test
-    public void testSwapMethods() throws DynamicStatusStoreException {
+    public void testSwapMethods() throws DynamicStatusStoreException, InterruptedException {
         final String key1 = "a_little_key";
-        final String value1a = UUID.randomUUID().toString();
-        final String value1b = UUID.randomUUID().toString();
+        final String value1a = "value1a";
+        final String value1b = "value1b";
 
         final String key2 = "a_tiny_key";
-        final String value2a = UUID.randomUUID().toString();
-        final String value2b = UUID.randomUUID().toString();
+        final String value2a = "value2a";
+        final String value2b = "value2b";
         final HashMap<String, String> map = new HashMap<>();
         map.put(key2, value2a);
 
@@ -160,6 +160,7 @@ public class FrameworkDynamicStatusStoreTest {
 
         Assert.assertTrue("3rd swap should work", this.dss.putSwap(key1, value1a, value1b));
         delayForFileTimestampChange();
+        Thread.sleep(1000);
         Assert.assertEquals("Key values differ", value1b, this.fpf.get(PREFIX + key1));
 
         Assert.assertTrue("1st Map swap should work", this.dss.putSwap(key1, value1b, value1a, map));
