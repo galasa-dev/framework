@@ -135,6 +135,8 @@ public class FrameworkDynamicStatusStoreTest {
         final String key1 = "a_little_key";
         final String value1a = "value1a";
         final String value1b = "value1b";
+        final String value1c = "value1c";
+        final String value1d = "value1d";
 
         final String key2 = "a_tiny_key";
         final String value2a = "value2a";
@@ -159,19 +161,19 @@ public class FrameworkDynamicStatusStoreTest {
             Assert.assertEquals("Key values differ", value1a, this.fpf.get(PREFIX + key1));
         }
 
-        Assert.assertTrue("3rd swap should work", this.dss.putSwap(key1, value1a, value1b));
+        Assert.assertTrue("3rd swap should work", this.dss.putSwap(key1, value1a, value1c));
         delayForFileTimestampChange();
         Thread.sleep(1000);
-        Assert.assertEquals("Key values differ", value1b, this.dss.get(key1));
-        Assert.assertEquals("Key values differ", value1b, this.fpf.get(PREFIX + key1));
+        Assert.assertEquals("Key values differ", value1c, this.dss.get(key1));
+        Assert.assertEquals("Key values differ", value1c, this.fpf.get(PREFIX + key1));
 
-        Assert.assertTrue("1st Map swap should work", this.dss.putSwap(key1, value1b, value1a, map));
+        Assert.assertTrue("1st Map swap should work", this.dss.putSwap(key1, value1c, value1d, map));
         delayForFileTimestampChange();
-        Assert.assertEquals("Key values differ", value1a, this.fpf.get(PREFIX + key1));
+        Assert.assertEquals("Key values differ", value1d, this.fpf.get(PREFIX + key1));
         Assert.assertEquals("Key values differ", value2a, this.fpf.get(PREFIX + key2));
 
         map.put(key2, value2b);
-        Assert.assertFalse("2nd Map swap should false", this.dss.putSwap(key1, value1b, value1a, map));
+        Assert.assertFalse("2nd Map swap should false", this.dss.putSwap(key1, value1d, value1a, map));
         delayForFileTimestampChange();
         Assert.assertEquals("Key values differ", value1a, this.fpf.get(PREFIX + key1));
         Assert.assertEquals("Key values differ", value2a, this.fpf.get(PREFIX + key2));
