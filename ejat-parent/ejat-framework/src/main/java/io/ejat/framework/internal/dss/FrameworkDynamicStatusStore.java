@@ -78,8 +78,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
      */
     @Override
     public IDynamicResource getDynamicResource(String resourceKey) throws DynamicStatusStoreException {
-        final FrameworkDynamicResource tempDynamicResource = new FrameworkDynamicResource();
-        return tempDynamicResource;
+        return new FrameworkDynamicResource();
     }
 
     /**
@@ -99,8 +98,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
      */
     @Override
     public IDynamicRun getDynamicRun() throws DynamicStatusStoreException {
-        final FrameworkDynamicRun tempDynamicRun = new FrameworkDynamicRun();
-        return tempDynamicRun;
+        return new FrameworkDynamicRun();
     }
 
     /*
@@ -201,8 +199,9 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
         final Map<String, String> gotSet = this.dssService.getPrefix(prefixKey(keyPrefix));
         final HashMap<String, String> returnSet = new HashMap<>();
 
-        for (String key : gotSet.keySet()) {
-            final String value = gotSet.get(key);
+        for (Entry<String, String> entry : gotSet.entrySet()) {
+            String key   = entry.getKey();
+            final String value = entry.getValue();
 
             if (key.startsWith(this.prefix)) {
                 key = key.substring(this.prefix.length());

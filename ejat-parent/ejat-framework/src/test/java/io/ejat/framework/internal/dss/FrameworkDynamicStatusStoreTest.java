@@ -1,13 +1,18 @@
 package io.ejat.framework.internal.dss;
 
+import static org.awaitility.Awaitility.await;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import javax.validation.constraints.NotNull;
 
@@ -68,11 +73,12 @@ public class FrameworkDynamicStatusStoreTest {
         final String value = UUID.randomUUID().toString();
 
         this.dss.put(key, value);
-
+        delayForFileTimestampChange();
         Assert.assertEquals("Key values differ", value, this.fpf.get(PREFIX + key));
         Assert.assertEquals("Key values differ", value, this.dss.get(key));
 
         this.dss.delete(key);
+        delayForFileTimestampChange();
         Assert.assertNull("Should have gone", this.fpf.get(PREFIX + key));
     }
 
@@ -90,10 +96,12 @@ public class FrameworkDynamicStatusStoreTest {
 
         this.dss.put(map);
 
+        delayForFileTimestampChange();
         Assert.assertEquals("Key values differ", value1, this.fpf.get(PREFIX + key1));
         Assert.assertEquals("Key values differ", value2, this.fpf.get(PREFIX + key2));
 
         this.dss.delete(map.keySet());
+        delayForFileTimestampChange();
         Assert.assertNull("Should have gone", this.fpf.get(PREFIX + key1));
         Assert.assertNull("Should have gone", this.fpf.get(PREFIX + key2));
     }
@@ -110,12 +118,14 @@ public class FrameworkDynamicStatusStoreTest {
 
         final Map<String, String> values = this.dss.getPrefix("a_");
 
+        delayForFileTimestampChange();
         Assert.assertEquals("Key values differ", value1, values.get(key1));
         Assert.assertEquals("Key values differ", value2, values.get(key2));
         Assert.assertEquals("Key values differ", value1, this.fpf.get(PREFIX + key1));
         Assert.assertEquals("Key values differ", value2, this.fpf.get(PREFIX + key2));
 
         this.dss.deletePrefix("a_");
+        delayForFileTimestampChange();
         Assert.assertNull("Should have gone", this.fpf.get(PREFIX + key1));
         Assert.assertNull("Should have gone", this.fpf.get(PREFIX + key2));
     }
@@ -143,19 +153,23 @@ public class FrameworkDynamicStatusStoreTest {
         {
             this.dss.put(key1, value1b);
             Assert.assertTrue("Initial swap should work", this.dss.putSwap(key1, value1b, value1a));
+            delayForFileTimestampChange();
             Assert.assertEquals("Key values differ", value1a, this.fpf.get(PREFIX + key1));
             Assert.assertFalse("2nd swap should false", this.dss.putSwap(key1, value1b, value1a));
         }
 
         Assert.assertTrue("3rd swap should work", this.dss.putSwap(key1, value1a, value1b));
+        delayForFileTimestampChange();
         Assert.assertEquals("Key values differ", value1b, this.fpf.get(PREFIX + key1));
 
         Assert.assertTrue("1st Map swap should work", this.dss.putSwap(key1, value1b, value1a, map));
+        delayForFileTimestampChange();
         Assert.assertEquals("Key values differ", value1a, this.fpf.get(PREFIX + key1));
         Assert.assertEquals("Key values differ", value2a, this.fpf.get(PREFIX + key2));
 
         map.put(key2, value2b);
         Assert.assertFalse("2nd Map swap should false", this.dss.putSwap(key1, value1b, value1a, map));
+        delayForFileTimestampChange();
         Assert.assertEquals("Key values differ", value1a, this.fpf.get(PREFIX + key1));
         Assert.assertEquals("Key values differ", value2a, this.fpf.get(PREFIX + key2));
 
@@ -169,6 +183,20 @@ public class FrameworkDynamicStatusStoreTest {
     @Test
     public void testFutureDynamicRun() throws DynamicStatusStoreException {
         Assert.assertNotNull("Should get a dynamic run", this.dss.getDynamicRun());
+    }
+
+
+    private void delayForFileTimestampChange() {
+        await().atMost(1, TimeUnit.SECONDS).until(fpfWriteTimeDifferent());
+    }
+
+    private Callable<Boolean> fpfWriteTimeDifferent() {
+        return new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                FileTime time = Files.getLastModifiedTime(tempProperties);
+                return (time.toMillis() != System.currentTimeMillis());
+            }
+        };
     }
 
     /**
@@ -201,7 +229,7 @@ public class FrameworkDynamicStatusStoreTest {
         @Override
         public void registerConfigurationPropertyStoreService(
                 @NotNull IConfigurationPropertyStoreService configurationPropertyStoreService)
-                throws ConfigurationPropertyStoreException {
+                        throws ConfigurationPropertyStoreException {
         }
 
         @Override

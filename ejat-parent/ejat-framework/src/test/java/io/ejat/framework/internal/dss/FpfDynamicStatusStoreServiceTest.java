@@ -178,7 +178,7 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
         FpfDynamicStatusStoreService fpfdss = new FpfDynamicStatusStoreService();  
         fpfdss.initialise(new FrameworkInitialisation(testFile.toURI()));
         fpfdss.put("testKey", "testValue");
-        assertEquals("Incorrect value retrieved", fpfdss.get("testKey"), "testValue");
+        assertEquals("Incorrect value retrieved", "testValue", fpfdss.get("testKey"));
     }
 
     /**

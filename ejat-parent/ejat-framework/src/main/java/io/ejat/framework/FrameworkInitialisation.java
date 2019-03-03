@@ -134,10 +134,10 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             this.logger.trace("Found DSS Provider " + dssService.getClass().getName());
             dssService.initialise(this);
         }
-//        if (this.framework.getDynamicStatusStoreService() == null) {
-//            throw new FrameworkException("Failed to initialise a Dynamic Status Store, unable to continue");
-//        }
-//        logger.debug("Selected DSS Service is " + this.framework.getDynamicStatusStoreService().getClass().getName());
+        if (this.framework.getDynamicStatusStoreService() == null) {
+            throw new FrameworkException("Failed to initialise a Dynamic Status Store, unable to continue");
+        }
+        logger.debug("Selected DSS Service is " + this.framework.getDynamicStatusStoreService().getClass().getName());
 
         // *** Initialise the Result Archive Store
         this.logger.trace("Searching for RAS providers");
