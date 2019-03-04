@@ -106,23 +106,18 @@ public abstract class AbstractManager implements IManager {
      *                          interested in
      */
     protected void generateAnnotatedFields(Class<? extends Annotation> managerAnnotation) {
-        final HashMap<Field, List<Annotation>> annotatedFields = findAnnotatedFields(managerAnnotation);
-        if (annotatedFields.isEmpty()) { // *** No point doing anything
+        final HashMap<Field, List<Annotation>> foundAnnotatedFields = findAnnotatedFields(managerAnnotation);
+        if (foundAnnotatedFields.isEmpty()) { // *** No point doing anything
             return;
         }
 
-        for (final Entry<Field, List<Annotation>> entry : annotatedFields.entrySet()) {
+        for (final Entry<Field, List<Annotation>> entry : foundAnnotatedFields.entrySet()) {
             final Field field = entry.getKey();
             final List<Annotation> annotations = entry.getValue();
 
             try {
                 // *** work our way through the fields looking for @GenerateAnnotatedField
                 for (final Method method : getClass().getMethods()) {
-//
-//                    if (method.getName().equals("createLogField")) {
-//                        System.out.println("break");
-//                    }
-//                    System.out.println(method.getName());
                     final GenerateAnnotatedField genField = method.getAnnotation(GenerateAnnotatedField.class);
 
                     if (genField != null) {
@@ -164,7 +159,7 @@ public abstract class AbstractManager implements IManager {
      */
     @Override
     public List<String> extraBundles(@NotNull IFramework framework) {
-        return null;
+        return null; //NOSONAR
     }
 
     /*
@@ -278,7 +273,6 @@ public abstract class AbstractManager implements IManager {
             try {
                 field.set(instanstiatedTestClass, value);
             } catch (final Throwable e) {
-                e.printStackTrace();
                 throw new ManagerException("Unable to fill Test Class field " + field.getName(), e);
             }
         }

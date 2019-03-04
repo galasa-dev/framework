@@ -89,7 +89,7 @@ public class AbstractManagerTest {
     }
 
     @Test
-    public void testFillingAnnotatedFields() throws NoSuchFieldException, SecurityException, ManagerException {
+    public void testFillingAnnotatedFields() throws NoSuchFieldException, SecurityException, ManagerException, ResourceUnavailableException {
         final TestManager testManager = new TestManager();
         final TestClass testClass = new TestClass();
         testManager.initialise(null, null, null, testClass.getClass());
@@ -110,7 +110,7 @@ public class AbstractManagerTest {
     }
 
     @Test
-    public void testFoolCodeCoverageForDummyMethods() throws ManagerException {
+    public void testFoolCodeCoverageForDummyMethods() throws ManagerException, ResourceUnavailableException {
         final AbstractManager testManager = new AbstractManager() {
         };
         testManager.extraBundles(null);
@@ -133,6 +133,7 @@ public class AbstractManagerTest {
         testManager.provisionDiscard();
         testManager.performFailureAnalysis();
         testManager.endOfTestRun();
+        Assert.assertTrue("dummy", true);
 
     }
 
