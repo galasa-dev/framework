@@ -27,6 +27,7 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
+import io.ejat.framework.spi.IResultArchiveStoreService;
 
 /**
  * <p>This test class tests the behaviour of the FrameworkConfigurationPropertyStore class. The purpose of the class is to drive
@@ -175,7 +176,7 @@ public class FrameworkConfigurationPropertyStoreTest {
         fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
 
         FrameworkConfigurationPropertyStore test = new FrameworkConfigurationPropertyStore(new Framework(), fpfcps, overrides, record, "zos");
-        assertEquals("Unexpected Value retrieved from CPS", "tab!=space", test.getProperty("image", "credentialid", null));
+        assertEquals("Unexpected Value retrieved from CPS", "tab!=space", test.getProperty("image", "credentialid"));
     }
 
     @Test
@@ -220,6 +221,16 @@ public class FrameworkConfigurationPropertyStoreTest {
 
 		@Override
 		public @NotNull IConfidentialTextService getConfidentialTextService() {return null;}
+
+		@Override
+		public String getTestRunId() {
+			return null;
+		}
+
+		@Override
+		public String getTestRunName() {
+			return null;
+		}
         
     } 
 
@@ -249,5 +260,9 @@ public class FrameworkConfigurationPropertyStoreTest {
 
 		@Override
 		public List<URI> getResultArchiveStoreUris() {return null;}
+
+		@Override
+		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+		}
     }
 }

@@ -1,10 +1,9 @@
 package io.ejat.framework.internal.dss;
 
+import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.io.IOException;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -195,7 +194,7 @@ public class FpfDynamicStatusStoreService implements IDynamicStatusStoreService 
 	 * @param uri - URI to the CPS
 	 * @return - boolean if File or not.
 	 */
-	public static boolean isFileUri(URI uri) {
+	protected static boolean isFileUri(URI uri) {
 		return "file".equals(uri.getScheme());
 	}
 }
