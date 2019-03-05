@@ -13,6 +13,8 @@ import java.util.Properties;
 import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
+import org.junit.After;
+import org.junit.Before;
 
 import io.ejat.IConfidentialTextService;
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStoreService;
@@ -34,6 +36,19 @@ import io.ejat.framework.spi.IResultArchiveStoreService;
  * the registered CPS service. </p>
  */
 public class FrameworkConfigurationPropertyStoreTest {
+    File testProp;
+
+    @Before
+    public void makeSureTempPropertiesDeleted() throws IOException{
+            testProp = File.createTempFile("ejatfpf_", ".properties");
+    }
+
+    @After
+    public void deletePropertiesFile() throws IOException{
+    	if (testProp != null && testProp.exists()) {
+    		testProp.delete();
+    	}
+    }
 
     /**
      * <p> This test method ensures the object can be insantiated</p>
@@ -43,8 +58,6 @@ public class FrameworkConfigurationPropertyStoreTest {
      */
     @Test
     public void testFrameworkConstructor() throws ConfigurationPropertyStoreException, IOException {
-        File testProp = File.createTempFile("ejatfpf_", ".properties");
-        testProp.deleteOnExit();
         Properties overrides = new Properties();
         Properties record = new Properties();
         
@@ -75,8 +88,6 @@ public class FrameworkConfigurationPropertyStoreTest {
      */
     @Test
     public void testFrameworkGetProperty() throws ConfigurationPropertyStoreException, IOException {
-        File testProp = File.createTempFile("ejatfpf_", ".properties");
-        testProp.deleteOnExit();
         Properties overrides = new Properties();
         Properties record = new Properties();
 
@@ -103,8 +114,6 @@ public class FrameworkConfigurationPropertyStoreTest {
      */
     @Test
     public void testFrameworkGetPropertyWithMultipleViableOptions() throws ConfigurationPropertyStoreException, IOException {
-        File testProp = File.createTempFile("ejatfpf_", ".properties");
-        testProp.deleteOnExit();
         Properties overrides = new Properties();
         Properties record = new Properties();
 
@@ -132,8 +141,6 @@ public class FrameworkConfigurationPropertyStoreTest {
      */
     @Test
     public void testFrameworkGetPropertyFromOverrides() throws ConfigurationPropertyStoreException, IOException {
-        File testProp = File.createTempFile("ejatfpf_", ".properties");
-        testProp.deleteOnExit();
         Properties overrides = new Properties();
         Properties record = new Properties();
 
@@ -157,8 +164,6 @@ public class FrameworkConfigurationPropertyStoreTest {
 
     @Test
         public void testNullInfixes() throws ConfigurationPropertyStoreException, IOException {
-        File testProp = File.createTempFile("ejatfpf_", ".properties");
-        testProp.deleteOnExit();
         Properties overrides = new Properties();
         Properties record = new Properties();
 
@@ -181,8 +186,6 @@ public class FrameworkConfigurationPropertyStoreTest {
 
     @Test
         public void testReportOfSearchKeys() throws ConfigurationPropertyStoreException, IOException {
-        File testProp = File.createTempFile("ejatfpf_", ".properties");
-        testProp.deleteOnExit();
         Properties overrides = new Properties();
         Properties record = new Properties();
 
