@@ -311,6 +311,8 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 	 * 
 	 * <p> This method is sycnronized on the class to ensure all values are set before any other work is completed </p>
 	 * 
+	 * <p>The method will also fail if the oldvalue is null, which indicates that there is no key of that string.</p>
+	 * 
 	 * @param key - the key that is to be changed.
 	 * @param oldValue - the expected current value.
 	 * @param newValue - the value to change to if the expected value is true.
@@ -318,11 +320,19 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 	 * @throws FrameworkPropertyFileException
 	 */
 	public synchronized boolean setAtomic(String key, String oldValue, String newValue) throws FrameworkPropertyFileException{
-		synchronized (FrameworkPropertyFile.class) {
+		
+		synchronized (FrameworkPropertyFile.class) {	
 			try(FileChannel fileChannel = getWriteChannel(false)){
 				Properties oldProperties = (Properties)this.currentProperties.clone();
-				if (!this.currentProperties.replace(key, oldValue, newValue)) {
-					return false;
+				if (oldValue == null && oldProperties.get(key) == null){
+					this.currentProperties.put(key, newValue);
+				} else{
+					if(oldValue == null) {
+						return false;
+					}
+					if (!this.currentProperties.replace(key, oldValue, newValue)) {
+						return false;
+					}
 				}
 				
 				write(fileChannel, this.currentProperties);
@@ -341,6 +351,8 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 	 * 
 	 * <p> This method is sycnronized on the class to ensure all values are set before any other work is completed </p>
 	 * 
+	 * <p>The method will also fail if the oldvalue is null, which indicates that there is no key of that string.</p>
+	 * 
 	 * @param key - String key
 	 * @param oldValue - String expected value
 	 * @param newValue -  String value to change to if key has oldvalue
@@ -349,11 +361,20 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 	 * @throws FrameworkPropertyFileException
 	 */
 	public synchronized boolean setAtomic(String key, String oldValue, String newValue, Map<String, String> otherValues)  throws FrameworkPropertyFileException {
+
 		synchronized (FrameworkPropertyFile.class) {
 			try(FileChannel fileChannel = getWriteChannel(false)){
 				Properties oldProperties = (Properties)this.currentProperties.clone();
-				if (!this.currentProperties.replace(key, oldValue, newValue)) {
-					return false;
+
+				if (oldValue == null && oldProperties.get(key) == null){
+					this.currentProperties.put(key, newValue);
+				} else{
+					if(oldValue == null) {
+						return false;
+					}
+					if (!this.currentProperties.replace(key, oldValue, newValue)) {
+						return false;
+					}
 				}
 				
 				this.currentProperties.putAll(otherValues);
