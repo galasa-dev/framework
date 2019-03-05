@@ -131,14 +131,12 @@ public class FrameworkDynamicStatusStoreTest {
         final HashMap<String, String> map = new HashMap<>();
         map.put(key2, value2a);
 
-        // *** Disabled due to Issue framework#128
-        // Assert.assertTrue("Initial swap should work", dss.putSwap(key1, null,
-        // value1a));
-        // Assert.assertEquals("Key values differ", value1a, fpf.get(PREFIX + key1));
-        // Assert.assertFalse("2nd swap should false", dss.putSwap(key1, null,
-        // value1a));
+        Assert.assertTrue("Initial swap should work", dss.putSwap(key1, null,
+        value1a));
+        Assert.assertEquals("Key values differ", value1a, getKey(PREFIX + key1));
+        Assert.assertFalse("2nd swap should false", dss.putSwap(key1, null,
+        value1a));
 
-        // *** Temporary until 128 fixed
         {
             this.dss.put(key1, value1b);
             Assert.assertTrue("Initial swap should work", this.dss.putSwap(key1, value1b, value1a));

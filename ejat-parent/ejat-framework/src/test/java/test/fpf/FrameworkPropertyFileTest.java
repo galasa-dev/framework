@@ -398,6 +398,24 @@ public class FrameworkPropertyFileTest {
         assertNotEquals("The wrong value set",nonSetString, fpf.get("Test1"));
         fpf.destroy();
     }
+
+    /**
+     * 
+     *  <p>This tests that an atomic set of a single value can be peformed and the epxcted behaviour with null is working</p>
+     */
+    @Test
+    public void testAtomicSetWithNullOldvalue() throws InterruptedException, URISyntaxException, IOException, FrameworkPropertyFileException {
+        String newValue = "AtomicallySet";
+        String nonSetString = "ShouldntBeThis";
+
+        FrameworkPropertyFile fpf = new FrameworkPropertyFile(testPropUri);
+
+        assertTrue("Setting atomically failed",fpf.setAtomic("RandomTestKey", null, newValue));
+        assertEquals("The value set", newValue, fpf.get("RandomTestKey"));
+        assertFalse("Key doesnt exists", fpf.setAtomic("RandomTestKey", null, nonSetString));
+        assertNotEquals("The value set", nonSetString, fpf.get("RandomTestKey"));
+        fpf.destroy();
+    }
     
     /**
      * <p>This tests that a atomic set to a value and map can be completed</p>
@@ -422,6 +440,32 @@ public class FrameworkPropertyFileTest {
         assertFalse("Atomic set failed",fpf.setAtomic("Test1", "SomeString", nonSetString, map2));
         assertEquals("Wrong Value set","value", fpf.get("key"));
         assertNotEquals("Atmoic set was applied incorrectly",nonSetString, fpf.get("Test1"));
+        fpf.destroy();
+    }
+
+    /**
+     * 
+     *  <p>This tests that an atomic set of a single value can be peformed and the epxcted behaviour with null is working</p>
+     */
+    @Test
+    public void testAtomicSetMapWithNullOldvalue() throws InterruptedException, URISyntaxException, IOException, FrameworkPropertyFileException {
+        String newValue = "AtomicallySet";
+        String nonSetString = "ShouldntBeThis";
+
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("key", "value");
+        map.put("key2", "value");
+
+        Map<String, String> map2 = new HashMap<String, String>();
+        map2.put("key", nonSetString);
+        map2.put("key2", nonSetString);
+
+        FrameworkPropertyFile fpf = new FrameworkPropertyFile(testPropUri);
+
+        assertTrue("Setting atomically failed",fpf.setAtomic("RandomTestKey", null, newValue, map));
+        assertEquals("The value set", newValue, fpf.get("RandomTestKey"));
+        assertFalse("Key doesnt exists", fpf.setAtomic("RandomTestKey", null, nonSetString, map2));
+        assertNotEquals("The value set", nonSetString, fpf.get("RandomTestKey"));
         fpf.destroy();
     }
 
