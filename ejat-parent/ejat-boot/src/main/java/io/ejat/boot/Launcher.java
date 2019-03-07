@@ -34,10 +34,11 @@ import io.ejat.boot.felix.FelixFramework;
  */
 @Mojo(name = "Launcher")
 public class Launcher {
+
+	// TODO: Logger config needs expanding - resources\log4j2.xml
+	private static final Logger logger = LogManager.getLogger(Launcher.class);
 	
-	private static final Logger logger = LogManager.getLogger(Launcher.class.getName());
-	
-	//TODO: property name ??  
+	//TODO: Use property here??  
 	// -Dlog.level=ALL
 	private final String logLevel = System.getProperty("log.level");
 
@@ -62,16 +63,24 @@ public class Launcher {
 	 * @param args test run parameters
 	 * @throws Exception
 	 */
-	protected boolean launch(String[] args) throws Exception {
+	protected boolean launch(String[] args) throws FrameworkException {
 		
 		if (logLevel != null) {
-			Configurator.setLevel("io.ejat", Level.getLevel(logLevel));
+			if (Level.getLevel(logLevel) == null) {
+				logger.error("Invalid log level \"" + logLevel + "\" supplied. The default of \"" + logger.getLevel().name() + "\" will be used");
+			} else {
+				Configurator.setLevel("io.ejat", Level.getLevel(logLevel));
+			}
 		}
 		
 		FelixFramework felixFramework = new FelixFramework(logger);
 		
 		// Build Felix framework and install required bundles
-    	processCommandLine(args);
+    	try {
+			processCommandLine(args);
+		} catch (ParseException e) {
+			throw new FrameworkException("Unable to parse command line arguments", e);
+		}
     	logger.debug("OBR Repository Files: " + bundleRepositories);
     	logger.debug("Test Bundle: " + testBundleName);
     	logger.debug("Test Class: " + testClassName);
@@ -92,7 +101,11 @@ public class Launcher {
         	logger.error("Unable run test class", e);
    		} finally {
 			if (felixFramework != null) {
-				felixFramework.stopFramework();
+				try {
+					felixFramework.stopFramework();
+				} catch (Exception e) {
+					throw new FrameworkException("Unable to stop Felix framework", e);
+				}
 			}
    		}
     	
