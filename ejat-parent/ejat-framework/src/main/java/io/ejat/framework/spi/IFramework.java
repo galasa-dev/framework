@@ -2,12 +2,12 @@ package io.ejat.framework.spi;
 
 import javax.validation.constraints.NotNull;
 
+import io.ejat.IConfidentialTextService;
+
 /**
  * <p>IFramework provides access to the services the Framework specifically controls, although will be provided by 
  * other OSGi bundles.  Examples being the Configuration Properties Store service,  authentication services etc.</p>
- * <p>An implement object of IFramework can be obtained using org.osgi.framework.BundleContext.getServiceReferences(IFramework.class.getName(), null)<br>
- * or<br>
- * By using the provided abstract BundleActivator class EjatBundleActivator.getFramework().</p>
+ * <p>Access to the IFramework object will be via the initialisation methods of the services and managers</p>
  * <p>There must only be 1 provider of the IFramework service and the Framework bundle will always be started before any other 
  * eJAT bundle.</p>
  * 
@@ -29,7 +29,7 @@ public interface IFramework {
 	 * 
 	 * @param namespace - The string used to identify the manager/service to the configuration store
 	 * @return A {@link IConfigurationPropertyStore},   cannot be null
-	 * @throws ConfigurationPropertyStoreException
+	 * @throws ConfigurationPropertyStoreException - If an invalid namespace is given
 	 */
 	@NotNull
 	IConfigurationPropertyStore getConfigurationPropertyStore(@NotNull String namespace) throws ConfigurationPropertyStoreException;
@@ -47,9 +47,50 @@ public interface IFramework {
 	 * 
 	 * @param namespace - The string used to identify the manager/service to the dynamic status store
 	 * @return A {@link IDynamicStatusStore},   cannot be null
-	 * @throws ConfigurationPropertyStoreException
+	 * @throws ConfigurationPropertyStoreException - If an invalid namespace is given
 	 */
 	@NotNull
-	IConfigurationPropertyStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException;
+	IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException;
+	
+	/**
+	 * <p>Retrieve the Result Archive Store from the framework.</p>
+	 * 
+	 * @return A {@link IResultArchiveStore},   cannot be null
+	 */
+	@NotNull
+	IResultArchiveStore getResultArchiveStore();
 
+	
+	/**
+	 * <p>Provide access to the Resource Pooling Service</p>
+	 * 
+	 * @return {@link IResourcePoolingService} The Resource Pooling Service
+	 */
+	@NotNull
+	IResourcePoolingService getResourcePoolingService();
+	
+	
+	/**
+	 * <p>Provide access to the Confidential Text Service</p>
+	 * 
+	 * @return {@link io.ejat.IConfidentialTextService} The Confidential Text Service
+	 */
+	@NotNull
+	IConfidentialTextService getConfidentialTextService();
+	
+	
+	/**
+	 * Retrieve the test run id.  Maybe null for non test runs
+	 * 
+	 * @return - The test run id
+	 */
+	String getTestRunId();
+
+	/**
+	 * Retrieve the test run name.  Maybe null for non test runs
+	 * 
+	 * @return - The test run name
+	 */
+	String getTestRunName();
+	
 }

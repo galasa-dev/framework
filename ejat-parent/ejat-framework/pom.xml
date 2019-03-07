@@ -15,7 +15,7 @@
 	<packaging>bundle</packaging>
 
 	<name>eJAT Framework</name>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>ejat</groupId>
@@ -43,8 +43,26 @@
 		    <groupId>org.apache.bcel</groupId>
 		    <artifactId>bcel</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<version>6.0.0</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>

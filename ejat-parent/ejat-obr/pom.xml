@@ -80,5 +80,13 @@
 		    <groupId>org.apache.bcel</groupId>
 		    <artifactId>bcel</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+		</dependency>
 	</dependencies>
 </project>

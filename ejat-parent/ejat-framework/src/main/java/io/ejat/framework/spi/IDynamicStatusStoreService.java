@@ -1,7 +1,6 @@
 package io.ejat.framework.spi;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 
 /**
  * <p>Used by the eJAT Framework to initialise the various Dynamic Status Stores that may exist within the OSGi instance.  Only 1 DSS maybe enabled during the lifetime of 
@@ -9,12 +8,12 @@ import javax.validation.constraints.Null;
  * 
  * <p>The DSS should request from the framework the URI that is defined in the DSS.  It should examine the returned URI to 
  * determine if it is this DSS that is required to be initialised.  If the DSS should be initialised, the DSS should do so 
- * and then register itself in the Framework.
+ * and then register itself in the Framework.</p>
  *  
  * @author Michael Baylis
  *
  */
-public interface IDynamicStatusStoreService {
+public interface IDynamicStatusStoreService extends IDynamicStatusStoreKeyAccess {
 	
 	/**
 	 * <p>This method is called to selectively initialise the DSS.  If this DSS is to be initialise, 
@@ -23,9 +22,8 @@ public interface IDynamicStatusStoreService {
 	 * <p>If there is any problem initialising the sole DSS, then an exception will be thrown that will effectively terminate the Framework</p>
 	 * 
 	 * @param frameworkInitialisation - Initialisation object containing access to various initialisation methods
-	 * @throws DynamicStatusStoreException
+	 * @throws DynamicStatusStoreException - If there is a problem initialising the underlying
 	 */
-	@Null
 	void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws DynamicStatusStoreException;
 
 }
