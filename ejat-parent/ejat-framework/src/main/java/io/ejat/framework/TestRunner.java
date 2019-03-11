@@ -21,10 +21,10 @@ public class TestRunner {
 	private BundleContext bundleContext;
 
 	@Reference
-	RepositoryAdmin repositoryAdmin;
+	private RepositoryAdmin repositoryAdmin;
 	
 	
-	public boolean runTest(String testBundleName, String testClassName) throws Throwable {	
+	public boolean runTest(String testBundleName, String testClassName) throws TestRunException  {	
 
 		logger.info("Run test: " + testBundleName + "/" + testClassName);
 		Class<?> testClass = getTestClass(testBundleName, testClassName);
@@ -50,7 +50,7 @@ public class TestRunner {
 				try {
 					testClazz = bundle.loadClass(testClassName);
 				} catch (ClassNotFoundException e) {
-					throw new TestRunException("Unable to load test class " + testClassName);
+					throw new TestRunException("Unable to load test class " + testClassName, e);
 				}
 				logger.trace("Found test class: " + testClazz.getName());
 				

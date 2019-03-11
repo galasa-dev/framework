@@ -3,35 +3,35 @@ package io.ejat.boot;
 /**
  * @see java.lang.Exception
  */
-public class FrameworkException extends Exception {
+public class LauncherException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * @see java.lang.Exception#Exception()
 	 */
-	public FrameworkException() {
+	public LauncherException() {
 		super();
 	}
 	
 	/**
 	 * @see java.lang.Exception#Exception(String)
 	 */
-	public FrameworkException(String message) {
+	public LauncherException(String message) {
 		super(message);
 	}
 
 	/**
 	 * @see java.lang.Exception#Exception(Throwable)
 	 */
-	public FrameworkException(Throwable cause) {
+	public LauncherException(Throwable cause) {
 		super(cause);
 	}
 	
 	/**
 	 * @see java.lang.Exception#Exception(String, Throwable)
 	 */
-	public FrameworkException(String message, Throwable cause) {
+	public LauncherException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

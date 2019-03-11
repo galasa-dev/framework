@@ -35,16 +35,15 @@ import io.ejat.boot.felix.FelixFramework;
 @Mojo(name = "Launcher")
 public class Launcher {
 
-	// TODO: Logger config needs expanding - resources\log4j2.xml
 	private static final Logger logger = LogManager.getLogger(Launcher.class);
 	
-	//TODO: Use property here??  
-	// -Dlog.level=ALL
 	private final String logLevel = System.getProperty("log.level");
 
-	private List<String> bundleRepositories = new ArrayList<String>();
+	private List<String> bundleRepositories = new ArrayList<>();
 	private String testBundleName;
 	private String testClassName;
+
+	private FelixFramework felixFramework;
 	
 	
 	/**
@@ -61,9 +60,10 @@ public class Launcher {
 	 * Process supplied command line arguments and run the test
 	 * 
 	 * @param args test run parameters
+	 * @throws InterruptedException 
 	 * @throws Exception
 	 */
-	protected boolean launch(String[] args) throws FrameworkException {
+	protected boolean launch(String[] args) throws LauncherException, InterruptedException {
 		
 		if (logLevel != null) {
 			if (Level.getLevel(logLevel) == null) {
@@ -73,13 +73,13 @@ public class Launcher {
 			}
 		}
 		
-		FelixFramework felixFramework = new FelixFramework(logger);
+		felixFramework = new FelixFramework(logger);
 		
 		// Build Felix framework and install required bundles
     	try {
 			processCommandLine(args);
 		} catch (ParseException e) {
-			throw new FrameworkException("Unable to parse command line arguments", e);
+			throw new LauncherException("Unable to parse command line arguments", e);
 		}
     	logger.debug("OBR Repository Files: " + bundleRepositories);
     	logger.debug("Test Bundle: " + testBundleName);
@@ -88,29 +88,32 @@ public class Launcher {
     	
     	boolean testPassed = false;
     	try {
-        	logger.debug("Launching Framework...");
-    		try {
-    			felixFramework.buildFramework(bundleRepositories);
-    		} catch (Exception e) {
-    			throw new Exception("Unable to create and initialize Felix framework", e);
-    		}
+    		// Build the Framework
+    		buildFramework();
 
     		// Run test class
     		testPassed = felixFramework.runTest(testBundleName, testClassName);
-    	} catch (Throwable e) {
+    		
+    	} catch (LauncherException e) {
         	logger.error("Unable run test class", e);
    		} finally {
 			if (felixFramework != null) {
-				try {
-					felixFramework.stopFramework();
-				} catch (Exception e) {
-					throw new FrameworkException("Unable to stop Felix framework", e);
-				}
+				felixFramework.stopFramework();
 			}
    		}
     	
    		logger.info("Test run complete. Test " + (testPassed? "PASSED" : "FAILED"));
    		return testPassed;
+	}
+
+
+	private void buildFramework() throws LauncherException {
+		logger.debug("Launching Framework...");
+		try {
+			felixFramework.buildFramework(bundleRepositories);
+		} catch (Exception e) {
+			throw new LauncherException("Unable to create and initialize Felix framework", e);
+		}
 	}
 
 
@@ -122,7 +125,7 @@ public class Launcher {
 	 */
 	private void processCommandLine(String[] args) throws ParseException  {
 
-		StringBuffer messageBuffer = new StringBuffer();		
+		StringBuilder messageBuffer = new StringBuilder();		
 		messageBuffer.append("Supplied command line arguments: ");
         for (String arg : args) {
         	messageBuffer.append(arg + " ");
@@ -135,11 +138,7 @@ public class Launcher {
 		
 		CommandLineParser parser = new DefaultParser();
 		CommandLine commandLine = null;
-		try {
-			commandLine = parser.parse(options, args);
-		} catch (ParseException e) {
-			throw e;
-		}
+		commandLine = parser.parse(options, args);
 		
 		if (commandLine.hasOption(obrOption)) {
 			for (Option option : commandLine.getOptions()) {
@@ -152,7 +151,7 @@ public class Launcher {
 	    if (otherArgs.length == 0 || otherArgs.length > 1) {
 	    	commandLineError("Error: A single test method must be supplied");
 	    }
-		if (otherArgs[0].indexOf("/") == -1 || otherArgs[0].indexOf("/") != otherArgs[0].lastIndexOf("/")) {
+		if (otherArgs[0].indexOf('/') == -1 || otherArgs[0].indexOf('/') != otherArgs[0].lastIndexOf('/')) {
 			commandLineError("Error: Invalid test name format");
 		}
 		
