@@ -1,8 +1,8 @@
 package io.ejat.framework;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -16,14 +16,21 @@ import org.osgi.service.component.annotations.Reference;
 public class TestRunner {
 
 
-	private Logger logger = LogManager.getLogger(TestRunner.class);
+	private Log logger = LogFactory.getLog(TestRunner.class);
 	
 	private BundleContext bundleContext;
 
 	@Reference
 	private RepositoryAdmin repositoryAdmin;
 	
-	
+	/**
+	 * Run the supplied test class
+	 * 
+	 * @param testBundleName
+	 * @param testClassName
+	 * @return
+	 * @throws TestRunException
+	 */
 	public boolean runTest(String testBundleName, String testClassName) throws TestRunException  {	
 
 		logger.info("Run test: " + testBundleName + "/" + testClassName);
@@ -39,6 +46,14 @@ public class TestRunner {
 	}
 	
 
+	/**
+	 * Get the test class from the supplied bundle
+	 * 
+	 * @param testBundleName
+	 * @param testClassName
+	 * @return
+	 * @throws TestRunException
+	 */
 	private Class<?> getTestClass(String testBundleName, String testClassName) throws TestRunException {
 		Class<?> testClazz = null;
 		Bundle[] bundles = bundleContext.getBundles();

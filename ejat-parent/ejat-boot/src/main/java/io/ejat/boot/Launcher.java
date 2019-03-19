@@ -9,10 +9,6 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import io.ejat.boot.felix.FelixFramework;
@@ -35,9 +31,7 @@ import io.ejat.boot.felix.FelixFramework;
 @Mojo(name = "Launcher")
 public class Launcher {
 
-	private static final Logger logger = LogManager.getLogger(Launcher.class);
-	
-	private final String logLevel = System.getProperty("log.level");
+	private static final BootLogger logger = new BootLogger();
 
 	private List<String> bundleRepositories = new ArrayList<>();
 	private String testBundleName;
@@ -65,15 +59,7 @@ public class Launcher {
 	 */
 	protected boolean launch(String[] args) throws LauncherException, InterruptedException {
 		
-		if (logLevel != null) {
-			if (Level.getLevel(logLevel) == null) {
-				logger.error("Invalid log level \"" + logLevel + "\" supplied. The default of \"" + logger.getLevel().name() + "\" will be used");
-			} else {
-				Configurator.setLevel("io.ejat", Level.getLevel(logLevel));
-			}
-		}
-		
-		felixFramework = new FelixFramework(logger);
+		felixFramework = new FelixFramework();
 		
 		// Build Felix framework and install required bundles
     	try {
@@ -110,7 +96,7 @@ public class Launcher {
 	private void buildFramework() throws LauncherException {
 		logger.debug("Launching Framework...");
 		try {
-			felixFramework.buildFramework(bundleRepositories);
+			felixFramework.buildFramework(bundleRepositories, testBundleName);
 		} catch (Exception e) {
 			throw new LauncherException("Unable to create and initialize Felix framework", e);
 		}
@@ -130,7 +116,7 @@ public class Launcher {
         for (String arg : args) {
         	messageBuffer.append(arg + " ");
         }
-        logger.info(messageBuffer.toString());
+        logger.debug(messageBuffer.toString());
 		
 		Options options = new Options();
 		String obrOption = "obr";

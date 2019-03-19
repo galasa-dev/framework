@@ -1,23 +1,23 @@
 package io.ejat.framework;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 /**
  * Representation of the test class
  *
  */
 public class TestClassWrapper {
 	
-	private Logger logger = LogManager.getLogger(TestClassWrapper.class);
+	private Log logger = LogFactory.getLog(TestClassWrapper.class);
 	
 	private Class<?> testClass;
 	private Object testClassObject;
@@ -25,12 +25,11 @@ public class TestClassWrapper {
 	private boolean testPassed = true;
 	
 	// Test class members
-	private LinkedHashSet<Method> beforeClassMethods = new LinkedHashSet<>();
-	private LinkedHashSet<Method> afterClassMethods = new LinkedHashSet<>();
-	private LinkedHashSet<Method> beforeMethodMethods = new LinkedHashSet<>();
-	private LinkedHashSet<Method> afterMethodMethods = new LinkedHashSet<>();
-	private LinkedHashSet<Method> testMethods = new LinkedHashSet<>();
-	private Field loggerField;
+	private LinkedHashMap<String, Method> beforeClassMethods = new LinkedHashMap<>();
+	private LinkedHashMap<String, Method> afterClassMethods = new LinkedHashMap<>();
+	private LinkedHashMap<String, Method> beforeMethodMethods = new LinkedHashMap<>();
+	private LinkedHashMap<String, Method> afterMethodMethods = new LinkedHashMap<>();
+	private LinkedHashMap<String, Method> testMethods = new LinkedHashMap<>();
 
 	// Logger statics
 	private static final String LOG_STARTING = "Starting";
@@ -57,13 +56,23 @@ public class TestClassWrapper {
 	 * 
 	 * @throws TestRunException
 	 */
-	protected void parseTestClass() throws TestRunException {
+	public void parseTestClass() throws TestRunException {
 		
-		try {
-			org.apache.bcel.classfile.JavaClass bcelJavaClass = org.apache.bcel.Repository.lookupClass(testClass);
-			parseMethods(bcelJavaClass);		
-			parseFields();
-		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException e) {
+		try	{
+			// Create a list of test classes and it's super classes
+			LinkedList<Class<?>> classListList = new LinkedList<>();
+			classListList.add(testClass);
+			Class<?> superClass = testClass.getSuperclass();
+			while (!superClass.isAssignableFrom(Object.class)) {
+				classListList.add(superClass);
+				superClass = superClass.getSuperclass();
+			}
+			
+			Iterator<Class<?>> lit = classListList.descendingIterator();
+			while(lit.hasNext()){
+				parseMethods(lit.next());
+			}
+		} catch (NoSuchMethodException | SecurityException e) {
 			throw new TestRunException("Unable to process test class for methods", e);
 		}
 	}
@@ -74,18 +83,13 @@ public class TestClassWrapper {
 	 *  
 	 * @throws TestRunException
 	 */
-	protected void instantiateTestClass() throws TestRunException {
+	public void instantiateTestClass() throws TestRunException {
 		try {
 			logger.info(LOG_STARTING + 
 						LOG_START_LINE + LOG_ASTERS + 
 		                LOG_START_LINE + "*** Start of test class " + testClass.getName() +
 		                LOG_START_LINE + LOG_ASTERS);
 			testClassObject = testClass.newInstance();
-			
-			// Set logger field
-			if (loggerField != null) {
-				setField(loggerField, logger);
-			}
 		} catch (InstantiationException | IllegalAccessException | NullPointerException e) {
 			testPassed = false;
 			throw new TestRunException("Unable to instantiate test class", e);
@@ -106,38 +110,33 @@ public class TestClassWrapper {
 	 * @return test passed
 	 * @throws TestRunException 
 	 */
-	protected boolean runTestMethods() throws TestRunException {
+	public boolean runTestMethods() throws TestRunException {
 		
 		// Run @BeforeClass methods
-		Iterator<Method> beforeClassMethodIterator = beforeClassMethods.iterator();
-	    while(beforeClassMethodIterator.hasNext()) {
-	    	invokeMethod(beforeClassMethodIterator.next(), LOG_METHOD_BEFORE_CLASS);
-	    }
+		for (Map.Entry<String, Method> beforeClassMethodEntry : beforeClassMethods.entrySet()) {
+			invokeMethod(beforeClassMethodEntry.getValue(), LOG_METHOD_BEFORE_CLASS);
+		}
 	    
 		// Run test methods
-		Iterator<Method> testMethodIterator = testMethods.iterator();
-	    while(testMethodIterator.hasNext()){
+		for (Map.Entry<String, Method> testMethodEntry : testMethods.entrySet()) {
 			// Run @Before methods
-			Iterator<Method> beforeMethodMethodIterator = beforeMethodMethods.iterator();
-	        while(beforeMethodMethodIterator.hasNext()) {
-	        	invokeMethod(beforeMethodMethodIterator.next(), LOG_METHOD_BEFORE);
-	        }
+			for (Map.Entry<String, Method> beforeMethodMethodEntry : beforeMethodMethods.entrySet()) {
+				invokeMethod(beforeMethodMethodEntry.getValue(), LOG_METHOD_BEFORE);
+			}
 	        
-	        // Run @Test method
-	        invokeMethod(testMethodIterator.next(), LOG_METHOD_TEST);
+	        // Run @Test method			
+			invokeMethod(testMethodEntry.getValue(), LOG_METHOD_TEST);
 			
-	        // Run @After methods
-			Iterator<Method> afterMethodMethodIterator = afterMethodMethods.iterator();
-	        while(afterMethodMethodIterator.hasNext()) {
-	            invokeMethod(afterMethodMethodIterator.next(), LOG_METHOD_AFTER);
-	        }
-	    }
+
+			for (Map.Entry<String, Method> afterMethodMethodEntry : afterMethodMethods.entrySet()) {
+				invokeMethod(afterMethodMethodEntry.getValue(), LOG_METHOD_AFTER);
+			}
+		}
 	    
 		// Run @AfterClass methods
-		Iterator<Method> afterClassMethodIterator = afterClassMethods.iterator();
-	    while(afterClassMethodIterator.hasNext()) {
-	        invokeMethod(afterClassMethodIterator.next(), LOG_METHOD_AFTER_CLASS);
-	    }
+		for (Map.Entry<String, Method> afterClassMethodEntry : afterClassMethods.entrySet()) {
+			invokeMethod(afterClassMethodEntry.getValue(), LOG_METHOD_AFTER_CLASS);
+		}
 	    
 	    // Test result
 	    if (testPassed) {
@@ -164,34 +163,21 @@ public class TestClassWrapper {
 	 * @throws SecurityException
 	 * @throws TestRunException
 	 */
-	private void parseMethods(org.apache.bcel.classfile.JavaClass bcelJavaClass) throws NoSuchMethodException, TestRunException {
+	private void parseMethods(Class<?> testClassXXX) throws NoSuchMethodException, TestRunException {
+		org.apache.bcel.classfile.JavaClass bcelJavaClass;
+		try {
+			bcelJavaClass = org.apache.bcel.Repository.lookupClass(testClassXXX);
+		} catch (ClassNotFoundException e) {
+			throw new TestRunException(e);
+		}
 		org.apache.bcel.classfile.Method[] bcelMethods = bcelJavaClass.getMethods();
 		for (org.apache.bcel.classfile.Method bcelMethod : bcelMethods) {
-			if (!bcelMethod.isPublic()) {
-				throw new TestRunException("Test methods must be public " + bcelJavaClass.getClassName() + "#" + bcelMethod.getName());
-			} else {
-				if (!bcelMethod.getName().equals("<init>")) {
-					Method method = testClass.getMethod(bcelMethod.getName());
-					Annotation[] annotations = method.getAnnotations();
-					for (Annotation annotation : annotations) {
-						storeMethod(method, annotation.annotationType());
-					}
+			if (bcelMethod.isPublic() && !bcelMethod.getName().equals("<init>")) {
+				Method method = testClassXXX.getMethod(bcelMethod.getName());
+				Annotation[] annotations = method.getAnnotations();
+				for (Annotation annotation : annotations) {
+					storeMethod(method, annotation.annotationType());
 				}	
-			}
-		}
-	}
-
-
-	/**
-	 * Parse test class for fields by Annotation 
-	 * @param bcelJavaClass
-	 */
-	private void parseFields() {
-		Field[] fields = testClass.getDeclaredFields();
-		for (Field field : fields) {			
-			Annotation[] annotations = field.getAnnotations();
-			for (Annotation annotation : annotations) {
-				storeField(field, annotation.annotationType());
 			}
 		}
 	}
@@ -205,58 +191,20 @@ public class TestClassWrapper {
 	 */
 	private void storeMethod(Method method, Class<? extends Annotation> annotationType) {
 		if (annotationType == io.ejat.BeforeClass.class) {
-			beforeClassMethods.add(method);
+			beforeClassMethods.put(method.getName(), method);
 		}
 		if (annotationType == io.ejat.AfterClass.class) {
-			afterClassMethods.add(method);
+			afterClassMethods.put(method.getName(), method);
 		}
 		if (annotationType == io.ejat.Before.class) {
-			beforeMethodMethods.add(method);
+			beforeMethodMethods.put(method.getName(), method);
 		}
 		if (annotationType == io.ejat.After.class) {
-			afterMethodMethods.add(method);
+			afterMethodMethods.put(method.getName(), method);
 		}
 		if (annotationType == io.ejat.Test.class) {
-			testMethods.add(method);
+			testMethods.put(method.getName(), method);
 		}		
-	}
-
-
-	/**
-	 * Store fields that require injection
-	 * 
-	 * @param field
-	 * @param annotationType
-	 */
-	private void storeField(Field field, Class<? extends Annotation> annotationType) {
-		if (annotationType == io.ejat.TestLogger.class &&
-			field.getType().getName().contentEquals(org.apache.logging.log4j.Logger.class.getName())) {
-			loggerField = field;
-		}
-	}
-
-
-	/**
-	 * Set a field to a value
-	 * @param field
-	 * @param value
-	 * @throws TestRunException
-	 */
-	private void setField(Field field, Object value) throws TestRunException {
-		try {
-			// Set Field
-			if (field.isAccessible()) {
-				field.set(testClassObject, value);
-			} else {
-				field.setAccessible(true);
-				field.set(testClassObject, value);
-				field.setAccessible(false);
-			}
-		} catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
-			testPassed = false;
-			throw new TestRunException("Unable to set field " + field.getName() + " in test class", e);
-		}
-		
 	}
 
 

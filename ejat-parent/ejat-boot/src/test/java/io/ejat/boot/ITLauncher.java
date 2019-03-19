@@ -23,7 +23,7 @@ public class ITLauncher {
 		
 		File infrastructureOBRFile = new File("../ejat-obr/target/repository.obr");
 		File testOBRFile = new File("../../../ivt/ejat-ivt-parent/ejat-ivt-obr/target/repository.obr");
-		String testBundleClass = "io.ejat.ivt/io.ejat.ivt.test.BasicTest";
+		String testBundleClass = "io.ejat.ivt/io.ejat.ivt.test.BasicTestExtendedAgain";
 		
 		String[] args = new String[5];
 		args[0] = "--obr";

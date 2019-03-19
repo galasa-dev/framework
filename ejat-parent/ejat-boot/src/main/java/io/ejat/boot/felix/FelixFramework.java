@@ -17,8 +17,6 @@ import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.framework.FrameworkFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -27,10 +25,14 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 
 import io.ejat.boot.LauncherException;
+import io.ejat.boot.BootLogger;
 
+/**
+ * Felix framework run test class
+ */
 public class FelixFramework {
 	
-	private Logger logger = LogManager.getLogger(FelixFramework.class);
+	private BootLogger logger = new BootLogger();
 	
 	private boolean loadConsole = Boolean.parseBoolean(System.getProperty("jat.core.load.console", "false")); 
 
@@ -39,10 +41,6 @@ public class FelixFramework {
 	private Bundle obrBundle;
 
 	private RepositoryAdmin repositoryAdmin;
-
-	public FelixFramework(Logger logger) {
-		this.logger = logger;
-	}
 	
 	
 	/**
@@ -51,11 +49,11 @@ public class FelixFramework {
 	 * @param bundleRepositories the supplied OBRs
 	 * @throws LauncherException
 	 */
-	public void buildFramework(List<String> bundleRepositories) throws LauncherException {
+	public void buildFramework(List<String> bundleRepositories, String testBundleName) throws LauncherException {
 		logger.debug("Building Felix Framework...");
 		
 		String felixCacheDirectory = System.getProperty("java.io.tmpdir");
-		File felixCache = new File(felixCacheDirectory , "felix-cache");
+		File felixCache = new File(felixCacheDirectory, "felix-cache");
 		try {
 			FileUtils.deleteDirectory(felixCache);
 			
@@ -64,7 +62,8 @@ public class FelixFramework {
 			HashMap<String, Object> frameworkProperties = new HashMap<>();
 			frameworkProperties.put(Constants.FRAMEWORK_STORAGE, felixCache.getAbsolutePath());
 			frameworkProperties.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.	FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
-			frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.apache.felix.bundlerepository; version=2.1, io.ejat.framework");
+			frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.apache.felix.bundlerepository; version=2.1, io.ejat.framework" 
+			);
 			framework = frameworkFactory.newFramework(frameworkProperties);
 			logger.debug("Initializing Felix Framework");
 			framework.init();
@@ -76,11 +75,7 @@ public class FelixFramework {
 			
 			// Install and start the Felix OBR bundle
 			obrBundle = installBundle("org.apache.felix.bundlerepository-2.0.2.jar", true);
-
-			// Install and start the log4j bundles
-			installBundle("log4j-api-2.11.2.jar", true);
-			installBundle("log4j-core-2.11.2.jar", true);
-
+			
 			// Load the OSGi Bundle Repositories
 			loadBundleRepositories(bundleRepositories);
 
@@ -90,12 +85,19 @@ public class FelixFramework {
 				loadBundle("org.apache.felix.gogo.command");
 				loadBundle("org.apache.felix.gogo.shell");
 			}
+			
+			loadBundle("log4j");
 
 			// Load the OSGi Service Component Runtime bundle 
 			loadBundle("org.apache.felix.scr");
 
 			// Load the ejat-framework bundle
+			logger.debug("installing Framework bundle");
 			loadBundle("io.ejat.framework");
+			
+			// Load the test bundle
+			logger.debug("Installing Test bundle");
+			loadBundle(testBundleName);
 			
 		} catch(IOException | BundleException e) {
 			throw new LauncherException("Unable to initialise the Felix framework", e);
@@ -114,9 +116,6 @@ public class FelixFramework {
 	public boolean runTest(String testBundleName, String testClassName) throws LauncherException {
 		
 		boolean testPassed = false;
-		
-		// Load the test bundle
-		loadBundle(testBundleName);
 		
 		// Get the framework bundle
 		Bundle frameWorkBundle = getBundle("io.ejat.framework");
@@ -147,6 +146,7 @@ public class FelixFramework {
 		}
 		
 		// Invoke the runTest method
+		logger.debug("Invoking runTest()");
     	try {
 			testPassed = (boolean) runTestMethod.invoke(service, testBundleName, testClassName);
 		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
@@ -289,7 +289,7 @@ public class FelixFramework {
 		    {
 		    	logger.error(resource.toString() + ": Unable to resolve: " + reason.getRequirement());
 		    }
-			throw new LauncherException("Unable to resolve bundle \"" + bundleSymbolicName);
+			throw new LauncherException("Unable to resolve bundle " + bundleSymbolicName);
 		}
 		
 	}
