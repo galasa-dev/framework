@@ -195,7 +195,7 @@ public class ResourcesPoolingServiceTest {
         bannedStrings.add("CIRILLO2");
         bannedStrings.add("CIRILLO9");
         
-        for(int i=0; i<1000;i++) {
+        for(int i=0; i<10;i++) {
             List<String> resources = frps.obtainResources(resourceStrings, bannedStrings, 21, 3);
             Collections.sort(resources);
             assertEquals("Unexpected resources retrieved on run  " + i,answers, resources);

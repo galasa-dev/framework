@@ -18,8 +18,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
+import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
@@ -236,7 +238,10 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
         public FrameworkInitialisation(URI uri) {
             this.uri=uri;
         }
-
+        @Override
+        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
+        }
+        
         @Override
         public URI getBootstrapConfigurationPropertyStore() {return null;}
         @Override
