@@ -28,6 +28,8 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
+import io.ejat.framework.spi.ICredentialsStoreService;
+import io.ejat.framework.spi.CredentialsStoreException;
 
 /**
  * Test the Framework DSS Stub. Most of the functionality will exist in the
@@ -231,6 +233,10 @@ public class FrameworkDynamicStatusStoreTest {
         @Override
         public List<URI> getResultArchiveStoreUris() {
             return null;
+        }
+
+        @Override
+        public void registerCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService) throws CredentialsStoreException {           
         }
 
     }

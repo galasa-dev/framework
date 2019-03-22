@@ -74,7 +74,9 @@ public interface IFramework {
 	 */
 	@NotNull
 	IConfidentialTextService getConfidentialTextService();
-	
+
+	@NotNull
+	ICredentialsStoreService getCredentialsStoreService();
 	
 	/**
 	 * Retrieve the test run id.  Maybe null for non test runs

@@ -31,6 +31,8 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.ICredentialsStoreService;
+import io.ejat.framework.spi.CredentialsStoreException;
 
 /**
  * <p>This test class tests the behaviour of the FrameworkConfigurationPropertyStore class. The purpose of the class is to drive
@@ -234,7 +236,12 @@ public class FrameworkConfigurationPropertyStoreTest {
 		@Override
 		public String getTestRunName() {
 			return null;
-		}
+        }
+
+        @Override
+        public ICredentialsStoreService getCredentialsStoreService() {
+            return null;
+        }
         
     } 
 
@@ -270,6 +277,10 @@ public class FrameworkConfigurationPropertyStoreTest {
 
 		@Override
 		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
-		}
+        }
+        
+        @Override
+        public void registerCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService) throws CredentialsStoreException {           
+        }
     }
 }

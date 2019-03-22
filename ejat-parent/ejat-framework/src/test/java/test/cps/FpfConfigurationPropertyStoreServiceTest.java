@@ -25,6 +25,8 @@ import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.ICredentialsStoreService;
+import io.ejat.framework.spi.CredentialsStoreException;
 
 /**
  * <p>This tests class checks the behaviour of registering a local CPS using the FPF class is functional.</p>
@@ -145,7 +147,11 @@ public class FpfConfigurationPropertyStoreServiceTest {
 
 		@Override
 		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
-		}
+        }
+        
+        @Override
+        public void registerCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService) throws CredentialsStoreException {           
+        }
     }
 
 }

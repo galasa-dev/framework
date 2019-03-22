@@ -64,6 +64,8 @@ public interface IFrameworkInitialisation {
 	
 	void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService) throws ConfidentialTextException;
 
+	void registerCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService) throws CredentialsStoreException;
+
 	/**
 	 * <p>Retrieve the IFramework object.  Not all the methods will be valid during the initialisation period.
 	 * Review the Framework Lifecycle to determine when parts of the Framework is initialised</p>

@@ -7,10 +7,13 @@ import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
 
 import io.ejat.framework.spi.IConfidentialTextService;
+import io.ejat.framework.spi.ICredentialsStoreService;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyStore;
 import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
 import io.ejat.framework.internal.dss.FrameworkDynamicStatusStore;
+import io.ejat.framework.internal.creds.FrameworkCredentialsStore;
 import io.ejat.framework.spi.ConfidentialTextException;
+import io.ejat.framework.spi.CredentialsStoreException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
@@ -35,6 +38,7 @@ public class Framework implements IFramework {
     private IDynamicStatusStoreService         dssService;
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
+    private ICredentialsStoreService           credsService;             
 
     private IConfigurationPropertyStore        cpsFramework;
 
@@ -134,6 +138,11 @@ public class Framework implements IFramework {
         return this.ctsService;
     }
 
+    @Override
+    public @NotNull ICredentialsStoreService getCredentialsStoreService() {
+        return this.credsService;
+    }
+
     /**
      * Set the new Configuration Property Store Service
      *
@@ -183,6 +192,14 @@ public class Framework implements IFramework {
             throw new ConfidentialTextException("Invalid 2nd registration of the Confidential Text Service detected");
         }
         this.ctsService = confidentialTextService;
+    }
+
+    public void setCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService) 
+            throws CredentialsStoreException {
+        if (this.credsService != null) {
+            throw new CredentialsStoreException("Invalid 2nd registration of the Credentials Store Service detected");
+        }
+        this.credsService = credentialsStoreService;
     }
 
     /**

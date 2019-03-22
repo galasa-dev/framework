@@ -21,6 +21,8 @@ import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.ICredentialsStoreService;
+import io.ejat.framework.spi.CredentialsStoreException;
 
 /**
  * This test class ensures that confidential texts that have been registered are reomved from text.
@@ -117,6 +119,10 @@ public class ConfidentialTextServiceTest {
 
 		@Override
 		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
-		}
+        }
+        
+        @Override
+        public void registerCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService) throws CredentialsStoreException {           
+        }
     }
 }

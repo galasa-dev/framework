@@ -16,10 +16,12 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 import io.ejat.framework.spi.ConfidentialTextException;
+import io.ejat.framework.spi.CredentialsStoreException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IConfidentialTextService;
+import io.ejat.framework.spi.ICredentialsStoreService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
@@ -241,6 +243,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     public void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
             throws ConfidentialTextException {
         this.framework.setConfidentialTextService(confidentialTextService);
+    }
+
+    @Override
+    public void registerCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService)
+            throws CredentialsStoreException {
+        this.framework.setCredentialsStoreService(credentialsStoreService);
     }
 
     /*
