@@ -1,4 +1,4 @@
-package io.ejat.framework.spi;
+package io.ejat.framework.internal.creds;
 
 import org.junit.Test;
 
