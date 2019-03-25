@@ -40,7 +40,6 @@ public class DirectoryRASSTest {
     private IFramework               framework;
     private IFrameworkInitialisation frameworkInit;
 
-    private static final String      runid   = "areallygoodid";
     private static final String      runname = "BOB1";
 
     @Before
@@ -73,9 +72,9 @@ public class DirectoryRASSTest {
         drass.initialise(this.frameworkInit);
         verify(this.frameworkInit).registerResultArchiveStoreService(drass);
 
-        Assert.assertTrue("Run RAS directory should have been created", Files.exists(this.rasDirectory.resolve(runid)));
+        Assert.assertTrue("Run RAS directory should have been created", Files.exists(this.rasDirectory.resolve(runname)));
         Assert.assertTrue("Run RAS artifacts directory should have been created",
-                Files.exists(this.rasDirectory.resolve(runid).resolve("artifacts")));
+                Files.exists(this.rasDirectory.resolve(runname).resolve("artifacts")));
 
         final Path root = drass.getStoredArtifactsRoot();
         Assert.assertNotNull("RASS did not return a Stored Artifacts Root", root);
@@ -84,7 +83,7 @@ public class DirectoryRASSTest {
 
         Files.createFile(testFile, ResultArchiveStoreContentType.XML);
         Assert.assertTrue("text.xml should have been created",
-                Files.exists(this.rasDirectory.resolve(runid).resolve("artifacts").resolve("test.xml")));
+                Files.exists(this.rasDirectory.resolve(runname).resolve("artifacts").resolve("test.xml")));
 
         Assert.assertEquals("Should be marked as XML", ResultArchiveStoreContentType.XML,
                 Files.getFileAttributeView(testFile, ResultArchiveStoreFileAttributeView.class).getContentType());
@@ -98,7 +97,7 @@ public class DirectoryRASSTest {
         final TestStructure writeStructure = new TestStructure();
         writeStructure.testData = "hello everyone";
 
-        final Path pathStructure = this.rasDirectory.resolve(runid).resolve("structure.json");
+        final Path pathStructure = this.rasDirectory.resolve(runname).resolve("structure.json");
         Assert.assertFalse("test structure file should not exist before write", Files.exists(pathStructure));
 
         drass.updateTestStructure(writeStructure);
@@ -128,7 +127,7 @@ public class DirectoryRASSTest {
         drass.writeLog(message2);
         drass.writeLog(messages);
 
-        final List<String> readMessages = Files.readAllLines(this.rasDirectory.resolve(runid).resolve("run.log"));
+        final List<String> readMessages = Files.readAllLines(this.rasDirectory.resolve(runname).resolve("run.log"));
 
         Assert.assertEquals("message 1 wrong", message1, readMessages.get(0) + "\n");
         Assert.assertEquals("message 1 wrong", message2, readMessages.get(1));
