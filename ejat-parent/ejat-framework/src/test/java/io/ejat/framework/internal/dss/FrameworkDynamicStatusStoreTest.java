@@ -28,8 +28,8 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
-import io.ejat.framework.spi.ICredentialsStoreService;
-import io.ejat.framework.spi.CredentialsStoreException;
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
 
 /**
  * Test the Framework DSS Stub. Most of the functionality will exist in the

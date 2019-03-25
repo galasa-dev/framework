@@ -31,8 +31,8 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
-import io.ejat.framework.spi.ICredentialsStoreService;
-import io.ejat.framework.spi.CredentialsStoreException;
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
 
 /**
  * <p>This test class tests the behaviour of the FrameworkConfigurationPropertyStore class. The purpose of the class is to drive

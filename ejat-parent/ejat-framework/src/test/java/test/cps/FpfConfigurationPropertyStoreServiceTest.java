@@ -25,8 +25,8 @@ import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
-import io.ejat.framework.spi.ICredentialsStoreService;
-import io.ejat.framework.spi.CredentialsStoreException;
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
 
 /**
  * <p>This tests class checks the behaviour of registering a local CPS using the FPF class is functional.</p>

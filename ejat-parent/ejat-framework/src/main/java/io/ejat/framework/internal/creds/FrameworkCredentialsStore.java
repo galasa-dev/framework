@@ -2,14 +2,14 @@ package io.ejat.framework.internal.creds;
 
 import java.util.Properties;
 
-import io.ejat.framework.spi.ICredentialsStore;
-import io.ejat.framework.spi.FileCredentialsToken;
-import io.ejat.framework.spi.FileCredentialsUsername;
-import io.ejat.framework.spi.FileCredentialsUsernamePassword;
-import io.ejat.framework.spi.ICredentialsStoreService;
-import io.ejat.framework.spi.ICredentials;
+import io.ejat.framework.spi.creds.ICredentialsStore;
+import io.ejat.framework.spi.creds.FileCredentialsToken;
+import io.ejat.framework.spi.creds.FileCredentialsUsername;
+import io.ejat.framework.spi.creds.FileCredentialsUsernamePassword;
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.ICredentials;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
-import io.ejat.framework.spi.CredentialsStoreException;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.FrameworkInitialisation;

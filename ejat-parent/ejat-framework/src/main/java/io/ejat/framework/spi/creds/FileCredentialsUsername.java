@@ -1,6 +1,6 @@
-package io.ejat.framework.spi;
+package io.ejat.framework.spi.creds;
 
-import io.ejat.framework.spi.ICredentialsUsername;
+import io.ejat.framework.spi.creds.ICredentialsUsername;
 
 public class FileCredentialsUsername implements ICredentialsUsername {
     private String username;

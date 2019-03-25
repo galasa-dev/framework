@@ -7,13 +7,13 @@ import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
 
 import io.ejat.framework.spi.IConfidentialTextService;
-import io.ejat.framework.spi.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyStore;
 import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
 import io.ejat.framework.internal.dss.FrameworkDynamicStatusStore;
 import io.ejat.framework.internal.creds.FrameworkCredentialsStore;
 import io.ejat.framework.spi.ConfidentialTextException;
-import io.ejat.framework.spi.CredentialsStoreException;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;

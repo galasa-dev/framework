@@ -8,15 +8,15 @@ import javax.validation.constraints.Null;
 
 import org.osgi.service.component.annotations.Component;
 
-import io.ejat.framework.spi.ICredentialsStoreService;
-import io.ejat.framework.spi.ICredentials;
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.ICredentials;
 import io.ejat.framework.spi.FrameworkPropertyFile;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
-import io.ejat.framework.spi.CredentialsStoreException;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
 import io.ejat.framework.spi.IFrameworkInitialisation;
-import io.ejat.framework.spi.FileCredentialsToken;
-import io.ejat.framework.spi.FileCredentialsUsername;
-import io.ejat.framework.spi.FileCredentialsUsernamePassword;
+import io.ejat.framework.spi.creds.FileCredentialsToken;
+import io.ejat.framework.spi.creds.FileCredentialsUsername;
+import io.ejat.framework.spi.creds.FileCredentialsUsernamePassword;
 
 @Component(service= {ICredentialsStoreService.class})
 public class FileCredentialsStoreService implements ICredentialsStoreService {

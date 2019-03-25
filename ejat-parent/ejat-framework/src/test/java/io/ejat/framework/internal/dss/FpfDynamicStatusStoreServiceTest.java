@@ -28,8 +28,8 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
-import io.ejat.framework.spi.ICredentialsStoreService;
-import io.ejat.framework.spi.CredentialsStoreException;
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
 
 /**
  * <p>This test class checks the behaviour of registering a local DSS using the FPF class in functional</p>

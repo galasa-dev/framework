@@ -2,6 +2,7 @@ package io.ejat.framework.spi;
 
 import java.net.URI;
 import java.util.List;
+import io.ejat.framework.spi.creds.*;
 
 import javax.validation.constraints.NotNull;
 

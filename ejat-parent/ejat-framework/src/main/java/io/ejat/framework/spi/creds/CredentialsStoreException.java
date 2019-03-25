@@ -1,4 +1,6 @@
-package io.ejat.framework.spi;
+package io.ejat.framework.spi.creds;
+
+import io.ejat.framework.spi.FrameworkException;
 
 public class CredentialsStoreException extends FrameworkException {
 	//private static final long serialVersionUID = 1L;

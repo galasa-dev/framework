@@ -1,5 +1,7 @@
 package io.ejat.framework.spi;
 
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
+
 import javax.validation.constraints.NotNull;
 
 /**
