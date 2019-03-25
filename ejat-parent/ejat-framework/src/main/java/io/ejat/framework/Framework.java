@@ -6,14 +6,13 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
-import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyStore;
-import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
 import io.ejat.framework.internal.dss.FrameworkDynamicStatusStore;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStore;
@@ -201,20 +200,6 @@ public class Framework implements IFramework {
      */
     protected IDynamicStatusStoreService getDynamicStatusStoreService() {
         return this.dssService;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.ejat.framework.spi.IFramework#getTestRunId()
-     */
-    @Override
-    public String getTestRunId() {
-        try {
-            return cpsFramework.getProperty("run", "id");
-        } catch (ConfigurationPropertyStoreException e) {
-           throw new UnsupportedOperationException("Appears to be running outside of a test run", e);
-        }
     }
 
     /*

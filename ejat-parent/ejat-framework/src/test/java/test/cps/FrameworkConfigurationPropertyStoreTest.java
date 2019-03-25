@@ -227,11 +227,6 @@ public class FrameworkConfigurationPropertyStoreTest {
 		public @NotNull IConfidentialTextService getConfidentialTextService() {return null;}
 
 		@Override
-		public String getTestRunId() {
-			return null;
-		}
-
-		@Override
 		public String getTestRunName() {
 			return null;
 		}
