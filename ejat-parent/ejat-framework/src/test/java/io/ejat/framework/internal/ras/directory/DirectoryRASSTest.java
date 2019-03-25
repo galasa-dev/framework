@@ -48,7 +48,6 @@ public class DirectoryRASSTest {
         this.rasDirectory = Files.createTempDirectory("ejat_junit_ras_");
 
         this.framework = mock(IFramework.class);
-        when(this.framework.getTestRunId()).thenReturn(runid);
         when(this.framework.getTestRunName()).thenReturn(runname);
 
         final ArrayList<URI> rasURIs = new ArrayList<>();
