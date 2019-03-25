@@ -62,6 +62,8 @@ public interface IFrameworkInitialisation {
 	 */
 	void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) throws ResultArchiveStoreException;
 	
+	void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService) throws ConfidentialTextException;
+
 	/**
 	 * <p>Retrieve the IFramework object.  Not all the methods will be valid during the initialisation period.
 	 * Review the Framework Lifecycle to determine when parts of the Framework is initialised</p>

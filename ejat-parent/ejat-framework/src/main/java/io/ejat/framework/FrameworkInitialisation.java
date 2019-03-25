@@ -15,9 +15,11 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
+import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
@@ -233,6 +235,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             throws ResultArchiveStoreException {
         this.framework.addResultArchiveStoreService(resultArchiveStoreService);
 
+    }
+
+    @Override
+    public void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
+            throws ConfidentialTextException {
+        this.framework.setConfidentialTextService(confidentialTextService);
     }
 
     /*

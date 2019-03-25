@@ -17,9 +17,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
+import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
@@ -195,6 +197,10 @@ public class FrameworkDynamicStatusStoreTest {
         @Override
         public URI getBootstrapConfigurationPropertyStore() {
             return null;
+        }
+
+        @Override
+        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
         }
 
         @Override

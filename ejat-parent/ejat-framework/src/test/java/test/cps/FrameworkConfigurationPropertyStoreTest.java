@@ -16,9 +16,10 @@ import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
 
-import io.ejat.IConfidentialTextService;
+import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStoreService;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyStore;
+import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
@@ -246,7 +247,10 @@ public class FrameworkConfigurationPropertyStoreTest {
         public FrameworkInitialisation(URI uri) {
             this.uri=uri;
         }
-
+        @Override
+        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
+        }
+        
         @Override
         public URI getBootstrapConfigurationPropertyStore() {return uri;}
         @Override

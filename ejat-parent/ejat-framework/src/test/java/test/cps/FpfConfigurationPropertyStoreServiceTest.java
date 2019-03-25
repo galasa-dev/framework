@@ -16,7 +16,9 @@ import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
+import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStoreService;
+import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
@@ -120,6 +122,9 @@ public class FpfConfigurationPropertyStoreServiceTest {
             this.uri=uri;
         }
 
+        @Override
+        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
+        }
         @Override
         public URI getBootstrapConfigurationPropertyStore() {return uri;}
         @Override
