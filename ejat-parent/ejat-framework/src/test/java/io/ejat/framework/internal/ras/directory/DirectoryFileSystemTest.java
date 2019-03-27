@@ -248,7 +248,9 @@ public class DirectoryFileSystemTest {
         final Properties contentTypes = new Properties();
         contentTypes.setProperty("/arty1.png", "image/png");
         final Path contentTypesFile = this.runDirectory.resolve("artifacts.properties");
-        contentTypes.store(Files.newOutputStream(contentTypesFile), null);
+        OutputStream os = Files.newOutputStream(contentTypesFile);
+        contentTypes.store(os, null);
+        os.close();
 
         final FileSystemProvider fsp = new DirectoryRASFileSystemProvider(this.runDirectory);
         final FileSystem fs = fsp.getFileSystem(this.runDirectory.toUri());

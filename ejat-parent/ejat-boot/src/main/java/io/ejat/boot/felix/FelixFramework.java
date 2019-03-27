@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.felix.bundlerepository.Reason;
@@ -47,7 +48,7 @@ public class FelixFramework {
 	 * Initialise and start the Felix framework. Install required bundles and the OBRs. Install the eJAT framework bundle
 	 * 
 	 * @param bundleRepositories the supplied OBRs
-	 * @throws LauncherException
+	 * @throws LauncherException if there is a problem initialising the framework
 	 */
 	public void buildFramework(List<String> bundleRepositories, String testBundleName) throws LauncherException {
 		logger.debug("Building Felix Framework...");
@@ -109,11 +110,13 @@ public class FelixFramework {
 	 * 
 	 * @param testBundleName the test bundle name
 	 * @param testClassName the test class name
+     * @param boostrapProperties the bootstrap properties
+     * @param overridesProperties the override properties
 	 * @return test passed
 	 * @throws LauncherException 
 	 * @throws Throwable 
 	 */
-	public boolean runTest(String testBundleName, String testClassName) throws LauncherException {
+	public boolean runTest(String testBundleName, String testClassName, Properties boostrapProperties, Properties overridesProperties) throws LauncherException {
 		
 		boolean testPassed = false;
 		
@@ -140,7 +143,7 @@ public class FelixFramework {
 		// Get the  io.ejat.framework.TestRunner#runTest(String testBundleName, String testClassName) method
 		Method runTestMethod;
 		try {
-			runTestMethod = service.getClass().getMethod("runTest", String.class, String.class);
+			runTestMethod = service.getClass().getMethod("runTest", String.class, String.class, Properties.class, Properties.class);
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new LauncherException("Unable to get Framework test runner method", e);
 		}
@@ -148,7 +151,7 @@ public class FelixFramework {
 		// Invoke the runTest method
 		logger.debug("Invoking runTest()");
     	try {
-			testPassed = (boolean) runTestMethod.invoke(service, testBundleName, testClassName);
+			testPassed = (boolean) runTestMethod.invoke(service, testBundleName, testClassName, boostrapProperties, overridesProperties);
 		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
 			throw new LauncherException(e.getCause());
 		}

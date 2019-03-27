@@ -17,12 +17,14 @@ import org.junit.After;
 import org.junit.Before;
 
 import io.ejat.framework.spi.IConfidentialTextService;
-import io.ejat.framework.internal.cps.FpfConfigurationPropertyStoreService;
-import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyStore;
+import io.ejat.framework.spi.IConfigurationPropertyStore;
+import io.ejat.framework.internal.cps.FpfConfigurationPropertyRegistration;
+import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
+import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
-import io.ejat.framework.spi.IConfigurationPropertyStore;
+import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
@@ -76,10 +78,9 @@ public class FrameworkConfigurationPropertyStoreTest {
         testProps.store(out, null);
         out.close();
 
-        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
-        fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
+        FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testProp.toURI());
 
-        FrameworkConfigurationPropertyStore test = new FrameworkConfigurationPropertyStore(new Framework(), fpfcps, overrides, record, "zos");
+        FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new Framework(), fpfcps, overrides, record, "zos");
         assertNotNull("Framework CPS could not bre created",test);
     } 
 
@@ -101,11 +102,9 @@ public class FrameworkConfigurationPropertyStoreTest {
         FileOutputStream out = new FileOutputStream(testProp);
         testProps.store(out, null);
         out.close();
+FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testProp.toURI());
 
-        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
-        fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
-
-        FrameworkConfigurationPropertyStore test = new FrameworkConfigurationPropertyStore(new Framework(), fpfcps, overrides, record, "zos");
+        FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new Framework(), fpfcps, overrides, record, "zos");
         assertEquals("Unexpected Value retrieved from CPS", "Waddup", test.getProperty("image", "credentialid", "PLEXMA"));
     } 
 
@@ -129,10 +128,9 @@ public class FrameworkConfigurationPropertyStoreTest {
         testProps.store(out, null);
         out.close();
 
-        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
-        fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
+        FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testProp.toURI());
 
-        FrameworkConfigurationPropertyStore test = new FrameworkConfigurationPropertyStore(new Framework(), fpfcps, overrides, record, "zos");
+        FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new Framework(), fpfcps, overrides, record, "zos");
         assertEquals("Unexpected Value retrieved from CPS", "Spoon", test.getProperty("image", "credentialid", "PLEXMA", "MVMA"));
     }
 
@@ -158,10 +156,9 @@ public class FrameworkConfigurationPropertyStoreTest {
         testProps.store(out, null);
         out.close();
 
-        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
-        fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
+        FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testProp.toURI());
 
-        FrameworkConfigurationPropertyStore test = new FrameworkConfigurationPropertyStore(new Framework(), fpfcps, overrides, record, "zos");
+        FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new Framework(), fpfcps, overrides, record, "zos");
         assertEquals("Unexpected Value retrieved from CPS", "Sever2", test.getProperty("image", "credentialid", "PLEXMA"));
     }
 
@@ -180,10 +177,9 @@ public class FrameworkConfigurationPropertyStoreTest {
         testProps.store(out, null);
         out.close();
 
-        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
-        fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
+        FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testProp.toURI());
 
-        FrameworkConfigurationPropertyStore test = new FrameworkConfigurationPropertyStore(new Framework(), fpfcps, overrides, record, "zos");
+        FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new Framework(), fpfcps, overrides, record, "zos");
         assertEquals("Unexpected Value retrieved from CPS", "tab!=space", test.getProperty("image", "credentialid"));
     }
 
@@ -202,10 +198,9 @@ public class FrameworkConfigurationPropertyStoreTest {
         testProps.store(out, null);
         out.close();
 
-        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
-        fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
+        FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testProp.toURI());
 
-        FrameworkConfigurationPropertyStore test = new FrameworkConfigurationPropertyStore(new Framework(), fpfcps, overrides, record, "zos");
+        FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new Framework(), fpfcps, overrides, record, "zos");
         assertEquals("Unexpected Key retrieved from CPS", "zos.image.PLEXMA.MVMA.credentialid", test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[0]);
         assertEquals("Unexpected Key retrieved from CPS", "zos.image.PLEXMA.credentialid", test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[1]);
         assertEquals("Unexpected Key retrieved from CPS", "zos.image.credentialid", test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[2]);
@@ -215,7 +210,7 @@ public class FrameworkConfigurationPropertyStoreTest {
      * <p>This is a private class used to implement the IFramework for testing purposes.</p>
      */
     private class Framework implements IFramework{
-        public IConfigurationPropertyStore getConfigurationPropertyStore(@NotNull String namespace) throws ConfigurationPropertyStoreException {
+        public IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace) throws ConfigurationPropertyStoreException {
             return null;
         }
 
@@ -227,11 +222,6 @@ public class FrameworkConfigurationPropertyStoreTest {
 
 		@Override
 		public @NotNull IConfidentialTextService getConfidentialTextService() {return null;}
-
-		@Override
-		public String getTestRunId() {
-			return null;
-		}
 
 		@Override
 		public String getTestRunName() {
@@ -248,39 +238,35 @@ public class FrameworkConfigurationPropertyStoreTest {
     /**
      * <p>This is a private class used to implement the IFrameworkIntialisation for testing purposes.</p>
      */
-    private class FrameworkInitialisation implements IFrameworkInitialisation {
-        private URI uri;
+    // private class FrameworkInitialisation implements IFrameworkInitialisation {
+    //     private URI uri;
 
-        public FrameworkInitialisation(URI uri) {
-            this.uri=uri;
-        }
-        @Override
-        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
-        }
+    //     public FrameworkInitialisation(URI uri) {
+    //         this.uri=uri;
+    //     }
+    //     @Override
+    //     public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
+    //     }
         
-        @Override
-        public URI getBootstrapConfigurationPropertyStore() {return uri;}
-        @Override
-        public void registerDynamicStatusStoreService(IDynamicStatusStoreService dynamicStatusStoreService){}
-        @Override
-        public IFramework getFramework(){return null;}
+    //     @Override
+    //     public URI getBootstrapConfigurationPropertyStore() {return uri;}
+    //     @Override
+    //     public void registerDynamicStatusStoreService(IDynamicStatusStoreService dynamicStatusStoreService){}
+    //     @Override
+    //     public IFramework getFramework(){return null;}
         
-        @Override
-        public void registerConfigurationPropertyStoreService(@NotNull IConfigurationPropertyStoreService configurationPropertyStoreService)
-                throws ConfigurationPropertyStoreException {}
+    //     @Override
+    //     public void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore)
+    //             throws ConfigurationPropertyStoreException {}
 
-		@Override
-		public URI getDynamicStatusStoreUri() {return null;}
+	// 	@Override
+	// 	public URI getDynamicStatusStoreUri() {return null;}
 
-		@Override
-		public List<URI> getResultArchiveStoreUris() {return null;}
+	// 	@Override
+	// 	public List<URI> getResultArchiveStoreUris() {return null;}
 
-		@Override
-		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
-        }
-        
-        @Override
-        public void registerCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService) throws CredentialsStoreException {           
-        }
-    }
+	// 	@Override
+	// 	public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+	// 	}
+    // }
 }

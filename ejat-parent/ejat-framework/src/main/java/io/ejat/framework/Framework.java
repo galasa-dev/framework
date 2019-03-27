@@ -7,8 +7,7 @@ import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
 
 import io.ejat.framework.spi.IConfidentialTextService;
-import io.ejat.framework.spi.creds.ICredentialsStoreService;
-import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyStore;
+import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
 import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
 import io.ejat.framework.internal.dss.FrameworkDynamicStatusStore;
 import io.ejat.framework.internal.creds.FrameworkCredentialsStoreService;
@@ -18,6 +17,7 @@ import io.ejat.framework.spi.creds.ICredentialsStore;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStore;
@@ -35,14 +35,13 @@ public class Framework implements IFramework {
     private final Properties                   overrideProperties;
     private final Properties                   recordProperties;
 
-    private IConfigurationPropertyStoreService cpsService;
+    private IConfigurationPropertyStore        cpsStore;
     private IDynamicStatusStoreService         dssService;
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;             
 
-    private IConfigurationPropertyStore        cpsFramework;
-    private ICredentialsStoreService           credsFramework;
+    private IConfigurationPropertyStoreService cpsFramework;
 
     protected Framework(Properties overrideProperties, Properties recordProperties) {
         this.overrideProperties = overrideProperties;
@@ -50,9 +49,9 @@ public class Framework implements IFramework {
     }
 
     @Override
-    public @NotNull IConfigurationPropertyStore getConfigurationPropertyStore(@NotNull String namespace)
+    public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
             throws ConfigurationPropertyStoreException {
-        if (this.cpsService == null) {
+        if (this.cpsStore == null) {
             throw new ConfigurationPropertyStoreException("The Configuration Property Store has not been initialised");
         }
 
@@ -62,7 +61,7 @@ public class Framework implements IFramework {
             throw new ConfigurationPropertyStoreException("Unable to provide Configuration Property Store", e);
         }
 
-        return new FrameworkConfigurationPropertyStore(this, this.cpsService, this.overrideProperties,
+        return new FrameworkConfigurationPropertyService(this, this.cpsStore, this.overrideProperties,
                 this.recordProperties, namespace);
     }
 
@@ -152,15 +151,15 @@ public class Framework implements IFramework {
      * @throws ConfigurationPropertyStoreException - If a CPS has already be
      *                                             registered
      */
-    protected void setConfigurationPropertyStoreService(@NotNull IConfigurationPropertyStoreService cpsService)
+    protected void setConfigurationPropertyStore(@NotNull IConfigurationPropertyStore cpsStore)
             throws ConfigurationPropertyStoreException {
-        if (this.cpsService != null) {
+        if (this.cpsStore != null) {
             throw new ConfigurationPropertyStoreException(
                     "Invalid 2nd registration of the Config Property Store Service detected");
         }
 
-        this.cpsService = cpsService;
-        this.cpsFramework = getConfigurationPropertyStore("framework");
+        this.cpsStore = cpsStore;
+        this.cpsFramework = getConfigurationPropertyService("framework");
     }
 
     public void setDynamicStatusStoreService(@NotNull IDynamicStatusStoreService dssService)
@@ -209,8 +208,8 @@ public class Framework implements IFramework {
      *
      * @return The CPS Service
      */
-    protected IConfigurationPropertyStoreService getConfigurationPropertyStoreService() {
-        return this.cpsService;
+    protected IConfigurationPropertyStore getConfigurationPropertyStore() {
+        return this.cpsStore;
     }
 
     /**
@@ -220,20 +219,6 @@ public class Framework implements IFramework {
      */
     protected IDynamicStatusStoreService getDynamicStatusStoreService() {
         return this.dssService;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.ejat.framework.spi.IFramework#getTestRunId()
-     */
-    @Override
-    public String getTestRunId() {
-        try {
-            return cpsFramework.getProperty("run", "id");
-        } catch (ConfigurationPropertyStoreException e) {
-           throw new UnsupportedOperationException("Appears to be running outside of a test run", e);
-        }
     }
 
     /*

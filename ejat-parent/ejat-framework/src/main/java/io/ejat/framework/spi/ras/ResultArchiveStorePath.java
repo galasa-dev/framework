@@ -47,6 +47,12 @@ public class ResultArchiveStorePath implements Path {
         while (path.contains("//")) {
             path = path.replaceAll("\\Q//\\E", "/"); // NOSONAR
         }
+
+        // *** Convert from windows format
+        while (path.contains("\\")) {
+            path = path.replaceAll("\\Q\\\\E", "/"); // NOSONAR
+        }
+        
         this.absolute = path.startsWith("/");
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);

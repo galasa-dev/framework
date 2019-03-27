@@ -32,7 +32,7 @@ public interface IFramework {
 	 * @throws ConfigurationPropertyStoreException - If an invalid namespace is given
 	 */
 	@NotNull
-	IConfigurationPropertyStore getConfigurationPropertyStore(@NotNull String namespace) throws ConfigurationPropertyStoreException;
+	IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace) throws ConfigurationPropertyStoreException;
 	
 	/**
 	 * <p>Retrieve the Dynamic Status Store service from the framework.  This will allow you to access the 
@@ -80,13 +80,6 @@ public interface IFramework {
 	@NotNull
 	ICredentialsStoreService getCredentialsStoreService();
 	
-	/**
-	 * Retrieve the test run id.  Maybe null for non test runs
-	 * 
-	 * @return - The test run id
-	 */
-	String getTestRunId();
-
 	/**
 	 * Retrieve the test run name.  Maybe null for non test runs
 	 * 
