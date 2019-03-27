@@ -15,7 +15,7 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.FrameworkInitialisation;
 import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
 
-public class FrameworkCredentialsStore implements ICredentialsStore {
+public class FrameworkCredentialsStoreService implements ICredentialsStore {
     private IConfigurationPropertyStoreService cpsService;
     private String namespace;
     private String credsLocation = "~/.ejat/credentials.properties";
@@ -23,7 +23,7 @@ public class FrameworkCredentialsStore implements ICredentialsStore {
     private FrameworkConfidentialTextService confTextService;
     private Properties overrides;
 
-    public FrameworkCredentialsStore(IFramework framework, IConfigurationPropertyStoreService cpsService, ICredentialsStoreService credsService, String namespace, Properties overrides)
+    public FrameworkCredentialsStoreService(IFramework framework, IConfigurationPropertyStoreService cpsService, ICredentialsStoreService credsService, String namespace, Properties overrides)
             throws ConfigurationPropertyStoreException {
         this.cpsService = cpsService;
         this.namespace = namespace;

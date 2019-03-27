@@ -17,6 +17,8 @@ import org.osgi.framework.ServiceReference;
 
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.creds.CredentialsStoreException;
+import io.ejat.framework.spi.creds.ICredentialsRegistration;
+import io.ejat.framework.spi.creds.ICredentialsStore;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
@@ -45,6 +47,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private final List<URI>                   uriResultArchiveStores;
 
     private final IConfigurationPropertyStore cpsFramework;
+    private final ICredentialsStoreService    credsFramework;
 
     private final Log                         logger           = LogFactory.getLog(this.getClass());
 
@@ -163,6 +166,27 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                 .debug("Selected RAS Service is " + this.framework.getResultArchiveStoreService().getClass().getName());
 
         this.logger.error("Framework implementation is incomplete");
+
+        // *** Initialise the Credentials Store
+        this.logger.trace("Searching for Creds providers");
+        final ServiceReference<?>[] credsServiceReference = bundleContext
+                .getAllServiceReferences(ICredentialsStoreService.class.getName(), null);
+        if ((credsServiceReference == null) || (credsServiceReference.length == 0)) {
+            throw new FrameworkException("No Credentials Store Services have been found");
+        }
+        for (final ServiceReference<?> credsReference : credsServiceReference) {
+            final ICredentialsRegistration credsRegistration = (ICredentialsRegistration) bundleContext
+                    .getService(credsReference);
+            this.logger.trace("Found Creds Provider " + credsRegistration.getClass().getName());
+            credsRegistration.initialise(this);
+        }
+        if (this.framework.getCredentialsStore() == null) {
+            throw new FrameworkException("Failed to initialise a Credentials Store, unable to continue");
+        }
+        this.logger
+                .debug("Selected Creds Service is " + this.framework.getCredentialsStore().getClass().getName());
+
+        this.logger.error("Framework implementation is incomplete");
     }
 
     /*
@@ -246,9 +270,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     @Override
-    public void registerCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService)
+    public void registerCredentialsStore(@NotNull ICredentialsRegistration credentialsRegistration)
             throws CredentialsStoreException {
-        this.framework.setCredentialsStoreService(credentialsStoreService);
+        this.framework.setCredentialsStore(credentialsRegistration);
     }
 
     /*

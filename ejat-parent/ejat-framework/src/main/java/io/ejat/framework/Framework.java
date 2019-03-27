@@ -11,9 +11,10 @@ import io.ejat.framework.spi.creds.ICredentialsStoreService;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyStore;
 import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
 import io.ejat.framework.internal.dss.FrameworkDynamicStatusStore;
-import io.ejat.framework.internal.creds.FrameworkCredentialsStore;
+import io.ejat.framework.internal.creds.FrameworkCredentialsStoreService;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.creds.CredentialsStoreException;
+import io.ejat.framework.spi.creds.ICredentialsStore;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
@@ -38,9 +39,10 @@ public class Framework implements IFramework {
     private IDynamicStatusStoreService         dssService;
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
-    private ICredentialsStoreService           credsService;             
+    private ICredentialsStore                  credsStore;             
 
     private IConfigurationPropertyStore        cpsFramework;
+    private ICredentialsStoreService           credsFramework;
 
     protected Framework(Properties overrideProperties, Properties recordProperties) {
         this.overrideProperties = overrideProperties;
@@ -139,7 +141,7 @@ public class Framework implements IFramework {
     }
 
     @Override
-    public @NotNull ICredentialsStoreService getCredentialsStoreService() {
+    public @NotNull ICredentialsStoreService getCredentialsStore() {
         return this.credsService;
     }
 
@@ -194,12 +196,12 @@ public class Framework implements IFramework {
         this.ctsService = confidentialTextService;
     }
 
-    public void setCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService) 
+    public void setCredentialsStore(@NotNull ICredentialsStore credsStore) 
             throws CredentialsStoreException {
-        if (this.credsService != null) {
+        if (this.credsStore != null) {
             throw new CredentialsStoreException("Invalid 2nd registration of the Credentials Store Service detected");
         }
-        this.credsService = credentialsStoreService;
+        this.credsStore = credsStore;
     }
 
     /**
