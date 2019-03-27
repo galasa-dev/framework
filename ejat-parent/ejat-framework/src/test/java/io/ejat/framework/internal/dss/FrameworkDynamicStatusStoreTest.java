@@ -22,6 +22,8 @@ import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
 import io.ejat.framework.spi.IConfidentialTextService;
+import io.ejat.framework.spi.IConfigurationPropertyStore;
+import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
@@ -213,8 +215,8 @@ public class FrameworkDynamicStatusStoreTest {
         }
 
         @Override
-        public void registerConfigurationPropertyStoreService(
-                @NotNull IConfigurationPropertyStoreService configurationPropertyStoreService)
+        public void registerConfigurationPropertyStore(
+                @NotNull IConfigurationPropertyStore configurationPropertyStore)
                         throws ConfigurationPropertyStoreException {
         }
 

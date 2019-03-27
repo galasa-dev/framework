@@ -17,9 +17,15 @@ import javax.validation.constraints.NotNull;
 import org.junit.Test;
 
 import io.ejat.framework.spi.IConfidentialTextService;
-import io.ejat.framework.internal.cps.FpfConfigurationPropertyStoreService;
+import io.ejat.framework.spi.IConfigurationPropertyStore;
+import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
+import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
+import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
+import io.ejat.framework.internal.cps.FpfConfigurationPropertyRegistration;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
+import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.FrameworkPropertyFileException;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
@@ -32,7 +38,7 @@ import io.ejat.framework.spi.IResultArchiveStoreService;
  * @author James Davies
  */
 
-public class FpfConfigurationPropertyStoreServiceTest {
+public class FpfConfigurationPropertyStoreTest {
 
     /**
      * <p>This test method checks the returned boolean from a class that checks if a URI is a local file. Expected true.</p>
@@ -41,7 +47,7 @@ public class FpfConfigurationPropertyStoreServiceTest {
     @Test
     public void testTheIsFileUriMethod() throws IOException{
         File testProp = File.createTempFile("ejatfpf_", ".properties");
-        assertTrue("Return the incorrect scheme for the provided URI",FpfConfigurationPropertyStoreService.isFileUri(testProp.toURI()));
+        assertTrue("Return the incorrect scheme for the provided URI",FpfConfigurationPropertyStore.isFileUri(testProp.toURI()));
     }
 
     /**
@@ -51,20 +57,7 @@ public class FpfConfigurationPropertyStoreServiceTest {
     @Test
     public void testTheIsFileUriMethodWithUrl() throws URISyntaxException{
         URI uri = new URI("http://isthisevenreal.co.il.uk/nope");
-        assertFalse("Return the incorrect scheme for the provided URI",FpfConfigurationPropertyStoreService.isFileUri(uri));
-    }
-
-    /**
-     * <p> This method checks for no exceptions when intialising the Configuration Property Store as a FPF</p>
-     * @throws ConfigurationPropertyStoreException
-     * @throws IOException
-     */
-    @Test
-    public void testIntialise() throws ConfigurationPropertyStoreException, IOException{
-        File testProp = File.createTempFile("ejatfpf_", ".properties");
-        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
-        fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
-        assertTrue("Dummy",true);
+        assertFalse("Return the incorrect scheme for the provided URI",FpfConfigurationPropertyStore.isFileUri(uri));
     }
 
     /**
@@ -89,9 +82,9 @@ public class FpfConfigurationPropertyStoreServiceTest {
 
         String expected = "SomeString";
 
-        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
-        fpfcps.initialise(new FrameworkInitialisation(testProp.toURI()));
-        assertEquals("Did not return the expected value.", expected, fpfcps.getProperty("Test1"));
+        FpfConfigurationPropertyStore fpfCps = new FpfConfigurationPropertyStore(testProp.toURI());
+
+        assertEquals("Did not return the expected value.", expected, fpfCps.getProperty("Test1"));
     }
 
     /**
@@ -104,8 +97,7 @@ public class FpfConfigurationPropertyStoreServiceTest {
         File file = new File("DefoNotAFile.com");
         boolean caught = false;
         try {
-        FpfConfigurationPropertyStoreService fpfcps = new FpfConfigurationPropertyStoreService();
-        fpfcps.initialise(new FrameworkInitialisation(file.toURI()));
+            FpfConfigurationPropertyStore fpfCps = new FpfConfigurationPropertyStore(file.toURI());
         } catch (ConfigurationPropertyStoreException e){
             caught = true;
         }
@@ -117,9 +109,15 @@ public class FpfConfigurationPropertyStoreServiceTest {
      */
     private class FrameworkInitialisation implements IFrameworkInitialisation {
         private URI uri;
+        private FpfConfigurationPropertyStore fpf;
 
         public FrameworkInitialisation(URI uri) {
-            this.uri=uri;
+            this.uri = uri;
+            try {
+                fpf = new FpfConfigurationPropertyStore(uri);
+            } catch (ConfigurationPropertyStoreException e) {
+                
+            }    
         }
 
         @Override
@@ -133,7 +131,7 @@ public class FpfConfigurationPropertyStoreServiceTest {
         public IFramework getFramework(){return null;}
         
         @Override
-        public void registerConfigurationPropertyStoreService(@NotNull IConfigurationPropertyStoreService configurationPropertyStoreService)
+        public void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore)
                 throws ConfigurationPropertyStoreException {
         }
 

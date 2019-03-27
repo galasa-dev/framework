@@ -41,7 +41,7 @@ public interface IFrameworkInitialisation {
 	 * @param configurationPropertyStoreService - the configuration property store service chosen to be active
 	 * @throws ConfigurationPropertyStoreException - Only if a 2nd attempt to register a CPS was performed
 	 */
-	void registerConfigurationPropertyStoreService(@NotNull IConfigurationPropertyStoreService configurationPropertyStoreService) throws ConfigurationPropertyStoreException;
+	void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore) throws ConfigurationPropertyStoreException;
 	
 	/**
 	 * <p>Register the active Dynamic Status Store Service.  This can only be called once per test run or service instance

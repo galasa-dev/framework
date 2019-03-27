@@ -6,7 +6,9 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
-import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyStore;
+import io.ejat.framework.spi.IConfidentialTextService;
+import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
+import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
 import io.ejat.framework.internal.dss.FrameworkDynamicStatusStore;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
@@ -30,12 +32,12 @@ public class Framework implements IFramework {
     private final Properties                   overrideProperties;
     private final Properties                   recordProperties;
 
-    private IConfigurationPropertyStoreService cpsService;
+    private IConfigurationPropertyStore        cpsStore;
     private IDynamicStatusStoreService         dssService;
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
 
-    private IConfigurationPropertyStore        cpsFramework;
+    private IConfigurationPropertyStoreService cpsFramework;
 
     protected Framework(Properties overrideProperties, Properties recordProperties) {
         this.overrideProperties = overrideProperties;
@@ -43,9 +45,9 @@ public class Framework implements IFramework {
     }
 
     @Override
-    public @NotNull IConfigurationPropertyStore getConfigurationPropertyStore(@NotNull String namespace)
+    public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
             throws ConfigurationPropertyStoreException {
-        if (this.cpsService == null) {
+        if (this.cpsStore == null) {
             throw new ConfigurationPropertyStoreException("The Configuration Property Store has not been initialised");
         }
 
@@ -55,7 +57,7 @@ public class Framework implements IFramework {
             throw new ConfigurationPropertyStoreException("Unable to provide Configuration Property Store", e);
         }
 
-        return new FrameworkConfigurationPropertyStore(this, this.cpsService, this.overrideProperties,
+        return new FrameworkConfigurationPropertyService(this, this.cpsStore, this.overrideProperties,
                 this.recordProperties, namespace);
     }
 
@@ -140,15 +142,15 @@ public class Framework implements IFramework {
      * @throws ConfigurationPropertyStoreException - If a CPS has already be
      *                                             registered
      */
-    protected void setConfigurationPropertyStoreService(@NotNull IConfigurationPropertyStoreService cpsService)
+    protected void setConfigurationPropertyStore(@NotNull IConfigurationPropertyStore cpsStore)
             throws ConfigurationPropertyStoreException {
-        if (this.cpsService != null) {
+        if (this.cpsStore != null) {
             throw new ConfigurationPropertyStoreException(
                     "Invalid 2nd registration of the Config Property Store Service detected");
         }
 
-        this.cpsService = cpsService;
-        this.cpsFramework = getConfigurationPropertyStore("framework");
+        this.cpsStore = cpsStore;
+        this.cpsFramework = getConfigurationPropertyService("framework");
     }
 
     public void setDynamicStatusStoreService(@NotNull IDynamicStatusStoreService dssService)
@@ -189,8 +191,8 @@ public class Framework implements IFramework {
      *
      * @return The CPS Service
      */
-    protected IConfigurationPropertyStoreService getConfigurationPropertyStoreService() {
-        return this.cpsService;
+    protected IConfigurationPropertyStore getConfigurationPropertyStore() {
+        return this.cpsStore;
     }
 
     /**
