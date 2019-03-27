@@ -77,13 +77,6 @@ public interface IFramework {
 	
 	
 	/**
-	 * Retrieve the test run id.  Maybe null for non test runs
-	 * 
-	 * @return - The test run id
-	 */
-	String getTestRunId();
-
-	/**
 	 * Retrieve the test run name.  Maybe null for non test runs
 	 * 
 	 * @return - The test run name

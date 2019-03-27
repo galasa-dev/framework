@@ -29,9 +29,9 @@ import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
-    
-    private static final String SCHEME_FILE = "file://";
-    private static final String USER_HOME   = "user.home";
+
+    private static final String               SCHEME_FILE      = "file://";
+    private static final String               USER_HOME        = "user.home";
 
     private final Framework                   framework;
     private final Properties                  bootstrapProperties;
@@ -62,7 +62,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         } else {
             this.uriConfigurationPropertyStore = new URI(propUri);
         }
-        this.logger.debug("Configuration Property Store is " + propUri);
+        this.logger.debug("Configuration Property Store is " + this.uriConfigurationPropertyStore.toString());
 
         // *** Initialise the Configuration Property Store
         this.logger.trace("Searching for CPS providers");
@@ -81,7 +81,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         if (this.framework.getConfigurationPropertyStoreService() == null) {
             throw new FrameworkException("Failed to initialise a Configuration Property Store, unable to continue");
         }
-        this.logger.debug("Selected CPS Service is "
+        this.logger.trace("Selected CPS Service is "
                 + this.framework.getConfigurationPropertyStoreService().getClass().getName());
 
         // *** Set up a CPS store for framework
@@ -99,6 +99,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         } catch (final Exception e) {
             throw new FrameworkException("Unable to resolve the Dynamic Status Store URI", e);
         }
+        this.logger.debug("Dynamic Status Store is " + this.uriDynamicStatusStore.toString());
 
         // *** Work out the ras uris
         try {
@@ -122,6 +123,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         } catch (final Exception e) {
             throw new FrameworkException("Unable to resolve the Result Archive Store URIs", e);
         }
+        this.logger.debug("Result Archive Stores are " + this.uriResultArchiveStores.toString());
 
         // *** Initialise the Dynamic Status Store
         this.logger.trace("Searching for DSS providers");
@@ -139,7 +141,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         if (this.framework.getDynamicStatusStoreService() == null) {
             throw new FrameworkException("Failed to initialise a Dynamic Status Store, unable to continue");
         }
-        logger.debug("Selected DSS Service is " + this.framework.getDynamicStatusStoreService().getClass().getName());
+        logger.trace("Selected DSS Service is " + this.framework.getDynamicStatusStoreService().getClass().getName());
 
         // *** Initialise the Result Archive Store
         this.logger.trace("Searching for RAS providers");
@@ -158,9 +160,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             throw new FrameworkException("Failed to initialise a Result Archive Store, unable to continue");
         }
         this.logger
-                .debug("Selected RAS Service is " + this.framework.getResultArchiveStoreService().getClass().getName());
-
-        this.logger.error("Framework implementation is incomplete");
+                .trace("Selected RAS Service is " + this.framework.getResultArchiveStoreService().getClass().getName());
     }
 
     /*

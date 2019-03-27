@@ -79,12 +79,12 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
                     "Unable to create the RAS base directory '" + this.baseDirectory + "'", e);
         }
 
-        // *** Get the runid to create the directory
-        final String runid = this.framework.getTestRunId();
-        if (runid == null) {
+        // *** Get the runname to create the directory
+        final String runName = this.framework.getTestRunName();
+        if (runName == null) {
             throw new UnsupportedOperationException("Currently do not support running outside of a test run");
         }
-        setRasRun(runid);
+        setRasRun(runName);
 
         // *** Set the locations of the standard files
         this.testStructureFile = this.runDirectory.resolve("structure.json");
@@ -110,12 +110,30 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     /**
      * Setup the run directory
      *
-     * @param runid       - the id of the run
+     * @param runname     - the name of the run
      * @param testRunName - the name of the run
      * @throws ResultArchiveStoreException - if we can't create the directories
      */
-    private void setRasRun(String runid) throws ResultArchiveStoreException {
-        this.runDirectory = this.baseDirectory.resolve(runid);
+    private void setRasRun(String runname) throws ResultArchiveStoreException {
+        this.runDirectory = this.baseDirectory.resolve(runname);
+        try {
+            //*** If this run name directory exists move it to a similar named one.  This maybe 
+            //*** possible for framework and manager development where the runname maybe reused often
+            if (Files.exists(runDirectory)) {                
+                Path movePath = null;
+                for (int i = 2;;i++) {
+                    movePath = this.runDirectory.resolveSibling(runname + "-" + Integer.toString(i));
+                    if (!Files.exists(movePath)) {
+                        Files.move(runDirectory, movePath);
+                        break;
+                    }
+                }
+            }
+        } catch(IOException e) {
+            throw new ResultArchiveStoreException("Unable to create the RAS run directory '" + this.runDirectory + "'",
+                    e);
+        }
+        
         try {
             Files.createDirectories(this.runDirectory);
             Files.createDirectories(this.runDirectory.resolve("artifacts"));
