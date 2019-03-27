@@ -4,11 +4,7 @@ package io.ejat.framework.internal.cts;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
-import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.IConfidentialTextService;
-import io.ejat.framework.spi.IFrameworkInitialisation;
 
 /**
  * This class is to provide the framework with a confidential text service that can remove usernames, passwords, 
@@ -18,20 +14,6 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
  */
 public class FrameworkConfidentialTextService implements IConfidentialTextService{
     private List<ConfidentialText> confidentialTexts = new ArrayList<>();
-
-    /**
-     * This method intialises the service with the framework, managers can then access this service.
-     * 
-     * @param IFrameworkInitialisation - the framework setup.
-     * @throws ConfidentialTextException
-     */
-    public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws ConfidentialTextException {
-        try {
-            frameworkInitialisation.registerConfidentialTextService(this);
-        } catch (ConfidentialTextException e) {
-            throw e;
-        }
-    }
 
     /**
      * This method is for registering a text with the service. It creates the replacement tag (******1******) 
