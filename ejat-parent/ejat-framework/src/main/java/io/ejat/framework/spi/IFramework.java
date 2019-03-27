@@ -30,7 +30,7 @@ public interface IFramework {
 	 * @throws ConfigurationPropertyStoreException - If an invalid namespace is given
 	 */
 	@NotNull
-	IConfigurationPropertyStore getConfigurationPropertyStore(@NotNull String namespace) throws ConfigurationPropertyStoreException;
+	IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace) throws ConfigurationPropertyStoreException;
 	
 	/**
 	 * <p>Retrieve the Dynamic Status Store service from the framework.  This will allow you to access the 

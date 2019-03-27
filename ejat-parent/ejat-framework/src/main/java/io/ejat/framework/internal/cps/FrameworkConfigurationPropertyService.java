@@ -14,11 +14,11 @@ import io.ejat.framework.spi.IFramework;
  * 
  * @author James Davies
  */
-public class FrameworkConfigurationPropertyStore implements IConfigurationPropertyStore{
+public class FrameworkConfigurationPropertyService implements IConfigurationPropertyStoreService{
     private String namespace;
     private Properties record;
     private Properties overrides;
-    private IConfigurationPropertyStoreService cpsService;
+    private IConfigurationPropertyStore cpsStore;
 
     /**
      * <p>This constructor ensures that the registered CPS service (fpf or etcd3) is known, as wells as accepting the overrides and record properties. Namespace of the manager which 
@@ -32,11 +32,11 @@ public class FrameworkConfigurationPropertyStore implements IConfigurationProper
      * @param record - a properties object for recording the keys accessed and where from <Location>=<KeyAccessed>
      * @param namespace - The name space for keys for a specfic manager
      */
-    public FrameworkConfigurationPropertyStore(IFramework framework, IConfigurationPropertyStoreService cpsService, Properties overrides, Properties record, String namespace) {
+    public FrameworkConfigurationPropertyService(IFramework framework, IConfigurationPropertyStore cpsStore, Properties overrides, Properties record, String namespace) {
         this.namespace = namespace;
         this.record = record;
         this.overrides = overrides;
-        this.cpsService = cpsService;
+        this.cpsStore = cpsStore;
     }
 
     /**
@@ -102,7 +102,7 @@ public class FrameworkConfigurationPropertyStore implements IConfigurationProper
             record.put(key, value);
             return value;
         }
-        value = cpsService.getProperty(key);
+        value = cpsStore.getProperty(key);
 
         if (value != null){
             record.put(key, value);

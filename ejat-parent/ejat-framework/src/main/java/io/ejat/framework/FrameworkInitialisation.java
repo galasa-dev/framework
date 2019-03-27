@@ -21,6 +21,7 @@ import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
+import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
@@ -42,7 +43,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private final URI                         uriDynamicStatusStore;
     private final List<URI>                   uriResultArchiveStores;
 
-    private final IConfigurationPropertyStore cpsFramework;
+    private final IConfigurationPropertyStoreService cpsFramework;
 
     private final Log                         logger           = LogFactory.getLog(this.getClass());
 
@@ -73,19 +74,19 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             throw new FrameworkException("No Configuration Property Store Services have been found");
         }
         for (final ServiceReference<?> cpsReference : cpsServiceReference) {
-            final IConfigurationPropertyStoreService cpsService = (IConfigurationPropertyStoreService) bundleContext
+            final IConfigurationPropertyStoreRegistration cpsStoreRegistration = (IConfigurationPropertyStoreRegistration) bundleContext
                     .getService(cpsReference);
-            this.logger.trace("Found CPS Provider " + cpsService.getClass().getName());
-            cpsService.initialise(this);
+            this.logger.trace("Found CPS Provider " + cpsStoreRegistration.getClass().getName());
+            cpsStoreRegistration.initialise(this);
         }
-        if (this.framework.getConfigurationPropertyStoreService() == null) {
+        if (this.framework.getConfigurationPropertyStore() == null) {
             throw new FrameworkException("Failed to initialise a Configuration Property Store, unable to continue");
         }
-        this.logger.trace("Selected CPS Service is "
-                + this.framework.getConfigurationPropertyStoreService().getClass().getName());
+        this.logger.debug("Selected CPS Service is "
+                + this.framework.getConfigurationPropertyStore().getClass().getName());
 
         // *** Set up a CPS store for framework
-        this.cpsFramework = this.framework.getConfigurationPropertyStore("framework");
+        this.cpsFramework = this.framework.getConfigurationPropertyService("framework");
 
         // *** Work out the dss uri
         try {
@@ -204,10 +205,10 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * IConfigurationPropertyStoreService)
      */
     @Override
-    public void registerConfigurationPropertyStoreService(
-            @NotNull IConfigurationPropertyStoreService configurationPropertyStoreService)
+    public void registerConfigurationPropertyStore(
+            @NotNull IConfigurationPropertyStore configurationPropertyStore)
             throws ConfigurationPropertyStoreException {
-        this.framework.setConfigurationPropertyStoreService(configurationPropertyStoreService);
+        this.framework.setConfigurationPropertyStore(configurationPropertyStore);
     }
 
     /*

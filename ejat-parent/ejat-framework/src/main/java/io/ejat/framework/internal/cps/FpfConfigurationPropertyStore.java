@@ -10,8 +10,8 @@ import org.osgi.service.component.annotations.Component;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.FrameworkPropertyFile;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
-import io.ejat.framework.spi.IConfigurationPropertyStoreService;
-import io.ejat.framework.spi.IFrameworkInitialisation;
+import io.ejat.framework.spi.IConfigurationPropertyStore;
+
 
 /**
  *  <p>This class is used when the FPF class is being operated as the Key-Value store for the Configuration
@@ -20,28 +20,16 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
  * @author James Davies
  */
 
-@Component(service= {IConfigurationPropertyStoreService.class})
-public class FpfConfigurationPropertyStoreService implements IConfigurationPropertyStoreService {
+@Component(service= {IConfigurationPropertyStore.class})
+public class FpfConfigurationPropertyStore implements IConfigurationPropertyStore {
 	private FrameworkPropertyFile fpf;
 
-	/**
-	 * <p>This method checks that the CPS is a local file, and if true registers this file as the ONLY CPS.</p>
-	 * 
-	 * @param IFrameworkInitialisation
-	 * @throws ConfigurationPropertyStoreException
-	 */
-	@Override
-	public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
-			throws ConfigurationPropertyStoreException {
-				URI cps = frameworkInitialisation.getBootstrapConfigurationPropertyStore();
-				if (isFileUri(cps)){
-					try {
-						fpf = new FrameworkPropertyFile(cps);
-						frameworkInitialisation.registerConfigurationPropertyStoreService(this);
-					} catch (FrameworkPropertyFileException e ){
-						throw new ConfigurationPropertyStoreException("Could not intialise Framework Property File", e);
-					}
-				}
+	public FpfConfigurationPropertyStore(URI file) throws ConfigurationPropertyStoreException {
+		try {
+			fpf = new FrameworkPropertyFile(file);
+		} catch (FrameworkPropertyFileException e) {
+			throw new ConfigurationPropertyStoreException("Failed to create Framework property file", e);
+		}
 	}
 
 	/**
