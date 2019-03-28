@@ -14,6 +14,7 @@ import io.ejat.framework.internal.creds.FrameworkCredentialsStoreService;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.creds.CredentialsStoreException;
 import io.ejat.framework.spi.creds.ICredentialsStore;
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
@@ -42,6 +43,7 @@ public class Framework implements IFramework {
     private ICredentialsStore                  credsStore;             
 
     private IConfigurationPropertyStoreService cpsFramework;
+    private ICredentialsStoreService           credsFramework;
 
     protected Framework(Properties overrideProperties, Properties recordProperties) {
         this.overrideProperties = overrideProperties;
@@ -140,8 +142,12 @@ public class Framework implements IFramework {
     }
 
     @Override
-    public @NotNull ICredentialsStoreService getCredentialsStore() {
-        return this.credsService;
+    public @NotNull ICredentialsStoreService getCredentialsService() throws CredentialsStoreException {
+        if (this.credsStore == null) {
+            throw new CredentialsStoreException("The Credentials Store has not been initialised");
+        }
+
+        return new FrameworkCredentialsStoreService(this, this.cpsStore, this.credsStore, this.overrideProperties);
     }
 
     /**
@@ -219,6 +225,10 @@ public class Framework implements IFramework {
      */
     protected IDynamicStatusStoreService getDynamicStatusStoreService() {
         return this.dssService;
+    }
+
+    protected ICredentialsStore getCredentialsStore() {
+        return this.credsStore;
     }
 
     /*

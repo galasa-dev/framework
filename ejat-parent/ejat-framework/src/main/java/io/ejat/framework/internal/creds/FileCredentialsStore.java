@@ -18,7 +18,7 @@ import io.ejat.framework.spi.creds.FileCredentialsUsername;
 import io.ejat.framework.spi.creds.FileCredentialsUsernamePassword;
 import io.ejat.framework.spi.creds.ICredentialsStore;
 
-@Component(service= {ICredentialsStoreService.class})
+@Component(service= {ICredentialsStore.class})
 public class FileCredentialsStore implements ICredentialsStore {
     private FrameworkPropertyFile fpf;
 

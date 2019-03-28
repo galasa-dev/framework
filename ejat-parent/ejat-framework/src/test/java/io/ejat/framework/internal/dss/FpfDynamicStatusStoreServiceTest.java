@@ -30,7 +30,7 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
-import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.ICredentialsStore;
 import io.ejat.framework.spi.creds.CredentialsStoreException;
 
 /**
@@ -269,7 +269,7 @@ import io.ejat.framework.spi.creds.CredentialsStoreException;
 		public List<URI> getResultArchiveStoreUris() {return null;}
 
         @Override
-        public void registerCredentialsStoreService(@NotNull ICredentialsStoreService credentialsStoreService) throws CredentialsStoreException {           
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsStoreException {           
         }
 
     }

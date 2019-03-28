@@ -8,35 +8,34 @@ import io.ejat.framework.spi.creds.FileCredentialsUsername;
 import io.ejat.framework.spi.creds.FileCredentialsUsernamePassword;
 import io.ejat.framework.spi.creds.ICredentialsStoreService;
 import io.ejat.framework.spi.creds.ICredentials;
-import io.ejat.framework.spi.IConfigurationPropertyStoreService;
+import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.creds.CredentialsStoreException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.FrameworkInitialisation;
 import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
 
-public class FrameworkCredentialsStoreService implements ICredentialsStore {
-    private IConfigurationPropertyStoreService cpsService;
-    private String namespace;
+public class FrameworkCredentialsStoreService implements ICredentialsStoreService {
+    private IConfigurationPropertyStore cpsStore;
+    //private String namespace;
     private String credsLocation = "~/.ejat/credentials.properties";
-    private ICredentialsStoreService credsService;
+    private ICredentialsStore credsStore;
     private FrameworkConfidentialTextService confTextService;
     private Properties overrides;
 
-    public FrameworkCredentialsStoreService(IFramework framework, IConfigurationPropertyStoreService cpsService, ICredentialsStoreService credsService, String namespace, Properties overrides)
-            throws ConfigurationPropertyStoreException {
-        this.cpsService = cpsService;
-        this.namespace = namespace;
-        this.credsService = credsService;
+    public FrameworkCredentialsStoreService(IFramework framework, IConfigurationPropertyStore cpsStore, ICredentialsStore credsStore, Properties overrides) {
+        this.cpsStore = cpsStore;
+        //this.namespace = namespace;
+        this.credsStore = credsStore;
         this.overrides = overrides;
 
-        String credsLocation = cpsService.getProperty("framework.credentials.store");
-        if (!credsLocation.equals(null)) {
-            this.credsLocation = credsLocation;
-        }
-
         try {
-            if (cpsService.getProperty("framework.credentials.auto.register.cts").equals("true")) {
+            String credsLocation = cpsStore.getProperty("framework.credentials.store");
+            if (!credsLocation.equals(null)) {
+                this.credsLocation = credsLocation;
+            }
+
+            if (cpsStore.getProperty("framework.credentials.auto.register.cts").equals("true")) {
                 confTextService = new FrameworkConfidentialTextService();
     
                 // Don't know what properties should be
@@ -53,6 +52,6 @@ public class FrameworkCredentialsStoreService implements ICredentialsStore {
 
     @Override
     public ICredentials getCredentials(String credsId) throws CredentialsStoreException {
-        return credsService.getCredentials(credsId);
+        return credsStore.getCredentials(credsId);
     }
 }

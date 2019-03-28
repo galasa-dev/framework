@@ -48,6 +48,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private final List<URI>                   uriResultArchiveStores;
 
     private final IConfigurationPropertyStoreService cpsFramework;
+    //private final ICredentialsStoreService credsFramework;
 
     private final Log                         logger           = LogFactory.getLog(this.getClass());
 
@@ -166,6 +167,25 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         }
         this.logger
                 .trace("Selected RAS Service is " + this.framework.getResultArchiveStoreService().getClass().getName());
+
+        // *** Initialise the Result Archive Store
+        this.logger.trace("Searching for Creds providers");
+        final ServiceReference<?>[] credsServiceReference = bundleContext
+                .getAllServiceReferences(ICredentialsStoreService.class.getName(), null);
+        if ((credsServiceReference == null) || (credsServiceReference.length == 0)) {
+            throw new FrameworkException("No Credentials Services have been found");
+        }
+        for (final ServiceReference<?> credsReference : credsServiceReference) {
+            final ICredentialsRegistration credsRegistration = (ICredentialsRegistration) bundleContext
+                    .getService(credsReference);
+            this.logger.trace("Found Creds Provider " + credsRegistration.getClass().getName());
+            credsRegistration.initialise(this);
+        }
+        if (this.framework.getCredentialsStore() == null) {
+            throw new FrameworkException("Failed to initialise a Credentuals Store, unable to continue");
+        }
+        this.logger
+                .trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
     }
 
     /*
@@ -249,9 +269,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     @Override
-    public void registerCredentialsStore(@NotNull ICredentialsRegistration credentialsRegistration)
+    public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore)
             throws CredentialsStoreException {
-        this.framework.setCredentialsStore(credentialsRegistration);
+        this.framework.setCredentialsStore(credentialsStore);
     }
 
     /*

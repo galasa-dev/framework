@@ -1,6 +1,7 @@
 package io.ejat.framework.spi;
 
 import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
 
 import javax.validation.constraints.NotNull;
 
@@ -78,7 +79,7 @@ public interface IFramework {
 	IConfidentialTextService getConfidentialTextService();
 
 	@NotNull
-	ICredentialsStoreService getCredentialsStoreService();
+	ICredentialsStoreService getCredentialsService() throws CredentialsStoreException;
 	
 	/**
 	 * Retrieve the test run name.  Maybe null for non test runs

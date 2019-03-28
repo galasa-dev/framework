@@ -24,6 +24,8 @@ import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.creds.ICredentialsStore;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
 
 public class FpfConfigurationPropertyRegistrationTest {
 
@@ -75,6 +77,10 @@ public class FpfConfigurationPropertyRegistrationTest {
 
 		@Override
 		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
-		}
+        }
+        
+        @Override
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsStoreException {           
+        }
     }
 }

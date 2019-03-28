@@ -13,8 +13,8 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.creds.CredentialsStoreException;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
 import io.ejat.framework.spi.creds.CredentialsStoreException;
+import io.ejat.framework.internal.creds.FileCredentialsStore;
 
-@Component(service= {ICredentialsRegistration.class})
 public class FileCredentialsRegistration implements ICredentialsRegistration {
     private FrameworkPropertyFile fpf;
 
@@ -24,7 +24,7 @@ public class FileCredentialsRegistration implements ICredentialsRegistration {
             //Not sure what the URI should be
             URI creds = new URI("framework");
             fpf = new FrameworkPropertyFile(creds);
-            frameworkInitialisation.registerCredentialsStoreService(this);
+            frameworkInitialisation.registerCredentialsStore(new FileCredentialsStore(creds));
         } catch (FrameworkPropertyFileException | URISyntaxException e ) {
             throw new CredentialsStoreException("Could not initialise Framework Property File", e);
         }

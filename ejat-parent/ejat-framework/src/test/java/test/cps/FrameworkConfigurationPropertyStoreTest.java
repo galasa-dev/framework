@@ -229,7 +229,7 @@ FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testPro
         }
 
         @Override
-        public ICredentialsStoreService getCredentialsStoreService() {
+        public ICredentialsStoreService getCredentialsService() {
             return null;
         }
         
