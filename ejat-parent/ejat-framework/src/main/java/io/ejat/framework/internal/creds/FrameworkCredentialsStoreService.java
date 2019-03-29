@@ -16,13 +16,14 @@ import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.FrameworkInitialisation;
 import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
+import io.ejat.framework.internal.cts.FrameworkConfidentialTextServiceRegistration;
 
 public class FrameworkCredentialsStoreService implements ICredentialsStoreService {
     private IConfigurationPropertyStore cpsStore;
     //private String namespace;
     private String credsLocation = "~/.ejat/credentials.properties";
     private ICredentialsStore credsStore;
-    private FrameworkConfidentialTextService confTextService;
+    private FrameworkConfidentialTextServiceRegistration confTextServiceRegistration;
     private Properties overrides;
 
     public FrameworkCredentialsStoreService(IFramework framework, IConfigurationPropertyStore cpsStore, ICredentialsStore credsStore, Properties overrides) {
@@ -38,11 +39,10 @@ public class FrameworkCredentialsStoreService implements ICredentialsStoreServic
             }
 
             if (cpsStore.getProperty("framework.credentials.auto.register.cts").equals("true")) {
-                confTextService = new FrameworkConfidentialTextService();
+                confTextServiceRegistration = new FrameworkConfidentialTextServiceRegistration();
     
-                // Don't know what properties should be
                 Properties bootstrapProperties = new Properties();
-                confTextService.initialise(new FrameworkInitialisation(bootstrapProperties, overrides));
+                confTextServiceRegistration.initialise(new FrameworkInitialisation(bootstrapProperties, overrides));
                 
                 //Don't know how to access the token and password to register them in the confidential text store as don't have credentialsId
             }

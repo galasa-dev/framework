@@ -32,6 +32,7 @@ import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.creds.ICredentialsStore;
 import io.ejat.framework.spi.creds.CredentialsStoreException;
+import io.ejat.framework.internal.dss.FpfDynamicStatusStore;
 
 /**
  * Test the Framework DSS Stub. Most of the functionality will exist in the
@@ -40,13 +41,13 @@ import io.ejat.framework.spi.creds.CredentialsStoreException;
  * @author Michael Baylis
  *
  */
-public class FrameworkDynamicStatusStoreTest {
+public class FpfDynamicStatusStoreTest {
 
     // private static final String         NAMESPACE = "testy";
     // private static final String         PREFIX    = "dss." + NAMESPACE + ".";
 
     // private Path                        tempProperties;
-    // private FrameworkDynamicStatusStore dss;
+    // private FpfDynamicStatusStore dss;
 
     // @Before
     // public void setup() throws IOException, FrameworkPropertyFileException, DynamicStatusStoreException {
@@ -54,9 +55,9 @@ public class FrameworkDynamicStatusStoreTest {
     //     final FrameworkInitialisation frameworkInitialisation = new FrameworkInitialisation(
     //             this.tempProperties.toUri());
 
-    //     final FpfDynamicStatusStoreService dsss = new FpfDynamicStatusStoreService();
+    //     final FpfDynamicStatusStore dsss = new FpfDynamicStatusStore(tempProperties.toUri());
     //     dsss.initialise(frameworkInitialisation);
-    //     this.dss = new FrameworkDynamicStatusStore(null, dsss, NAMESPACE);
+    //     this.dss = new FpfDynamicStatusStore(null, dsss, NAMESPACE);
     // }
 
     // @After

@@ -39,7 +39,7 @@ import io.ejat.framework.spi.creds.CredentialsStoreException;
  * @author Bruce Abbott
  */
 
- public class FpfDynamicStatusStoreServiceTest {
+ public class FrameworkDynamicStatusStoreServiceTest {
      
     //  private File testFile;
      
