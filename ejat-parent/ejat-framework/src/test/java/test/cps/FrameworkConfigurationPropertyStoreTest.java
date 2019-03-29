@@ -214,7 +214,7 @@ FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testPro
             return null;
         }
 
-        public IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException {
+        public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace) throws DynamicStatusStoreException {
             return null;
         }
         public IResultArchiveStore getResultArchiveStore(){return null;}

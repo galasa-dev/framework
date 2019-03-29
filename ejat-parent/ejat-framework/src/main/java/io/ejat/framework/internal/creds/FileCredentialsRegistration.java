@@ -24,8 +24,8 @@ public class FileCredentialsRegistration implements ICredentialsRegistration {
             //Not sure what the URI should be
             URI creds = new URI("framework");
             fpf = new FrameworkPropertyFile(creds);
-            frameworkInitialisation.registerCredentialsStore(new FileCredentialsStore(creds));
-        } catch (FrameworkPropertyFileException | URISyntaxException e ) {
+            frameworkInitialisation.registerCredentialsStore(new FileCredentialsStore(creds, frameworkInitialisation.getFramework()));
+        } catch (Exception e ) {
             throw new CredentialsStoreException("Could not initialise Framework Property File", e);
         }
     }

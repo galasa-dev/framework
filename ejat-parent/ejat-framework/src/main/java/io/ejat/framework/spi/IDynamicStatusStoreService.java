@@ -24,6 +24,6 @@ public interface IDynamicStatusStoreService extends IDynamicStatusStoreKeyAccess
 	 * @param frameworkInitialisation - Initialisation object containing access to various initialisation methods
 	 * @throws DynamicStatusStoreException - If there is a problem initialising the underlying
 	 */
-	void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws DynamicStatusStoreException;
+	//void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws DynamicStatusStoreException;
 
 }

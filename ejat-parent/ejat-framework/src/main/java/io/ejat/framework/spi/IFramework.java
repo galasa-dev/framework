@@ -51,7 +51,7 @@ public interface IFramework {
 	 * @throws ConfigurationPropertyStoreException - If an invalid namespace is given
 	 */
 	@NotNull
-	IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException;
+	IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace) throws DynamicStatusStoreException;
 	
 	/**
 	 * <p>Retrieve the Result Archive Store from the framework.</p>

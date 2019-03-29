@@ -32,6 +32,8 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
+import io.ejat.framework.spi.IDynamicStatusStore;
+import io.ejat.framework.spi.IDynamicStatusStoreRegistration;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
@@ -139,15 +141,15 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             throw new FrameworkException("No Dynamic Status Store Services have been found");
         }
         for (final ServiceReference<?> dssReference : dssServiceReference) {
-            final IDynamicStatusStoreService dssService = (IDynamicStatusStoreService) bundleContext
+            final IDynamicStatusStoreRegistration dssStoreRegistration = (IDynamicStatusStoreRegistration) bundleContext
                     .getService(dssReference);
-            this.logger.trace("Found DSS Provider " + dssService.getClass().getName());
-            dssService.initialise(this);
+            this.logger.trace("Found DSS Provider " + dssStoreRegistration.getClass().getName());
+            dssStoreRegistration.initialise(this);
         }
-        if (this.framework.getDynamicStatusStoreService() == null) {
+        if (this.framework.getDynamicStatusStore() == null) {
             throw new FrameworkException("Failed to initialise a Dynamic Status Store, unable to continue");
         }
-        logger.trace("Selected DSS Service is " + this.framework.getDynamicStatusStoreService().getClass().getName());
+        logger.trace("Selected DSS Service is " + this.framework.getDynamicStatusStore().getClass().getName());
 
         // *** Initialise the Result Archive Store
         this.logger.trace("Searching for RAS providers");
@@ -243,9 +245,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * IDynamicStatusStoreService)
      */
     @Override
-    public void registerDynamicStatusStoreService(@NotNull IDynamicStatusStoreService dynamicStatusStoreService)
+    public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
             throws DynamicStatusStoreException {
-        this.framework.setDynamicStatusStoreService(dynamicStatusStoreService);
+        this.framework.setDynamicStatusStore(dynamicStatusStore);
     }
 
     /*

@@ -2,6 +2,8 @@ package io.ejat.framework.internal.creds;
 
 import java.util.Properties;
 
+import javax.crypto.IllegalBlockSizeException;
+
 import io.ejat.framework.spi.creds.ICredentialsStore;
 import io.ejat.framework.spi.creds.FileCredentialsToken;
 import io.ejat.framework.spi.creds.FileCredentialsUsername;
@@ -51,7 +53,7 @@ public class FrameworkCredentialsStoreService implements ICredentialsStoreServic
     }
 
     @Override
-    public ICredentials getCredentials(String credsId) throws CredentialsStoreException {
+    public ICredentials getCredentials(String credsId) throws CredentialsStoreException, IllegalBlockSizeException {
         return credsStore.getCredentials(credsId);
     }
 }
