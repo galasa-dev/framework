@@ -3,12 +3,7 @@ package test.cts;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
@@ -36,20 +31,6 @@ import io.ejat.framework.spi.DynamicStatusStoreException;
 public class ConfidentialTextServiceTest {
 
     /**
-     * This method intialises the confidentialTextService and checks no exceptions are thrown.
-     * 
-     * @throws ConfidentialTextException - if the service cannot be registered (i.e more than 1 service).
-     * @throws IOException
-     */
-    @Test
-    public void testInitialise() throws ConfidentialTextException, IOException{
-        FrameworkConfidentialTextService ctsService = new FrameworkConfidentialTextService();
-        File testProp = File.createTempFile("ejat_", ".properties");
-        ctsService.initialise(new FrameworkInitialisation(testProp.toURI()));
-        assertTrue("dummy", true);
-    }
-
-    /**
      * The test method adds a confidential text to the service.
      * 
      * @throws ConfidentialTextException
@@ -58,8 +39,6 @@ public class ConfidentialTextServiceTest {
     @Test
     public void testRegisterText() throws ConfidentialTextException, IOException{
         FrameworkConfidentialTextService ctsService = new FrameworkConfidentialTextService();
-        File testProp = File.createTempFile("ejat_", ".properties");
-        ctsService.initialise(new FrameworkInitialisation(testProp.toURI()));
 
         ctsService.registerText("test1", "This is a test comment");
         assertTrue("dummy", true);
@@ -74,8 +53,6 @@ public class ConfidentialTextServiceTest {
     @Test
     public void testRemoveConfidentialText() throws ConfidentialTextException, IOException{
         FrameworkConfidentialTextService ctsService = new FrameworkConfidentialTextService();
-        File testProp = File.createTempFile("ejat_", ".properties");
-        ctsService.initialise(new FrameworkInitialisation(testProp.toURI()));
 
         ctsService.registerText("test1", "This is a test comment");
         ctsService.registerText("test2", "This is a test comment");
