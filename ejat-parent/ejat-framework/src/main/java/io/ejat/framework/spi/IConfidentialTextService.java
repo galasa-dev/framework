@@ -11,14 +11,6 @@ import javax.validation.constraints.NotNull;
 public interface IConfidentialTextService {
 
     /**
-     * Registers the service with the framework, ensuring only one service is operational at one time.
-     * 
-     * @param frameworkInitialisation
-     * @throws ConfidentialTextException
-     */
-    void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws ConfidentialTextException;
-
-    /**
      * Regsiters a confidential text on the service. When any log or output is passed through this service it 
      * will then obscure it with a numbered Tag.
      * 
