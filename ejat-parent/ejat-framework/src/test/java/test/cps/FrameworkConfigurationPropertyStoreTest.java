@@ -33,6 +33,8 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
 
 /**
  * <p>This test class tests the behaviour of the FrameworkConfigurationPropertyStore class. The purpose of the class is to drive
@@ -212,7 +214,7 @@ FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testPro
             return null;
         }
 
-        public IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException {
+        public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace) throws DynamicStatusStoreException {
             return null;
         }
         public IResultArchiveStore getResultArchiveStore(){return null;}
@@ -224,7 +226,12 @@ FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testPro
 		@Override
 		public String getTestRunName() {
 			return null;
-		}
+        }
+
+        @Override
+        public ICredentialsStoreService getCredentialsService() {
+            return null;
+        }
         
     } 
 

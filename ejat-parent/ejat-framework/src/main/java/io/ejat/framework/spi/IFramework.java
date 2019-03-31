@@ -1,5 +1,8 @@
 package io.ejat.framework.spi;
 
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
+
 import javax.validation.constraints.NotNull;
 
 /**
@@ -48,7 +51,7 @@ public interface IFramework {
 	 * @throws ConfigurationPropertyStoreException - If an invalid namespace is given
 	 */
 	@NotNull
-	IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException;
+	IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace) throws DynamicStatusStoreException;
 	
 	/**
 	 * <p>Retrieve the Result Archive Store from the framework.</p>
@@ -74,7 +77,9 @@ public interface IFramework {
 	 */
 	@NotNull
 	IConfidentialTextService getConfidentialTextService();
-	
+
+	@NotNull
+	ICredentialsStoreService getCredentialsService() throws CredentialsStoreException;
 	
 	/**
 	 * Retrieve the test run name.  Maybe null for non test runs

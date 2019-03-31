@@ -9,8 +9,12 @@ import javax.validation.constraints.NotNull;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
 import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
-import io.ejat.framework.internal.dss.FrameworkDynamicStatusStore;
+import io.ejat.framework.internal.dss.FrameworkDynamicStatusStoreService;
+import io.ejat.framework.internal.creds.FrameworkCredentialsStoreService;
 import io.ejat.framework.spi.ConfidentialTextException;
+import io.ejat.framework.spi.creds.CredentialsStoreException;
+import io.ejat.framework.spi.creds.ICredentialsStore;
+import io.ejat.framework.spi.creds.ICredentialsStoreService;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
@@ -33,11 +37,13 @@ public class Framework implements IFramework {
     private final Properties                   recordProperties;
 
     private IConfigurationPropertyStore        cpsStore;
-    private IDynamicStatusStoreService         dssService;
+    private IDynamicStatusStore                dssStore;
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
+    private ICredentialsStore                  credsStore;             
 
     private IConfigurationPropertyStoreService cpsFramework;
+    private ICredentialsStoreService           credsFramework;
 
     protected Framework(Properties overrideProperties, Properties recordProperties) {
         this.overrideProperties = overrideProperties;
@@ -67,9 +73,9 @@ public class Framework implements IFramework {
      * @see io.ejat.framework.spi.IFramework#getDynamicStatusStore(java.lang.String)
      */
     @Override
-    public @NotNull IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace)
+    public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
             throws DynamicStatusStoreException {
-        if (this.dssService == null) {
+        if (this.dssStore == null) {
             throw new DynamicStatusStoreException("The Dynamic Status Store has not been initialised");
         }
 
@@ -79,7 +85,7 @@ public class Framework implements IFramework {
             throw new DynamicStatusStoreException("Unable to provide Dynamic Status Store", e);
         }
 
-        return new FrameworkDynamicStatusStore(this, this.dssService, namespace);
+        return new FrameworkDynamicStatusStoreService(this, this.dssStore, namespace);
     }
 
     /**
@@ -135,6 +141,15 @@ public class Framework implements IFramework {
         return this.ctsService;
     }
 
+    @Override
+    public @NotNull ICredentialsStoreService getCredentialsService() throws CredentialsStoreException {
+        if (this.credsStore == null) {
+            throw new CredentialsStoreException("The Credentials Store has not been initialised");
+        }
+
+        return new FrameworkCredentialsStoreService(this, this.cpsStore, this.credsStore, this.overrideProperties);
+    }
+
     /**
      * Set the new Configuration Property Store Service
      *
@@ -153,14 +168,14 @@ public class Framework implements IFramework {
         this.cpsFramework = getConfigurationPropertyService("framework");
     }
 
-    public void setDynamicStatusStoreService(@NotNull IDynamicStatusStoreService dssService)
+    public void setDynamicStatusStore(@NotNull IDynamicStatusStore dssStore)
             throws DynamicStatusStoreException {
-        if (this.dssService != null) {
+        if (this.dssStore != null) {
             throw new DynamicStatusStoreException(
                     "Invalid 2nd registration of the Dynamic Status Store Service detected");
         }
 
-        this.dssService = dssService;
+        this.dssStore = dssStore;
     }
 
     /**
@@ -186,6 +201,14 @@ public class Framework implements IFramework {
         this.ctsService = confidentialTextService;
     }
 
+    public void setCredentialsStore(@NotNull ICredentialsStore credsStore) 
+            throws CredentialsStoreException {
+        if (this.credsStore != null) {
+            throw new CredentialsStoreException("Invalid 2nd registration of the Credentials Store Service detected");
+        }
+        this.credsStore = credsStore;
+    }
+
     /**
      * Retrieve the active CPS Service
      *
@@ -200,8 +223,12 @@ public class Framework implements IFramework {
      *
      * @return The DSS service
      */
-    protected IDynamicStatusStoreService getDynamicStatusStoreService() {
-        return this.dssService;
+    protected IDynamicStatusStore getDynamicStatusStore() {
+        return this.dssStore;
+    }
+
+    protected ICredentialsStore getCredentialsStore() {
+        return this.credsStore;
     }
 
     /*
