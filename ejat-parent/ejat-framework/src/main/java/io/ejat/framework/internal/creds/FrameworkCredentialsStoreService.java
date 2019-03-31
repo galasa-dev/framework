@@ -34,7 +34,7 @@ public class FrameworkCredentialsStoreService implements ICredentialsStoreServic
 
         try {
             String credsLocation = cpsStore.getProperty("framework.credentials.store");
-            if (!credsLocation.equals(null)) {
+            if (credsLocation != null) {
                 this.credsLocation = credsLocation;
             }
 

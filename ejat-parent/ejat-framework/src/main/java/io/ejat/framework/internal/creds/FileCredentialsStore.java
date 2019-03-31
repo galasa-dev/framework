@@ -49,7 +49,7 @@ public class FileCredentialsStore implements ICredentialsStore {
             cpsService = this.framework.getConfigurationPropertyService("");
             fpf = new FrameworkPropertyFile(file);
             String encryptionKey = cpsService.getProperty("", "framework.credentials.file.encryption.key", "");
-            if (!encryptionKey.equals(null)) {
+            if (encryptionKey != null) {
                 encrypted = true;
                 key = createKey(encryptionKey);
             }
@@ -71,11 +71,11 @@ public class FileCredentialsStore implements ICredentialsStore {
             
         }
         
-        if (!token.equals(null)) {
+        if (token != null) {
             return new FileCredentialsToken(token);        
         }
-        else if (!username.equals(null)) {
-            if (!fpf.get(password).equals(null)) {
+        else if (username != null) {
+            if (fpf.get(password) != null) {
                 return new FileCredentialsUsernamePassword(username, password);
             }
             else {
@@ -95,7 +95,7 @@ public class FileCredentialsStore implements ICredentialsStore {
     }
     
     private static String decrypt(SecretKeySpec key, String encrypted) throws IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
-		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 		cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(new byte[16]));
 		return new String(cipher.doFinal(Base64.getDecoder().decode(encrypted)));
 	}
