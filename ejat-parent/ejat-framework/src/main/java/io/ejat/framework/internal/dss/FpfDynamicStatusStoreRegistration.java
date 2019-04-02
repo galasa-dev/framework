@@ -1,15 +1,15 @@
 package io.ejat.framework.internal.dss;
 
-import java.io.File;
 import java.net.URI;
 
 import javax.validation.constraints.NotNull;
 
+import org.osgi.service.component.annotations.Component;
+
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.IDynamicStatusStoreRegistration;
 import io.ejat.framework.spi.IFrameworkInitialisation;
-import io.ejat.framework.spi.FrameworkPropertyFileException;
-
+@Component(service= {IDynamicStatusStoreRegistration.class})
 public class FpfDynamicStatusStoreRegistration implements IDynamicStatusStoreRegistration {
 
     @Override
