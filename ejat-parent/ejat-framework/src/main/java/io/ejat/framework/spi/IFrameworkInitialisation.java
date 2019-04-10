@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import io.ejat.framework.spi.creds.CredentialsException;
+import io.ejat.framework.spi.creds.ICredentialsStore;
+
 /**
  * <p>IFrameworkInitialisation provides access to the framework routines that should only be called during
  * test run and server initialisation.</p>  
@@ -24,6 +27,8 @@ public interface IFrameworkInitialisation {
 	
 	
 	URI getDynamicStatusStoreUri();
+
+	URI getCredentialsStoreUri();
 	
 	/**
 	 * Retrieves a list of Result Archive URIs that need to be initialised
@@ -43,15 +48,7 @@ public interface IFrameworkInitialisation {
 	 */
 	void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore) throws ConfigurationPropertyStoreException;
 	
-	/**
-	 * <p>Register the active Dynamic Status Store Service.  This can only be called once per test run or service instance
-	 * and will be one of the first things done during initialisation.
-	 * If a second DSS attempts register itself, {@link DynamicStatusStoreException} will be thrown.</p>
-	 * 
-	 * @param dynamicStatusStoreService - the dynamic status store service chosen to be active
-	 * @throws DynamicStatusStoreException - Only if a 2nd attempt to register a DSS was performed
-	 */
-	void registerDynamicStatusStoreService(@NotNull IDynamicStatusStoreService dynamicStatusStoreService) throws DynamicStatusStoreException;
+	void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException;
 	
 	/**
 	 * <p>Register a Result Archive Store Service.  Multiple Result Archive stores can be registered per test run or service instance
@@ -63,6 +60,8 @@ public interface IFrameworkInitialisation {
 	void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) throws ResultArchiveStoreException;
 	
 	void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService) throws ConfidentialTextException;
+
+	void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException;
 
 	/**
 	 * <p>Retrieve the IFramework object.  Not all the methods will be valid during the initialisation period.

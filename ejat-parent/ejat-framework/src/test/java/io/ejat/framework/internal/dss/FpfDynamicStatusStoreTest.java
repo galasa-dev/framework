@@ -23,13 +23,13 @@ import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
-import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
-import io.ejat.framework.spi.IConfigurationPropertyStoreService;
-import io.ejat.framework.spi.IDynamicStatusStoreService;
+import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
+import io.ejat.framework.spi.creds.CredentialsException;
+import io.ejat.framework.spi.creds.ICredentialsStore;
 
 /**
  * Test the Framework DSS Stub. Most of the functionality will exist in the
@@ -38,23 +38,23 @@ import io.ejat.framework.spi.ResultArchiveStoreException;
  * @author Michael Baylis
  *
  */
-public class FrameworkDynamicStatusStoreTest {
+public class FpfDynamicStatusStoreTest {
 
-    private static final String         NAMESPACE = "testy";
-    private static final String         PREFIX    = "dss." + NAMESPACE + ".";
+    // private static final String         NAMESPACE = "testy";
+    // private static final String         PREFIX    = "dss." + NAMESPACE + ".";
 
     private Path                        tempProperties;
-    private FrameworkDynamicStatusStore dss;
+    private FpfDynamicStatusStore dss;
 
     @Before
     public void setup() throws IOException, FrameworkPropertyFileException, DynamicStatusStoreException {
         this.tempProperties = Files.createTempFile("ejat_dss_junit", ".propertes");
-        final FrameworkInitialisation frameworkInitialisation = new FrameworkInitialisation(
-                this.tempProperties.toUri());
+        // final FrameworkInitialisation frameworkInitialisation = new FrameworkInitialisation(
+        //         this.tempProperties.toUri());
 
-        final FpfDynamicStatusStoreService dsss = new FpfDynamicStatusStoreService();
-        dsss.initialise(frameworkInitialisation);
-        this.dss = new FrameworkDynamicStatusStore(null, dsss, NAMESPACE);
+        //final FpfDynamicStatusStore dsss = new FpfDynamicStatusStore(tempProperties.toUri());
+        //dsss.initialise(frameworkInitialisation);
+        this.dss = new FpfDynamicStatusStore(tempProperties.toUri());
     }
 
     @After
@@ -70,11 +70,12 @@ public class FrameworkDynamicStatusStoreTest {
         final String value = UUID.randomUUID().toString();
 
         this.dss.put(key, value);
-        Assert.assertEquals("Key values differ", value, getKey(PREFIX + key));
+        Assert.assertEquals("Key values differ", value, getKey(key));
         Assert.assertEquals("Key values differ", value, this.dss.get(key));
 
         this.dss.delete(key);
-        Assert.assertNull("Should have gone", getKey(PREFIX + key));
+        Assert.assertNull("Should have gone", getKey(key));
+        Assert.assertNull("Should have gone", this.dss.get(key));
     }
 
     @Test
@@ -91,12 +92,12 @@ public class FrameworkDynamicStatusStoreTest {
 
         this.dss.put(map);
 
-        Assert.assertEquals("Key values differ", value1, getKey(PREFIX + key1));
-        Assert.assertEquals("Key values differ", value2, getKey(PREFIX + key2));
+        Assert.assertEquals("Key values differ", value1, getKey(key1));
+        Assert.assertEquals("Key values differ", value2, getKey(key2));
 
         this.dss.delete(map.keySet());
-        Assert.assertNull("Should have gone", getKey(PREFIX + key1));
-        Assert.assertNull("Should have gone", getKey(PREFIX + key2));
+        Assert.assertNull("Should have gone", getKey(key1));
+        Assert.assertNull("Should have gone", getKey(key2));
     }
 
     @Test
@@ -113,12 +114,12 @@ public class FrameworkDynamicStatusStoreTest {
 
         Assert.assertEquals("Key values differ", value1, values.get(key1));
         Assert.assertEquals("Key values differ", value2, values.get(key2));
-        Assert.assertEquals("Key values differ", value1, getKey(PREFIX + key1));
-        Assert.assertEquals("Key values differ", value2, getKey(PREFIX + key2));
+        Assert.assertEquals("Key values differ", value1, getKey(key1));
+        Assert.assertEquals("Key values differ", value2, getKey(key2));
 
         this.dss.deletePrefix("a_");
-        Assert.assertNull("Should have gone", getKey(PREFIX + key1));
-        Assert.assertNull("Should have gone", getKey(PREFIX + key2));
+        Assert.assertNull("Should have gone", getKey(key1));
+        Assert.assertNull("Should have gone", getKey(key2));
     }
 
     @Test
@@ -137,29 +138,29 @@ public class FrameworkDynamicStatusStoreTest {
 
         Assert.assertTrue("Initial swap should work", dss.putSwap(key1, null,
         value1a));
-        Assert.assertEquals("Key values differ", value1a, getKey(PREFIX + key1));
+        Assert.assertEquals("Key values differ", value1a, getKey(key1));
         Assert.assertFalse("2nd swap should false", dss.putSwap(key1, null,
         value1a));
 
         {
             this.dss.put(key1, value1b);
             Assert.assertTrue("Initial swap should work", this.dss.putSwap(key1, value1b, value1a));
-            Assert.assertEquals("Key values differ", value1a, getKey(PREFIX + key1));
+            Assert.assertEquals("Key values differ", value1a, getKey(key1));
             Assert.assertFalse("2nd swap should false", this.dss.putSwap(key1, value1b, value1a));
-            Assert.assertEquals("Key values differ", value1a, getKey(PREFIX + key1));
+            Assert.assertEquals("Key values differ", value1a, getKey(key1));
         }
 
         Assert.assertTrue("3rd swap should work", this.dss.putSwap(key1, value1a, value1c));
-        Assert.assertEquals("Key values differ", value1c, getKey(PREFIX + key1));
+        Assert.assertEquals("Key values differ", value1c, getKey(key1));
 
         Assert.assertTrue("1st Map swap should work", this.dss.putSwap(key1, value1c, value1d, map));
-        Assert.assertEquals("Key values differ", value1d, getKey(PREFIX + key1));
-        Assert.assertEquals("Key values differ", value2a, getKey(PREFIX + key2));
+        Assert.assertEquals("Key values differ", value1d, getKey(key1));
+        Assert.assertEquals("Key values differ", value2a, getKey(key2));
 
         map.put(key2, value2b);
         Assert.assertFalse("2nd Map swap should fail", this.dss.putSwap(key1, value1c, value1a, map));
-        Assert.assertEquals("Key values differ", value1d, getKey(PREFIX + key1));
-        Assert.assertEquals("Key values differ", value2a, getKey(PREFIX + key2));
+        Assert.assertEquals("Key values differ", value1d, getKey(key1));
+        Assert.assertEquals("Key values differ", value2a, getKey(key2));
 
     }
 
@@ -206,8 +207,7 @@ public class FrameworkDynamicStatusStoreTest {
         }
 
         @Override
-        public void registerDynamicStatusStoreService(IDynamicStatusStoreService dynamicStatusStoreService) {
-        }
+        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
 
         @Override
         public IFramework getFramework() {
@@ -231,8 +231,15 @@ public class FrameworkDynamicStatusStoreTest {
         }
 
         @Override
+		public URI getCredentialsStoreUri() {return null;}
+
+        @Override
         public List<URI> getResultArchiveStoreUris() {
             return null;
+        }
+
+        @Override
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
         }
 
     }

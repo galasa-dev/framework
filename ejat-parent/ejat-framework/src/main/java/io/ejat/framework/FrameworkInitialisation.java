@@ -23,11 +23,15 @@ import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
-import io.ejat.framework.spi.IDynamicStatusStoreService;
+import io.ejat.framework.spi.IDynamicStatusStore;
+import io.ejat.framework.spi.IDynamicStatusStoreRegistration;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
+import io.ejat.framework.spi.creds.CredentialsException;
+import io.ejat.framework.spi.creds.ICredentialsStore;
+import io.ejat.framework.spi.creds.ICredentialsStoreRegistration;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
@@ -41,9 +45,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     private final URI                         uriConfigurationPropertyStore;
     private final URI                         uriDynamicStatusStore;
+    private final URI                         uriCredentialsStore;
     private final List<URI>                   uriResultArchiveStores;
 
     private final IConfigurationPropertyStoreService cpsFramework;
+    //private final ICredentialsStoreService credsFramework;
 
     private final Log                         logger           = LogFactory.getLog(this.getClass());
 
@@ -69,7 +75,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         this.logger.trace("Searching for CPS providers");
         final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
         final ServiceReference<?>[] cpsServiceReference = bundleContext
-                .getAllServiceReferences(IConfigurationPropertyStoreService.class.getName(), null);
+                .getAllServiceReferences(IConfigurationPropertyStoreRegistration.class.getName(), null);
         if ((cpsServiceReference == null) || (cpsServiceReference.length == 0)) {
             throw new FrameworkException("No Configuration Property Store Services have been found");
         }
@@ -129,20 +135,20 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         // *** Initialise the Dynamic Status Store
         this.logger.trace("Searching for DSS providers");
         final ServiceReference<?>[] dssServiceReference = bundleContext
-                .getAllServiceReferences(IDynamicStatusStoreService.class.getName(), null);
+                .getAllServiceReferences(IDynamicStatusStoreRegistration.class.getName(), null);
         if ((dssServiceReference == null) || (dssServiceReference.length == 0)) {
             throw new FrameworkException("No Dynamic Status Store Services have been found");
         }
         for (final ServiceReference<?> dssReference : dssServiceReference) {
-            final IDynamicStatusStoreService dssService = (IDynamicStatusStoreService) bundleContext
+            final IDynamicStatusStoreRegistration dssStoreRegistration = (IDynamicStatusStoreRegistration) bundleContext
                     .getService(dssReference);
-            this.logger.trace("Found DSS Provider " + dssService.getClass().getName());
-            dssService.initialise(this);
+            this.logger.trace("Found DSS Provider " + dssStoreRegistration.getClass().getName());
+            dssStoreRegistration.initialise(this);
         }
-        if (this.framework.getDynamicStatusStoreService() == null) {
+        if (this.framework.getDynamicStatusStore() == null) {
             throw new FrameworkException("Failed to initialise a Dynamic Status Store, unable to continue");
         }
-        logger.trace("Selected DSS Service is " + this.framework.getDynamicStatusStoreService().getClass().getName());
+        logger.trace("Selected DSS Service is " + this.framework.getDynamicStatusStore().getClass().getName());
 
         // *** Initialise the Result Archive Store
         this.logger.trace("Searching for RAS providers");
@@ -162,6 +168,39 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         }
         this.logger
                 .trace("Selected RAS Service is " + this.framework.getResultArchiveStoreService().getClass().getName());
+
+        // *** Work out the creds uri
+        try {
+            final String credsProperty = this.cpsFramework.getProperty("credentials", "store");
+            if ((credsProperty == null) || credsProperty.isEmpty()) {
+                this.uriCredentialsStore = new URI(
+                        SCHEME_FILE + System.getProperty(USER_HOME) + "/.ejat/credentials.properties");
+            } else {
+                this.uriCredentialsStore = new URI(credsProperty);
+            }
+        } catch (final Exception e) {
+            throw new FrameworkException("Unable to resolve the Credentials Store URI", e);
+        }
+        this.logger.debug("Credentials Store is " + this.uriCredentialsStore.toString());   
+
+        // *** Initialise the Credentials Store
+        this.logger.trace("Searching for Creds providers");
+        final ServiceReference<?>[] credsServiceReference = bundleContext
+                .getAllServiceReferences(ICredentialsStoreRegistration.class.getName(), null);
+        if ((credsServiceReference == null) || (credsServiceReference.length == 0)) {
+            throw new FrameworkException("No Credentials Services have been found");
+        }
+        for (final ServiceReference<?> credsReference : credsServiceReference) {
+            final ICredentialsStoreRegistration credsRegistration = (ICredentialsStoreRegistration) bundleContext
+                    .getService(credsReference);
+            this.logger.trace("Found Creds Provider " + credsRegistration.getClass().getName());
+            credsRegistration.initialise(this);
+        }
+        if (this.framework.getCredentialsStore() == null) {
+            throw new FrameworkException("Failed to initialise a Credentuals Store, unable to continue");
+        }
+        this.logger
+                .trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
     }
 
     /*
@@ -184,6 +223,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     @Override
     public URI getDynamicStatusStoreUri() {
         return this.uriDynamicStatusStore;
+    }
+
+    @Override
+    public URI getCredentialsStoreUri() {
+        return this.uriCredentialsStore;
     }
 
     /*
@@ -219,9 +263,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * IDynamicStatusStoreService)
      */
     @Override
-    public void registerDynamicStatusStoreService(@NotNull IDynamicStatusStoreService dynamicStatusStoreService)
+    public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
             throws DynamicStatusStoreException {
-        this.framework.setDynamicStatusStoreService(dynamicStatusStoreService);
+        this.framework.setDynamicStatusStore(dynamicStatusStore);
     }
 
     /*
@@ -242,6 +286,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     public void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
             throws ConfidentialTextException {
         this.framework.setConfidentialTextService(confidentialTextService);
+    }
+
+    @Override
+    public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore)
+            throws CredentialsException {
+        this.framework.setCredentialsStore(credentialsStore);
     }
 
     /*

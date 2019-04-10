@@ -1,4 +1,4 @@
-package test.cps;
+package test.cts;
 
 import static org.junit.Assert.assertTrue;
 
@@ -11,8 +11,7 @@ import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
-import io.ejat.framework.internal.cps.FpfConfigurationPropertyRegistration;
-import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
+import io.ejat.framework.internal.cts.FrameworkConfidentialTextServiceRegistration;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
@@ -25,40 +24,45 @@ import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.ICredentialsStore;
 
-public class FpfConfigurationPropertyRegistrationTest {
-
-    @Test
-    public void testIntialise() throws IOException, ConfigurationPropertyStoreException{
-        File testProp = File.createTempFile("cirillo", ".properties");
-        FpfConfigurationPropertyRegistration fpfCpsReg = new FpfConfigurationPropertyRegistration();
-        fpfCpsReg.initialise(new FrameworkInitialisation(testProp.toURI()));
-        assertTrue("Dummy",true);
-    }
+/**
+ * This test class ensures that confidential texts that have been registered are reomved from text.
+ * 
+ * @author James Davies
+ */
+public class ConfidentialTextServiceRegistrationTest {
 
     /**
-     * <p>This class is used to test the implemented methods in the tests above. They are all noddy methods.</p>
+     * This method intialises the confidentialTextService and checks no exceptions are thrown.
+     * 
+     * @throws ConfidentialTextException - if the service cannot be registered (i.e more than 1 service).
+     * @throws IOException
+     */
+    @Test
+    public void testInitialise() throws ConfidentialTextException, IOException{
+        FrameworkConfidentialTextServiceRegistration ctsService = new FrameworkConfidentialTextServiceRegistration();
+        File testProp = File.createTempFile("ejat_", ".properties");
+        ctsService.initialise(new FrameworkInitialisation(testProp.toURI()));
+        assertTrue("dummy", true);
+    }
+
+        /**
+     * This is a stubbed framework intialisation class to test the registering of the service.
      */
     private class FrameworkInitialisation implements IFrameworkInitialisation {
         private URI uri;
-        private FpfConfigurationPropertyStore fpf;
 
         public FrameworkInitialisation(URI uri) {
-        	this.uri = uri;
-            try {
-                fpf = new FpfConfigurationPropertyStore(uri);
-            } catch (ConfigurationPropertyStoreException e) {
-                
-            }    
+            this.uri=uri;
         }
 
         @Override
-        public void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
-                throws ConfidentialTextException {     
+        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
         }
         @Override
         public URI getBootstrapConfigurationPropertyStore() {return uri;}
         @Override
-        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
+        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
+                throws DynamicStatusStoreException{}
         @Override
         public IFramework getFramework(){return null;}
         

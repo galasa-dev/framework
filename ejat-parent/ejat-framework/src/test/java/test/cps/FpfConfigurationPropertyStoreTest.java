@@ -16,21 +16,18 @@ import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
-import io.ejat.framework.spi.IConfidentialTextService;
-import io.ejat.framework.spi.IConfigurationPropertyStore;
-import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
-import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
-import io.ejat.framework.internal.cps.FpfConfigurationPropertyRegistration;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
-import io.ejat.framework.spi.FrameworkException;
-import io.ejat.framework.spi.FrameworkPropertyFileException;
-import io.ejat.framework.spi.IConfigurationPropertyStoreService;
-import io.ejat.framework.spi.IDynamicStatusStoreService;
+import io.ejat.framework.spi.DynamicStatusStoreException;
+import io.ejat.framework.spi.IConfidentialTextService;
+import io.ejat.framework.spi.IConfigurationPropertyStore;
+import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.creds.CredentialsException;
+import io.ejat.framework.spi.creds.ICredentialsStore;
 
 /**
  * <p>This tests class checks the behaviour of registering a local CPS using the FPF class is functional.</p>
@@ -126,7 +123,7 @@ public class FpfConfigurationPropertyStoreTest {
         @Override
         public URI getBootstrapConfigurationPropertyStore() {return uri;}
         @Override
-        public void registerDynamicStatusStoreService(IDynamicStatusStoreService dynamicStatusStoreService){}
+        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
         @Override
         public IFramework getFramework(){return null;}
         
@@ -136,14 +133,21 @@ public class FpfConfigurationPropertyStoreTest {
         }
 
 		@Override
-		public URI getDynamicStatusStoreUri() {return null;}
+        public URI getDynamicStatusStoreUri() {return null;}
+        
+        @Override
+		public URI getCredentialsStoreUri() {return null;}
 
 		@Override
 		public List<URI> getResultArchiveStoreUris() {return null;}
 
 		@Override
 		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
-		}
+        }
+        
+        @Override
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
+        }
     }
 
 }

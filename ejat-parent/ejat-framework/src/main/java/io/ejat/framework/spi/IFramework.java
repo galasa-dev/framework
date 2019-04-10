@@ -2,6 +2,9 @@ package io.ejat.framework.spi;
 
 import javax.validation.constraints.NotNull;
 
+import io.ejat.framework.spi.creds.CredentialsException;
+import io.ejat.framework.spi.creds.ICredentialsService;
+
 /**
  * <p>IFramework provides access to the services the Framework specifically controls, although will be provided by 
  * other OSGi bundles.  Examples being the Configuration Properties Store service,  authentication services etc.</p>
@@ -48,7 +51,7 @@ public interface IFramework {
 	 * @throws ConfigurationPropertyStoreException - If an invalid namespace is given
 	 */
 	@NotNull
-	IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException;
+	IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace) throws DynamicStatusStoreException;
 	
 	/**
 	 * <p>Retrieve the Result Archive Store from the framework.</p>
@@ -74,7 +77,9 @@ public interface IFramework {
 	 */
 	@NotNull
 	IConfidentialTextService getConfidentialTextService();
-	
+
+	@NotNull
+	ICredentialsService getCredentialsService() throws CredentialsException;
 	
 	/**
 	 * Retrieve the test run name.  Maybe null for non test runs

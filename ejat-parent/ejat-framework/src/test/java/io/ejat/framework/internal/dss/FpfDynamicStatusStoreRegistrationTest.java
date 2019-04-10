@@ -1,4 +1,4 @@
-package test.cps;
+package io.ejat.framework.internal.dss;
 
 import static org.junit.Assert.assertTrue;
 
@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
-import io.ejat.framework.internal.cps.FpfConfigurationPropertyRegistration;
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
@@ -25,16 +24,16 @@ import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.ICredentialsStore;
 
-public class FpfConfigurationPropertyRegistrationTest {
+public class FpfDynamicStatusStoreRegistrationTest {
 
     @Test
-    public void testIntialise() throws IOException, ConfigurationPropertyStoreException{
+    public void testInitialse() throws IOException, DynamicStatusStoreException {
         File testProp = File.createTempFile("cirillo", ".properties");
-        FpfConfigurationPropertyRegistration fpfCpsReg = new FpfConfigurationPropertyRegistration();
-        fpfCpsReg.initialise(new FrameworkInitialisation(testProp.toURI()));
-        assertTrue("Dummy",true);
+        FpfDynamicStatusStoreRegistration fpfDssReg = new FpfDynamicStatusStoreRegistration();
+        fpfDssReg.initialise(new FrameworkInitialisation(testProp.toURI()));
+        assertTrue("Dummy", true);
     }
-
+    
     /**
      * <p>This class is used to test the implemented methods in the tests above. They are all noddy methods.</p>
      */
@@ -56,7 +55,7 @@ public class FpfConfigurationPropertyRegistrationTest {
                 throws ConfidentialTextException {     
         }
         @Override
-        public URI getBootstrapConfigurationPropertyStore() {return uri;}
+        public URI getBootstrapConfigurationPropertyStore() {return null;}
         @Override
         public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
         @Override
@@ -68,7 +67,7 @@ public class FpfConfigurationPropertyRegistrationTest {
         }
 
 		@Override
-        public URI getDynamicStatusStoreUri() {return null;}
+        public URI getDynamicStatusStoreUri() {return uri;}
         
         @Override
 		public URI getCredentialsStoreUri() {return null;}

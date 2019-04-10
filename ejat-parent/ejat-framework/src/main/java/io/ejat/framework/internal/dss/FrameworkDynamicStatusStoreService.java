@@ -6,102 +6,47 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.net.URI;
+import java.io.IOException;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
+import org.osgi.service.component.annotations.Component;
+
 import io.ejat.framework.spi.DynamicStatusStoreException;
-import io.ejat.framework.spi.IDynamicResource;
-import io.ejat.framework.spi.IDynamicRun;
-import io.ejat.framework.spi.IDynamicStatusStore;
+import io.ejat.framework.spi.FrameworkPropertyFile;
+import io.ejat.framework.spi.FrameworkPropertyFileException;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
+import io.ejat.framework.spi.IDynamicStatusStore;
+import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IFramework;
 
+
 /**
- * <p>
- * A DSS Stub which is passed to the managers that will pass the requests to the
- * activated DSS Service
- * </p>
- *
+ *  <p>This class is used when the FPF class is being operated as the Key-Value store for the Dynamic Status Store. 
+ *  This class registers the Dynamic Status Store as the only DSS.</p>
+ * 
  * @author Bruce Abbott
- *
  */
-public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
 
-    private final IDynamicStatusStoreService dssService;
+public class FrameworkDynamicStatusStoreService implements IDynamicStatusStoreService {
+	private FrameworkPropertyFile fpf;
+
+	private final IDynamicStatusStore 		 dssStore;
     private final String                     namespace;
-    private final String                     prefix;
-
-    /**
-     * <p>
-     * Temp
-     * </p>
-     *
-     * @param framework  - not currently used.
-     * @param dssService - the registered service for the DSS
-     * @param namespace  - The namespace for keys for a specfic manager
-     */
-    public FrameworkDynamicStatusStore(IFramework framework, IDynamicStatusStoreService dssService, String namespace) {
-        Objects.requireNonNull(dssService);
+	private final String                     prefix;
+	
+	public FrameworkDynamicStatusStoreService(IFramework framework, IDynamicStatusStore dssStore, String namespace) {
+        Objects.requireNonNull(dssStore);
         Objects.requireNonNull(namespace);
 
-        this.dssService = dssService;
+        this.dssStore = dssStore;
         this.namespace = namespace;
         this.prefix = "dss." + this.namespace + ".";
     }
 
-    /**
-     * <p>
-     * Retrieve interface to control a dynamic resource represented in the framework
-     * area. This is to allow the resource being managed to be automatically
-     * represented on the Web UI and the Eclipse Automation Views.
-     * </p>
-     * 
-     * <p>
-     * The properties the framework create from will be
-     * dss.framework.resource.namespace.resourceKey . After that the manager can set
-     * the property names as necessary.
-     * </p>
-     * 
-     * <p>
-     * For example, if the zOS Security Manager is controlling a set of userids on
-     * cluster PlexMA, the namespace is already set to 'zossec', the property key
-     * would be 'PLEXMA.userid.JAT234'. This would result in the property
-     * 'dss.framework.resource.zossec.PLEXMA.userid.JAT234=L3456'. The automation
-     * views would build a tree view of the properties starting
-     * 'dss.framework.resource'
-     * </p>
-     * 
-     * @param key - The resource key to prefix the keys along with the namespace
-     * @return A tailored IDynamicResource
-     * @throws DynamicStatusStoreException
-     */
-    @Override
-    public IDynamicResource getDynamicResource(String resourceKey) throws DynamicStatusStoreException {
-        return new FrameworkDynamicResource();
-    }
-
-    /**
-     * <p>
-     * Retrieve an interface to update the Run status with manager related
-     * information. This is information above what the framework would display, like
-     * status, no. of methods etc.
-     * </p>
-     * 
-     * <p>
-     * One possible use would be the zOS Manager reporting the primary zOS Image the
-     * test is running on.
-     * </p>
-     * 
-     * @return The dynamic run resource tailored to this namespaces
-     * @throws DynamicStatusStoreException
-     */
-    @Override
-    public IDynamicRun getDynamicRun() throws DynamicStatusStoreException {
-        return new FrameworkDynamicRun();
-    }
-
-    /*
+	/*
      * (non-Javadoc)
      * 
      * @see io.ejat.framework.spi.IDynamicStatusStoreKeyAccess#put(java.lang.String,
@@ -109,7 +54,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
      */
     @Override
     public void put(@NotNull String key, @NotNull String value) throws DynamicStatusStoreException {
-        this.dssService.put(prefixKey(key), value);
+        this.dssStore.put(prefixKey(key), value);
     }
 
     /*
@@ -133,7 +78,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
             newKeyValues.put(prefixKey(oKey), oValue);
         }
 
-        this.dssService.put(newKeyValues);
+        this.dssStore.put(newKeyValues);
     }
 
     /*
@@ -147,7 +92,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
     public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue)
             throws DynamicStatusStoreException {
         Objects.requireNonNull(newValue);
-        return this.dssService.putSwap(prefixKey(key), oldValue, newValue);
+        return this.dssStore.putSwap(prefixKey(key), oldValue, newValue);
     }
 
     /*
@@ -175,7 +120,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
             newOthers.put(prefixKey(oKey), oValue);
         }
 
-        return this.dssService.putSwap(prefixKey(key), oldValue, newValue, newOthers);
+        return this.dssStore.putSwap(prefixKey(key), oldValue, newValue, newOthers);
     }
 
     /*
@@ -185,7 +130,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
      */
     @Override
     public @Null String get(@NotNull String key) throws DynamicStatusStoreException {
-        return this.dssService.get(prefixKey(key));
+        return this.dssStore.get(prefixKey(key));
     }
 
     /*
@@ -196,7 +141,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
      */
     @Override
     public @NotNull Map<String, String> getPrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
-        final Map<String, String> gotSet = this.dssService.getPrefix(prefixKey(keyPrefix));
+        final Map<String, String> gotSet = this.dssStore.getPrefix(prefixKey(keyPrefix));
         final HashMap<String, String> returnSet = new HashMap<>();
 
         for (Entry<String, String> entry : gotSet.entrySet()) {
@@ -222,7 +167,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
      */
     @Override
     public void delete(@NotNull String key) throws DynamicStatusStoreException {
-        this.dssService.delete(prefixKey(key));
+        this.dssStore.delete(prefixKey(key));
     }
 
     /*
@@ -241,7 +186,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
             newKeys.add(prefixKey(key));
         }
 
-        this.dssService.delete(newKeys);
+        this.dssStore.delete(newKeys);
     }
 
     /*
@@ -253,7 +198,7 @@ public class FrameworkDynamicStatusStore implements IDynamicStatusStore {
      */
     @Override
     public void deletePrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
-        this.dssService.deletePrefix(prefixKey(keyPrefix));
+        this.dssStore.deletePrefix(prefixKey(keyPrefix));
     }
 
     /**

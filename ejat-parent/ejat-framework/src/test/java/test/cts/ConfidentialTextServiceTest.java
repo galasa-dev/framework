@@ -3,7 +3,6 @@ package test.cts;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -15,14 +14,15 @@ import org.junit.Test;
 import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
+import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
-import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
-import io.ejat.framework.spi.IConfigurationPropertyStoreService;
-import io.ejat.framework.spi.IDynamicStatusStoreService;
+import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.creds.CredentialsException;
+import io.ejat.framework.spi.creds.ICredentialsStore;
 
 /**
  * This test class ensures that confidential texts that have been registered are reomved from text.
@@ -30,20 +30,6 @@ import io.ejat.framework.spi.IResultArchiveStoreService;
  * @author James Davies
  */
 public class ConfidentialTextServiceTest {
-
-    /**
-     * This method intialises the confidentialTextService and checks no exceptions are thrown.
-     * 
-     * @throws ConfidentialTextException - if the service cannot be registered (i.e more than 1 service).
-     * @throws IOException
-     */
-    @Test
-    public void testInitialise() throws ConfidentialTextException, IOException{
-        FrameworkConfidentialTextService ctsService = new FrameworkConfidentialTextService();
-        File testProp = File.createTempFile("ejat_", ".properties");
-        ctsService.initialise(new FrameworkInitialisation(testProp.toURI()));
-        assertTrue("dummy", true);
-    }
 
     /**
      * The test method adds a confidential text to the service.
@@ -54,8 +40,6 @@ public class ConfidentialTextServiceTest {
     @Test
     public void testRegisterText() throws ConfidentialTextException, IOException{
         FrameworkConfidentialTextService ctsService = new FrameworkConfidentialTextService();
-        File testProp = File.createTempFile("ejat_", ".properties");
-        ctsService.initialise(new FrameworkInitialisation(testProp.toURI()));
 
         ctsService.registerText("test1", "This is a test comment");
         assertTrue("dummy", true);
@@ -70,8 +54,6 @@ public class ConfidentialTextServiceTest {
     @Test
     public void testRemoveConfidentialText() throws ConfidentialTextException, IOException{
         FrameworkConfidentialTextService ctsService = new FrameworkConfidentialTextService();
-        File testProp = File.createTempFile("ejat_", ".properties");
-        ctsService.initialise(new FrameworkInitialisation(testProp.toURI()));
 
         ctsService.registerText("test1", "This is a test comment");
         ctsService.registerText("test2", "This is a test comment");
@@ -102,7 +84,7 @@ public class ConfidentialTextServiceTest {
         @Override
         public URI getBootstrapConfigurationPropertyStore() {return uri;}
         @Override
-        public void registerDynamicStatusStoreService(IDynamicStatusStoreService dynamicStatusStoreService){}
+        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
         @Override
         public IFramework getFramework(){return null;}
         
@@ -112,13 +94,20 @@ public class ConfidentialTextServiceTest {
         }
 
 		@Override
-		public URI getDynamicStatusStoreUri() {return null;}
+        public URI getDynamicStatusStoreUri() {return null;}
+        
+        @Override
+		public URI getCredentialsStoreUri() {return null;}
 
 		@Override
 		public List<URI> getResultArchiveStoreUris() {return null;}
 
 		@Override
 		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
-		}
+        }
+        
+        @Override
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
+        }
     }
 }

@@ -5,6 +5,8 @@ import java.net.URI;
 
 import javax.validation.constraints.NotNull;
 
+import org.osgi.service.component.annotations.Component;
+
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
 import io.ejat.framework.spi.IFrameworkInitialisation;
@@ -14,7 +16,7 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
  * 
  * @author James Davies
  */
-
+@Component(service= {IConfigurationPropertyStoreRegistration.class})
 public class FpfConfigurationPropertyRegistration implements IConfigurationPropertyStoreRegistration {
 
 	/**

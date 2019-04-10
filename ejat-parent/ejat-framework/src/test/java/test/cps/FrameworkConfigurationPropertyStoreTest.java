@@ -6,33 +6,25 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.util.List;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
 
-import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
-import io.ejat.framework.spi.IConfidentialTextService;
-import io.ejat.framework.spi.IConfigurationPropertyStore;
-import io.ejat.framework.internal.cps.FpfConfigurationPropertyRegistration;
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
-import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
-import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
+import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
-import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
-import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
-import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.creds.ICredentialsService;
 
 /**
  * <p>This test class tests the behaviour of the FrameworkConfigurationPropertyStore class. The purpose of the class is to drive
@@ -212,7 +204,7 @@ FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testPro
             return null;
         }
 
-        public IDynamicStatusStore getDynamicStatusStore(@NotNull String namespace) throws DynamicStatusStoreException {
+        public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace) throws DynamicStatusStoreException {
             return null;
         }
         public IResultArchiveStore getResultArchiveStore(){return null;}
@@ -224,7 +216,12 @@ FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testPro
 		@Override
 		public String getTestRunName() {
 			return null;
-		}
+        }
+
+        @Override
+        public ICredentialsService getCredentialsService() {
+            return null;
+        }
         
     } 
 
