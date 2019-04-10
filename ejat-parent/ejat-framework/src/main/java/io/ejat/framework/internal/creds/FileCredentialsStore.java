@@ -77,7 +77,7 @@ public class FileCredentialsStore implements ICredentialsStore {
 		String password = fpf.get("secure.credentials." + credentialsId + ".password");
 		
 		if (username == null) {
-			throw null;
+			return null;
 		}
 
 		if (password == null) {
