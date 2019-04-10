@@ -4,7 +4,7 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
 
 import javax.validation.constraints.NotNull;
 
-public interface ICredentialsRegistration {
+public interface ICredentialsStoreRegistration {
 
     void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws CredentialsStoreException;
 }

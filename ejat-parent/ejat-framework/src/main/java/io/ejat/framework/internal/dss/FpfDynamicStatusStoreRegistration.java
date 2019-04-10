@@ -9,20 +9,30 @@ import org.osgi.service.component.annotations.Component;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.IDynamicStatusStoreRegistration;
 import io.ejat.framework.spi.IFrameworkInitialisation;
+
+/**
+
+ * 
+ * @author Bruce Abbott
+ */
 @Component(service= {IDynamicStatusStoreRegistration.class})
 public class FpfDynamicStatusStoreRegistration implements IDynamicStatusStoreRegistration {
 
+	/**
+	 * <p>This method registers this as the only DSS Store.</p>
+	 * 
+	 * @param IFrameworkInitialisation
+	 * @throws DynamicStatusStoreException
+	 */
     @Override
 	public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
 			throws DynamicStatusStoreException {
         URI dss = frameworkInitialisation.getDynamicStatusStoreUri();
 		if (isFileUri(dss)) {
-			try {
-				//fpf = new FrameworkPropertyFile(dss);
-				frameworkInitialisation.registerDynamicStatusStore(new FpfDynamicStatusStore(dss));
-			} catch (Exception e) {
-				throw new DynamicStatusStoreException("Could not initialise Framework Property File", e);
-			}
+			frameworkInitialisation.registerDynamicStatusStore(new FpfDynamicStatusStore(dss));
+		}
+		else {
+			throw new DynamicStatusStoreException("Could not initialise Framework Property File");
 		}
 	}
 

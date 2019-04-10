@@ -140,7 +140,10 @@ public class FpfConfigurationPropertyStoreTest {
         }
 
 		@Override
-		public URI getDynamicStatusStoreUri() {return null;}
+        public URI getDynamicStatusStoreUri() {return null;}
+        
+        @Override
+		public URI getCredentialsStoreUri() {return null;}
 
 		@Override
 		public List<URI> getResultArchiveStoreUris() {return null;}

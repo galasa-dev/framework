@@ -1,14 +1,7 @@
 package io.ejat.framework.internal.creds;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-
-import org.osgi.service.component.annotations.Component;
-
-import io.ejat.framework.spi.creds.ICredentialsStoreService;
 import io.ejat.framework.spi.creds.ICredentials;
 import io.ejat.framework.spi.FrameworkPropertyFile;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
@@ -35,7 +28,12 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-@Component(service= {ICredentialsStore.class})
+/**
+ *  <p>This class is used to retrieve credentials stored locally, whether they are encrypted or not</p>
+ * 
+ * @author Bruce Abbott
+ */
+
 public class FileCredentialsStore implements ICredentialsStore {
     private FrameworkPropertyFile fpf;
     private Boolean encrypted = false;
@@ -46,7 +44,7 @@ public class FileCredentialsStore implements ICredentialsStore {
     public FileCredentialsStore(URI file, IFramework framework) throws NoSuchAlgorithmException, ConfigurationPropertyStoreException {
         try {
             this.framework = framework;
-            cpsService = this.framework.getConfigurationPropertyService("");
+            cpsService = this.framework.getConfigurationPropertyService("");         
             fpf = new FrameworkPropertyFile(file);
             String encryptionKey = cpsService.getProperty("", "framework.credentials.file.encryption.key", "");
             if (encryptionKey != null) {
@@ -58,6 +56,12 @@ public class FileCredentialsStore implements ICredentialsStore {
         }
     }
 
+    /**
+	 * <p>This method is used to retrieve credentials as an appropriate object</p>
+	 * 
+	 * @param String credentialsId
+	 * @throws CredentialsStoreException
+	 */
     @Override
     public ICredentials getCredentials(String credentialsId) throws CredentialsStoreException {
         String token = fpf.get("framework.secure.credentials." + credentialsId + ".token");
@@ -68,14 +72,12 @@ public class FileCredentialsStore implements ICredentialsStore {
                 password = decrypt(key, password);
             }
         } catch (Exception e) {
-            
         }
-        
         if (token != null) {
             return new FileCredentialsToken(token);        
         }
         else if (username != null) {
-            if (fpf.get(password) != null) {
+            if (password != null) {
                 return new FileCredentialsUsernamePassword(username, password);
             }
             else {

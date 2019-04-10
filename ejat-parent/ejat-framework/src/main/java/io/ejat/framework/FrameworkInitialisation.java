@@ -31,7 +31,7 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.spi.creds.ICredentialsRegistration;
+import io.ejat.framework.spi.creds.ICredentialsStoreRegistration;
 import io.ejat.framework.spi.creds.ICredentialsStore;
 import io.ejat.framework.spi.creds.ICredentialsStoreService;
 
@@ -47,6 +47,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     private final URI                         uriConfigurationPropertyStore;
     private final URI                         uriDynamicStatusStore;
+    private final URI                         uriCredentialsStore;
     private final List<URI>                   uriResultArchiveStores;
 
     private final IConfigurationPropertyStoreService cpsFramework;
@@ -170,24 +171,38 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         this.logger
                 .trace("Selected RAS Service is " + this.framework.getResultArchiveStoreService().getClass().getName());
 
-//        // *** Initialise the Result Archive Store
-//        this.logger.trace("Searching for Creds providers");
-//        final ServiceReference<?>[] credsServiceReference = bundleContext
-//                .getAllServiceReferences(ICredentialsStoreService.class.getName(), null);
-//        if ((credsServiceReference == null) || (credsServiceReference.length == 0)) {
-//            throw new FrameworkException("No Credentials Services have been found");
-//        }
-//        for (final ServiceReference<?> credsReference : credsServiceReference) {
-//            final ICredentialsRegistration credsRegistration = (ICredentialsRegistration) bundleContext
-//                    .getService(credsReference);
-//            this.logger.trace("Found Creds Provider " + credsRegistration.getClass().getName());
-//            credsRegistration.initialise(this);
-//        }
-//        if (this.framework.getCredentialsStore() == null) {
-//            throw new FrameworkException("Failed to initialise a Credentuals Store, unable to continue");
-//        }
-//        this.logger
-//                .trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
+        // *** Work out the creds uri
+        try {
+            final String credsProperty = this.cpsFramework.getProperty("credentials", "store");
+            if ((credsProperty == null) || credsProperty.isEmpty()) {
+                this.uriCredentialsStore = new URI(
+                        SCHEME_FILE + System.getProperty(USER_HOME) + "/.ejat/credentials.properties");
+            } else {
+                this.uriCredentialsStore = new URI(credsProperty);
+            }
+        } catch (final Exception e) {
+            throw new FrameworkException("Unable to resolve the Credentials Store URI", e);
+        }
+        this.logger.debug("Credentials Store is " + this.uriCredentialsStore.toString());   
+
+        // *** Initialise the Credentials Store
+        this.logger.trace("Searching for Creds providers");
+        final ServiceReference<?>[] credsServiceReference = bundleContext
+                .getAllServiceReferences(ICredentialsStoreRegistration.class.getName(), null);
+        if ((credsServiceReference == null) || (credsServiceReference.length == 0)) {
+            throw new FrameworkException("No Credentials Services have been found");
+        }
+        for (final ServiceReference<?> credsReference : credsServiceReference) {
+            final ICredentialsStoreRegistration credsRegistration = (ICredentialsStoreRegistration) bundleContext
+                    .getService(credsReference);
+            this.logger.trace("Found Creds Provider " + credsRegistration.getClass().getName());
+            credsRegistration.initialise(this);
+        }
+        if (this.framework.getCredentialsStore() == null) {
+            throw new FrameworkException("Failed to initialise a Credentuals Store, unable to continue");
+        }
+        this.logger
+                .trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
     }
 
     /*
@@ -210,6 +225,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     @Override
     public URI getDynamicStatusStoreUri() {
         return this.uriDynamicStatusStore;
+    }
+
+    @Override
+    public URI getCredentialsStoreUri() {
+        return this.uriCredentialsStore;
     }
 
     /*

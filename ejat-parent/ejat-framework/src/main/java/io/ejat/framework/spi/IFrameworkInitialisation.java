@@ -25,6 +25,8 @@ public interface IFrameworkInitialisation {
 	
 	
 	URI getDynamicStatusStoreUri();
+
+	URI getCredentialsStoreUri();
 	
 	/**
 	 * Retrieves a list of Result Archive URIs that need to be initialised

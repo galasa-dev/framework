@@ -1,10 +1,6 @@
 package io.ejat.framework.internal.dss;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.net.URI;
 import java.io.IOException;
@@ -17,35 +13,17 @@ import io.ejat.framework.spi.IDynamicResource;
 import io.ejat.framework.spi.IDynamicRun;
 import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
-import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.FrameworkPropertyFile;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
 
 /**
- * <p>
- * A DSS Stub which is passed to the managers that will pass the requests to the
- * activated DSS Service
- * </p>
- *
+ *<p>This class is used when the FPF class is being operated as the Key-Value store for the Dynamic Status Store.</p>
+ * 
  * @author Bruce Abbott
- *
  */
 public class FpfDynamicStatusStore implements IDynamicStatusStore {
-
     private FrameworkPropertyFile fpf;
-    // private final IDynamicStatusStoreService dssService;
-    // private final String                     namespace;
-    // private final String                     prefix;
 
-    /**
-     * <p>
-     * Temp
-     * </p>
-     *
-     * @param framework  - not currently used.
-     * @param dssService - the registered service for the DSS
-     * @param namespace  - The namespace for keys for a specfic manager
-     */
     public FpfDynamicStatusStore(URI file) throws DynamicStatusStoreException {
         try {
 			fpf = new FrameworkPropertyFile(file);
