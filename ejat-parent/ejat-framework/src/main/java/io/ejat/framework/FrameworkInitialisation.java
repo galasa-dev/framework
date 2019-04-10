@@ -15,7 +15,6 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-import io.ejat.framework.internal.dss.FpfDynamicStatusStoreRegistration;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
@@ -30,10 +29,9 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
-import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.spi.creds.ICredentialsStoreRegistration;
+import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.ICredentialsStore;
-import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.ICredentialsStoreRegistration;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
@@ -292,7 +290,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     @Override
     public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore)
-            throws CredentialsStoreException {
+            throws CredentialsException {
         this.framework.setCredentialsStore(credentialsStore);
     }
 

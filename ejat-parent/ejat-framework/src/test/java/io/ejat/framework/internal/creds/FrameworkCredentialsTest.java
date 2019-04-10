@@ -4,10 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -28,8 +25,6 @@ import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.CredentialsToken;
-import io.ejat.framework.spi.creds.CredentialsUsername;
-import io.ejat.framework.spi.creds.CredentialsUsernamePassword;
 import io.ejat.framework.spi.creds.ICredentials;
 import io.ejat.framework.spi.creds.ICredentialsService;
 
@@ -38,7 +33,7 @@ import io.ejat.framework.spi.creds.ICredentialsService;
  * 
  * @author Bruce Abbott
  */
-public class FileCredentialsStoreTest {
+public class FrameworkCredentialsTest {
 
 	private File fileCPS;
 	private File fileCREDS;
@@ -74,11 +69,13 @@ public class FileCredentialsStoreTest {
 		propsCREDS.setProperty("secure.credentials.testcredsid.token", "testToken");
 		saveProperties(propsCREDS, fileCREDS);
 
+
 		Framework framework = new Framework(fileCPS);
-
 		FileCredentialsStore fileCreds = new FileCredentialsStore(fileCREDS.toURI(), framework);
+		FrameworkCredentialsService service = new FrameworkCredentialsService(framework, fileCreds);
 
-		ICredentials creds = fileCreds.getCredentials("testcredsid");
+
+		ICredentials creds = service.getCredentials("testcredsid");
 
 		assertNotNull("Token credentials was not found", creds);
 
@@ -93,64 +90,6 @@ public class FileCredentialsStoreTest {
 		out.close();
 	}
 
-	/**
-	 * <p>This test method checks that a username/password stored in the local Credentials Store can be retrieved.</p>
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 * @throws NoSuchAlgorithmException
-	 * @throws ConfigurationPropertyStoreException
-	 * @throws CredentialsStoreException
-	 */
-	@Test
-	public void testGetCredentialsUsernamePassword() throws Exception {
-
-		Properties propsCPS = new Properties();
-		saveProperties(propsCPS, fileCPS);
-
-		Properties propsCREDS = new Properties();
-		propsCREDS.setProperty("secure.credentials.testcredsid.username", "testUsername");
-		propsCREDS.setProperty("secure.credentials.testcredsid.password", "testPassword");
-		saveProperties(propsCREDS, fileCREDS);
-
-		Framework framework = new Framework(fileCPS);
-
-		FileCredentialsStore fileCreds = new FileCredentialsStore(fileCREDS.toURI(), framework);
-
-		ICredentials creds = fileCreds.getCredentials("testcredsid");
-
-		assertNotNull("Username/password credentials was not found", creds);
-
-		CredentialsUsernamePassword credsUsernamePassword = (CredentialsUsernamePassword) creds;
-
-		assertEquals("Incorrect username", "testUsername", credsUsernamePassword.getUsername());
-		assertEquals("Incorrect password", "testPassword", credsUsernamePassword.getPassword());
-	}
-
-	/**
-	 * <p>This test method checks that a username stored in the local Credentials Store can be retrieved.</p>
-	 */
-	@Test
-	public void testGetCredentialsUsername() throws Exception {
-
-		Properties propsCPS = new Properties();
-		saveProperties(propsCPS, fileCPS);
-
-		Properties propsCREDS = new Properties();
-		propsCREDS.setProperty("secure.credentials.testcredsid.username", "testUsername");
-		saveProperties(propsCREDS, fileCREDS);
-
-		Framework framework = new Framework(fileCPS);
-
-		FileCredentialsStore fileCreds = new FileCredentialsStore(fileCREDS.toURI(), framework);
-
-		ICredentials creds = fileCreds.getCredentials("testcredsid");
-
-		assertNotNull("Username credentials was not found", creds);
-
-		CredentialsUsername credsUsername = (CredentialsUsername) creds;
-
-		assertEquals("Incorrect username", "testUsername", credsUsername.getUsername());
-	}
 
 	/**
 	 * <p>This is a private class used to implement the IFramework for testing purposes.</p>

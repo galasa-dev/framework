@@ -1,42 +1,38 @@
 package io.ejat.framework.internal.creds;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Properties;
-import java.net.URISyntaxException;
-
-import static org.junit.Assert.assertTrue;
 
 import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
-
 import org.osgi.framework.InvalidSyntaxException;
 
-import io.ejat.framework.internal.creds.FileCredentialsRegistration;
-import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
-import io.ejat.framework.FrameworkInitialisation;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
+import io.ejat.framework.spi.DynamicStatusStoreException;
+import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
+import io.ejat.framework.spi.IConfigurationPropertyStoreService;
+import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
-import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IFrameworkInitialisation;
-import io.ejat.framework.spi.IResultArchiveStoreService;
-import io.ejat.framework.spi.creds.ICredentialsStore;
-import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.spi.IDynamicStatusStore;
-import io.ejat.framework.spi.DynamicStatusStoreException;
-import io.ejat.framework.spi.IConfigurationPropertyStoreService;
-import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResourcePoolingService;
+import io.ejat.framework.spi.IResultArchiveStore;
+import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.creds.CredentialsException;
+import io.ejat.framework.spi.creds.ICredentialsService;
 import io.ejat.framework.spi.creds.ICredentialsStore;
-import io.ejat.framework.spi.creds.ICredentialsStoreService;
 
 /**
  * <p>This test class checks the behaviour of registering a local Credentials Store.</p>
@@ -46,7 +42,6 @@ import io.ejat.framework.spi.creds.ICredentialsStoreService;
 public class FileCredentialsRegistrationTest {
 
     private Properties bootstrap;
-    private Properties overrides;
 
     /**
      * <p>This test method checks that a local Credentials Store can be registered and initialised.</p>
@@ -57,7 +52,7 @@ public class FileCredentialsRegistrationTest {
      * @throws FrameworkException
      */
     @Test
-    public void testInitialise() throws IOException, CredentialsStoreException, URISyntaxException, InvalidSyntaxException, FrameworkException {
+    public void testInitialise() throws IOException, CredentialsException, URISyntaxException, InvalidSyntaxException, FrameworkException {
         File testCreds = File.createTempFile("cirillo", ".properties");
         FileCredentialsRegistration fileCredsReg = new FileCredentialsRegistration();
 
@@ -127,7 +122,7 @@ public class FileCredentialsRegistrationTest {
         }
         
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsStoreException {           
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
         }
     }
 
@@ -169,7 +164,7 @@ public class FileCredentialsRegistrationTest {
         }
 
         @Override
-        public ICredentialsStoreService getCredentialsService() throws CredentialsStoreException {
+        public ICredentialsService getCredentialsService() throws CredentialsException {
             return null;
         }
         
