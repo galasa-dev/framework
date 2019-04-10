@@ -23,14 +23,13 @@ import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
+import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
+import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.ICredentialsStore;
-import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.internal.dss.FpfDynamicStatusStore;
-import io.ejat.framework.spi.IDynamicStatusStore;
 
 /**
  * Test the Framework DSS Stub. Most of the functionality will exist in the
@@ -240,7 +239,7 @@ public class FpfDynamicStatusStoreTest {
         }
 
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsStoreException {           
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
         }
 
     }

@@ -6,15 +6,10 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
-import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
-import io.ejat.framework.internal.cts.FrameworkConfidentialTextService;
+import io.ejat.framework.internal.creds.FrameworkCredentialsService;
 import io.ejat.framework.internal.dss.FrameworkDynamicStatusStoreService;
-import io.ejat.framework.internal.creds.FrameworkCredentialsStoreService;
 import io.ejat.framework.spi.ConfidentialTextException;
-import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.spi.creds.ICredentialsStore;
-import io.ejat.framework.spi.creds.ICredentialsStoreService;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
@@ -28,6 +23,9 @@ import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
+import io.ejat.framework.spi.creds.CredentialsException;
+import io.ejat.framework.spi.creds.ICredentialsService;
+import io.ejat.framework.spi.creds.ICredentialsStore;
 
 public class Framework implements IFramework {
 
@@ -43,7 +41,7 @@ public class Framework implements IFramework {
     private ICredentialsStore                  credsStore;             
 
     private IConfigurationPropertyStoreService cpsFramework;
-    private ICredentialsStoreService           credsFramework;
+    private ICredentialsService           credsFramework;
 
     protected Framework(Properties overrideProperties, Properties recordProperties) {
         this.overrideProperties = overrideProperties;
@@ -142,12 +140,12 @@ public class Framework implements IFramework {
     }
 
     @Override
-    public @NotNull ICredentialsStoreService getCredentialsService() throws CredentialsStoreException {
+    public @NotNull ICredentialsService getCredentialsService() throws CredentialsException {
         if (this.credsStore == null) {
-            throw new CredentialsStoreException("The Credentials Store has not been initialised");
+            throw new CredentialsException("The Credentials Store has not been initialised");
         }
 
-        return new FrameworkCredentialsStoreService(this, this.cpsStore, this.credsStore, this.overrideProperties);
+        return new FrameworkCredentialsService(this, this.credsStore);
     }
 
     /**
@@ -202,9 +200,9 @@ public class Framework implements IFramework {
     }
 
     public void setCredentialsStore(@NotNull ICredentialsStore credsStore) 
-            throws CredentialsStoreException {
+            throws CredentialsException {
         if (this.credsStore != null) {
-            throw new CredentialsStoreException("Invalid 2nd registration of the Credentials Store Service detected");
+            throw new CredentialsException("Invalid 2nd registration of the Credentials Store Service detected");
         }
         this.credsStore = credsStore;
     }

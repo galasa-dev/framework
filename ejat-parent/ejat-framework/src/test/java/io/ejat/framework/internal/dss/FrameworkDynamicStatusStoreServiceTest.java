@@ -7,10 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
@@ -18,24 +15,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.IConfidentialTextService;
-import io.ejat.framework.spi.IConfigurationPropertyStore;
-import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
-import io.ejat.framework.spi.IFrameworkInitialisation;
-import io.ejat.framework.spi.IResultArchiveStoreService;
-import io.ejat.framework.spi.ResultArchiveStoreException;
-import io.ejat.framework.spi.creds.ICredentialsStore;
-import io.ejat.framework.spi.creds.CredentialsStoreException;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
-import io.ejat.framework.spi.IResultArchiveStoreService;
-import io.ejat.framework.spi.creds.ICredentialsStoreService;
+import io.ejat.framework.spi.creds.ICredentialsService;
 
 /**
  * <p>This test class checks the behaviour of registering a local DSS using the FPF class in functional</p>
@@ -213,7 +201,7 @@ import io.ejat.framework.spi.creds.ICredentialsStoreService;
         }
 
         @Override
-        public ICredentialsStoreService getCredentialsService() {
+        public ICredentialsService getCredentialsService() {
             return null;
         }
         

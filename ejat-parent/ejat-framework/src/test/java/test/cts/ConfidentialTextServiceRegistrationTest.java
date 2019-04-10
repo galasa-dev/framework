@@ -14,16 +14,15 @@ import org.junit.Test;
 import io.ejat.framework.internal.cts.FrameworkConfidentialTextServiceRegistration;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
+import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
-import io.ejat.framework.spi.IDynamicStatusStoreService;
+import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.ICredentialsStore;
-import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.spi.IDynamicStatusStore;
-import io.ejat.framework.spi.DynamicStatusStoreException;
 
 /**
  * This test class ensures that confidential texts that have been registered are reomved from text.
@@ -86,7 +85,7 @@ public class ConfidentialTextServiceRegistrationTest {
         }
         
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsStoreException {           
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
         }
     }
 }

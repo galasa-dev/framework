@@ -1,28 +1,28 @@
 package io.ejat.framework.internal.dss;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
-
 import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
-import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
+import io.ejat.framework.spi.DynamicStatusStoreException;
+import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
+import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.ICredentialsStore;
-import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.spi.IDynamicStatusStore;
-import io.ejat.framework.spi.DynamicStatusStoreException;
 
 public class FpfDynamicStatusStoreRegistrationTest {
 
@@ -80,7 +80,7 @@ public class FpfDynamicStatusStoreRegistrationTest {
         }
         
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsStoreException {           
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
         }
     }
 }

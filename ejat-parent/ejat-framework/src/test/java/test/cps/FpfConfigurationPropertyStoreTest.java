@@ -16,25 +16,18 @@ import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
-import io.ejat.framework.spi.IConfidentialTextService;
-import io.ejat.framework.spi.IConfigurationPropertyStore;
-import io.ejat.framework.spi.IConfigurationPropertyStoreRegistration;
 import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
-import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
-import io.ejat.framework.internal.cps.FpfConfigurationPropertyRegistration;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
-import io.ejat.framework.spi.FrameworkException;
-import io.ejat.framework.spi.FrameworkPropertyFileException;
-import io.ejat.framework.spi.IConfigurationPropertyStoreService;
-import io.ejat.framework.spi.IDynamicStatusStoreService;
+import io.ejat.framework.spi.DynamicStatusStoreException;
+import io.ejat.framework.spi.IConfidentialTextService;
+import io.ejat.framework.spi.IConfigurationPropertyStore;
+import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.ICredentialsStore;
-import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.spi.IDynamicStatusStore;
-import io.ejat.framework.spi.DynamicStatusStoreException;
 
 /**
  * <p>This tests class checks the behaviour of registering a local CPS using the FPF class is functional.</p>
@@ -153,7 +146,7 @@ public class FpfConfigurationPropertyStoreTest {
         }
         
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsStoreException {           
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
         }
     }
 
