@@ -60,9 +60,10 @@
 							<artifactId>org.apache.felix.bundlerepository</artifactId>
 						</artifactItem>
 					</artifactItems>
-					<type>jar</type>
-					<overWrite>false</overWrite>
 					<outputDirectory>${project.build.directory}/bundle</outputDirectory>
+                    <stripVersion>true</stripVersion>
+                    <overWriteReleases>true</overWriteReleases>
+                    <overWriteSnapshots>true</overWriteSnapshots>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -88,12 +89,12 @@
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Main-Class>io.ejat.boot.Launcher</Main-Class>
-										<Class-Path>bundle/org.apache.felix.bundlerepository-2.0.2.jar</Class-Path>
+										<Class-Path>bundle/org.apache.felix.bundlerepository.jar</Class-Path>
 									</manifestEntries>
 								</transformer>
                 				<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                    				<resource>bundle/org.apache.felix.bundlerepository-2.0.2.jar</resource>
-                    				<file>target/bundle/org.apache.felix.bundlerepository-2.0.2.jar</file>
+                    				<resource>bundle/org.apache.felix.bundlerepository.jar</resource>
+                    				<file>target/bundle/org.apache.felix.bundlerepository.jar</file>
                 				</transformer>
 							</transformers>
 							<artifactSet>

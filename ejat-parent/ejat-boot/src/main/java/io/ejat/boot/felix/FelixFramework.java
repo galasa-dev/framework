@@ -75,7 +75,7 @@ public class FelixFramework {
 			logger.debug("Installing required OSGi bundles");
 			
 			// Install and start the Felix OBR bundle
-			obrBundle = installBundle("org.apache.felix.bundlerepository-2.0.2.jar", true);
+			obrBundle = installBundle("org.apache.felix.bundlerepository.jar", true);
 			
 			// Load the OSGi Bundle Repositories
 			loadBundleRepositories(bundleRepositories);

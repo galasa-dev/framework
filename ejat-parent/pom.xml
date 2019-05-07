@@ -16,9 +16,18 @@
 		<module>ejat-framework</module>
 		<module>ejat-bom</module>
 		<module>ejat-obr</module>
-		<module>ejat-boot</module>
+		<module>ejat-boot</module>		
+		<module>ejat-eclipse</module>
 	</modules>
-
+	
+	<repositories>
+		<repository>
+			<id>neon</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/releases/neon</url>
+		</repository>
+	</repositories>
+	
 	<distributionManagement>
 		<repository>
 			<id>ejat.repo</id>
@@ -92,6 +101,33 @@
 				<version>3.4</version>
 				<scope>provided</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.shared</groupId>
+				<artifactId>maven-invoker</artifactId>
+				<version>3.0.1</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.shared</groupId>
+				<artifactId>maven-shared-utils</artifactId>
+				<version>3.0.0</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+    			<groupId>org.apache.maven</groupId>
+    			<artifactId>maven-core</artifactId>
+    			<version>3.6.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.m2e</groupId>
+    			<artifactId>core</artifactId>
+    			<version>1.4.0</version>
+			</dependency>
+			<dependency>
+			    <groupId>org.sonatype.plexus</groupId>
+			    <artifactId>plexus-build-api</artifactId>
+			    <version>0.0.7</version>
+		    </dependency>			
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
@@ -282,6 +318,31 @@
 				</executions>
 				<configuration>
 					<failOnError>false</failOnError>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>1.4.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
 				</configuration>
 			</plugin>
 		</plugins>

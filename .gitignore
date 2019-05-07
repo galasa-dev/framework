@@ -7,4 +7,5 @@ target/
 .apt_generated_tests/
 .DS_Store
 build.properties
-MANIFEST.MF
+bin/
+lib/
