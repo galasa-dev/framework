@@ -158,7 +158,7 @@ public abstract class AbstractManager implements IManager {
      * io.ejat.framework.spi.IManager#extraBundles(io.ejat.framework.spi.IFramework)
      */
     @Override
-    public List<String> extraBundles(@NotNull IFramework framework) {
+    public List<String> extraBundles(@NotNull IFramework framework) throws ManagerException {
         return null; //NOSONAR
     }
 

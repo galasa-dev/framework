@@ -155,7 +155,12 @@ public class TestRunManagers {
 
         //*** First ask all these managers if there are any extra OSGi Bundles to load
         for(IManager manager : managersToCheck) {
-            List<String> newExtraBundles = manager.extraBundles(framework);
+            List<String> newExtraBundles;
+			try {
+				newExtraBundles = manager.extraBundles(framework);
+			} catch (ManagerException e) {
+				throw new FrameworkException("Problem requesting extra bundles from managers",e);
+			}
 
             if (newExtraBundles == null) {
                 continue;

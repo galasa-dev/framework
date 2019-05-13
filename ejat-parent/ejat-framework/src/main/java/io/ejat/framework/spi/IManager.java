@@ -45,7 +45,7 @@ public interface IManager {
      * @return null for no extra bundles, or a {@link java.util.List} contain the
      *         symbolic names of the bundles to load
      */
-    List<String> extraBundles(@NotNull IFramework framework);
+    List<String> extraBundles(@NotNull IFramework framework) throws ManagerException;
 
     /**
      *
