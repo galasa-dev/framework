@@ -1,7 +1,5 @@
 package io.ejat.framework.spi;
 
-import javax.validation.constraints.NotNull;
-
 /**
  * <p>Used by the eJAT Framework to initialise the various Dynamic Status Stores that may exist within the OSGi instance.  Only 1 DSS maybe enabled during the lifetime of 
  * a eJAT test run or server instance.</p>
