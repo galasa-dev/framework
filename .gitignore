@@ -6,6 +6,7 @@ target/
 .apt_generated/
 .apt_generated_tests/
 .DS_Store
-build.properties
+/*/build.properties
+!/*eclipse*/build.properties
 bin/
 lib/

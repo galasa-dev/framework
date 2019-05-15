@@ -37,8 +37,7 @@
         	locationURI="menu:org.eclipse.ui.main.menu">
 			<menu
     			label="Cirillo"
-        	    mnemonic="J"
-            	id="io.ejat.eclipse.menus.ejatMenu">
+            	id="io.ejat.eclipse.menus.cirilloMenu">
 	            <command
     				label="Build Test OBRs"
     	        	commandId="io.ejat.eclipse.commands.buildTestOBRsCommand"
@@ -59,7 +58,7 @@
             	<command
                 	commandId="io.ejat.eclipse.commands.buildTestOBRsCommand"
                   	icon="icons/BuildOBR.png"
-                  	tooltip="Cirillo Build TestOBRs"
+                  	tooltip="Cirillo Build Test OBRs"
                   	id="io.ejat.eclipse.toolbars.buildTestOBRsCommand">
 	            </command>
          	</toolbar>

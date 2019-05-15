@@ -97,6 +97,9 @@ public class BuildTestOBRsHandler extends AbstractHandler {
 	public static void setDebug(boolean debug) {
 		BuildTestOBRsHandler.debug = debug;
 	}
+	public static boolean isDebug() {
+		return debug;
+	}
 
 	private static PrintStream consoleOut;
 	public static void setConsoleOut(PrintStream consoleOut) {
@@ -121,9 +124,12 @@ public class BuildTestOBRsHandler extends AbstractHandler {
 
 	private boolean buildSuccess;
 
+	private String statusText;
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		buildSuccess = true;
+		statusText = "";
 		
 		enableDebug(event);
 		
@@ -250,6 +256,7 @@ public class BuildTestOBRsHandler extends AbstractHandler {
 			}
 		} else {
 			writeError(productName + " " + processTitle + " Cancelled - No " + productName + " projects found");
+			statusText = "No " + productName + " projects found";
 			return Status.CANCEL_STATUS;
 		}
 		return Status.OK_STATUS;		
@@ -342,13 +349,17 @@ public class BuildTestOBRsHandler extends AbstractHandler {
 	private void syncWithUi(IStatus runStatus) {
 		Runnable runnable = () -> {
 			if (runStatus.getSeverity() == IStatus.CANCEL) {
-				MessageDialog.openError(activeShell, productName, processTitle + " cancelled");
+				if (statusText.isEmpty()) {
+					MessageDialog.openError(activeShell, productName + " - " + processTitle, processTitle + " cancelled");
+				} else {
+					MessageDialog.openError(activeShell, productName + " - " + processTitle, processTitle + " cancelled - " + statusText);
+				}
 				return;
 			}
 			if (buildSuccess) {
-				MessageDialog.openInformation(activeShell, productName, processTitle + " complete - " + BUILD_SUCCESS);
+				MessageDialog.openInformation(activeShell, productName + " - " + processTitle, processTitle + " complete - " + BUILD_SUCCESS);
 			} else {
-				MessageDialog.openError(activeShell, productName, processTitle + " complete - " + BUILD_FAILURE + "\n\nSee console log for details");
+				MessageDialog.openError(activeShell, productName + " - " + processTitle, processTitle + " complete - " + BUILD_FAILURE + "\n\nSee console log for details");
 			}
 		};
 		Display.getDefault().asyncExec(runnable);
