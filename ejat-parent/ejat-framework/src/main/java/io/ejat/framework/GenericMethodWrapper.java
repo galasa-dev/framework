@@ -95,16 +95,16 @@ public class GenericMethodWrapper {
                         TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS);
             }
             
-            this.testStructureMethod.status = this.result.getName();
+            this.testStructureMethod.setStatus(this.result.getName());
             if (this.result.getThrowable() != null) {
             	Throwable t = this.getResult().getThrowable();
             	try {
             		StringWriter sw = new StringWriter();
             		PrintWriter pw = new PrintWriter(sw);
             		t.printStackTrace(pw);
-            		this.testStructureMethod.exception = sw.toString();
+            		this.testStructureMethod.setException(sw.toString());
             	} catch(Exception e) {
-            		this.testStructureMethod.exception = "Unable to report exception because of " + e.getMessage();
+            		this.testStructureMethod.setException("Unable to report exception because of " + e.getMessage());
             	}
             }
         }
@@ -125,8 +125,8 @@ public class GenericMethodWrapper {
 
 	public TestMethod getStructure() {
 		this.testStructureMethod = new TestMethod();
-		this.testStructureMethod.methodName = testMethod.getName();
-		this.testStructureMethod.type = this.type.toString();
+		this.testStructureMethod.setMethodName(testMethod.getName());
+		this.testStructureMethod.setType(this.type.toString());
 		
 		return this.testStructureMethod;
 	}

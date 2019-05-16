@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import io.ejat.framework.GenericMethodWrapper.Type;
 import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.Result;
+import io.ejat.framework.spi.teststructure.TestMethod;
 import io.ejat.framework.spi.teststructure.TestStructure;
 /**
  * Representation of the test class
@@ -89,24 +90,25 @@ public class TestClassWrapper {
 			this.testMethods.add(new TestMethodWrapper(method, this.testClass, temporaryBeforeMethods, temporaryBeforeMethods));
 		}
 		
-		//*** Create the reporting Test Structure;
+		//*** Create the reporting Test Structure
 		
 		this.testStructure = new TestStructure();
-		this.testStructure.bundle = testBundle;
-		this.testStructure.testName = testClass.getName();
-		this.testStructure.testShortName = testClass.getSimpleName();
-		this.testStructure.methods = new ArrayList<>();
+		this.testStructure.setBundle(testBundle);
+		this.testStructure.setTestName(testClass.getName());
+		this.testStructure.setTestShortName(testClass.getSimpleName());
+		ArrayList<TestMethod> structureMethods = new ArrayList<>();
+		this.testStructure.setMethods(structureMethods);
 		
 		for(GenericMethodWrapper before : this.beforeClassMethods) {
-			this.testStructure.methods.add(before.getStructure());
+			structureMethods.add(before.getStructure());
 		}
 		
 		for(TestMethodWrapper testMethod : this.testMethods) {
-			this.testStructure.methods.add(testMethod.getStructure());
+			structureMethods.add(testMethod.getStructure());
 		}
 		
 		for(GenericMethodWrapper after : this.afterClassMethods) {
-			this.testStructure.methods.add(after.getStructure());
+			structureMethods.add(after.getStructure());
 		}
 		
 		
@@ -202,19 +204,12 @@ public class TestClassWrapper {
 		}
 
 		// Test result
-		if (this.result.isPassed()) {
-			logger.info(LOG_ENDING + 
+		logger.info(LOG_ENDING + 
 					LOG_START_LINE + LOG_ASTERS + 
 					LOG_START_LINE + "*** " + this.result.getName() + " - Test class " + testClass.getName() +
 					LOG_START_LINE + LOG_ASTERS);
-		} else {
-			logger.info(LOG_ENDING + 
-					LOG_START_LINE + LOG_ASTERS + 
-					LOG_START_LINE + "*** " + this.result.getName() + " - Test class " + testClass.getName() +
-					LOG_START_LINE + LOG_ASTERS);
-		}
 		
-		this.testStructure.status = this.result.getName();
+		this.testStructure.setStatus(this.result.getName());
 		
 		String report = this.testStructure.report(LOG_START_LINE);
 		logger.trace("Finishing Test Class structure:-" + report);

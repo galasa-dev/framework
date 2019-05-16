@@ -4,19 +4,85 @@ import java.util.List;
 
 public class TestMethod {
 	
-	public String methodName;
-	public String type;
+	private String methodName;
+	private String type;
 	
-	public List<TestMethod> befores;
-	public List<TestMethod> afters;
+	private List<TestMethod> befores;
+	private List<TestMethod> afters;
 	
-	public String status;
+	private String status;
 	
-	public String exception;
+	private String exception;
 	
-	public long   runLogStart;
-	public long   runLogEnd;
+	private long   runLogStart;
+	private long   runLogEnd;
+
 	
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public List<TestMethod> getBefores() {
+		return befores;
+	}
+
+	public void setBefores(List<TestMethod> befores) {
+		this.befores = befores;
+	}
+
+	public List<TestMethod> getAfters() {
+		return afters;
+	}
+
+	public void setAfters(List<TestMethod> afters) {
+		this.afters = afters;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getException() {
+		return exception;
+	}
+
+	public void setException(String exception) {
+		this.exception = exception;
+	}
+
+	public long getRunLogStart() {
+		return runLogStart;
+	}
+
+	public void setRunLogStart(long runLogStart) {
+		this.runLogStart = runLogStart;
+	}
+
+	public long getRunLogEnd() {
+		return runLogEnd;
+	}
+
+	public void setRunLogEnd(long runLogEnd) {
+		this.runLogEnd = runLogEnd;
+	}
+
+
 	public void report(String prefix, StringBuilder sb) {
 		String actualStatus = this.status;
 		if (actualStatus == null) {

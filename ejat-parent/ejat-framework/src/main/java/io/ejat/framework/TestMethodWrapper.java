@@ -72,15 +72,18 @@ public class TestMethodWrapper {
 
 	public TestMethod getStructure() {
 		TestMethod methodStructure = testMethod.getStructure();
-		methodStructure.befores = new ArrayList<>();
-		methodStructure.afters = new ArrayList<>();
+		ArrayList<TestMethod> structureBefores = new ArrayList<>();
+		ArrayList<TestMethod> structureAfters = new ArrayList<>();
+		
+		methodStructure.setBefores(structureBefores);
+		methodStructure.setAfters(structureAfters);
 		
 		for(GenericMethodWrapper before : this.befores) {
-			methodStructure.befores.add(before.getStructure());
+			structureBefores.add(before.getStructure());
 		}
 		
 		for(GenericMethodWrapper after : this.afters) {
-			methodStructure.afters.add(after.getStructure());
+			structureAfters.add(after.getStructure());
 		}
 		
 		return methodStructure;

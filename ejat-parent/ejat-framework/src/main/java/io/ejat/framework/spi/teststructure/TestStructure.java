@@ -12,13 +12,57 @@ import java.util.List;
  */
 public class TestStructure {
 
-	public String bundle;
-	public String testName;
-	public String testShortName;
+	private String bundle;
+	private String testName;
+	private String testShortName;
 	
-	public String status;
+	private String status;
 	
-	public List<TestMethod> methods;
+	private List<TestMethod> methods;
+
+	
+	
+	public String getBundle() {
+		return bundle;
+	}
+
+	public void setBundle(String bundle) {
+		this.bundle = bundle;
+	}
+
+	public String getTestName() {
+		return testName;
+	}
+
+	public void setTestName(String testName) {
+		this.testName = testName;
+	}
+
+	public String getTestShortName() {
+		return testShortName;
+	}
+
+	public void setTestShortName(String testShortName) {
+		this.testShortName = testShortName;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public List<TestMethod> getMethods() {
+		return methods;
+	}
+
+	public void setMethods(List<TestMethod> methods) {
+		this.methods = methods;
+	}
+
+
 
 	public String report(String prefix) {
 		String actualStatus = this.status;
