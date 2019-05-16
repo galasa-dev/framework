@@ -9,6 +9,6 @@ package io.ejat.framework.spi;
  * @author Michael Baylis
  *
  */
-public interface IDynamicResource {
+public interface IDynamicResource extends IDynamicStatusStoreKeyAccess {
 	/**** To be designed ****/
 }

@@ -50,7 +50,7 @@ public class FelixFramework {
 	 * @param bundleRepositories the supplied OBRs
 	 * @throws LauncherException if there is a problem initialising the framework
 	 */
-	public void buildFramework(List<String> bundleRepositories, String testBundleName) throws LauncherException {
+	public void buildFramework(List<String> bundleRepositories, String testBundleName, Properties boostrapProperties) throws LauncherException {
 		logger.debug("Building Felix Framework...");
 		
 		String felixCacheDirectory = System.getProperty("java.io.tmpdir");
@@ -95,6 +95,18 @@ public class FelixFramework {
 			// Load the ejat-framework bundle
 			logger.debug("installing Framework bundle");
 			loadBundle("io.ejat.framework");
+			
+			// Load extra bundles from the bootstrap
+			String extraBundles = boostrapProperties.getProperty("framework.extra.bundles");
+			if (extraBundles != null) {
+				String[] ebs = extraBundles.split(",");
+				for (String eb : ebs) {
+					eb = eb.trim();
+					if (!eb.isEmpty()) {
+						loadBundle(eb);
+					}
+				}
+			}
 			
 			// Load the test bundle
 			logger.debug("Installing Test bundle");

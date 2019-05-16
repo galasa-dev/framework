@@ -35,7 +35,7 @@ public interface IResourcePoolingService {
 	@NotNull
 	List<String> obtainResources(@NotNull List<String> resourceStrings, 
 			List<String> rejectedResources, 
-			IDynamicStatusStore dss, 
+			IDynamicStatusStoreService dss, 
 			String keyPrefix) throws InsufficientResourcesAvailableException;
 	
 	/**
@@ -71,7 +71,7 @@ public interface IResourcePoolingService {
 	List<String> obtainResources(@NotNull List<String> resourceStrings, 
 			List<String> rejectedResources, 
 			int returnMinimum, 
-			IDynamicStatusStore dss, 
+			IDynamicStatusStoreService dss, 
 			String keyPrefix) throws InsufficientResourcesAvailableException;
 	
 	/**
@@ -112,6 +112,6 @@ public interface IResourcePoolingService {
 			List<String> rejectedResources, 
 			int returnMinimum, 
 			int returnConsecutive, 
-			IDynamicStatusStore dss, 
+			IDynamicStatusStoreService dss, 
 			String keyPrefix) throws InsufficientResourcesAvailableException;
 }
