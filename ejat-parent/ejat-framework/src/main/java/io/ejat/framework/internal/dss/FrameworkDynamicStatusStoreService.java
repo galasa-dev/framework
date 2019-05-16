@@ -55,7 +55,7 @@ public class FrameworkDynamicStatusStoreService extends FrameworkDynamicStoreKey
      */
     @Override
     public IDynamicResource getDynamicResource(String resourceKey) {
-    	String newPrefix = "dss.framework.resource." + this.namespace + ".";
+    	String newPrefix = "dss.framework.resource." + this.namespace + "." + resourceKey + ".";
         return new FrameworkDynamicResource(getDssStore(), newPrefix);
     }
 
