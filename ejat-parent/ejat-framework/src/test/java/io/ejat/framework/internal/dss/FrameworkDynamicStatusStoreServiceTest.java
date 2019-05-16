@@ -35,13 +35,13 @@ import io.ejat.framework.spi.creds.ICredentialsService;
      
      private File testFile;
      private FpfDynamicStatusStore fpfDss;
-     private FrameworkDynamicStatusStoreService fDss;
+     private FrameworkDynamicStatusStore fDss;
      
      @Before
      public void setup() throws IOException, DynamicStatusStoreException {
          this.testFile = File.createTempFile("ejatfpf_", ".properties");
          fpfDss = new FpfDynamicStatusStore(testFile.toURI());
-         fDss = new FrameworkDynamicStatusStoreService(new Framework(), fpfDss, "temp");
+         fDss = new FrameworkDynamicStatusStore(new Framework(), fpfDss, "temp");
      }
      
      @After

@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
 import io.ejat.framework.internal.creds.FrameworkCredentialsService;
-import io.ejat.framework.internal.dss.FrameworkDynamicStatusStoreService;
+import io.ejat.framework.internal.dss.FrameworkDynamicStatusStore;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
@@ -83,7 +83,7 @@ public class Framework implements IFramework {
             throw new DynamicStatusStoreException("Unable to provide Dynamic Status Store", e);
         }
 
-        return new FrameworkDynamicStatusStoreService(this, this.dssStore, namespace);
+        return new FrameworkDynamicStatusStore(this, this.dssStore, namespace);
     }
 
     /**

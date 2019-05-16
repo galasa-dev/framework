@@ -6,20 +6,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.net.URI;
-import java.io.IOException;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import org.osgi.service.component.annotations.Component;
-
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkPropertyFile;
-import io.ejat.framework.spi.FrameworkPropertyFileException;
-import io.ejat.framework.spi.IDynamicStatusStoreService;
+import io.ejat.framework.spi.IDynamicResource;
+import io.ejat.framework.spi.IDynamicRun;
 import io.ejat.framework.spi.IDynamicStatusStore;
-import io.ejat.framework.spi.IFrameworkInitialisation;
+import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 
 
@@ -30,14 +26,14 @@ import io.ejat.framework.spi.IFramework;
  * @author Bruce Abbott
  */
 
-public class FrameworkDynamicStatusStoreService implements IDynamicStatusStoreService {
+public class FrameworkDynamicStatusStore implements IDynamicStatusStoreService {
 	private FrameworkPropertyFile fpf;
 
 	private final IDynamicStatusStore 		 dssStore;
     private final String                     namespace;
 	private final String                     prefix;
 	
-	public FrameworkDynamicStatusStoreService(IFramework framework, IDynamicStatusStore dssStore, String namespace) {
+	public FrameworkDynamicStatusStore(IFramework framework, IDynamicStatusStore dssStore, String namespace) {
         Objects.requireNonNull(dssStore);
         Objects.requireNonNull(namespace);
 
@@ -200,6 +196,60 @@ public class FrameworkDynamicStatusStoreService implements IDynamicStatusStoreSe
     public void deletePrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
         this.dssStore.deletePrefix(prefixKey(keyPrefix));
     }
+    
+    
+    /**
+     * <p>
+     * Retrieve interface to control a dynamic resource represented in the framework
+     * area. This is to allow the resource being managed to be automatically
+     * represented on the Web UI and the Eclipse Automation Views.
+     * </p>
+     * 
+     * <p>
+     * The properties the framework create from will be
+     * dss.framework.resource.namespace.resourceKey . After that the manager can set
+     * the property names as necessary.
+     * </p>
+     * 
+     * <p>
+     * For example, if the zOS Security Manager is controlling a set of userids on
+     * cluster PlexMA, the namespace is already set to 'zossec', the property key
+     * would be 'PLEXMA.userid.JAT234'. This would result in the property
+     * 'dss.framework.resource.zossec.PLEXMA.userid.JAT234=L3456'. The automation
+     * views would build a tree view of the properties starting
+     * 'dss.framework.resource'
+     * </p>
+     * 
+     * @param key - The resource key to prefix the keys along with the namespace
+     * @return A tailored IDynamicResource
+     * @throws DynamicStatusStoreException
+     */
+    @Override
+    public IDynamicResource getDynamicResource(String resourceKey) throws DynamicStatusStoreException {
+        return new FrameworkDynamicResource();
+    }
+
+    /**
+     * <p>
+     * Retrieve an interface to update the Run status with manager related
+     * information. This is information above what the framework would display, like
+     * status, no. of methods etc.
+     * </p>
+     * 
+     * <p>
+     * One possible use would be the zOS Manager reporting the primary zOS Image the
+     * test is running on.
+     * </p>
+     * 
+     * @return The dynamic run resource tailored to this namespaces
+     * @throws DynamicStatusStoreException
+     */
+    @Override
+    public IDynamicRun getDynamicRun() throws DynamicStatusStoreException {
+        return new FrameworkDynamicRun();
+    }
+
+
 
     /**
      * Prefix the supplied key with the namespace
