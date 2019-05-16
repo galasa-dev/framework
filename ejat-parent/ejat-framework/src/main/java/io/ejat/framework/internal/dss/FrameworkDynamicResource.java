@@ -1,10 +1,12 @@
 package io.ejat.framework.internal.dss;
 
 import io.ejat.framework.spi.IDynamicResource;
+import io.ejat.framework.spi.IDynamicStatusStore;
 
-public class FrameworkDynamicResource implements IDynamicResource {
-    
-    public FrameworkDynamicResource() {
-        //DUMMY at the moment until we design it whilst writing managers
+public class FrameworkDynamicResource extends FrameworkDynamicStoreKeyAccess implements IDynamicResource {
+	
+    public FrameworkDynamicResource(IDynamicStatusStore dssStore, String prefix) {
+    	super(dssStore, prefix);
     }
+
 }

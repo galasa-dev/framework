@@ -32,9 +32,8 @@ public interface IDynamicStatusStoreService extends IDynamicStatusStoreKeyAccess
 	 * 
 	 * @param key
 	 * @return
-	 * @throws DynamicStatusStoreException
 	 */
-	IDynamicResource getDynamicResource(String resourceKey) throws DynamicStatusStoreException;
+	IDynamicResource getDynamicResource(String resourceKey);
 	
 	/**
 	 * <p> Retrieve an interface to update the Run status with manager related information.  This is information

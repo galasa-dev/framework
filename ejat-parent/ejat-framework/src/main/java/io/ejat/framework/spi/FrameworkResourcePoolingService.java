@@ -325,7 +325,7 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
         /**
          * Commenting as unused, but required from IDynamicStatusStore implementation.
          */
-        public IDynamicResource getDynamicResource(String input) throws DynamicStatusStoreException {return null;}
+        public IDynamicResource getDynamicResource(String input) {return null;}
         /**
          * Commenting as unused, but required from IDynamicStatusStore implementation.
          */
