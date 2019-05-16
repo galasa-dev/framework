@@ -109,7 +109,7 @@ public class Launcher {
     private void buildFramework() throws LauncherException {
         logger.debug("Launching Framework...");
         try {
-            felixFramework.buildFramework(bundleRepositories, testBundleName);
+            felixFramework.buildFramework(bundleRepositories, testBundleName, this.boostrapProperties);
         } catch (Exception e) {
             throw new LauncherException("Unable to create and initialize Felix framework", e);
         }

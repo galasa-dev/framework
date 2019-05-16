@@ -29,6 +29,11 @@ public class FpfConfigurationPropertyRegistration implements IConfigurationPrope
 	public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
 			throws ConfigurationPropertyStoreException {
 				URI cps = frameworkInitialisation.getBootstrapConfigurationPropertyStore();
+				
+				if (!cps.getScheme().equals("file")) {
+					return;
+				}
+				
 				File file = new File(cps);
 
 				if((!file.exists())){
