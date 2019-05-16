@@ -35,7 +35,7 @@ public class TestRunner {
      * @return
      * @throws TestRunException
      */
-    public boolean runTest(String testBundleName, String testClassName, Properties bootstrapProperties, Properties overrideProperties) throws TestRunException  {
+    public void runTest(String testBundleName, String testClassName, Properties bootstrapProperties, Properties overrideProperties) throws TestRunException  {
 
         //*** Initialise the framework services
         FrameworkInitialisation frameworkInitialisation = null;
@@ -58,11 +58,20 @@ public class TestRunner {
 
         try {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
-                return true; //TODO  need to indicate run ignored
+                return; //TODO handle ignored classes
             }
         } catch (FrameworkException e) {
             throw new TestRunException("Problem asking Managers for an ignore reason", e);
         }
+     
+        
+        TestClassWrapper testClassWrapper = new TestClassWrapper(testBundleName, testClass);
+
+        testClassWrapper.parseTestClass();
+
+        testClassWrapper.instantiateTestClass();
+        
+
         
         try {
             managers.provisionGenerate();
@@ -85,19 +94,13 @@ public class TestRunner {
             throw new TestRunException("Unable to provision start", e);
         }
 
-        TestClassWrapper testClassWrapper = new TestClassWrapper(testClass);
-
-        testClassWrapper.parseTestClass();
-
-        testClassWrapper.instantiateTestClass();
-        
-        boolean result = testClassWrapper.runTestMethods(managers);
+        testClassWrapper.runTestMethods(managers);
 
         managers.provisionStop();
         managers.provisionDiscard();
         managers.endOfTestRun();
         
-        return result;
+        return;
     }
 
 

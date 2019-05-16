@@ -1,9 +1,5 @@
 package io.ejat.boot;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.File;
 
 import org.junit.Test;
@@ -15,7 +11,7 @@ public class ITLauncher {
 	 * Requires infrastructure and test OBRs. If unavailable, the test will be allowed to fail
 	 */
 	@Test
-	public void testLauncher() {
+	public void testLauncher() throws Exception {
 		
 		System.out.println("-------------------------------------------------------------------------------------------------------------------------------");
 		System.out.println("-- ITLauncher#testLauncher()");
@@ -37,15 +33,6 @@ public class ITLauncher {
 		System.setProperty("log.level", logLevel);
 
 		Launcher launcher = new Launcher();
-		try {
-			if (infrastructureOBRFile.exists() && testOBRFile.exists()) {
-				assertTrue(launcher.launch(args));
-			} else {
-				assertFalse(launcher.launch(args));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
-		}
+		launcher.launch(args);
 	}
 }
