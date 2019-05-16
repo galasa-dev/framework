@@ -112,13 +112,10 @@ public class FelixFramework {
 	 * @param testClassName the test class name
      * @param boostrapProperties the bootstrap properties
      * @param overridesProperties the override properties
-	 * @return test passed
 	 * @throws LauncherException 
 	 * @throws Throwable 
 	 */
-	public boolean runTest(String testBundleName, String testClassName, Properties boostrapProperties, Properties overridesProperties) throws LauncherException {
-		
-		boolean testPassed = false;
+	public void runTest(String testBundleName, String testClassName, Properties boostrapProperties, Properties overridesProperties) throws LauncherException {
 		
 		// Get the framework bundle
 		Bundle frameWorkBundle = getBundle("io.ejat.framework");
@@ -151,12 +148,12 @@ public class FelixFramework {
 		// Invoke the runTest method
 		logger.debug("Invoking runTest()");
     	try {
-			testPassed = (boolean) runTestMethod.invoke(service, testBundleName, testClassName, boostrapProperties, overridesProperties);
+			runTestMethod.invoke(service, testBundleName, testClassName, boostrapProperties, overridesProperties);
 		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
 			throw new LauncherException(e.getCause());
 		}
     	
-    	return testPassed;
+    	return;
 	}
 
 	/**

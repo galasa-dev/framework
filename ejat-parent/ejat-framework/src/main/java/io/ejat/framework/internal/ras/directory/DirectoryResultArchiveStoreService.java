@@ -20,7 +20,7 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
-import io.ejat.framework.spi.teststructure.ITestStructure;
+import io.ejat.framework.spi.teststructure.TestStructure;
 
 /**
  * A RAS Service for storing the result archive store
@@ -192,7 +192,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
      * framework.spi.teststructure.ITestStructure)
      */
     @Override
-    public void updateTestStructure(@NotNull ITestStructure testStructure) throws ResultArchiveStoreException {
+    public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
         try {
             final String json = this.gson.toJson(testStructure);
             Files.write(this.testStructureFile, json.getBytes(UTF8));

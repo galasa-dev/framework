@@ -60,7 +60,7 @@ public class Launcher {
     public static void main(String[] args) throws Exception
     {
         Launcher launcher = new Launcher();
-        System.exit((launcher.launch(args)? 0 : -1));
+        launcher.launch(args);
     }
 
 
@@ -71,7 +71,7 @@ public class Launcher {
      * @throws InterruptedException 
      * @throws Exception
      */
-    protected boolean launch(String[] args) throws LauncherException, InterruptedException {
+    protected void launch(String[] args) throws LauncherException, InterruptedException {
 
         felixFramework = new FelixFramework();
 
@@ -86,13 +86,12 @@ public class Launcher {
         logger.debug("Test Class: " + testClassName);
         logger.debug("Launching Framework...");
 
-        boolean testPassed = false;
         try {
             // Build the Framework
             buildFramework();
 
             // Run test class
-            testPassed = felixFramework.runTest(testBundleName, testClassName, boostrapProperties, overridesProperties);
+            felixFramework.runTest(testBundleName, testClassName, boostrapProperties, overridesProperties);
 
         } catch (LauncherException e) {
             logger.error("Unable run test class", e);
@@ -102,8 +101,8 @@ public class Launcher {
             }
         }
 
-        logger.info("Test run complete. Test " + (testPassed? "PASSED" : "FAILED"));
-        return testPassed;
+        logger.info("Test run complete");
+        return;
     }
 
 

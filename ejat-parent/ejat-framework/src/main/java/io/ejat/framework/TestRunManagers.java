@@ -23,6 +23,7 @@ import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IManager;
 import io.ejat.framework.spi.ManagerException;
+import io.ejat.framework.spi.Result;
 
 public class TestRunManagers {
 
@@ -438,19 +439,19 @@ public class TestRunManagers {
         }
     }
 
-    public boolean anyReasonTestMethodShouldBeIgnored(@NotNull Method method) throws FrameworkException {
+    public Result anyReasonTestMethodShouldBeIgnored(@NotNull Method method) throws FrameworkException {
         for(IManager manager : activeManagers) {
             try {
                 String reason = manager.anyReasonTestMethodShouldBeIgnored(method);
                 if (reason != null) {
                     logger.info("Ignoring method due to " + reason);
-                    return true;
+                    return Result.ignore(reason + " from " + manager.getClass().getName());
                 }
             } catch (ManagerException e) {
                 throw new FrameworkException("Unable to calculate Test Method ignore status", e);
             }
         }
-        return false;
+        return null;
     }
 
     public void fillAnnotatedFields(Object testClassObject) throws FrameworkException {
@@ -473,14 +474,14 @@ public class TestRunManagers {
         }
     }
 
-    public String endOfTestMethod(@NotNull String currentResult, Throwable currentException) throws FrameworkException {
-        String newResult = null;
+    public Result endOfTestMethod(@NotNull Result currentResult, Throwable currentException) throws FrameworkException {
+    	Result newResult = null;
 
         for(IManager manager : activeManagers) {
             try {
-                String managerResult = manager.endOfTestMethod(currentResult, currentException);
+                String managerResult = manager.endOfTestMethod(currentResult.getName(), currentException); // TODO change managers to pass actual result
                 if (managerResult != null && newResult == null) {
-                    newResult = managerResult;
+                    newResult = Result.custom(managerResult);
                 }
             } catch (ManagerException e) {
                 throw new FrameworkException("Problem in end of test method for manager " + manager.getClass().getName(), e);
@@ -490,14 +491,14 @@ public class TestRunManagers {
         return newResult;
     }
 
-    public String endOfTestClass(@NotNull String currentResult, Throwable currentException) throws FrameworkException {
-        String newResult = null;
+    public Result endOfTestClass(@NotNull Result result, Throwable currentException) throws FrameworkException {
+        Result newResult = null;
 
         for(IManager manager : activeManagers) {
             try {
-                String managerResult = manager.endOfTestClass(currentResult, currentException);
+                String managerResult = manager.endOfTestClass(result.getName(), currentException);
                 if (managerResult != null && newResult == null) {
-                    newResult = managerResult;
+                    newResult = Result.custom(managerResult);
                 }
             } catch (ManagerException e) {
                 throw new FrameworkException("Problem in end of test class for manager " + manager.getClass().getName(), e);
