@@ -61,6 +61,7 @@ public class Launcher {
     {
         Launcher launcher = new Launcher();
         launcher.launch(args);
+        System.exit(0);
     }
 
 
