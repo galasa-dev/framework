@@ -95,7 +95,7 @@ public class DirectoryRASSTest {
         drass.initialise(this.frameworkInit);
 
         final TestStructure writeStructure = new TestStructure();
-        writeStructure.testName = "hello everyone";
+        writeStructure.setTestName("hello everyone");
 
         final Path pathStructure = this.rasDirectory.resolve(runname).resolve("structure.json");
         Assert.assertFalse("test structure file should not exist before write", Files.exists(pathStructure));
@@ -109,7 +109,7 @@ public class DirectoryRASSTest {
         final Gson gson = new Gson();
         final TestStructure readStructure = gson.fromJson(json, TestStructure.class);
 
-        Assert.assertEquals("Test structure data different", writeStructure.testName, readStructure.testName);
+        Assert.assertEquals("Test structure data different", writeStructure.getTestName(), readStructure.getTestName());
     }
 
     @Test
