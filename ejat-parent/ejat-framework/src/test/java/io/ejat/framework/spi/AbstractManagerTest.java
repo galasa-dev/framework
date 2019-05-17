@@ -16,9 +16,13 @@ public class AbstractManagerTest {
         final TestClass testClass = new TestClass();
         testManager.initialise(null, null, null, testClass.getClass());
 
-        final HashMap<Field, List<Annotation>> testFields = testManager
+        final List<AnnotatedField> annotatedFields = testManager
                 .findAnnotatedFields(TestManagerAnnotation.class);
-        Assert.assertNotNull("A map should always be returned", testFields);
+        Assert.assertNotNull("A list should always be returned", annotatedFields);
+        HashMap<Field, List<Annotation>> testFields = new HashMap<>();
+        for(AnnotatedField annotatedField : annotatedFields) {
+        	testFields.put(annotatedField.getField(), annotatedField.getAnnotations());
+        }
 
         final List<Annotation> field1Annotations = testFields.remove(testClass.getClass().getField("field1"));
         Assert.assertNotNull("Did not find the field1 annotations", field1Annotations);
