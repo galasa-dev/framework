@@ -15,14 +15,6 @@
 	<name>eJAT Eclipse</name>
 
 	<artifactId>ejat-eclipse</artifactId>	
-	
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 
 	<build>
 	    <plugins>

@@ -5,6 +5,10 @@ target/
 .factorypath
 .apt_generated/
 .apt_generated_tests/
+core.*
+javacore.*
+jitdump.*
+Snap.*
 .DS_Store
 /*/build.properties
 !/*eclipse*/build.properties
