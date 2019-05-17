@@ -393,5 +393,70 @@ public abstract class AbstractManager implements IManager {
     @Override
     public void endOfTestRun() {
     }
+    
+    
+	/**
+	 * Helper method to find managers that implement an interface and tell them they are required
+	 * 
+	 * @param allManagers All available managers
+	 * @param activeManagers The currently active managers
+	 * @param dependentInterface The interface the manager needs to implement
+	 * @return 
+	 * @throws ManagerException If the required manager can't be added to the active list
+	 */
+	protected <T extends Object> T addDependentManager(@NotNull List<IManager> allManagers, @NotNull List<IManager> activeManagers, @NotNull Class<T> dependentInterface) throws ManagerException {
+		for(IManager manager : allManagers) {
+			if (dependentInterface.isAssignableFrom(manager.getClass())) {
+				manager.youAreRequired(allManagers, activeManagers);
+				return dependentInterface.cast(manager);
+			}
+		}
+		return null;
+	}
+
+	public static String nulled(String value) {
+		if (value == null) { 
+			return null;
+		}
+
+		value = value.trim();
+		if (value.isEmpty()) {
+			return value;
+		}
+		return value;
+	}
+
+
+	public static List<String> split(String value) {
+		ArrayList<String> values = new ArrayList<>();
+
+		if (value == null) { 
+			return values;
+		}
+
+		String[] parts = value.split(",");
+
+		for(String part : parts) {
+			part = part.trim();
+			if (!part.isEmpty()) {
+				values.add(part);
+			}
+		}
+
+		return values;
+	}
+
+	public static String defaultString(String value, String defaultValue) {
+		if (value == null) {
+			return defaultValue;
+		}
+		value = value.trim().toLowerCase();
+		if (value.isEmpty()) {
+			return defaultValue;
+		}
+
+		return value;
+	}
+
 
 }

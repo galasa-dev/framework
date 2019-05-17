@@ -255,7 +255,7 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
         int attempts = 0;
 
         while (resources.size() < returnConsecutive){
-            if (!(bannedReosurceStrings.contains(randomResource)) && ((dss.getDynamicResource(keyPrefix + randomResource)) == null)) {
+            if (!(bannedReosurceStrings.contains(randomResource)) && ((dss.get(keyPrefix + randomResource)) == null)) {
                 resources.add(randomResource);
             } else {
                 resources.clear();
@@ -295,7 +295,7 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
         int attempt = 0;
 
         while (resources.size() < returnConsecutive){
-            if (!(bannedReosurceStrings.contains(resource)) && ((dss.getDynamicResource(keyPrefix + resource)) == null)) {
+            if (!(bannedReosurceStrings.contains(resource)) && ((dss.get(keyPrefix + resource)) == null)) {
                 resources.add(resource);
             } else {
                 resources.clear();

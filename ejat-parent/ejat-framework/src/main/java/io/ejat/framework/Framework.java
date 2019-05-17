@@ -13,6 +13,7 @@ import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.FrameworkResourcePoolingService;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
@@ -126,7 +127,7 @@ public class Framework implements IFramework {
      */
     @Override
     public @NotNull IResourcePoolingService getResourcePoolingService() {
-        throw new UnsupportedOperationException("RPS has not been implemented yet");
+        return new FrameworkResourcePoolingService();
     }
 
     /*
