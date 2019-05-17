@@ -39,6 +39,18 @@ public abstract class AbstractManager implements IManager {
     protected void registerAnnotatedField(Field field, Object value) {
         this.annotatedFields.put(field, value);
     }
+    
+    
+    
+    /**
+     * Retrieve the generated object for an annotated field
+     * 
+     * @param annotated field to retrieve
+     * @return the generated object or null if it has not been generated yet
+     */
+    protected Object getAnnotatedField(Field field) {
+    	return this.annotatedFields.get(field);
+    }
 
     /**
      * <p>
@@ -55,8 +67,8 @@ public abstract class AbstractManager implements IManager {
      *                          annotated with.
      * @return A list of fields the manager should be interested in
      */
-    protected HashMap<Field, List<Annotation>> findAnnotatedFields(Class<? extends Annotation> managerAnnotation) {
-        final HashMap<Field, List<Annotation>> foundFields = new HashMap<>();
+    protected List<AnnotatedField> findAnnotatedFields(Class<? extends Annotation> managerAnnotation) {
+        final ArrayList<AnnotatedField> foundFields = new ArrayList<>();
 
         // *** Work our way throw the class inheritance
         for (Class<?> lookClass = this.testClass; lookClass != null; lookClass = lookClass.getSuperclass()) {
@@ -90,7 +102,7 @@ public abstract class AbstractManager implements IManager {
                 }
 
                 if (!fieldAnnotations.isEmpty()) {
-                    foundFields.put(field, fieldAnnotations);
+                    foundFields.add(new AnnotatedField(field, fieldAnnotations));
                 }
             }
         }
@@ -106,14 +118,19 @@ public abstract class AbstractManager implements IManager {
      *                          interested in
      */
     protected void generateAnnotatedFields(Class<? extends Annotation> managerAnnotation) {
-        final HashMap<Field, List<Annotation>> foundAnnotatedFields = findAnnotatedFields(managerAnnotation);
+        final List<AnnotatedField> foundAnnotatedFields = findAnnotatedFields(managerAnnotation);
         if (foundAnnotatedFields.isEmpty()) { // *** No point doing anything
             return;
         }
 
-        for (final Entry<Field, List<Annotation>> entry : foundAnnotatedFields.entrySet()) {
-            final Field field = entry.getKey();
-            final List<Annotation> annotations = entry.getValue();
+        for (final AnnotatedField entry : foundAnnotatedFields) {
+            final Field field = entry.getField();
+            final List<Annotation> annotations = entry.getAnnotations();
+            
+            //*** Check to see if it is already generated
+            if (this.annotatedFields.containsKey(field)) {
+            	continue;
+            }
 
             try {
                 // *** work our way through the fields looking for @GenerateAnnotatedField
