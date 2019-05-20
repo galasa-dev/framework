@@ -135,7 +135,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		//*** Is this a test run,   if it is, determined by the existence of cps property framework.run,
 		//*** Then we need to make sure we have a runname for the RAS.  If there isnt one, we need to allocate one
 		//*** Need the DSS for this as the latest run number number is stored in there
-		String runBundleClass = this.cpsFramework.getProperty("run", null);
+		String runBundleClass = this.cpsFramework.getProperty("run", "testbundleclass");
 		if (runBundleClass == null || runBundleClass.trim().isEmpty()) {
 			checkNewRunName();
 		}
