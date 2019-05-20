@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 import javax.validation.constraints.NotNull;
 
@@ -167,6 +168,16 @@ public class FileCredentialsRegistrationTest {
         public ICredentialsService getCredentialsService() throws CredentialsException {
             return null;
         }
+
+		@Override
+		public Random getRandom() {
+			return null;
+		}
+
+		@Override
+		public String getTestRunType() throws FrameworkException {
+			return null;
+		}
         
     } 
 }

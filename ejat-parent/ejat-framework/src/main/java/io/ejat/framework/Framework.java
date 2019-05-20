@@ -1,6 +1,7 @@
 package io.ejat.framework;
 
 import java.util.Properties;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
 import io.ejat.framework.internal.creds.FrameworkCredentialsService;
 import io.ejat.framework.internal.dss.FrameworkDynamicStatusStoreService;
+import io.ejat.framework.spi.AbstractManager;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
@@ -42,11 +44,16 @@ public class Framework implements IFramework {
     private ICredentialsStore                  credsStore;             
 
     private IConfigurationPropertyStoreService cpsFramework;
-    private ICredentialsService           credsFramework;
+    private ICredentialsService                credsFramework;
+    
+    private String                             runName;
+    
+    private final Random                       random;
 
     protected Framework(Properties overrideProperties, Properties recordProperties) {
         this.overrideProperties = overrideProperties;
-        this.recordProperties = recordProperties;
+        this.recordProperties   = recordProperties;
+        this.random             = new Random();
     }
 
     @Override
@@ -230,6 +237,11 @@ public class Framework implements IFramework {
         return this.credsStore;
     }
 
+    @Override
+    public Random getRandom() {
+    	return this.random;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -237,11 +249,24 @@ public class Framework implements IFramework {
      */
     @Override
     public String getTestRunName() {
-        try {
-            return cpsFramework.getProperty("run", "name");
-        } catch (ConfigurationPropertyStoreException e) {
-           throw new UnsupportedOperationException("Appears to be running outside of a test run", e);
-        }
+    	return this.runName;
     }
+    
+	/**
+	 * Set the run name if it is a test run
+	 * 
+	 * @param runName The run name
+	 */
+	public void setTestRunName(String runName) {
+		this.runName = runName;
+	}
+
+	/* (non-Javadoc)
+	 * @see io.ejat.framework.spi.IFramework#getTestRunType()
+	 */
+	@Override
+	public @NotNull String getTestRunType() throws FrameworkException {
+		return AbstractManager.defaultString(this.cpsFramework.getProperty("run", "request.type"), "local");
+	}
 
 }

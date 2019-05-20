@@ -2,6 +2,8 @@ package io.ejat.framework;
 
 import java.util.Properties;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
@@ -12,6 +14,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.IDynamicStatusStoreService;
+import io.ejat.framework.spi.IFramework;
 
 /**
  * Run the supplied test class
@@ -36,6 +40,18 @@ public class TestRunner {
      * @throws TestRunException
      */
     public void runTest(String testBundleName, String testClassName, Properties bootstrapProperties, Properties overrideProperties) throws TestRunException  {
+    	
+    	//*** Ensure the bundle/testclass properties are set
+    	String bundleClass = testBundleName + "/" + testClassName;
+    	overrideProperties.setProperty("framework.run.testbundleclass", bundleClass);
+    	overrideProperties.setProperty("framework.run.testbundle", testBundleName);
+    	overrideProperties.setProperty("framework.run.testclass", testClassName);
+    	
+    	//*** Ensure the run type is set, defaults to local
+    	String runType = overrideProperties.getProperty("framework.run.request.type");
+    	if (runType == null || runType.trim().isEmpty()) {
+        	overrideProperties.setProperty("framework.run.request.type", "local");  //*** Default to the local request type
+    	}
 
         //*** Initialise the framework services
         FrameworkInitialisation frameworkInitialisation = null;
@@ -100,11 +116,39 @@ public class TestRunner {
         managers.provisionDiscard();
         managers.endOfTestRun();
         
+        //*** If this was a local run, then we will want to remove the run properties from the DSS immediately
+        //*** for automation, we will let the core manager clean up after a while
+        //*** Local runs will have access to the run details via a view,
+        //*** But automation runs will only exist the RAS if we delete them, so need to give 
+        //*** time for things like jenkins and other run requesters to obtain the result and RAS id before 
+        //*** deleting,  default is to keep the automation run properties for 5 minutes
+        try {
+			deleteRunProperties(frameworkInitialisation.getFramework());
+		} catch (FrameworkException e) {
+			//*** Any error, report it and leave for the core manager to clean up
+			logger.error("Error cleaning up local test run properties", e);
+		}
+        
         return;
     }
 
 
-    /**
+    private void deleteRunProperties(@NotNull IFramework framework) throws FrameworkException {
+		if (!"local".equals(framework.getTestRunType())) { //*** Not interested in non-local runs
+			return;
+		}
+		
+		String runName = framework.getTestRunName();
+		if (runName == null) {
+			throw new FrameworkException("Internal error, should have had a run name!");
+		}
+		
+		IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
+		dss.deletePrefix("run." + runName + "."); //*** delete everything to do with the run
+	}
+
+
+	/**
      * Get the test class from the supplied bundle
      * 
      * @param testBundleName
