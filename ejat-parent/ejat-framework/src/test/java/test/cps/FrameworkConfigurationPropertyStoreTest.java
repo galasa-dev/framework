@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Random;
 
 import javax.validation.constraints.NotNull;
 
@@ -18,6 +19,7 @@ import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
+import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
@@ -222,6 +224,17 @@ FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testPro
         public ICredentialsService getCredentialsService() {
             return null;
         }
+        
+		@Override
+		public Random getRandom() {
+			return null;
+		}
+
+		@Override
+		public String getTestRunType() throws FrameworkException {
+			return null;
+		}
+
         
     } 
 

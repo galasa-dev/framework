@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Random;
 
 import javax.validation.constraints.NotNull;
 
@@ -17,6 +18,7 @@ import org.junit.Test;
 
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
+import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
@@ -205,6 +207,15 @@ import io.ejat.framework.spi.creds.ICredentialsService;
             return null;
         }
         
+		@Override
+		public Random getRandom() {
+			return null;
+		}
+
+		@Override
+		public String getTestRunType() throws FrameworkException {
+			return null;
+		}
     } 
 
  }
