@@ -414,6 +414,14 @@ public abstract class AbstractManager implements IManager {
 		return null;
 	}
 
+	/**
+	 * null a String is if it is empty
+	 * 
+	 * TODO Needs to be moved to a more appropriate place as non managers use this,  a stringutils maybe
+	 * 
+	 * @param value 
+	 * @return a trimmed String or a null if emtpy or null
+	 */
 	public static String nulled(String value) {
 		if (value == null) { 
 			return null;
