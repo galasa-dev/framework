@@ -295,6 +295,7 @@ public class ResourceManagement implements IResourceManagement {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					ResourceManagement.this.logger.info("Shutdown wait was interrupted",e);
+					Thread.currentThread().interrupt();
 					return;
 				}
 			}
