@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -13,6 +14,7 @@ import javax.validation.constraints.Null;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IDynamicStatusStoreKeyAccess;
+import io.ejat.framework.spi.IDynamicStatusStoreWatcher;
 
 
 /**
@@ -204,4 +206,39 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
         Objects.requireNonNull(key);
         return this.prefix + key;
     }
+
+	@Override
+	public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {
+		return this.dssStore.watch(new PassthroughWatcher(watcher, prefix), prefixKey(key));
+	}
+
+	@Override
+	public UUID watchPrefix(IDynamicStatusStoreWatcher watcher, String keyPrefix) throws DynamicStatusStoreException {
+		return this.dssStore.watchPrefix(new PassthroughWatcher(watcher, prefix), prefixKey(keyPrefix));
+	}
+
+	@Override
+	public void unwatch(UUID watchId) throws DynamicStatusStoreException {
+		this.dssStore.unwatch(watchId);
+	}
+	
+	private static class PassthroughWatcher implements IDynamicStatusStoreWatcher {
+		
+		private final String                     prefix;
+		private final int                        offset;
+		private final IDynamicStatusStoreWatcher watcher;
+		
+		private PassthroughWatcher(IDynamicStatusStoreWatcher watcher, String prefix) {
+			this.prefix  = prefix;
+			this.offset  = this.prefix.length();
+			this.watcher = watcher;
+		}
+
+		@Override
+		public void propertyModified(String key, Event event, String oldValue, String newValue) {
+			key = key.substring(this.offset);
+			watcher.propertyModified(key, event, oldValue, newValue);
+		}
+	}
+
 }

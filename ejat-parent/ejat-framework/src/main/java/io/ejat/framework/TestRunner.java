@@ -134,7 +134,7 @@ public class TestRunner {
 
 
     private void deleteRunProperties(@NotNull IFramework framework) throws FrameworkException {
-		if (!"local".equals(framework.getTestRunType())) { //*** Not interested in non-local runs
+		if (!"localx".equals(framework.getTestRunType())) { //*** Not interested in non-local runs
 			return;
 		}
 		

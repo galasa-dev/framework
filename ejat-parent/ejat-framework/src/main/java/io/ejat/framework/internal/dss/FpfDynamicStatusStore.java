@@ -1,20 +1,20 @@
 package io.ejat.framework.internal.dss;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.Map;
 import java.util.Set;
-import java.net.URI;
-import java.io.IOException;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import io.ejat.framework.spi.DynamicStatusStoreException;
-import io.ejat.framework.spi.IDynamicResource;
-import io.ejat.framework.spi.IDynamicRun;
-import io.ejat.framework.spi.IDynamicStatusStore;
-import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.FrameworkPropertyFile;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
+import io.ejat.framework.spi.IDynamicStatusStore;
+import io.ejat.framework.spi.IDynamicStatusStoreWatcher;
+import io.ejat.framework.spi.IFrameworkPropertyFileWatcher;
 
 /**
  *<p>This class is used when the FPF class is being operated as the Key-Value store for the Dynamic Status Store.</p>
@@ -172,4 +172,50 @@ public class FpfDynamicStatusStore implements IDynamicStatusStore {
 			throw new DynamicStatusStoreException("Unable to delete key/value pairs with given key prefix", e);
 		}
 	}
+
+	@Override
+	public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {
+		try {
+			return fpf.watch(new PassthroughWatcher(watcher), key);
+		} catch (FrameworkPropertyFileException e) {
+			throw new DynamicStatusStoreException("Unable to set a new watch on key '" + key + "'", e);
+		}
+	}
+
+	@Override
+	public UUID watchPrefix(IDynamicStatusStoreWatcher watcher, String keyPrefix) throws DynamicStatusStoreException {
+		try {
+			return fpf.watchPrefix(new PassthroughWatcher(watcher), keyPrefix);
+		} catch (FrameworkPropertyFileException e) {
+			throw new DynamicStatusStoreException("Unable to set a new watch on keyprefix '" + keyPrefix + "'", e);
+		}
+	}
+
+	@Override
+	public void unwatch(UUID watchId) throws DynamicStatusStoreException {
+		try {
+			fpf.unwatch(watchId);
+		} catch (FrameworkPropertyFileException e) {
+			throw new DynamicStatusStoreException("Unable to unwatch", e);
+		}
+	}
+	
+	
+	private static class PassthroughWatcher implements IFrameworkPropertyFileWatcher {
+		
+		private final IDynamicStatusStoreWatcher watcher;
+		
+		private PassthroughWatcher(IDynamicStatusStoreWatcher watcher) {
+			this.watcher = watcher;
+		}
+
+		@Override
+		public void propertyModified(String key, Event event, String oldValue, String newValue) {
+			watcher.propertyModified(key, IDynamicStatusStoreWatcher.Event.valueOf(event.toString()), oldValue, newValue);
+		}
+		
+	}
+	
+	
+	
 }

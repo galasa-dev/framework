@@ -32,9 +32,9 @@ import io.ejat.boot.BootLogger;
  * Felix framework run test class
  */
 public class FelixFramework {
-	
+
 	private BootLogger logger = new BootLogger();
-	
+
 	private boolean loadConsole = Boolean.parseBoolean(System.getProperty("jat.core.load.console", "false")); 
 
 	private Framework framework;
@@ -42,8 +42,8 @@ public class FelixFramework {
 	private Bundle obrBundle;
 
 	private RepositoryAdmin repositoryAdmin;
-	
-	
+
+
 	/**
 	 * Initialise and start the Felix framework. Install required bundles and the OBRs. Install the eJAT framework bundle
 	 * 
@@ -52,31 +52,31 @@ public class FelixFramework {
 	 */
 	public void buildFramework(List<String> bundleRepositories, String testBundleName, Properties boostrapProperties) throws LauncherException {
 		logger.debug("Building Felix Framework...");
-		
+
 		String felixCacheDirectory = System.getProperty("java.io.tmpdir");
 		File felixCache = new File(felixCacheDirectory, "felix-cache");
 		try {
 			FileUtils.deleteDirectory(felixCache);
-			
+
 			FrameworkFactory frameworkFactory = new FrameworkFactory();
-			
+
 			HashMap<String, Object> frameworkProperties = new HashMap<>();
 			frameworkProperties.put(Constants.FRAMEWORK_STORAGE, felixCache.getAbsolutePath());
 			frameworkProperties.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.	FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
-			frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.apache.felix.bundlerepository; version=2.1, io.ejat.framework" 
-			);
+			frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.apache.felix.bundlerepository; version=2.1, io.ejat.framework, sun.misc, com.sun.net.httpserver, com.sun.management" 
+					);
 			framework = frameworkFactory.newFramework(frameworkProperties);
 			logger.debug("Initializing Felix Framework");
 			framework.init();
 			logger.debug("Starting Felix Framework");
 			framework.start();
 			logger.debug("Felix Framework started");
-			
+
 			logger.debug("Installing required OSGi bundles");
-			
+
 			// Install and start the Felix OBR bundle
 			obrBundle = installBundle("org.apache.felix.bundlerepository-2.0.2.jar", true);
-			
+
 			// Load the OSGi Bundle Repositories
 			loadBundleRepositories(bundleRepositories);
 
@@ -86,7 +86,7 @@ public class FelixFramework {
 				loadBundle("org.apache.felix.gogo.command");
 				loadBundle("org.apache.felix.gogo.shell");
 			}
-			
+
 			loadBundle("log4j");
 
 			// Load the OSGi Service Component Runtime bundle 
@@ -95,7 +95,7 @@ public class FelixFramework {
 			// Load the ejat-framework bundle
 			logger.debug("installing Framework bundle");
 			loadBundle("io.ejat.framework");
-			
+
 			// Load extra bundles from the bootstrap
 			String extraBundles = boostrapProperties.getProperty("framework.extra.bundles");
 			if (extraBundles != null) {
@@ -107,11 +107,13 @@ public class FelixFramework {
 					}
 				}
 			}
-			
+
 			// Load the test bundle
-			logger.debug("Installing Test bundle");
-			loadBundle(testBundleName);
-			
+			if (testBundleName != null) {
+				logger.debug("Installing Test bundle");
+				loadBundle(testBundleName);
+			}
+
 		} catch(IOException | BundleException e) {
 			throw new LauncherException("Unable to initialise the Felix framework", e);
 		}
@@ -122,16 +124,15 @@ public class FelixFramework {
 	 * 
 	 * @param testBundleName the test bundle name
 	 * @param testClassName the test class name
-     * @param boostrapProperties the bootstrap properties
-     * @param overridesProperties the override properties
+	 * @param boostrapProperties the bootstrap properties
+	 * @param overridesProperties the override properties
 	 * @throws LauncherException 
-	 * @throws Throwable 
 	 */
 	public void runTest(String testBundleName, String testClassName, Properties boostrapProperties, Properties overridesProperties) throws LauncherException {
-		
+
 		// Get the framework bundle
 		Bundle frameWorkBundle = getBundle("io.ejat.framework");
-		
+
 		// Get the io.ejat.framework.TestRunner class service
 		String classString = "io.ejat.framework.TestRunner";
 		String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
@@ -148,7 +149,7 @@ public class FelixFramework {
 		if (service == null) {
 			throw new LauncherException("Unable to get TestRunner service");
 		}
-		
+
 		// Get the  io.ejat.framework.TestRunner#runTest(String testBundleName, String testClassName) method
 		Method runTestMethod;
 		try {
@@ -156,17 +157,87 @@ public class FelixFramework {
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new LauncherException("Unable to get Framework test runner method", e);
 		}
-		
+
 		// Invoke the runTest method
 		logger.debug("Invoking runTest()");
-    	try {
+		try {
 			runTestMethod.invoke(service, testBundleName, testClassName, boostrapProperties, overridesProperties);
 		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
 			throw new LauncherException(e.getCause());
 		}
-    	
-    	return;
+
+		return;
 	}
+
+
+	/**
+	 * Run the Resource Management Server
+	 * 
+	 * @param boostrapProperties the bootstrap properties
+	 * @param overridesProperties the override properties
+	 * @param bundles 
+	 * @param health 
+	 * @param metrics 
+	 * @throws LauncherException 
+	 */
+	public void runResourceManagement(Properties boostrapProperties, Properties overridesProperties, List<String> bundles, Integer metrics, Integer health) throws LauncherException {
+		// Get the framework bundle
+		Bundle frameWorkBundle = getBundle("io.ejat.framework");
+
+		if (!bundles.isEmpty()) {
+			//*** Load extra bundles
+			for(String bundle : bundles) {
+				try {
+					loadBundle(bundle);
+				} catch(Exception e) {
+					throw new LauncherException("Failed to load extra bundle " + bundle, e);
+				}
+			}
+		}
+		
+		//*** Set up ports if present
+		if (metrics != null) {
+			overridesProperties.put("framework.resource.management.metrics.port", metrics.toString());
+		}
+		if (health != null) {
+			overridesProperties.put("framework.resource.management.health.port", health.toString());
+		}
+
+		// Get the io.ejat.framework.TestRunner class service
+		String classString = "io.ejat.framework.ResourceManagement";
+		String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
+		ServiceReference<?>[] serviceReferences;
+		try {
+			serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
+		} catch (InvalidSyntaxException e) {
+			throw new LauncherException("Unable to get framework service reference", e);
+		}
+		if (serviceReferences == null || serviceReferences.length != 1) {
+			throw new LauncherException("Unable to get single reference to TestRunner service: " + ((serviceReferences == null) ? 0: serviceReferences.length)  + " service(s) returned");
+		}
+		Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
+		if (service == null) {
+			throw new LauncherException("Unable to get TestRunner service");
+		}
+
+		// Get the  io.ejat.framework.TestRunner#runTest(String testBundleName, String testClassName) method
+		Method runTestMethod;
+		try {
+			runTestMethod = service.getClass().getMethod("run", Properties.class, Properties.class);
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new LauncherException("Unable to get Framework resource management run method", e);
+		}
+
+		// Invoke the runTest method
+		logger.debug("Invoking resource management run()");
+		try {
+			runTestMethod.invoke(service, boostrapProperties, overridesProperties);
+		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+			throw new LauncherException(e.getCause());
+		}
+
+	}
+
 
 	/**
 	 * Stop the Felix framework
@@ -201,7 +272,7 @@ public class FelixFramework {
 		} else {
 			throw new LauncherException("Unable to get OBR RepositoryAdmin service");
 		}
-	
+
 		for (String bundleRepository: bundleRepositories) {
 			logger.trace("Loading OBR OSGi Bundle Repository " + bundleRepository);
 			Repository repository;
@@ -210,7 +281,7 @@ public class FelixFramework {
 			} catch (Exception e) {
 				throw new LauncherException("Unable to load repository " + bundleRepository, e);
 			}
-			
+
 			if (logger.isTraceEnabled()) {
 				// Print repository content
 				logger.trace("Loaded repository " + repository.getName() + " " + repository.getURI());
@@ -239,7 +310,7 @@ public class FelixFramework {
 	 * @throws LauncherException 
 	 */
 	private void loadBundle(String bundleSymbolicName) throws LauncherException {
-		
+
 		logger.trace("Installing bundle " + bundleSymbolicName);
 		Resolver resolver = repositoryAdmin.resolver();
 		String filterString = "(symbolicname=" + bundleSymbolicName + ")";
@@ -285,25 +356,25 @@ public class FelixFramework {
 					logger.trace("  OptionalResource: " + optionalResource.getSymbolicName());
 				}
 			}
-		    
+
 			resolver.deploy(Resolver.START);
-		    
-		    if (!isBundleActive(bundleSymbolicName)) {
-		    	throw new LauncherException("Bundle failed to install and activate");
-		    }
-		    
-		    printBundles();
+
+			if (!isBundleActive(bundleSymbolicName)) {
+				throw new LauncherException("Bundle failed to install and activate");
+			}
+
+			printBundles();
 		}
 		else
 		{
-		    Reason[] unsatisfiedRequirements = resolver.getUnsatisfiedRequirements();
-		    for (Reason reason : unsatisfiedRequirements)
-		    {
-		    	logger.error(resource.toString() + ": Unable to resolve: " + reason.getRequirement());
-		    }
+			Reason[] unsatisfiedRequirements = resolver.getUnsatisfiedRequirements();
+			for (Reason reason : unsatisfiedRequirements)
+			{
+				logger.error(resource.toString() + ": Unable to resolve: " + reason.getRequirement());
+			}
 			throw new LauncherException("Unable to resolve bundle " + bundleSymbolicName);
 		}
-		
+
 	}
 
 
@@ -321,7 +392,7 @@ public class FelixFramework {
 				return bundle;
 			}
 		}
-		
+
 		throw new LauncherException("Unable to find bundle with Bundle-SymbolicName=" + bundleSymbolicName);
 	}
 
@@ -336,7 +407,7 @@ public class FelixFramework {
 	 * @throws LauncherException 
 	 */
 	private Bundle installBundle(String bundleJar, boolean start) throws LauncherException, BundleException {
-		
+
 		String bundleLocation = null;
 		// Bundle location different when running from jar or IDE
 		if(isJar()) {
@@ -349,9 +420,9 @@ public class FelixFramework {
 		if (start) {
 			bundle.start();
 		}
-		
+
 		printBundles();
-		
+
 		return bundle;
 	}
 
@@ -384,10 +455,10 @@ public class FelixFramework {
 		Bundle[] bundles = framework.getBundleContext().getBundles();
 		for (Bundle bundle : bundles) {
 			if (bundle.getSymbolicName().equals(bundleSymbolicName) && bundle.getState() == Bundle.ACTIVE) {
-					return true;
+				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -404,37 +475,38 @@ public class FelixFramework {
 		// Format and print the bundle Id, State, Symbolic name and Version.
 		StringBuilder messageBuffer = new StringBuilder(2048);
 		messageBuffer.append("Bundle status:");
-		
+
 		for (Bundle bundle : bundles) {
 			String bundleId = String.valueOf(bundle.getBundleId());
 			messageBuffer.append("\n").
-					      append(String.format("%5s", bundleId)).
-					      append("|").
-			  			  append(String.format("%-11s", getBundleStateLabel(bundle))).
-					      append("|     |").
-			  			  append(bundle.getSymbolicName()).
-			  			  append(" (").
-			  			  append(bundle.getVersion()).
-			  			  append(")");
+			append(String.format("%5s", bundleId)).
+			append("|").
+			append(String.format("%-11s", getBundleStateLabel(bundle))).
+			append("|     |").
+			append(bundle.getSymbolicName()).
+			append(" (").
+			append(bundle.getVersion()).
+			append(")");
 		}
-		
+
 		logger.trace(messageBuffer.toString());
 	}
-	
+
 	/**
 	 * Convert bundle state to string
 	 * @param bundle
 	 * @return The bundle state
 	 */
-    private String getBundleStateLabel(Bundle bundle) {
-    	switch (bundle.getState()) {
-    		case Bundle.UNINSTALLED: return "Uninstalled";
-    		case Bundle.INSTALLED: return "Installed";
-    		case Bundle.RESOLVED: return "Resolved";
-    		case Bundle.STARTING: return "Starting";
-    		case Bundle.STOPPING: return "Stopping";
-    		case Bundle.ACTIVE: return "Active";
-    		default: return "<Unknown (" + bundle.getState() + ")>";
-        }
-    }
+	private String getBundleStateLabel(Bundle bundle) {
+		switch (bundle.getState()) {
+		case Bundle.UNINSTALLED: return "Uninstalled";
+		case Bundle.INSTALLED: return "Installed";
+		case Bundle.RESOLVED: return "Resolved";
+		case Bundle.STARTING: return "Starting";
+		case Bundle.STOPPING: return "Stopping";
+		case Bundle.ACTIVE: return "Active";
+		default: return "<Unknown (" + bundle.getState() + ")>";
+		}
+	}
+
 }

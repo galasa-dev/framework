@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 import io.ejat.framework.internal.rps.ResourceString;
 
@@ -379,6 +380,22 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
         /**
          * Commenting as unused, but required from IDynamicStatusStore implementation.
          */
+		@Override
+		public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public UUID watchPrefix(IDynamicStatusStoreWatcher watcher, String keyPrefix)
+				throws DynamicStatusStoreException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public void unwatch(UUID watchId) throws DynamicStatusStoreException {
+			// TODO Auto-generated method stub
+			
+		}
 
     }
 }
