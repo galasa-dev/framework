@@ -82,7 +82,10 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         // *** Get the runname to create the directory
         final String runName = this.framework.getTestRunName();
         if (runName == null) {
-            throw new UnsupportedOperationException("Currently do not support running outside of a test run");
+        	//*** TODO Initalise for the servers,   but we need to work out how to 
+        	//*** dynamically change the runname when a server wants to extract an old run
+            frameworkInitialisation.registerResultArchiveStoreService(this);
+            return;
         }
         setRasRun(runName);
 

@@ -2,6 +2,7 @@ package io.ejat.framework;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -136,7 +137,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		//*** Then we need to make sure we have a runname for the RAS.  If there isnt one, we need to allocate one
 		//*** Need the DSS for this as the latest run number number is stored in there
 		String runBundleClass = this.cpsFramework.getProperty("run", "testbundleclass");
-		if (runBundleClass == null || runBundleClass.trim().isEmpty()) {
+		if (runBundleClass != null && !runBundleClass.trim().isEmpty()) {
 			checkNewRunName();
 		}
 
@@ -296,10 +297,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 					
 					//*** Set up the otherRunProperties that will go with the Run number
 					HashMap<String, String> otherRunProperties = new HashMap<>();
+					otherRunProperties.put("run." + tempRunName + ".status", "Starting");
 					otherRunProperties.put("run." + tempRunName + ".testbundle", bundleName);
 					otherRunProperties.put("run." + tempRunName + ".testclass", bundleName);
 					otherRunProperties.put("run." + tempRunName + ".request.type", runType);
-					otherRunProperties.put("run." + tempRunName + ".heartbeat", Long.toString(System.currentTimeMillis()));
+					otherRunProperties.put("run." + tempRunName + ".heartbeat", Instant.now().toString());
 					
 					//*** See if we can setup the runnumber properties (clashes possible if low max number or sharing prefix
 					if (!this.dssFramework.putSwap("run." + tempRunName + ".test", null, bundleClassName, otherRunProperties)) {
@@ -323,10 +325,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		//*** Make sure the run properties are setup correctly by just overwriting it all
 		HashMap<String, String> runProperties = new HashMap<>();
 		runProperties.put("run." + runName + ".test", bundleClassName);
+		runProperties.put("run." + runName + ".status", "Starting");
 		runProperties.put("run." + runName + ".testbundle", bundleName);
 		runProperties.put("run." + runName + ".testclass", bundleName);
 		runProperties.put("run." + runName + ".request.type", runType);
-		runProperties.put("run." + runName + ".heartbeat", Long.toString(System.currentTimeMillis()));
+		runProperties.put("run." + runName + ".heartbeat", Instant.now().toString());
 		this.dssFramework.put(runProperties);
 	}
 

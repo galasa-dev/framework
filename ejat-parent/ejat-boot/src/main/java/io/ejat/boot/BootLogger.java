@@ -119,7 +119,7 @@ public class BootLogger {
 	private void log(Level level, String message) {
 		if (level.getValue() <= bootlogLevel.getValue()) {
 			StringBuilder sb = new StringBuilder();
-			sb.append(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS").format(new Date()));
+			sb.append(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").format(new Date()));
 			sb.append(' ');
 			sb.append(level);
 			sb.append(' ');
