@@ -8,3 +8,4 @@ target/
 .DS_Store
 build.properties
 MANIFEST.MF
+dependency-reduced-pom.xml
