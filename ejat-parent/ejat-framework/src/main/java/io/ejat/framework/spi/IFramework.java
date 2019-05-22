@@ -106,5 +106,7 @@ public interface IFramework {
 	 * @throws FrameworkException 
 	 */
 	String getTestRunType() throws FrameworkException;
+
 	
+	IFrameworkRuns getFrameworkRuns() throws FrameworkException;
 }

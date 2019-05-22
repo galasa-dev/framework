@@ -23,6 +23,7 @@ import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
+import io.ejat.framework.spi.IFrameworkRuns;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.creds.ICredentialsService;
@@ -216,6 +217,12 @@ import io.ejat.framework.spi.creds.ICredentialsService;
 		public String getTestRunType() throws FrameworkException {
 			return null;
 		}
+		
+		@Override
+		public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
+			return null;
+		}
+
     } 
 
  }
