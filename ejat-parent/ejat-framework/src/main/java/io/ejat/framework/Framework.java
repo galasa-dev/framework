@@ -22,6 +22,7 @@ import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
+import io.ejat.framework.spi.IFrameworkRuns;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
@@ -49,7 +50,9 @@ public class Framework implements IFramework {
     private String                             runName;
     
     private final Random                       random;
-
+    
+    private FrameworkRuns                      frameworkRuns;
+    
     protected Framework(Properties overrideProperties, Properties recordProperties) {
         this.overrideProperties = overrideProperties;
         this.recordProperties   = recordProperties;
@@ -267,6 +270,15 @@ public class Framework implements IFramework {
 	@Override
 	public @NotNull String getTestRunType() throws FrameworkException {
 		return AbstractManager.defaultString(this.cpsFramework.getProperty("run", "request.type"), "local");
+	}
+
+	@Override
+	public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
+		if (this.frameworkRuns == null) {
+			this.frameworkRuns = new FrameworkRuns(this);
+		}
+		
+		return this.frameworkRuns;
 	}
 
 }
