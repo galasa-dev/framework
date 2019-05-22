@@ -81,7 +81,6 @@
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Main-Class>io.ejat.boot.Launcher</Main-Class>
-										<Class-Path>bundle/org.apache.felix.bundlerepository-2.0.2.jar</Class-Path>
 									</manifestEntries>
 								</transformer>
                 				<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
@@ -92,6 +91,7 @@
 							<artifactSet>
 								<includes>
 									<include>org.apache.felix:org.apache.felix.framework</include>
+									<include>org.apache.felix:org.apache.felix.bundlerepository</include>
 									<include>commons-cli</include>
 									<include>commons-io</include>
 								</includes>
