@@ -73,7 +73,7 @@ public class TestRunHeartbeat extends Thread {
 				Thread.sleep(500); 
 			} catch (InterruptedException e) {
 				shutdown = true;
-				Thread.interrupted();
+				Thread.currentThread().interrupt();
 				break;
 			}  
 		}
