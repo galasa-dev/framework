@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
@@ -30,6 +31,8 @@ public class TestRunner {
 
     @Reference
     private RepositoryAdmin repositoryAdmin;
+    
+    private TestRunHeartbeat heartbeat;
 
     /**
      * Run the supplied test class
@@ -60,6 +63,13 @@ public class TestRunner {
         } catch (Exception e) {
             throw new TestRunException("Unable to initialise the Framework Services", e);
         }
+        
+        try {
+			heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
+	        heartbeat.start();
+		} catch (DynamicStatusStoreException e1) {
+			throw new TestRunException("Unable to initialise the heartbeat");
+		}
 
         logger.info("Run test: " + testBundleName + "/" + testClassName);
         Class<?> testClass = getTestClass(testBundleName, testClassName);
@@ -69,11 +79,13 @@ public class TestRunner {
         try {
             managers = new TestRunManagers(frameworkInitialisation.getFramework(), testClass);
         } catch (FrameworkException e) {
+        	stopHeartbeat();
             throw new TestRunException("Problem initialising the Managers for a test run", e);
         }
 
         try {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
+            	stopHeartbeat();
                 return; //TODO handle ignored classes
             }
         } catch (FrameworkException e) {
@@ -92,6 +104,7 @@ public class TestRunner {
         try {
             managers.provisionGenerate();
         } catch(Exception e) {
+        	stopHeartbeat();
             throw new TestRunException("Unable to provision generate", e);
         }
 
@@ -99,6 +112,7 @@ public class TestRunner {
             managers.provisionBuild();
         } catch(Exception e) {
             managers.provisionDiscard();
+            stopHeartbeat();
             throw new TestRunException("Unable to provision build", e);
         }
 
@@ -107,6 +121,7 @@ public class TestRunner {
         } catch(Exception e) {
             managers.provisionStop();
             managers.provisionDiscard();
+            stopHeartbeat();
             throw new TestRunException("Unable to provision start", e);
         }
 
@@ -115,11 +130,12 @@ public class TestRunner {
         managers.provisionStop();
         managers.provisionDiscard();
         managers.endOfTestRun();
+        stopHeartbeat();
         
         //*** If this was a local run, then we will want to remove the run properties from the DSS immediately
         //*** for automation, we will let the core manager clean up after a while
         //*** Local runs will have access to the run details via a view,
-        //*** But automation runs will only exist the RAS if we delete them, so need to give 
+        //*** But automation runs will only exist in the RAS if we delete them, so need to give 
         //*** time for things like jenkins and other run requesters to obtain the result and RAS id before 
         //*** deleting,  default is to keep the automation run properties for 5 minutes
         try {
@@ -128,13 +144,21 @@ public class TestRunner {
 			//*** Any error, report it and leave for the core manager to clean up
 			logger.error("Error cleaning up local test run properties", e);
 		}
-        
+
         return;
+    }
+    
+    private void stopHeartbeat() {
+    	heartbeat.shutdown();
+    	try {
+    		heartbeat.join(2000);
+    	} catch(Exception e) {
+    	}
     }
 
 
     private void deleteRunProperties(@NotNull IFramework framework) throws FrameworkException {
-		if (!"local".equals(framework.getTestRunType())) { //*** Not interested in non-local runs
+		if (!"localx".equals(framework.getTestRunType())) { //*** Not interested in non-local runs
 			return;
 		}
 		
