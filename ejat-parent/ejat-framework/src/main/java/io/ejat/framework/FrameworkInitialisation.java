@@ -301,7 +301,6 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 					otherRunProperties.put("run." + tempRunName + ".testbundle", bundleName);
 					otherRunProperties.put("run." + tempRunName + ".testclass", bundleName);
 					otherRunProperties.put("run." + tempRunName + ".request.type", runType);
-					otherRunProperties.put("run." + tempRunName + ".heartbeat", Instant.now().toString());
 					
 					//*** See if we can setup the runnumber properties (clashes possible if low max number or sharing prefix
 					if (!this.dssFramework.putSwap("run." + tempRunName + ".test", null, bundleClassName, otherRunProperties)) {
@@ -327,9 +326,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		runProperties.put("run." + runName + ".test", bundleClassName);
 		runProperties.put("run." + runName + ".status", "Starting");
 		runProperties.put("run." + runName + ".testbundle", bundleName);
-		runProperties.put("run." + runName + ".testclass", bundleName);
+		runProperties.put("run." + runName + ".testclass", className);
 		runProperties.put("run." + runName + ".request.type", runType);
-		runProperties.put("run." + runName + ".heartbeat", Instant.now().toString());
 		this.dssFramework.put(runProperties);
 	}
 
