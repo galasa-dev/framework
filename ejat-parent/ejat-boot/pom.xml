@@ -37,6 +37,12 @@
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.bundlerepository</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>ejat</groupId>
+			<artifactId>cirillo-maven-repository</artifactId>
+			<version>0.3.0-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -138,7 +144,6 @@
 									<include>org.apache.felix:org.apache.felix.bundlerepository</include>
 									<include>commons-cli</include>
 									<include>commons-io</include>
-									<include>ejat:cirillo-maven-repository</include>
 								</includes>
 							</artifactSet>
 						</configuration>
