@@ -251,7 +251,7 @@ public class Launcher {
 			}
 		} else {
 			try {
-				this.localMavenRepo = new URL(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+				this.localMavenRepo = new URL("file:" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 			} catch(MalformedURLException e) {
 				logger.error("internal error",e);
 				commandLineError(null);
