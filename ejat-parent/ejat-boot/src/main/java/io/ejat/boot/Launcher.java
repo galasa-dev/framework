@@ -14,7 +14,6 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -143,8 +142,8 @@ public class Launcher {
         commandLine = parser.parse(options, args);
 
         if (commandLine.hasOption(obrOption)) {
-            for (Option option : commandLine.getOptions()) {
-                bundleRepositories.add(option.getValue());
+            for (String option : commandLine.getOptionValues(obrOption)) {
+                bundleRepositories.add(option);
             }
         } else {
             commandLineError("Error: --obr OBR Repository File(s) must be supplied");
@@ -191,7 +190,7 @@ public class Launcher {
         } else {
             Path path = Paths.get(System.getProperty("user.home"), ".ejat", "bootstrap.properties");
             try {
-                if (!Files.exists(path)) {
+                if (!path.toFile().exists()) {
                     Files.createFile(path);
                 }
                 bootstrapUri = path.toUri();
@@ -230,7 +229,7 @@ public class Launcher {
             }
         } else {
             Path path = Paths.get(System.getProperty("user.home"), ".ejat", "overrides.properties");
-            if (!Files.exists(path)) {
+            if (!path.toFile().exists()) {
                 this.overridesProperties = new Properties();
                 return;
             }

@@ -2,6 +2,7 @@ package io.ejat.framework;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -15,7 +16,6 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-import io.ejat.framework.internal.dss.FpfDynamicStatusStoreRegistration;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
@@ -31,13 +31,10 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.spi.creds.ICredentialsRegistration;
 import io.ejat.framework.spi.creds.ICredentialsStore;
-import io.ejat.framework.spi.creds.ICredentialsStoreService;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
-    private static final String               SCHEME_FILE      = "file://";
     private static final String               USER_HOME        = "user.home";
 
     private final Framework                   framework;
@@ -65,8 +62,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         final String propUri = this.bootstrapProperties.getProperty("framework.config.store");
         if ((propUri == null) || propUri.isEmpty()) {
-            this.uriConfigurationPropertyStore = new URI(
-                    SCHEME_FILE + System.getProperty(USER_HOME) + "/.ejat/cps.properties");
+            this.uriConfigurationPropertyStore = Paths.get(System.getProperty(USER_HOME), ".ejat" , "cps.properties").toUri();
         } else {
             this.uriConfigurationPropertyStore = new URI(propUri);
         }
@@ -99,8 +95,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         try {
             final String dssProperty = this.cpsFramework.getProperty("dynamicstatus", "store");
             if ((dssProperty == null) || dssProperty.isEmpty()) {
-                this.uriDynamicStatusStore = new URI(
-                        SCHEME_FILE + System.getProperty(USER_HOME) + "/.ejat/dss.properties");
+            	this.uriDynamicStatusStore = Paths.get(System.getProperty(USER_HOME), ".ejat", "dss.properties").toUri();
             } else {
                 this.uriDynamicStatusStore = new URI(dssProperty);
             }
@@ -114,7 +109,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             final String rasProperty = this.cpsFramework.getProperty("resultarchive", "store");
             this.uriResultArchiveStores = new ArrayList<>(1);
             if ((rasProperty == null) || rasProperty.isEmpty()) {
-                this.uriResultArchiveStores.add(new URI(SCHEME_FILE + System.getProperty(USER_HOME) + "/.ejat/ras"));
+                this.uriResultArchiveStores.add(Paths.get(System.getProperty(USER_HOME), ".ejat", "ras").toUri());
             } else {
                 final String[] rass = rasProperty.split(",");
                 for (final String ras : rass) {

@@ -16,8 +16,9 @@
 		<module>ejat-framework</module>
 		<module>ejat-bom</module>
 		<module>ejat-obr</module>
-		<module>ejat-boot</module>		
-		<module>ejat-eclipse</module>
+		<module>ejat-boot</module>	
+		<module>ejat-eclipse</module>	
+		<module>ejat-eclipse-tests</module>
 	</modules>
 	
 	<repositories>

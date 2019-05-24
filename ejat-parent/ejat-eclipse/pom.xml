@@ -51,9 +51,6 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-plugin</artifactId>
 				<version>${tycho-version}</version>
-				<configuration>
-					<defaultP2Metadata>false</defaultP2Metadata>
-				</configuration>
 			</plugin>
     	</plugins>
 	</build>
