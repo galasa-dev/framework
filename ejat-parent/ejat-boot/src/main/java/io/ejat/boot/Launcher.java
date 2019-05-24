@@ -174,7 +174,7 @@ public class Launcher {
 				bundleRepositories.add(option);
 			}
 		}
-		
+
 		bundleRepositories.add("mvn:ejat-common/ejat-uber-obr/0.3.0-SNAPSHOT/obr");
 
 		checkForBoostrap(commandLine);
@@ -208,7 +208,7 @@ public class Launcher {
 			if (testBundleName.isEmpty() || testClassName.isEmpty()) {
 				commandLineError("Error: Invalid test name format");
 			}
-			
+
 			return;
 		}
 
@@ -223,7 +223,7 @@ public class Launcher {
 
 	private void checkForRemoteMaven(CommandLine commandLine) {
 		//*** Defaulting for the moment for demo purposes
-		
+
 		try {
 			this.remoteMavenRepos.add(new URL("http://cicscit.hursley.ibm.com/ejatv3/maven"));
 			this.remoteMavenRepos.add(new URL("https://repo.maven.apache.org/maven2"));
@@ -231,7 +231,7 @@ public class Launcher {
 			logger.error("internal error",e);
 			commandLineError(null);
 		}
-		
+
 	}
 
 
@@ -239,14 +239,18 @@ public class Launcher {
 		if (commandLine.hasOption(LOCALMAVEN_OPTION)) {
 			String repo = commandLine.getOptionValue(LOCALMAVEN_OPTION);
 			if (repo != null) { //*** Allowed with no parameter so that we can disable the local repository
-				try {
-					this.localMavenRepo = new URL(repo);
-				} catch(MalformedURLException e) {
-					logger.error("--localmaven has an invalid URL",e);
-					commandLineError(null);
-				}
-				if (!"file".equals(this.localMavenRepo.getProtocol())) {
-					commandLineError("--localmaven must be a file: URL");
+				if ("disable".equals(repo)) {
+					this.localMavenRepo = null;
+				} else {
+					try {
+						this.localMavenRepo = new URL(repo);
+					} catch(MalformedURLException e) {
+						logger.error("--localmaven has an invalid URL",e);
+						commandLineError(null);
+					}
+					if (!"file".equals(this.localMavenRepo.getProtocol())) {
+						commandLineError("--localmaven must be a file: URL");
+					}
 				}
 			}
 		} else {
