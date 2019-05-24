@@ -225,7 +225,7 @@ public class Launcher {
 		//*** Defaulting for the moment for demo purposes
 		
 		try {
-			this.remoteMavenRepos.add(new URL("https://cicscit.hursley.ibm.com/ejatv3/maven"));
+			this.remoteMavenRepos.add(new URL("http://cicscit.hursley.ibm.com/ejatv3/maven"));
 			this.remoteMavenRepos.add(new URL("https://repo.maven.apache.org/maven2"));
 		} catch(MalformedURLException e) {
 			logger.error("internal error",e);
