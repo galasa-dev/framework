@@ -14,7 +14,7 @@
 		<artifactId>ejat-parent</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>commons-cli</groupId>
@@ -30,7 +30,18 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.scr</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.bundlerepository</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ejat</groupId>
+			<artifactId>cirillo-maven-repository</artifactId>
+			<version>0.3.0-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
@@ -55,6 +66,23 @@
 							<groupId>org.apache.felix</groupId>
 							<artifactId>org.apache.felix.bundlerepository</artifactId>
 						</artifactItem>
+						<artifactItem>
+							<groupId>org.apache.felix</groupId>
+							<artifactId>org.apache.felix.scr</artifactId>
+						</artifactItem>
+						<artifactItem>
+							<groupId>commons-logging</groupId>
+							<artifactId>commons-logging</artifactId>
+						</artifactItem>
+						<artifactItem>
+							<groupId>log4j</groupId>
+							<artifactId>log4j</artifactId>
+						</artifactItem>
+						<artifactItem>
+							<groupId>ejat</groupId>
+							<artifactId>cirillo-maven-repository</artifactId>
+							<version>0.3.0-SNAPSHOT</version>
+						</artifactItem>
 					</artifactItems>
 					<type>jar</type>
 					<overWrite>false</overWrite>
@@ -76,17 +104,39 @@
 						<goals>
 							<goal>shade</goal>
 						</goals>
-						<configuration>						
-							<transformers>							
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+						<configuration>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Main-Class>io.ejat.boot.Launcher</Main-Class>
 									</manifestEntries>
 								</transformer>
-                				<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                    				<resource>bundle/org.apache.felix.bundlerepository-2.0.2.jar</resource>
-                    				<file>target/bundle/org.apache.felix.bundlerepository-2.0.2.jar</file>
-                				</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<resource>bundle/cirillo-maven-repository-0.3.0-SNAPSHOT.jar</resource>
+									<file>target/bundle/cirillo-maven-repository-0.3.0-SNAPSHOT.jar</file>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<resource>bundle/commons-logging-1.2.jar</resource>
+									<file>target/bundle/commons-logging-1.2.jar</file>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<resource>bundle/log4j-1.2.17.jar</resource>
+									<file>target/bundle/log4j-1.2.17.jar</file>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<resource>bundle/org.apache.felix.bundlerepository-2.0.2.jar</resource>
+									<file>target/bundle/org.apache.felix.bundlerepository-2.0.2.jar</file>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<resource>bundle/org.apache.felix.scr-2.1.14.jar</resource>
+									<file>target/bundle/org.apache.felix.scr-2.1.14.jar</file>
+								</transformer>
 							</transformers>
 							<artifactSet>
 								<includes>
@@ -95,21 +145,8 @@
 									<include>commons-cli</include>
 									<include>commons-io</include>
 								</includes>
-              				</artifactSet>
+							</artifactSet>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.22.1</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>
