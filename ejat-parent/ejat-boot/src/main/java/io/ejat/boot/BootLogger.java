@@ -131,6 +131,10 @@ public class BootLogger {
 			System.out.println(sb.toString()); //NOSONAR
 		}
 	}
+	
+	public void setLevel(Level level) {
+		bootlogLevel = level;
+	}
 
 	public enum Level {
 		FATAL (0),

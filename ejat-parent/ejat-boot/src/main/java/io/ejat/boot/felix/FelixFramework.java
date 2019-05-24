@@ -51,9 +51,11 @@ public class FelixFramework {
 	 * Initialise and start the Felix framework. Install required bundles and the OBRs. Install the eJAT framework bundle
 	 * 
 	 * @param bundleRepositories the supplied OBRs
+	 * @param localMavenRepo 
+	 * @param remoteMavenRepos 
 	 * @throws LauncherException if there is a problem initialising the framework
 	 */
-	public void buildFramework(List<String> bundleRepositories, String testBundleName, Properties boostrapProperties) throws LauncherException {
+	public void buildFramework(List<String> bundleRepositories, Properties boostrapProperties, URL localMavenRepo, List<URL> remoteMavenRepos) throws LauncherException {
 		logger.debug("Building Felix Framework...");
 
 		String felixCacheDirectory = System.getProperty("java.io.tmpdir");
@@ -64,6 +66,8 @@ public class FelixFramework {
 			FrameworkFactory frameworkFactory = new FrameworkFactory();
 
 			HashMap<String, Object> frameworkProperties = new HashMap<>();
+			//			frameworkProperties.put("felix.log.level", "4");
+			//			frameworkProperties.put("ds.showtrace", "true");
 			frameworkProperties.put(Constants.FRAMEWORK_STORAGE, felixCache.getAbsolutePath());
 			frameworkProperties.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.	FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
 			frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.apache.felix.bundlerepository; version=2.1, io.ejat.framework, sun.misc, com.sun.net.httpserver, com.sun.management" 
@@ -76,6 +80,12 @@ public class FelixFramework {
 			logger.debug("Felix Framework started");
 
 			logger.debug("Installing required OSGi bundles");
+			//*** Load dependencies for the maven repo url handler 
+			installBundle("org.apache.felix.scr-2.1.14.jar",true);
+			installBundle("log4j-1.2.17.jar",true);
+			installBundle("commons-logging-1.2.jar",true);
+			installBundle("cirillo-maven-repository-0.3.0-SNAPSHOT.jar", true);
+			loadMavenRepositories(localMavenRepo, remoteMavenRepos);
 
 			// Install and start the Felix OBR bundle
 			obrBundle = installBundle("org.apache.felix.bundlerepository-2.0.2.jar", true);
@@ -89,11 +99,6 @@ public class FelixFramework {
 				loadBundle("org.apache.felix.gogo.command");
 				loadBundle("org.apache.felix.gogo.shell");
 			}
-
-			loadBundle("log4j");
-
-			// Load the OSGi Service Component Runtime bundle 
-			loadBundle("org.apache.felix.scr");
 
 			// Load the ejat-framework bundle
 			logger.debug("installing Framework bundle");
@@ -110,15 +115,45 @@ public class FelixFramework {
 					}
 				}
 			}
-
-			// Load the test bundle
-			if (testBundleName != null) {
-				logger.debug("Installing Test bundle");
-				loadBundle(testBundleName);
-			}
-
 		} catch(IOException | BundleException e) {
 			throw new LauncherException("Unable to initialise the Felix framework", e);
+		}
+	}
+
+	private void loadMavenRepositories(URL localMavenRepo, List<URL> remoteMavenRepos) throws LauncherException {
+
+		// Get the framework bundle
+		Bundle frameWorkBundle = getBundle("dev.cirillo.maven.repository");
+
+		// Get the io.ejat.framework.TestRunner class service
+		String classString = "dev.cirillo.maven.repository.IMavenRepository";
+		ServiceReference<?>[] serviceReferences;
+		try {
+			serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, null);
+		} catch (InvalidSyntaxException e) {
+			throw new LauncherException("Unable to get framework service reference", e);
+		}
+		if (serviceReferences == null || serviceReferences.length != 1) {
+			throw new LauncherException("Unable to get single reference to CirilloMavenRepository service: " + ((serviceReferences == null) ? 0: serviceReferences.length)  + " service(s) returned");
+		}
+		Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
+		if (service == null) {
+			throw new LauncherException("Unable to get CirilloMavenRepository service");
+		}
+
+		// Get the  CirilloMavenRepositoryr#setRepositories() method
+		Method runTestMethod;
+		try {
+			runTestMethod = service.getClass().getMethod("setRepositories", URL.class, List.class);
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new LauncherException("Unable to get Framework Maven Repository method", e);
+		}
+
+		// Invoke the setRepositories method
+		try {
+			runTestMethod.invoke(service, localMavenRepo, remoteMavenRepos);
+		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+			throw new LauncherException(e.getCause());
 		}
 	}
 
@@ -204,29 +239,29 @@ public class FelixFramework {
 			for(Repository repository : repositoryAdmin.listRepositories()) {
 				if (repository.getResources() != null) {
 					resourceSearch:
-					for(Resource resource : repository.getResources()) {
-						if (resource.getCapabilities() != null) {
-							for(Capability capability : resource.getCapabilities()) {
-								if ("service".equals(capability.getName())) {
-									Map<String, Object> properties = capability.getPropertiesAsMap();
-									String services = (String)properties.get("objectClass:List<String>");
-									if (services != null) {
-										String[] split = services.split(",");
-										
-										for(String service : split) {
-											if ("io.ejat.framework.spi.IResourceManagementProvider".equals(service)) {
-												bundlesToLoad.add(resource.getSymbolicName());
-												continue resourceSearch;
+						for(Resource resource : repository.getResources()) {
+							if (resource.getCapabilities() != null) {
+								for(Capability capability : resource.getCapabilities()) {
+									if ("service".equals(capability.getName())) {
+										Map<String, Object> properties = capability.getPropertiesAsMap();
+										String services = (String)properties.get("objectClass:List<String>");
+										if (services != null) {
+											String[] split = services.split(",");
+
+											for(String service : split) {
+												if ("io.ejat.framework.spi.IResourceManagementProvider".equals(service)) {
+													bundlesToLoad.add(resource.getSymbolicName());
+													continue resourceSearch;
+												}
 											}
 										}
 									}
 								}
 							}
 						}
-					}
 				}
 			}
-			
+
 			for(String bundle : bundlesToLoad) {
 				if (!isBundleActive(bundle)) {
 					loadBundle(bundle);
@@ -434,8 +469,8 @@ public class FelixFramework {
 
 		throw new LauncherException("Unable to find bundle with Bundle-SymbolicName=" + bundleSymbolicName);
 	}
-	
-	
+
+
 	/**
 	 * Install a bundle from class path and optionally start it
 	 * 
@@ -464,7 +499,6 @@ public class FelixFramework {
 
 		return bundle;
 	}
-
 
 	/**
 	 * Determine if this class is running from a jar file

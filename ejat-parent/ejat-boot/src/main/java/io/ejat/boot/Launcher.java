@@ -1,9 +1,12 @@
 package io.ejat.boot;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,10 +42,11 @@ public class Launcher {
 	private static final String BOOTSTRAP_OPTION          = "bootstrap";
 	private static final String OVERRIDES_OPTION          = "overrides";
 	private static final String RESOURCEMANAGEMENT_OPTION = "resourcemanagement";
-	private static final String TESTRUN_OPTION            = "testrun";
+	private static final String TEST_OPTION               = "test";
 	private static final String BUNDLE_OPTION             = "bundle";
 	private static final String METRICS_OPTION            = "metrics";
 	private static final String HEALTH_OPTION             = "health";
+	private static final String LOCALMAVEN_OPTION         = "localmaven";
 
 	private static final BootLogger logger = new BootLogger();
 
@@ -57,11 +61,14 @@ public class Launcher {
 
 	private boolean testRun;
 	private boolean resourceManagement;
-	
+
 	private Integer metrics;
 	private Integer health;
 
-	private List<String> bundles = new ArrayList<>();    
+	private List<String> bundles = new ArrayList<>(); 
+
+	private URL localMavenRepo;
+	private List<URL> remoteMavenRepos = new ArrayList<>();
 
 	/**
 	 * Launcher main method
@@ -123,7 +130,7 @@ public class Launcher {
 	private void buildFramework() throws LauncherException {
 		logger.debug("Launching Framework...");
 		try {
-			felixFramework.buildFramework(bundleRepositories, testBundleName, this.boostrapProperties);
+			felixFramework.buildFramework(bundleRepositories, this.boostrapProperties, localMavenRepo, remoteMavenRepos);
 		} catch (Exception e) {
 			throw new LauncherException("Unable to create and initialize Felix framework", e);
 		}
@@ -151,38 +158,42 @@ public class Launcher {
 		options.addOption(null, BOOTSTRAP_OPTION, true, "Bootstrap properties file url");
 		options.addOption(null, OVERRIDES_OPTION, true, "Overrides properties file url");
 		options.addOption(null, RESOURCEMANAGEMENT_OPTION, false, "A Resource Management server");
-		options.addOption(null, TESTRUN_OPTION, true, "A Test Run");
+		options.addOption(null, TEST_OPTION, true, "The test to run");
 		options.addOption(null, BUNDLE_OPTION, true, "Extra bundles to load");
 		options.addOption(null, METRICS_OPTION, true, "The port the metrics server will open, 0 to disable");
 		options.addOption(null, HEALTH_OPTION, true, "The port the health server will open, 0 to disable");
+		options.addOption(null, LOCALMAVEN_OPTION, true, "The local maven repository, defaults to ~/.m2/repository");
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine commandLine = null;
 		commandLine = parser.parse(options, args);
 
+		//*** Add any OBRs if coded
 		if (commandLine.hasOption(obrOption)) {
 			for (String option : commandLine.getOptionValues(obrOption)) {
 				bundleRepositories.add(option);
 			}
-		} else {
-			commandLineError("Error: --obr OBR Repository File(s) must be supplied");
 		}
+		
+		bundleRepositories.add("mvn:ejat-common/ejat-uber-obr/0.3.0-SNAPSHOT/obr");
 
 		checkForBoostrap(commandLine);
 		checkForOverrides(commandLine);
 		checkForBundles(commandLine);
 		checkForMetricsPort(commandLine);
 		checkForHealthPort(commandLine);
+		checkForLocalMaven(commandLine);
+		checkForRemoteMaven(commandLine);
 
-		testRun = commandLine.hasOption(TESTRUN_OPTION);
+		testRun = commandLine.hasOption(TEST_OPTION);
 		resourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
 
 		if (testRun && resourceManagement) {
-			commandLineError("Error: Either select --testrun or --resourcemanagement, but not both");
+			commandLineError("Error: Either select --test or --resourcemanagement, but not both");
 		}
 
 		if (testRun) {
-			String test = commandLine.getOptionValue(TESTRUN_OPTION);
+			String test = commandLine.getOptionValue(TEST_OPTION);
 			if (test == null) {
 				commandLineError("Error: A single test method must be supplied");
 			}
@@ -197,6 +208,7 @@ public class Launcher {
 			if (testBundleName.isEmpty() || testClassName.isEmpty()) {
 				commandLineError("Error: Invalid test name format");
 			}
+			
 			return;
 		}
 
@@ -208,6 +220,45 @@ public class Launcher {
 
 		commandLineError("Error: Must select either --testrun or --resourcemanagement");
 	}
+
+	private void checkForRemoteMaven(CommandLine commandLine) {
+		//*** Defaulting for the moment for demo purposes
+		
+		try {
+			this.remoteMavenRepos.add(new URL("https://cicscit.hursley.ibm.com/ejatv3/maven"));
+			this.remoteMavenRepos.add(new URL("https://repo.maven.apache.org/maven2"));
+		} catch(MalformedURLException e) {
+			logger.error("internal error",e);
+			commandLineError(null);
+		}
+		
+	}
+
+
+	private void checkForLocalMaven(CommandLine commandLine) {
+		if (commandLine.hasOption(LOCALMAVEN_OPTION)) {
+			String repo = commandLine.getOptionValue(LOCALMAVEN_OPTION);
+			if (repo != null) { //*** Allowed with no parameter so that we can disable the local repository
+				try {
+					this.localMavenRepo = new URL(repo);
+				} catch(MalformedURLException e) {
+					logger.error("--localmaven has an invalid URL",e);
+					commandLineError(null);
+				}
+				if (!"file".equals(this.localMavenRepo.getProtocol())) {
+					commandLineError("--localmaven must be a file: URL");
+				}
+			}
+		} else {
+			try {
+				this.localMavenRepo = new URL(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+			} catch(MalformedURLException e) {
+				logger.error("internal error",e);
+				commandLineError(null);
+			}
+		}
+	}
+
 
 	private void checkForMetricsPort(CommandLine commandLine) {
 		if (commandLine.hasOption(METRICS_OPTION)) {
@@ -252,7 +303,7 @@ public class Launcher {
 				commandLineError(null);
 			}
 		} else {
-			Path path = Paths.get(System.getProperty("user.home"), ".ejat", "bootstrap.properties");
+			Path path = Paths.get(System.getProperty("user.home"), ".cirillo", "bootstrap.properties");
 			try {
 				if (!Files.exists(path)) {
 					Files.createFile(path);
@@ -292,7 +343,7 @@ public class Launcher {
 				commandLineError(null);
 			}
 		} else {
-			Path path = Paths.get(System.getProperty("user.home"), ".ejat", "overrides.properties");
+			Path path = Paths.get(System.getProperty("user.home"), ".cirillo", "overrides.properties");
 			if (!Files.exists(path)) {
 				this.overridesProperties = new Properties();
 				return;

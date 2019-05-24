@@ -17,6 +17,7 @@
 		<module>ejat-bom</module>
 		<module>ejat-obr</module>
 		<module>ejat-boot</module>
+		<module>cirillo-maven-repository</module>
 	</modules>
 
 	<distributionManagement>

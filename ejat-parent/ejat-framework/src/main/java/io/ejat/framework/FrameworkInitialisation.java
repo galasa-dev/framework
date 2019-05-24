@@ -2,7 +2,6 @@ package io.ejat.framework;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +69,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		final String propUri = this.bootstrapProperties.getProperty("framework.config.store");
 		if ((propUri == null) || propUri.isEmpty()) {
 			this.uriConfigurationPropertyStore = new URI(
-					SCHEME_FILE + System.getProperty(USER_HOME) + "/.ejat/cps.properties");
+					SCHEME_FILE + System.getProperty(USER_HOME) + "/.cirillo/cps.properties");
 		} else {
 			this.uriConfigurationPropertyStore = new URI(propUri);
 		}
@@ -104,7 +103,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			final String dssProperty = this.cpsFramework.getProperty("dynamicstatus", "store");
 			if ((dssProperty == null) || dssProperty.isEmpty()) {
 				this.uriDynamicStatusStore = new URI(
-						SCHEME_FILE + System.getProperty(USER_HOME) + "/.ejat/dss.properties");
+						SCHEME_FILE + System.getProperty(USER_HOME) + "/.cirillo/dss.properties");
 			} else {
 				this.uriDynamicStatusStore = new URI(dssProperty);
 			}
@@ -146,7 +145,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			final String rasProperty = this.cpsFramework.getProperty("resultarchive", "store");
 			this.uriResultArchiveStores = new ArrayList<>(1);
 			if ((rasProperty == null) || rasProperty.isEmpty()) {
-				this.uriResultArchiveStores.add(new URI(SCHEME_FILE + System.getProperty(USER_HOME) + "/.ejat/ras"));
+				this.uriResultArchiveStores.add(new URI(SCHEME_FILE + System.getProperty(USER_HOME) + "/.cirillo/ras"));
 			} else {
 				final String[] rass = rasProperty.split(",");
 				for (final String ras : rass) {
@@ -189,7 +188,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			final String credsProperty = this.cpsFramework.getProperty("credentials", "store");
 			if ((credsProperty == null) || credsProperty.isEmpty()) {
 				this.uriCredentialsStore = new URI(
-						SCHEME_FILE + System.getProperty(USER_HOME) + "/.ejat/credentials.properties");
+						SCHEME_FILE + System.getProperty(USER_HOME) + "/.cirillo/credentials.properties");
 			} else {
 				this.uriCredentialsStore = new URI(credsProperty);
 			}
