@@ -166,7 +166,7 @@ public class FelixFramework {
 	 * @param overridesProperties the override properties
 	 * @throws LauncherException 
 	 */
-	public void runTest(String testBundleName, String testClassName, Properties boostrapProperties, Properties overridesProperties) throws LauncherException {
+	public void runTest(Properties boostrapProperties, Properties overridesProperties) throws LauncherException {
 
 		// Get the framework bundle
 		Bundle frameWorkBundle = getBundle("io.ejat.framework");
@@ -191,7 +191,7 @@ public class FelixFramework {
 		// Get the  io.ejat.framework.TestRunner#runTest(String testBundleName, String testClassName) method
 		Method runTestMethod;
 		try {
-			runTestMethod = service.getClass().getMethod("runTest", String.class, String.class, Properties.class, Properties.class);
+			runTestMethod = service.getClass().getMethod("runTest", Properties.class, Properties.class);
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new LauncherException("Unable to get Framework test runner method", e);
 		}
@@ -199,7 +199,7 @@ public class FelixFramework {
 		// Invoke the runTest method
 		logger.debug("Invoking runTest()");
 		try {
-			runTestMethod.invoke(service, testBundleName, testClassName, boostrapProperties, overridesProperties);
+			runTestMethod.invoke(service, boostrapProperties, overridesProperties);
 		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
 			throw new LauncherException(e.getCause());
 		}

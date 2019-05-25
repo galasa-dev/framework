@@ -19,8 +19,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
-import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
+import io.ejat.framework.spi.IRun;
 
 /**
  * Run the supplied test class
@@ -46,26 +46,8 @@ public class TestRunner {
      * @return
      * @throws TestRunException
      */
-    public void runTest(String testBundleName, String testClassName, Properties bootstrapProperties, Properties overrideProperties) throws TestRunException  {
+    public void runTest(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException  {
     	
-    	if (testBundleName != null) {
-    		loadBundle(testBundleName);
-    	}
-    	
-    	//*** TODO will need do this later as will need to pull the classname from the dss in automation
-    	
-    	//*** Ensure the bundle/testclass properties are set
-    	String bundleClass = testBundleName + "/" + testClassName;
-    	overrideProperties.setProperty("framework.run.testbundleclass", bundleClass);
-    	overrideProperties.setProperty("framework.run.testbundle", testBundleName);
-    	overrideProperties.setProperty("framework.run.testclass", testClassName);
-    	
-    	//*** Ensure the run type is set, defaults to local
-    	String runType = overrideProperties.getProperty("framework.run.request.type");
-    	if (runType == null || runType.trim().isEmpty()) {
-        	overrideProperties.setProperty("framework.run.request.type", "local");  //*** Default to the local request type
-    	}
-
         //*** Initialise the framework services
         FrameworkInitialisation frameworkInitialisation = null;
         try {
@@ -74,6 +56,15 @@ public class TestRunner {
             throw new TestRunException("Unable to initialise the Framework Services", e);
         }
         
+        IRun run = frameworkInitialisation.getFramework().getTestRun();
+        
+        String testBundleName = run.getTestBundleName();
+        String testClassName = run.getTestClassName();
+        
+    	if (testBundleName != null) {
+    		loadBundle(testBundleName);
+    	}
+    	
         try {
 			heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
 	        heartbeat.start();
@@ -168,18 +159,15 @@ public class TestRunner {
 
 
     private void deleteRunProperties(@NotNull IFramework framework) throws FrameworkException {
-		if (!"localx".equals(framework.getTestRunType())) { //*** Not interested in non-local runs
+    	
+    	IRun run = framework.getTestRun();
+    	
+		if (!run.isLocal()) { //*** Not interested in non-local runs
 			return;
 		}
 		
-		String runName = framework.getTestRunName();
-		if (runName == null) {
-			throw new FrameworkException("Internal error, should have had a run name!");
+		framework.getFrameworkRuns().delete(run.getName());
 		}
-		
-		IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
-		dss.deletePrefix("run." + runName + "."); //*** delete everything to do with the run
-	}
 
 
 	/**

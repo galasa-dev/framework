@@ -29,6 +29,7 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkRuns;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
+import io.ejat.framework.spi.IRun;
 import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.CredentialsToken;
 import io.ejat.framework.spi.creds.CredentialsUsername;
@@ -202,12 +203,25 @@ public class FileCredentialsStoreTest {
 		}
 
 		@Override
-		public String getTestRunType() throws FrameworkException {
+		public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
 			return null;
 		}
-		
+
 		@Override
-		public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
+		public void setFrameworkProperties(Properties overrideProperties) {
+		}
+
+		@Override
+		public boolean isInitialised() {
+			return false;
+		}
+
+		@Override
+		public void initialisationComplete() {
+		}
+
+		@Override
+		public IRun getTestRun() {
 			return null;
 		}
 

@@ -1,5 +1,6 @@
 package io.ejat.framework.spi;
 
+import java.util.Properties;
 import java.util.Random;
 
 import javax.validation.constraints.NotNull;
@@ -18,6 +19,11 @@ import io.ejat.framework.spi.creds.ICredentialsService;
  *
  */
 public interface IFramework {
+	
+	
+	void setFrameworkProperties(Properties overrideProperties);
+	boolean isInitialised();
+	void initialisationComplete();
 	
 	/**
 	 * <p>Retrieve the Configuration Property Store service from the framework.  This will allow you to access the 
@@ -99,14 +105,6 @@ public interface IFramework {
 	Random getRandom();
 	
 	
-	/**
-	 * Retrieve the type of the test run
-	 * 
-	 * @return the run type, defaults to local,  regardless if it is a test run or not
-	 * @throws FrameworkException 
-	 */
-	String getTestRunType() throws FrameworkException;
-
-	
 	IFrameworkRuns getFrameworkRuns() throws FrameworkException;
+	IRun getTestRun();
 }

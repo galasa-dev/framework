@@ -16,4 +16,19 @@ public interface IFrameworkRuns {
 	@NotNull
 	Set<String> getActiveRunNames() throws FrameworkException;
 
+	@NotNull
+	IRun submitRun(String type,
+			String requestor,
+			String bundleName,
+			String testName,
+			String mavenRepository,
+			String obr,
+			String stream,
+			boolean local) throws FrameworkException;
+
+	boolean delete(String runname) throws DynamicStatusStoreException;
+
+	IRun getRun(String runname) throws DynamicStatusStoreException;
+
+	boolean reset(String runname) throws DynamicStatusStoreException;
 }
