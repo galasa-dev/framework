@@ -43,6 +43,7 @@ public class Launcher {
 	private static final String OVERRIDES_OPTION          = "overrides";
 	private static final String RESOURCEMANAGEMENT_OPTION = "resourcemanagement";
 	private static final String TEST_OPTION               = "test";
+	private static final String RUN_OPTION                = "run";
 	private static final String BUNDLE_OPTION             = "bundle";
 	private static final String METRICS_OPTION            = "metrics";
 	private static final String HEALTH_OPTION             = "health";
@@ -51,8 +52,10 @@ public class Launcher {
 	private static final BootLogger logger = new BootLogger();
 
 	private List<String> bundleRepositories = new ArrayList<>();
+	private String testName;
 	private String testBundleName;
 	private String testClassName;
+	private String runName;
 
 	private FelixFramework felixFramework;
 
@@ -106,10 +109,17 @@ public class Launcher {
 			buildFramework();
 
 			if (testRun) {
-				// Run test class
-				logger.debug("Test Bundle: " + testBundleName);
-				logger.debug("Test Class: " + testClassName);
-				felixFramework.runTest(testBundleName, testClassName, boostrapProperties, overridesProperties);
+				if (runName == null) {
+					// Run test class
+					logger.debug("Test Bundle: " + testBundleName);
+					logger.debug("Test Class: " + testClassName);
+					overridesProperties.setProperty("framework.run.testbundleclass", this.testName);
+				} else {
+					logger.debug("Test Run: " + runName);
+					overridesProperties.setProperty("framework.run.name", this.runName);
+				}
+
+				felixFramework.runTest(boostrapProperties, overridesProperties);
 			} else if (resourceManagement) {
 				logger.debug("Resource Management");
 				felixFramework.runResourceManagement(boostrapProperties, overridesProperties, bundles, metrics, health);
@@ -159,6 +169,7 @@ public class Launcher {
 		options.addOption(null, OVERRIDES_OPTION, true, "Overrides properties file url");
 		options.addOption(null, RESOURCEMANAGEMENT_OPTION, false, "A Resource Management server");
 		options.addOption(null, TEST_OPTION, true, "The test to run");
+		options.addOption(null, RUN_OPTION, true, "The run name");
 		options.addOption(null, BUNDLE_OPTION, true, "Extra bundles to load");
 		options.addOption(null, METRICS_OPTION, true, "The port the metrics server will open, 0 to disable");
 		options.addOption(null, HEALTH_OPTION, true, "The port the health server will open, 0 to disable");
@@ -185,7 +196,7 @@ public class Launcher {
 		checkForLocalMaven(commandLine);
 		checkForRemoteMaven(commandLine);
 
-		testRun = commandLine.hasOption(TEST_OPTION);
+		testRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION);
 		resourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
 
 		if (testRun && resourceManagement) {
@@ -193,22 +204,26 @@ public class Launcher {
 		}
 
 		if (testRun) {
-			String test = commandLine.getOptionValue(TEST_OPTION);
-			if (test == null) {
-				commandLineError("Error: A single test method must be supplied");
-			}
+			runName = commandLine.getOptionValue(RUN_OPTION);
+			if (runName != null) {
+				runName = runName.toUpperCase();
+			} else {
+				testName = commandLine.getOptionValue(TEST_OPTION);
+				if (testName == null) {
+					commandLineError("Error: A single test method must be supplied");
+				}
 
-			String[] bundleclass = test.split("/");
-			if (bundleclass.length != 2) {
-				commandLineError("Error: Invalid test name format");
-			}
+				String[] bundleclass = testName.split("/");
+				if (bundleclass.length != 2) {
+					commandLineError("Error: Invalid test name format");
+				}
 
-			testBundleName = bundleclass[0];
-			testClassName = bundleclass[1];
-			if (testBundleName.isEmpty() || testClassName.isEmpty()) {
-				commandLineError("Error: Invalid test name format");
+				testBundleName = bundleclass[0];
+				testClassName = bundleclass[1];
+				if (testBundleName.isEmpty() || testClassName.isEmpty()) {
+					commandLineError("Error: Invalid test name format");
+				}
 			}
-
 			return;
 		}
 
@@ -218,7 +233,7 @@ public class Launcher {
 		}
 
 
-		commandLineError("Error: Must select either --testrun or --resourcemanagement");
+		commandLineError("Error: Must select either --test, --run or --resourcemanagement");
 	}
 
 	private void checkForRemoteMaven(CommandLine commandLine) {

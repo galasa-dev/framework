@@ -3,7 +3,6 @@ package io.ejat.framework;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -30,7 +29,9 @@ import io.ejat.framework.spi.IDynamicStatusStoreRegistration;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
+import io.ejat.framework.spi.IFrameworkRuns;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.IRun;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.ICredentialsStore;
@@ -41,10 +42,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 	private static final String               SCHEME_FILE      = "file://";
 	private static final String               USER_HOME        = "user.home";
 
-	private final Framework                   framework;
+	private Framework                         framework;
+	
 	private final Properties                  bootstrapProperties;
-	private final Properties                  overrideProperties;
-	private final Properties                  recordProperties = new Properties();
 
 	private final URI                         uriConfigurationPropertyStore;
 	private final URI                         uriDynamicStatusStore;
@@ -52,6 +52,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 	private final List<URI>                   uriResultArchiveStores;
 
 	private final IConfigurationPropertyStoreService cpsFramework;
+	@SuppressWarnings("unused")
 	private final IDynamicStatusStoreService         dssFramework;
 	//private final ICredentialsStoreService credsFramework;
 
@@ -60,11 +61,20 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 	public FrameworkInitialisation(Properties bootstrapProperties, Properties overrideProperties)
 			throws URISyntaxException, InvalidSyntaxException, FrameworkException {
 		this.bootstrapProperties = bootstrapProperties;
-		this.overrideProperties = overrideProperties;
 
 		this.logger.info("Initialising the eJAT Framework");
 
-		this.framework = new Framework(this.overrideProperties, this.recordProperties);
+		//*** Locate the framework
+		final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
+		ServiceReference<IFramework> frameworkService = bundleContext.getServiceReference(IFramework.class);
+		if (frameworkService == null) {
+			throw new FrameworkException("The framework service is missing");
+		}
+		this.framework = (Framework) bundleContext.getService(frameworkService);
+		if (this.framework.isInitialised()) {
+			throw new FrameworkException("The framework has already been initialised");
+		}
+		this.framework.setFrameworkProperties(overrideProperties);
 
 		final String propUri = this.bootstrapProperties.getProperty("framework.config.store");
 		if ((propUri == null) || propUri.isEmpty()) {
@@ -77,7 +87,6 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
 		// *** Initialise the Configuration Property Store
 		this.logger.trace("Searching for CPS providers");
-		final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 		final ServiceReference<?>[] cpsServiceReference = bundleContext
 				.getAllServiceReferences(IConfigurationPropertyStoreRegistration.class.getName(), null);
 		if ((cpsServiceReference == null) || (cpsServiceReference.length == 0)) {
@@ -135,11 +144,18 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		//*** Is this a test run,   if it is, determined by the existence of cps property framework.run,
 		//*** Then we need to make sure we have a runname for the RAS.  If there isnt one, we need to allocate one
 		//*** Need the DSS for this as the latest run number number is stored in there
-		String runBundleClass = this.cpsFramework.getProperty("run", "testbundleclass");
-		if (runBundleClass != null && !runBundleClass.trim().isEmpty()) {
-			checkNewRunName();
+		
+		String runName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "name"));
+		if (runName == null) {
+			String runBundleClass = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testbundleclass"));
+			if (runBundleClass != null) {
+				runName = createRunName(runBundleClass);
+				framework.setTestRunName(runName);
+			}
+		} else {
+			framework.setTestRunName(runName);
 		}
-
+		
 		// *** Work out the ras uris
 		try {
 			final String rasProperty = this.cpsFramework.getProperty("resultarchive", "store");
@@ -215,119 +231,35 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		}
 		this.logger
 		.trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
+		
+		this.logger.info("Framework initialised");
+		this.framework.initialisationComplete();
 	}
 
 	/**
-	 * Check that we have a Run Name and it is setup in the DSS
-	 * TODO: most of this should be a service class as it will be used for submitting test runs
+	 * Create a new run as this run was submitted from the command line, maybe
+	 * @param runBundleClass 
+	 * @param runName 
+	 * @return 
 	 */
-	protected void checkNewRunName() throws FrameworkException {
-		//*** First, determine if we have a Run Name
-		String runName = null;
-		String bundleClassName = null;
-		String bundleName = null;
-		String className = null;
-		String runType = null;
-		try {
-			runName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "name"));
-			bundleClassName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testbundleclass"));
-			bundleName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testbundle"));
-			className = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testclass"));
-			runType = AbstractManager.defaultString(this.cpsFramework.getProperty("run", "request.type"), "local").toLowerCase();
-		} catch (ConfigurationPropertyStoreException e) {
-			throw new FrameworkException("Error during Run Name check", e);
-		}
+	protected String createRunName(String runBundleClass) throws FrameworkException {
+		String split[] = runBundleClass.split("/");
+		String bundle = split[0];
+		String test   = split[1];
 		
-		if (bundleClassName == null 
-				|| bundleName == null 
-				|| className == null) {
-			throw new FrameworkException("Internal error, should have the test bundle and class names set up");
-		}
+		IFrameworkRuns frameworkRuns = this.framework.getFrameworkRuns();
+		IRun run = frameworkRuns.submitRun("local", 
+				null, 
+				bundle, 
+				test, 
+				null, 
+				null, 
+				null, 
+				true);
+				
+		logger.info("Allocated Run Name " + run.getName() + " to this run");
 		
-		//*** Second, if no runname, we need to allocate one,  determine the run type and 
-		//*** Get the next number, ensure it is not in the dss as well
-		//*** If no run type, then default to local
-		if (runName == null) {
-			try {
-				//*** Get the maximum number for this run type
-				int maxNumber = Integer.MAX_VALUE;
-				String sMaxNumber = AbstractManager.nulled(this.dssFramework.get("request.type." + runType + ".maximum"));
-				if (sMaxNumber != null) {
-					maxNumber = Integer.parseInt(sMaxNumber);
-				}
-				
-				//*** Get the prefix of this run type
-				String typePrefix = AbstractManager.nulled(this.dssFramework.get("request.type." + runType + ".maximum"));
-				if (typePrefix == null) {
-					if ("local".equals(runType)) {
-						typePrefix = "L";
-					} else {
-						typePrefix = "U"; //*** For unknown prefix
-					}
-				}
-				
-				//*** Now loop until we find the next free number for this run type
-				boolean maxlooped = false;
-				while(runName == null) {
-					String pLastused = "request.type." + runType + ".lastused";
-					String sLatestNumber = this.dssFramework.get(pLastused);
-					int latestNumber = 0;
-					if (sLatestNumber != null && !sLatestNumber.trim().isEmpty()) {
-						latestNumber = Integer.parseInt(sLatestNumber);
-					}
-					
-					//*** Add 1 to the run number and see if we get it
-					latestNumber++;
-					if (latestNumber > maxNumber) { //*** have we gone past the maximum number
-						if (maxlooped) {
-							throw new FrameworkException("Not enough request type numbers available, looped twice");
-						}
-						latestNumber = 1;
-						maxlooped = true; //*** Safety check to make sure we havent gone through all the numbers again
-					}
-					
-					String sNewNumber = Integer.toString(latestNumber);
-					if (!this.dssFramework.putSwap(pLastused, sLatestNumber, sNewNumber)) {
-						Thread.sleep(this.framework.getRandom().nextInt(200)); //*** Wait for a bit, to avoid race conditions
-						continue;    //  Try again with the new latest number
-					}
-					
-					String tempRunName = typePrefix + sNewNumber;
-					
-					//*** Set up the otherRunProperties that will go with the Run number
-					HashMap<String, String> otherRunProperties = new HashMap<>();
-					otherRunProperties.put("run." + tempRunName + ".status", "Starting");
-					otherRunProperties.put("run." + tempRunName + ".testbundle", bundleName);
-					otherRunProperties.put("run." + tempRunName + ".testclass", bundleName);
-					otherRunProperties.put("run." + tempRunName + ".request.type", runType);
-					
-					//*** See if we can setup the runnumber properties (clashes possible if low max number or sharing prefix
-					if (!this.dssFramework.putSwap("run." + tempRunName + ".test", null, bundleClassName, otherRunProperties)) {
-						Thread.sleep(this.framework.getRandom().nextInt(200)); //*** Wait for a bit, to avoid race conditions
-						continue; //*** Try again
-					}
-					
-					runName = tempRunName; //*** Got it					
-				}
-				
-				this.framework.setTestRunName(runName);
-				
-				logger.info("Allocated Run Name " + runName + " to this run");
-				return;
-			} catch(Exception e) {				
-
-				throw new FrameworkException("Error during allocation of Run Name", e);
-			}
-		}
-		
-		//*** Make sure the run properties are setup correctly by just overwriting it all
-		HashMap<String, String> runProperties = new HashMap<>();
-		runProperties.put("run." + runName + ".test", bundleClassName);
-		runProperties.put("run." + runName + ".status", "Starting");
-		runProperties.put("run." + runName + ".testbundle", bundleName);
-		runProperties.put("run." + runName + ".testclass", className);
-		runProperties.put("run." + runName + ".request.type", runType);
-		this.dssFramework.put(runProperties);
+		return run.getName();
 	}
 
 	/*

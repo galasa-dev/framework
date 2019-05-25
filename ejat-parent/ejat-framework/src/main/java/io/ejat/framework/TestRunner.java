@@ -1,5 +1,6 @@
 package io.ejat.framework;
 
+import java.time.Instant;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -21,6 +22,7 @@ import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
+import io.ejat.framework.spi.IRun;
 
 /**
  * Run the supplied test class
@@ -37,6 +39,9 @@ public class TestRunner {
     private RepositoryAdmin repositoryAdmin;
     
     private TestRunHeartbeat heartbeat;
+    
+    private IDynamicStatusStoreService dss;
+    private IRun                       run;
 
     /**
      * Run the supplied test class
@@ -46,40 +51,35 @@ public class TestRunner {
      * @return
      * @throws TestRunException
      */
-    public void runTest(String testBundleName, String testClassName, Properties bootstrapProperties, Properties overrideProperties) throws TestRunException  {
+    public void runTest(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException  {
     	
-    	if (testBundleName != null) {
-    		loadBundle(testBundleName);
-    	}
-    	
-    	//*** TODO will need do this later as will need to pull the classname from the dss in automation
-    	
-    	//*** Ensure the bundle/testclass properties are set
-    	String bundleClass = testBundleName + "/" + testClassName;
-    	overrideProperties.setProperty("framework.run.testbundleclass", bundleClass);
-    	overrideProperties.setProperty("framework.run.testbundle", testBundleName);
-    	overrideProperties.setProperty("framework.run.testclass", testClassName);
-    	
-    	//*** Ensure the run type is set, defaults to local
-    	String runType = overrideProperties.getProperty("framework.run.request.type");
-    	if (runType == null || runType.trim().isEmpty()) {
-        	overrideProperties.setProperty("framework.run.request.type", "local");  //*** Default to the local request type
-    	}
-
         //*** Initialise the framework services
         FrameworkInitialisation frameworkInitialisation = null;
         try {
             frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+            dss = frameworkInitialisation.getFramework().getDynamicStatusStoreService("framework");
+            run = frameworkInitialisation.getFramework().getTestRun();
         } catch (Exception e) {
             throw new TestRunException("Unable to initialise the Framework Services", e);
         }
         
+        IRun run = frameworkInitialisation.getFramework().getTestRun();
+        
+        String testBundleName = run.getTestBundleName();
+        String testClassName = run.getTestClassName();
+        
+    	if (testBundleName != null) {
+    		loadBundle(testBundleName);
+    	}
+    	
         try {
 			heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
 	        heartbeat.start();
 		} catch (DynamicStatusStoreException e1) {
 			throw new TestRunException("Unable to initialise the heartbeat");
 		}
+        
+        updateStatus("started", "started");
 
         logger.info("Run test: " + testBundleName + "/" + testClassName);
         Class<?> testClass = getTestClass(testBundleName, testClassName);
@@ -96,6 +96,7 @@ public class TestRunner {
         try {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
             	stopHeartbeat();
+            	updateStatus("finished", "finished");
                 return; //TODO handle ignored classes
             }
         } catch (FrameworkException e) {
@@ -112,6 +113,7 @@ public class TestRunner {
 
         
         try {
+        	updateStatus("generating", null);
             managers.provisionGenerate();
         } catch(Exception e) {
         	stopHeartbeat();
@@ -119,6 +121,7 @@ public class TestRunner {
         }
 
         try {
+        	updateStatus("building", null);
             managers.provisionBuild();
         } catch(Exception e) {
             managers.provisionDiscard();
@@ -127,6 +130,7 @@ public class TestRunner {
         }
 
         try {
+        	updateStatus("provstart", null);
             managers.provisionStart();
         } catch(Exception e) {
             managers.provisionStop();
@@ -135,12 +139,17 @@ public class TestRunner {
             throw new TestRunException("Unable to provision start", e);
         }
 
+    	updateStatus("running", null);
         testClassWrapper.runTestMethods(managers);
 
+    	updateStatus("stopping", null);
         managers.provisionStop();
+    	updateStatus("discarding", null);
         managers.provisionDiscard();
+    	updateStatus("ending", null);
         managers.endOfTestRun();
         stopHeartbeat();
+    	updateStatus("finished", "finished");
         
         //*** If this was a local run, then we will want to remove the run properties from the DSS immediately
         //*** for automation, we will let the core manager clean up after a while
@@ -158,7 +167,18 @@ public class TestRunner {
         return;
     }
     
-    private void stopHeartbeat() {
+    private void updateStatus(String status, String timestamp) throws TestRunException {
+    	try {
+			this.dss.put("run." + run.getName() + ".status", status);
+	    	if (timestamp != null) {
+	    		this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
+	    	}
+		} catch (DynamicStatusStoreException e) {
+			throw new TestRunException("Failed to update status", e);
+		}
+	}
+
+	private void stopHeartbeat() {
     	heartbeat.shutdown();
     	try {
     		heartbeat.join(2000);
@@ -168,18 +188,15 @@ public class TestRunner {
 
 
     private void deleteRunProperties(@NotNull IFramework framework) throws FrameworkException {
-		if (!"localx".equals(framework.getTestRunType())) { //*** Not interested in non-local runs
+    	
+    	IRun run = framework.getTestRun();
+    	
+		if (!run.isLocal()) { //*** Not interested in non-local runs
 			return;
 		}
 		
-		String runName = framework.getTestRunName();
-		if (runName == null) {
-			throw new FrameworkException("Internal error, should have had a run name!");
+		framework.getFrameworkRuns().delete(run.getName());
 		}
-		
-		IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
-		dss.deletePrefix("run." + runName + "."); //*** delete everything to do with the run
-	}
 
 
 	/**

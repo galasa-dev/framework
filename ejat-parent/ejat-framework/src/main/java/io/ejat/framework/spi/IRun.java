@@ -8,4 +8,20 @@ public interface IRun {
 
 	Instant getHeartbeat();
 
+	String getType();
+
+	String getTest();
+
+	String getStatus();
+
+	String getRequestor();
+
+	String getStream();
+
+	String getTestBundleName();
+
+	String getTestClassName();
+
+	boolean isLocal();
+
 }

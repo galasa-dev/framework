@@ -7,10 +7,16 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.ServiceScope;
+
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
 import io.ejat.framework.internal.creds.FrameworkCredentialsService;
 import io.ejat.framework.internal.dss.FrameworkDynamicStatusStoreService;
-import io.ejat.framework.spi.AbstractManager;
 import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
@@ -26,17 +32,21 @@ import io.ejat.framework.spi.IFrameworkRuns;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.IRun;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.ICredentialsService;
 import io.ejat.framework.spi.creds.ICredentialsStore;
 
+@Component(scope=ServiceScope.SINGLETON)
 public class Framework implements IFramework {
+	
+	private final static Log                   logger = LogFactory.getLog(Framework.class);
 
     private static final Pattern               namespacePattern = Pattern.compile("[a-z0-9]+");
 
-    private final Properties                   overrideProperties;
-    private final Properties                   recordProperties;
+    private Properties                         overrideProperties;
+    private final Properties                   recordProperties = new Properties();
 
     private IConfigurationPropertyStore        cpsStore;
     private IDynamicStatusStore                dssStore;
@@ -44,8 +54,10 @@ public class Framework implements IFramework {
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;             
 
-    private IConfigurationPropertyStoreService cpsFramework;
-    private ICredentialsService                credsFramework;
+    @SuppressWarnings("unused")
+	private IConfigurationPropertyStoreService cpsFramework;
+    @SuppressWarnings("unused")
+	private ICredentialsService                credsFramework;
     
     private String                             runName;
     
@@ -53,11 +65,40 @@ public class Framework implements IFramework {
     
     private FrameworkRuns                      frameworkRuns;
     
-    protected Framework(Properties overrideProperties, Properties recordProperties) {
-        this.overrideProperties = overrideProperties;
-        this.recordProperties   = recordProperties;
+    private boolean                            initialised;
+
+	private IRun run;
+    
+    public Framework() {
         this.random             = new Random();
     }
+    
+    @Activate
+    public void activate() {    	
+    	logger.info("Framework service activated");
+    	logger.info("Framework version = " + FrameworkVersion.getBundleVersion());
+    	logger.info("Framework build   = " + FrameworkVersion.getBundleBuild());
+    }
+    
+    @Deactivate
+    public void deactivate() {
+    	logger.info("Framework service deactivated");
+    }
+    
+    
+	public void setFrameworkProperties(Properties overridesProperties) {
+		this.overrideProperties = overridesProperties;
+	}
+	
+    @Override
+	public boolean isInitialised() {
+		return this.initialised;
+	}
+    
+    @Override
+	public void initialisationComplete() {
+		this.initialised = true;
+	}
 
     @Override
     public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
@@ -259,17 +300,17 @@ public class Framework implements IFramework {
 	 * Set the run name if it is a test run
 	 * 
 	 * @param runName The run name
+	 * @throws DynamicStatusStoreException 
 	 */
-	public void setTestRunName(String runName) {
+	public void setTestRunName(String runName) throws FrameworkException {
 		this.runName = runName;
+		
+		this.run = getFrameworkRuns().getRun(runName);
 	}
-
-	/* (non-Javadoc)
-	 * @see io.ejat.framework.spi.IFramework#getTestRunType()
-	 */
+	
 	@Override
-	public @NotNull String getTestRunType() throws FrameworkException {
-		return AbstractManager.defaultString(this.cpsFramework.getProperty("run", "request.type"), "local");
+	public IRun getTestRun() {
+		return this.run;
 	}
 
 	@Override
