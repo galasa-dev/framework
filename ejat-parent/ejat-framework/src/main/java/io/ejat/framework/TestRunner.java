@@ -1,5 +1,6 @@
 package io.ejat.framework;
 
+import java.time.Instant;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -19,6 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IRun;
 
@@ -37,6 +39,9 @@ public class TestRunner {
     private RepositoryAdmin repositoryAdmin;
     
     private TestRunHeartbeat heartbeat;
+    
+    private IDynamicStatusStoreService dss;
+    private IRun                       run;
 
     /**
      * Run the supplied test class
@@ -52,6 +57,8 @@ public class TestRunner {
         FrameworkInitialisation frameworkInitialisation = null;
         try {
             frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+            dss = frameworkInitialisation.getFramework().getDynamicStatusStoreService("framework");
+            run = frameworkInitialisation.getFramework().getTestRun();
         } catch (Exception e) {
             throw new TestRunException("Unable to initialise the Framework Services", e);
         }
@@ -71,6 +78,8 @@ public class TestRunner {
 		} catch (DynamicStatusStoreException e1) {
 			throw new TestRunException("Unable to initialise the heartbeat");
 		}
+        
+        updateStatus("started", "started");
 
         logger.info("Run test: " + testBundleName + "/" + testClassName);
         Class<?> testClass = getTestClass(testBundleName, testClassName);
@@ -87,6 +96,7 @@ public class TestRunner {
         try {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
             	stopHeartbeat();
+            	updateStatus("finished", "finished");
                 return; //TODO handle ignored classes
             }
         } catch (FrameworkException e) {
@@ -103,6 +113,7 @@ public class TestRunner {
 
         
         try {
+        	updateStatus("generating", null);
             managers.provisionGenerate();
         } catch(Exception e) {
         	stopHeartbeat();
@@ -110,6 +121,7 @@ public class TestRunner {
         }
 
         try {
+        	updateStatus("building", null);
             managers.provisionBuild();
         } catch(Exception e) {
             managers.provisionDiscard();
@@ -118,6 +130,7 @@ public class TestRunner {
         }
 
         try {
+        	updateStatus("provstart", null);
             managers.provisionStart();
         } catch(Exception e) {
             managers.provisionStop();
@@ -126,12 +139,17 @@ public class TestRunner {
             throw new TestRunException("Unable to provision start", e);
         }
 
+    	updateStatus("running", null);
         testClassWrapper.runTestMethods(managers);
 
+    	updateStatus("stopping", null);
         managers.provisionStop();
+    	updateStatus("discarding", null);
         managers.provisionDiscard();
+    	updateStatus("ending", null);
         managers.endOfTestRun();
         stopHeartbeat();
+    	updateStatus("finished", "finished");
         
         //*** If this was a local run, then we will want to remove the run properties from the DSS immediately
         //*** for automation, we will let the core manager clean up after a while
@@ -149,7 +167,18 @@ public class TestRunner {
         return;
     }
     
-    private void stopHeartbeat() {
+    private void updateStatus(String status, String timestamp) throws TestRunException {
+    	try {
+			this.dss.put("run." + run.getName() + ".status", status);
+	    	if (timestamp != null) {
+	    		this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
+	    	}
+		} catch (DynamicStatusStoreException e) {
+			throw new TestRunException("Failed to update status", e);
+		}
+	}
+
+	private void stopHeartbeat() {
     	heartbeat.shutdown();
     	try {
     		heartbeat.join(2000);

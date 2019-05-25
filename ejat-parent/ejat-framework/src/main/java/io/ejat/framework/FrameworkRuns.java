@@ -193,6 +193,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 				runName = tempRunName; //*** Got it					
 			}
 		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new FrameworkException("Interrupted", e);
 		} catch (Exception e) {
 			throw new FrameworkException("Problem submitting job", e);
