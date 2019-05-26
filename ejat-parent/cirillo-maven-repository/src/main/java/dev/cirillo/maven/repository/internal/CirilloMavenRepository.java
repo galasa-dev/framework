@@ -32,6 +32,6 @@ public class CirilloMavenRepository implements IMavenRepository {
 
 	@Override
 	public void addRemoteRepository(URL remoteRepository) {
-		this.remoteRepositories.add(remoteRepository);
+		this.remoteRepositories.add(0,remoteRepository);
 	}	
 }

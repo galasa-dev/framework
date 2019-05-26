@@ -69,7 +69,7 @@ public class CirilloMavenUrlHandlerService extends AbstractURLStreamHandlerServi
 		
 		URL result = fetchArtifact(localCirilloRepository, groupID, artifactID, version, type);
 		if (result == null) {
-			throw new IOException("Unable to local maven artifact " + arg0);
+			throw new IOException("Unable to locate maven artifact " + arg0);
 		}
 		
 		return result.openConnection();

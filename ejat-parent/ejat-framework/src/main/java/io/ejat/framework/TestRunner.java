@@ -1,5 +1,7 @@
 package io.ejat.framework;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Instant;
 import java.util.Properties;
 
@@ -18,8 +20,11 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import dev.cirillo.maven.repository.IMavenRepository;
+import io.ejat.framework.spi.AbstractManager;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IRun;
@@ -31,213 +36,266 @@ import io.ejat.framework.spi.IRun;
 public class TestRunner {
 
 
-    private Log logger = LogFactory.getLog(TestRunner.class);
+	private Log logger = LogFactory.getLog(TestRunner.class);
 
-    private BundleContext bundleContext;
+	private BundleContext bundleContext;
 
-    @Reference
-    private RepositoryAdmin repositoryAdmin;
-    
-    private TestRunHeartbeat heartbeat;
-    
-    private IDynamicStatusStoreService dss;
-    private IRun                       run;
+	@Reference
+	private RepositoryAdmin repositoryAdmin;
 
-    /**
-     * Run the supplied test class
-     * 
-     * @param testBundleName
-     * @param testClassName
-     * @return
-     * @throws TestRunException
-     */
-    public void runTest(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException  {
-    	
-        //*** Initialise the framework services
-        FrameworkInitialisation frameworkInitialisation = null;
-        try {
-            frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
-            dss = frameworkInitialisation.getFramework().getDynamicStatusStoreService("framework");
-            run = frameworkInitialisation.getFramework().getTestRun();
-        } catch (Exception e) {
-            throw new TestRunException("Unable to initialise the Framework Services", e);
-        }
-        
-        IRun run = frameworkInitialisation.getFramework().getTestRun();
-        
-        String testBundleName = run.getTestBundleName();
-        String testClassName = run.getTestClassName();
-        
-    	if (testBundleName != null) {
-    		loadBundle(testBundleName);
-    	}
-    	
-        try {
+	@Reference
+	private IMavenRepository mavenRepository;
+
+	private TestRunHeartbeat heartbeat;
+
+	private IConfigurationPropertyStoreService cps;
+	private IDynamicStatusStoreService dss;
+	private IRun                       run;
+
+	/**
+	 * Run the supplied test class
+	 * 
+	 * @param testBundleName
+	 * @param testClassName
+	 * @return
+	 * @throws TestRunException
+	 */
+	public void runTest(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException  {
+
+		//*** Initialise the framework services
+		FrameworkInitialisation frameworkInitialisation = null;
+		try {
+			frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+			cps = frameworkInitialisation.getFramework().getConfigurationPropertyService("framework");
+			dss = frameworkInitialisation.getFramework().getDynamicStatusStoreService("framework");
+			run = frameworkInitialisation.getFramework().getTestRun();
+		} catch (Exception e) {
+			throw new TestRunException("Unable to initialise the Framework Services", e);
+		}
+
+		IRun run = frameworkInitialisation.getFramework().getTestRun();
+
+		String testBundleName = run.getTestBundleName();
+		String testClassName = run.getTestClassName();
+
+		String testRepository = null;
+		String testOBR        = null;
+		String stream         = AbstractManager.nulled(run.getStream());
+
+		if (stream != null) {
+			try {
+				testRepository = this.cps.getProperty("stream", "repo", stream);
+				testOBR        = this.cps.getProperty("stream", "obr", stream);
+			} catch(Exception e) {
+				logger.info("Unable to load stream " + stream + " settings",e);
+				updateStatus("finished", "finished");
+				return;
+			}
+		}
+
+		String overrideRepo = AbstractManager.nulled(run.getRepository());
+		if (overrideRepo != null) {
+			testRepository = overrideRepo;
+		}
+		String overrideOBR = AbstractManager.nulled(run.getOBR());
+		if (overrideOBR != null) {
+			testOBR = overrideOBR;
+		}
+
+		if (testRepository != null) {
+			try {
+				this.mavenRepository.addRemoteRepository(new URL(testRepository));
+			} catch (MalformedURLException e) {
+				logger.info("Unable to add remote maven repository " + testRepository,e);
+				updateStatus("finished", "finished");
+				return;
+			}
+		}
+
+		if (testOBR != null) {
+			try {
+				repositoryAdmin.addRepository(testOBR);
+			} catch (Exception e) {
+				logger.info("Unable to load specified OBR " + testOBR,e);
+				updateStatus("finished", "finished");
+				return;
+			}
+		}
+
+		try {
+			loadBundle(testBundleName);
+		} catch(Exception e) {
+			logger.info("Unable to load the test bundle " + testBundleName,e);
+			updateStatus("finished", "finished");
+			return;
+		}
+
+		try {
 			heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
-	        heartbeat.start();
+			heartbeat.start();
 		} catch (DynamicStatusStoreException e1) {
 			throw new TestRunException("Unable to initialise the heartbeat");
 		}
-        
-        updateStatus("started", "started");
 
-        logger.info("Run test: " + testBundleName + "/" + testClassName);
-        Class<?> testClass = getTestClass(testBundleName, testClassName);
+		updateStatus("started", "started");
 
-        //*** Initialise the Managers ready for the test run
-        TestRunManagers managers = null;
-        try {
-            managers = new TestRunManagers(frameworkInitialisation.getFramework(), testClass);
-        } catch (FrameworkException e) {
-        	stopHeartbeat();
-            throw new TestRunException("Problem initialising the Managers for a test run", e);
-        }
+		logger.info("Run test: " + testBundleName + "/" + testClassName);
+		Class<?> testClass = getTestClass(testBundleName, testClassName);
 
-        try {
-            if (managers.anyReasonTestClassShouldBeIgnored()) {
-            	stopHeartbeat();
-            	updateStatus("finished", "finished");
-                return; //TODO handle ignored classes
-            }
-        } catch (FrameworkException e) {
-            throw new TestRunException("Problem asking Managers for an ignore reason", e);
-        }
-     
-        
-        TestClassWrapper testClassWrapper = new TestClassWrapper(testBundleName, testClass);
+		//*** Initialise the Managers ready for the test run
+		TestRunManagers managers = null;
+		try {
+			managers = new TestRunManagers(frameworkInitialisation.getFramework(), testClass);
+		} catch (FrameworkException e) {
+			stopHeartbeat();
+			throw new TestRunException("Problem initialising the Managers for a test run", e);
+		}
 
-        testClassWrapper.parseTestClass();
+		try {
+			if (managers.anyReasonTestClassShouldBeIgnored()) {
+				stopHeartbeat();
+				updateStatus("finished", "finished");
+				return; //TODO handle ignored classes
+			}
+		} catch (FrameworkException e) {
+			throw new TestRunException("Problem asking Managers for an ignore reason", e);
+		}
 
-        testClassWrapper.instantiateTestClass();
-        
 
-        
-        try {
-        	updateStatus("generating", null);
-            managers.provisionGenerate();
-        } catch(Exception e) {
-        	stopHeartbeat();
-            throw new TestRunException("Unable to provision generate", e);
-        }
+		TestClassWrapper testClassWrapper = new TestClassWrapper(testBundleName, testClass);
 
-        try {
-        	updateStatus("building", null);
-            managers.provisionBuild();
-        } catch(Exception e) {
-            managers.provisionDiscard();
-            stopHeartbeat();
-            throw new TestRunException("Unable to provision build", e);
-        }
+		testClassWrapper.parseTestClass();
 
-        try {
-        	updateStatus("provstart", null);
-            managers.provisionStart();
-        } catch(Exception e) {
-            managers.provisionStop();
-            managers.provisionDiscard();
-            stopHeartbeat();
-            throw new TestRunException("Unable to provision start", e);
-        }
+		testClassWrapper.instantiateTestClass();
 
-    	updateStatus("running", null);
-        testClassWrapper.runTestMethods(managers);
 
-    	updateStatus("stopping", null);
-        managers.provisionStop();
-    	updateStatus("discarding", null);
-        managers.provisionDiscard();
-    	updateStatus("ending", null);
-        managers.endOfTestRun();
-        stopHeartbeat();
-    	updateStatus("finished", "finished");
-        
-        //*** If this was a local run, then we will want to remove the run properties from the DSS immediately
-        //*** for automation, we will let the core manager clean up after a while
-        //*** Local runs will have access to the run details via a view,
-        //*** But automation runs will only exist in the RAS if we delete them, so need to give 
-        //*** time for things like jenkins and other run requesters to obtain the result and RAS id before 
-        //*** deleting,  default is to keep the automation run properties for 5 minutes
-        try {
+
+		try {
+			updateStatus("generating", null);
+			managers.provisionGenerate();
+		} catch(Exception e) {
+			stopHeartbeat();
+			throw new TestRunException("Unable to provision generate", e);
+		}
+
+		try {
+			updateStatus("building", null);
+			managers.provisionBuild();
+		} catch(Exception e) {
+			managers.provisionDiscard();
+			stopHeartbeat();
+			throw new TestRunException("Unable to provision build", e);
+		}
+
+		try {
+			updateStatus("provstart", null);
+			managers.provisionStart();
+		} catch(Exception e) {
+			managers.provisionStop();
+			managers.provisionDiscard();
+			stopHeartbeat();
+			throw new TestRunException("Unable to provision start", e);
+		}
+
+		updateStatus("running", null);
+		testClassWrapper.runTestMethods(managers);
+
+		updateStatus("stopping", null);
+		managers.provisionStop();
+		updateStatus("discarding", null);
+		managers.provisionDiscard();
+		updateStatus("ending", null);
+		managers.endOfTestRun();
+		stopHeartbeat();
+		updateStatus("finished", "finished");
+
+		//*** If this was a local run, then we will want to remove the run properties from the DSS immediately
+		//*** for automation, we will let the core manager clean up after a while
+		//*** Local runs will have access to the run details via a view,
+		//*** But automation runs will only exist in the RAS if we delete them, so need to give 
+		//*** time for things like jenkins and other run requesters to obtain the result and RAS id before 
+		//*** deleting,  default is to keep the automation run properties for 5 minutes
+		try {
 			deleteRunProperties(frameworkInitialisation.getFramework());
 		} catch (FrameworkException e) {
 			//*** Any error, report it and leave for the core manager to clean up
 			logger.error("Error cleaning up local test run properties", e);
 		}
 
-        return;
-    }
-    
-    private void updateStatus(String status, String timestamp) throws TestRunException {
-    	try {
+		return;
+	}
+
+	private void updateStatus(String status, String timestamp) throws TestRunException {
+		try {
 			this.dss.put("run." + run.getName() + ".status", status);
-	    	if (timestamp != null) {
-	    		this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
-	    	}
+			if (timestamp != null) {
+				this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
+			}
 		} catch (DynamicStatusStoreException e) {
 			throw new TestRunException("Failed to update status", e);
 		}
 	}
 
 	private void stopHeartbeat() {
-    	heartbeat.shutdown();
-    	try {
-    		heartbeat.join(2000);
-    	} catch(Exception e) {
-    	}
-    }
+		heartbeat.shutdown();
+		try {
+			heartbeat.join(2000);
+		} catch(Exception e) {
+		}
+	}
 
 
-    private void deleteRunProperties(@NotNull IFramework framework) throws FrameworkException {
-    	
-    	IRun run = framework.getTestRun();
-    	
+	private void deleteRunProperties(@NotNull IFramework framework) throws FrameworkException {
+
+		IRun run = framework.getTestRun();
+
 		if (!run.isLocal()) { //*** Not interested in non-local runs
 			return;
 		}
-		
+
 		framework.getFrameworkRuns().delete(run.getName());
-		}
+	}
 
 
 	/**
-     * Get the test class from the supplied bundle
-     * 
-     * @param testBundleName
-     * @param testClassName
-     * @return
-     * @throws TestRunException
-     */
-    private Class<?> getTestClass(String testBundleName, String testClassName) throws TestRunException {
-        Class<?> testClazz = null;
-        Bundle[] bundles = bundleContext.getBundles();
-        boolean bundleFound = false;
-        for (Bundle bundle : bundles) {
-            if (bundle.getSymbolicName().equals(testBundleName)) {
-                bundleFound = true;
-                logger.trace("Found Bundle: " + testBundleName);
-                try {
-                    testClazz = bundle.loadClass(testClassName);
-                } catch (ClassNotFoundException e) {
-                    throw new TestRunException("Unable to load test class " + testClassName, e);
-                }
-                logger.trace("Found test class: " + testClazz.getName());
+	 * Get the test class from the supplied bundle
+	 * 
+	 * @param testBundleName
+	 * @param testClassName
+	 * @return
+	 * @throws TestRunException
+	 */
+	private Class<?> getTestClass(String testBundleName, String testClassName) throws TestRunException {
+		Class<?> testClazz = null;
+		Bundle[] bundles = bundleContext.getBundles();
+		boolean bundleFound = false;
+		for (Bundle bundle : bundles) {
+			if (bundle.getSymbolicName().equals(testBundleName)) {
+				bundleFound = true;
+				logger.trace("Found Bundle: " + testBundleName);
+				try {
+					testClazz = bundle.loadClass(testClassName);
+				} catch (ClassNotFoundException e) {
+					throw new TestRunException("Unable to load test class " + testClassName, e);
+				}
+				logger.trace("Found test class: " + testClazz.getName());
 
-                break;
-            }
-        }
-        if (!bundleFound) {
-            throw new TestRunException("Unable to find test bundle " + testBundleName);
-        }
-        return testClazz;		
-    }
+				break;
+			}
+		}
+		if (!bundleFound) {
+			throw new TestRunException("Unable to find test bundle " + testBundleName);
+		}
+		return testClazz;		
+	}
 
 
-    @Activate
-    public void activate(BundleContext context) {
-        this.bundleContext = context;
-    }
-    
-    
+	@Activate
+	public void activate(BundleContext context) {
+		this.bundleContext = context;
+	}
+
+
 	/**
 	 * Load a bundle from the OSGi Bundle Repository
 	 * 
@@ -266,7 +324,7 @@ public class TestRunner {
 			throw new TestRunException("Unable to install bundle \"" + bundleSymbolicName + "\" from OBR repository", e);
 		}
 	}
-	
+
 	/**
 	 * Add the Resource to the Resolver and resolve
 	 * 
@@ -357,7 +415,7 @@ public class TestRunner {
 
 		logger.trace(messageBuffer.toString());
 	}
-	
+
 	/**
 	 * Convert bundle state to string
 	 * @param bundle

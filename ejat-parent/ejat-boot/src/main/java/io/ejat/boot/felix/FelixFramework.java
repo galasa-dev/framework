@@ -70,7 +70,7 @@ public class FelixFramework {
 			//			frameworkProperties.put("ds.showtrace", "true");
 			frameworkProperties.put(Constants.FRAMEWORK_STORAGE, felixCache.getAbsolutePath());
 			frameworkProperties.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.	FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
-			frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.apache.felix.bundlerepository; version=2.1, io.ejat.framework, sun.misc, com.sun.net.httpserver, com.sun.management" 
+			frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.apache.felix.bundlerepository; version=2.1, io.ejat.framework, sun.misc, com.sun.net.httpserver, com.sun.management, org.xml.sax" 
 					);
 			framework = frameworkFactory.newFramework(frameworkProperties);
 			logger.debug("Initializing Felix Framework");
@@ -287,11 +287,11 @@ public class FelixFramework {
 			throw new LauncherException("Unable to get framework service reference", e);
 		}
 		if (serviceReferences == null || serviceReferences.length != 1) {
-			throw new LauncherException("Unable to get single reference to TestRunner service: " + ((serviceReferences == null) ? 0: serviceReferences.length)  + " service(s) returned");
+			throw new LauncherException("Unable to get single reference to ResourceManagement service: " + ((serviceReferences == null) ? 0: serviceReferences.length)  + " service(s) returned");
 		}
 		Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
 		if (service == null) {
-			throw new LauncherException("Unable to get TestRunner service");
+			throw new LauncherException("Unable to get ResourceManagement service");
 		}
 
 		// Get the  io.ejat.framework.TestRunner#runTest(String testBundleName, String testClassName) method
@@ -304,6 +304,64 @@ public class FelixFramework {
 
 		// Invoke the runTest method
 		logger.debug("Invoking resource management run()");
+		try {
+			runTestMethod.invoke(service, boostrapProperties, overridesProperties);
+		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+			throw new LauncherException(e.getCause());
+		}
+
+	}
+	/**
+	 * Run the Kubernetes Controller Server
+	 * 
+	 * @param boostrapProperties the bootstrap properties
+	 * @param overridesProperties the override properties
+	 * @param bundles 
+	 * @param health 
+	 * @param metrics 
+	 * @throws LauncherException 
+	 */
+	public void runK8sController(Properties boostrapProperties, Properties overridesProperties, List<String> bundles, Integer metrics, Integer health) throws LauncherException {
+
+		// Get the framework bundle
+		Bundle frameWorkBundle = getBundle("io.ejat.framework");
+		loadBundle("dev.cirillo.k8s.controller");
+
+		//*** Set up ports if present
+		if (metrics != null) {
+			overridesProperties.put("framework.controller.metrics.port", metrics.toString());
+		}
+		if (health != null) {
+			overridesProperties.put("framework.controller.health.port", health.toString());
+		}
+
+		// Get the io.ejat.framework.TestRunner class service
+		String classString = "dev.cirillo.k8s.controller.K8sController";
+		String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
+		ServiceReference<?>[] serviceReferences;
+		try {
+			serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
+		} catch (InvalidSyntaxException e) {
+			throw new LauncherException("Unable to get framework service reference", e);
+		}
+		if (serviceReferences == null || serviceReferences.length != 1) {
+			throw new LauncherException("Unable to get single reference to K8sController service: " + ((serviceReferences == null) ? 0: serviceReferences.length)  + " service(s) returned");
+		}
+		Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
+		if (service == null) {
+			throw new LauncherException("Unable to get K8sController service");
+		}
+
+		// Get the  run method
+		Method runTestMethod;
+		try {
+			runTestMethod = service.getClass().getMethod("run", Properties.class, Properties.class);
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new LauncherException("Unable to get K8sController run method", e);
+		}
+
+		// Invoke the runTest method
+		logger.debug("Invoking k8s controller run()");
 		try {
 			runTestMethod.invoke(service, boostrapProperties, overridesProperties);
 		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
