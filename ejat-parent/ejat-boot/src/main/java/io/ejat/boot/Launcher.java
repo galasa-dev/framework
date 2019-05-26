@@ -42,6 +42,7 @@ public class Launcher {
 	private static final String BOOTSTRAP_OPTION          = "bootstrap";
 	private static final String OVERRIDES_OPTION          = "overrides";
 	private static final String RESOURCEMANAGEMENT_OPTION = "resourcemanagement";
+	private static final String K8SCONTROLLER_OPTION      = "k8scontroller";
 	private static final String TEST_OPTION               = "test";
 	private static final String RUN_OPTION                = "run";
 	private static final String BUNDLE_OPTION             = "bundle";
@@ -64,6 +65,7 @@ public class Launcher {
 
 	private boolean testRun;
 	private boolean resourceManagement;
+	private boolean k8sController;
 
 	private Integer metrics;
 	private Integer health;
@@ -123,6 +125,9 @@ public class Launcher {
 			} else if (resourceManagement) {
 				logger.debug("Resource Management");
 				felixFramework.runResourceManagement(boostrapProperties, overridesProperties, bundles, metrics, health);
+			} else if (k8sController) {
+				logger.debug("Kubernetes Controller");
+				felixFramework.runK8sController(boostrapProperties, overridesProperties, bundles, metrics, health);
 			}
 		} catch (LauncherException e) {
 			logger.error("Unable run test class", e);
@@ -168,6 +173,7 @@ public class Launcher {
 		options.addOption(null, BOOTSTRAP_OPTION, true, "Bootstrap properties file url");
 		options.addOption(null, OVERRIDES_OPTION, true, "Overrides properties file url");
 		options.addOption(null, RESOURCEMANAGEMENT_OPTION, false, "A Resource Management server");
+		options.addOption(null, K8SCONTROLLER_OPTION, false, "A K8s Controller server");
 		options.addOption(null, TEST_OPTION, true, "The test to run");
 		options.addOption(null, RUN_OPTION, true, "The run name");
 		options.addOption(null, BUNDLE_OPTION, true, "Extra bundles to load");
@@ -198,10 +204,7 @@ public class Launcher {
 
 		testRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION);
 		resourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
-
-		if (testRun && resourceManagement) {
-			commandLineError("Error: Either select --test or --resourcemanagement, but not both");
-		}
+		k8sController = commandLine.hasOption(K8SCONTROLLER_OPTION);
 
 		if (testRun) {
 			runName = commandLine.getOptionValue(RUN_OPTION);
@@ -232,8 +235,12 @@ public class Launcher {
 			return;
 		}
 
+		if (k8sController) {
+			return;
+		}
 
-		commandLineError("Error: Must select either --test, --run or --resourcemanagement");
+
+		commandLineError("Error: Must select either --test, --run, --k8scontroller or --resourcemanagement");
 	}
 
 	private void checkForRemoteMaven(CommandLine commandLine) {

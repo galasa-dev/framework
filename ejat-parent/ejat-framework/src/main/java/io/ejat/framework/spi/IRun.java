@@ -24,4 +24,12 @@ public interface IRun {
 
 	boolean isLocal();
 
+	String getGroup();
+
+	Instant getQueued();
+
+	String getRepository();
+
+	String getOBR();
+
 }

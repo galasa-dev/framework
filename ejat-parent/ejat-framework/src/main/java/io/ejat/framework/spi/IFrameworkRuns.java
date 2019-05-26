@@ -9,6 +9,9 @@ public interface IFrameworkRuns {
 	
 	@NotNull
 	List<IRun> getActiveRuns() throws FrameworkException;
+
+	@NotNull
+	List<IRun> getQueuedRuns() throws FrameworkException;;
 	
 	@NotNull
 	List<IRun> getAllRuns() throws FrameworkException;
@@ -31,4 +34,5 @@ public interface IFrameworkRuns {
 	IRun getRun(String runname) throws DynamicStatusStoreException;
 
 	boolean reset(String runname) throws DynamicStatusStoreException;
+
 }

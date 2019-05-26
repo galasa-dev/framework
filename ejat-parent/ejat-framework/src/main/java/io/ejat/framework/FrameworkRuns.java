@@ -1,5 +1,6 @@
 package io.ejat.framework;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,14 +43,37 @@ public class FrameworkRuns implements IFrameworkRuns {
 		Iterator<IRun> iruns = runs.iterator();
 		while(iruns.hasNext()) {
 			IRun run = iruns.next();
+			
+			if (run.getHeartbeat() != null) {
+				continue;
+			}
 
-			if (run.getHeartbeat() == null) {
+			if ("allocated".equals(run.getStatus())) {
+				continue;
+			}
+			
+			iruns.remove();
+		}
+
+		return runs;
+	}
+	
+	@Override
+	public @NotNull List<IRun> getQueuedRuns() throws FrameworkException {
+		List<IRun> runs = getAllRuns();
+		Iterator<IRun> iruns = runs.iterator();
+		while(iruns.hasNext()) {
+			IRun run = iruns.next();
+
+			if (!"queued".equals(run.getStatus())) {
 				iruns.remove();
 			}
 		}
 
 		return runs;
 	}
+
+
 
 	@Override
 	public List<IRun> getAllRuns() throws FrameworkException {
@@ -171,6 +195,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 				//*** Set up the otherRunProperties that will go with the Run number
 				HashMap<String, String> otherRunProperties = new HashMap<>();
 				otherRunProperties.put("run." + tempRunName + ".status", "queued");
+				otherRunProperties.put("run." + tempRunName + ".queued", Instant.now().toString());
 				otherRunProperties.put("run." + tempRunName + ".testbundle", bundleName);
 				otherRunProperties.put("run." + tempRunName + ".testclass", testName);
 				otherRunProperties.put("run." + tempRunName + ".request.type", runType);
