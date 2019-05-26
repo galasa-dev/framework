@@ -43,7 +43,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 		Iterator<IRun> iruns = runs.iterator();
 		while(iruns.hasNext()) {
 			IRun run = iruns.next();
-			
+
 			if (run.getHeartbeat() != null) {
 				continue;
 			}
@@ -51,13 +51,13 @@ public class FrameworkRuns implements IFrameworkRuns {
 			if ("allocated".equals(run.getStatus())) {
 				continue;
 			}
-			
+
 			iruns.remove();
 		}
 
 		return runs;
 	}
-	
+
 	@Override
 	public @NotNull List<IRun> getQueuedRuns() throws FrameworkException {
 		List<IRun> runs = getAllRuns();
@@ -117,7 +117,8 @@ public class FrameworkRuns implements IFrameworkRuns {
 			String mavenRepository, 
 			String obr,
 			String stream,
-			boolean local)
+			boolean local,
+			boolean trace)
 					throws FrameworkException {
 		if (testName == null) {
 			throw new FrameworkException("Missing test name");
@@ -137,9 +138,6 @@ public class FrameworkRuns implements IFrameworkRuns {
 			requestor = "unknown";
 		}
 		stream = AbstractManager.nulled(stream);
-		if (stream == null) {
-			stream = "live";
-		}
 
 
 		String runName = null;
@@ -200,13 +198,18 @@ public class FrameworkRuns implements IFrameworkRuns {
 				otherRunProperties.put("run." + tempRunName + ".testclass", testName);
 				otherRunProperties.put("run." + tempRunName + ".request.type", runType);
 				otherRunProperties.put("run." + tempRunName + ".local", Boolean.toString(local));
+				if (trace) {
+					otherRunProperties.put("run." + tempRunName + ".trace", "true");
+				}
 				if (mavenRepository != null) {
 					otherRunProperties.put("run." + tempRunName + ".repository", mavenRepository);
 				}
 				if (obr != null) {
 					otherRunProperties.put("run." + tempRunName + ".obr", obr);
 				}
-				otherRunProperties.put("run." + tempRunName + ".stream", stream);
+				if (stream != null) {
+					otherRunProperties.put("run." + tempRunName + ".stream", stream);
+				}
 				otherRunProperties.put("run." + tempRunName + ".requestor", requestor.toLowerCase());
 
 				//*** See if we can setup the runnumber properties (clashes possible if low max number or sharing prefix
@@ -230,12 +233,12 @@ public class FrameworkRuns implements IFrameworkRuns {
 	@Override
 	public boolean delete(String runname) throws DynamicStatusStoreException {
 		String prefix = "run." + runname + ".";
-				
+
 		Map<String, String> properties = this.dss.getPrefix(prefix);
 		if (properties.isEmpty()) {
 			return false;
 		}
-		
+
 		this.dss.deletePrefix(prefix);
 		return true;
 	}
@@ -243,16 +246,16 @@ public class FrameworkRuns implements IFrameworkRuns {
 	@Override
 	public boolean reset(String runname) throws DynamicStatusStoreException {
 		String prefix = "run." + runname + ".";
-				
+
 		Map<String, String> properties = this.dss.getPrefix(prefix);
 		if (properties.isEmpty()) {
 			return false;
 		}
-		
+
 		if ("true".equals(properties.get(prefix + "local"))) {
 			return false;
 		}
-		
+
 		this.dss.delete(prefix + "heartbeat");
 		this.dss.put(prefix + "status", "queued");
 		return true;
@@ -261,12 +264,12 @@ public class FrameworkRuns implements IFrameworkRuns {
 	@Override
 	public IRun getRun(String runname) throws DynamicStatusStoreException {
 		String prefix = "run." + runname + ".";
-		
+
 		Map<String, String> properties = this.dss.getPrefix(prefix);
 		if (properties.isEmpty()) {
 			return null;
 		}
-		
+
 		return new RunImpl(runname, this.dss);
 	}
 

@@ -34,4 +34,6 @@ public interface IRun {
 
 	boolean isTrace();
 
+	Instant getFinished();
+
 }
