@@ -245,6 +245,12 @@ public class TestRunner {
 			heartbeat.join(2000);
 		} catch(Exception e) {
 		}
+		
+		try {
+			dss.delete("run." + run.getName() + ".heartbeat");
+		} catch (DynamicStatusStoreException e) {
+			logger.error("Unable to delete heartbeat",e);
+		}
 	}
 
 
