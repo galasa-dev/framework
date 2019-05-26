@@ -9,7 +9,7 @@ import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IRun;
 
 public class RunImpl implements IRun {
-	
+
 	private final String name;
 	private final Instant heartbeat;
 	private final String type;
@@ -19,27 +19,28 @@ public class RunImpl implements IRun {
 	private final String testName;
 	private final String status;
 	private final Instant queued;
+	private final Instant finished;
 	private final String requestor;
 	private final String stream;
 	private final String repo;
 	private final String obr;
 	private final Boolean local;
 	private final Boolean trace;
-	
+
 	public RunImpl(String name, IDynamicStatusStoreService dss) throws DynamicStatusStoreException {
 		this.name      = name;
-		
+
 		String prefix = "run." + name + ".";
-		
+
 		Map<String, String> runProperties = dss.getPrefix("run." + this.name);
-		
+
 		String sHeartbeat = runProperties.get(prefix + "heartbeat");
 		if (sHeartbeat != null) {
 			this.heartbeat = Instant.parse(sHeartbeat);
 		} else {
 			this.heartbeat = null;
 		}
-		
+
 		type      = runProperties.get(prefix + "request.type");
 		test      = runProperties.get(prefix + "test");
 		status    = runProperties.get(prefix + "status");
@@ -49,14 +50,14 @@ public class RunImpl implements IRun {
 		obr       = runProperties.get(prefix + "obr");
 		local     = Boolean.parseBoolean(runProperties.get(prefix + "local"));
 		trace     = Boolean.parseBoolean(runProperties.get(prefix + "trace"));
-		
+
 		String pGroup = runProperties.get(prefix + "group");
 		if (pGroup != null) {
 			this.group = pGroup;
 		} else {
 			this.group = UUID.randomUUID().toString();
 		}
-		
+
 		String sQueued = runProperties.get(prefix + "queued");
 		if (sQueued != null) {
 			this.queued = Instant.parse(sQueued);
@@ -67,8 +68,15 @@ public class RunImpl implements IRun {
 				this.queued = null;
 			}
 		}
-		
-		
+
+		String sFinished = runProperties.get(prefix + "finished");
+		if (sFinished != null) {
+			this.finished = Instant.parse(sFinished);
+		} else {
+			this.finished = null;
+		}
+
+
 		String[] split = test.split("/");
 		this.bundleName = split[0];
 		this.testName   = split[1];
@@ -78,7 +86,7 @@ public class RunImpl implements IRun {
 	public String getName() {
 		return this.name;
 	}
-	
+
 	@Override
 	public Instant getHeartbeat() {
 		return this.heartbeat;
@@ -148,5 +156,10 @@ public class RunImpl implements IRun {
 	public boolean isTrace() {
 		return this.trace;
 	}
-	
+
+	@Override
+	public Instant getFinished() {
+		return this.finished;
+	}
+
 }

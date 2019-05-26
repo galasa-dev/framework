@@ -27,7 +27,8 @@ public interface IFrameworkRuns {
 			String mavenRepository,
 			String obr,
 			String stream,
-			boolean local) throws FrameworkException;
+			boolean local,
+			boolean trace) throws FrameworkException;
 
 	boolean delete(String runname) throws DynamicStatusStoreException;
 

@@ -255,7 +255,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 				null, 
 				null, 
 				null, 
-				true);
+				true,
+				false);
 				
 		logger.info("Allocated Run Name " + run.getName() + " to this run");
 		
