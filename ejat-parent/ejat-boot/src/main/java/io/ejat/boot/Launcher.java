@@ -20,6 +20,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import io.ejat.boot.BootLogger.Level;
 import io.ejat.boot.felix.FelixFramework;
 
 /**
@@ -49,6 +50,7 @@ public class Launcher {
 	private static final String METRICS_OPTION            = "metrics";
 	private static final String HEALTH_OPTION             = "health";
 	private static final String LOCALMAVEN_OPTION         = "localmaven";
+	private static final String TRACE_OPTION              = "trace";
 
 	private static final BootLogger logger = new BootLogger();
 
@@ -180,10 +182,16 @@ public class Launcher {
 		options.addOption(null, METRICS_OPTION, true, "The port the metrics server will open, 0 to disable");
 		options.addOption(null, HEALTH_OPTION, true, "The port the health server will open, 0 to disable");
 		options.addOption(null, LOCALMAVEN_OPTION, true, "The local maven repository, defaults to ~/.m2/repository");
+		options.addOption(null, TRACE_OPTION, false, "Enable TRACE logging");
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine commandLine = null;
 		commandLine = parser.parse(options, args);
+		
+		if (commandLine.hasOption(TRACE_OPTION)) {
+			logger.setLevel(Level.TRACE);
+			System.setProperty("log4j.configuration", "trace-log4j.properties");
+		}
 
 		//*** Add any OBRs if coded
 		if (commandLine.hasOption(obrOption)) {

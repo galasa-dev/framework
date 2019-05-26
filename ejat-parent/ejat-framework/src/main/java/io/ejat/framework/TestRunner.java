@@ -83,11 +83,12 @@ public class TestRunner {
 		String stream         = AbstractManager.nulled(run.getStream());
 
 		if (stream != null) {
+			logger.debug("Loading test stream " + stream);
 			try {
 				testRepository = this.cps.getProperty("stream", "repo", stream);
 				testOBR        = this.cps.getProperty("stream", "obr", stream);
 			} catch(Exception e) {
-				logger.info("Unable to load stream " + stream + " settings",e);
+				logger.error("Unable to load stream " + stream + " settings",e);
 				updateStatus("finished", "finished");
 				return;
 			}
@@ -103,20 +104,22 @@ public class TestRunner {
 		}
 
 		if (testRepository != null) {
+			logger.debug("Loading test maven repository " + testRepository);
 			try {
 				this.mavenRepository.addRemoteRepository(new URL(testRepository));
 			} catch (MalformedURLException e) {
-				logger.info("Unable to add remote maven repository " + testRepository,e);
+				logger.error("Unable to add remote maven repository " + testRepository,e);
 				updateStatus("finished", "finished");
 				return;
 			}
 		}
 
 		if (testOBR != null) {
+			logger.debug("Loading test obr repository " + testOBR);
 			try {
 				repositoryAdmin.addRepository(testOBR);
 			} catch (Exception e) {
-				logger.info("Unable to load specified OBR " + testOBR,e);
+				logger.error("Unable to load specified OBR " + testOBR,e);
 				updateStatus("finished", "finished");
 				return;
 			}
@@ -125,7 +128,7 @@ public class TestRunner {
 		try {
 			loadBundle(testBundleName);
 		} catch(Exception e) {
-			logger.info("Unable to load the test bundle " + testBundleName,e);
+			logger.error("Unable to load the test bundle " + testBundleName,e);
 			updateStatus("finished", "finished");
 			return;
 		}
