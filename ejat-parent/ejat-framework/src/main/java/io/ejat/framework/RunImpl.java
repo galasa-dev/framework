@@ -24,6 +24,7 @@ public class RunImpl implements IRun {
 	private final String repo;
 	private final String obr;
 	private final Boolean local;
+	private final Boolean trace;
 	
 	public RunImpl(String name, IDynamicStatusStoreService dss) throws DynamicStatusStoreException {
 		this.name      = name;
@@ -47,6 +48,7 @@ public class RunImpl implements IRun {
 		repo      = runProperties.get(prefix + "repo");
 		obr       = runProperties.get(prefix + "obr");
 		local     = Boolean.parseBoolean(runProperties.get(prefix + "local"));
+		trace     = Boolean.parseBoolean(runProperties.get(prefix + "trace"));
 		
 		String pGroup = runProperties.get(prefix + "group");
 		if (pGroup != null) {
@@ -140,6 +142,11 @@ public class RunImpl implements IRun {
 	@Override
 	public String getOBR() {
 		return this.obr;
+	}
+
+	@Override
+	public boolean isTrace() {
+		return this.trace;
 	}
 	
 }

@@ -32,4 +32,6 @@ public interface IRun {
 
 	String getOBR();
 
+	boolean isTrace();
+
 }
