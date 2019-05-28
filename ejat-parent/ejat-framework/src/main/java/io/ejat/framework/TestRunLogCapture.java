@@ -70,7 +70,7 @@ public class TestRunLogCapture  implements Appender {
 				this.ras.writeLog(startupCache);
 				this.startupCache.clear();
 			} catch (ResultArchiveStoreException e) { 
-				e.printStackTrace(); //*** Do not use logger,  will cause a loop
+				e.printStackTrace(); //*** Do not use logger,  will cause a loop //NOSONAR
 				startupCache.add(message);
 				return;
 			}
@@ -79,7 +79,7 @@ public class TestRunLogCapture  implements Appender {
 		try {
 			this.ras.writeLog(message);
 		} catch (ResultArchiveStoreException e) { 
-			e.printStackTrace(); //*** Do not use logger,  will cause a loop
+			e.printStackTrace(); //*** Do not use logger,  will cause a loop //NOSONAR
 			startupCache.add(message);
 		}
 	}
