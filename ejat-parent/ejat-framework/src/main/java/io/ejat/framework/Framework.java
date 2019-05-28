@@ -65,6 +65,8 @@ public class Framework implements IFramework {
     
     private FrameworkRuns                      frameworkRuns;
     
+    private TestRunLogCapture                  testRunLogCapture;
+    
     private boolean                            initialised;
 
 	private IRun run;
@@ -82,6 +84,9 @@ public class Framework implements IFramework {
     
     @Deactivate
     public void deactivate() {
+    	if (this.testRunLogCapture != null) {
+    		this.testRunLogCapture.shutdown();
+    	}
     	logger.info("Framework service deactivated");
     }
     
@@ -326,6 +331,15 @@ public class Framework implements IFramework {
 	public Properties getRecordProperties() {
 		Properties clone = (Properties) this.recordProperties.clone();
 		return clone;
+	}
+
+	public void installLogCapture() {
+		if (this.testRunLogCapture != null) {
+			return;
+		}
+		
+		this.testRunLogCapture = new TestRunLogCapture(this);
+		
 	}
 
 }
