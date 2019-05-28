@@ -43,7 +43,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 	private static final String               USER_HOME        = "user.home";
 
 	private Framework                         framework;
-	
+
 	private final Properties                  bootstrapProperties;
 
 	private final URI                         uriConfigurationPropertyStore;
@@ -58,9 +58,17 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
 	private final Log                         logger           = LogFactory.getLog(this.getClass());
 
+
 	public FrameworkInitialisation(Properties bootstrapProperties, Properties overrideProperties)
 			throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+		this(bootstrapProperties, overrideProperties, false);
+	}
+
+
+	public FrameworkInitialisation(Properties bootstrapProperties, Properties overrideProperties, boolean testrun)
+			throws URISyntaxException, InvalidSyntaxException, FrameworkException {
 		this.bootstrapProperties = bootstrapProperties;
+		
 
 		this.logger.info("Initialising the eJAT Framework");
 
@@ -75,6 +83,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			throw new FrameworkException("The framework has already been initialised");
 		}
 		this.framework.setFrameworkProperties(overrideProperties);
+		
+		//*** If this is a test run,  then we need to install the log4j capture routine
+		if (testrun) {
+			framework.installLogCapture();
+		}
 
 		final String propUri = this.bootstrapProperties.getProperty("framework.config.store");
 		if ((propUri == null) || propUri.isEmpty()) {
@@ -106,6 +119,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
 		// *** Set up a CPS store for framework
 		this.cpsFramework = this.framework.getConfigurationPropertyService("framework");
+		
 
 		// *** Work out the dss uri
 		try {
@@ -141,21 +155,22 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		//*** Set up the DSS for the framework
 		this.dssFramework = this.framework.getDynamicStatusStoreService("framework");
 
-		//*** Is this a test run,   if it is, determined by the existence of cps property framework.run,
+		//*** Is this a test run, 
 		//*** Then we need to make sure we have a runname for the RAS.  If there isnt one, we need to allocate one
 		//*** Need the DSS for this as the latest run number number is stored in there
-		
-		String runName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "name"));
-		if (runName == null) {
-			String runBundleClass = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testbundleclass"));
-			if (runBundleClass != null) {
-				runName = createRunName(runBundleClass);
+		if (testrun) {
+			String runName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "name"));
+			if (runName == null) {
+				String runBundleClass = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testbundleclass"));
+				if (runBundleClass != null) {
+					runName = createRunName(runBundleClass);
+					framework.setTestRunName(runName);
+				}
+			} else {
 				framework.setTestRunName(runName);
 			}
-		} else {
-			framework.setTestRunName(runName);
 		}
-		
+
 		// *** Work out the ras uris
 		try {
 			final String rasProperty = this.cpsFramework.getProperty("resultarchive", "store");
@@ -231,9 +246,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		}
 		this.logger
 		.trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
-		
-		this.logger.info("Framework initialised");
+
 		this.framework.initialisationComplete();
+		this.logger.info("Framework initialised");
 	}
 
 	/**
@@ -246,7 +261,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		String split[] = runBundleClass.split("/");
 		String bundle = split[0];
 		String test   = split[1];
-		
+
 		IFrameworkRuns frameworkRuns = this.framework.getFrameworkRuns();
 		IRun run = frameworkRuns.submitRun("local", 
 				null, 
@@ -257,9 +272,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 				null, 
 				true,
 				false);
-				
+
 		logger.info("Allocated Run Name " + run.getName() + " to this run");
-		
+
 		return run.getName();
 	}
 

@@ -32,7 +32,6 @@ import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IResultArchiveStore;
-import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.IRun;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.teststructure.TestStructure;
@@ -76,7 +75,7 @@ public class TestRunner {
 		//*** Initialise the framework services
 		FrameworkInitialisation frameworkInitialisation = null;
 		try {
-			frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+			frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, true);
 			cps = frameworkInitialisation.getFramework().getConfigurationPropertyService("framework");
 			dss = frameworkInitialisation.getFramework().getDynamicStatusStoreService("framework");
 			run = frameworkInitialisation.getFramework().getTestRun();

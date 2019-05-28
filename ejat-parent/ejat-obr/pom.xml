@@ -41,6 +41,10 @@
 			<artifactId>cirillo-k8s-controller</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>ejat</groupId>
+			<artifactId>cirillo-maven-repository</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.gogo.shell</artifactId>
 		</dependency>
