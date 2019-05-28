@@ -1,5 +1,6 @@
 package io.ejat.framework.spi.teststructure;
 
+import java.time.Instant;
 import java.util.List;
 
 public class TestMethod {
@@ -11,11 +12,15 @@ public class TestMethod {
 	private List<TestMethod> afters;
 	
 	private String status;
+	private String result;
 	
 	private String exception;
 	
-	private long   runLogStart;
-	private long   runLogEnd;
+	private int runLogStart;
+	private int runLogEnd;
+
+	private Instant startTime;
+	private Instant endTime;
 
 	
 	public String getMethodName() {
@@ -58,6 +63,14 @@ public class TestMethod {
 		this.status = status;
 	}
 
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+
 	public String getException() {
 		return exception;
 	}
@@ -66,20 +79,36 @@ public class TestMethod {
 		this.exception = exception;
 	}
 
-	public long getRunLogStart() {
+	public int getRunLogStart() {
 		return runLogStart;
 	}
 
-	public void setRunLogStart(long runLogStart) {
+	public void setRunLogStart(int runLogStart) {
 		this.runLogStart = runLogStart;
 	}
 
-	public long getRunLogEnd() {
+	public int getRunLogEnd() {
 		return runLogEnd;
 	}
 
-	public void setRunLogEnd(long runLogEnd) {
+	public void setRunLogEnd(int runLogEnd) {
 		this.runLogEnd = runLogEnd;
+	}
+
+	public Instant getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Instant startTime) {
+		this.startTime = startTime;
+	}
+
+	public Instant getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Instant endTime) {
+		this.endTime = endTime;
 	}
 
 

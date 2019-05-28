@@ -1,5 +1,6 @@
 package io.ejat.framework.spi.teststructure;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -12,11 +13,15 @@ import java.util.List;
  */
 public class TestStructure {
 
+	private String runName;
 	private String bundle;
 	private String testName;
 	private String testShortName;
 	
 	private String status;
+	
+	private Instant startTime;
+	private Instant endTime;
 	
 	private List<TestMethod> methods;
 
@@ -84,4 +89,29 @@ public class TestStructure {
 		
 		return sb.toString();
 	}
+
+	public void setRunName(String runName) {
+		this.runName = runName;
+	}
+	
+	public String getRunName() {
+		return this.runName;
+	}
+	
+	public Instant getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Instant startTime) {
+		this.startTime = startTime;
+	}
+
+	public Instant getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Instant endTime) {
+		this.endTime = endTime;
+	}
+
 }

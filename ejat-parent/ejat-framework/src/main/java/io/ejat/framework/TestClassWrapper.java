@@ -42,15 +42,22 @@ public class TestClassWrapper {
 	public	static final String LOG_START_LINE = "\n" + StringUtils.repeat("-", 23) + " ";
 	public	static final String LOG_ASTERS = StringUtils.repeat("*", 100);
 
-	private TestStructure testStructure;
+	private final TestStructure testStructure;
+
+	@SuppressWarnings("unused")
+	private final TestRunner testRunner;
 
 	/**
 	 * Constructor
+	 * @param testStructure 
+	 * @param testRunner 
 	 * @param testBundleName 
 	 */
-	public TestClassWrapper(String testBundle, Class<?> testClass) {
+	public TestClassWrapper(TestRunner testRunner, String testBundle, Class<?> testClass, TestStructure testStructure) {
+		this.testRunner = testRunner;
 		this.testBundle = testBundle;
 		this.testClass  = testClass;
+		this.testStructure = testStructure;
 	}
 
 
@@ -92,7 +99,6 @@ public class TestClassWrapper {
 		
 		//*** Create the reporting Test Structure
 		
-		this.testStructure = new TestStructure();
 		this.testStructure.setBundle(testBundle);
 		this.testStructure.setTestName(testClass.getName());
 		this.testStructure.setTestShortName(testClass.getSimpleName());

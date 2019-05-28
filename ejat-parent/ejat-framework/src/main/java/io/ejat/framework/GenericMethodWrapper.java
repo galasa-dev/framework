@@ -3,6 +3,7 @@ package io.ejat.framework;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.time.Instant;
 
 import javax.validation.constraints.NotNull;
 
@@ -66,6 +67,8 @@ public class GenericMethodWrapper {
             		TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS +
                     TestClassWrapper.LOG_START_LINE + "*** Start of test method " + testClass.getName() + "#" + testMethod.getName() + methodType +
                     TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS);
+        	testStructureMethod.setStartTime(Instant.now());
+        	testStructureMethod.setStatus("started");
 
             try {
                 this.testMethod.invoke(testClassObject);
@@ -95,7 +98,7 @@ public class GenericMethodWrapper {
                         TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS);
             }
             
-            this.testStructureMethod.setStatus(this.result.getName());
+            this.testStructureMethod.setResult(this.result.getName());
             if (this.result.getThrowable() != null) {
             	Throwable t = this.getResult().getThrowable();
             	try {
@@ -107,6 +110,9 @@ public class GenericMethodWrapper {
             		this.testStructureMethod.setException("Unable to report exception because of " + e.getMessage());
             	}
             }
+            
+        	testStructureMethod.setEndTime(Instant.now());
+        	testStructureMethod.setStatus("finished");
         }
         catch(FrameworkException e) {
             throw new TestRunException("There was a problem with the framework, please check stacktrace", e);
