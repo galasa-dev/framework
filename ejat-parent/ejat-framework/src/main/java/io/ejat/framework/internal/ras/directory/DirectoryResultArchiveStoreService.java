@@ -71,10 +71,10 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
             }
         }
         
-        //*** Create GSON 
+        if (this.rasUri == null) {
+        	return;
+        }
         
-        
-
         // *** Create the base RAS directory
         this.baseDirectory = Paths.get(this.rasUri);
         try {
