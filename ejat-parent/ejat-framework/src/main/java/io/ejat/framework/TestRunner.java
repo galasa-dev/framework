@@ -27,7 +27,10 @@ import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
+import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IRun;
+import io.ejat.framework.spi.ResultArchiveStoreException;
+import io.ejat.framework.spi.teststructure.TestStructure;
 
 /**
  * Run the supplied test class
@@ -50,7 +53,10 @@ public class TestRunner {
 
 	private IConfigurationPropertyStoreService cps;
 	private IDynamicStatusStoreService dss;
+	private IResultArchiveStore        ras;
 	private IRun                       run;
+	
+	private TestStructure              testStructure = new TestStructure();
 
 	/**
 	 * Run the supplied test class
@@ -69,6 +75,7 @@ public class TestRunner {
 			cps = frameworkInitialisation.getFramework().getConfigurationPropertyService("framework");
 			dss = frameworkInitialisation.getFramework().getDynamicStatusStoreService("framework");
 			run = frameworkInitialisation.getFramework().getTestRun();
+			ras = frameworkInitialisation.getFramework().getResultArchiveStore();
 		} catch (Exception e) {
 			throw new TestRunException("Unable to initialise the Framework Services", e);
 		}
@@ -81,6 +88,10 @@ public class TestRunner {
 		String testRepository = null;
 		String testOBR        = null;
 		String stream         = AbstractManager.nulled(run.getStream());
+
+		this.testStructure.setRunName(run.getName());
+		this.testStructure.setStartTime(Instant.now());
+		writeTestStructure();
 
 		if (stream != null) {
 			logger.debug("Loading test stream " + stream);
@@ -165,7 +176,7 @@ public class TestRunner {
 		}
 
 
-		TestClassWrapper testClassWrapper = new TestClassWrapper(testBundleName, testClass);
+		TestClassWrapper testClassWrapper = new TestClassWrapper(this, testBundleName, testClass, testStructure);
 
 		testClassWrapper.parseTestClass();
 
@@ -237,6 +248,13 @@ public class TestRunner {
 		} catch (DynamicStatusStoreException e) {
 			throw new TestRunException("Failed to update status", e);
 		}
+		
+		this.testStructure.setStatus(status);
+		if ("finished".equals(status)) {
+			this.testStructure.setEndTime(Instant.now());
+		}
+		
+		writeTestStructure();
 	}
 
 	private void stopHeartbeat() {
@@ -251,6 +269,15 @@ public class TestRunner {
 		} catch (DynamicStatusStoreException e) {
 			logger.error("Unable to delete heartbeat",e);
 		}
+	}
+	
+	private void writeTestStructure() {
+		try {
+			this.ras.updateTestStructure(testStructure);
+		} catch (ResultArchiveStoreException e) {
+			logger.warn("Unable to write the test structure to the RAS",e);
+		}
+		
 	}
 
 

@@ -21,6 +21,7 @@ import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.teststructure.TestStructure;
+import io.ejat.framework.spi.utils.CirilloGsonBuilder;
 
 /**
  * A RAS Service for storing the result archive store
@@ -41,7 +42,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     private Path                           testStructureFile;
     private Path                           runLog;
 
-    private final Gson                     gson = new Gson();
+    private final Gson                     gson = CirilloGsonBuilder.build();
 
     private DirectoryRASFileSystemProvider provider;
 
@@ -69,6 +70,10 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
                 this.rasUri = uri;
             }
         }
+        
+        //*** Create GSON 
+        
+        
 
         // *** Create the base RAS directory
         this.baseDirectory = Paths.get(this.rasUri);
