@@ -198,6 +198,10 @@ public class FileCredentialsRegistrationTest {
 		@Override
 		public void initialisationComplete() {
 		}
-        
+		@Override
+		public Properties getRecordProperties() {
+			return null;
+		}
+      
     } 
 }

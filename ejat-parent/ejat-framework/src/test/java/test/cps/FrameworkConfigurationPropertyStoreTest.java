@@ -254,6 +254,11 @@ FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testPro
 		@Override
 		public void initialisationComplete() {
 		}
+
+		@Override
+		public Properties getRecordProperties() {
+			return null;
+		}
        
     } 
 

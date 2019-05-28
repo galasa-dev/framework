@@ -321,5 +321,11 @@ public class Framework implements IFramework {
 		
 		return this.frameworkRuns;
 	}
+	
+	@Override
+	public Properties getRecordProperties() {
+		Properties clone = (Properties) this.recordProperties.clone();
+		return clone;
+	}
 
 }

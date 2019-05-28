@@ -238,6 +238,10 @@ import io.ejat.framework.spi.creds.ICredentialsService;
 		public void initialisationComplete() {
 		}
 
+		@Override
+		public Properties getRecordProperties() {
+			return null;
+		}
     } 
 
  }

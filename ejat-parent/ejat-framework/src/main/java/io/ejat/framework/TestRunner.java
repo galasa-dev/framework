@@ -1,7 +1,10 @@
 package io.ejat.framework;
 
+import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Properties;
 
@@ -21,6 +24,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import dev.cirillo.maven.repository.IMavenRepository;
+import io.ejat.ResultArchiveStoreContentType;
 import io.ejat.framework.spi.AbstractManager;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
@@ -28,6 +32,7 @@ import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IResultArchiveStore;
+import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.IRun;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.teststructure.TestStructure;
@@ -55,7 +60,7 @@ public class TestRunner {
 	private IDynamicStatusStoreService dss;
 	private IResultArchiveStore        ras;
 	private IRun                       run;
-	
+
 	private TestStructure              testStructure = new TestStructure();
 
 	/**
@@ -223,6 +228,20 @@ public class TestRunner {
 		stopHeartbeat();
 		updateStatus("finished", "finished");
 
+		//*** Record all the CPS properties that were accessed
+		try {
+			Properties record = frameworkInitialisation.getFramework().getRecordProperties();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			record.store(baos, "CPS Record");
+			IResultArchiveStore ras = frameworkInitialisation.getFramework().getResultArchiveStore();
+			Path rasRoot = ras.getStoredArtifactsRoot();
+			Path rasProperties = rasRoot.resolve("framework").resolve("cps_record.properties");
+			Files.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
+			Files.write(rasProperties, baos.toByteArray());
+		} catch(Exception e) {
+			logger.error("Failed to save the recorded properties",e);
+		}
+
 		//*** If this was a local run, then we will want to remove the run properties from the DSS immediately
 		//*** for automation, we will let the core manager clean up after a while
 		//*** Local runs will have access to the run details via a view,
@@ -248,12 +267,12 @@ public class TestRunner {
 		} catch (DynamicStatusStoreException e) {
 			throw new TestRunException("Failed to update status", e);
 		}
-		
+
 		this.testStructure.setStatus(status);
 		if ("finished".equals(status)) {
 			this.testStructure.setEndTime(Instant.now());
 		}
-		
+
 		writeTestStructure();
 	}
 
@@ -263,21 +282,21 @@ public class TestRunner {
 			heartbeat.join(2000);
 		} catch(Exception e) {
 		}
-		
+
 		try {
 			dss.delete("run." + run.getName() + ".heartbeat");
 		} catch (DynamicStatusStoreException e) {
 			logger.error("Unable to delete heartbeat",e);
 		}
 	}
-	
+
 	private void writeTestStructure() {
 		try {
 			this.ras.updateTestStructure(testStructure);
 		} catch (ResultArchiveStoreException e) {
 			logger.warn("Unable to write the test structure to the RAS",e);
 		}
-		
+
 	}
 
 

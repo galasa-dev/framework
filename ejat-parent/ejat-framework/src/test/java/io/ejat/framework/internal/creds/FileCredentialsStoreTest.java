@@ -224,6 +224,10 @@ public class FileCredentialsStoreTest {
 		public IRun getTestRun() {
 			return null;
 		}
+		@Override
+		public Properties getRecordProperties() {
+			return null;
+		}
 
 	} 
 
