@@ -164,6 +164,11 @@ public class FrameworkCredentialsTest {
 			return null;
 		}
 
+		@Override
+		public Properties getRecordProperties() {
+			return null;
+		}
+
 	} 
 
 }

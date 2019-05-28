@@ -107,4 +107,6 @@ public interface IFramework {
 	
 	IFrameworkRuns getFrameworkRuns() throws FrameworkException;
 	IRun getTestRun();
+	
+	Properties getRecordProperties();
 }
