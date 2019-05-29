@@ -68,6 +68,14 @@ public class RunPoll implements Runnable {
 		logger.info("Looking for new runs");
 
 		try {
+			//*** No we are not, get all the queued runs
+			List<IRun> queuedRuns = this.runs.getQueuedRuns();
+			//TODO filter by capability
+			if (queuedRuns.isEmpty()) {
+				logger.info("There are no queued runs");
+				return;
+			}
+
 			while(true) {
 				//*** Check we are not at max engines 
 				List<V1Pod> pods = getPods(this.api, this.settings);
@@ -80,13 +88,6 @@ public class RunPoll implements Runnable {
 					return;
 				}
 
-				//*** No we are not, get all the queued runs
-				List<IRun> queuedRuns = this.runs.getQueuedRuns();
-				//TODO filter by capability
-				if (queuedRuns.isEmpty()) {
-					logger.info("There are no queued runs");
-					return;
-				}
 				//			List<IRun> activeRuns = this.runs.getActiveRuns();
 
 				//  TODO Create the group algorithim same as the ejat scheduler
