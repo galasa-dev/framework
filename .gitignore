@@ -12,5 +12,8 @@ Snap.*
 .DS_Store
 /*/build.properties
 !/*eclipse*/build.properties
+/*/MANIFEST.MF
+!/*eclipse*/MANIFEST.MF
 bin/
 lib/
+dependency-reduced-pom.xml

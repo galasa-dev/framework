@@ -9,7 +9,7 @@ import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
 import io.ejat.framework.spi.ResultArchiveStoreException;
-import io.ejat.framework.spi.teststructure.ITestStructure;
+import io.ejat.framework.spi.teststructure.TestStructure;
 
 /**
  * Stub for the Result Archive Store. It is intended that this code will be able
@@ -53,7 +53,7 @@ public class FrameworkResultArchiveStore implements IResultArchiveStore {
      * framework.spi.teststructure.ITestStructure)
      */
     @Override
-    public void updateTestStructure(@NotNull ITestStructure testStructure) throws ResultArchiveStoreException {
+    public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
         this.rasService.updateTestStructure(testStructure);
     }
 

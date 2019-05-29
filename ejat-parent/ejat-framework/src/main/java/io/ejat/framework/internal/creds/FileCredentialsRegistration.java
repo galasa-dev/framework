@@ -1,32 +1,37 @@
 package io.ejat.framework.internal.creds;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.validation.constraints.NotNull;
 
 import org.osgi.service.component.annotations.Component;
 
-import io.ejat.framework.spi.creds.ICredentialsRegistration;
-import io.ejat.framework.spi.FrameworkPropertyFile;
 import io.ejat.framework.spi.IFrameworkInitialisation;
-import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.spi.FrameworkPropertyFileException;
-import io.ejat.framework.spi.creds.CredentialsStoreException;
-import io.ejat.framework.internal.creds.FileCredentialsStore;
+import io.ejat.framework.spi.creds.CredentialsException;
+import io.ejat.framework.spi.creds.ICredentialsStoreRegistration;
 
-public class FileCredentialsRegistration implements ICredentialsRegistration {
-    private FrameworkPropertyFile fpf;
+/**
 
+ * 
+ * @author Bruce Abbott
+ */
+@Component(service= {ICredentialsStoreRegistration.class})
+public class FileCredentialsRegistration implements ICredentialsStoreRegistration {
+
+    /**
+	 * <p>This method registers this as the only Creds file.</p>
+	 * 
+	 * @param IFrameworkInitialisation
+	 * @throws CredentialsStoreException
+	 */
     @Override
-    public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws CredentialsStoreException {
+    public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws CredentialsException {
         try {
-            //Not sure what the URI should be
-            URI creds = new URI("framework");
-            fpf = new FrameworkPropertyFile(creds);
-            frameworkInitialisation.registerCredentialsStore(new FileCredentialsStore(creds, frameworkInitialisation.getFramework()));
+            URI creds = frameworkInitialisation.getCredentialsStoreUri();
+            FileCredentialsStore fcs = new FileCredentialsStore(creds, frameworkInitialisation.getFramework());
+            frameworkInitialisation.registerCredentialsStore(fcs);
         } catch (Exception e ) {
-            throw new CredentialsStoreException("Could not initialise Framework Property File", e);
+            throw new CredentialsException("Could not initialise Framework Property File CREDs", e);
         }
     }
 

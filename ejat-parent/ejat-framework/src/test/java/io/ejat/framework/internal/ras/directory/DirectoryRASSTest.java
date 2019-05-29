@@ -25,7 +25,7 @@ import io.ejat.ResultArchiveStoreFileAttributeView;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.ResultArchiveStoreException;
-import io.ejat.framework.spi.teststructure.ITestStructure;
+import io.ejat.framework.spi.teststructure.TestStructure;
 
 /**
  * Test the Directory based Result Archive Store
@@ -95,7 +95,7 @@ public class DirectoryRASSTest {
         drass.initialise(this.frameworkInit);
 
         final TestStructure writeStructure = new TestStructure();
-        writeStructure.testData = "hello everyone";
+        writeStructure.setTestName("hello everyone");
 
         final Path pathStructure = this.rasDirectory.resolve(runname).resolve("structure.json");
         Assert.assertFalse("test structure file should not exist before write", Files.exists(pathStructure));
@@ -109,7 +109,7 @@ public class DirectoryRASSTest {
         final Gson gson = new Gson();
         final TestStructure readStructure = gson.fromJson(json, TestStructure.class);
 
-        Assert.assertEquals("Test structure data different", writeStructure.testData, readStructure.testData);
+        Assert.assertEquals("Test structure data different", writeStructure.getTestName(), readStructure.getTestName());
     }
 
     @Test
@@ -133,10 +133,6 @@ public class DirectoryRASSTest {
         Assert.assertEquals("message 1 wrong", message2, readMessages.get(1));
         Assert.assertEquals("message 1 wrong", messages.get(0), readMessages.get(2) + "\n");
         Assert.assertEquals("message 1 wrong", messages.get(1), readMessages.get(3));
-    }
-
-    private static class TestStructure implements ITestStructure {
-        public String testData;
     }
 
 }
