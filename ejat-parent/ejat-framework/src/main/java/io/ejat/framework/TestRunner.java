@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -294,7 +293,7 @@ public class TestRunner {
 		
 		try {
 			String sInitialDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "delay"));
-			String sRandomDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "random"));
+			String sRandomDelay = AbstractManager.nulled(this.cps.getProperty("waiting.random", "delay"));
 			
 			if (sInitialDelay != null) {
 				initialDelay = Integer.parseInt(sInitialDelay);
