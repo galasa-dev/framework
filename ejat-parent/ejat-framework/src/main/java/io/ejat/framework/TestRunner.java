@@ -6,6 +6,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.HashMap;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -199,9 +202,25 @@ public class TestRunner {
 		try {
 			updateStatus("generating", null);
 			managers.provisionGenerate();
-		} catch(Exception e) {
-			stopHeartbeat();
-			this.ras.shutdown();
+		} catch(Exception e) {  // TODO we need an exception is specific for resource exhaustion, diferrentiate between env fail
+			logger.info("Provision Generate failed", e);
+			stopHeartbeat(); //*** Stop the heartbeat immediately
+			
+			managers.provisionDiscard(); //*** Get rid of what we managed to get
+			
+			if (!run.isLocal()) {
+				markWaiting(frameworkInitialisation.getFramework());
+				logger.info("Placing queue on the waiting list");
+				this.ras.shutdown();
+				return;
+			}
+			try {
+				deleteRunProperties(frameworkInitialisation.getFramework());
+			} catch (FrameworkException e1) {
+				//*** Any error, report it and leave for the core manager to clean up
+				logger.error("Error cleaning up local test run properties", e);
+			}
+			this.ras.shutdown();			
 			throw new TestRunException("Unable to provision generate", e);
 		}
 
@@ -267,6 +286,40 @@ public class TestRunner {
 
 		this.ras.shutdown();
 		return;
+	}
+
+	private void markWaiting(@NotNull IFramework framework) throws TestRunException {
+		int initialDelay = 600;
+		int randomDelay = 180;
+		
+		try {
+			String sInitialDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "delay"));
+			String sRandomDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "random"));
+			
+			if (sInitialDelay != null) {
+				initialDelay = Integer.parseInt(sInitialDelay);
+			}
+			if (sRandomDelay != null) {
+				randomDelay = Integer.parseInt(sRandomDelay);
+			}
+		} catch(Exception e) {
+			logger.error("Problem reading delay properties",e);
+		}
+		
+		int totalDelay = initialDelay + framework.getRandom().nextInt(randomDelay);
+		logger.info("Placing this run on waiting for " + totalDelay + " seconds");
+		
+		Instant until = Instant.now();
+		until = until.plus(totalDelay, ChronoUnit.SECONDS);
+		
+		HashMap<String, String> properties = new HashMap<>();
+		properties.put("run." + run.getName() + ".status", "waiting");
+		properties.put("run." + run.getName() + ".wait.until", until.toString());
+		try {
+			this.dss.put(properties);
+		} catch (DynamicStatusStoreException e) {
+			throw new TestRunException("Unable to place run in waiting state", e);
+		}
 	}
 
 	private void updateStatus(String status, String timestamp) throws TestRunException {

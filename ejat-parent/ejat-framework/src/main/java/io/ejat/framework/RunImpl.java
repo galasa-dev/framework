@@ -20,6 +20,7 @@ public class RunImpl implements IRun {
 	private final String status;
 	private final Instant queued;
 	private final Instant finished;
+	private final Instant waitUntil;
 	private final String requestor;
 	private final String stream;
 	private final String repo;
@@ -74,6 +75,13 @@ public class RunImpl implements IRun {
 			this.finished = Instant.parse(sFinished);
 		} else {
 			this.finished = null;
+		}
+		
+		String sWaitUntil = runProperties.get(prefix + "wait.until");
+		if (sWaitUntil != null) {
+			this.waitUntil = Instant.parse(sWaitUntil);
+		} else {
+			this.waitUntil = null;
 		}
 
 		if (test != null) {
@@ -164,6 +172,11 @@ public class RunImpl implements IRun {
 	@Override
 	public Instant getFinished() {
 		return this.finished;
+	}
+
+	@Override
+	public Instant getWaitUntil() {
+		return this.waitUntil;
 	}
 
 }

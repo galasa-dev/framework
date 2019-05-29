@@ -36,4 +36,6 @@ public interface IRun {
 
 	Instant getFinished();
 
+	Instant getWaitUntil();
+
 }
