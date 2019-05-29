@@ -19,8 +19,7 @@
 		<module>ejat-boot</module>
 		<module>cirillo-maven-repository</module>
 		<module>cirillo-k8s-controller</module>	
-		<module>ejat-eclipse</module>	
-		<module>ejat-eclipse-tests</module>
+		<module>ejat-eclipse</module>
 	</modules>
 	
 	<repositories>
