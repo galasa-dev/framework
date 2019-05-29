@@ -76,10 +76,14 @@ public class RunImpl implements IRun {
 			this.finished = null;
 		}
 
-
-		String[] split = test.split("/");
-		this.bundleName = split[0];
-		this.testName   = split[1];
+		if (test != null) {
+			String[] split = test.split("/");
+			this.bundleName = split[0];
+			this.testName   = split[1];
+		} else {
+			this.bundleName = null;
+			this.testName   = null;
+		}
 	}
 
 	@Override

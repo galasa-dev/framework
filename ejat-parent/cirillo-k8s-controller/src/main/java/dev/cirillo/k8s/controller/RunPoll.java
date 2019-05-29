@@ -45,7 +45,7 @@ public class RunPoll implements Runnable {
 	private final IDynamicStatusStoreService dss;
 	private final IFrameworkRuns runs;
 	private final QueuedComparator queuedComparator = new QueuedComparator();
-	
+
 	private Counter    submittedRuns;
 
 	public RunPoll(IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
@@ -53,7 +53,7 @@ public class RunPoll implements Runnable {
 		this.api       = api;
 		this.runs      = runs;
 		this.dss       = dss;
-		
+
 		//*** Create metrics
 
 		this.submittedRuns = Counter.build()
@@ -68,45 +68,53 @@ public class RunPoll implements Runnable {
 		logger.info("Looking for new runs");
 
 		try {
-			//*** Check we are not at max engines 
-			List<V1Pod> pods = getPods(this.api, this.settings);
-			filterActiveRuns(pods);
-			logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
+			while(true) {
+				//*** Check we are not at max engines 
+				List<V1Pod> pods = getPods(this.api, this.settings);
+				filterActiveRuns(pods);
+				logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
 
-			int currentActive = pods.size();
-			if (currentActive >= settings.getMaxEngines()) {
-				logger.info("Not looking for runs, currently at maximim engines (" + settings.getMaxEngines() + ")");
-				return;
-			}
-			
-			//*** No we are not, get all the queued runs
-			List<IRun> queuedRuns = this.runs.getQueuedRuns();
-			//TODO filter by capability
-			if (queuedRuns.isEmpty()) {
-				logger.info("There are no queued runs");
-				return;
-			}
-//			List<IRun> activeRuns = this.runs.getActiveRuns();
-			
-			//  TODO Create the group algorithim same as the ejat scheduler
-			
-			//*** Build pool lists
-//			HashMap<String, Pool> queuePools = getPools(queuedRuns);
-//			HashMap<String, Pool> activePools = getPools(activeRuns);
+				int currentActive = pods.size();
+				if (currentActive >= settings.getMaxEngines()) {
+					logger.info("Not looking for runs, currently at maximim engines (" + settings.getMaxEngines() + ")");
+					return;
+				}
 
-			//*** cheat for the moment
-			Collections.sort(queuedRuns, queuedComparator);
-			
-			IRun selectedRun = queuedRuns.remove(0);
-			
-			startPod(selectedRun);
+				//*** No we are not, get all the queued runs
+				List<IRun> queuedRuns = this.runs.getQueuedRuns();
+				//TODO filter by capability
+				if (queuedRuns.isEmpty()) {
+					logger.info("There are no queued runs");
+					return;
+				}
+				//			List<IRun> activeRuns = this.runs.getActiveRuns();
+
+				//  TODO Create the group algorithim same as the ejat scheduler
+
+				//*** Build pool lists
+				//			HashMap<String, Pool> queuePools = getPools(queuedRuns);
+				//			HashMap<String, Pool> activePools = getPools(activeRuns);
+
+				//*** cheat for the moment
+				Collections.sort(queuedRuns, queuedComparator);
+
+				IRun selectedRun = queuedRuns.remove(0);
+
+				startPod(selectedRun);
+				
+				if (!queuedRuns.isEmpty()) {
+					Thread.sleep(1000);  //*** Slight delay to allow Kubernetes to catch up
+				} else {
+					return;
+				}
+			}
 		} catch(Exception e) {
 			logger.error("Unable to poll for new runs",e);
 		}
 
 		return;
 	}
-	
+
 	private void startPod(IRun run) {
 		String runName = run.getName();
 		String engineName = this.settings.getEngineLabel() + "-" + runName.toLowerCase();
@@ -160,7 +168,7 @@ public class RunPoll implements Runnable {
 
 					V1NodeSelectorTerm selectorTerm = new V1NodeSelectorTerm();
 					preferred.setPreference(selectorTerm);
-					
+
 					V1NodeSelectorRequirement requirement = new V1NodeSelectorRequirement();
 					selectorTerm.addMatchExpressionsItem(requirement);
 					requirement.setKey(selection[0]);
@@ -173,11 +181,11 @@ public class RunPoll implements Runnable {
 			podSpec.addContainersItem(container);
 			container.setName("engine");
 			container.setImage(this.settings.getEngineImage());
-			
+
 			ArrayList<String> commands = new ArrayList<>();
 			container.setCommand(commands);
 			commands.add("java");
-			
+
 			ArrayList<String> args = new ArrayList<>();
 			container.setArgs(args);
 			args.add("-jar");
@@ -191,43 +199,43 @@ public class RunPoll implements Runnable {
 			if (run.isTrace()) {
 				args.add("--trace");
 			}
-			
+
 
 			V1ResourceRequirements resources = new V1ResourceRequirements();
 			container.setResources(resources);
 
 			// TODO reinstate
-//			System.out.println("requests=" + Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi");
-//			System.out.println("limit=" + Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi");
-//			resources.putRequestsItem("memory", new Quantity(Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi"));
-//			resources.putLimitsItem("memory", new Quantity(Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi"));
+			//			System.out.println("requests=" + Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi");
+			//			System.out.println("limit=" + Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi");
+			//			resources.putRequestsItem("memory", new Quantity(Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi"));
+			//			resources.putLimitsItem("memory", new Quantity(Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi"));
 
 			ArrayList<V1EnvVar> envs = new ArrayList<>();
 			container.setEnv(envs);
-//			envs.add(createConfigMapEnv("EJAT_URL", configMapName, "ejat_url"));
-//			envs.add(createConfigMapEnv("EJAT_INFRA_OBR", configMapName, "ejat_maven_infra_obr"));
-//			envs.add(createConfigMapEnv("EJAT_INFRA_REPO", configMapName, "ejat_maven_infra_repo"));
-//			envs.add(createConfigMapEnv("EJAT_TEST_REPO", configMapName, "ejat_maven_test_repo"));
-//			envs.add(createConfigMapEnv("EJAT_HELPER_REPO", configMapName, "ejat_maven_helper_repo"));
-//
-//			envs.add(createValueEnv("EJAT_ENGINE_TYPE", engineLabel));
+			//			envs.add(createConfigMapEnv("EJAT_URL", configMapName, "ejat_url"));
+			//			envs.add(createConfigMapEnv("EJAT_INFRA_OBR", configMapName, "ejat_maven_infra_obr"));
+			//			envs.add(createConfigMapEnv("EJAT_INFRA_REPO", configMapName, "ejat_maven_infra_repo"));
+			//			envs.add(createConfigMapEnv("EJAT_TEST_REPO", configMapName, "ejat_maven_test_repo"));
+			//			envs.add(createConfigMapEnv("EJAT_HELPER_REPO", configMapName, "ejat_maven_helper_repo"));
+			//
+			//			envs.add(createValueEnv("EJAT_ENGINE_TYPE", engineLabel));
 			envs.add(createValueEnv("MAX_HEAP", Integer.toString(this.settings.getEngineMemory()) + "m"));
-//
-//			envs.add(createSecretEnv("EJAT_SERVER_USER", "ejat-secret", "ejat-server-username"));
-//			envs.add(createSecretEnv("EJAT_SERVER_PASSWORD", "ejat-secret", "ejat-server-password"));
-//			envs.add(createSecretEnv("EJAT_MAVEN_USER", "ejat-secret", "ejat-maven-username"));
-//			envs.add(createSecretEnv("EJAT_MAVEN_PASSWORD", "ejat-secret", "ejat-maven-password"));
-//
-//			envs.add(createValueEnv("EJAT_RUN_ID", runUUID.toString()));
-//			envs.add(createFieldEnv("EJAT_ENGINE_ID", "metadata.name"));
-//			envs.add(createFieldEnv("EJAT_K8S_NODE", "spec.nodeName"));
+			//
+			//			envs.add(createSecretEnv("EJAT_SERVER_USER", "ejat-secret", "ejat-server-username"));
+			//			envs.add(createSecretEnv("EJAT_SERVER_PASSWORD", "ejat-secret", "ejat-server-password"));
+			//			envs.add(createSecretEnv("EJAT_MAVEN_USER", "ejat-secret", "ejat-maven-username"));
+			//			envs.add(createSecretEnv("EJAT_MAVEN_PASSWORD", "ejat-secret", "ejat-maven-password"));
+			//
+			//			envs.add(createValueEnv("EJAT_RUN_ID", runUUID.toString()));
+			//			envs.add(createFieldEnv("EJAT_ENGINE_ID", "metadata.name"));
+			//			envs.add(createFieldEnv("EJAT_K8S_NODE", "spec.nodeName"));
 
 
 			boolean successful = false;
 			int retry = 0;
 			while(!successful) {
 				try {
-//					System.out.println(newPod.toString());
+					//					System.out.println(newPod.toString());
 					api.createNamespacedPod(namespace, newPod, "true");
 
 					logger.info("Engine Pod " + newPod.getMetadata().getName() + " started");
@@ -261,7 +269,7 @@ public class RunPoll implements Runnable {
 
 	private HashMap<String, Pool> getPools(@NotNull List<IRun> runs) {
 		HashMap<String, Pool> pools = new HashMap<>();
-		
+
 		for(IRun run : runs) {
 			String poolid = getPoolId(run);
 			Pool pool = pools.get(poolid);
@@ -270,10 +278,10 @@ public class RunPoll implements Runnable {
 			}
 			pool.runs.add(run);
 		}
-		
+
 		return pools;
 	}
-	
+
 	private String getPoolId(IRun run) {
 		if (settings.getRequestorsByGroup().contains(run.getRequestor())) {
 			return run.getRequestor() + "/" + run.getGroup(); 
@@ -298,13 +306,13 @@ public class RunPoll implements Runnable {
 
 		return pods;
 	}
-	
+
 	public static void filterActiveRuns(@NotNull List<V1Pod> pods) {
 		Iterator<V1Pod> iPod = pods.iterator();
 		while(iPod.hasNext()) {
 			V1Pod pod = iPod.next();
 			V1PodStatus status = pod.getStatus();
-			
+
 			if (status != null) {
 				String phase = status.getPhase();
 				if ("failed".equalsIgnoreCase(phase)) {
@@ -315,14 +323,14 @@ public class RunPoll implements Runnable {
 			}
 		}
 	}
-	
-	
+
+
 	public static void filterTerminated(@NotNull List<V1Pod> pods) {
 		Iterator<V1Pod> iPod = pods.iterator();
 		while(iPod.hasNext()) {
 			V1Pod pod = iPod.next();
 			V1PodStatus status = pod.getStatus();
-			
+
 			if (status != null) {
 				String phase = status.getPhase();
 				if ("failed".equalsIgnoreCase(phase)) {
@@ -334,8 +342,8 @@ public class RunPoll implements Runnable {
 			iPod.remove();
 		}
 	}
-	
-	
+
+
 	private static class Pool implements Comparable<Pool> {
 		private String id;
 		private ArrayList<IRun> runs = new ArrayList<>();
@@ -350,18 +358,18 @@ public class RunPoll implements Runnable {
 		}	
 
 	}
-	
-	
+
+
 	private static class QueuedComparator implements Comparator<IRun> {
 
 		@Override
 		public int compare(IRun o1, IRun o2) {
 			return o1.getQueued().compareTo(o2.getQueued());
 		}
-		
+
 	}
-	
-	
+
+
 	private V1EnvVar createValueEnv(String name, String value) {
 		V1EnvVar env = new V1EnvVar();
 		env.setName(name);
