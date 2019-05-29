@@ -64,7 +64,7 @@ public class RunPoll implements Runnable {
 	}
 
 	@Override
-	public synchronized void run() {
+	public void run() {
 		logger.info("Looking for new runs");
 
 		try {
