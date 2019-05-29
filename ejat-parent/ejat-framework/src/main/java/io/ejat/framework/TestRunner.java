@@ -105,6 +105,7 @@ public class TestRunner {
 			} catch(Exception e) {
 				logger.error("Unable to load stream " + stream + " settings",e);
 				updateStatus("finished", "finished");
+				this.ras.shutdown();
 				return;
 			}
 		}
@@ -125,6 +126,7 @@ public class TestRunner {
 			} catch (MalformedURLException e) {
 				logger.error("Unable to add remote maven repository " + testRepository,e);
 				updateStatus("finished", "finished");
+				this.ras.shutdown();
 				return;
 			}
 		}
@@ -136,6 +138,7 @@ public class TestRunner {
 			} catch (Exception e) {
 				logger.error("Unable to load specified OBR " + testOBR,e);
 				updateStatus("finished", "finished");
+				this.ras.shutdown();
 				return;
 			}
 		}
@@ -145,6 +148,7 @@ public class TestRunner {
 		} catch(Exception e) {
 			logger.error("Unable to load the test bundle " + testBundleName,e);
 			updateStatus("finished", "finished");
+			this.ras.shutdown();
 			return;
 		}
 
@@ -152,6 +156,7 @@ public class TestRunner {
 			heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
 			heartbeat.start();
 		} catch (DynamicStatusStoreException e1) {
+			this.ras.shutdown();
 			throw new TestRunException("Unable to initialise the heartbeat");
 		}
 
@@ -166,6 +171,7 @@ public class TestRunner {
 			managers = new TestRunManagers(frameworkInitialisation.getFramework(), testClass);
 		} catch (FrameworkException e) {
 			stopHeartbeat();
+			this.ras.shutdown();
 			throw new TestRunException("Problem initialising the Managers for a test run", e);
 		}
 
@@ -173,6 +179,7 @@ public class TestRunner {
 			if (managers.anyReasonTestClassShouldBeIgnored()) {
 				stopHeartbeat();
 				updateStatus("finished", "finished");
+				this.ras.shutdown();
 				return; //TODO handle ignored classes
 			}
 		} catch (FrameworkException e) {
@@ -193,6 +200,7 @@ public class TestRunner {
 			managers.provisionGenerate();
 		} catch(Exception e) {
 			stopHeartbeat();
+			this.ras.shutdown();
 			throw new TestRunException("Unable to provision generate", e);
 		}
 
@@ -202,6 +210,7 @@ public class TestRunner {
 		} catch(Exception e) {
 			managers.provisionDiscard();
 			stopHeartbeat();
+			this.ras.shutdown();
 			throw new TestRunException("Unable to provision build", e);
 		}
 
@@ -212,6 +221,7 @@ public class TestRunner {
 			managers.provisionStop();
 			managers.provisionDiscard();
 			stopHeartbeat();
+			this.ras.shutdown();
 			throw new TestRunException("Unable to provision start", e);
 		}
 
@@ -240,7 +250,7 @@ public class TestRunner {
 		} catch(Exception e) {
 			logger.error("Failed to save the recorded properties",e);
 		}
-
+		
 		//*** If this was a local run, then we will want to remove the run properties from the DSS immediately
 		//*** for automation, we will let the core manager clean up after a while
 		//*** Local runs will have access to the run details via a view,
@@ -254,6 +264,7 @@ public class TestRunner {
 			logger.error("Error cleaning up local test run properties", e);
 		}
 
+		this.ras.shutdown();
 		return;
 	}
 

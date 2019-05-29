@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
+import io.ejat.framework.spi.IResultArchiveStore;
 
 public class TestRunHeartbeat extends Thread {
 	
@@ -17,6 +18,7 @@ public class TestRunHeartbeat extends Thread {
 	
 	private final IFramework framework;
 	private final IDynamicStatusStoreService dss;
+	private final IResultArchiveStore        ras;
 	private final String key;
 	
 	private String lastHeartbeat = null;
@@ -26,6 +28,7 @@ public class TestRunHeartbeat extends Thread {
 	protected TestRunHeartbeat(@NotNull IFramework framework) throws DynamicStatusStoreException {
 		this.framework = framework;
 		this.dss       = this.framework.getDynamicStatusStoreService("framework");
+		this.ras       = this.framework.getResultArchiveStore();
 		this.key       = "run." + framework.getTestRunName() + ".heartbeat";
 		
 		//*** Set the initial
@@ -47,6 +50,8 @@ public class TestRunHeartbeat extends Thread {
 		}
 		
 		this.lastHeartbeat = newHeartbeat;
+		
+		this.ras.flush();
 	}
 	
 	public void shutdown() {

@@ -219,4 +219,12 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         return this.provider.getActualFileSystem().getPath("/");
     }
 
+	@Override
+	public void flush() {
+	}
+
+	@Override
+	public void shutdown() {
+	}
+
 }
