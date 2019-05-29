@@ -17,19 +17,12 @@
 		<module>ejat-bom</module>
 		<module>ejat-obr</module>
 		<module>ejat-boot</module>
+		<module>cirillo-maven-repository-spi</module>
 		<module>cirillo-maven-repository</module>
-		<module>cirillo-k8s-controller</module>	
-		<module>ejat-eclipse</module>
+		<module>cirillo-k8s-controller</module>
+		<module>cirillo-resource-management</module>
 	</modules>
-	
-	<repositories>
-		<repository>
-			<id>neon</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/neon</url>
-		</repository>
-	</repositories>
-	
+
 	<distributionManagement>
 		<repository>
 			<id>ejat.repo</id>
@@ -117,20 +110,20 @@
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-    			<groupId>org.apache.maven</groupId>
-    			<artifactId>maven-core</artifactId>
-    			<version>3.6.1</version>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-core</artifactId>
+				<version>3.6.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.m2e</groupId>
-    			<artifactId>core</artifactId>
-    			<version>1.4.0</version>
+				<artifactId>core</artifactId>
+				<version>1.4.0</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.sonatype.plexus</groupId>
-			    <artifactId>plexus-build-api</artifactId>
-			    <version>0.0.7</version>
-		    </dependency>			
+				<groupId>org.sonatype.plexus</groupId>
+				<artifactId>plexus-build-api</artifactId>
+				<version>0.0.7</version>
+			</dependency>
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
@@ -252,7 +245,7 @@
 			<artifactId>awaitility</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>

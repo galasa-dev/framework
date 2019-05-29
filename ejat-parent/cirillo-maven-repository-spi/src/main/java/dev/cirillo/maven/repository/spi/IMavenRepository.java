@@ -1,4 +1,4 @@
-package dev.cirillo.maven.repository;
+package dev.cirillo.maven.repository.spi;
 
 import java.net.URL;
 import java.util.List;

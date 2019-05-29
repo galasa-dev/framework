@@ -1,4 +1,4 @@
-package io.ejat.framework;
+package dev.cirillo.framework.resource.management.internal;
 
 import java.util.UUID;
 import java.util.regex.Matcher;

@@ -22,8 +22,9 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import dev.cirillo.maven.repository.IMavenRepository;
+import dev.cirillo.maven.repository.spi.IMavenRepository;
 import io.ejat.ResultArchiveStoreContentType;
 import io.ejat.framework.spi.AbstractManager;
 import io.ejat.framework.spi.DynamicStatusStoreException;
@@ -50,7 +51,7 @@ public class TestRunner {
 	@Reference
 	private RepositoryAdmin repositoryAdmin;
 
-	@Reference
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL)
 	private IMavenRepository mavenRepository;
 
 	private TestRunHeartbeat heartbeat;

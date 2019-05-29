@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
 
-import dev.cirillo.maven.repository.IMavenRepository;
+import dev.cirillo.maven.repository.spi.IMavenRepository;
 
 @Component	
 public class CirilloMavenRepository implements IMavenRepository {

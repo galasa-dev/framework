@@ -1,4 +1,4 @@
-package io.ejat.framework;
+package dev.cirillo.framework.resource.management.internal;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -18,6 +18,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
+import io.ejat.framework.FrameworkInitialisation;
+import io.ejat.framework.TestRunException;
 import io.ejat.framework.spi.AbstractManager;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
