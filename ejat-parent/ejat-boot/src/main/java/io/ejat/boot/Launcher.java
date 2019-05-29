@@ -340,6 +340,9 @@ public class Launcher {
 			Path path = Paths.get(System.getProperty("user.home"), ".cirillo", "bootstrap.properties");
 			try {
 				if (!Files.exists(path)) {
+					if (!Files.exists(path.getParent())) {
+						Files.createDirectories(path.getParent());
+					}
 					Files.createFile(path);
 				}
 				bootstrapUri = path.toUri();

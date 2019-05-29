@@ -2,6 +2,7 @@ package io.ejat.framework;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -39,7 +40,6 @@ import io.ejat.framework.spi.creds.ICredentialsStoreRegistration;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
-	private static final String               SCHEME_FILE      = "file://";
 	private static final String               USER_HOME        = "user.home";
 
 	private Framework                         framework;
@@ -91,8 +91,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
 		final String propUri = this.bootstrapProperties.getProperty("framework.config.store");
 		if ((propUri == null) || propUri.isEmpty()) {
-			this.uriConfigurationPropertyStore = new URI(
-					SCHEME_FILE + System.getProperty(USER_HOME) + "/.cirillo/cps.properties");
+			this.uriConfigurationPropertyStore = Paths.get(System.getProperty(USER_HOME), ".cirillo", "cps.properties").toUri();
 		} else {
 			this.uriConfigurationPropertyStore = new URI(propUri);
 		}
@@ -125,8 +124,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		try {
 			final String dssProperty = this.cpsFramework.getProperty("dynamicstatus", "store");
 			if ((dssProperty == null) || dssProperty.isEmpty()) {
-				this.uriDynamicStatusStore = new URI(
-						SCHEME_FILE + System.getProperty(USER_HOME) + "/.cirillo/dss.properties");
+				this.uriDynamicStatusStore = Paths.get(System.getProperty(USER_HOME), ".cirillo", "dss.properties").toUri();
 			} else {
 				this.uriDynamicStatusStore = new URI(dssProperty);
 			}
@@ -176,7 +174,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			final String rasProperty = this.cpsFramework.getProperty("resultarchive", "store");
 			this.uriResultArchiveStores = new ArrayList<>(1);
 			if ((rasProperty == null) || rasProperty.isEmpty()) {
-				this.uriResultArchiveStores.add(new URI(SCHEME_FILE + System.getProperty(USER_HOME) + "/.cirillo/ras"));
+				this.uriResultArchiveStores.add(Paths.get(System.getProperty(USER_HOME), ".cirillo", "ras").toUri());
 			} else {
 				final String[] rass = rasProperty.split(",");
 				for (final String ras : rass) {
@@ -218,8 +216,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		try {
 			final String credsProperty = this.cpsFramework.getProperty("credentials", "store");
 			if ((credsProperty == null) || credsProperty.isEmpty()) {
-				this.uriCredentialsStore = new URI(
-						SCHEME_FILE + System.getProperty(USER_HOME) + "/.cirillo/credentials.properties");
+				this.uriCredentialsStore = Paths.get(System.getProperty(USER_HOME), ".cirillo", "credentials.properties").toUri();
 			} else {
 				this.uriCredentialsStore = new URI(credsProperty);
 			}
