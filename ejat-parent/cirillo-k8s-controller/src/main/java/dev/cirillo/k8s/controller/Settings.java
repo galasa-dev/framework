@@ -335,7 +335,7 @@ public class Settings implements Runnable {
 
 		podname = System.getenv("PODNAME");
 		if (podname == null || podname.trim().isEmpty()) {
-			podname = "k8s-ontroller";
+			podname = "k8s-controller";
 		} else {
 			podname = podname.trim();
 		}

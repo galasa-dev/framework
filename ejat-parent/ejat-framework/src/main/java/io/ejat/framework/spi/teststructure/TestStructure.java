@@ -24,9 +24,13 @@ public class TestStructure {
 	private Instant endTime;
 	
 	private List<TestMethod> methods;
+	
+	private List<String> logRecordIds;
+	
+	private List<String> artifactRecordIds;
 
 	
-	
+
 	public String getBundle() {
 		return bundle;
 	}
@@ -113,5 +117,22 @@ public class TestStructure {
 	public void setEndTime(Instant endTime) {
 		this.endTime = endTime;
 	}
+	
+	public List<String> getLogRecordIds() {
+		return logRecordIds;
+	}
+
+	public void setLogRecordIds(List<String> logRecordIds) {
+		this.logRecordIds = logRecordIds;
+	}
+
+	public List<String> getArtifactRecordIds() {
+		return artifactRecordIds;
+	}
+
+	public void setArtifactRecordIds(List<String> artifactRecordIds) {
+		this.artifactRecordIds = artifactRecordIds;
+	}
+
 
 }
