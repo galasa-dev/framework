@@ -110,6 +110,7 @@
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Main-Class>io.ejat.boot.Launcher</Main-Class>
+										<Class-Path>bundle/org.apache.felix.bundlerepository-2.0.2.jar</Class-Path>
 									</manifestEntries>
 								</transformer>
 								<transformer
