@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import io.ejat.framework.spi.teststructure.ITestStructure;
+import io.ejat.framework.spi.teststructure.TestStructure;
 
 /**
  * <p>Used to gain access to the Result Archive Store (RAS)</p>
@@ -45,7 +45,7 @@ public interface IResultArchiveStore {
 	 * @param testStructure - The Test Structure
 	 * @throws ResultArchiveStoreException - If there is a problem writing to the store
 	 */
-	void updateTestStructure(@NotNull ITestStructure testStructure) throws ResultArchiveStoreException;
+	void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException;
 	
 	/**
 	 * Obtain the root directory of the stored artifacts file system
@@ -53,5 +53,10 @@ public interface IResultArchiveStore {
 	 * @return a {@link java.nio.file.Path}
 	 */
 	Path getStoredArtifactsRoot();
+	
+	
+	void flush();
+	
+	void shutdown();
 	
 }

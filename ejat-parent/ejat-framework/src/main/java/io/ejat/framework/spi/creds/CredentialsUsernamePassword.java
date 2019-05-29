@@ -2,11 +2,11 @@ package io.ejat.framework.spi.creds;
 
 import io.ejat.framework.spi.creds.ICredentialsUsernamePassword;
 
-public class FileCredentialsUsernamePassword implements ICredentialsUsernamePassword {
+public class CredentialsUsernamePassword implements ICredentialsUsernamePassword {
     private String username;
     private String password;
 
-    public FileCredentialsUsernamePassword(String username, String password) {
+    public CredentialsUsernamePassword(String username, String password) {
         this.username = username;
         this.password = password;
     }

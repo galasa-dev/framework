@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 import io.ejat.framework.internal.rps.ResourceString;
 
@@ -20,7 +21,7 @@ import javax.validation.constraints.NotNull;
 public class FrameworkResourcePoolingService implements IResourcePoolingService{
     private static final int DEFAULTNUMBEROFRESOURCES = 10;
     private static final int DEFAULTCONSECUTIVERESOURCES = 1;
-    private IDynamicStatusStore defaultDss = new StubbedDss();
+    private IDynamicStatusStoreService defaultDss = new StubbedDss();
     private String defaultKeyPrefix = "";
     private Random random = new Random();
 
@@ -55,7 +56,7 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
      * @param keyPrefix - the keyprefix for the resource for it to be found in the DSS.
      * @return - a list of available reosurces from the defined acceptable resources.
      */
-    public List<String> obtainResources(@NotNull List<String> resourceStrings, List<String> rejectedResources, IDynamicStatusStore dss, String keyPrefix) throws InsufficientResourcesAvailableException{
+    public List<String> obtainResources(@NotNull List<String> resourceStrings, List<String> rejectedResources, IDynamicStatusStoreService dss, String keyPrefix) throws InsufficientResourcesAvailableException{
         List<ResourceString> resourceDefinitions;
         try {
             resourceDefinitions = createResourceDefintions(resourceStrings);
@@ -96,7 +97,7 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
      * @param returnMinimum - the number of resources to return.
      * @return - a list of available reosurces from the defined acceptable resources.
      */
-    public List<String> obtainResources(@NotNull List<String> resourceStrings, List<String> rejectedResources, int returnMinimum, IDynamicStatusStore dss, String keyPrefix) throws InsufficientResourcesAvailableException{
+    public List<String> obtainResources(@NotNull List<String> resourceStrings, List<String> rejectedResources, int returnMinimum, IDynamicStatusStoreService dss, String keyPrefix) throws InsufficientResourcesAvailableException{
         List<ResourceString> resourceDefinitions;
         try {
             resourceDefinitions = createResourceDefintions(resourceStrings);
@@ -143,7 +144,7 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
      * @param returnConsecutive - the size of the "chunks" to find consectutive reosources in.
      * @return - a list of available reosurces from the defined acceptable resources.
      */
-    public List<String> obtainResources(@NotNull List<String> resourceStrings, List<String> rejectedResources, int returnMinimum, int returnConsecutive, IDynamicStatusStore dss, String keyPrefix) throws InsufficientResourcesAvailableException{
+    public List<String> obtainResources(@NotNull List<String> resourceStrings, List<String> rejectedResources, int returnMinimum, int returnConsecutive, IDynamicStatusStoreService dss, String keyPrefix) throws InsufficientResourcesAvailableException{
         List<ResourceString> resourceDefinitions;
         if ((returnMinimum % returnConsecutive) != 0) {
             throw new InsufficientResourcesAvailableException("The number of consecutive resources required needs to be a multiple of the total number of resources required.");
@@ -187,7 +188,7 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
      * @throws InsufficientResourcesAvailableException
      */
     private List<String> generateResources(List<ResourceString> resourceDefinitions, List<String> rejectedResources,
-     int numberOfResources, IDynamicStatusStore dss, String keyPrefix, int returnConsecutive) throws DynamicStatusStoreException, InsufficientResourcesAvailableException {
+     int numberOfResources, IDynamicStatusStoreService dss, String keyPrefix, int returnConsecutive) throws DynamicStatusStoreException, InsufficientResourcesAvailableException {
         List<String> generatedResources = new ArrayList<>();
         List<String> bannedResources = new ArrayList<>();
 
@@ -249,13 +250,13 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
      * @throws InsufficientResourcesAvailableException
      */
     private List<String> generateRandomResources(ResourceString definition, List<String> bannedReosurceStrings,
-     IDynamicStatusStore dss, String keyPrefix, int returnConsecutive) throws DynamicStatusStoreException, InsufficientResourcesAvailableException {
+     IDynamicStatusStoreService dss, String keyPrefix, int returnConsecutive) throws DynamicStatusStoreException, InsufficientResourcesAvailableException {
         String randomResource = definition.getRandomResource();
         List<String> resources = new ArrayList<>();
         int attempts = 0;
 
         while (resources.size() < returnConsecutive){
-            if (!(bannedReosurceStrings.contains(randomResource)) && ((dss.getDynamicResource(keyPrefix + randomResource)) == null)) {
+            if (!(bannedReosurceStrings.contains(randomResource)) && ((dss.get(keyPrefix + randomResource)) == null)) {
                 resources.add(randomResource);
             } else {
                 resources.clear();
@@ -289,13 +290,13 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
      * @return - return list of generated resources that are sequentially distributed.
      * @throws DynamicStatusStoreException
      */
-    private List<String> generateSequentialResources(ResourceString definition, List<String> bannedReosurceStrings, IDynamicStatusStore dss, String keyPrefix, int returnConsecutive) throws DynamicStatusStoreException, InsufficientResourcesAvailableException {
+    private List<String> generateSequentialResources(ResourceString definition, List<String> bannedReosurceStrings, IDynamicStatusStoreService dss, String keyPrefix, int returnConsecutive) throws DynamicStatusStoreException, InsufficientResourcesAvailableException {
         String resource = definition.getFirstResource();
         List<String> resources = new ArrayList<>();
         int attempt = 0;
 
         while (resources.size() < returnConsecutive){
-            if (!(bannedReosurceStrings.contains(resource)) && ((dss.getDynamicResource(keyPrefix + resource)) == null)) {
+            if (!(bannedReosurceStrings.contains(resource)) && ((dss.get(keyPrefix + resource)) == null)) {
                 resources.add(resource);
             } else {
                 resources.clear();
@@ -320,12 +321,12 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
     /**
      * This class is used when a dss is not provided. When checking resources this stubbed class returns null for the DSS checks.
      */
-    private class StubbedDss implements IDynamicStatusStore{
+    private class StubbedDss implements IDynamicStatusStoreService{
         
         /**
          * Commenting as unused, but required from IDynamicStatusStore implementation.
          */
-        public IDynamicResource getDynamicResource(String input) throws DynamicStatusStoreException {return null;}
+        public IDynamicResource getDynamicResource(String input) {return null;}
         /**
          * Commenting as unused, but required from IDynamicStatusStore implementation.
          */
@@ -379,6 +380,22 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService{
         /**
          * Commenting as unused, but required from IDynamicStatusStore implementation.
          */
+		@Override
+		public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public UUID watchPrefix(IDynamicStatusStoreWatcher watcher, String keyPrefix)
+				throws DynamicStatusStoreException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		@Override
+		public void unwatch(UUID watchId) throws DynamicStatusStoreException {
+			// TODO Auto-generated method stub
+			
+		}
 
     }
 }

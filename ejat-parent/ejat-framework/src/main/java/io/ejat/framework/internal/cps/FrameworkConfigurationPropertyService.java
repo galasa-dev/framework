@@ -87,6 +87,33 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
     }
 
     /**
+     * <p>This method retrievs all the keys that would be serached in the order that they would be searched. For example:
+     *  zos.image.PLEXMA.MVMA.credentialid
+     *  zos.image.PLEXMA.credentialid
+     *  zos.image.credentialid</p>
+     * 
+     * @param prefix - in the above example is "image"
+     *  @param suffix - in the above example is "credentialid"
+     *  @param infixes - the hierachal structure above, supplied in order, e.g "PLEXMA", "MVMA"
+     *  @return - comma separated property names in the order they would be serached
+     */
+    public String reportPropertyVariantsString(@NotNull String prefix, @NotNull String suffix, String... infixes) {
+    	String[] variants = reportPropertyVariants(prefix, suffix, infixes);
+    	
+    	StringBuilder sb = new StringBuilder();
+    	for(String variant : variants) {
+    		if (sb.length() == 0) {
+    			sb.append("[");
+    		} else {
+    			sb.append(",");
+    		}
+    		sb.append(variant);
+    	}
+    	sb.append("]");
+    	return sb.toString();
+    }
+
+    /**
      * <p>This private method is used by the getProperty() method to return a String value for a given key and record any key/value accessed.
      * This method insures it does the check of the overrides properties first before checking any cpsService.</p>
      * 

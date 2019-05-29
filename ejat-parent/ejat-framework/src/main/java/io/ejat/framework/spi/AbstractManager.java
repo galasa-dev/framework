@@ -39,6 +39,18 @@ public abstract class AbstractManager implements IManager {
     protected void registerAnnotatedField(Field field, Object value) {
         this.annotatedFields.put(field, value);
     }
+    
+    
+    
+    /**
+     * Retrieve the generated object for an annotated field
+     * 
+     * @param annotated field to retrieve
+     * @return the generated object or null if it has not been generated yet
+     */
+    protected Object getAnnotatedField(Field field) {
+    	return this.annotatedFields.get(field);
+    }
 
     /**
      * <p>
@@ -55,8 +67,8 @@ public abstract class AbstractManager implements IManager {
      *                          annotated with.
      * @return A list of fields the manager should be interested in
      */
-    protected HashMap<Field, List<Annotation>> findAnnotatedFields(Class<? extends Annotation> managerAnnotation) {
-        final HashMap<Field, List<Annotation>> foundFields = new HashMap<>();
+    protected List<AnnotatedField> findAnnotatedFields(Class<? extends Annotation> managerAnnotation) {
+        final ArrayList<AnnotatedField> foundFields = new ArrayList<>();
 
         // *** Work our way throw the class inheritance
         for (Class<?> lookClass = this.testClass; lookClass != null; lookClass = lookClass.getSuperclass()) {
@@ -90,7 +102,7 @@ public abstract class AbstractManager implements IManager {
                 }
 
                 if (!fieldAnnotations.isEmpty()) {
-                    foundFields.put(field, fieldAnnotations);
+                    foundFields.add(new AnnotatedField(field, fieldAnnotations));
                 }
             }
         }
@@ -106,14 +118,19 @@ public abstract class AbstractManager implements IManager {
      *                          interested in
      */
     protected void generateAnnotatedFields(Class<? extends Annotation> managerAnnotation) {
-        final HashMap<Field, List<Annotation>> foundAnnotatedFields = findAnnotatedFields(managerAnnotation);
+        final List<AnnotatedField> foundAnnotatedFields = findAnnotatedFields(managerAnnotation);
         if (foundAnnotatedFields.isEmpty()) { // *** No point doing anything
             return;
         }
 
-        for (final Entry<Field, List<Annotation>> entry : foundAnnotatedFields.entrySet()) {
-            final Field field = entry.getKey();
-            final List<Annotation> annotations = entry.getValue();
+        for (final AnnotatedField entry : foundAnnotatedFields) {
+            final Field field = entry.getField();
+            final List<Annotation> annotations = entry.getAnnotations();
+            
+            //*** Check to see if it is already generated
+            if (this.annotatedFields.containsKey(field)) {
+            	continue;
+            }
 
             try {
                 // *** work our way through the fields looking for @GenerateAnnotatedField
@@ -158,7 +175,7 @@ public abstract class AbstractManager implements IManager {
      * io.ejat.framework.spi.IManager#extraBundles(io.ejat.framework.spi.IFramework)
      */
     @Override
-    public List<String> extraBundles(@NotNull IFramework framework) {
+    public List<String> extraBundles(@NotNull IFramework framework) throws ManagerException {
         return null; //NOSONAR
     }
 
@@ -376,5 +393,78 @@ public abstract class AbstractManager implements IManager {
     @Override
     public void endOfTestRun() {
     }
+    
+    
+	/**
+	 * Helper method to find managers that implement an interface and tell them they are required
+	 * 
+	 * @param allManagers All available managers
+	 * @param activeManagers The currently active managers
+	 * @param dependentInterface The interface the manager needs to implement
+	 * @return 
+	 * @throws ManagerException If the required manager can't be added to the active list
+	 */
+	protected <T extends Object> T addDependentManager(@NotNull List<IManager> allManagers, @NotNull List<IManager> activeManagers, @NotNull Class<T> dependentInterface) throws ManagerException {
+		for(IManager manager : allManagers) {
+			if (dependentInterface.isAssignableFrom(manager.getClass())) {
+				manager.youAreRequired(allManagers, activeManagers);
+				return dependentInterface.cast(manager);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * null a String is if it is empty
+	 * 
+	 * TODO Needs to be moved to a more appropriate place as non managers use this,  a stringutils maybe
+	 * 
+	 * @param value 
+	 * @return a trimmed String or a null if emtpy or null
+	 */
+	public static String nulled(String value) {
+		if (value == null) { 
+			return null;
+		}
+
+		value = value.trim();
+		if (value.isEmpty()) {
+			return value;
+		}
+		return value;
+	}
+
+
+	public static List<String> split(String value) {
+		ArrayList<String> values = new ArrayList<>();
+
+		if (value == null) { 
+			return values;
+		}
+
+		String[] parts = value.split(",");
+
+		for(String part : parts) {
+			part = part.trim();
+			if (!part.isEmpty()) {
+				values.add(part);
+			}
+		}
+
+		return values;
+	}
+
+	public static String defaultString(String value, String defaultValue) {
+		if (value == null) {
+			return defaultValue;
+		}
+		value = value.trim().toLowerCase();
+		if (value.isEmpty()) {
+			return defaultValue;
+		}
+
+		return value;
+	}
+
 
 }
