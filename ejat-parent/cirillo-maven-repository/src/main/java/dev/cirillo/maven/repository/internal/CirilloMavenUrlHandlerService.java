@@ -28,7 +28,7 @@ import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
 
-import dev.cirillo.maven.repository.IMavenRepository;
+import dev.cirillo.maven.repository.spi.IMavenRepository;
 
 @Component(service={URLStreamHandlerService.class}, property= {URLConstants.URL_HANDLER_PROTOCOL + "=mvn"})
 public class CirilloMavenUrlHandlerService extends AbstractURLStreamHandlerService {

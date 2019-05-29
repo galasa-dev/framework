@@ -42,7 +42,11 @@
 		</dependency>
 		<dependency>
 			<groupId>ejat</groupId>
-			<artifactId>cirillo-maven-repository</artifactId>
+			<artifactId>cirillo-maven-repository-spi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ejat</groupId>
+			<artifactId>cirillo-resource-management</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>

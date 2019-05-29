@@ -10,7 +10,6 @@
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>ejat</groupId>
 	<artifactId>ejat-bom</artifactId>
 	<version>0.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -38,6 +37,18 @@
 			<dependency>
 				<groupId>ejat</groupId>
 				<artifactId>cirillo-maven-repository</artifactId>
+				<version>0.3.0-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>ejat</groupId>
+				<artifactId>cirillo-resource-management</artifactId>
+				<version>0.3.0-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>ejat</groupId>
+			<artifactId>cirillo-maven-repository-spi</artifactId>
 				<version>0.3.0-SNAPSHOT</version>
 			</dependency>
 

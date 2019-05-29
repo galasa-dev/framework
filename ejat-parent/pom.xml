@@ -17,8 +17,10 @@
 		<module>ejat-bom</module>
 		<module>ejat-obr</module>
 		<module>ejat-boot</module>
+		<module>cirillo-maven-repository-spi</module>
 		<module>cirillo-maven-repository</module>
 		<module>cirillo-k8s-controller</module>
+		<module>cirillo-resource-management</module>
 	</modules>
 
 	<distributionManagement>

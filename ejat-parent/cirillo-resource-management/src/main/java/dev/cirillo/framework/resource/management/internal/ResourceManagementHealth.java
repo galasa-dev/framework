@@ -1,14 +1,14 @@
-package io.ejat.framework;
+package dev.cirillo.framework.resource.management.internal;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
+import io.ejat.framework.spi.FrameworkException;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
-import io.ejat.framework.spi.FrameworkException;
 
 @SuppressWarnings("restriction")
 public class ResourceManagementHealth implements HttpHandler {

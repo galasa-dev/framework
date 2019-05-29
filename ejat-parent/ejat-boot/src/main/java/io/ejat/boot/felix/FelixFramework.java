@@ -84,6 +84,7 @@ public class FelixFramework {
 			installBundle("org.apache.felix.scr-2.1.14.jar",true);
 			installBundle("log4j-1.2.17.jar",true);
 			installBundle("commons-logging-1.2.jar",true);
+			installBundle("cirillo-maven-repository-spi-0.3.0-SNAPSHOT.jar", true);
 			installBundle("cirillo-maven-repository-0.3.0-SNAPSHOT.jar", true);
 			loadMavenRepositories(localMavenRepo, remoteMavenRepos);
 
@@ -126,7 +127,7 @@ public class FelixFramework {
 		Bundle frameWorkBundle = getBundle("dev.cirillo.maven.repository");
 
 		// Get the io.ejat.framework.TestRunner class service
-		String classString = "dev.cirillo.maven.repository.IMavenRepository";
+		String classString = "dev.cirillo.maven.repository.spi.IMavenRepository";
 		ServiceReference<?>[] serviceReferences;
 		try {
 			serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, null);
@@ -278,7 +279,7 @@ public class FelixFramework {
 		}
 
 		// Get the io.ejat.framework.TestRunner class service
-		String classString = "io.ejat.framework.ResourceManagement";
+		String classString = "dev.cirillo.framework.resource.management.internal.ResourceManagement";
 		String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
 		ServiceReference<?>[] serviceReferences;
 		try {

@@ -9,36 +9,32 @@
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>cirillo-maven-repository</artifactId>
+	<artifactId>cirillo-resource-management</artifactId>
 	<version>0.3.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>ejat</groupId>
+				<artifactId>ejat-bom</artifactId>
+				<version>0.2.0-SNAPSHOT</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
 			<groupId>ejat</groupId>
-			<artifactId>cirillo-maven-repository-spi</artifactId>
-			<version>0.3.0-SNAPSHOT</version>
+			<artifactId>ejat-framework</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-repository-metadata</artifactId>
-			<version>3.3.9</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-utils</artifactId>
-			<version>3.0.22</version>
 		</dependency>
 	</dependencies>
 
@@ -49,8 +45,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>dev.cirillo.maven.repository</Bundle-SymbolicName>
-						<Embed-Dependency>*;scope=compile</Embed-Dependency>
+						<Bundle-SymbolicName>dev.cirillo.framework.resource.management</Bundle-SymbolicName>
 					</instructions>
 				</configuration>
 			</plugin>

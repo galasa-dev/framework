@@ -17,6 +17,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>ejat</groupId>
+			<artifactId>cirillo-maven-repository-spi</artifactId>
+			<version>0.3.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>commons-cli</groupId>
 			<artifactId>commons-cli</artifactId>
 		</dependency>
@@ -83,6 +88,11 @@
 							<artifactId>cirillo-maven-repository</artifactId>
 							<version>0.3.0-SNAPSHOT</version>
 						</artifactItem>
+						<artifactItem>
+							<groupId>ejat</groupId>
+							<artifactId>cirillo-maven-repository-spi</artifactId>
+							<version>0.3.0-SNAPSHOT</version>
+						</artifactItem>
 					</artifactItems>
 					<type>jar</type>
 					<overWrite>false</overWrite>
@@ -119,6 +129,11 @@
 								</transformer>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<resource>bundle/cirillo-maven-repository-spi-0.3.0-SNAPSHOT.jar</resource>
+									<file>target/bundle/cirillo-maven-repository-spi-0.3.0-SNAPSHOT.jar</file>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
 									<resource>bundle/commons-logging-1.2.jar</resource>
 									<file>target/bundle/commons-logging-1.2.jar</file>
 								</transformer>
@@ -142,6 +157,7 @@
 								<includes>
 									<include>org.apache.felix:org.apache.felix.framework</include>
 									<include>org.apache.felix:org.apache.felix.bundlerepository</include>
+									<include>ejat:cirillo-maven-repository-spi</include>
 									<include>commons-cli</include>
 									<include>commons-io</include>
 								</includes>
