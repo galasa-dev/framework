@@ -40,7 +40,7 @@ public class ResourceString {
             throw new ResourcePoolingServiceException("Problem Parsing String", e);
         }
 
-        node.dump("   ");
+//        node.dump("   ");
 
         for(int i=0; i<node.jjtGetNumChildren();i++){
             SimpleNode child = (SimpleNode) node.jjtGetChild(i);

@@ -145,8 +145,13 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
     @Override
     public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs)
             throws IOException {
+    	Path realPath = getRealPath(path);
+    	if (!Files.exists(realPath.getParent())) {
+    		Files.createDirectories(realPath.getParent());
+    	}
+    	
         // *** Get a nice byte channel
-        final SeekableByteChannel byteChannel = Files.newByteChannel(getRealPath(path), options); // NOSONAR
+        final SeekableByteChannel byteChannel = Files.newByteChannel(realPath, options); // NOSONAR
 
         // *** If we have a RAS attribute, contenttype, set it
         for (final FileAttribute<?> attr : attrs) {

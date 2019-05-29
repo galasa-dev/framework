@@ -2,6 +2,7 @@ package io.ejat.framework.spi;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -106,4 +107,39 @@ public interface IDynamicStatusStoreKeyAccess {
 	 * @throws DynamicStatusStoreException
 	 */
 	void deletePrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException;
+	
+	/**
+	 * <p> This method provides a watching service for a key value pair inside properties. The value does not need to exsists to create
+	 *  a watcher. The watcher records the activity and event type on detection of chnageds (Modified, Deleted, Created).</p>
+	 * 
+	 * <p> The watcher service uses two methods of detecting changes to the file. A polling service which montiors the file every 50ms
+	 *  for any changes. It also uses the checkAndNotify() methods provided from the observer set up on the class intialiastion, which
+	 *  is a manual check for file changes which notifies any watches.</p>
+	 * 
+	 * @param watcher - an interface for the watchers inplementation.
+	 * @param key - the string key to watch
+	 * @return - returns a UUID which is used to identify a watcher service.
+	 * @throws DynamicStatusStoreException
+	 */
+	UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException;
+
+	/**
+	 *  <p>This method provides a single watch service to watch multiple k-v pairs with a common prefix in there key.</p>
+	 * 
+	 * @param watcher - an interface for the watchers inplementation.
+	 * @param keyprefix - the string prefix to a key set to watch
+	 * @return - returns a UUID which is used to identify a watcher service.
+	 * @throws DynamicStatusStoreException
+	 */
+	UUID watchPrefix(IDynamicStatusStoreWatcher watcher, String keyPrefix) throws DynamicStatusStoreException;
+	
+	/**
+	 * <p> This method is used to stop any watcher service with a given UUID. It removes the given watcher from the watches list.
+	 *  If this is the final watcher in the list the method also shuts down the monitor</p>
+	 * 
+	 * @param watchId - the identifying UUID
+	 * @throws DynamicStatusStoreException
+	 */
+	void unwatch(UUID watchId) throws DynamicStatusStoreException;
+
 }

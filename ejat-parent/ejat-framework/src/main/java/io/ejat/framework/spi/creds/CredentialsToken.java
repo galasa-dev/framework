@@ -2,10 +2,10 @@ package io.ejat.framework.spi.creds;
 
 import io.ejat.framework.spi.creds.ICredentialsToken;
 
-public class FileCredentialsToken implements ICredentialsToken {
+public class CredentialsToken implements ICredentialsToken {
     private String token;
 
-    public FileCredentialsToken(String token) {
+    public CredentialsToken(String token) {
         this.token = token;
     }
 

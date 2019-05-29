@@ -53,8 +53,20 @@ public interface IConfigurationPropertyStoreService {
 	 * @param prefix - The prefix of the property name within the namespace.
 	 * @param suffix - The suffix of the property name.
 	 * @param infixes - Any optional infixes of the property name.
-	 * @return
+	 * @return array of property names
 	 */
 	String[] reportPropertyVariants(@NotNull String prefix, @NotNull String suffix, String... infixes);
+
+	/**
+	 * <p>Retireives all possible different property variations that would be searched, in the search order.</p>
+	 * 
+	 * <p> If a manager cant get a property, it can report all the properties you could set to get a resolve the problem</p>
+	 * 
+	 * @param prefix - The prefix of the property name within the namespace.
+	 * @param suffix - The suffix of the property name.
+	 * @param infixes - Any optional infixes of the property name.
+	 * @return comma separated property names
+	 */
+	String reportPropertyVariantsString(@NotNull String prefix, @NotNull String suffix, String... infixes);
 
 }

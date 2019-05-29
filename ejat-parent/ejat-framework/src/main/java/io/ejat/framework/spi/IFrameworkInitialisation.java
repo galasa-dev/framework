@@ -2,9 +2,11 @@ package io.ejat.framework.spi;
 
 import java.net.URI;
 import java.util.List;
-import io.ejat.framework.spi.creds.*;
 
 import javax.validation.constraints.NotNull;
+
+import io.ejat.framework.spi.creds.CredentialsException;
+import io.ejat.framework.spi.creds.ICredentialsStore;
 
 /**
  * <p>IFrameworkInitialisation provides access to the framework routines that should only be called during
@@ -25,6 +27,8 @@ public interface IFrameworkInitialisation {
 	
 	
 	URI getDynamicStatusStoreUri();
+
+	URI getCredentialsStoreUri();
 	
 	/**
 	 * Retrieves a list of Result Archive URIs that need to be initialised
@@ -57,7 +61,7 @@ public interface IFrameworkInitialisation {
 	
 	void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService) throws ConfidentialTextException;
 
-	void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsStoreException;
+	void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException;
 
 	/**
 	 * <p>Retrieve the IFramework object.  Not all the methods will be valid during the initialisation period.

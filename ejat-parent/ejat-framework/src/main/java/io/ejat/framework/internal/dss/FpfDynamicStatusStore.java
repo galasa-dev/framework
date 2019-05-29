@@ -1,108 +1,35 @@
 package io.ejat.framework.internal.dss;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.net.URI;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import io.ejat.framework.spi.DynamicStatusStoreException;
-import io.ejat.framework.spi.IDynamicResource;
-import io.ejat.framework.spi.IDynamicRun;
-import io.ejat.framework.spi.IDynamicStatusStore;
-import io.ejat.framework.spi.IDynamicStatusStoreService;
-import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.FrameworkPropertyFile;
 import io.ejat.framework.spi.FrameworkPropertyFileException;
+import io.ejat.framework.spi.IDynamicStatusStore;
+import io.ejat.framework.spi.IDynamicStatusStoreWatcher;
+import io.ejat.framework.spi.IFrameworkPropertyFileWatcher;
 
 /**
- * <p>
- * A DSS Stub which is passed to the managers that will pass the requests to the
- * activated DSS Service
- * </p>
- *
+ *<p>This class is used when the FPF class is being operated as the Key-Value store for the Dynamic Status Store.</p>
+ * 
  * @author Bruce Abbott
- *
  */
 public class FpfDynamicStatusStore implements IDynamicStatusStore {
-
     private FrameworkPropertyFile fpf;
-    // private final IDynamicStatusStoreService dssService;
-    // private final String                     namespace;
-    // private final String                     prefix;
 
-    /**
-     * <p>
-     * Temp
-     * </p>
-     *
-     * @param framework  - not currently used.
-     * @param dssService - the registered service for the DSS
-     * @param namespace  - The namespace for keys for a specfic manager
-     */
     public FpfDynamicStatusStore(URI file) throws DynamicStatusStoreException {
         try {
 			fpf = new FrameworkPropertyFile(file);
 		} catch (FrameworkPropertyFileException e) {
 			throw new DynamicStatusStoreException("Failed to create Framework property file", e);
 		}
-    }
-
-    /**
-     * <p>
-     * Retrieve interface to control a dynamic resource represented in the framework
-     * area. This is to allow the resource being managed to be automatically
-     * represented on the Web UI and the Eclipse Automation Views.
-     * </p>
-     * 
-     * <p>
-     * The properties the framework create from will be
-     * dss.framework.resource.namespace.resourceKey . After that the manager can set
-     * the property names as necessary.
-     * </p>
-     * 
-     * <p>
-     * For example, if the zOS Security Manager is controlling a set of userids on
-     * cluster PlexMA, the namespace is already set to 'zossec', the property key
-     * would be 'PLEXMA.userid.JAT234'. This would result in the property
-     * 'dss.framework.resource.zossec.PLEXMA.userid.JAT234=L3456'. The automation
-     * views would build a tree view of the properties starting
-     * 'dss.framework.resource'
-     * </p>
-     * 
-     * @param key - The resource key to prefix the keys along with the namespace
-     * @return A tailored IDynamicResource
-     * @throws DynamicStatusStoreException
-     */
-    @Override
-    public IDynamicResource getDynamicResource(String resourceKey) throws DynamicStatusStoreException {
-        return new FrameworkDynamicResource();
-    }
-
-    /**
-     * <p>
-     * Retrieve an interface to update the Run status with manager related
-     * information. This is information above what the framework would display, like
-     * status, no. of methods etc.
-     * </p>
-     * 
-     * <p>
-     * One possible use would be the zOS Manager reporting the primary zOS Image the
-     * test is running on.
-     * </p>
-     * 
-     * @return The dynamic run resource tailored to this namespaces
-     * @throws DynamicStatusStoreException
-     */
-    @Override
-    public IDynamicRun getDynamicRun() throws DynamicStatusStoreException {
-        return new FrameworkDynamicRun();
     }
 
     /**
@@ -245,4 +172,50 @@ public class FpfDynamicStatusStore implements IDynamicStatusStore {
 			throw new DynamicStatusStoreException("Unable to delete key/value pairs with given key prefix", e);
 		}
 	}
+
+	@Override
+	public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {
+		try {
+			return fpf.watch(new PassthroughWatcher(watcher), key);
+		} catch (FrameworkPropertyFileException e) {
+			throw new DynamicStatusStoreException("Unable to set a new watch on key '" + key + "'", e);
+		}
+	}
+
+	@Override
+	public UUID watchPrefix(IDynamicStatusStoreWatcher watcher, String keyPrefix) throws DynamicStatusStoreException {
+		try {
+			return fpf.watchPrefix(new PassthroughWatcher(watcher), keyPrefix);
+		} catch (FrameworkPropertyFileException e) {
+			throw new DynamicStatusStoreException("Unable to set a new watch on keyprefix '" + keyPrefix + "'", e);
+		}
+	}
+
+	@Override
+	public void unwatch(UUID watchId) throws DynamicStatusStoreException {
+		try {
+			fpf.unwatch(watchId);
+		} catch (FrameworkPropertyFileException e) {
+			throw new DynamicStatusStoreException("Unable to unwatch", e);
+		}
+	}
+	
+	
+	private static class PassthroughWatcher implements IFrameworkPropertyFileWatcher {
+		
+		private final IDynamicStatusStoreWatcher watcher;
+		
+		private PassthroughWatcher(IDynamicStatusStoreWatcher watcher) {
+			this.watcher = watcher;
+		}
+
+		@Override
+		public void propertyModified(String key, Event event, String oldValue, String newValue) {
+			watcher.propertyModified(key, IDynamicStatusStoreWatcher.Event.valueOf(event.toString()), oldValue, newValue);
+		}
+		
+	}
+	
+	
+	
 }

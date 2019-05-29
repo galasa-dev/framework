@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>ejat-framework</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.3.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 
 	<name>eJAT Framework</name>
@@ -21,23 +21,24 @@
 			<groupId>ejat</groupId>
 			<artifactId>ejat</artifactId>
 			<version>0.2.0-SNAPSHOT</version>
-			<type>bundle</type>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.framework</artifactId>
+			<groupId>ejat</groupId>
+			<artifactId>cirillo-maven-repository</artifactId>
+			<version>0.3.0-SNAPSHOT</version>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
-    		<groupId>org.apache.commons</groupId>
-    		<artifactId>commons-lang3</artifactId>
-   		</dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.bundlerepository</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.apache.bcel</groupId>
-		    <artifactId>bcel</artifactId>
+			<groupId>org.apache.bcel</groupId>
+			<artifactId>bcel</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -48,8 +49,31 @@
 			<artifactId>commons-logging</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<version>6.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.prometheus</groupId>
+			<artifactId>simpleclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.prometheus</groupId>
+			<artifactId>simpleclient_httpserver</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.prometheus</groupId>
+			<artifactId>simpleclient_hotspot</artifactId>
 		</dependency>
 	</dependencies>
 
