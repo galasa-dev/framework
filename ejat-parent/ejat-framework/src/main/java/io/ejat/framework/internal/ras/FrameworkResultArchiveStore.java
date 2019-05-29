@@ -67,4 +67,14 @@ public class FrameworkResultArchiveStore implements IResultArchiveStore {
         return this.rasService.getStoredArtifactsRoot();
     }
 
+	@Override
+	public void flush() {
+		this.rasService.flush();
+	}
+
+	@Override
+	public void shutdown() {
+		this.rasService.shutdown();
+	}
+
 }

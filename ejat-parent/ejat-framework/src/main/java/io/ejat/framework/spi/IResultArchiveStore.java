@@ -54,4 +54,9 @@ public interface IResultArchiveStore {
 	 */
 	Path getStoredArtifactsRoot();
 	
+	
+	void flush();
+	
+	void shutdown();
+	
 }
