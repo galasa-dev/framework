@@ -38,6 +38,7 @@ import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IRun;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.teststructure.TestStructure;
+import io.ejat.framework.spi.utils.DssUtils;
 
 /**
  * Run the supplied test class
@@ -88,6 +89,16 @@ public class TestRunner {
 		}
 
 		IRun run = frameworkInitialisation.getFramework().getTestRun();
+
+		try {
+			if (run.isLocal()) {
+				DssUtils.incrementProperty(dss, "metrics.runs.local");
+			} else {
+				DssUtils.incrementProperty(dss, "metrics.runs.automated");
+			}
+		} catch (Exception e) {
+			logger.warn("Metrics updated failed",e);
+		}
 
 		String testBundleName = run.getTestBundleName();
 		String testClassName = run.getTestClassName();
@@ -204,9 +215,9 @@ public class TestRunner {
 		} catch(Exception e) {  // TODO we need an exception is specific for resource exhaustion, diferrentiate between env fail
 			logger.info("Provision Generate failed", e);
 			stopHeartbeat(); //*** Stop the heartbeat immediately
-			
+
 			managers.provisionDiscard(); //*** Get rid of what we managed to get
-			
+
 			if (!run.isLocal()) {
 				markWaiting(frameworkInitialisation.getFramework());
 				logger.info("Placing queue on the waiting list");
@@ -269,7 +280,7 @@ public class TestRunner {
 		} catch(Exception e) {
 			logger.error("Failed to save the recorded properties",e);
 		}
-		
+
 		//*** If this was a local run, then we will want to remove the run properties from the DSS immediately
 		//*** for automation, we will let the core manager clean up after a while
 		//*** Local runs will have access to the run details via a view,
@@ -290,11 +301,17 @@ public class TestRunner {
 	private void markWaiting(@NotNull IFramework framework) throws TestRunException {
 		int initialDelay = 600;
 		int randomDelay = 180;
-		
+
+		try {
+			DssUtils.incrementProperty(dss, "metrics.runs.made.to.wait");
+		} catch (Exception e) {
+			logger.warn("Metrics updated failed",e);
+		}
+
 		try {
 			String sInitialDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "delay"));
 			String sRandomDelay = AbstractManager.nulled(this.cps.getProperty("waiting.random", "delay"));
-			
+
 			if (sInitialDelay != null) {
 				initialDelay = Integer.parseInt(sInitialDelay);
 			}
@@ -304,13 +321,13 @@ public class TestRunner {
 		} catch(Exception e) {
 			logger.error("Problem reading delay properties",e);
 		}
-		
+
 		int totalDelay = initialDelay + framework.getRandom().nextInt(randomDelay);
 		logger.info("Placing this run on waiting for " + totalDelay + " seconds");
-		
+
 		Instant until = Instant.now();
 		until = until.plus(totalDelay, ChronoUnit.SECONDS);
-		
+
 		HashMap<String, String> properties = new HashMap<>();
 		properties.put("run." + run.getName() + ".status", "waiting");
 		properties.put("run." + run.getName() + ".wait.until", until.toString());

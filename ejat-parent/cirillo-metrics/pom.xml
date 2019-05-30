@@ -9,7 +9,7 @@
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>cirillo-resource-management</artifactId>
+	<artifactId>cirillo-metrics</artifactId>
 	<version>0.3.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 
@@ -60,7 +60,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>dev.cirillo.framework.resource.management</Bundle-SymbolicName>
+						<Bundle-SymbolicName>dev.cirillo.framework.metrics</Bundle-SymbolicName>
 					</instructions>
 				</configuration>
 			</plugin>

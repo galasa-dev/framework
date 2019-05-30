@@ -21,6 +21,7 @@
 		<module>cirillo-maven-repository</module>
 		<module>cirillo-k8s-controller</module>
 		<module>cirillo-resource-management</module>
+		<module>cirillo-metrics</module>
 	</modules>
 
 	<distributionManagement>

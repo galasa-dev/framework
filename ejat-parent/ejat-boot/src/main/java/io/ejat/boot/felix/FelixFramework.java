@@ -313,6 +313,109 @@ public class FelixFramework {
 
 	}
 	/**
+	 * Run the Metrics Server Server
+	 * 
+	 * @param boostrapProperties the bootstrap properties
+	 * @param overridesProperties the override properties
+	 * @param bundles 
+	 * @param health 
+	 * @param metrics 
+	 * @throws LauncherException 
+	 */
+	public void runMetricsServer(Properties boostrapProperties, Properties overridesProperties, List<String> bundles, Integer metrics, Integer health) throws LauncherException {
+
+		// Get the framework bundle
+		Bundle frameWorkBundle = getBundle("io.ejat.framework");
+
+		if (!bundles.isEmpty()) {
+			//*** Load extra bundles
+			for(String bundle : bundles) {
+				try {
+					loadBundle(bundle);
+				} catch(Exception e) {
+					throw new LauncherException("Failed to load extra bundle " + bundle, e);
+				}
+			}
+		} else {
+			//*** Load all bundles that have IResourceManagementProvider service
+			HashSet<String> bundlesToLoad = new HashSet<>();
+
+			for(Repository repository : repositoryAdmin.listRepositories()) {
+				if (repository.getResources() != null) {
+					resourceSearch:
+						for(Resource resource : repository.getResources()) {
+							if (resource.getCapabilities() != null) {
+								for(Capability capability : resource.getCapabilities()) {
+									if ("service".equals(capability.getName())) {
+										Map<String, Object> properties = capability.getPropertiesAsMap();
+										String services = (String)properties.get("objectClass:List<String>");
+										if (services != null) {
+											String[] split = services.split(",");
+
+											for(String service : split) {
+												if ("io.ejat.framework.spi.IMetricsProvider".equals(service)) {
+													bundlesToLoad.add(resource.getSymbolicName());
+													continue resourceSearch;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+				}
+			}
+
+			for(String bundle : bundlesToLoad) {
+				if (!isBundleActive(bundle)) {
+					loadBundle(bundle);
+				}
+			}
+		}
+
+		//*** Set up ports if present
+		if (metrics != null) {
+			overridesProperties.put("framework.metrics.port", metrics.toString());
+		}
+		if (health != null) {
+			overridesProperties.put("framework.metrics.health.port", health.toString());
+		}
+
+		// Get the io.ejat.framework.TestRunner class service
+		String classString = "dev.cirillo.framework.metrics.MetricsServer";
+		String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
+		ServiceReference<?>[] serviceReferences;
+		try {
+			serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
+		} catch (InvalidSyntaxException e) {
+			throw new LauncherException("Unable to get framework service reference", e);
+		}
+		if (serviceReferences == null || serviceReferences.length != 1) {
+			throw new LauncherException("Unable to get single reference to MetricsServer service: " + ((serviceReferences == null) ? 0: serviceReferences.length)  + " service(s) returned");
+		}
+		Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
+		if (service == null) {
+			throw new LauncherException("Unable to get MetricsServer service");
+		}
+
+		// Get the  io.ejat.framework.TestRunner#runTest(String testBundleName, String testClassName) method
+		Method runTestMethod;
+		try {
+			runTestMethod = service.getClass().getMethod("run", Properties.class, Properties.class);
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new LauncherException("Unable to get Framework MetricsServer run method", e);
+		}
+
+		// Invoke the runTest method
+		logger.debug("Invoking MetricsServer run()");
+		try {
+			runTestMethod.invoke(service, boostrapProperties, overridesProperties);
+		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+			throw new LauncherException(e.getCause());
+		}
+
+	}
+	/**
 	 * Run the Kubernetes Controller Server
 	 * 
 	 * @param boostrapProperties the bootstrap properties

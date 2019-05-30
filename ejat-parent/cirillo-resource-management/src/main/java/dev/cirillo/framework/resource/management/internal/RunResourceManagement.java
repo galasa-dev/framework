@@ -57,8 +57,7 @@ public class RunResourceManagement implements IResourceManagementProvider {
 		}
 		try {
 			this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(new RunWaitingRuns(this.framework, this.resourceManagement, this.dss, this,cps), 
-//					this.framework.getRandom().nextInt(20),
-					1,
+					this.framework.getRandom().nextInt(20),
 					20, 
 					TimeUnit.SECONDS);
 		} catch (FrameworkException e) {
