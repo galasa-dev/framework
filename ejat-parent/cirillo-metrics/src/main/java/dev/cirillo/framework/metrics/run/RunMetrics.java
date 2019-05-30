@@ -58,7 +58,6 @@ public class RunMetrics implements IMetricsProvider, Runnable {
 	public void start() {
 
 		this.metricsServer.getScheduledExecutorService().scheduleWithFixedDelay(this, 
-				//				this.framework.getRandom().nextInt(20), 
 				1,
 				10, 
 				TimeUnit.SECONDS);

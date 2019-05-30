@@ -90,14 +90,10 @@ public class TestRunner {
 
 		IRun run = frameworkInitialisation.getFramework().getTestRun();
 
-		try {
-			if (run.isLocal()) {
-				DssUtils.incrementProperty(dss, "metrics.runs.local");
-			} else {
-				DssUtils.incrementProperty(dss, "metrics.runs.automated");
-			}
-		} catch (Exception e) {
-			logger.warn("Metrics updated failed",e);
+		if (run.isLocal()) {
+			DssUtils.incrementMetric(dss, "metrics.runs.local");
+		} else {
+			DssUtils.incrementMetric(dss, "metrics.runs.automated");
 		}
 
 		String testBundleName = run.getTestBundleName();
@@ -302,11 +298,7 @@ public class TestRunner {
 		int initialDelay = 600;
 		int randomDelay = 180;
 
-		try {
-			DssUtils.incrementProperty(dss, "metrics.runs.made.to.wait");
-		} catch (Exception e) {
-			logger.warn("Metrics updated failed",e);
-		}
+		DssUtils.incrementMetric(dss, "metrics.runs.made.to.wait");
 
 		try {
 			String sInitialDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "delay"));
