@@ -63,18 +63,6 @@
 			<version>6.0.0</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>simpleclient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>simpleclient_httpserver</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>simpleclient_hotspot</artifactId>
-		</dependency>
 	</dependencies>
 
 	<build>

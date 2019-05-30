@@ -49,6 +49,10 @@
 			<artifactId>cirillo-resource-management</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>ejat</groupId>
+			<artifactId>cirillo-metrics</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.gogo.shell</artifactId>
 		</dependency>

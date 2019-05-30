@@ -273,7 +273,7 @@ public class ResourceManagement implements IResourceManagement {
 
 	@Override
 	public synchronized void resourceManagementRunSuccessful() {
-		if (this.successfulRunsSinceLastHealthCheck == Integer.MAX_VALUE) {
+		if (this.successfulRunsSinceLastHealthCheck == Long.MAX_VALUE) {
 			this.successfulRunsSinceLastHealthCheck = 0;
 		}
 		this.successfulRunsSinceLastHealthCheck++;
@@ -282,7 +282,10 @@ public class ResourceManagement implements IResourceManagement {
 	}
 
 	protected synchronized long getSuccessfulRunsSinceLastHealthCheck() {
-		return this.successfulRunsSinceLastHealthCheck;
+		long lastCount = this.successfulRunsSinceLastHealthCheck;
+		this.successfulRunsSinceLastHealthCheck = 0;
+		
+		return lastCount;
 	}
 
 
