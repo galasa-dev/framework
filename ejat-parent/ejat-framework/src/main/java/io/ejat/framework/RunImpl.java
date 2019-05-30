@@ -47,7 +47,7 @@ public class RunImpl implements IRun {
 		status    = runProperties.get(prefix + "status");
 		requestor = runProperties.get(prefix + "requestor");
 		stream    = runProperties.get(prefix + "stream");
-		repo      = runProperties.get(prefix + "repo");
+		repo      = runProperties.get(prefix + "repository");
 		obr       = runProperties.get(prefix + "obr");
 		local     = Boolean.parseBoolean(runProperties.get(prefix + "local"));
 		trace     = Boolean.parseBoolean(runProperties.get(prefix + "trace"));
