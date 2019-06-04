@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.IRunResult;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.teststructure.TestStructure;
 
@@ -75,6 +76,11 @@ public class FrameworkResultArchiveStore implements IResultArchiveStore {
 	@Override
 	public void shutdown() {
 		this.rasService.shutdown();
+	}
+
+	@Override
+	public List<IRunResult> getRuns(String runName) throws ResultArchiveStoreException {
+		return rasService.getRuns(runName);
 	}
 
 }

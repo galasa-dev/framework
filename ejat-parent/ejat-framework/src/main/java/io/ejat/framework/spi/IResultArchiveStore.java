@@ -59,4 +59,6 @@ public interface IResultArchiveStore {
 	
 	void shutdown();
 	
+	List<IRunResult> getRuns(String runName) throws ResultArchiveStoreException;
+	
 }
