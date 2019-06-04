@@ -31,11 +31,16 @@ public class ResultArchiveStoreFileSystemProvider extends FileSystemProvider {
     public static final String                   NOT_AVAILABLE_MESSAGE = "Not available in a Dummy Result Archive Store";
 
     private final FileStore                      fileStore;
-    protected final ResultArchiveStoreFileSystem fileSystem;
+    protected FileSystem fileSystem;
 
     protected ResultArchiveStoreFileSystemProvider(FileStore fileSystemStore) {
         this.fileStore = fileSystemStore;
         this.fileSystem = createFileSystem();
+    }
+
+    protected ResultArchiveStoreFileSystemProvider(FileStore fileSystemStore, FileSystem fileSystem) {
+        this.fileStore = fileSystemStore;
+        this.fileSystem = fileSystem;
     }
 
     protected ResultArchiveStoreFileSystem createFileSystem() {
@@ -262,7 +267,7 @@ public class ResultArchiveStoreFileSystemProvider extends FileSystemProvider {
         throw new UnsupportedOperationException("Not available in a Result Archive Store");
     }
 
-    public ResultArchiveStoreFileSystem getActualFileSystem() {
+    public FileSystem getActualFileSystem() {
         return this.fileSystem;
     }
 

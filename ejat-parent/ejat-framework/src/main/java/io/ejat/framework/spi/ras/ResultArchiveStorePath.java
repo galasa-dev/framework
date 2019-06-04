@@ -26,9 +26,9 @@ import javax.validation.constraints.NotNull;
  */
 public class ResultArchiveStorePath implements Path {
 
-    private final FileSystem   fileSystem;
-    private final List<String> nameElements = new ArrayList<>();
-    private final boolean      absolute;
+    protected final FileSystem   fileSystem;
+    protected final List<String> nameElements = new ArrayList<>();
+    protected final boolean      absolute;
 
     /**
      * Create a path from a string
@@ -110,7 +110,7 @@ public class ResultArchiveStorePath implements Path {
      * @param start        - The start element to clone
      * @param end          - The end element to clone, with is the last + 1
      */
-    private ResultArchiveStorePath(FileSystem fileSystem, boolean absolute, List<String> nameElements, int start,
+    protected ResultArchiveStorePath(FileSystem fileSystem, boolean absolute, List<String> nameElements, int start,
             int end) {
         this.fileSystem = fileSystem;
         this.absolute = absolute;
@@ -567,6 +567,16 @@ public class ResultArchiveStorePath implements Path {
             return this;
         }
         return new ResultArchiveStorePath(this.fileSystem, false, this.nameElements, 0, this.nameElements.size());
+    }
+    
+    @Override
+    public int hashCode() {
+    	return toString().hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+    	return toString().equals(o.toString());
     }
 
 }

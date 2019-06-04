@@ -9,5 +9,7 @@ public interface IRunResult {
 	TestStructure getTestStructure() throws ResultArchiveStoreException;
 	
 	Path getArtifactsRoot() throws ResultArchiveStoreException;
+	
+	String getLog() throws ResultArchiveStoreException;
 
 }
