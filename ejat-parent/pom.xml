@@ -23,6 +23,7 @@
 		<module>cirillo-resource-management</module>
 		<module>cirillo-metrics</module>
 		<module>cirillo-demo-archetype</module>
+		<module>cirillo-eclipse-parent</module>
 	</modules>
 
 	<distributionManagement>
