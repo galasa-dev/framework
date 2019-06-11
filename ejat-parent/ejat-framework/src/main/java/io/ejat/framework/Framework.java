@@ -1,10 +1,18 @@
 package io.ejat.framework;
 
 import java.util.Properties;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.ServiceScope;
 
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
 import io.ejat.framework.internal.creds.FrameworkCredentialsService;
@@ -13,26 +21,32 @@ import io.ejat.framework.spi.ConfidentialTextException;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
 import io.ejat.framework.spi.FrameworkException;
+import io.ejat.framework.spi.FrameworkResourcePoolingService;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStore;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStore;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
+import io.ejat.framework.spi.IFrameworkRuns;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.IRun;
 import io.ejat.framework.spi.ResultArchiveStoreException;
 import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.ICredentialsService;
 import io.ejat.framework.spi.creds.ICredentialsStore;
 
+@Component(scope=ServiceScope.SINGLETON)
 public class Framework implements IFramework {
+	
+	private final static Log                   logger = LogFactory.getLog(Framework.class);
 
     private static final Pattern               namespacePattern = Pattern.compile("[a-z0-9]+");
 
-    private final Properties                   overrideProperties;
-    private final Properties                   recordProperties;
+    private Properties                         overrideProperties;
+    private final Properties                   recordProperties = new Properties();
 
     private IConfigurationPropertyStore        cpsStore;
     private IDynamicStatusStore                dssStore;
@@ -40,13 +54,56 @@ public class Framework implements IFramework {
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;             
 
-    private IConfigurationPropertyStoreService cpsFramework;
-    private ICredentialsService           credsFramework;
+    @SuppressWarnings("unused")
+	private IConfigurationPropertyStoreService cpsFramework;
+    @SuppressWarnings("unused")
+	private ICredentialsService                credsFramework;
+    
+    private String                             runName;
+    
+    private final Random                       random;
+    
+    private FrameworkRuns                      frameworkRuns;
+    
+    private TestRunLogCapture                  testRunLogCapture;
+    
+    private boolean                            initialised;
 
-    protected Framework(Properties overrideProperties, Properties recordProperties) {
-        this.overrideProperties = overrideProperties;
-        this.recordProperties = recordProperties;
+	private IRun run;
+    
+    public Framework() {
+        this.random             = new Random();
     }
+    
+    @Activate
+    public void activate() {    	
+    	logger.info("Framework service activated");
+    	logger.info("Framework version = " + FrameworkVersion.getBundleVersion());
+    	logger.info("Framework build   = " + FrameworkVersion.getBundleBuild());
+    }
+    
+    @Deactivate
+    public void deactivate() {
+    	if (this.testRunLogCapture != null) {
+    		this.testRunLogCapture.shutdown();
+    	}
+    	logger.info("Framework service deactivated");
+    }
+    
+    
+	public void setFrameworkProperties(Properties overridesProperties) {
+		this.overrideProperties = overridesProperties;
+	}
+	
+    @Override
+	public boolean isInitialised() {
+		return this.initialised;
+	}
+    
+    @Override
+	public void initialisationComplete() {
+		this.initialised = true;
+	}
 
     @Override
     public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
@@ -126,7 +183,7 @@ public class Framework implements IFramework {
      */
     @Override
     public @NotNull IResourcePoolingService getResourcePoolingService() {
-        throw new UnsupportedOperationException("RPS has not been implemented yet");
+        return new FrameworkResourcePoolingService();
     }
 
     /*
@@ -229,6 +286,11 @@ public class Framework implements IFramework {
         return this.credsStore;
     }
 
+    @Override
+    public Random getRandom() {
+    	return this.random;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -236,11 +298,48 @@ public class Framework implements IFramework {
      */
     @Override
     public String getTestRunName() {
-        try {
-            return cpsFramework.getProperty("run", "name");
-        } catch (ConfigurationPropertyStoreException e) {
-           throw new UnsupportedOperationException("Appears to be running outside of a test run", e);
-        }
+    	return this.runName;
     }
+    
+	/**
+	 * Set the run name if it is a test run
+	 * 
+	 * @param runName The run name
+	 * @throws DynamicStatusStoreException 
+	 */
+	public void setTestRunName(String runName) throws FrameworkException {
+		this.runName = runName;
+		
+		this.run = getFrameworkRuns().getRun(runName);
+	}
+	
+	@Override
+	public IRun getTestRun() {
+		return this.run;
+	}
+
+	@Override
+	public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
+		if (this.frameworkRuns == null) {
+			this.frameworkRuns = new FrameworkRuns(this);
+		}
+		
+		return this.frameworkRuns;
+	}
+	
+	@Override
+	public Properties getRecordProperties() {
+		Properties clone = (Properties) this.recordProperties.clone();
+		return clone;
+	}
+
+	public void installLogCapture() {
+		if (this.testRunLogCapture != null) {
+			return;
+		}
+		
+		this.testRunLogCapture = new TestRunLogCapture(this);
+		
+	}
 
 }

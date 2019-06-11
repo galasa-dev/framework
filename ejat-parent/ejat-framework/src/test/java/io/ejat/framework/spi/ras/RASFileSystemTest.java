@@ -98,7 +98,7 @@ public class RASFileSystemTest {
     public void testSystem() throws IOException, URISyntaxException {
         final ResultArchiveStoreFileStore fileStore = new ResultArchiveStoreFileStore();
         final ResultArchiveStoreFileSystemProvider fsp = new ResultArchiveStoreFileSystemProvider(fileStore);
-        final ResultArchiveStoreFileSystem fs = fsp.getActualFileSystem();
+        final ResultArchiveStoreFileSystem fs = (ResultArchiveStoreFileSystem) fsp.getActualFileSystem();
         fs.close(); // for CC
 
         final Iterator<Path> roots = fs.getRootDirectories().iterator();
@@ -147,7 +147,7 @@ public class RASFileSystemTest {
     public void testPatternMatcher() {
         final ResultArchiveStoreFileStore fileStore = new ResultArchiveStoreFileStore();
         final ResultArchiveStoreFileSystemProvider fsp = new ResultArchiveStoreFileSystemProvider(fileStore);
-        final ResultArchiveStoreFileSystem fs = fsp.getActualFileSystem();
+        final ResultArchiveStoreFileSystem fs = (ResultArchiveStoreFileSystem) fsp.getActualFileSystem();
 
         Assert.assertEquals("incorrect pattern", "\\w+\\.xml", fs.getPathMatcher("regex:\\w+\\.xml").toString());
         Assert.assertEquals("incorrect pattern", "^.*\\.xml$", fs.getPathMatcher("glob:*.xml").toString());

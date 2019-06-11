@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<!-- Build Test OBRs Command -->
+	<extension point="org.eclipse.ui.commands">
+      	<category
+        	name="Cirillo"
+            id="io.ejat.eclipse.commands.category">
+      	</category>
+      	<command
+      		name="Build Test OBRs"
+            categoryId="io.ejat.eclipse.commands.category"
+            id="io.ejat.eclipse.commands.buildTestOBRsCommand">
+      	</command>
+      	<command
+      		name="Build Test OBRs"
+            categoryId="io.ejat.eclipse.commands.category"
+            id="io.ejat.eclipse.commands.buildTestOBRsCommandDebug">
+      	</command>
+   	</extension>
+   	
+   	<!-- Build Test OBRs Handler --> 
+   	<extension point="org.eclipse.ui.handlers">
+      	<handler
+        	commandId="io.ejat.eclipse.commands.buildTestOBRsCommand"
+            class="io.ejat.eclipse.BuildTestOBRsHandler">
+      	</handler>
+		<handler
+        	commandId="io.ejat.eclipse.commands.buildTestOBRsCommandDebug"
+            class="io.ejat.eclipse.BuildTestOBRsHandler">
+      	</handler>
+   	</extension>
+   	
+   	<!-- Cirillo Menu -->
+   	<extension point="org.eclipse.ui.menus">
+		<menuContribution
+        	locationURI="menu:org.eclipse.ui.main.menu">
+			<menu
+    			label="Cirillo"
+            	id="io.ejat.eclipse.menus.cirilloMenu">
+	            <command
+    				label="Build Test OBRs"
+    	        	commandId="io.ejat.eclipse.commands.buildTestOBRsCommand"
+        	        mnemonic="B"
+            	    id="io.ejat.eclipse.menus.buildTestOBRsCommand">
+            	</command>
+	            <command
+    				label="Build Test OBRs (with debug)"
+    	        	commandId="io.ejat.eclipse.commands.buildTestOBRsCommandDebug"
+            	    id="io.ejat.eclipse.menus.buildTestOBRsCommandDebug">
+            	</command>
+        	</menu>
+		</menuContribution>
+      	<menuContribution
+        	locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         	<toolbar
+            	id="io.ejat.eclipse.toolbars.buildTestOBRsToolbar">
+            	<command
+                	commandId="io.ejat.eclipse.commands.buildTestOBRsCommand"
+                  	icon="icons/BuildOBR.png"
+                  	tooltip="Cirillo Build Test OBRs"
+                  	id="io.ejat.eclipse.toolbars.buildTestOBRsCommand">
+	            </command>
+         	</toolbar>
+      	</menuContribution>
+   	</extension>
+</plugin>

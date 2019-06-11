@@ -164,15 +164,15 @@ public class FpfDynamicStatusStoreTest {
 
     }
 
-    @Test
-    public void testFutureDynamicResource() throws DynamicStatusStoreException {
-        Assert.assertNotNull("Should get a dynamic resource", this.dss.getDynamicResource("bob"));
-    }
-
-    @Test
-    public void testFutureDynamicRun() throws DynamicStatusStoreException {
-        Assert.assertNotNull("Should get a dynamic run", this.dss.getDynamicRun());
-    }
+//    @Test
+//    public void testFutureDynamicResource() throws DynamicStatusStoreException {
+//        Assert.assertNotNull("Should get a dynamic resource", this.dss.getDynamicResource("bob"));
+//    }
+//
+//    @Test
+//    public void testFutureDynamicRun() throws DynamicStatusStoreException {
+//        Assert.assertNotNull("Should get a dynamic run", this.dss.getDynamicRun());
+//    }
     
     
     private String getKey(String key) throws IOException {

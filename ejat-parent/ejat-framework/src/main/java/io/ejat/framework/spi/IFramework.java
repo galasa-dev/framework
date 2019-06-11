@@ -1,5 +1,8 @@
 package io.ejat.framework.spi;
 
+import java.util.Properties;
+import java.util.Random;
+
 import javax.validation.constraints.NotNull;
 
 import io.ejat.framework.spi.creds.CredentialsException;
@@ -16,6 +19,11 @@ import io.ejat.framework.spi.creds.ICredentialsService;
  *
  */
 public interface IFramework {
+	
+	
+	void setFrameworkProperties(Properties overrideProperties);
+	boolean isInitialised();
+	void initialisationComplete();
 	
 	/**
 	 * <p>Retrieve the Configuration Property Store service from the framework.  This will allow you to access the 
@@ -82,10 +90,23 @@ public interface IFramework {
 	ICredentialsService getCredentialsService() throws CredentialsException;
 	
 	/**
-	 * Retrieve the test run name.  Maybe null for non test runs
+	 * Retrieve the test run name.  Will be null for non test runs
 	 * 
-	 * @return - The test run name
+	 * @return - The test run name, null if not a test run
 	 */
 	String getTestRunName();
 	
+	
+	/**
+	 * Get a predefined Random object for sharing across all managers and servers
+	 * 
+	 * @return a random object
+	 */
+	Random getRandom();
+	
+	
+	IFrameworkRuns getFrameworkRuns() throws FrameworkException;
+	IRun getTestRun();
+	
+	Properties getRecordProperties();
 }

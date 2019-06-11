@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
+import java.util.Random;
 
 import javax.validation.constraints.NotNull;
 
@@ -20,12 +21,15 @@ import io.ejat.framework.internal.cps.FpfConfigurationPropertyStore;
 import io.ejat.framework.internal.cps.FrameworkConfigurationPropertyService;
 import io.ejat.framework.spi.ConfigurationPropertyStoreException;
 import io.ejat.framework.spi.DynamicStatusStoreException;
+import io.ejat.framework.spi.FrameworkException;
 import io.ejat.framework.spi.IConfidentialTextService;
 import io.ejat.framework.spi.IConfigurationPropertyStoreService;
 import io.ejat.framework.spi.IDynamicStatusStoreService;
 import io.ejat.framework.spi.IFramework;
+import io.ejat.framework.spi.IFrameworkRuns;
 import io.ejat.framework.spi.IResourcePoolingService;
 import io.ejat.framework.spi.IResultArchiveStore;
+import io.ejat.framework.spi.IRun;
 import io.ejat.framework.spi.creds.CredentialsException;
 import io.ejat.framework.spi.creds.CredentialsToken;
 import io.ejat.framework.spi.creds.CredentialsUsername;
@@ -190,6 +194,38 @@ public class FileCredentialsStoreTest {
 
 		@Override
 		public ICredentialsService getCredentialsService() throws CredentialsException {
+			return null;
+		}
+
+		@Override
+		public Random getRandom() {
+			return null;
+		}
+
+		@Override
+		public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
+			return null;
+		}
+
+		@Override
+		public void setFrameworkProperties(Properties overrideProperties) {
+		}
+
+		@Override
+		public boolean isInitialised() {
+			return false;
+		}
+
+		@Override
+		public void initialisationComplete() {
+		}
+
+		@Override
+		public IRun getTestRun() {
+			return null;
+		}
+		@Override
+		public Properties getRecordProperties() {
 			return null;
 		}
 

@@ -41,9 +41,9 @@ public class FileCredentialsStore implements ICredentialsStore {
 	public FileCredentialsStore(URI file, IFramework framework) throws CredentialsException {
 		try {
 			this.framework = framework;
-			cpsService = this.framework.getConfigurationPropertyService("framework");         
+			cpsService = this.framework.getConfigurationPropertyService("secure");         
 			fpf = new FrameworkPropertyFile(file);
-			String encryptionKey = cpsService.getProperty("credentials.file.encryption.key", "");
+			String encryptionKey = cpsService.getProperty("credentials.file", "encryption.key");
 			if (encryptionKey != null) {
 				encrypted = true;
 				key = createKey(encryptionKey);

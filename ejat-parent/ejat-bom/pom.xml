@@ -10,7 +10,6 @@
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>ejat</groupId>
 	<artifactId>ejat-bom</artifactId>
 	<version>0.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -22,37 +21,86 @@
 				<artifactId>ejat</artifactId>
 				<version>0.2.0-SNAPSHOT</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>ejat</groupId>
 				<artifactId>ejat-framework</artifactId>
-				<version>0.2.0-SNAPSHOT</version>
+				<version>0.3.0-SNAPSHOT</version>
 			</dependency>
-			
+
+			<dependency>
+				<groupId>ejat</groupId>
+				<artifactId>cirillo-k8s-controller</artifactId>
+				<version>0.3.0-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>ejat</groupId>
+				<artifactId>cirillo-maven-repository</artifactId>
+				<version>0.3.0-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>ejat</groupId>
+			<artifactId>cirillo-maven-repository-spi</artifactId>
+				<version>0.3.0-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>ejat</groupId>
+				<artifactId>cirillo-resource-management</artifactId>
+				<version>0.3.0-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>ejat</groupId>
+				<artifactId>cirillo-metrics</artifactId>
+				<version>0.3.0-SNAPSHOT</version>
+			</dependency>
+
 			<dependency>
 				<groupId>ejat</groupId>
 				<artifactId>ejat-obr</artifactId>
 				<version>0.2.0-SNAPSHOT</version>
 				<type>obr</type>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
 				<version>2.6</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
 				<version>1.11</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
 				<version>1.2</version>
 			</dependency>
+
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient-osgi</artifactId>
+				<version>4.5.8</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpcore-osgi</artifactId>
+				<version>4.4.11</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.service.cm</artifactId>
+				<version>1.6.0</version>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 

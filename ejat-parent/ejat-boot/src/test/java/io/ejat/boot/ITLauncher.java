@@ -1,9 +1,5 @@
 package io.ejat.boot;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.File;
 
 import org.junit.Test;
@@ -15,7 +11,7 @@ public class ITLauncher {
 	 * Requires infrastructure and test OBRs. If unavailable, the test will be allowed to fail
 	 */
 	@Test
-	public void testLauncher() {
+	public void testLauncher() throws Exception {
 		
 		System.out.println("-------------------------------------------------------------------------------------------------------------------------------");
 		System.out.println("-- ITLauncher#testLauncher()");
@@ -25,27 +21,19 @@ public class ITLauncher {
 		File testOBRFile = new File("../../../ivt/ejat-ivt-parent/ejat-ivt-obr/target/repository.obr");
 		String testBundleClass = "io.ejat.ivt/io.ejat.ivt.test.BasicTestExtendedAgain";
 		
-		String[] args = new String[5];
+		String[] args = new String[6];
 		args[0] = "--obr";
 		args[1] = infrastructureOBRFile.toURI().toString();
 		args[2] = "--obr";
 		args[3] = testOBRFile.toURI().toString();
-		args[4] = testBundleClass;
+		args[4] = "--testrun";
+		args[5] = testBundleClass;
 
 		// Set logLevel to "DEBUG" or "ALL" for verbose output
 		String logLevel = "INFO";
 		System.setProperty("log.level", logLevel);
 
 		Launcher launcher = new Launcher();
-		try {
-			if (infrastructureOBRFile.exists() && testOBRFile.exists()) {
-				assertTrue(launcher.launch(args));
-			} else {
-				assertFalse(launcher.launch(args));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
-		}
+		launcher.launch(args);
 	}
 }

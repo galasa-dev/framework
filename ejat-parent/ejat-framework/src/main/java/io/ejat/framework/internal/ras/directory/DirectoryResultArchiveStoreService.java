@@ -19,8 +19,10 @@ import com.google.gson.Gson;
 import io.ejat.framework.spi.IFramework;
 import io.ejat.framework.spi.IFrameworkInitialisation;
 import io.ejat.framework.spi.IResultArchiveStoreService;
+import io.ejat.framework.spi.IRunResult;
 import io.ejat.framework.spi.ResultArchiveStoreException;
-import io.ejat.framework.spi.teststructure.ITestStructure;
+import io.ejat.framework.spi.teststructure.TestStructure;
+import io.ejat.framework.spi.utils.CirilloGsonBuilder;
 
 /**
  * A RAS Service for storing the result archive store
@@ -41,7 +43,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     private Path                           testStructureFile;
     private Path                           runLog;
 
-    private final Gson                     gson = new Gson();
+    private final Gson                     gson = CirilloGsonBuilder.build();
 
     private DirectoryRASFileSystemProvider provider;
 
@@ -69,7 +71,11 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
                 this.rasUri = uri;
             }
         }
-
+        
+        if (this.rasUri == null) {
+        	return;
+        }
+        
         // *** Create the base RAS directory
         this.baseDirectory = Paths.get(this.rasUri);
         try {
@@ -82,7 +88,10 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         // *** Get the runname to create the directory
         final String runName = this.framework.getTestRunName();
         if (runName == null) {
-            throw new UnsupportedOperationException("Currently do not support running outside of a test run");
+        	//*** TODO Initalise for the servers,   but we need to work out how to 
+        	//*** dynamically change the runname when a server wants to extract an old run
+            frameworkInitialisation.registerResultArchiveStoreService(this);
+            return;
         }
         setRasRun(runName);
 
@@ -192,7 +201,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
      * framework.spi.teststructure.ITestStructure)
      */
     @Override
-    public void updateTestStructure(@NotNull ITestStructure testStructure) throws ResultArchiveStoreException {
+    public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
         try {
             final String json = this.gson.toJson(testStructure);
             Files.write(this.testStructureFile, json.getBytes(UTF8));
@@ -210,5 +219,20 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     public Path getStoredArtifactsRoot() {
         return this.provider.getActualFileSystem().getPath("/");
     }
+
+	@Override
+	public void flush() {
+	}
+
+	@Override
+	public void shutdown() {
+	}
+	
+	@Override
+	public List<IRunResult> getRuns(String runName) throws ResultArchiveStoreException {
+		throw new UnsupportedOperationException("Not developed yet");
+	}
+
+
 
 }

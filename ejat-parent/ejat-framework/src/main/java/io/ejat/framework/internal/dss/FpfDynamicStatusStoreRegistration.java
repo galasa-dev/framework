@@ -31,9 +31,6 @@ public class FpfDynamicStatusStoreRegistration implements IDynamicStatusStoreReg
 		if (isFileUri(dss)) {
 			frameworkInitialisation.registerDynamicStatusStore(new FpfDynamicStatusStore(dss));
 		}
-		else {
-			throw new DynamicStatusStoreException("Could not initialise Framework Property File");
-		}
 	}
 
     /**
