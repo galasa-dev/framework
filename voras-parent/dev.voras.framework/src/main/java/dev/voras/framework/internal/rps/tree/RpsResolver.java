@@ -138,7 +138,7 @@ public class RpsResolver/*@bgen(jjtree)*/implements RpsResolverTreeConstants, Rp
     try {
       Constant();
     } catch (Throwable jjte000) {
-     if (jjtc000) {
+     if (jjtc000) { // NOSONAR
        jjtree.clearNodeScope(jjtn000);
        jjtc000 = false;
      } else {
@@ -168,7 +168,7 @@ public class RpsResolver/*@bgen(jjtree)*/implements RpsResolverTreeConstants, Rp
       jj_consume_token(BETWEEN);
       Constant();
     } catch (Throwable jjte000) {
-     if (jjtc000) {
+     if (jjtc000) { // NOSONAR
        jjtree.clearNodeScope(jjtn000);
        jjtc000 = false;
      } else {
