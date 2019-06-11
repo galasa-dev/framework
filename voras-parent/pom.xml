@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>dev.voras</groupId>
+	<artifactId>voras-parent</artifactId>
+	<version>0.3.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>Voras Parent</name>
+
+	<modules>
+		<module>dev.voras</module>
+		<module>dev.voras.framework</module>
+		<module>dev.voras.framework.maven.repository.spi</module>
+		<module>dev.voras.framework.maven.repository</module>
+		<module>dev.voras.framework.resource.management</module>
+		<module>dev.voras.framework.metrics</module>
+		<module>dev.voras.framework.k8s.controller</module>
+		<module>dev.voras.framework.obr</module>
+		<module>voras-boot</module>
+		
+		<!--  <module>ejat-obr</module>  -->
+	</modules>
+
+	<distributionManagement>
+		<repository>
+			<id>voras.repo</id>
+			<url>${voras.distribution.repo}</url>
+		</repository>
+		<snapshotRepository>
+			<id>voras.repo</id>
+			<url>${voras.distribution.repo}</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+
+		<dev.voras>0.3.0-SNAPSHOT</dev.voras>
+		<dev.voras.framework>0.3.0-SNAPSHOT</dev.voras.framework>
+		<dev.voras.framework.resource.management>0.3.0-SNAPSHOT</dev.voras.framework.resource.management>
+		<dev.voras.framework.metrics>0.3.0-SNAPSHOT</dev.voras.framework.metrics>
+		<dev.voras.framework.k8s.controller>0.3.0-SNAPSHOT</dev.voras.framework.k8s.controller>
+		<dev.voras.framework.maven.repository.spi>0.3.0-SNAPSHOT</dev.voras.framework.maven.repository.spi>
+		<dev.voras.framework.maven.repository>0.3.0-SNAPSHOT</dev.voras.framework.maven.repository>
+
+		<felix.framework>6.0.2</felix.framework>
+		<felix.bundlerepository>2.0.2</felix.bundlerepository>
+		<felix.scr>2.1.14</felix.scr>
+		<felix.gogo.shell>1.1.2</felix.gogo.shell>
+		<felix.gogo.runtime>1.1.2</felix.gogo.runtime>
+		<felix.gogo.command>1.1.0</felix.gogo.command>
+		
+		<osgi.core>6.0.0</osgi.core>
+		<org.osgi.service.cm>1.6.0</org.osgi.service.cm>
+
+		<commons-logging>1.2</commons-logging>
+		<commons-cli>1.4</commons-cli>
+		<commons-io>2.6</commons-io>
+		<commons-lang3>3.8.1</commons-lang3>
+		<commons-codec>1.11</commons-codec>
+		<log4j>1.2.17</log4j>
+		<bcel>6.3</bcel>
+		<httpclient-osgi>4.5.8</httpclient-osgi>
+		<httpcore-osgi>4.4.11</httpcore-osgi>
+		
+		<gson>2.8.5</gson>
+		
+		<prometheus.simpleclient>0.6.0</prometheus.simpleclient>
+		<prometheus.httpserver>0.6.0</prometheus.httpserver>
+		<prometheus.hotspot>0.6.0</prometheus.hotspot>
+		
+		<validation-api>2.0.1.Final</validation-api>
+	</properties>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework</artifactId>
+			<version>6.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.osgi.service.obr</artifactId>
+			<version>1.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component.annotations</artifactId>
+			<version>1.3.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>${validation-api}</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>${commons-logging}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>2.24.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<version>3.0.0</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>dev.voras</groupId>
+					<artifactId>voras-maven-plugin</artifactId>
+					<version>0.3.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>4.1.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.8.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.0.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-plugin-plugin</artifactId>
+					<version>3.6.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.1.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>3.2.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.archetype</groupId>
+					<artifactId>archetype-packaging</artifactId>
+					<version>3.0.1</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>dev.voras</groupId>
+				<artifactId>voras-maven-plugin</artifactId>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>pre-unit-test</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+						<configuration>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<failOnError>false</failOnError>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
