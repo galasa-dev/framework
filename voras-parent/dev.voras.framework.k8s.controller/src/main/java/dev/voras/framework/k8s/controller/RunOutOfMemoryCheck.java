@@ -1,4 +1,4 @@
-package dev.cirillo.k8s.controller;
+package dev.voras.framework.k8s.controller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

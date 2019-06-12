@@ -51,6 +51,7 @@
 		<dev.voras.framework.k8s.controller>0.3.0-SNAPSHOT</dev.voras.framework.k8s.controller>
 		<dev.voras.framework.maven.repository.spi>0.3.0-SNAPSHOT</dev.voras.framework.maven.repository.spi>
 		<dev.voras.framework.maven.repository>0.3.0-SNAPSHOT</dev.voras.framework.maven.repository>
+		<dev.voras.framework.obr>0.3.0-SNAPSHOT</dev.voras.framework.obr>
 
 		<felix.framework>6.0.2</felix.framework>
 		<felix.bundlerepository>2.0.2</felix.bundlerepository>
@@ -176,6 +177,11 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
 					<version>3.2.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.1.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.archetype</groupId>
