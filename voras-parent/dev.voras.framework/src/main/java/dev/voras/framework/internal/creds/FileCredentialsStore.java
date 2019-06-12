@@ -15,6 +15,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import dev.voras.ICredentials;
 import dev.voras.framework.spi.FrameworkPropertyFile;
 import dev.voras.framework.spi.IConfigurationPropertyStoreService;
 import dev.voras.framework.spi.IFramework;
@@ -22,7 +23,6 @@ import dev.voras.framework.spi.creds.CredentialsException;
 import dev.voras.framework.spi.creds.CredentialsToken;
 import dev.voras.framework.spi.creds.CredentialsUsername;
 import dev.voras.framework.spi.creds.CredentialsUsernamePassword;
-import dev.voras.framework.spi.creds.ICredentials;
 import dev.voras.framework.spi.creds.ICredentialsStore;
 
 /**

@@ -3,16 +3,16 @@ package dev.voras.framework.internal.creds;
 import javax.crypto.IllegalBlockSizeException;
 import javax.validation.constraints.NotNull;
 
+import dev.voras.ICredentials;
+import dev.voras.ICredentialsToken;
+import dev.voras.ICredentialsUsernamePassword;
 import dev.voras.framework.spi.FrameworkException;
 import dev.voras.framework.spi.IConfidentialTextService;
 import dev.voras.framework.spi.IConfigurationPropertyStoreService;
 import dev.voras.framework.spi.IFramework;
 import dev.voras.framework.spi.creds.CredentialsException;
-import dev.voras.framework.spi.creds.ICredentials;
 import dev.voras.framework.spi.creds.ICredentialsService;
 import dev.voras.framework.spi.creds.ICredentialsStore;
-import dev.voras.framework.spi.creds.ICredentialsToken;
-import dev.voras.framework.spi.creds.ICredentialsUsernamePassword;
 
 /**
  * <p>This class is used to drive the registered Credentials Store, and retireve values from the Credentials Store.</p>

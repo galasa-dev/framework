@@ -1,4 +1,4 @@
-package dev.voras.framework.spi.creds;
+package dev.voras;
 
 public interface ICredentialsUsername extends ICredentials {
     
