@@ -1,4 +1,4 @@
-package dev.cirillo.k8s.controller;
+package dev.voras.framework.k8s.controller;
 
 import java.util.List;
 import java.util.Map;
