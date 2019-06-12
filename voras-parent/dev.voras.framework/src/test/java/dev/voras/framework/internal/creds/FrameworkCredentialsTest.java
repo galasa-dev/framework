@@ -14,6 +14,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import dev.voras.ICredentials;
 import dev.voras.framework.internal.cps.FpfConfigurationPropertyStore;
 import dev.voras.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.voras.framework.internal.creds.FileCredentialsStore;
@@ -31,7 +32,6 @@ import dev.voras.framework.spi.IResultArchiveStore;
 import dev.voras.framework.spi.IRun;
 import dev.voras.framework.spi.creds.CredentialsException;
 import dev.voras.framework.spi.creds.CredentialsToken;
-import dev.voras.framework.spi.creds.ICredentials;
 import dev.voras.framework.spi.creds.ICredentialsService;
 
 /**

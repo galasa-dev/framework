@@ -13,6 +13,8 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.voras.ManagerException;
+
 /**
  * An abstract manager which attempts to provide all the boilerplate code
  * necessary to write a Manager in eJAT.

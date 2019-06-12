@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import dev.voras.ManagerException;
+
 /**
  * <p>
  * This is the main interface used by the Framework to drive the Manager

@@ -1,6 +1,6 @@
 package dev.voras.framework.spi.creds;
 
-import dev.voras.framework.spi.creds.ICredentialsToken;
+import dev.voras.ICredentialsToken;
 
 public class CredentialsToken implements ICredentialsToken {
     private String token;

@@ -19,10 +19,10 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
+import dev.voras.ManagerException;
 import dev.voras.framework.spi.FrameworkException;
 import dev.voras.framework.spi.IFramework;
 import dev.voras.framework.spi.IManager;
-import dev.voras.framework.spi.ManagerException;
 import dev.voras.framework.spi.Result;
 
 public class TestRunManagers {

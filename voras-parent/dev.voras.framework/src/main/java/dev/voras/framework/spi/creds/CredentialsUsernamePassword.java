@@ -1,6 +1,6 @@
 package dev.voras.framework.spi.creds;
 
-import dev.voras.framework.spi.creds.ICredentialsUsernamePassword;
+import dev.voras.ICredentialsUsernamePassword;
 
 public class CredentialsUsernamePassword implements ICredentialsUsernamePassword {
     private String username;

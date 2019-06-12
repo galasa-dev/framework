@@ -8,10 +8,10 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import dev.voras.ManagerException;
 import dev.voras.framework.spi.AbstractManager;
 import dev.voras.framework.spi.AnnotatedField;
 import dev.voras.framework.spi.GenerateAnnotatedField;
-import dev.voras.framework.spi.ManagerException;
 import dev.voras.framework.spi.ResourceUnavailableException;
 
 public class AbstractManagerTest {

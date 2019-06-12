@@ -1,4 +1,4 @@
-package dev.voras.framework.spi;
+package dev.voras;
 
 public class ManagerException extends Exception {
     private static final long serialVersionUID = 1L;
