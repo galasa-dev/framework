@@ -21,8 +21,7 @@
 		<module>dev.voras.framework.k8s.controller</module>
 		<module>dev.voras.framework.obr</module>
 		<module>voras-boot</module>
-		
-		<!--  <module>ejat-obr</module>  -->
+		<module>voras-demo-archetype</module>
 	</modules>
 
 	<distributionManagement>
