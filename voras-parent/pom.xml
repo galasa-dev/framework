@@ -52,6 +52,7 @@
 		<dev.voras.framework.maven.repository.spi>0.3.0-SNAPSHOT</dev.voras.framework.maven.repository.spi>
 		<dev.voras.framework.maven.repository>0.3.0-SNAPSHOT</dev.voras.framework.maven.repository>
 		<dev.voras.framework.obr>0.3.0-SNAPSHOT</dev.voras.framework.obr>
+		<voras-boot>0.3.0-SNAPSHOT</voras-boot>
 
 		<felix.framework>6.0.2</felix.framework>
 		<felix.bundlerepository>2.0.2</felix.bundlerepository>
