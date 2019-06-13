@@ -206,8 +206,6 @@ public class Launcher {
 			}
 		}
 
-		bundleRepositories.add("mvn:dev.voras/dev.voras.uber.obr/0.3.0-SNAPSHOT/obr");
-
 		checkForBoostrap(commandLine);
 		checkForOverrides(commandLine);
 		checkForBundles(commandLine);
