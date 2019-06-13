@@ -9,7 +9,7 @@ import org.osgi.service.component.annotations.Component;
 import dev.voras.framework.maven.repository.spi.IMavenRepository;
 
 @Component	
-public class CirilloMavenRepository implements IMavenRepository {
+public class VorasMavenRepository implements IMavenRepository {
 	
 	private URL localRepository;
 	private List<URL> remoteRepositories = new ArrayList<URL>();

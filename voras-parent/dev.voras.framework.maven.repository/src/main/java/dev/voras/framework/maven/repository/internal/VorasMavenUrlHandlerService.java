@@ -31,9 +31,9 @@ import org.osgi.service.url.URLStreamHandlerService;
 import dev.voras.framework.maven.repository.spi.IMavenRepository;
 
 @Component(service={URLStreamHandlerService.class}, property= {URLConstants.URL_HANDLER_PROTOCOL + "=mvn"})
-public class CirilloMavenUrlHandlerService extends AbstractURLStreamHandlerService {
+public class VorasMavenUrlHandlerService extends AbstractURLStreamHandlerService {
 
-	private final static Log logger = LogFactory.getLog(CirilloMavenUrlHandlerService.class);
+	private final static Log logger = LogFactory.getLog(VorasMavenUrlHandlerService.class);
 	private final static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuuMMddHHmmss");
 
 	@Reference

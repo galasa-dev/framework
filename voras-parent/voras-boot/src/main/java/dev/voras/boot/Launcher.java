@@ -206,7 +206,7 @@ public class Launcher {
 			}
 		}
 
-		bundleRepositories.add("mvn:ejat-common/ejat-uber-obr/0.3.0-SNAPSHOT/obr");
+		bundleRepositories.add("mvn:dev.voras/dev.voras.uber.obr/0.3.0-SNAPSHOT/obr");
 
 		checkForBoostrap(commandLine);
 		checkForOverrides(commandLine);
