@@ -48,14 +48,15 @@ public class FelixFramework {
 
 
 	/**
-	 * Initialise and start the Felix framework. Install required bundles and the OBRs. Install the eJAT framework bundle
+	 * Initialise and start the Felix framework. Install required bundles and the OBRs. Install the Voras framework bundle
 	 * 
 	 * @param bundleRepositories the supplied OBRs
 	 * @param localMavenRepo 
 	 * @param remoteMavenRepos 
 	 * @throws LauncherException if there is a problem initialising the framework
+	 * @throws ClassNotFoundException 
 	 */
-	public void buildFramework(List<String> bundleRepositories, Properties boostrapProperties, URL localMavenRepo, List<URL> remoteMavenRepos) throws LauncherException {
+	public void buildFramework(List<String> bundleRepositories, Properties boostrapProperties, URL localMavenRepo, List<URL> remoteMavenRepos) throws LauncherException, ClassNotFoundException {
 		logger.debug("Building Felix Framework...");
 
 		String felixCacheDirectory = System.getProperty("java.io.tmpdir");
@@ -70,7 +71,7 @@ public class FelixFramework {
 			//			frameworkProperties.put("ds.showtrace", "true");
 			frameworkProperties.put(Constants.FRAMEWORK_STORAGE, felixCache.getAbsolutePath());
 			frameworkProperties.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.	FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
-			frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.apache.felix.bundlerepository; version=2.1, io.ejat.framework, sun.misc, com.sun.net.httpserver, com.sun.management, org.xml.sax" 
+			frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.apache.felix.bundlerepository; version=2.1, dev.voras.framework, sun.misc, com.sun.net.httpserver, com.sun.management, org.xml.sax" 
 					);
 			framework = frameworkFactory.newFramework(frameworkProperties);
 			logger.debug("Initializing Felix Framework");
@@ -84,8 +85,10 @@ public class FelixFramework {
 			installBundle("org.apache.felix.scr.jar",true);
 			installBundle("log4j.jar",true);
 			installBundle("commons-logging.jar",true);
-			installBundle("voras-maven-repository-spi.jar", true);
-			installBundle("voras-maven-repository.jar", true);
+			
+			
+			installBundle("dev.voras.framework.maven.repository.spi.jar", true);
+			installBundle("dev.voras.framework.maven.repository.jar", true);
 			loadMavenRepositories(localMavenRepo, remoteMavenRepos);
 
 			// Install and start the Felix OBR bundle
@@ -101,9 +104,9 @@ public class FelixFramework {
 				loadBundle("org.apache.felix.gogo.shell");
 			}
 
-			// Load the ejat-framework bundle
+			// Load the voras-framework bundle
 			logger.debug("installing Framework bundle");
-			loadBundle("io.ejat.framework");
+			loadBundle("dev.voras.framework");
 
 			// Load extra bundles from the bootstrap
 			String extraBundles = boostrapProperties.getProperty("framework.extra.bundles");
@@ -124,10 +127,10 @@ public class FelixFramework {
 	private void loadMavenRepositories(URL localMavenRepo, List<URL> remoteMavenRepos) throws LauncherException {
 
 		// Get the framework bundle
-		Bundle frameWorkBundle = getBundle("dev.cirillo.maven.repository");
+		Bundle frameWorkBundle = getBundle("dev.voras.framework.maven.repository");
 
-		// Get the io.ejat.framework.TestRunner class service
-		String classString = "dev.cirillo.maven.repository.spi.IMavenRepository";
+		// Get the dev.voras.framework.TestRunner class service
+		String classString = "dev.voras.framework.maven.repository.spi.IMavenRepository";
 		ServiceReference<?>[] serviceReferences;
 		try {
 			serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, null);
@@ -135,14 +138,14 @@ public class FelixFramework {
 			throw new LauncherException("Unable to get framework service reference", e);
 		}
 		if (serviceReferences == null || serviceReferences.length != 1) {
-			throw new LauncherException("Unable to get single reference to CirilloMavenRepository service: " + ((serviceReferences == null) ? 0: serviceReferences.length)  + " service(s) returned");
+			throw new LauncherException("Unable to get single reference to VorasMavenRepository service: " + ((serviceReferences == null) ? 0: serviceReferences.length)  + " service(s) returned");
 		}
 		Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
 		if (service == null) {
-			throw new LauncherException("Unable to get CirilloMavenRepository service");
+			throw new LauncherException("Unable to get VorasMavenRepository service");
 		}
 
-		// Get the  CirilloMavenRepositoryr#setRepositories() method
+		// Get the  VorasMavenRepositoryr#setRepositories() method
 		Method runTestMethod;
 		try {
 			runTestMethod = service.getClass().getMethod("setRepositories", URL.class, List.class);
@@ -170,10 +173,10 @@ public class FelixFramework {
 	public void runTest(Properties boostrapProperties, Properties overridesProperties) throws LauncherException {
 
 		// Get the framework bundle
-		Bundle frameWorkBundle = getBundle("io.ejat.framework");
+		Bundle frameWorkBundle = getBundle("dev.voras.framework");
 
-		// Get the io.ejat.framework.TestRunner class service
-		String classString = "io.ejat.framework.TestRunner";
+		// Get the dev.voras.framework.TestRunner class service
+		String classString = "dev.voras.framework.TestRunner";
 		String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
 		ServiceReference<?>[] serviceReferences;
 		try {
@@ -189,7 +192,7 @@ public class FelixFramework {
 			throw new LauncherException("Unable to get TestRunner service");
 		}
 
-		// Get the  io.ejat.framework.TestRunner#runTest(String testBundleName, String testClassName) method
+		// Get the  dev.voras.framework.TestRunner#runTest(String testBundleName, String testClassName) method
 		Method runTestMethod;
 		try {
 			runTestMethod = service.getClass().getMethod("runTest", Properties.class, Properties.class);
@@ -222,7 +225,7 @@ public class FelixFramework {
 	public void runResourceManagement(Properties boostrapProperties, Properties overridesProperties, List<String> bundles, Integer metrics, Integer health) throws LauncherException {
 
 		// Get the framework bundle
-		Bundle frameWorkBundle = getBundle("io.ejat.framework");
+		Bundle frameWorkBundle = getBundle("dev.voras.framework");
 
 		if (!bundles.isEmpty()) {
 			//*** Load extra bundles
@@ -250,7 +253,7 @@ public class FelixFramework {
 											String[] split = services.split(",");
 
 											for(String service : split) {
-												if ("io.ejat.framework.spi.IResourceManagementProvider".equals(service)) {
+												if ("dev.voras.framework.spi.IResourceManagementProvider".equals(service)) {
 													bundlesToLoad.add(resource.getSymbolicName());
 													continue resourceSearch;
 												}
@@ -278,8 +281,8 @@ public class FelixFramework {
 			overridesProperties.put("framework.resource.management.health.port", health.toString());
 		}
 
-		// Get the io.ejat.framework.TestRunner class service
-		String classString = "dev.cirillo.framework.resource.management.internal.ResourceManagement";
+		// Get the dev.voras.framework.TestRunner class service
+		String classString = "dev.voras.framework.resource.management.internal.ResourceManagement";
 		String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
 		ServiceReference<?>[] serviceReferences;
 		try {
@@ -295,7 +298,7 @@ public class FelixFramework {
 			throw new LauncherException("Unable to get ResourceManagement service");
 		}
 
-		// Get the  io.ejat.framework.TestRunner#runTest(String testBundleName, String testClassName) method
+		// Get the  dev.voras.framework.TestRunner#runTest(String testBundleName, String testClassName) method
 		Method runTestMethod;
 		try {
 			runTestMethod = service.getClass().getMethod("run", Properties.class, Properties.class);
@@ -325,7 +328,7 @@ public class FelixFramework {
 	public void runMetricsServer(Properties boostrapProperties, Properties overridesProperties, List<String> bundles, Integer metrics, Integer health) throws LauncherException {
 
 		// Get the framework bundle
-		Bundle frameWorkBundle = getBundle("io.ejat.framework");
+		Bundle frameWorkBundle = getBundle("dev.voras.framework");
 
 		if (!bundles.isEmpty()) {
 			//*** Load extra bundles
@@ -353,7 +356,7 @@ public class FelixFramework {
 											String[] split = services.split(",");
 
 											for(String service : split) {
-												if ("io.ejat.framework.spi.IMetricsProvider".equals(service)) {
+												if ("dev.voras.framework.spi.IMetricsProvider".equals(service)) {
 													bundlesToLoad.add(resource.getSymbolicName());
 													continue resourceSearch;
 												}
@@ -381,8 +384,8 @@ public class FelixFramework {
 			overridesProperties.put("framework.metrics.health.port", health.toString());
 		}
 
-		// Get the io.ejat.framework.TestRunner class service
-		String classString = "dev.cirillo.framework.metrics.MetricsServer";
+		// Get the dev.voras.framework.TestRunner class service
+		String classString = "dev.voras.framework.metrics.MetricsServer";
 		String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
 		ServiceReference<?>[] serviceReferences;
 		try {
@@ -398,7 +401,7 @@ public class FelixFramework {
 			throw new LauncherException("Unable to get MetricsServer service");
 		}
 
-		// Get the  io.ejat.framework.TestRunner#runTest(String testBundleName, String testClassName) method
+		// Get the  dev.voras.framework.TestRunner#runTest(String testBundleName, String testClassName) method
 		Method runTestMethod;
 		try {
 			runTestMethod = service.getClass().getMethod("run", Properties.class, Properties.class);
@@ -428,8 +431,8 @@ public class FelixFramework {
 	public void runK8sController(Properties boostrapProperties, Properties overridesProperties, List<String> bundles, Integer metrics, Integer health) throws LauncherException {
 
 		// Get the framework bundle
-		Bundle frameWorkBundle = getBundle("io.ejat.framework");
-		loadBundle("dev.cirillo.k8s.controller");
+		Bundle frameWorkBundle = getBundle("dev.voras.framework");
+		loadBundle("dev.voras.framework.k8s.controller");
 
 		//*** Set up ports if present
 		if (metrics != null) {
@@ -439,8 +442,8 @@ public class FelixFramework {
 			overridesProperties.put("framework.controller.health.port", health.toString());
 		}
 
-		// Get the io.ejat.framework.TestRunner class service
-		String classString = "dev.cirillo.k8s.controller.K8sController";
+		// Get the dev.voras.framework.TestRunner class service
+		String classString = "dev.voras.framework.k8s.controller.K8sController";
 		String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
 		ServiceReference<?>[] serviceReferences;
 		try {
