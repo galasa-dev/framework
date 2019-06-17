@@ -22,6 +22,9 @@
 		<module>dev.voras.framework.obr</module>
 		<module>voras-boot</module>
 		<module>voras-demo-archetype</module>
+		<module>dev.voras.framework.api.authentication</module>
+		<module>dev.voras.framework.api.health</module>
+		<module>dev.voras.framework.api.bootstrap</module>
 	</modules>
 
 	<distributionManagement>
@@ -62,6 +65,9 @@
 		
 		<osgi.core>6.0.0</osgi.core>
 		<org.osgi.service.cm>1.6.0</org.osgi.service.cm>
+		<org.osgi.service.component.annotations>1.3.0</org.osgi.service.component.annotations>
+		
+		<javax.servlet-api>3.1.0</javax.servlet-api>
 
 		<commons-logging>1.2</commons-logging>
 		<commons-cli>1.4</commons-cli>
