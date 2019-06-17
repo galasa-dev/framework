@@ -32,7 +32,7 @@ public class Health extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Reference
-	public IFramework framework;
+	public IFramework framework;  // NOSONAR
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)

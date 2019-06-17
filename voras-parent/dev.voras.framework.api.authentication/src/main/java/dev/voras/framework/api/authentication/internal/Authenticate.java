@@ -39,9 +39,9 @@ public class Authenticate extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	@Reference
-	public IFramework framework;
+	public IFramework framework;   // NOSONAR
 
-	private Properties configurationProperties = new Properties();
+	private final Properties configurationProperties = new Properties();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)

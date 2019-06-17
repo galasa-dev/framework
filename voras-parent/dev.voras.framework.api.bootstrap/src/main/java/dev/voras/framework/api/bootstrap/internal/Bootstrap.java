@@ -43,9 +43,9 @@ public class Bootstrap extends HttpServlet {
 	private static final String EXTRA = "framework.extra.bundles";
 
 	@Reference
-	public IFramework framework;
+	public IFramework framework;   // NOSONAR
 
-	private Properties configurationProperties = new Properties();
+	private final Properties configurationProperties = new Properties();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)

@@ -139,6 +139,9 @@ public class BasicAuthFilter implements Filter {
 			}
 		}
 		
+		if (name == null) {
+			name = username;
+		}
 		RequestWrapper wrapper = new RequestWrapper(name.toLowerCase(), roles, servletRequest);
 		chain.doFilter(wrapper, response);
 	}
