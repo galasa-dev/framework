@@ -62,7 +62,7 @@ public class Bootstrap extends HttpServlet {
 		
 		resp.setStatus(200);
 		resp.setContentType("text/plain");
-		actualBootstrap.store(resp.getWriter(), "Voras Bootstrap Properties");
+		actualBootstrap.store(resp.getWriter(), "Voras Bootstrap Properties");//NOSONAR //TODO catch this as SQ says
 	}
 
 

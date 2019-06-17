@@ -51,14 +51,14 @@ public class AuthenticateRefresh extends HttpServlet {
 		if (principal == null) { // TODO check that it was a JWT auth principal
 			resp.setStatus(401);
 			resp.addHeader("WWW-Authenticate", "Bearer realm=\"Voras\"");  //*** Ability to set the realm
-			resp.getWriter().write("Requires JWT Token");
+			resp.getWriter().write("Requires JWT Token");//NOSONAR //TODO catch this as SQ says
 			return;
 		}
 		
 		if (!req.isUserInRole("user")) {
 			resp.setStatus(401);
 			resp.addHeader("WWW-Authenticate", "Bearer realm=\"Voras\"");  //*** Ability to set the realm
-			resp.getWriter().write("Does not have the 'user' role");
+			resp.getWriter().write("Does not have the 'user' role");//NOSONAR
 			return;
 		}
 		
@@ -66,7 +66,7 @@ public class AuthenticateRefresh extends HttpServlet {
 		
 		resp.setStatus(503);
 		resp.setContentType("text/plain");
-		resp.getWriter().write("James hasn't written the code yet");
+		resp.getWriter().write("James hasn't written the code yet");//NOSONAR
 	}
 
 
