@@ -346,7 +346,7 @@ public class Launcher {
 				commandLineError(null);
 			}
 		} else {
-			Path path = Paths.get(System.getProperty("user.home"), ".cirillo", "bootstrap.properties");
+			Path path = Paths.get(System.getProperty("user.home"), ".voras", "bootstrap.properties");
 			try {
 				if (!Files.exists(path)) {
 					if (!Files.exists(path.getParent())) {
@@ -389,7 +389,7 @@ public class Launcher {
 				commandLineError(null);
 			}
 		} else {
-			Path path = Paths.get(System.getProperty("user.home"), ".cirillo", "overrides.properties");
+			Path path = Paths.get(System.getProperty("user.home"), ".voras", "overrides.properties");
 			if (!Files.exists(path)) {
 				this.overridesProperties = new Properties();
 				return;
