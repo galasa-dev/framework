@@ -79,12 +79,14 @@ public class VorasMavenUrlHandlerService extends AbstractURLStreamHandlerService
 		logger.trace("Resolving maven artifact " + groupid + ":" + artifactid + ":" + version + ":" + type);
 
 		URL localRepository = vorasRepository.getLocalRepository();
+		logger.trace("Checking local repository at " + localRepository.toExternalForm());
 
 		//*** Check the local repository first, if the file exists,  use it from there
 		if (localRepository != null) {
 			try {
 				URL localFile = buildArtifactUrl(localRepository, groupid, artifactid, version, buildArtifactFilename(artifactid, version, type));
-				Path pathLocalFile = Paths.get(localFile.toURI()); 
+				Path pathLocalFile = Paths.get(localFile.toURI());
+				logger.trace("Looking for file " + pathLocalFile.toFile().getAbsolutePath());
 				if (pathLocalFile.toFile().exists()) {
 					logger.trace("Found in local repository at " + localFile.toExternalForm());
 					return localFile;
