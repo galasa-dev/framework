@@ -143,6 +143,7 @@ public class Launcher {
 			}
 		} catch (LauncherException e) {
 			logger.error("Unable run test class", e);
+			throw e;
 		} finally {
 			if (felixFramework != null) {
 				felixFramework.stopFramework();

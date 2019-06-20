@@ -5,6 +5,8 @@ import java.util.List;
 
 public class TestMethod {
 	
+	private String className;
+	
 	private String methodName;
 	private String type;
 	
@@ -22,7 +24,19 @@ public class TestMethod {
 	private Instant startTime;
 	private Instant endTime;
 
+	@SuppressWarnings("unused")
+	private TestMethod() {
+		// NOP
+	}
 	
+	public TestMethod(Class<?> testClass) {
+		this.className = testClass.getName();
+	}
+
+	public String getClassName() {
+		return className;
+	}
+
 	public String getMethodName() {
 		return methodName;
 	}
@@ -119,24 +133,27 @@ public class TestMethod {
 		}
 		
 		String subPrefix = prefix + "    ";
-		for(TestMethod before : this.befores) {
-			before.report(subPrefix, sb);
+		if (this.befores != null) {  
+			for(TestMethod before : this.befores) {
+				before.report(subPrefix, sb);
+			}
 		}
 		
 		sb.append(prefix);
 		sb.append("Test Method ");
+		sb.append(className);
+		sb.append(".");
 		sb.append(methodName);
 		sb.append(", type=");
 		sb.append(type);
 		sb.append(", status=");
 		sb.append(actualStatus);
 		
-		
-		for(TestMethod after : this.afters) {
-			after.report(subPrefix, sb);
+		if (this.afters != null) {
+			for(TestMethod after : this.afters) {
+				after.report(subPrefix, sb);
+			}
 		}
-		
-		return;
 	}
 
 }

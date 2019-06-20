@@ -139,7 +139,7 @@ public class GenericMethodWrapper {
 	}
 
 	public TestMethod getStructure() {
-		this.testStructureMethod = new TestMethod();
+		this.testStructureMethod = new TestMethod(testClass);
 		this.testStructureMethod.setMethodName(testMethod.getName());
 		this.testStructureMethod.setType(this.type.toString());
 		

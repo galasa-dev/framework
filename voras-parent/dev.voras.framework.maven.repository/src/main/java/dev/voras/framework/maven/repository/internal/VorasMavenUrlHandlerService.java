@@ -33,13 +33,13 @@ import dev.voras.framework.maven.repository.spi.IMavenRepository;
 @Component(service={URLStreamHandlerService.class}, property= {URLConstants.URL_HANDLER_PROTOCOL + "=mvn"})
 public class VorasMavenUrlHandlerService extends AbstractURLStreamHandlerService {
 
-	private final static Log logger = LogFactory.getLog(VorasMavenUrlHandlerService.class);
-	private final static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuuMMddHHmmss");
+	private static final Log logger = LogFactory.getLog(VorasMavenUrlHandlerService.class);
+	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuuMMddHHmmss");
 
 	@Reference
-	private IMavenRepository cirilloRepository;
+	private IMavenRepository vorasRepository;
 	
-	private final Path localCirilloRepository = Paths.get(System.getProperty("user.home") + "/.cirillo/mavenrepo");
+	private final Path localVorasRepository = Paths.get(System.getProperty("user.home") + "/", ".voras", "mavenrepo");
 	
 	@Override
 	public URLConnection openConnection(URL arg0) throws IOException {
@@ -49,25 +49,25 @@ public class VorasMavenUrlHandlerService extends AbstractURLStreamHandlerService
 			throw new MalformedURLException("Must have 4 parts in the maven artifact reference - " + arg0);
 		}
 		
-		String groupID = parts[0].trim();
-		String artifactID = parts[1].trim();
+		String groupId = parts[0].trim();
+		String artifactId = parts[1].trim();
 		String version = parts[2].trim();
-		String type = parts[3].trim();
+		String packaging = parts[3].trim();
 		
-		if (groupID.isEmpty()) {
-			throw new MalformedURLException("groupid is missing - " + arg0);
+		if (groupId.isEmpty()) {
+			throw new MalformedURLException("groupId is missing - " + arg0);
 		}
-		if (artifactID.isEmpty()) {
-			throw new MalformedURLException("groupid is missing - " + arg0);
+		if (artifactId.isEmpty()) {
+			throw new MalformedURLException("artifactId is missing - " + arg0);
 		}
 		if (version.isEmpty()) {
-			throw new MalformedURLException("groupid is missing - " + arg0);
+			throw new MalformedURLException("version is missing - " + arg0);
 		}
-		if (type.isEmpty()) {
-			throw new MalformedURLException("groupid is missing - " + arg0);
+		if (packaging.isEmpty()) {
+			throw new MalformedURLException("packaging is missing - " + arg0);
 		}
 		
-		URL result = fetchArtifact(localCirilloRepository, groupID, artifactID, version, type);
+		URL result = fetchArtifact(localVorasRepository, groupId, artifactId, version, packaging);
 		if (result == null) {
 			throw new IOException("Unable to locate maven artifact " + arg0);
 		}
@@ -75,17 +75,17 @@ public class VorasMavenUrlHandlerService extends AbstractURLStreamHandlerService
 		return result.openConnection();
 	}
 
-	private URL fetchArtifact(Path localCirilloRepository, String groupid, String artifactid, String version, String type) throws IOException {
+	private URL fetchArtifact(Path localVorasRepository, String groupid, String artifactid, String version, String type) throws IOException {
 		logger.trace("Resolving maven artifact " + groupid + ":" + artifactid + ":" + version + ":" + type);
 
-		URL localRepository = cirilloRepository.getLocalRepository();
+		URL localRepository = vorasRepository.getLocalRepository();
 
 		//*** Check the local repository first, if the file exists,  use it from there
 		if (localRepository != null) {
 			try {
 				URL localFile = buildArtifactUrl(localRepository, groupid, artifactid, version, buildArtifactFilename(artifactid, version, type));
 				Path pathLocalFile = Paths.get(localFile.toURI()); 
-				if (Files.exists(pathLocalFile)) {
+				if (pathLocalFile.toFile().exists()) {
 					logger.trace("Found in local repository at " + localFile.toExternalForm());
 					return localFile;
 				}
@@ -94,11 +94,11 @@ public class VorasMavenUrlHandlerService extends AbstractURLStreamHandlerService
 			}
 		}
 
-		if (cirilloRepository.getRemoteRepositories() == null) {
+		if (vorasRepository.getRemoteRepositories() == null) {
 			return null;
 		}
 
-		Path localGroupDirectory = localCirilloRepository.resolve(groupid);
+		Path localGroupDirectory = localVorasRepository.resolve(groupid);
 		Files.createDirectories(localGroupDirectory);
 		String targetFilename = artifactid + "-" + version + "." + type;
 		Path localArtifact = localGroupDirectory.resolve(targetFilename);
@@ -116,10 +116,12 @@ public class VorasMavenUrlHandlerService extends AbstractURLStreamHandlerService
 		long lastupdated = -1;
 
 		//*** Get the local last updated timestamp if it exists
-		if (Files.exists(localTimestamp) && Files.exists(localArtifact)) {
+		if (localTimestamp.toFile().exists() && localArtifact.toFile().exists()) {
 			try {
 				lastupdated = Long.parseLong(new String(Files.readAllBytes(localTimestamp), "utf-8"));
-			} catch(Exception e) {}
+			} catch(Exception e) {
+				// NOP
+			}
 		}
 
 		//*** has it been updated today
@@ -132,7 +134,7 @@ public class VorasMavenUrlHandlerService extends AbstractURLStreamHandlerService
 
 		logger.debug("Looking for updated snapshot of " + groupid + ":" + artifactid + ":" + version + ":" + type);
 
-		for(URL remoteRepository : cirilloRepository.getRemoteRepositories()) {
+		for(URL remoteRepository : vorasRepository.getRemoteRepositories()) {
 			URL found = retrieveSnapshot(remoteRepository, lastupdated, localArtifact, localTimestamp, groupid, artifactid, version, type);
 			if (found != null) {
 				return found;
@@ -222,15 +224,15 @@ public class VorasMavenUrlHandlerService extends AbstractURLStreamHandlerService
 	}
 
 	private URL fetchReleaseArtifact(Path localArtifact, String groupid, String artifactid, String version, String type) throws IOException {
-		if (Files.exists(localArtifact)) {
-			logger.trace("Release artifact already in Cirillo repository");
+		if (localArtifact.toFile().exists()) {
+			logger.trace("Release artifact already in Voras repository");
 			return localArtifact.toUri().toURL();
 		}
 
 
 
-		for(URL remoteRepository : cirilloRepository.getRemoteRepositories()) {
-			if (getArtifact(remoteRepository, localArtifact, groupid, artifactid, version, type)) {
+		for(URL remoteRepository : vorasRepository.getRemoteRepositories()) {
+			if (getArtifact(remoteRepository, localArtifact, groupid, artifactid, version)) {
 				return localArtifact.toUri().toURL();
 			}		
 		}
@@ -239,7 +241,7 @@ public class VorasMavenUrlHandlerService extends AbstractURLStreamHandlerService
 	}
 
 
-	private static boolean getArtifact(URL repository, Path localArtifact, String groupid, String artifactid, String version, String type) throws IOException {
+	private static boolean getArtifact(URL repository, Path localArtifact, String groupid, String artifactid, String version) throws IOException {
 		logger.debug("Checking " + repository);
 
 		//*** Read the artifact
