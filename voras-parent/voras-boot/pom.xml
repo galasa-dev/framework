@@ -118,7 +118,7 @@
 									<manifestEntries>
 										<Main-Class>dev.voras.boot.Launcher</Main-Class>
 									</manifestEntries>
-								</transformer>cirillo-maven-rep
+								</transformer>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
 									<resource>bundle/dev.voras.framework.maven.repository.jar</resource>
