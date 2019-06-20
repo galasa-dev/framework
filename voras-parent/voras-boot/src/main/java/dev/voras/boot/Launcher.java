@@ -13,10 +13,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -40,6 +42,7 @@ import dev.voras.boot.felix.FelixFramework;
  */
 public class Launcher {
 
+	private static final String OBR_OPTION		          = "obr";
 	private static final String BOOTSTRAP_OPTION          = "bootstrap";
 	private static final String OVERRIDES_OPTION          = "overrides";
 	private static final String RESOURCEMANAGEMENT_OPTION = "resourcemanagement";
@@ -52,6 +55,8 @@ public class Launcher {
 	private static final String HEALTH_OPTION             = "health";
 	private static final String LOCALMAVEN_OPTION         = "localmaven";
 	private static final String TRACE_OPTION              = "trace";
+	
+	private static final String USER_HOME                 = "user.home";
 
 	private static final BootLogger logger = new BootLogger();
 
@@ -145,7 +150,6 @@ public class Launcher {
 		}
 
 		logger.info("Boot complete");
-		return;
 	}
 
 
@@ -175,8 +179,16 @@ public class Launcher {
 		logger.debug(messageBuffer.toString());
 
 		Options options = new Options();
-		String obrOption = "obr";
-		options.addOption(null, obrOption, true, "Felix OBR Repository File name");
+		Option propertyOption   = Option.builder()
+				.longOpt("D")
+				.argName("property=value" )
+				.hasArgs()
+				.valueSeparator()
+				.numberOfArgs(2)
+				.desc("use value for given properties" )
+				.build();
+		options.addOption(propertyOption);
+		options.addOption(null, OBR_OPTION, true, "Felix OBR Repository File name");
 		options.addOption(null, BOOTSTRAP_OPTION, true, "Bootstrap properties file url");
 		options.addOption(null, OVERRIDES_OPTION, true, "Overrides properties file url");
 		options.addOption(null, RESOURCEMANAGEMENT_OPTION, false, "A Resource Management server");
@@ -194,14 +206,22 @@ public class Launcher {
 		CommandLine commandLine = null;
 		commandLine = parser.parse(options, args);
 		
+		if(commandLine.hasOption("D")) {
+			Properties commandLinePropety = commandLine.getOptionProperties("D");
+			Set<Object> keys = commandLinePropety.keySet();
+			for (Object key : keys) {
+				System.setProperty((String) key, commandLinePropety.getProperty((String) key));
+			}
+		}
+		
 		if (commandLine.hasOption(TRACE_OPTION)) {
 			logger.setLevel(Level.TRACE);
 			System.setProperty("log4j.configuration", "trace-log4j.properties");
 		}
 
 		//*** Add any OBRs if coded
-		if (commandLine.hasOption(obrOption)) {
-			for (String option : commandLine.getOptionValues(obrOption)) {
+		if (commandLine.hasOption(OBR_OPTION)) {
+			for (String option : commandLine.getOptionValues(OBR_OPTION)) {
 				bundleRepositories.add(option);
 			}
 		}
@@ -212,7 +232,7 @@ public class Launcher {
 		checkForMetricsPort(commandLine);
 		checkForHealthPort(commandLine);
 		checkForLocalMaven(commandLine);
-		checkForRemoteMaven(commandLine);
+		checkForRemoteMaven();
 
 		testRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION);
 		resourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
@@ -260,7 +280,7 @@ public class Launcher {
 		commandLineError("Error: Must select either --test, --run, --k8scontroller, --metricserver or --resourcemanagement");
 	}
 
-	private void checkForRemoteMaven(CommandLine commandLine) {
+	private void checkForRemoteMaven() {
 		//*** Defaulting for the moment for demo purposes
 
 		try {
@@ -294,7 +314,7 @@ public class Launcher {
 			}
 		} else {
 			try {
-				this.localMavenRepo = new URL("file:" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+				this.localMavenRepo = new File(System.getProperty(USER_HOME) + File.separator + ".m2" + File.separator + "repository").toURI().toURL();
 			} catch(MalformedURLException e) {
 				logger.error("internal error",e);
 				commandLineError(null);
@@ -346,10 +366,10 @@ public class Launcher {
 				commandLineError(null);
 			}
 		} else {
-			Path path = Paths.get(System.getProperty("user.home"), ".voras", "bootstrap.properties");
+			Path path = Paths.get(System.getProperty(USER_HOME), ".voras", "bootstrap.properties");
 			try {
-				if (!Files.exists(path)) {
-					if (!Files.exists(path.getParent())) {
+				if (!path.toFile().exists()) {
+					if (!path.getParent().toFile().exists()) {
 						Files.createDirectories(path.getParent());
 					}
 					Files.createFile(path);
@@ -389,8 +409,8 @@ public class Launcher {
 				commandLineError(null);
 			}
 		} else {
-			Path path = Paths.get(System.getProperty("user.home"), ".voras", "overrides.properties");
-			if (!Files.exists(path)) {
+			Path path = Paths.get(System.getProperty(USER_HOME), ".voras", "overrides.properties");
+			if (!path.toFile().exists()) {
 				this.overridesProperties = new Properties();
 				return;
 			}
@@ -415,7 +435,7 @@ public class Launcher {
 			logger.error(message);
 		}
 
-		logger.error("\nExample test run arguments: --obr infra.obr --obr test.obr --testrun test.bundle/test.package.TestClass\n" +
+		logger.error("\nExample test run arguments: --obr infra.obr --obr test.obr --test test.bundle/test.package.TestClass\n" +
 				"Example Resource Management arguments: --obr infra.obr --obr test.obr --resourcemanagement");
 		System.exit(-1);
 	}
