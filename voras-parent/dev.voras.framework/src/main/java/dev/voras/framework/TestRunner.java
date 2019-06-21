@@ -486,10 +486,11 @@ public class TestRunner {
 		}
 		else
 		{
+			logger.error("Unable to resolve " + resource.toString());
 			Reason[] unsatisfiedRequirements = resolver.getUnsatisfiedRequirements();
 			for (Reason reason : unsatisfiedRequirements)
 			{
-				logger.error(resource.toString() + ": Unable to resolve: " + reason.getRequirement());
+				logger.error("Unsatisfied requirement: " + reason.getRequirement());
 			}
 			throw new TestRunException("Unable to resolve bundle " + bundleSymbolicName);
 		}

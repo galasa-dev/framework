@@ -207,8 +207,6 @@ public class FelixFramework {
 		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
 			throw new LauncherException(e.getCause());
 		}
-
-		return;
 	}
 
 
