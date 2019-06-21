@@ -5,6 +5,7 @@ import java.security.Principal;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -43,48 +44,47 @@ import dev.voras.framework.spi.IFramework;
 		)
 public class Authenticate extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static String SECRET_KEY = "thisIsthineKey";
+	private static String SECRET_KEY = "framework.jwt.secret";
+	private static long FOUR_HOURS_EXPIRE = 14400000;
 	
 	@Reference
 	public IFramework framework;   // NOSONAR
 
-	private final Properties configurationProperties = new Properties();
+	private Properties configurationProperties = new Properties();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
 		Principal principal = req.getUserPrincipal();
+
 		if (principal == null) { // TODO check that it was a basic auth principal to prevent JWT reauthenticating
 			resp.setStatus(401);
 			resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
 			resp.getWriter().write("Requires authentication");//NOSONAR  //TODO catch this as SQ says
 			return;
 		}
-		
-		if (!req.isUserInRole("user")) {
-			resp.setStatus(401);
-			resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
-			resp.getWriter().write("Does not have the 'user' role");//NOSONAR
+		if (req.isUserInRole("admin")){ 
+			String jwt = createJWT(principal.getName(), "admin", FOUR_HOURS_EXPIRE);
+			resp.setContentType("text/plain");
+			resp.getWriter().write(jwt);
 			return;
-		}
-		
-		if (req.isUserInRole("admin")) {
-			//Create admin jwt
-			String test = principal.toString();
-		} else {
-			//create user jwt
-		}
-		// TODO create and return the JWT		
-		
-		resp.setStatus(503);
-		resp.setContentType("text/plain");
-		resp.getWriter().write("James hasn't written the code yet");//NOSONAR
+		} 
+		if (req.isUserInRole("user")) {
+			String jwt = createJWT(principal.getName(), "user", FOUR_HOURS_EXPIRE);
+			resp.setContentType("text/plain");
+			resp.getWriter().write(jwt);
+			return;
+		} 
+
+		resp.setStatus(401);
+		resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
+		resp.getWriter().write("Does not have the 'user' role");//NOSONAR
 	}
-
-	public static String createJWT(String subject, String role, long expireDuration) throws JWTCreationException {
-		Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
-
+	
+	public String createJWT(String subject, String role, long expireDuration) throws JWTCreationException {
+		Algorithm algorithm = Algorithm.HMAC256(this.configurationProperties.get(SECRET_KEY).toString());
+		
 		long time = System.currentTimeMillis();
 		Date dateNow = new Date(time);
 		Date dateExpire = new Date(time+expireDuration);
@@ -107,12 +107,19 @@ public class Authenticate extends HttpServlet {
 
 	@Modified
 	void modified(Map<String, Object> properties) {
-
+		synchronized (configurationProperties) {
+			String secret = (String)properties.get(SECRET_KEY);
+			if (secret != null) {
+				this.configurationProperties.put(SECRET_KEY, secret);
+			} else {
+				this.configurationProperties.remove(SECRET_KEY);
+			}
+		}
 	}
 	
 	@Deactivate
 	void deactivate() {
-		//TODO Clear the properties to prevent JWT generation
+		this.configurationProperties.clear();
 	}
 
 }
