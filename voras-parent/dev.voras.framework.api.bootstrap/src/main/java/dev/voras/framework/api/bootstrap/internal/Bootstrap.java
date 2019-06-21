@@ -74,14 +74,14 @@ public class Bootstrap extends HttpServlet {
 	@Modified
 	void modified(Map<String, Object> properties) {
 		synchronized (configurationProperties) {
-			String cps = (String) properties.get(CPS);
+			String cps = (String)properties.get(CPS);
 			if (cps != null) {
 				this.configurationProperties.put(CPS, cps);
 			} else {
 				this.configurationProperties.remove(CPS);
 			}
 			
-			String extra = (String) properties.get(EXTRA);
+			String extra = (String)properties.get(EXTRA);
 			if (extra != null) {
 				this.configurationProperties.put(EXTRA, extra);
 			} else {

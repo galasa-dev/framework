@@ -2,6 +2,7 @@ package dev.voras.framework.api.authentication.internal;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
@@ -10,6 +11,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -37,6 +43,7 @@ import dev.voras.framework.spi.IFramework;
 		)
 public class Authenticate extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static String SECRET_KEY = "thisIsthineKey";
 	
 	@Reference
 	public IFramework framework;   // NOSONAR
@@ -62,6 +69,12 @@ public class Authenticate extends HttpServlet {
 			return;
 		}
 		
+		if (req.isUserInRole("admin")) {
+			//Create admin jwt
+			String test = principal.toString();
+		} else {
+			//create user jwt
+		}
 		// TODO create and return the JWT		
 		
 		resp.setStatus(503);
@@ -69,6 +82,23 @@ public class Authenticate extends HttpServlet {
 		resp.getWriter().write("James hasn't written the code yet");//NOSONAR
 	}
 
+	public static String createJWT(String subject, String role, long expireDuration) throws JWTCreationException {
+		Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
+
+		long time = System.currentTimeMillis();
+		Date dateNow = new Date(time);
+		Date dateExpire = new Date(time+expireDuration);
+
+		String token = JWT.create()
+						.withIssuer("voras")
+						.withIssuedAt(dateNow)
+						.withSubject(subject)
+						.withClaim("role", role)
+						.withExpiresAt(dateExpire)
+						.sign(algorithm);
+						
+		return token;
+	}
 
 	@Activate
 	void activate(Map<String, Object> properties) {
@@ -77,9 +107,9 @@ public class Authenticate extends HttpServlet {
 
 	@Modified
 	void modified(Map<String, Object> properties) {
-		// TODO set the JWT signing key etc
-	}
 
+	}
+	
 	@Deactivate
 	void deactivate() {
 		//TODO Clear the properties to prevent JWT generation
