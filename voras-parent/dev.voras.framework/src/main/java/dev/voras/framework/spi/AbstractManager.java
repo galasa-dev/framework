@@ -469,4 +469,20 @@ public abstract class AbstractManager implements IManager {
 	}
 
 
+
+	public static List<String> trim(String[] array) {
+		ArrayList<String> trimmed = new ArrayList<>();
+		for(String s : array) {
+			if (s != null) {
+				s = s.trim();
+				if (!s.isEmpty()) {
+					trimmed.add(s);
+				}
+			}
+		}
+		
+		return trimmed;
+	}
+
+
 }

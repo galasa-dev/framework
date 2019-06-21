@@ -2,6 +2,7 @@ package dev.voras.framework;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Instant;
 
@@ -73,6 +74,8 @@ public class GenericMethodWrapper {
             try {
                 this.testMethod.invoke(testClassObject);
                 this.result = Result.passed();
+			} catch(InvocationTargetException e) {
+				this.result = Result.failed(e.getCause());
             } catch(Throwable e) {
             	this.result = Result.failed(e);
             }
@@ -80,22 +83,6 @@ public class GenericMethodWrapper {
             Result overrideResult = managers.endOfTestMethod(this.result, this.result.getThrowable());
             if (overrideResult != null) {
             	this.result = overrideResult;
-            }
-
-            if (this.result.isPassed()) {
-            	String resname = this.result.getName();
-            	if (this.type != Type.Test) {
-            		resname = "Ok";
-            	}
-                logger.info(TestClassWrapper.LOG_ENDING + 
-                		TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS +
-                        TestClassWrapper.LOG_START_LINE + "*** " + resname + " - Test method " + testClass.getName() + "#" + testMethod.getName() + methodType +
-                        TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS);
-            } else {
-                logger.info(TestClassWrapper.LOG_ENDING + 
-                		TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS +
-                        TestClassWrapper.LOG_START_LINE + "*** " + this.result.getName() + " - Test method " + testClass.getName() + "#" + testMethod.getName() + methodType +
-                        TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS);
             }
             
             this.testStructureMethod.setResult(this.result.getName());
@@ -110,6 +97,28 @@ public class GenericMethodWrapper {
             		this.testStructureMethod.setException("Unable to report exception because of " + e.getMessage());
             	}
             }
+
+            if (this.result.isPassed()) {
+            	String resname = this.result.getName();
+            	if (this.type != Type.Test) {
+            		resname = "Ok";
+            	}
+                logger.info(TestClassWrapper.LOG_ENDING + 
+                		TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS +
+                        TestClassWrapper.LOG_START_LINE + "*** " + resname + " - Test method " + testClass.getName() + "#" + testMethod.getName() + methodType +
+                        TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS);
+            } else {
+            	String exception = "";
+            	if (this.testStructureMethod.getException() != null) {
+            		exception = "\n" + this.testStructureMethod.getException();
+            	}
+                logger.info(TestClassWrapper.LOG_ENDING + 
+                		TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS +
+                        TestClassWrapper.LOG_START_LINE + "*** " + this.result.getName() + " - Test method " + testClass.getName() + "#" + testMethod.getName() + methodType +
+                        TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS +
+                        exception);
+            }
+            
             
         	testStructureMethod.setEndTime(Instant.now());
         	testStructureMethod.setStatus("finished");
@@ -130,7 +139,7 @@ public class GenericMethodWrapper {
 	}
 
 	public TestMethod getStructure() {
-		this.testStructureMethod = new TestMethod();
+		this.testStructureMethod = new TestMethod(testClass);
 		this.testStructureMethod.setMethodName(testMethod.getName());
 		this.testStructureMethod.setType(this.type.toString());
 		

@@ -1,7 +1,10 @@
 package dev.voras.framework;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +95,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		final String propUri = this.bootstrapProperties.getProperty("framework.config.store");
 		if ((propUri == null) || propUri.isEmpty()) {
 			this.uriConfigurationPropertyStore = Paths.get(System.getProperty(USER_HOME), ".voras", "cps.properties").toUri();
+			createIfMissing(this.uriConfigurationPropertyStore);
 		} else {
 			this.uriConfigurationPropertyStore = new URI(propUri);
 		}
@@ -125,6 +129,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			final String dssProperty = this.cpsFramework.getProperty("dynamicstatus", "store");
 			if ((dssProperty == null) || dssProperty.isEmpty()) {
 				this.uriDynamicStatusStore = Paths.get(System.getProperty(USER_HOME), ".voras", "dss.properties").toUri();
+				createIfMissing(this.uriDynamicStatusStore);
 			} else {
 				this.uriDynamicStatusStore = new URI(dssProperty);
 			}
@@ -217,6 +222,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			final String credsProperty = this.cpsFramework.getProperty("credentials", "store");
 			if ((credsProperty == null) || credsProperty.isEmpty()) {
 				this.uriCredentialsStore = Paths.get(System.getProperty(USER_HOME), ".voras", "credentials.properties").toUri();
+				createIfMissing(this.uriCredentialsStore);
 			} else {
 				this.uriCredentialsStore = new URI(credsProperty);
 			}
@@ -274,6 +280,27 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
 		return run.getName();
 	}
+
+	/**
+	 * Create an empty default property file if it doesn't already exist
+	 * @param propertyFile
+	 * @throws IOException
+	 */
+	private void createIfMissing(URI propertyFile) {
+	
+		Path path = Paths.get(propertyFile);
+		try {
+			if (!path.toFile().exists()) {
+				if (!path.getParent().toFile().exists()) {
+					Files.createDirectories(path.getParent());
+				}
+				Files.createFile(path);
+			}
+		} catch(IOException e) {
+			logger.error("Unable to create empty default property file " + path.toUri().toString(), e);
+		}		
+	}
+
 
 	/*
 	 * (non-Javadoc)
