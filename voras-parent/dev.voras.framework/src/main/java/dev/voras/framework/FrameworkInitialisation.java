@@ -73,7 +73,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		this.bootstrapProperties = bootstrapProperties;
 		
 
-		this.logger.info("Initialising the eJAT Framework");
+		this.logger.info("Initialising the Voras Framework");
 
 		//*** Locate the framework
 		final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
