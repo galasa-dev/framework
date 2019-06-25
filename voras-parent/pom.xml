@@ -20,7 +20,7 @@
 		<module>dev.voras.framework.metrics</module>
 		<module>dev.voras.framework.k8s.controller</module>
 		<module>dev.voras.framework.obr</module>
-		<module>voras-boot</module>
+		<!-- <module>voras-boot</module> -->
 		<module>voras-demo-archetype</module>
 		<module>dev.voras.framework.api.authentication</module>
 		<module>dev.voras.framework.api.health</module>
@@ -73,7 +73,9 @@
 		<commons-cli>1.4</commons-cli>
 		<commons-io>2.6</commons-io>
 		<commons-lang3>3.8.1</commons-lang3>
+		<commons-lang>2.6</commons-lang>
 		<commons-codec>1.11</commons-codec>
+		<commons-collections>3.2.2</commons-collections>
 		<log4j>1.2.17</log4j>
 		<bcel>6.3</bcel>
 		<httpclient-osgi>4.5.8</httpclient-osgi>
