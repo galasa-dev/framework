@@ -5,7 +5,7 @@ import java.security.Principal;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
+
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.google.gson.Gson;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -55,7 +56,8 @@ public class Authenticate extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
+
+		Gson gson = new Gson();
 		Principal principal = req.getUserPrincipal();
 
 		if (principal == null) { // TODO check that it was a basic auth principal to prevent JWT reauthenticating
@@ -66,14 +68,29 @@ public class Authenticate extends HttpServlet {
 		}
 		if (req.isUserInRole("admin")){ 
 			String jwt = createJWT(principal.getName(), "admin", FOUR_HOURS_EXPIRE);
-			resp.setContentType("text/plain");
-			resp.getWriter().write(jwt);
+
+			AuthJson auth = new AuthJson();
+			auth.cps = jwt;
+			auth.dss = jwt;
+			auth.ras = jwt;
+			String json = gson.toJson(auth);
+
+			resp.setContentType("application/json");
+			resp.getWriter().write(json);
 			return;
 		} 
 		if (req.isUserInRole("user")) {
 			String jwt = createJWT(principal.getName(), "user", FOUR_HOURS_EXPIRE);
-			resp.setContentType("text/plain");
-			resp.getWriter().write(jwt);
+
+			AuthJson auth = new AuthJson();
+			auth.cps = jwt;
+			auth.dss = jwt;
+			auth.ras = jwt;
+
+			String json = gson.toJson(auth);
+
+			resp.setContentType("application/json");
+			resp.getWriter().write(json);
 			return;
 		} 
 
@@ -121,5 +138,9 @@ public class Authenticate extends HttpServlet {
 	void deactivate() {
 		this.configurationProperties.clear();
 	}
-
+	private class AuthJson {
+		String cps;
+		String dss;
+		String ras;
+	}
 }
