@@ -42,13 +42,10 @@ public class Identity extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/plain");
-        Gson gson = new Gson();        
+        response.setContentType("text/plain");        
 
         String jwt = getBearerToken(request);
         String subject = JWT.decode(jwt).getSubject();
-
-
 
         if(request.isUserInRole("admin")) {
             response.getWriter().write(subject + " is in admin\n");
@@ -59,7 +56,6 @@ public class Identity extends HttpServlet {
             return;
         }
 
-        // response.setStatus(401);
 		response.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
 		response.getWriter().write("No authetication!\n");//NOSONAR
         return;
