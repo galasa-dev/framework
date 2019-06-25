@@ -162,7 +162,6 @@ public class CpsProperties {
 	 */
 	protected static @NotNull List<String> getStringList(
 			@NotNull IConfigurationPropertyStoreService cps, 
-			@NotNull Log logger,
 			@NotNull String prefix, 
 			@NotNull String suffix, 
 			String... infixes) throws ConfigurationPropertyStoreException {
