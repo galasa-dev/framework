@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import dev.voras.framework.spi.ConfigurationPropertyStoreException;
 import dev.voras.framework.spi.IConfigurationPropertyStoreService;
@@ -33,7 +34,6 @@ public class CpsProperties {
 	 */
 	protected static int getIntWithDefault(
 			@NotNull IConfigurationPropertyStoreService cps, 
-			@NotNull Log logger, 
 			@NotNull int defaultValue, 
 			@NotNull String prefix, 
 			@NotNull String suffix, 
@@ -46,6 +46,8 @@ public class CpsProperties {
 
 			return Integer.parseInt(sValue.trim());
 		} catch(Exception e) {
+			Log logger = LogFactory.getLog(e.getStackTrace()[1].getClassName());		
+			
 			logger.warn("Invalid property, using default " + defaultValue ,e);
 			return defaultValue;
 		}
@@ -66,7 +68,6 @@ public class CpsProperties {
 	 */
 	protected static String getStringNulled(
 			@NotNull IConfigurationPropertyStoreService cps, 
-			@NotNull Log logger, 
 			@NotNull String prefix, 
 			@NotNull String suffix, 
 			String... infixes) throws ConfigurationPropertyStoreException {
@@ -92,7 +93,6 @@ public class CpsProperties {
 	@NotNull
 	protected static String getStringWithDefault(
 			@NotNull IConfigurationPropertyStoreService cps, 
-			@NotNull Log logger,
 			@NotNull String defaultValue,
 			@NotNull String prefix, 
 			@NotNull String suffix, 
@@ -105,6 +105,7 @@ public class CpsProperties {
 
 			return sValue;
 		} catch(Exception e) {
+			Log logger = LogFactory.getLog(e.getStackTrace()[1].getClassName());		
 			logger.warn("Invalid property, using default " + defaultValue ,e);
 			return defaultValue;
 		}
@@ -124,7 +125,6 @@ public class CpsProperties {
 	 */
 	protected static @NotNull List<String> getStringListWithDefault(
 			@NotNull IConfigurationPropertyStoreService cps, 
-			@NotNull Log logger,
 			@NotNull String defaultValues,
 			@NotNull String prefix, 
 			@NotNull String suffix, 
@@ -142,6 +142,7 @@ public class CpsProperties {
 			}
 			return result;
 		} catch(Exception e) {
+			Log logger = LogFactory.getLog(e.getStackTrace()[1].getClassName());		
 			logger.warn("Invalid property, using default " + defaultValues.toString() ,e);
 			return splitToList(defaultValues);
 		}
