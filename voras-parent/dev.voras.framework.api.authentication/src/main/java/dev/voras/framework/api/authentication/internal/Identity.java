@@ -28,17 +28,13 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
     service=Servlet.class,
     scope=ServiceScope.PROTOTYPE,
-    configurationPid= {"dev.voras"},
-	configurationPolicy=ConfigurationPolicy.REQUIRE,
     property=("osgi.http.whiteboard.servlet.pattern=/auth/identity"),
 	name="Voras Identity"
 )
 public class Identity extends HttpServlet {
-    private Properties configurationProperties = new Properties();
-    private static String SECRET_KEY = "framework.jwt.secret";
 
     @Reference
-    public IFramework framework;
+    public IFramework framework; //NOSONAR
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -60,18 +56,6 @@ public class Identity extends HttpServlet {
 		response.getWriter().write("No authetication!\n");//NOSONAR
         return;
     }
-
-    @Activate
-	void activate(Map<String, Object> properties) {
-		synchronized (configurationProperties) {
-			String secret = (String)properties.get(SECRET_KEY);
-			if (secret != null) {
-				this.configurationProperties.put(SECRET_KEY, secret);
-			} else {
-				this.configurationProperties.remove(SECRET_KEY);
-			}
-		}
-	}
 
     private String getBearerToken( HttpServletRequest request ) {
         String authHeader = request.getHeader( "Authorization" );
