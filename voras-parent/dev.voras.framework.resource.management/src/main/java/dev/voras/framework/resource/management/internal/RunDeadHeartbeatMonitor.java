@@ -42,7 +42,7 @@ public class RunDeadHeartbeatMonitor implements Runnable {
 			if (overrideTime != null) {
 				defaultDeadHeartbeatTime = Integer.parseInt(overrideTime);
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			logger.error("Problem with resource.management.dead.heartbeat.timeout, using default " + defaultDeadHeartbeatTime,e);
 		}
 
@@ -56,6 +56,11 @@ public class RunDeadHeartbeatMonitor implements Runnable {
 				logger.trace("Checking run " + runName);
 
 				Instant heartbeat = run.getHeartbeat();
+				if (heartbeat == null) {
+					logger.warn("Active run without heartbeat = " + runName + " ignoring");
+					continue;
+				}
+				
 				Instant expires = heartbeat.plusSeconds(defaultDeadHeartbeatTime);
 				Instant now = Instant.now();
 				if (expires.compareTo(now) <= 0) {
@@ -73,7 +78,7 @@ public class RunDeadHeartbeatMonitor implements Runnable {
 					logger.trace("Run " + runName + " heartbeat is ok");
 				}
 			}
-		} catch (FrameworkException e) {
+		} catch (Throwable e) {
 			logger.error("Scan of runs failed", e);
 		}
 
