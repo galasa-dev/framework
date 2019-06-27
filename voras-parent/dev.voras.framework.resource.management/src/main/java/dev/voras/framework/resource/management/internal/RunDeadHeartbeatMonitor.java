@@ -53,11 +53,13 @@ public class RunDeadHeartbeatMonitor implements Runnable {
 			logger.trace("Active Run count = " + runs.size());
 			for(IRun run : runs) {
 				String runName = run.getName();
+				logger.trace("Checking run " + runName);
 
 				Instant heartbeat = run.getHeartbeat();
 				Instant expires = heartbeat.plusSeconds(defaultDeadHeartbeatTime);
 				Instant now = Instant.now();
 				if (expires.compareTo(now) <= 0) {
+					logger.trace("Run " + runName + " has a dead heartbeat");
 					String lastHeartbeat = dtf.format(LocalDateTime.ofInstant(heartbeat, ZoneId.systemDefault()));
 					if (run.isLocal()) {
 						///TODO put time management into the framework
@@ -67,6 +69,8 @@ public class RunDeadHeartbeatMonitor implements Runnable {
 						logger.warn("Reseting run " + runName + ", last heartbeat was at " + lastHeartbeat);
 						this.frameworkRuns.reset(runName);
 					}
+				} else {
+					logger.trace("Run " + runName + " heartbeat is ok");
 				}
 			}
 		} catch (FrameworkException e) {
