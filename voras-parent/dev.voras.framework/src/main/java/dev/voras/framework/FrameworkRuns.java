@@ -13,6 +13,9 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import dev.voras.framework.spi.AbstractManager;
 import dev.voras.framework.spi.DynamicStatusStoreException;
 import dev.voras.framework.spi.FrameworkException;
@@ -23,6 +26,8 @@ import dev.voras.framework.spi.IFrameworkRuns;
 import dev.voras.framework.spi.IRun;
 
 public class FrameworkRuns implements IFrameworkRuns {
+	
+	private final static Log logger = LogFactory.getLog(FrameworkRuns.class);
 
 	private final Pattern  runPattern = Pattern.compile("^\\Qrun.\\E(\\w+)\\Q.\\E.*$");
 
@@ -79,7 +84,9 @@ public class FrameworkRuns implements IFrameworkRuns {
 	public List<IRun> getAllRuns() throws FrameworkException {
 		HashMap<String, IRun> runs = new HashMap<>();
 
+		logger.trace("Fetching all runs from DSS");
 		Map<String, String> runProperties = dss.getPrefix("run.");
+		logger.trace("Fetched all runs from DSS");
 		for(String key : runProperties.keySet()) {
 			Matcher matcher = runPattern.matcher(key);
 			if (matcher.find()) {

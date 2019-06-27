@@ -48,7 +48,9 @@ public class RunDeadHeartbeatMonitor implements Runnable {
 
 		logger.info("Starting Run Dead Heartbeat search");
 		try {
+			logger.trace("Fetching list of Active Runs");
 			List<IRun> runs = frameworkRuns.getActiveRuns();
+			logger.trace("Active Run count = " + runs.size());
 			for(IRun run : runs) {
 				String runName = run.getName();
 
