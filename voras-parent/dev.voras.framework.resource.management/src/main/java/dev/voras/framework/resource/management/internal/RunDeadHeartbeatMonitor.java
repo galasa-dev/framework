@@ -42,20 +42,29 @@ public class RunDeadHeartbeatMonitor implements Runnable {
 			if (overrideTime != null) {
 				defaultDeadHeartbeatTime = Integer.parseInt(overrideTime);
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			logger.error("Problem with resource.management.dead.heartbeat.timeout, using default " + defaultDeadHeartbeatTime,e);
 		}
 
 		logger.info("Starting Run Dead Heartbeat search");
 		try {
+			logger.trace("Fetching list of Active Runs");
 			List<IRun> runs = frameworkRuns.getActiveRuns();
+			logger.trace("Active Run count = " + runs.size());
 			for(IRun run : runs) {
 				String runName = run.getName();
+				logger.trace("Checking run " + runName);
 
 				Instant heartbeat = run.getHeartbeat();
+				if (heartbeat == null) {
+					logger.warn("Active run without heartbeat = " + runName + " ignoring");
+					continue;
+				}
+				
 				Instant expires = heartbeat.plusSeconds(defaultDeadHeartbeatTime);
 				Instant now = Instant.now();
 				if (expires.compareTo(now) <= 0) {
+					logger.trace("Run " + runName + " has a dead heartbeat");
 					String lastHeartbeat = dtf.format(LocalDateTime.ofInstant(heartbeat, ZoneId.systemDefault()));
 					if (run.isLocal()) {
 						///TODO put time management into the framework
@@ -65,9 +74,11 @@ public class RunDeadHeartbeatMonitor implements Runnable {
 						logger.warn("Reseting run " + runName + ", last heartbeat was at " + lastHeartbeat);
 						this.frameworkRuns.reset(runName);
 					}
+				} else {
+					logger.trace("Run " + runName + " heartbeat is ok");
 				}
 			}
-		} catch (FrameworkException e) {
+		} catch (Throwable e) {
 			logger.error("Scan of runs failed", e);
 		}
 
