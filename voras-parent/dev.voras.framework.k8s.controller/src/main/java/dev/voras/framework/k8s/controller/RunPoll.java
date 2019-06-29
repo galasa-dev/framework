@@ -71,6 +71,17 @@ public class RunPoll implements Runnable {
 			//*** No we are not, get all the queued runs
 			List<IRun> queuedRuns = this.runs.getQueuedRuns();
 			//TODO filter by capability
+			
+			//*** Remove all the local runs
+			Iterator<IRun> queuedRunsIterator = queuedRuns.iterator();
+			while(queuedRunsIterator.hasNext()) {
+				IRun run = queuedRunsIterator.next();
+				if (run.isLocal()) {
+					queuedRunsIterator.remove();
+				}
+			}
+			
+			
 			if (queuedRuns.isEmpty()) {
 				logger.info("There are no queued runs");
 				return;
