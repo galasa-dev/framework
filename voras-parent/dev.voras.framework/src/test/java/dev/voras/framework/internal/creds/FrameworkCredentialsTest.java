@@ -87,7 +87,7 @@ public class FrameworkCredentialsTest {
 
 		CredentialsToken credsToken = (CredentialsToken) creds;
 
-		assertEquals("Token creds incorrect value", "testToken", credsToken.getToken());
+		assertEquals("Token creds incorrect value", "testToken", new String(credsToken.getToken()));
 	}
 
 	private void saveProperties(Properties properties, File file) throws Exception {
