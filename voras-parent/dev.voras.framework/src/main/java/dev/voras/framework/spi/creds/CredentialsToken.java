@@ -1,16 +1,20 @@
 package dev.voras.framework.spi.creds;
 
+import javax.crypto.spec.SecretKeySpec;
+
 import dev.voras.ICredentialsToken;
 
-public class CredentialsToken implements ICredentialsToken {
-    private String token;
+public class CredentialsToken extends Credentials implements ICredentialsToken {
+	private final byte[] token;
 
-    public CredentialsToken(String token) {
-        this.token = token;
-    }
+	public CredentialsToken(SecretKeySpec key, String stoken) throws CredentialsException {
+		super(key);
 
-    public String getToken() {
-        return token;
-    }
-    
+		this.token = decode(stoken);
+	}
+
+	public byte[] getToken() {
+		return token;
+	}
+
 }

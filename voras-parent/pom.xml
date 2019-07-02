@@ -20,11 +20,12 @@
 		<module>dev.voras.framework.metrics</module>
 		<module>dev.voras.framework.k8s.controller</module>
 		<module>dev.voras.framework.obr</module>
-		<!-- <module>voras-boot</module> -->
+		<module>voras-boot</module>
 		<module>voras-demo-archetype</module>
 		<module>dev.voras.framework.api.authentication</module>
 		<module>dev.voras.framework.api.health</module>
 		<module>dev.voras.framework.api.bootstrap</module>
+		<module>vorasutils-maven-plugin</module>
 	</modules>
 
 	<distributionManagement>

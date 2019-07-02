@@ -4,18 +4,17 @@ import java.io.UnsupportedEncodingException;
 
 import javax.crypto.spec.SecretKeySpec;
 
-import dev.voras.ICredentialsUsernamePassword;
+import dev.voras.ICredentialsUsernameToken;
 
-public class CredentialsUsernamePassword extends Credentials implements ICredentialsUsernamePassword {
+public class CredentialsUsernameToken extends Credentials implements ICredentialsUsernameToken {
 	private String username;
-	private String password;
+	private byte[] token;
 
-	public CredentialsUsernamePassword(SecretKeySpec key, String username, String password) throws CredentialsException {
+	public CredentialsUsernameToken(SecretKeySpec key, String username, String token) throws CredentialsException {
 		super(key);
-
 		try {
 			this.username = new String(decode(username),"utf-8");
-			this.password = new String(decode(password),"utf-8");
+			this.token = decode(token);
 		} catch(UnsupportedEncodingException e) {
 			throw new CredentialsException("utf-8 is not available for credentials", e);
 		} catch (CredentialsException e) {
@@ -28,7 +27,7 @@ public class CredentialsUsernamePassword extends Credentials implements ICredent
 		return username;
 	}
 
-	public String getPassword() {
-		return password;
+	public byte[] getToken() {
+		return token;
 	}
 }

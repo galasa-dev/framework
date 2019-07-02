@@ -71,7 +71,7 @@ public class FrameworkCredentialsService implements ICredentialsService {
 		
 		if (creds instanceof ICredentialsToken) {
 			ICredentialsToken token = (ICredentialsToken) creds;
-			confTextService.registerText(token.getToken(), "Token for credentials id " + credsId);
+			confTextService.registerText(new String(token.getToken()), "Token for credentials id " + credsId);
 			return creds;
 		}
 		
