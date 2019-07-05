@@ -54,6 +54,7 @@ public class Launcher {
 	private static final String METRICS_OPTION            = "metrics";
 	private static final String HEALTH_OPTION             = "health";
 	private static final String LOCALMAVEN_OPTION         = "localmaven";
+	private static final String REMOTEMAVEN_OPTION        = "remotemaven";
 	private static final String TRACE_OPTION              = "trace";
 	
 	private static final String USER_HOME                 = "user.home";
@@ -201,6 +202,7 @@ public class Launcher {
 		options.addOption(null, METRICS_OPTION, true, "The port the metrics server will open, 0 to disable");
 		options.addOption(null, HEALTH_OPTION, true, "The port the health server will open, 0 to disable");
 		options.addOption(null, LOCALMAVEN_OPTION, true, "The local maven repository, defaults to ~/.m2/repository");
+		options.addOption(null, REMOTEMAVEN_OPTION, true, "The remote maven repositories, defaults to central");
 		options.addOption(null, TRACE_OPTION, false, "Enable TRACE logging");
 
 		CommandLineParser parser = new DefaultParser();
@@ -233,7 +235,7 @@ public class Launcher {
 		checkForMetricsPort(commandLine);
 		checkForHealthPort(commandLine);
 		checkForLocalMaven(commandLine);
-		checkForRemoteMaven();
+		checkForRemoteMaven(commandLine);
 
 		testRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION);
 		resourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
@@ -281,14 +283,19 @@ public class Launcher {
 		commandLineError("Error: Must select either --test, --run, --k8scontroller, --metricserver or --resourcemanagement");
 	}
 
-	private void checkForRemoteMaven() {
-		//*** Defaulting for the moment for demo purposes
-
+	private void checkForRemoteMaven(CommandLine commandLine) {
+		
 		try {
-			this.remoteMavenRepos.add(new URL("http://cicscit.hursley.ibm.com/ejatv3/maven"));
+			if (commandLine.hasOption(REMOTEMAVEN_OPTION)) {
+				for (String option : commandLine.getOptionValues(REMOTEMAVEN_OPTION)) {
+					this.remoteMavenRepos.add(new URL(option));
+				}
+			} else {
+				this.remoteMavenRepos.add(new URL("http://cicscit.hursley.ibm.com/voras/maven")); // DEFAULT
+			}
 			this.remoteMavenRepos.add(new URL("https://repo.maven.apache.org/maven2"));
 		} catch(MalformedURLException e) {
-			logger.error("internal error",e);
+			logger.error("invalid remote maven urls",e);
 			commandLineError(null);
 		}
 
