@@ -215,7 +215,7 @@ public class TestClassWrapper {
 					LOG_START_LINE + "*** " + this.result.getName() + " - Test class " + testClass.getName() +
 					LOG_START_LINE + LOG_ASTERS);
 		
-		this.testStructure.setStatus(this.result.getName());
+		this.testStructure.setResult(this.result.getName());
 		
 		String report = this.testStructure.report(LOG_START_LINE);
 		logger.trace("Finishing Test Class structure:-" + report);
