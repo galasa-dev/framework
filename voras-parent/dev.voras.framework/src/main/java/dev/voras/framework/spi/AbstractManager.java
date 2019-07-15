@@ -118,8 +118,9 @@ public abstract class AbstractManager implements IManager {
      *
      * @param managerAnnotation The Annotation for those annotated fields we are
      *                          interested in
+     * @throws ManagerException 
      */
-    protected void generateAnnotatedFields(Class<? extends Annotation> managerAnnotation) {
+    protected void generateAnnotatedFields(Class<? extends Annotation> managerAnnotation) throws ManagerException {
         final List<AnnotatedField> foundAnnotatedFields = findAnnotatedFields(managerAnnotation);
         if (foundAnnotatedFields.isEmpty()) { // *** No point doing anything
             return;
@@ -165,7 +166,7 @@ public abstract class AbstractManager implements IManager {
                     }
                 }
             } catch (final Exception e) {
-                this.logger.error("Problem generating Test Class fields", e);
+                throw new ManagerException("Problem generating Test Class fields", e);
             }
         }
     }
