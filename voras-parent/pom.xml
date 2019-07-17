@@ -89,6 +89,8 @@
 		<prometheus.hotspot>0.6.0</prometheus.hotspot>
 
 		<validation-api>2.0.1.Final</validation-api>
+		
+		<assertj-core>3.11.1</assertj-core>
 	</properties>
 
 

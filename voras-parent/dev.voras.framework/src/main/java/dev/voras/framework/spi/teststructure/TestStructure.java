@@ -19,6 +19,7 @@ public class TestStructure {
 	private String testShortName;
 	
 	private String status;
+	private String result;
 	
 	private Instant startTime;
 	private Instant endTime;
@@ -61,6 +62,14 @@ public class TestStructure {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
 	}
 
 	public List<TestMethod> getMethods() {
