@@ -1,9 +1,12 @@
 package dev.voras.framework.api.authentication;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 
@@ -13,6 +16,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -23,40 +27,31 @@ import dev.voras.framework.api.authentication.internal.Authenticate;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JwtTest {
+    private String jwt;
+    private String SECRET = "ATestSecretBananas";
 
-    @Mock
-    Properties configurationProperties;
-
-    @InjectMocks
-    Authenticate mockAuth = new Authenticate();
-
-    @Test
-    public void createJwt() {
+    @Before
+    public void before() {
+        Authenticate auth = new Authenticate();
         String subject = "JimmyToken";
         String role = "admin";
         long expireDuration = 100000;
-        Authenticate auth = new Authenticate();
-        String SECRET_KEY = "framework.jwt.secret";
 
-        when(this.configurationProperties.get(SECRET_KEY)).thenReturn("mockedSecret");
-        
-        String Jwt = mockAuth.createJWT(subject, role, expireDuration);
+        Map<String, Object> props = new HashMap<>();
+        props.put("framework.jwt.secret", SECRET);
+
+        auth.activate(props);
+        jwt = auth.createJWT(subject, role, expireDuration);
+    }
+    @Test
+    public void createJwt() {
+        assertNotNull(jwt);
     }
 
     @Test
     public void decodeJwt() {
 
-        String subject = "JimmyToken";
-        String role = "admin";
-        long expireDuration = 100000;
-        String secret = "mockedSecret";
-        Authenticate auth = new Authenticate();
-        String SECRET_KEY = "framework.jwt.secret";
-
-        when(this.configurationProperties.get(SECRET_KEY)).thenReturn("mockedSecret");
-        String jwt = mockAuth.createJWT(subject, role, expireDuration);
-
-        Algorithm algorithm = Algorithm.HMAC256(secret);
+        Algorithm algorithm = Algorithm.HMAC256(SECRET);
         JWTVerifier verifier = JWT.require(algorithm)
                         .withIssuer("voras")
                         .build();
@@ -69,19 +64,10 @@ public class JwtTest {
 
     @Test
     public void decodeJwtWithBadKey() {
+        String wrongSecret = "NotBananas";
+        Boolean caught = false;
 
-        String subject = "JimmyToken";
-        String role = "admin";
-        long expireDuration = 100000;
-        String secret = "thisIsNOTthineKey";
-        boolean caught = false;
-        Authenticate auth = new Authenticate();
-        String SECRET_KEY = "framework.jwt.secret";
-
-        when(this.configurationProperties.get(SECRET_KEY)).thenReturn("mockedSecret");
-        String jwt = mockAuth.createJWT(subject, role, expireDuration);
-
-        Algorithm algorithm = Algorithm.HMAC256(secret);
+        Algorithm algorithm = Algorithm.HMAC256(wrongSecret);
         JWTVerifier verifier = JWT.require(algorithm)
                         .withIssuer("voras")
                         .build();

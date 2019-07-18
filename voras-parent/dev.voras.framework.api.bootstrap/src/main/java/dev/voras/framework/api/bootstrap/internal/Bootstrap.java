@@ -41,7 +41,7 @@ import dev.voras.framework.spi.IFramework;
 public class Bootstrap extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private ArrayList<String> bootstrapKeys = new ArrayList<>(
+	private final ArrayList<String> bootstrapKeys = new ArrayList<>(
 															Arrays.asList(
 															"framework.config.store",
 															"framework.extra.bundles",

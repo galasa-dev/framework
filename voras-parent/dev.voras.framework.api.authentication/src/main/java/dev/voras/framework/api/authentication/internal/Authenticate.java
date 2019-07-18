@@ -51,7 +51,7 @@ public class Authenticate extends HttpServlet {
 	@Reference
 	public IFramework framework;   // NOSONAR
 
-	private Properties configurationProperties = new Properties();
+	private final Properties configurationProperties = new Properties();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -67,7 +67,15 @@ public class Authenticate extends HttpServlet {
 			return;
 		}
 		if (req.isUserInRole("admin")){ 
-			String jwt = createJWT(principal.getName(), "admin", FOUR_HOURS_EXPIRE);
+			String jwt;
+			try {
+				jwt = createJWT(principal.getName(), "admin", FOUR_HOURS_EXPIRE);
+			} catch (JWTCreationException e) {
+				resp.setStatus(500);
+				resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
+				resp.getWriter().write("Token could not be generated");//NOSONAR  //TODO catch this as SQ says
+				return;
+			}
 
 			AuthJson auth = new AuthJson();
 			auth.cps = jwt;
@@ -76,11 +84,26 @@ public class Authenticate extends HttpServlet {
 			String json = gson.toJson(auth);
 
 			resp.setContentType("application/json");
-			resp.getWriter().write(json);
+			try{
+				resp.getWriter().write(json);
+			} catch (IOException e) {
+				resp.setStatus(500);
+				resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
+				resp.getWriter().write("Failed to create json");//NOSONAR  //TODO catch this as SQ says
+				return;
+			}
 			return;
 		} 
 		if (req.isUserInRole("user")) {
-			String jwt = createJWT(principal.getName(), "user", FOUR_HOURS_EXPIRE);
+			String jwt;
+			try {
+				jwt = createJWT(principal.getName(), "user", FOUR_HOURS_EXPIRE);
+			} catch (JWTCreationException e) {
+				resp.setStatus(500);
+				resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
+				resp.getWriter().write("Token could not be generated");//NOSONAR  //TODO catch this as SQ says
+				return;
+			}
 
 			AuthJson auth = new AuthJson();
 			auth.cps = jwt;
@@ -90,7 +113,14 @@ public class Authenticate extends HttpServlet {
 			String json = gson.toJson(auth);
 
 			resp.setContentType("application/json");
-			resp.getWriter().write(json);
+			try{
+				resp.getWriter().write(json);
+			} catch (IOException e) {
+				resp.setStatus(500);
+				resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
+				resp.getWriter().write("Failed to create json");//NOSONAR  //TODO catch this as SQ says
+				return;
+			}
 			return;
 		} 
 
@@ -105,7 +135,7 @@ public class Authenticate extends HttpServlet {
 		long time = System.currentTimeMillis();
 		Date dateNow = new Date(time);
 		Date dateExpire = new Date(time+expireDuration);
-
+		
 		String token = JWT.create()
 						.withIssuer("voras")
 						.withIssuedAt(dateNow)
@@ -118,12 +148,12 @@ public class Authenticate extends HttpServlet {
 	}
 
 	@Activate
-	void activate(Map<String, Object> properties) {
+	public void activate(Map<String, Object> properties) {
 		modified(properties);
 	}
 
 	@Modified
-	void modified(Map<String, Object> properties) {
+	public void modified(Map<String, Object> properties) {
 		synchronized (configurationProperties) {
 			String secret = (String)properties.get(SECRET_KEY);
 			if (secret != null) {
@@ -139,8 +169,8 @@ public class Authenticate extends HttpServlet {
 		this.configurationProperties.clear();
 	}
 	private class AuthJson {
-		String cps;
-		String dss;
-		String ras;
+		protected String cps;
+		protected String dss;
+		protected String ras;
 	}
 }
