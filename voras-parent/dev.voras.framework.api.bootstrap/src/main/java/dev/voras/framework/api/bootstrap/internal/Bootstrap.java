@@ -1,6 +1,8 @@
 package dev.voras.framework.api.bootstrap.internal;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,15 +34,20 @@ import dev.voras.framework.spi.IFramework;
 		service=Servlet.class,
 		scope=ServiceScope.PROTOTYPE,
 		property= {"osgi.http.whiteboard.servlet.pattern=/bootstrap"},
-		configurationPid= {"dev.voras"},
+		configurationPid= {"dev.voras.bootstrap"},
 		configurationPolicy=ConfigurationPolicy.REQUIRE,
 		name="Voras Bootstrap"
 		)
 public class Bootstrap extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
-	private static final String CPS   = "framework.config.store";
-	private static final String EXTRA = "framework.extra.bundles";
+
+	private ArrayList<String> bootstrapKeys = new ArrayList<>(
+															Arrays.asList(
+															"framework.config.store",
+															"framework.extra.bundles",
+															"framework.bootstrap.url",
+															"framework.jwt.secret"
+															));
 
 	@Reference
 	public IFramework framework;   // NOSONAR
@@ -74,18 +81,13 @@ public class Bootstrap extends HttpServlet {
 	@Modified
 	void modified(Map<String, Object> properties) {
 		synchronized (configurationProperties) {
-			String cps = (String)properties.get(CPS);
-			if (cps != null) {
-				this.configurationProperties.put(CPS, cps);
-			} else {
-				this.configurationProperties.remove(CPS);
-			}
-			
-			String extra = (String)properties.get(EXTRA);
-			if (extra != null) {
-				this.configurationProperties.put(EXTRA, extra);
-			} else {
-				this.configurationProperties.remove(EXTRA);
+			for(String key: bootstrapKeys) {
+				String value = (String)properties.get(key);
+				if (value != null) {
+					this.configurationProperties.put(key, value);
+				} else {
+					this.configurationProperties.remove(key);
+				}
 			}
 		}
 	}
@@ -93,8 +95,7 @@ public class Bootstrap extends HttpServlet {
 	@Deactivate
 	void deactivate() {
 		synchronized (configurationProperties) {
-			this.configurationProperties.remove(EXTRA);
-			this.configurationProperties.remove(EXTRA);
+			this.configurationProperties.clear();
 		}    
 	}
 
