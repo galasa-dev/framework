@@ -115,7 +115,7 @@ public class RunPoll implements Runnable {
 				startPod(selectedRun);
 
 				if (!queuedRuns.isEmpty()) {
-					Thread.sleep(settings.getRunPollRecheck() * 1000);  //*** Slight delay to allow Docker to catch up
+					Thread.sleep((long)settings.getRunPollRecheck() * 1000l);  //*** Slight delay to allow Docker to catch up
 				} else {
 					return;
 				}

@@ -56,8 +56,6 @@ public class DockerController {
 		logger.info("Starting Docker Controller");
 
 		//*** Create the Http Client to Docker
-		
-		CloseableHttpClient httpClient = HttpClients.createDefault();
 
 		//*** Fetch the settings
 
@@ -103,7 +101,7 @@ public class DockerController {
 				this.metricsServer = new HTTPServer(metricsPort);
 				logger.info("Metrics server running on port " + metricsPort);
 			} catch (IOException e) {
-				throw new FrameworkException("Unable to start the metrics server",e);
+				throw new DockerControllerException("Unable to start the metrics server",e);
 			}
 		} else {
 			logger.info("Metrics server disabled");
@@ -112,40 +110,45 @@ public class DockerController {
 		//*** Create metrics
 		//		DefaultExports.initialize()  - problem within the the exporter at the moment TODO
 
-		//*** Create Health Server
-		if (healthPort > 0) {		
-			this.healthServer = new Health(healthPort);
-			logger.info("Health monitoring on port " + healthPort);
-		} else {
-			logger.info("Health monitoring disabled");
-		}
-		//*** Start the run polling
-		RunDeleted runDeleted = new RunDeleted(settings, httpClient, framework.getFrameworkRuns());
-		scheduledExecutorService.scheduleWithFixedDelay(runDeleted, 
-				0, 
-				settings.getRunPoll(), 
-				TimeUnit.SECONDS);
-		RunPoll runPoll = new RunPoll(dss, settings, httpClient, framework.getFrameworkRuns());
-		scheduledExecutorService.scheduleWithFixedDelay(runPoll, 
-				1, 
-				settings.getRunPoll(), 
-				TimeUnit.SECONDS);
+		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
-		//*** Loop until we are asked to shutdown
-		while(!shutdown) {
-			try {
-				Thread.sleep(500);
-			} catch(Exception e) {
-				throw new FrameworkException("Interrupted sleep", e);
+			//*** Create Health Server
+			if (healthPort > 0) {		
+				this.healthServer = new Health(healthPort);
+				logger.info("Health monitoring on port " + healthPort);
+			} else {
+				logger.info("Health monitoring disabled");
 			}
-		}
+			//*** Start the run polling
+			RunDeleted runDeleted = new RunDeleted(settings, httpClient, framework.getFrameworkRuns());
+			scheduledExecutorService.scheduleWithFixedDelay(runDeleted, 
+					0, 
+					settings.getRunPoll(), 
+					TimeUnit.SECONDS);
+			RunPoll runPoll = new RunPoll(dss, settings, httpClient, framework.getFrameworkRuns());
+			scheduledExecutorService.scheduleWithFixedDelay(runPoll, 
+					1, 
+					settings.getRunPoll(), 
+					TimeUnit.SECONDS);
 
-		//*** shutdown the scheduler
-		this.scheduledExecutorService.shutdown();
-		try {
-			this.scheduledExecutorService.awaitTermination(30, TimeUnit.SECONDS);
+			//*** Loop until we are asked to shutdown
+			while(!shutdown) {
+				try {
+					Thread.sleep(500);
+				} catch(Exception e) {
+					throw new DockerControllerException("Interrupted sleep", e);
+				}
+			}
+
+			//*** shutdown the scheduler
+			this.scheduledExecutorService.shutdown();
+			try {
+				this.scheduledExecutorService.awaitTermination(30, TimeUnit.SECONDS);
+			} catch(Exception e) {
+				logger.error("Unable to shutdown the scheduler");
+			}
 		} catch(Exception e) {
-			logger.error("Unable to shutdown the scheduler");
+			throw new DockerControllerException("Controller failed", e);
 		}
 
 		//*** Stop the metics server
