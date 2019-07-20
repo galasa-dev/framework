@@ -47,6 +47,7 @@ public class Launcher {
 	private static final String OVERRIDES_OPTION          = "overrides";
 	private static final String RESOURCEMANAGEMENT_OPTION = "resourcemanagement";
 	private static final String K8SCONTROLLER_OPTION      = "k8scontroller";
+	private static final String DOCKERCONTROLLER_OPTION   = "dockercontroller";
 	private static final String METRICSERVER_OPTION       = "metricserver";
 	private static final String TEST_OPTION               = "test";
 	private static final String RUN_OPTION                = "run";
@@ -75,6 +76,7 @@ public class Launcher {
 	private boolean testRun;
 	private boolean resourceManagement;
 	private boolean k8sController;
+	private boolean dockerController;
 	private boolean metricsServer;
 
 	private Integer metrics;
@@ -138,6 +140,9 @@ public class Launcher {
 			} else if (k8sController) {
 				logger.debug("Kubernetes Controller");
 				felixFramework.runK8sController(boostrapProperties, overridesProperties, bundles, metrics, health);
+			} else if (dockerController) {
+				logger.debug("Docker Controller");
+				felixFramework.runDockerController(boostrapProperties, overridesProperties, bundles, metrics, health);
 			} else if (metricsServer) {
 				logger.debug("Metrics Server");
 				felixFramework.runMetricsServer(boostrapProperties, overridesProperties, bundles, metrics, health);
@@ -194,7 +199,8 @@ public class Launcher {
 		options.addOption(null, BOOTSTRAP_OPTION, true, "Bootstrap properties file url");
 		options.addOption(null, OVERRIDES_OPTION, true, "Overrides properties file url");
 		options.addOption(null, RESOURCEMANAGEMENT_OPTION, false, "A Resource Management server");
-		options.addOption(null, K8SCONTROLLER_OPTION, false, "A K8s Controller server");
+		options.addOption(null, K8SCONTROLLER_OPTION, false, "A k8s Controller server");
+		options.addOption(null, DOCKERCONTROLLER_OPTION, false, "A Docker Controller server");
 		options.addOption(null, METRICSERVER_OPTION, false, "A Metrics server");
 		options.addOption(null, TEST_OPTION, true, "The test to run");
 		options.addOption(null, RUN_OPTION, true, "The run name");
@@ -240,6 +246,7 @@ public class Launcher {
 		testRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION);
 		resourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
 		k8sController = commandLine.hasOption(K8SCONTROLLER_OPTION);
+		dockerController = commandLine.hasOption(DOCKERCONTROLLER_OPTION);
 		metricsServer = commandLine.hasOption(METRICSERVER_OPTION);
 
 		if (testRun) {
@@ -272,6 +279,10 @@ public class Launcher {
 		}
 
 		if (k8sController) {
+			return;
+		}
+
+		if (dockerController) {
 			return;
 		}
 
