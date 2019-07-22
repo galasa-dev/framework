@@ -19,6 +19,7 @@
 		<module>dev.voras.framework.resource.management</module>
 		<module>dev.voras.framework.metrics</module>
 		<module>dev.voras.framework.k8s.controller</module>
+		<module>dev.voras.framework.docker.controller</module>
 		<module>dev.voras.framework.obr</module>
 		<module>voras-boot</module>
 		<module>voras-demo-archetype</module>
@@ -52,6 +53,7 @@
 		<dev.voras.framework.resource.management>0.3.0-SNAPSHOT</dev.voras.framework.resource.management>
 		<dev.voras.framework.metrics>0.3.0-SNAPSHOT</dev.voras.framework.metrics>
 		<dev.voras.framework.k8s.controller>0.3.0-SNAPSHOT</dev.voras.framework.k8s.controller>
+		<dev.voras.framework.docker.controller>0.3.0-SNAPSHOT</dev.voras.framework.docker.controller>
 		<dev.voras.framework.maven.repository.spi>0.3.0-SNAPSHOT</dev.voras.framework.maven.repository.spi>
 		<dev.voras.framework.maven.repository>0.3.0-SNAPSHOT</dev.voras.framework.maven.repository>
 		<dev.voras.framework.obr>0.3.0-SNAPSHOT</dev.voras.framework.obr>

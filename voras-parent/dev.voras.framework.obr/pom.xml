@@ -37,6 +37,12 @@
 		</dependency>
 		<dependency>
 			<groupId>dev.voras</groupId>
+			<artifactId>dev.voras.framework.docker.controller</artifactId>
+			<version>${dev.voras.framework.docker.controller}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>dev.voras</groupId>
 			<artifactId>dev.voras.framework.maven.repository.spi</artifactId>
 			<version>${dev.voras.framework.maven.repository.spi}</version>
 			<scope>compile</scope>
