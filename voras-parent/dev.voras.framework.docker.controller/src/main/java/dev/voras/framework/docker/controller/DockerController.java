@@ -130,6 +130,8 @@ public class DockerController {
 					1, 
 					settings.getRunPoll(), 
 					TimeUnit.SECONDS);
+			
+			logger.info("Docker controller has started");
 
 			//*** Loop until we are asked to shutdown
 			while(!shutdown) {
