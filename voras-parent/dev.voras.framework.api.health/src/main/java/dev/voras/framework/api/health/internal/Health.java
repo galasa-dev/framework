@@ -16,9 +16,9 @@ import dev.voras.framework.spi.IFramework;
 
 /**
  * Simple servlet to check the Voras framework is initialised.
- * 
- * Does not require authentication 
- * 
+ *
+ * Does not require authentication
+ *
  * @author Michael Baylis
  *
  */
@@ -34,6 +34,7 @@ public class Health extends HttpServlet {
 	@Reference
 	public IFramework framework;  // NOSONAR
 
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -44,14 +45,14 @@ public class Health extends HttpServlet {
 			resp.getWriter().write("Voras framework service is not installed"); //NOSONAR //TODO catch this as SQ says
 			return;
 		}
-		
+
 		if (!this.framework.isInitialised()) {
 			resp.setStatus(503);
 			resp.setContentType("text/plain");
 			resp.getWriter().write("Voras framework is not initialised");//NOSONAR
 			return;
 		}
-		
+
 		// All check complete, we are good to go
 		resp.setStatus(200);
 		resp.setContentType("text/plain");
