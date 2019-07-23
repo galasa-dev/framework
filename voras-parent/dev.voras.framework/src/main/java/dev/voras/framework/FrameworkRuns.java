@@ -110,12 +110,12 @@ public class FrameworkRuns implements IFrameworkRuns {
 	}
 	
 	@Override
-	public List<IRun> getAllGroupedRuns(String groupName) throws FrameworkException {
+	public List<IRun> getAllGroupedRuns(@NotNull String groupName) throws FrameworkException {
 		List<IRun> allRuns = this.getAllRuns();
 		List<IRun> groupedRuns = new LinkedList<IRun>();
 		
 		for(IRun run : allRuns) {
-			if(run.getGroup().equals(groupName)) {
+			if(groupName.equals(run.getGroup())) {
 				groupedRuns.add(run);
 			}
 		}		

@@ -17,7 +17,7 @@ public interface IFrameworkRuns {
 	List<IRun> getAllRuns() throws FrameworkException;
 	
 	@NotNull
-	List<IRun> getAllGroupedRuns(String groupName) throws FrameworkException;
+	List<IRun> getAllGroupedRuns(@NotNull String groupName) throws FrameworkException;
 	
 	@NotNull
 	Set<String> getActiveRunNames() throws FrameworkException;
