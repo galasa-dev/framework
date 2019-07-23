@@ -133,10 +133,13 @@ public class K8sController {
 				20, 
 				TimeUnit.SECONDS);
 		RunPoll runPoll = new RunPoll(dss, settings, api, framework.getFrameworkRuns());
-		ScheduledFuture<?> poller = scheduledExecutorService.scheduleWithFixedDelay(runPoll, 
+		scheduledExecutorService.scheduleWithFixedDelay(runPoll, 
 				1, 
 				20, 
 				TimeUnit.SECONDS);
+		
+		logger.info("Kubernetes controller has started");
+
 
 		//*** Loop until we are asked to shutdown
 		while(!shutdown) {
