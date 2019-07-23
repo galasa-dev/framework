@@ -19,7 +19,7 @@ public class Settings implements Runnable {
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private URL configFileUrl;
-	private URL dockerUrl = new URL("http://127.0.0.1:2375");
+	private URL dockerUrl = new URL("http://172.21.0.1:2375");
 	private String bootstrap = "http://voras-api:8181/bootstrap";
 	private String containername;
 	private String engineLabel = "none";
@@ -329,6 +329,21 @@ public class Settings implements Runnable {
 			}
 		} catch(Exception e) {
 			logger.error("Error processing network in configfile",e);
+		}
+
+		try {
+			String sNewDocker = properties.getProperty("dockerUrl");
+			if (sNewDocker == null || sNewDocker.trim().isEmpty()) {
+				sNewDocker = "http://172.21.0.1:2375";
+			}
+			URL newDocker = new URL(sNewDocker);
+			
+			if (!newDocker.equals(dockerUrl)) {
+				logger.info("Setting Docker URL from '" + dockerUrl + "' to '" + newDocker + "'");
+				dockerUrl = newDocker;
+			}
+		} catch(Exception e) {
+			logger.error("Error processing docker URL in configfile",e);
 		}
 
 
