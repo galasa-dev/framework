@@ -193,7 +193,8 @@ public class ResourceManagement implements IResourceManagement {
 		//*** Start the Run watch thread
 		ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, this);
 
-
+		logger.info("Resource Manager has started");
+		
 		//*** Loop until we are asked to shutdown
 		long heartbeatExpire = 0;
 		while(!shutdown) {
