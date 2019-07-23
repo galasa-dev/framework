@@ -2,7 +2,6 @@ package dev.voras.framework;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.UUID;
 
 import dev.voras.framework.spi.DynamicStatusStoreException;
 import dev.voras.framework.spi.IDynamicStatusStoreService;
@@ -49,15 +48,9 @@ public class RunImpl implements IRun {
 		stream    = runProperties.get(prefix + "stream");
 		repo      = runProperties.get(prefix + "repository");
 		obr       = runProperties.get(prefix + "obr");
+		group     = runProperties.get(prefix + "group");
 		local     = Boolean.parseBoolean(runProperties.get(prefix + "local"));
 		trace     = Boolean.parseBoolean(runProperties.get(prefix + "trace"));
-
-		String pGroup = runProperties.get(prefix + "group");
-		if (pGroup != null) {
-			this.group = pGroup;
-		} else {
-			this.group = UUID.randomUUID().toString();
-		}
 
 		String sQueued = runProperties.get(prefix + "queued");
 		if (sQueued != null) {

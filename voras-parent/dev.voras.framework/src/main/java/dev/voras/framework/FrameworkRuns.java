@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +35,14 @@ public class FrameworkRuns implements IFrameworkRuns {
 	private final IFramework                         framework;
 	private final IDynamicStatusStoreService         dss;
 	private final IConfigurationPropertyStoreService cps;
-
+	
+	private final String NO_GROUP     = "none";
+	private final String NO_RUNTYPE   = "unknown";
+	private final String NO_REQUESTER = "unknown";
+	
+	private final String RUN_PREFIX   = "run.";
+	
+	
 	public FrameworkRuns(Framework framework) throws FrameworkException {
 		this.framework = framework;
 		this.dss       = framework.getDynamicStatusStoreService("framework");
@@ -77,15 +85,13 @@ public class FrameworkRuns implements IFrameworkRuns {
 
 		return runs;
 	}
-
-
-
+	
 	@Override
 	public List<IRun> getAllRuns() throws FrameworkException {
 		HashMap<String, IRun> runs = new HashMap<>();
 
 		logger.trace("Fetching all runs from DSS");
-		Map<String, String> runProperties = dss.getPrefix("run.");
+		Map<String, String> runProperties = dss.getPrefix(RUN_PREFIX);
 		logger.trace("Fetched all runs from DSS");
 		for(String key : runProperties.keySet()) {
 			Matcher matcher = runPattern.matcher(key);
@@ -101,6 +107,19 @@ public class FrameworkRuns implements IFrameworkRuns {
 		LinkedList<IRun> returnRuns = new LinkedList<>(runs.values());
 
 		return returnRuns;
+	}
+	
+	@Override
+	public List<IRun> getAllGroupedRuns(String groupName) throws FrameworkException {
+		List<IRun> allRuns = this.getAllRuns();
+		List<IRun> groupedRuns = new LinkedList<IRun>();
+		
+		for(IRun run : allRuns) {
+			if(run.getGroup().equals(groupName)) {
+				groupedRuns.add(run);
+			}
+		}		
+		return groupedRuns;
 	}
 
 	@Override
@@ -121,6 +140,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 			String requestor, 
 			@NotNull String bundleName, 
 			@NotNull String testName, 
+			String groupName,
 			String mavenRepository, 
 			String obr,
 			String stream,
@@ -136,13 +156,17 @@ public class FrameworkRuns implements IFrameworkRuns {
 
 		String bundleTest = bundleName + "/" + testName;
 
+		groupName = AbstractManager.nulled(groupName);
+		if(groupName == null) {
+			groupName = NO_GROUP;
+		}
 		runType = AbstractManager.nulled(runType);
 		if (runType == null) {
-			runType = "unknown";
+			runType = NO_RUNTYPE;
 		}
 		requestor = AbstractManager.nulled(requestor);
 		if (requestor == null) {
-			requestor = "unknown";
+			requestor = NO_REQUESTER;
 		}
 		stream = AbstractManager.nulled(stream);
 
@@ -199,28 +223,33 @@ public class FrameworkRuns implements IFrameworkRuns {
 
 				//*** Set up the otherRunProperties that will go with the Run number
 				HashMap<String, String> otherRunProperties = new HashMap<>();
-				otherRunProperties.put("run." + tempRunName + ".status", "queued");
-				otherRunProperties.put("run." + tempRunName + ".queued", Instant.now().toString());
-				otherRunProperties.put("run." + tempRunName + ".testbundle", bundleName);
-				otherRunProperties.put("run." + tempRunName + ".testclass", testName);
-				otherRunProperties.put("run." + tempRunName + ".request.type", runType);
-				otherRunProperties.put("run." + tempRunName + ".local", Boolean.toString(local));
+				otherRunProperties.put(RUN_PREFIX + tempRunName + ".status", "queued");
+				otherRunProperties.put(RUN_PREFIX + tempRunName + ".queued", Instant.now().toString());
+				otherRunProperties.put(RUN_PREFIX + tempRunName + ".testbundle", bundleName);
+				otherRunProperties.put(RUN_PREFIX + tempRunName + ".testclass", testName);
+				otherRunProperties.put(RUN_PREFIX + tempRunName + ".request.type", runType);
+				otherRunProperties.put(RUN_PREFIX + tempRunName + ".local", Boolean.toString(local));
 				if (trace) {
-					otherRunProperties.put("run." + tempRunName + ".trace", "true");
+					otherRunProperties.put(RUN_PREFIX + tempRunName + ".trace", "true");
 				}
 				if (mavenRepository != null) {
-					otherRunProperties.put("run." + tempRunName + ".repository", mavenRepository);
+					otherRunProperties.put(RUN_PREFIX + tempRunName + ".repository", mavenRepository);
 				}
 				if (obr != null) {
-					otherRunProperties.put("run." + tempRunName + ".obr", obr);
+					otherRunProperties.put(RUN_PREFIX + tempRunName + ".obr", obr);
 				}
 				if (stream != null) {
-					otherRunProperties.put("run." + tempRunName + ".stream", stream);
+					otherRunProperties.put(RUN_PREFIX + tempRunName + ".stream", stream);
 				}
-				otherRunProperties.put("run." + tempRunName + ".requestor", requestor.toLowerCase());
+				if (groupName != null) {
+					otherRunProperties.put(RUN_PREFIX + tempRunName + ".group", groupName);
+				}else {
+					otherRunProperties.put(RUN_PREFIX + tempRunName + ".group", UUID.randomUUID().toString());
+				}
+				otherRunProperties.put(RUN_PREFIX + tempRunName + ".requestor", requestor.toLowerCase());
 
 				//*** See if we can setup the runnumber properties (clashes possible if low max number or sharing prefix
-				if (!this.dss.putSwap("run." + tempRunName + ".test", null, bundleTest, otherRunProperties)) {
+				if (!this.dss.putSwap(RUN_PREFIX + tempRunName + ".test", null, bundleTest, otherRunProperties)) {
 					Thread.sleep(this.framework.getRandom().nextInt(200)); //*** Wait for a bit, to avoid race conditions
 					continue; //*** Try again
 				}
@@ -239,9 +268,9 @@ public class FrameworkRuns implements IFrameworkRuns {
 
 	@Override
 	public boolean delete(String runname) throws DynamicStatusStoreException {
-		String prefix = "run." + runname + ".";
+		String prefix = RUN_PREFIX + runname + ".";
 
-		Map<String, String> properties = this.dss.getPrefix(prefix);
+		 Map<String, String> properties = this.dss.getPrefix(prefix);
 		if (properties.isEmpty()) {
 			return false;
 		}
@@ -252,7 +281,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 
 	@Override
 	public boolean reset(String runname) throws DynamicStatusStoreException {
-		String prefix = "run." + runname + ".";
+		String prefix = RUN_PREFIX + runname + ".";
 
 		Map<String, String> properties = this.dss.getPrefix(prefix);
 		if (properties.isEmpty()) {
@@ -270,7 +299,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 
 	@Override
 	public IRun getRun(String runname) throws DynamicStatusStoreException {
-		String prefix = "run." + runname + ".";
+		String prefix = RUN_PREFIX + runname + ".";
 
 		Map<String, String> properties = this.dss.getPrefix(prefix);
 		if (properties.isEmpty()) {

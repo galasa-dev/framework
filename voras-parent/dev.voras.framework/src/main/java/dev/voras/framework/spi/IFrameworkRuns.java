@@ -17,6 +17,9 @@ public interface IFrameworkRuns {
 	List<IRun> getAllRuns() throws FrameworkException;
 	
 	@NotNull
+	List<IRun> getAllGroupedRuns(String groupName) throws FrameworkException;
+	
+	@NotNull
 	Set<String> getActiveRunNames() throws FrameworkException;
 
 	@NotNull
@@ -24,6 +27,7 @@ public interface IFrameworkRuns {
 			String requestor,
 			String bundleName,
 			String testName,
+			String groupName,
 			String mavenRepository,
 			String obr,
 			String stream,
