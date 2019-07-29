@@ -2,14 +2,22 @@ package dev.voras.framework.api.authentication.internal;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.google.gson.Gson;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -37,6 +45,8 @@ import dev.voras.framework.spi.IFramework;
 		)
 public class Authenticate extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static String SECRET_KEY = "framework.jwt.secret";
+	private static long FOUR_HOURS_EXPIRE = 14400000;
 	
 	@Reference
 	public IFramework framework;   // NOSONAR
@@ -46,43 +56,121 @@ public class Authenticate extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
+
+		Gson gson = new Gson();
 		Principal principal = req.getUserPrincipal();
+
 		if (principal == null) { // TODO check that it was a basic auth principal to prevent JWT reauthenticating
 			resp.setStatus(401);
 			resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
 			resp.getWriter().write("Requires authentication");//NOSONAR  //TODO catch this as SQ says
 			return;
 		}
-		
-		if (!req.isUserInRole("user")) {
-			resp.setStatus(401);
-			resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
-			resp.getWriter().write("Does not have the 'user' role");//NOSONAR
+		if (req.isUserInRole("admin")){ 
+			String jwt;
+			try {
+				jwt = createJWT(principal.getName(), "admin", FOUR_HOURS_EXPIRE);
+			} catch (JWTCreationException e) {
+				resp.setStatus(500);
+				resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
+				resp.getWriter().write("Token could not be generated");//NOSONAR  //TODO catch this as SQ says
+				return;
+			}
+
+			AuthJson auth = new AuthJson();
+			auth.cps = jwt;
+			auth.dss = jwt;
+			auth.ras = jwt;
+			String json = gson.toJson(auth);
+
+			resp.setContentType("application/json");
+			try{
+				resp.getWriter().write(json);
+			} catch (IOException e) {
+				resp.setStatus(500);
+				resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
+				resp.getWriter().write("Failed to create json");//NOSONAR  //TODO catch this as SQ says
+				return;
+			}
 			return;
-		}
+		} 
+		if (req.isUserInRole("user")) {
+			String jwt;
+			try {
+				jwt = createJWT(principal.getName(), "user", FOUR_HOURS_EXPIRE);
+			} catch (JWTCreationException e) {
+				resp.setStatus(500);
+				resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
+				resp.getWriter().write("Token could not be generated");//NOSONAR  //TODO catch this as SQ says
+				return;
+			}
+
+			AuthJson auth = new AuthJson();
+			auth.cps = jwt;
+			auth.dss = jwt;
+			auth.ras = jwt;
+
+			String json = gson.toJson(auth);
+
+			resp.setContentType("application/json");
+			try{
+				resp.getWriter().write(json);
+			} catch (IOException e) {
+				resp.setStatus(500);
+				resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
+				resp.getWriter().write("Failed to create json");//NOSONAR  //TODO catch this as SQ says
+				return;
+			}
+			return;
+		} 
+
+		resp.setStatus(401);
+		resp.addHeader("WWW-Authenticate", "Basic realm=\"Voras\"");  //*** Ability to set the realm
+		resp.getWriter().write("Does not have the 'user' role");//NOSONAR
+	}
+	
+	public String createJWT(String subject, String role, long expireDuration) throws JWTCreationException {
+		Algorithm algorithm = Algorithm.HMAC256(this.configurationProperties.get(SECRET_KEY).toString());
 		
-		// TODO create and return the JWT		
+		long time = System.currentTimeMillis();
+		Date dateNow = new Date(time);
+		Date dateExpire = new Date(time+expireDuration);
 		
-		resp.setStatus(503);
-		resp.setContentType("text/plain");
-		resp.getWriter().write("James hasn't written the code yet");//NOSONAR
+		String token = JWT.create()
+						.withIssuer("voras")
+						.withIssuedAt(dateNow)
+						.withSubject(subject)
+						.withClaim("role", role)
+						.withExpiresAt(dateExpire)
+						.sign(algorithm);
+						
+		return token;
 	}
 
-
 	@Activate
-	void activate(Map<String, Object> properties) {
+	public void activate(Map<String, Object> properties) {
 		modified(properties);
 	}
 
 	@Modified
-	void modified(Map<String, Object> properties) {
-		// TODO set the JWT signing key etc
+	public void modified(Map<String, Object> properties) {
+		synchronized (configurationProperties) {
+			String secret = (String)properties.get(SECRET_KEY);
+			if (secret != null) {
+				this.configurationProperties.put(SECRET_KEY, secret);
+			} else {
+				this.configurationProperties.remove(SECRET_KEY);
+			}
+		}
 	}
-
+	
 	@Deactivate
 	void deactivate() {
-		//TODO Clear the properties to prevent JWT generation
+		this.configurationProperties.clear();
 	}
-
+	private class AuthJson {
+		protected String cps;
+		protected String dss;
+		protected String ras;
+	}
 }
