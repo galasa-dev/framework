@@ -171,5 +171,10 @@ public class RunImpl implements IRun {
 	public Instant getWaitUntil() {
 		return this.waitUntil;
 	}
+	
+	@Override
+	public SerializedRun getSerializedRun() {
+		return new SerializedRun(name, heartbeat, type, group, test, bundleName, testName, status, queued, finished, waitUntil, requestor, stream, repo, obr, local, trace);
+	}
 
 }

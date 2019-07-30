@@ -26,6 +26,7 @@
 		<module>dev.voras.framework.api.authentication</module>
 		<module>dev.voras.framework.api.health</module>
 		<module>dev.voras.framework.api.bootstrap</module>
+                <module>dev.voras.framework.api.scheduleTests</module>
 		<module>vorasutils-maven-plugin</module>
 	</modules>
 

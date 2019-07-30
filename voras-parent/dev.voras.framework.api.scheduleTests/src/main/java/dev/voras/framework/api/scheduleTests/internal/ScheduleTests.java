@@ -3,6 +3,7 @@ package dev.voras.framework.api.scheduleTests.internal;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -24,6 +25,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import com.google.gson.Gson;
 
+import dev.voras.framework.SerializedRun;
 import dev.voras.framework.api.scheduleTests.bind.RunStatus;
 import dev.voras.framework.api.scheduleTests.bind.ScheduleRequest;
 import dev.voras.framework.api.scheduleTests.bind.ScheduleStatus;
@@ -35,9 +37,9 @@ import dev.voras.framework.spi.IRun;
 
 
 /**
- * Authentication JWT generator
+ * Schedule Tests API
  * 
- * For the JWT to be created, the user needs to be authenticated by the Servlet Filters
+ * Allows for a set of Tests to be scheduled and their state to be inquired
  * 
  */
 @Component(
@@ -75,6 +77,7 @@ public class ScheduleTests extends HttpServlet {
 		for(IRun run : runs) {
 			if(!"FINISHED".equalsIgnoreCase(run.getStatus()))
 				complete = false;
+			status.runs.add(run.getSerializedRun());
 		}
 				
 		if(complete) {
