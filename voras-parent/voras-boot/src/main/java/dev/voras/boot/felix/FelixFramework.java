@@ -85,8 +85,8 @@ public class FelixFramework {
 			installBundle("org.apache.felix.scr.jar",true);
 			installBundle("log4j.jar",true);
 			installBundle("commons-logging.jar",true);
-			
-			
+
+
 			installBundle("dev.voras.framework.maven.repository.spi.jar", true);
 			installBundle("dev.voras.framework.maven.repository.jar", true);
 			loadMavenRepositories(localMavenRepo, remoteMavenRepos);
@@ -544,6 +544,9 @@ public class FelixFramework {
 	 */
 	public void stopFramework() throws LauncherException, InterruptedException {
 		logger.debug("Stopping Felix framework");
+		if (framework == null) {
+			return;
+		}
 		try {
 			framework.stop();
 		} catch (BundleException e) {

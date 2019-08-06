@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -463,20 +464,57 @@ public class TestRunner {
 	private void addResource(String bundleSymbolicName, Resolver resolver, Resource resource) throws TestRunException {
 		logger.trace("Resouce: " + resource);
 		resolver.add(resource);
+
+		boolean resourceHasReferenceUrl = false;
+		if (resource.getURI().startsWith("reference:")) {
+			resourceHasReferenceUrl = true;
+		}
+
 		if (resolver.resolve())
 		{
 			if (logger.isTraceEnabled()) {
 				Resource[] requiredResources = resolver.getRequiredResources();
 				for (Resource requiredResource : requiredResources) {
+					if (requiredResource.getURI().startsWith("reference:")) {
+						resourceHasReferenceUrl = true;
+					}
 					logger.trace("  RequiredResource: " + requiredResource.getSymbolicName());
 				}
 				Resource[] optionalResources = resolver.getOptionalResources();
 				for (Resource optionalResource : optionalResources) {
+					if (optionalResource.getURI().startsWith("reference:")) {
+						resourceHasReferenceUrl = true;
+					}
 					logger.trace("  OptionalResource: " + optionalResource.getSymbolicName());
 				}
 			}
 
-			resolver.deploy(Resolver.START);
+
+			if (!resourceHasReferenceUrl) {	
+				resolver.deploy(Resolver.START);
+			} else {
+				//*** The Resolver can't cope with reference: URIs which is valid for Felix.
+				//*** So we have to manually install and start the bundles if ANY bundle
+				//*** is a reference
+				ArrayList<Bundle> bundlesToStart = new ArrayList<>();
+				try {
+					Resource[] requiredResources = resolver.getRequiredResources();
+					for (Resource requiredResource : requiredResources) {
+						bundlesToStart.add(this.bundleContext.installBundle(requiredResource.getURI().toString()));
+					}
+					Resource[] optionalResources = resolver.getOptionalResources();
+					for (Resource optionalResource : optionalResources) {
+						bundlesToStart.add(this.bundleContext.installBundle(optionalResource.getURI().toString()));
+					}
+					
+					bundlesToStart.add(this.bundleContext.installBundle(resource.getURI().toString()));
+					for(Bundle bundle : bundlesToStart) {
+						bundle.start();
+					}
+				} catch(Exception e) {
+					throw new TestRunException("Unable to install bundles outside of resolver", e);
+				}
+			}
 
 			if (!isBundleActive(bundleSymbolicName)) {
 				throw new TestRunException("Bundle failed to install and activate");
