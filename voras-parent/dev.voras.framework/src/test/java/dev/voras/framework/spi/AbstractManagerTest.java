@@ -134,8 +134,8 @@ public class AbstractManagerTest {
         testManager.provisionStart();
         testManager.startOfTestClass();
         testManager.anyReasonTestMethodShouldBeIgnored(null);
-        testManager.startOfTestMethod();
-        testManager.endOfTestMethod(null, null);
+        testManager.startOfTestMethod(null);
+        testManager.endOfTestMethod(null, null, null);
         testManager.testMethodResult(null, null);
         testManager.endOfTestClass(null, null);
         testManager.testClassResult(null, null);

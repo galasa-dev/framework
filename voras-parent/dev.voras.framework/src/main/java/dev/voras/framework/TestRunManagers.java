@@ -467,19 +467,19 @@ public class TestRunManagers {
     public void startOfTestMethod(@NotNull Method testMethod) throws FrameworkException {
         for(IManager manager : activeManagers) {
             try {
-                manager.startOfTestMethod();
+                manager.startOfTestMethod(testMethod);
             } catch (ManagerException e) {
                 throw new FrameworkException("Problem in start of test test method for manager " + manager.getClass().getName(), e);
             }
         }
     }
 
-    public Result endOfTestMethod(@NotNull Result currentResult, Throwable currentException) throws FrameworkException {
+    public Result endOfTestMethod(@NotNull Method testMethod, @NotNull Result currentResult, Throwable currentException) throws FrameworkException {
     	Result newResult = null;
 
         for(IManager manager : activeManagers) {
             try {
-                String managerResult = manager.endOfTestMethod(currentResult.getName(), currentException); // TODO change managers to pass actual result
+                String managerResult = manager.endOfTestMethod(testMethod, currentResult.getName(), currentException); // TODO change managers to pass actual result
                 if (managerResult != null && newResult == null) {
                     newResult = Result.custom(managerResult);
                 }
