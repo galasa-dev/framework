@@ -445,9 +445,8 @@ public class TestRunner {
 			if (resources.length == 0) {
 				throw new TestRunException("Unable to locate bundle \"" + bundleSymbolicName + "\" in OBR repository");
 			}
-			for (Resource resource : resources) {
-				addResource(bundleSymbolicName, resolver, resource);
-			}
+			//*** Only load the first one
+			addResource(bundleSymbolicName, resolver, resources[0]);
 		} catch (TestRunException e) {
 			throw new TestRunException("Unable to install bundle \"" + bundleSymbolicName + "\" from OBR repository", e);
 		}
