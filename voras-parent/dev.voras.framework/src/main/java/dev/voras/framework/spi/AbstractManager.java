@@ -316,7 +316,7 @@ public abstract class AbstractManager implements IManager {
      * @see io.ejat.framework.spi.IManager#startOfTestMethod()
      */
     @Override
-    public void startOfTestMethod() throws ManagerException {
+    public void startOfTestMethod(@NotNull Method testMethod) throws ManagerException {
     }
 
     /*
@@ -326,7 +326,7 @@ public abstract class AbstractManager implements IManager {
      * java.lang.Throwable)
      */
     @Override
-    public String endOfTestMethod(@NotNull String currentResult, Throwable currentException) throws ManagerException {
+    public String endOfTestMethod(@NotNull Method testMethod, @NotNull String currentResult, Throwable currentException) throws ManagerException {
         return null;
     }
 

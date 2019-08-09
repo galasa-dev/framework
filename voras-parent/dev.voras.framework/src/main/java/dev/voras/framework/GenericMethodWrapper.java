@@ -80,7 +80,7 @@ public class GenericMethodWrapper {
             	this.result = Result.failed(e);
             }
             
-            Result overrideResult = managers.endOfTestMethod(this.result, this.result.getThrowable());
+            Result overrideResult = managers.endOfTestMethod(this.testMethod, this.result, this.result.getThrowable());
             if (overrideResult != null) {
             	this.result = overrideResult;
             }

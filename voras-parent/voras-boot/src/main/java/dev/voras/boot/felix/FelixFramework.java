@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -85,8 +86,8 @@ public class FelixFramework {
 			installBundle("org.apache.felix.scr.jar",true);
 			installBundle("log4j.jar",true);
 			installBundle("commons-logging.jar",true);
-			
-			
+
+
 			installBundle("dev.voras.framework.maven.repository.spi.jar", true);
 			installBundle("dev.voras.framework.maven.repository.jar", true);
 			loadMavenRepositories(localMavenRepo, remoteMavenRepos);
@@ -544,6 +545,9 @@ public class FelixFramework {
 	 */
 	public void stopFramework() throws LauncherException, InterruptedException {
 		logger.debug("Stopping Felix framework");
+		if (framework == null) {
+			return;
+		}
 		try {
 			framework.stop();
 		} catch (BundleException e) {
@@ -641,20 +645,57 @@ public class FelixFramework {
 	private void addResource(String bundleSymbolicName, Resolver resolver, Resource resource) throws LauncherException {
 		logger.trace("Resouce: " + resource);
 		resolver.add(resource);
+
+		boolean resourceHasReferenceUrl = false;
+		if (resource.getURI().startsWith("reference:")) {
+			resourceHasReferenceUrl = true;
+		}
+
 		if (resolver.resolve())
 		{
 			if (logger.isTraceEnabled()) {
 				Resource[] requiredResources = resolver.getRequiredResources();
 				for (Resource requiredResource : requiredResources) {
+					if (requiredResource.getURI().startsWith("reference:")) {
+						resourceHasReferenceUrl = true;
+					}
 					logger.trace("  RequiredResource: " + requiredResource.getSymbolicName());
 				}
 				Resource[] optionalResources = resolver.getOptionalResources();
 				for (Resource optionalResource : optionalResources) {
+					if (optionalResource.getURI().startsWith("reference:")) {
+						resourceHasReferenceUrl = true;
+					}
 					logger.trace("  OptionalResource: " + optionalResource.getSymbolicName());
 				}
 			}
 
-			resolver.deploy(Resolver.START);
+
+			if (!resourceHasReferenceUrl) {	
+				resolver.deploy(Resolver.START);
+			} else {
+				//*** The Resolver can't cope with reference: URIs which is valid for Felix.
+				//*** So we have to manually install and start the bundles if ANY bundle
+				//*** is a reference
+				ArrayList<Bundle> bundlesToStart = new ArrayList<>();
+				try {
+					Resource[] requiredResources = resolver.getRequiredResources();
+					for (Resource requiredResource : requiredResources) {
+						bundlesToStart.add(this.framework.getBundleContext().installBundle(requiredResource.getURI().toString()));
+					}
+					Resource[] optionalResources = resolver.getOptionalResources();
+					for (Resource optionalResource : optionalResources) {
+						bundlesToStart.add(this.framework.getBundleContext().installBundle(optionalResource.getURI().toString()));
+					}
+					
+					bundlesToStart.add(this.framework.getBundleContext().installBundle(resource.getURI().toString()));
+					for(Bundle bundle : bundlesToStart) {
+						bundle.start();
+					}
+				} catch(Exception e) {
+					throw new LauncherException("Unable to install bundles outside of resolver", e);
+				}
+			}
 
 			if (!isBundleActive(bundleSymbolicName)) {
 				throw new LauncherException("Bundle failed to install and activate");
@@ -664,14 +705,14 @@ public class FelixFramework {
 		}
 		else
 		{
+			logger.error("Unable to resolve " + resource.toString());
 			Reason[] unsatisfiedRequirements = resolver.getUnsatisfiedRequirements();
 			for (Reason reason : unsatisfiedRequirements)
 			{
-				logger.error(resource.toString() + ": Unable to resolve: " + reason.getRequirement());
+				logger.error("Unsatisfied requirement: " + reason.getRequirement());
 			}
 			throw new LauncherException("Unable to resolve bundle " + bundleSymbolicName);
 		}
-
 	}
 
 

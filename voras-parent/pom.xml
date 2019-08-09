@@ -94,6 +94,8 @@
 		<validation-api>2.0.1.Final</validation-api>
 		
 		<assertj-core>3.11.1</assertj-core>
+		
+		<unpackBundle>true</unpackBundle>
 	</properties>
 
 
