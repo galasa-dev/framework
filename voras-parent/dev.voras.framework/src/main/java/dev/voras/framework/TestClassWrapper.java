@@ -94,7 +94,7 @@ public class TestClassWrapper {
 
 		//*** Build the wrappers for the test methods
 		for(Method method : temporaryTestMethods) {
-			this.testMethods.add(new TestMethodWrapper(method, this.testClass, temporaryBeforeMethods, temporaryBeforeMethods));
+			this.testMethods.add(new TestMethodWrapper(method, this.testClass, temporaryBeforeMethods, temporaryAfterMethods));
 		}
 		
 		//*** Create the reporting Test Structure
