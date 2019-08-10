@@ -187,7 +187,6 @@
 			<plugin>
 				<groupId>dev.voras</groupId>
 				<artifactId>voras-maven-plugin</artifactId>
-				<version>0.3.0</version>
 				<extensions>true</extensions>
 			</plugin>
 		</plugins>

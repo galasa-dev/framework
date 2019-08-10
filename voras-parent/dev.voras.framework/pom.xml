@@ -28,6 +28,7 @@
 			<artifactId>dev.voras.framework.maven.repository.spi</artifactId>
 			<version>${dev.voras.framework.maven.repository.spi}</version>
 			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -38,7 +39,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>${commons-lang3}</version>
+			<version>${commons-lang3-eclipse}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -46,29 +47,31 @@
 			<artifactId>org.apache.felix.bundlerepository</artifactId>
 			<version>${felix.bundlerepository}</version>
 			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.bcel</groupId>
 			<artifactId>bcel</artifactId>
 			<version>${bcel}</version>
 			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>${commons-io}</version>
+			<version>${commons-io-eclipse}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>${commons-logging}</version>
+			<version>${commons-logging-eclipse}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>${gson}</version>
+			<version>${gson-eclipse}</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
