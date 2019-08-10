@@ -52,7 +52,7 @@ public class TestRunner {
 
 	private BundleContext bundleContext;
 
-	@Reference
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL)
 	private RepositoryAdmin repositoryAdmin;
 
 	@Reference(cardinality=ReferenceCardinality.OPTIONAL)
