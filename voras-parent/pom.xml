@@ -73,27 +73,37 @@
 		<javax.servlet-api>3.1.0</javax.servlet-api>
 
 		<commons-logging>1.2</commons-logging>
-		<commons-cli>1.4</commons-cli>
+		<commons-logging-eclipse>1.1.1</commons-logging-eclipse>
+
 		<commons-io>2.6</commons-io>
+		<commons-io-eclipse>2.2</commons-io-eclipse>
+
 		<commons-lang3>3.8.1</commons-lang3>
-		<commons-lang>2.6</commons-lang>
+		<commons-lang3-eclipse>3.1</commons-lang3-eclipse>
+
 		<commons-codec>1.11</commons-codec>
+		<commons-codec-eclipse>1.9</commons-codec-eclipse>
+
+		<commons-lang>2.6</commons-lang>
 		<commons-collections>3.2.2</commons-collections>
+		<commons-cli>1.4</commons-cli>
+
 		<log4j>1.2.17</log4j>
 		<bcel>6.3</bcel>
 		<httpclient-osgi>4.5.8</httpclient-osgi>
 		<httpcore-osgi>4.4.11</httpcore-osgi>
 
 		<gson>2.8.5</gson>
+		<gson-eclipse>2.7</gson-eclipse>
 
 		<prometheus.simpleclient>0.6.0</prometheus.simpleclient>
 		<prometheus.httpserver>0.6.0</prometheus.httpserver>
 		<prometheus.hotspot>0.6.0</prometheus.hotspot>
 
 		<validation-api>2.0.1.Final</validation-api>
-		
+
 		<assertj-core>3.11.1</assertj-core>
-		
+
 		<unpackBundle>true</unpackBundle>
 	</properties>
 
@@ -197,6 +207,33 @@
 					<artifactId>archetype-packaging</artifactId>
 					<version>3.0.1</version>
 				</plugin>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.felix</groupId>
+										<artifactId>maven-bundle-plugin</artifactId>
+										<versionRange>[4.1.0,)</versionRange>
+										<goals>
+											<goal>bundle</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute>
+											<runOnConfiguration>true</runOnConfiguration>
+											<runOnIncremental>true</runOnIncremental>
+										</execute>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -210,6 +247,11 @@
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<_snapshot>${maven.build.timestamp}</_snapshot>
+					</instructions>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
