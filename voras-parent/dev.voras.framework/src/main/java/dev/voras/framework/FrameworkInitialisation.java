@@ -34,6 +34,7 @@ import dev.voras.framework.spi.IDynamicStatusStoreService;
 import dev.voras.framework.spi.IFramework;
 import dev.voras.framework.spi.IFrameworkInitialisation;
 import dev.voras.framework.spi.IFrameworkRuns;
+import dev.voras.framework.spi.IResultArchiveStoreRegistration;
 import dev.voras.framework.spi.IResultArchiveStoreService;
 import dev.voras.framework.spi.IRun;
 import dev.voras.framework.spi.ResultArchiveStoreException;
@@ -213,15 +214,15 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		// *** Initialise the Result Archive Store
 		this.logger.trace("Searching for RAS providers");
 		final ServiceReference<?>[] rasServiceReference = bundleContext
-				.getAllServiceReferences(IResultArchiveStoreService.class.getName(), null);
+				.getAllServiceReferences(IResultArchiveStoreRegistration.class.getName(), null);
 		if ((rasServiceReference == null) || (rasServiceReference.length == 0)) {
 			throw new FrameworkException("No Result Archive Store Services have been found");
 		}
 		for (final ServiceReference<?> rasReference : rasServiceReference) {
-			final IResultArchiveStoreService rasService = (IResultArchiveStoreService) bundleContext
+			final IResultArchiveStoreRegistration rasRegistration = (IResultArchiveStoreRegistration) bundleContext
 					.getService(rasReference);
-			this.logger.trace("Found RAS Provider " + rasService.getClass().getName());
-			rasService.initialise(this);
+			this.logger.trace("Found RAS Provider " + rasRegistration.getClass().getName());
+			rasRegistration.initialise(this);
 		}
 		if (this.framework.getResultArchiveStoreService() == null) {
 			throw new FrameworkException("Failed to initialise a Result Archive Store, unable to continue");
