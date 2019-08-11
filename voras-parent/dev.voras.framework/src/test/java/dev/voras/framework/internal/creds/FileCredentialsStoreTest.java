@@ -218,10 +218,6 @@ public class FileCredentialsStoreTest {
 		}
 
 		@Override
-		public void initialisationComplete() {
-		}
-
-		@Override
 		public IRun getTestRun() {
 			return null;
 		}

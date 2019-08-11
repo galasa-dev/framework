@@ -50,4 +50,13 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
 	public static boolean isFileUri(URI uri) {
 		return "file".equals(uri.getScheme());
 	}
+
+	@Override
+	public void shutdown() throws ConfigurationPropertyStoreException {
+		try {
+			this.fpf.shutdown();
+		} catch (FrameworkPropertyFileException e) {
+			throw new ConfigurationPropertyStoreException("Problem shutting down the CPS File", e);
+		}
+	}
 }

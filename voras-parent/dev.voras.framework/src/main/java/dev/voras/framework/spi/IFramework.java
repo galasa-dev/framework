@@ -23,7 +23,6 @@ public interface IFramework {
 	
 	void setFrameworkProperties(Properties overrideProperties);
 	boolean isInitialised();
-	void initialisationComplete();
 	
 	/**
 	 * <p>Retrieve the Configuration Property Store service from the framework.  This will allow you to access the 

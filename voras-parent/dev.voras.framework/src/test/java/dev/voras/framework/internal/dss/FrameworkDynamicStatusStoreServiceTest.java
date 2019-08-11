@@ -237,10 +237,6 @@ import dev.voras.framework.spi.creds.ICredentialsService;
 		}
 
 		@Override
-		public void initialisationComplete() {
-		}
-
-		@Override
 		public Properties getRecordProperties() {
 			return null;
 		}
