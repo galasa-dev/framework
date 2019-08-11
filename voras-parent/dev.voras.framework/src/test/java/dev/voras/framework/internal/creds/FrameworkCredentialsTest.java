@@ -158,10 +158,6 @@ public class FrameworkCredentialsTest {
 		}
 
 		@Override
-		public void initialisationComplete() {
-		}
-
-		@Override
 		public IRun getTestRun() {
 			return null;
 		}

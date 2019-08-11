@@ -106,4 +106,9 @@ public class FrameworkConfidentialTextService implements IConfidentialTextServic
             return comment;
         }
     }
+
+	@Override
+	public void shutdown() {
+		//*** Nothing to shutdown
+	}
 }

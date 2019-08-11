@@ -27,4 +27,8 @@ public interface IConfigurationPropertyStore {
 	 */
 	@Null
 	String  getProperty(@NotNull String key) throws ConfigurationPropertyStoreException;
+	
+	void shutdown() throws ConfigurationPropertyStoreException;
+	
+	
 }

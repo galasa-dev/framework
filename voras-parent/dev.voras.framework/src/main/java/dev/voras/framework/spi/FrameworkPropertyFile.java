@@ -60,7 +60,7 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 		this.file = file;
 		this.propertyFile = new File(file);
 		this.parent = propertyFile.getParent();
-		
+
 		load();
 
 		IOFileFilter filter = FileFilterUtils.nameFileFilter(propertyFile.getName());
@@ -69,7 +69,7 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 			observer.addListener(this);
 			observer.initialize();
 		} catch (Exception e){
-            throw new FrameworkPropertyFileException("Problem starting observer", e);
+			throw new FrameworkPropertyFileException("Problem starting observer", e);
 		}
 	}
 
@@ -139,7 +139,7 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 				for (String key:keys){
 					this.currentProperties.remove(key);
 				}
-				
+
 				write(fileChannel, this.currentProperties);
 				fileModified(this.currentProperties, oldProperties);
 			} catch (IOException e) {
@@ -156,18 +156,18 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 	 * @throws FrameworkPropertyFileException
 	 */
 	public synchronized void deletePrefix(String prefix) throws FrameworkPropertyFileException{
-        Set<String> deleteKeys = new HashSet<>();
-        synchronized(FrameworkPropertyFile.class) {
-            observer.checkAndNotify();
-            for (Object k:currentProperties.keySet()){
-                String key = (String)k;
-                if (key.startsWith(prefix)){
-                    deleteKeys.add(key);
-                }
-            }
-            delete(deleteKeys);
-        }
-    }
+		Set<String> deleteKeys = new HashSet<>();
+		synchronized(FrameworkPropertyFile.class) {
+			observer.checkAndNotify();
+			for (Object k:currentProperties.keySet()){
+				String key = (String)k;
+				if (key.startsWith(prefix)){
+					deleteKeys.add(key);
+				}
+			}
+			delete(deleteKeys);
+		}
+	}
 
 	/**
 	 * <p> This method is used for the writing of the current properties in memory to be stored in the java properties file defined 
@@ -198,7 +198,7 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 				Properties oldProperties = (Properties)this.currentProperties.clone();
 
 				this.currentProperties.put(key, value);
-				
+
 				write(fileChannel, this.currentProperties);
 				fileModified(this.currentProperties, oldProperties);
 			} catch (IOException e) {
@@ -222,7 +222,7 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 				Properties oldProperties = (Properties)this.currentProperties.clone();
 
 				this.currentProperties.putAll(values);
-				
+
 				write(fileChannel, this.currentProperties);
 				fileModified(this.currentProperties, oldProperties);
 			} catch (IOException e) {
@@ -254,7 +254,7 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 				throw new FrameworkPropertyFileException("Unable to start file monitor",e);
 			}
 		}
-		
+
 		UUID watchID = UUID.randomUUID();
 		this.watches.put(watchID, new Watch(watcher, key, false));
 		return watchID;
@@ -269,15 +269,15 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 	 */
 	public synchronized void unwatch(UUID watchId) throws FrameworkPropertyFileException{
 		this.watches.remove(watchId);
-		
+
 		if (this.watches.isEmpty() && this.monitor !=null) {
-            this.monitor.removeObserver(observer);
-            try {
-                this.monitor.stop();
-            } catch (Exception e) {
-                throw new FrameworkPropertyFileException("Problems encountered during the stop of the monitor", e);
-            }
-            this.monitor = null;
+			this.monitor.removeObserver(observer);
+			try {
+				this.monitor.stop();
+			} catch (Exception e) {
+				throw new FrameworkPropertyFileException("Problems encountered during the stop of the monitor", e);
+			}
+			this.monitor = null;
 		}
 	}
 
@@ -320,7 +320,7 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 	 * @throws FrameworkPropertyFileException
 	 */
 	public synchronized boolean setAtomic(String key, String oldValue, String newValue) throws FrameworkPropertyFileException{
-		
+
 		synchronized (FrameworkPropertyFile.class) {	
 			try(FileChannel fileChannel = getWriteChannel(false)){
 				Properties oldProperties = (Properties)this.currentProperties.clone();
@@ -334,7 +334,7 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 						return false;
 					}
 				}
-				
+
 				write(fileChannel, this.currentProperties);
 				fileModified(this.currentProperties, oldProperties);
 				return true;
@@ -376,9 +376,9 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 						return false;
 					}
 				}
-				
+
 				this.currentProperties.putAll(otherValues);
-				
+
 				write(fileChannel, this.currentProperties);
 				fileModified(this.currentProperties, oldProperties);
 				return true;
@@ -510,13 +510,13 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 	 * <p>This method is not used</p>
 	 */
 	public void onStart(FileAlterationObserver observer) {
-        // Method not used for fpf
+		// Method not used for fpf
 	}
 	/**
 	 * <p>This method is not used</p>
 	 */
 	public void onStop(FileAlterationObserver observer) {
-        // Method not used for fpf
+		// Method not used for fpf
 	}
 
 	/**
@@ -526,46 +526,46 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 	 */
 	public synchronized void onFileChange(File file) {
 		synchronized (FrameworkPropertyFile.class) {
-            try{ 
-                Properties oldProperties = (Properties)this.currentProperties.clone();
-                load();
-                fileModified(this.currentProperties, oldProperties);
-            } catch (FrameworkPropertyFileException e) {
-                fpfLog.error("Error encounted loading file changes", e);
-            }
-        }
+			try{ 
+				Properties oldProperties = (Properties)this.currentProperties.clone();
+				load();
+				fileModified(this.currentProperties, oldProperties);
+			} catch (FrameworkPropertyFileException e) {
+				fpfLog.error("Error encounted loading file changes", e);
+			}
+		}
 	}
 	/**
 	 * <p>This method is not used</p>
 	 */
 	public void onFileCreate(File file) {
-        // Method not used for fpf
+		// Method not used for fpf
 	}
 	/**
 	 * <p>This method is not used</p>
 	 */
 	public void onFileDelete(File file) {
-        // Method not used for fpf
+		// Method not used for fpf
 	}
 	/**
 	 * <p>This method is not used</p>
 	 */
 	public void onDirectoryCreate(File file) {
-        // Method not used for fpf
+		// Method not used for fpf
 	}
 	/**
 	 * <p>This method is not used</p>
 	 */
 	public void onDirectoryChange(File file) {
-        // Method not used for fpf
+		// Method not used for fpf
 	}
 	/**
 	 * <p>This method is not used</p>
 	 */
 	public void onDirectoryDelete(File file) {
-        // Method not used for fpf
+		// Method not used for fpf
 	}
-	
+
 	/**
 	 * <p>This class defines a watch, and the variables required to detect changes to the correct k-v pair.</p>
 	 */
@@ -601,5 +601,19 @@ public class FrameworkPropertyFile implements FileAlterationListener{
 			}
 			return newKey.equals(key);
 		}
+	}
+
+	public synchronized void shutdown() throws FrameworkPropertyFileException {
+		if (this.monitor != null) {
+			try {
+				this.monitor.removeObserver(this.observer);
+				this.monitor.stop();
+				this.monitor = null;
+			} catch(Throwable t) {
+				throw new FrameworkPropertyFileException("Problem stopping the file monitor", t);
+			}
+		}
+
+		this.watches.clear();
 	}
 }

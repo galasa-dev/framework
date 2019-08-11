@@ -12,5 +12,7 @@ package dev.voras.framework.spi;
  *
  */
 public interface IDynamicStatusStore extends IDynamicStatusStoreKeyAccess {
+	
+	void shutdown() throws DynamicStatusStoreException;
 		
 }

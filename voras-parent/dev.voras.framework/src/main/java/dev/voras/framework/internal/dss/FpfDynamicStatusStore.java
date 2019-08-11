@@ -216,6 +216,14 @@ public class FpfDynamicStatusStore implements IDynamicStatusStore {
 		
 	}
 	
-	
+	@Override
+	public void shutdown() throws DynamicStatusStoreException {
+		try {
+			this.fpf.shutdown();
+		} catch (FrameworkPropertyFileException e) {
+			throw new DynamicStatusStoreException("Problem shutting down the DSS File", e);
+		}
+	}
+
 	
 }

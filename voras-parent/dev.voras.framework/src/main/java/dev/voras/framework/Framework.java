@@ -38,7 +38,8 @@ import dev.voras.framework.spi.creds.CredentialsException;
 import dev.voras.framework.spi.creds.ICredentialsService;
 import dev.voras.framework.spi.creds.ICredentialsStore;
 
-@Component(scope=ServiceScope.SINGLETON)
+@Component(immediate=true,
+scope=ServiceScope.SINGLETON)
 public class Framework implements IFramework {
 	
 	private final static Log                   logger = LogFactory.getLog(Framework.class);
@@ -67,8 +68,6 @@ public class Framework implements IFramework {
     
     private TestRunLogCapture                  testRunLogCapture;
     
-    private boolean                            initialised;
-
 	private IRun run;
     
     public Framework() {
@@ -97,14 +96,29 @@ public class Framework implements IFramework {
 	
     @Override
 	public boolean isInitialised() {
-		return this.initialised;
+        if (cpsStore != null 
+        		&& dssStore != null
+        		&& rasService != null 
+//        		&& ctsService != null
+        		&& credsStore != null) {
+        	return true;
+        }
+        
+		return false;
 	}
     
-    @Override
-	public void initialisationComplete() {
-		this.initialised = true;
+	public boolean isShutdown() {
+        if (cpsStore == null 
+        		&& dssStore == null
+        		&& rasService == null 
+//        		&& ctsService == null
+        		&& credsStore == null) {
+        	return true;
+        }
+        
+		return false;
 	}
-
+    
     @Override
     public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
             throws ConfigurationPropertyStoreException {
@@ -340,6 +354,87 @@ public class Framework implements IFramework {
 		
 		this.testRunLogCapture = new TestRunLogCapture(this);
 		
+	}
+	
+	public void shutdown(Log shutdownLogger) throws FrameworkException {
+		if (isShutdown()) {
+			return;
+		}
+		
+		if (shutdownLogger == null) {
+			shutdownLogger = logger;
+		}
+		
+		boolean error = false;
+		
+		shutdownLogger.info("Shutting down the framework");
+		
+		//*** Shutdown the Confidential Text Service
+		if (this.ctsService != null) {
+			try {
+				shutdownLogger.trace("Shutting down the Confidential Text Service");
+				this.ctsService.shutdown();
+				this.ctsService = null;
+			} catch(Throwable t) {
+				error = true;
+				shutdownLogger.error("Failed to shutdown the Confidential Text Service",t);
+			}
+		}
+		
+		//*** Shutdown the Credentials Service
+		if (this.credsStore != null) {
+			try {
+				shutdownLogger.trace("Shutting down the Credentials Service");
+				this.credsStore.shutdown();
+				this.credsStore = null;
+			} catch(Throwable t) {
+				error = true;
+				shutdownLogger.error("Failed to shutdown the Credentials Service",t);
+			}
+		}
+		
+		//*** Shutdown the Result Archive Store
+		if (this.rasService != null) {
+			try {
+				shutdownLogger.trace("Shutting down the Result Archive Store");
+				this.rasService.shutdown();
+				this.rasService = null;
+			} catch(Throwable t) {
+				error = true;
+				shutdownLogger.error("Failed to shutdown the Result Archive Store",t);
+			}
+		}
+		
+		//*** Shutdown the Dynamic Status Store
+		if (this.dssStore != null) {
+			try {
+				shutdownLogger.trace("Shutting down the Dynamic Status Store");
+				this.dssStore.shutdown();
+				this.dssStore = null;
+			} catch(Throwable t) {
+				error = true;
+				shutdownLogger.error("Failed to shutdown the Dynamic Status Store",t);
+			}
+		}
+		
+		//*** Shutdown the Configuration Property Store
+		if (this.cpsStore != null) {
+			try {
+				shutdownLogger.trace("Shutting down the Configuratopm Properties Store");
+				this.cpsStore.shutdown();
+				this.cpsStore = null;
+			} catch(Throwable t) {
+				error = true;
+				shutdownLogger.error("Failed to shutdown the Configuration Property Store",t);
+			}
+		}
+		
+		//*** All done
+		if (error) {
+			throw new FrameworkException("Shutdown did not complete successfully, see log");
+		} else {
+			shutdownLogger.info("Framework shutdown");
+		}
 	}
 
 }

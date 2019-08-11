@@ -59,19 +59,31 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 	private final IDynamicStatusStoreService         dssFramework;
 	//private final ICredentialsStoreService credsFramework;
 
-	private final Log                         logger           = LogFactory.getLog(this.getClass());
+	private Log logger;
 
 
 	public FrameworkInitialisation(Properties bootstrapProperties, Properties overrideProperties)
 			throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-		this(bootstrapProperties, overrideProperties, false);
+		this(bootstrapProperties, overrideProperties, false, null);
 	}
-
 
 	public FrameworkInitialisation(Properties bootstrapProperties, Properties overrideProperties, boolean testrun)
 			throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+		this(bootstrapProperties, overrideProperties, testrun, null);
+	}
+	
+	public FrameworkInitialisation(Properties bootstrapProperties, 
+			Properties overrideProperties, 
+			boolean testrun, 
+			Log initLogger)
+			throws URISyntaxException, InvalidSyntaxException, FrameworkException {
 		this.bootstrapProperties = bootstrapProperties;
 		
+		if (initLogger == null) {
+			logger = LogFactory.getLog(this.getClass());
+		} else {
+			logger = initLogger;
+		}
 
 		this.logger.info("Initialising the Voras Framework");
 
@@ -245,13 +257,17 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			credsRegistration.initialise(this);
 		}
 		if (this.framework.getCredentialsStore() == null) {
-			throw new FrameworkException("Failed to initialise a Credentuals Store, unable to continue");
+			throw new FrameworkException("Failed to initialise a Credentials Store, unable to continue");
 		}
 		this.logger
 		.trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
 
-		this.framework.initialisationComplete();
-		this.logger.info("Framework initialised");
+		if (framework.isInitialised()) {
+			this.logger.info("Framework initialised");
+		} else {
+			this.logger.info("The Framework does not think it is initialised, but we didn't get any errors");
+		}
+		
 	}
 
 	/**

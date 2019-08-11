@@ -27,4 +27,9 @@ public interface IConfidentialTextService {
      */
     String removeConfidentialText(String text);
 
+	/**
+	 * Shutdown the confidential text service
+	 */
+	void shutdown();
+
 } 

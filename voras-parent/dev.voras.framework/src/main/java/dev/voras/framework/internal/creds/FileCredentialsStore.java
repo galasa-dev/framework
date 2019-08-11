@@ -9,6 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import dev.voras.ICredentials;
 import dev.voras.framework.spi.FrameworkPropertyFile;
+import dev.voras.framework.spi.FrameworkPropertyFileException;
 import dev.voras.framework.spi.IConfigurationPropertyStoreService;
 import dev.voras.framework.spi.IFramework;
 import dev.voras.framework.spi.creds.CredentialsException;
@@ -83,6 +84,15 @@ public class FileCredentialsStore implements ICredentialsStore {
 		MessageDigest sha = MessageDigest.getInstance("SHA-256");
 		key = sha.digest(key);
 		return new SecretKeySpec(key, "AES");
+	}
+
+	@Override
+	public void shutdown() throws CredentialsException {
+		try {
+			this.fpf.shutdown();
+		} catch (FrameworkPropertyFileException e) {
+			throw new CredentialsException("Problem shutting down the Credentials File", e);
+		}
 	}
 
 }
