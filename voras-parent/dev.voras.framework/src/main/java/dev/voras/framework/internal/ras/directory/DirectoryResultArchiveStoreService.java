@@ -17,7 +17,6 @@ import org.osgi.service.component.annotations.Component;
 import com.google.gson.Gson;
 
 import dev.voras.framework.spi.IFramework;
-import dev.voras.framework.spi.IFrameworkInitialisation;
 import dev.voras.framework.spi.IResultArchiveStoreService;
 import dev.voras.framework.spi.IRunResult;
 import dev.voras.framework.spi.ResultArchiveStoreException;
@@ -35,9 +34,11 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 
     private static final Charset           UTF8 = Charset.forName("utf-8");
 
-    private IFramework                     framework;                      // NOSONAR
-    private URI                            rasUri;
-    private Path                           baseDirectory;
+    private final IFramework               framework;                      // NOSONAR
+    private final URI                      rasUri;
+    private final Path                     baseDirectory;
+    
+    private boolean                        shutdown = false;
 
     private Path                           runDirectory;
     private Path                           testStructureFile;
@@ -47,35 +48,10 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 
     private DirectoryRASFileSystemProvider provider;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * io.ejat.framework.spi.IResultArchiveStoreService#initialise(io.ejat.framework
-     * .spi.IFrameworkInitialisation)
-     */
-    @Override
-    public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
-            throws ResultArchiveStoreException {
-        this.framework = frameworkInitialisation.getFramework();
-
-        // *** See if this RAS is to be activated, will eventually allow multiples of
-        // itself
-        final List<URI> rasUris = frameworkInitialisation.getResultArchiveStoreUris();
-        for (final URI uri : rasUris) {
-            if ("file".equals(uri.getScheme())) {
-                if (this.rasUri != null) {
-                    throw new ResultArchiveStoreException(
-                            "The Directory RAS currently does not support multiple instances of itself");
-                }
-                this.rasUri = uri;
-            }
-        }
-        
-        if (this.rasUri == null) {
-        	return;
-        }
-        
+    public DirectoryResultArchiveStoreService(IFramework framework, URI rasUri) throws ResultArchiveStoreException {
+    	this.framework = framework;
+    	this.rasUri    = rasUri;
+    	
         // *** Create the base RAS directory
         this.baseDirectory = Paths.get(this.rasUri);
         try {
@@ -87,10 +63,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 
         // *** Get the runname to create the directory
         final String runName = this.framework.getTestRunName();
-        if (runName == null) {
-        	//*** TODO Initalise for the servers,   but we need to work out how to 
-        	//*** dynamically change the runname when a server wants to extract an old run
-            frameworkInitialisation.registerResultArchiveStoreService(this);
+        if (runName == null) { //*** Dont need to do anything more for non runs
             return;
         }
         setRasRun(runName);
@@ -112,9 +85,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         } catch (final IOException e) {
             throw new ResultArchiveStoreException("Unable to create the RAS Provider", e);
         }
-
-        frameworkInitialisation.registerResultArchiveStoreService(this);
-    }
+	}
 
     /**
      * Setup the run directory
@@ -226,11 +197,16 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 
 	@Override
 	public void shutdown() {
+		this.shutdown = true;
 	}
 	
 	@Override
 	public List<IRunResult> getRuns(String runName) throws ResultArchiveStoreException {
 		throw new UnsupportedOperationException("Not developed yet");
+	}
+
+	public boolean isShutdown() {
+		return this.shutdown;
 	}
 
 

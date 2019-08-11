@@ -1,7 +1,5 @@
 package dev.voras.framework.spi;
 
-import javax.validation.constraints.NotNull;
-
 /**
  * <p>Used by the eJAT Framework to initialise the various Result Archive Stores that may exist within the OSGi instance.  The 
  * framework can run with zero or more Result Archive Stores·</p>
@@ -16,15 +14,4 @@ import javax.validation.constraints.NotNull;
  *
  */
 public interface IResultArchiveStoreService extends IResultArchiveStore {
-	
-	/**
-	 * <p>This method is called to selectively initialise the RAS.  If this RAS is to be initialise, 
-	 * it should register the RAS with {@link dev.voras.framework.spi.IFrameworkInitialisation#registerResultArchiveStoreService(IResultArchiveStoreService)}</p> 
-	 * 
-	 * <p>If there is any problem initialising the sole CPS, then an exception will be thrown that will effectively terminate the Framework</p>
-	 * 
-	 * @param frameworkInitialisation - Initialisation object containing access to various initialisation methods
-	 * @throws ResultArchiveStoreException - If there is a problem initialising the underlying store
-	 */
-	void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws ResultArchiveStoreException;
 }
