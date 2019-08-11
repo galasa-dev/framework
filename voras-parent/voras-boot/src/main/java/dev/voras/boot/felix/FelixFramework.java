@@ -625,9 +625,7 @@ public class FelixFramework {
 			if (resources.length == 0) {
 				throw new LauncherException("Unable to locate bundle \"" + bundleSymbolicName + "\" in OBR repository");
 			}
-			for (Resource resource : resources) {
-				addResource(bundleSymbolicName, resolver, resource);
-			}
+			addResource(bundleSymbolicName, resolver, resources[0]); //*** get first resource
 		} catch (LauncherException e) {
 			throw new LauncherException("Unable to install bundle \"" + bundleSymbolicName + "\" from OBR repository", e);
 		}
