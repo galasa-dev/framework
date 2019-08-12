@@ -60,6 +60,6 @@ public interface IResultArchiveStore {
 	void shutdown();
 	
 	@NotNull
-	List<IRunResult> getRuns(@NotNull String runName) throws ResultArchiveStoreException;
+	List<IResultArchiveStoreDirectoryService> getDirectoryServices();
 	
 }
