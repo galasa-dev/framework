@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
 
@@ -125,7 +126,9 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		try {
 			ArrayList<DirectoryRASRunResult> runs = new ArrayList<>();
 
-			Files.list(baseDirectory).forEach(new ConsumeRuns(runs, gson));
+			try (Stream<Path> stream = Files.list(baseDirectory)) {
+				stream.forEach(new ConsumeRuns(runs, gson));
+			}
 
 			return runs;
 		} catch(Throwable t) {
