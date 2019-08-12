@@ -175,6 +175,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     @Override
     public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
         try {
+        	testStructure.normalise();
             final String json = this.gson.toJson(testStructure);
             Files.write(this.testStructureFile, json.getBytes(UTF8));
         } catch (final Exception e) {

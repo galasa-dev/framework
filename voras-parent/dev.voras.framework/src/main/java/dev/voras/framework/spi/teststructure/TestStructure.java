@@ -172,5 +172,19 @@ public class TestStructure {
 		this.artifactRecordIds = artifactRecordIds;
 	}
 
+	public void normalise() {
+		if (this.status == null) {
+			this.status = "unknown";
+		}
+		
+		if (this.requestor == null) {
+			this.requestor = "unknown";
+		}
+		
+		if (this.requested == null) {
+			this.requested = this.startTime;
+		}
+	}
+
 
 }
