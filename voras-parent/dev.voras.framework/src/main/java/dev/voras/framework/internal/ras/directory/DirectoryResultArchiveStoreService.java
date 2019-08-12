@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,8 +18,8 @@ import org.osgi.service.component.annotations.Component;
 import com.google.gson.Gson;
 
 import dev.voras.framework.spi.IFramework;
+import dev.voras.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.voras.framework.spi.IResultArchiveStoreService;
-import dev.voras.framework.spi.IRunResult;
 import dev.voras.framework.spi.ResultArchiveStoreException;
 import dev.voras.framework.spi.teststructure.TestStructure;
 import dev.voras.framework.spi.utils.CirilloGsonBuilder;
@@ -200,13 +201,15 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 		this.shutdown = true;
 	}
 	
-	@Override
-	public List<IRunResult> getRuns(String runName) throws ResultArchiveStoreException {
-		throw new UnsupportedOperationException("Not developed yet");
-	}
-
 	public boolean isShutdown() {
 		return this.shutdown;
+	}
+
+	@Override
+	public @NotNull List<IResultArchiveStoreDirectoryService> getDirectoryServices() {
+		ArrayList<IResultArchiveStoreDirectoryService> dirs = new ArrayList<>(1);
+		dirs.add(new DirectoryRASDirectoryService(this.baseDirectory, gson));
+		return dirs;
 	}
 
 

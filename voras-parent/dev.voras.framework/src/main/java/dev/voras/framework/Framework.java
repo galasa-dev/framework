@@ -17,6 +17,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 import dev.voras.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.voras.framework.internal.creds.FrameworkCredentialsService;
 import dev.voras.framework.internal.dss.FrameworkDynamicStatusStoreService;
+import dev.voras.framework.internal.ras.FrameworkMultipleResultArchiveStore;
 import dev.voras.framework.spi.ConfidentialTextException;
 import dev.voras.framework.spi.ConfigurationPropertyStoreException;
 import dev.voras.framework.spi.DynamicStatusStoreException;
@@ -256,10 +257,18 @@ public class Framework implements IFramework {
      */
     public void addResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService)
             throws ResultArchiveStoreException {
-        if (this.rasService != null) {
-            throw new ResultArchiveStoreException("For the purposes of the MVP, only 1 RASS will be allowed");
+    	
+    	if (this.rasService == null) {
+    		this.rasService = resultArchiveStoreService;
+    		return;
+    	}
+    	
+        if (this.rasService instanceof FrameworkMultipleResultArchiveStore) {
+        	((FrameworkMultipleResultArchiveStore)this.rasService).addResultArchiveStoreService(resultArchiveStoreService);
+        	return;
         }
-        this.rasService = resultArchiveStoreService;
+        
+        this.rasService = new FrameworkMultipleResultArchiveStore(this, resultArchiveStoreService);
     }
 
     public void setConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService) 

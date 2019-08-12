@@ -3,6 +3,8 @@ package dev.voras.framework.spi.teststructure;
 import java.time.Instant;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * <p>
  * This class represents the Test Class structure, ie it's test methods,
@@ -18,9 +20,12 @@ public class TestStructure {
 	private String testName;
 	private String testShortName;
 	
+	private String requestor;
+	
 	private String status;
 	private String result;
 	
+	private Instant requested;
 	private Instant startTime;
 	private Instant endTime;
 	
@@ -78,6 +83,30 @@ public class TestStructure {
 
 	public void setMethods(List<TestMethod> methods) {
 		this.methods = methods;
+	}
+	
+	public void setRequestor(String requestor) {
+		this.requestor = requestor;
+	}
+	
+	public @NotNull String getRequestor() {
+		if (this.requestor == null) {
+			return "unknown";
+		}
+		
+		return this.requestor;
+	}
+	
+	public void setRequested(Instant requested) {
+		this.requested = requested;
+	}
+	
+	public Instant getRequested() {
+		if (requested == null) {
+			return this.startTime;
+		}
+		
+		return requested;
 	}
 
 
