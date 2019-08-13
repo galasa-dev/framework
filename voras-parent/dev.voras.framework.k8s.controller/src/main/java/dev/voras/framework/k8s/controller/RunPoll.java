@@ -193,6 +193,7 @@ public class RunPoll implements Runnable {
 			podSpec.addContainersItem(container);
 			container.setName("engine");
 			container.setImage(this.settings.getEngineImage());
+			container.setImagePullPolicy("always");
 
 			ArrayList<String> commands = new ArrayList<>();
 			container.setCommand(commands);
