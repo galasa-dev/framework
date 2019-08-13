@@ -25,7 +25,8 @@ public class TestStructure {
 	private String status;
 	private String result;
 	
-	private Instant requested;
+	private Instant queued;
+	
 	private Instant startTime;
 	private Instant endTime;
 	
@@ -97,16 +98,16 @@ public class TestStructure {
 		return this.requestor;
 	}
 	
-	public void setRequested(Instant requested) {
-		this.requested = requested;
+	public void setQueued(Instant queued) {
+		this.queued = queued;
 	}
 	
-	public Instant getRequested() {
-		if (requested == null) {
+	public Instant getQueued() {
+		if (queued == null) {
 			return this.startTime;
 		}
 		
-		return requested;
+		return queued;
 	}
 
 
@@ -181,8 +182,8 @@ public class TestStructure {
 			this.requestor = "unknown";
 		}
 		
-		if (this.requested == null) {
-			this.requested = this.startTime;
+		if (this.queued == null) {
+			this.queued = this.startTime;
 		}
 	}
 
