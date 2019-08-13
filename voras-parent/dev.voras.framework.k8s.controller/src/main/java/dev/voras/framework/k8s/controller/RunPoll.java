@@ -203,7 +203,7 @@ public class RunPoll implements Runnable {
 			args.add("-jar");
 			args.add("boot.jar");
 			args.add("--obr");
-			args.add("file:cirillo.obr");
+			args.add("file:voras.obr");
 			args.add("--bootstrap");
 			args.add(settings.getBootstrap());
 			args.add("--run");
