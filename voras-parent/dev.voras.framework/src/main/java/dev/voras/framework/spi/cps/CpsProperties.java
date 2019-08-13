@@ -14,7 +14,7 @@ import dev.voras.framework.spi.IConfigurationPropertyStoreService;
 
 /**
  * Utility methods for retrieving properties from the Configuration Property Store.  Mainly 
- * used for the Manager Property Classes pattern. * 
+ * used for the Manager Property Classes pattern. 
  * 
  * @author Michael Baylis
  *
@@ -39,7 +39,7 @@ public class CpsProperties {
 			@NotNull String suffix, 
 			String... infixes) {
 		try {
-			String sValue = cps.getProperty(prefix, suffix, prefix);
+			String sValue = cps.getProperty(prefix, suffix, infixes);
 			if (sValue == null || sValue.trim().isEmpty()) {
 				return defaultValue;
 			}
@@ -71,7 +71,7 @@ public class CpsProperties {
 			@NotNull String prefix, 
 			@NotNull String suffix, 
 			String... infixes) throws ConfigurationPropertyStoreException {
-		String sValue = cps.getProperty(prefix, suffix, prefix);
+		String sValue = cps.getProperty(prefix, suffix, infixes);
 		if (sValue != null && sValue.trim().isEmpty()) {
 			return null;
 		}
@@ -98,7 +98,7 @@ public class CpsProperties {
 			@NotNull String suffix, 
 			String... infixes) {
 		try {
-			String sValue = cps.getProperty(prefix, suffix, prefix);
+			String sValue = cps.getProperty(prefix, suffix, infixes);
 			if (sValue == null || sValue.trim().isEmpty()) {
 				return defaultValue;
 			}
@@ -131,7 +131,7 @@ public class CpsProperties {
 			String... infixes) {
 		
 		try {
-			String sValue = cps.getProperty(prefix, suffix, prefix);
+			String sValue = cps.getProperty(prefix, suffix, infixes);
 			if (sValue == null || sValue.trim().isEmpty()) {
 				return splitToList(defaultValues);
 			}
@@ -166,7 +166,7 @@ public class CpsProperties {
 			@NotNull String suffix, 
 			String... infixes) throws ConfigurationPropertyStoreException {
 		
-			String sValue = cps.getProperty(prefix, suffix, prefix);
+			String sValue = cps.getProperty(prefix, suffix, infixes);
 			if (sValue == null || sValue.trim().isEmpty()) {
 				return Collections.emptyList();
 			}
