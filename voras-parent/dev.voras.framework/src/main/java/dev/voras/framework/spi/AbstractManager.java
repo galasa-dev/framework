@@ -114,7 +114,12 @@ public abstract class AbstractManager implements IManager {
 
     /**
      * Will call {@link GenerateAnnotatedField} methods in the parent class to
-     * generate instances for each of the Test Class fields
+     * generate instances for each of the Test Class fields<p>
+     * 
+     * The annotated methods in the parent class must:<p><ul>
+     * <li>be public
+     * <li>return the interface of the field annotation
+     * <li>have 2 parameters of {@link java.lang.reflect.Field} and {@link java.util.List}
      *
      * @param managerAnnotation The Annotation for those annotated fields we are
      *                          interested in
