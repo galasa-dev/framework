@@ -105,6 +105,7 @@ public class TestRunner {
 		String stream         = AbstractManager.nulled(run.getStream());
 
 		this.testStructure.setRunName(run.getName());
+		this.testStructure.setQueued(run.getQueued());
 		this.testStructure.setStartTime(Instant.now());
 		writeTestStructure();
 
