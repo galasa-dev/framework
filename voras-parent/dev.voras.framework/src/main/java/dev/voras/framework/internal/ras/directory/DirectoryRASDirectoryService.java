@@ -74,16 +74,16 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 				}
 			}
 			
-			Instant requested = testStructure.getRequested();
+			Instant queued = testStructure.getQueued();
 			
 			if (from != null) {
-				if (from.compareTo(requested) > 0) {
+				if (from.compareTo(queued) > 0) {
 					continue;
 				}
 			}
 			
 			if (to != null) {
-				if (to.compareTo(requested) <= 0) {
+				if (to.compareTo(queued) <= 0) {
 					continue;
 				}
 			}
