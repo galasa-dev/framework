@@ -138,6 +138,9 @@ public class TestStructure {
 	}
 	
 	public String getRunName() {
+		if (this.runName == null) {
+			return "invalid";
+		}
 		return this.runName;
 	}
 	
