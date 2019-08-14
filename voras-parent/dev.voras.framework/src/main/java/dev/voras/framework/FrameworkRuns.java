@@ -26,7 +26,7 @@ import dev.voras.framework.spi.IFrameworkRuns;
 import dev.voras.framework.spi.IRun;
 
 public class FrameworkRuns implements IFrameworkRuns {
-	
+
 	private final static Log logger = LogFactory.getLog(FrameworkRuns.class);
 
 	private final Pattern  runPattern = Pattern.compile("^\\Qrun.\\E(\\w+)\\Q.\\E.*$");
@@ -142,7 +142,10 @@ public class FrameworkRuns implements IFrameworkRuns {
 		}
 		requestor = AbstractManager.nulled(requestor);
 		if (requestor == null) {
-			requestor = "unknown";
+			requestor = AbstractManager.nulled(cps.getProperty("run", "requestor"));
+			if (requestor == null) {
+				requestor = "unknown";
+			}
 		}
 		stream = AbstractManager.nulled(stream);
 
