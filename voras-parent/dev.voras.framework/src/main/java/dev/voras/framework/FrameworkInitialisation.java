@@ -188,11 +188,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		}
 
 		// *** Work out the ras uris
+		Path localRas = Paths.get(System.getProperty(USER_HOME), ".voras", "ras");
 		try {
 			final String rasProperty = this.cpsFramework.getProperty("resultarchive", "store");
 			this.uriResultArchiveStores = new ArrayList<>(1);
 			if ((rasProperty == null) || rasProperty.isEmpty()) {
-				this.uriResultArchiveStores.add(Paths.get(System.getProperty(USER_HOME), ".voras", "ras").toUri());
+				this.uriResultArchiveStores.add(localRas.toUri());
 			} else {
 				final String[] rass = rasProperty.split(",");
 				for (final String ras : rass) {
@@ -209,6 +210,23 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		} catch (final Exception e) {
 			throw new FrameworkException("Unable to resolve the Result Archive Store URIs", e);
 		}
+		
+		Boolean includeLocal = Boolean.parseBoolean(this.cpsFramework.getProperty("resultarchive.store","include.default.local"));
+		if (includeLocal) {
+			boolean alreadyThere = false;
+			for(URI ras : this.uriResultArchiveStores) {
+				if (ras.equals(localRas.toUri())) {
+					alreadyThere = true;
+					break;
+				}
+			}
+			
+			if (!alreadyThere) {
+				this.uriResultArchiveStores.add(localRas.toUri());
+			}
+		}
+		
+		
 		this.logger.debug("Result Archive Stores are " + this.uriResultArchiveStores.toString());
 
 		// *** Initialise the Result Archive Store
