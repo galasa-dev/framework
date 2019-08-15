@@ -271,41 +271,79 @@ public class TestRunManagers {
      * @param resource
      * @throws LauncherException
      */
-    private void addResource(String bundleSymbolicName, Resolver resolver, Resource resource) throws FrameworkException {
-        logger.trace("Resouce: " + resource);
-        resolver.add(resource);
-        if (resolver.resolve())
-        {
-            if (logger.isTraceEnabled()) {
-                Resource[] requiredResources = resolver.getRequiredResources();
-                for (Resource requiredResource : requiredResources) {
-                    logger.trace("  RequiredResource: " + requiredResource.getSymbolicName());
-                }
-                Resource[] optionalResources = resolver.getOptionalResources();
-                for (Resource optionalResource : optionalResources) {
-                    logger.trace("  OptionalResource: " + optionalResource.getSymbolicName());
-                }
-            }
+	private void addResource(String bundleSymbolicName, Resolver resolver, Resource resource) throws FrameworkException {
+		logger.trace("Resouce: " + resource);
+		resolver.add(resource);
 
-            resolver.deploy(Resolver.START);
+		boolean resourceHasReferenceUrl = false;
+		if (resource.getURI().startsWith("reference:")) {
+			resourceHasReferenceUrl = true;
+		}
 
-            if (!isBundleActive(bundleSymbolicName)) {
-                throw new FrameworkException("Bundle failed to install and activate");
-            }
+		if (resolver.resolve())
+		{
+			if (logger.isTraceEnabled()) {
+				Resource[] requiredResources = resolver.getRequiredResources();
+				for (Resource requiredResource : requiredResources) {
+					if (requiredResource.getURI().startsWith("reference:")) {
+						resourceHasReferenceUrl = true;
+					}
+					logger.trace("  RequiredResource: " + requiredResource.getSymbolicName());
+				}
+				Resource[] optionalResources = resolver.getOptionalResources();
+				for (Resource optionalResource : optionalResources) {
+					if (optionalResource.getURI().startsWith("reference:")) {
+						resourceHasReferenceUrl = true;
+					}
+					logger.trace("  OptionalResource: " + optionalResource.getSymbolicName());
+				}
+			}
 
-            printBundles();
-        }
-        else
-        {
-            Reason[] unsatisfiedRequirements = resolver.getUnsatisfiedRequirements();
-            for (Reason reason : unsatisfiedRequirements)
-            {
-                logger.error(resource.toString() + ": Unable to resolve: " + reason.getRequirement());
-            }
-            throw new FrameworkException("Unable to resolve bundle " + bundleSymbolicName);
-        }
 
-    }
+			if (!resourceHasReferenceUrl) {	
+				resolver.deploy(Resolver.START);
+			} else {
+				//*** The Resolver can't cope with reference: URIs which is valid for Felix.
+				//*** So we have to manually install and start the bundles if ANY bundle
+				//*** is a reference
+				ArrayList<Bundle> bundlesToStart = new ArrayList<>();
+				try {
+					Resource[] requiredResources = resolver.getRequiredResources();
+					for (Resource requiredResource : requiredResources) {
+						bundlesToStart.add(this.bundleContext.installBundle(requiredResource.getURI().toString()));
+					}
+					Resource[] optionalResources = resolver.getOptionalResources();
+					for (Resource optionalResource : optionalResources) {
+						bundlesToStart.add(this.bundleContext.installBundle(optionalResource.getURI().toString()));
+					}
+
+					bundlesToStart.add(this.bundleContext.installBundle(resource.getURI().toString()));
+					for(Bundle bundle : bundlesToStart) {
+						bundle.start();
+					}
+				} catch(Exception e) {
+					throw new FrameworkException("Unable to install bundles outside of resolver", e);
+				}
+			}
+
+			if (!isBundleActive(bundleSymbolicName)) {
+				throw new FrameworkException("Bundle failed to install and activate");
+			}
+
+			printBundles();
+		}
+		else
+		{
+			logger.error("Unable to resolve " + resource.toString());
+			Reason[] unsatisfiedRequirements = resolver.getUnsatisfiedRequirements();
+			for (Reason reason : unsatisfiedRequirements)
+			{
+				logger.error("Unsatisfied requirement: " + reason.getRequirement());
+			}
+			throw new FrameworkException("Unable to resolve bundle " + bundleSymbolicName);
+		}
+
+	}
 
 
     /**
