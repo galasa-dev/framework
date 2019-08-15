@@ -27,6 +27,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -39,7 +40,6 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
-import dev.galasa.ResultArchiveStoreContentType;
 
 /**
  * Run the supplied test class
@@ -107,6 +107,7 @@ public class TestRunner {
 		this.testStructure.setRunName(run.getName());
 		this.testStructure.setQueued(run.getQueued());
 		this.testStructure.setStartTime(Instant.now());
+		this.testStructure.setRequestor(AbstractManager.defaultString(run.getRequestor(),"unknown"));
 		writeTestStructure();
 
 		if (stream != null) {
@@ -506,7 +507,7 @@ public class TestRunner {
 					for (Resource optionalResource : optionalResources) {
 						bundlesToStart.add(this.bundleContext.installBundle(optionalResource.getURI().toString()));
 					}
-					
+
 					bundlesToStart.add(this.bundleContext.installBundle(resource.getURI().toString()));
 					for(Bundle bundle : bundlesToStart) {
 						bundle.start();
