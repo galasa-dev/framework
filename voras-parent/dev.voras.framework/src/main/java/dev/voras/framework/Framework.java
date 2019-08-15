@@ -268,7 +268,8 @@ public class Framework implements IFramework {
         	return;
         }
         
-        this.rasService = new FrameworkMultipleResultArchiveStore(this, resultArchiveStoreService);
+        this.rasService = new FrameworkMultipleResultArchiveStore(this, this.rasService);
+        ((FrameworkMultipleResultArchiveStore)this.rasService).addResultArchiveStoreService(resultArchiveStoreService);
     }
 
     public void setConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService) 

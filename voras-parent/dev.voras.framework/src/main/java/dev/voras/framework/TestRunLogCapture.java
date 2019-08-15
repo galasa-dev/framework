@@ -55,12 +55,22 @@ public class TestRunLogCapture  implements Appender {
 		}
 		
 		String message = layout.format(event);
+		String[] throwable = new String[0]; 
+		
+		if (event.getThrowableInformation() != null) {
+			throwable = event.getThrowableStrRep();
+		}
 		
 		if (ras == null) {
 			if (framework.isInitialised()) {
 				this.ras = framework.getResultArchiveStore();
 			} else {
 				startupCache.add(message);
+				if (throwable != null) {
+					for(String t : throwable) {
+						startupCache.add(t);
+					}
+				}
 				return;
 			}
 		}
@@ -78,6 +88,11 @@ public class TestRunLogCapture  implements Appender {
 		
 		try {
 			this.ras.writeLog(message);
+			if (throwable != null) {
+				for(String t : throwable) {
+					this.ras.writeLog(t);
+				}
+			}
 		} catch (ResultArchiveStoreException e) { 
 			e.printStackTrace(); //*** Do not use logger,  will cause a loop //NOSONAR
 			startupCache.add(message);
