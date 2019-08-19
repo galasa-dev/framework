@@ -225,23 +225,23 @@ public class RunPoll implements Runnable {
 
 			ArrayList<V1EnvVar> envs = new ArrayList<>();
 			container.setEnv(envs);
-			//			envs.add(createConfigMapEnv("EJAT_URL", configMapName, "galasa_url"));
-			//			envs.add(createConfigMapEnv("EJAT_INFRA_OBR", configMapName, "galasa_maven_infra_obr"));
-			//			envs.add(createConfigMapEnv("EJAT_INFRA_REPO", configMapName, "galasa_maven_infra_repo"));
-			//			envs.add(createConfigMapEnv("EJAT_TEST_REPO", configMapName, "galasa_maven_test_repo"));
-			//			envs.add(createConfigMapEnv("EJAT_HELPER_REPO", configMapName, "galasa_maven_helper_repo"));
+			//			envs.add(createConfigMapEnv("GALASA_URL", configMapName, "galasa_url"));
+			//			envs.add(createConfigMapEnv("GALASA_INFRA_OBR", configMapName, "galasa_maven_infra_obr"));
+			//			envs.add(createConfigMapEnv("GALASA_INFRA_REPO", configMapName, "galasa_maven_infra_repo"));
+			//			envs.add(createConfigMapEnv("GALASA_TEST_REPO", configMapName, "galasa_maven_test_repo"));
+			//			envs.add(createConfigMapEnv("GALASA_HELPER_REPO", configMapName, "galasa_maven_helper_repo"));
 			//
-			//			envs.add(createValueEnv("EJAT_ENGINE_TYPE", engineLabel));
+			//			envs.add(createValueEnv("GALASA_ENGINE_TYPE", engineLabel));
 			envs.add(createValueEnv("MAX_HEAP", Integer.toString(this.settings.getEngineMemory()) + "m"));
 			//
-			//			envs.add(createSecretEnv("EJAT_SERVER_USER", "galasa-secret", "galasa-server-username"));
-			//			envs.add(createSecretEnv("EJAT_SERVER_PASSWORD", "galasa-secret", "galasa-server-password"));
-			//			envs.add(createSecretEnv("EJAT_MAVEN_USER", "galasa-secret", "galasa-maven-username"));
-			//			envs.add(createSecretEnv("EJAT_MAVEN_PASSWORD", "galasa-secret", "galasa-maven-password"));
+			//			envs.add(createSecretEnv("GALASA_SERVER_USER", "galasa-secret", "galasa-server-username"));
+			//			envs.add(createSecretEnv("GALASA_SERVER_PASSWORD", "galasa-secret", "galasa-server-password"));
+			//			envs.add(createSecretEnv("GALASA_MAVEN_USER", "galasa-secret", "galasa-maven-username"));
+			//			envs.add(createSecretEnv("GALASA_MAVEN_PASSWORD", "galasa-secret", "galasa-maven-password"));
 			//
-			//			envs.add(createValueEnv("EJAT_RUN_ID", runUUID.toString()));
-			//			envs.add(createFieldEnv("EJAT_ENGINE_ID", "metadata.name"));
-			//			envs.add(createFieldEnv("EJAT_K8S_NODE", "spec.nodeName"));
+			//			envs.add(createValueEnv("GALASA_RUN_ID", runUUID.toString()));
+			//			envs.add(createFieldEnv("GALASA_ENGINE_ID", "metadata.name"));
+			//			envs.add(createFieldEnv("GALASA_K8S_NODE", "spec.nodeName"));
 
 
 			boolean successful = false;

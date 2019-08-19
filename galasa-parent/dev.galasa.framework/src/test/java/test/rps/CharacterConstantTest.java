@@ -26,7 +26,7 @@ public class CharacterConstantTest {
      */
     @Test
     public void testAllMethodsReturnConstant() throws ParseException{
-        final String testString = "JATP";
+        final String testString = "GAL";
         ByteArrayInputStream bais = new ByteArrayInputStream(testString.getBytes());
 
         RpsResolver resolve = new RpsResolver(bais);
