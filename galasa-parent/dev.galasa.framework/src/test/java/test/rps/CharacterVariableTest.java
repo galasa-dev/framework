@@ -93,7 +93,7 @@ public class CharacterVariableTest {
      */
     @Test
     public void testStringWithLetters() throws ParseException{
-        final String testString = "JATP{d}";
+        final String testString = "GAL{d}";
 
         ByteArrayInputStream bais = new ByteArrayInputStream(testString.getBytes());
         
@@ -122,7 +122,7 @@ public class CharacterVariableTest {
                 throw new UnsupportedOperationException("Unrecognised node " + child.getClass().getName());
             }
         }
-        assertEquals("Incorrect length string built.",5, builder.length());
+        assertEquals("Incorrect length string built.",4, builder.length());
     }
 
     /**
@@ -131,7 +131,7 @@ public class CharacterVariableTest {
      */
     @Test
     public void testStringWithMultiRangeLetters() throws ParseException{
-        final String testString = "JATP{a-d}";
+        final String testString = "GAL{a-d}";
 
         ByteArrayInputStream bais = new ByteArrayInputStream(testString.getBytes());
         
@@ -159,7 +159,7 @@ public class CharacterVariableTest {
                 throw new UnsupportedOperationException("Unrecognised node " + child.getClass().getName());
             }
         }
-        assertEquals("Incorrect length string built.",5, builder.length());
+        assertEquals("Incorrect length string built.",4, builder.length());
     }
 
     /**
@@ -168,7 +168,7 @@ public class CharacterVariableTest {
      */
     @Test
     public void testStringComplexPattern() throws ParseException{
-        final String testString = "JATP{a-d}{a-zG-R}{9}{H}{0-48-9a-hS-Z}{2}";
+        final String testString = "GAL{a-d}{a-zG-R}{9}{H}{0-48-9a-hS-Z}{2}";
 
         ByteArrayInputStream bais = new ByteArrayInputStream(testString.getBytes());
         
@@ -196,7 +196,7 @@ public class CharacterVariableTest {
                 throw new UnsupportedOperationException("Unrecognised node " + child.getClass().getName());
             }
         }
-        assertEquals("Incorrect length string built.",10, builder.length());
+        assertEquals("Incorrect length string built.",9, builder.length());
     }
 
     /**

@@ -2,10 +2,10 @@ package dev.galasa.framework.internal.rps;
 
 /** 
  * This interface is used for the creation and parsing of a resource string. A set of complex resources strings can be defined in the notation:
- * JATP{9}{z}{2-6}{a-z0-9} with examples of the set:
- *  - JATP0a67
- *  - JATP4h2e
- *  - JATP3z44
+ * GAL{9}{z}{2-6}{a-z0-9} with examples of the set:
+ *  - GAL0a67
+ *  - GAL4h2e
+ *  - GAL3z44
  * ...
  * with:
  *  {9} representing 0-9. Any solo number can be passed to repsent 0-X.

@@ -39,7 +39,7 @@ public class FelixFramework {
 
 	private BootLogger logger = new BootLogger();
 
-	private boolean loadConsole = Boolean.parseBoolean(System.getProperty("jat.core.load.console", "false")); 
+	private boolean loadConsole = Boolean.parseBoolean(System.getProperty("dev.galasa.core.load.console", "false")); 
 
 	private Framework framework;
 
