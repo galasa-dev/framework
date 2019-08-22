@@ -3,4 +3,4 @@
 ![SonarQube Badge](https://cicscit.hursley.ibm.com/sonar/api/project_badges/measure?project=eJATv3&metric=code_smells)
 
 # framework
-eJAT v3 Framework
+Galasa Framework

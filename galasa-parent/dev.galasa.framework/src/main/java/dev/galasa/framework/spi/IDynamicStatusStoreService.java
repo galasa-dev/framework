@@ -26,8 +26,8 @@ public interface IDynamicStatusStoreService extends IDynamicStatusStoreKeyAccess
 	 * After that the manager can set the property names as necessary.</p>
 	 * 
 	 * <p>For example,  if the zOS Security Manager is controlling a set of userids on cluster PlexMA,
-	 *  the namespace is already set to 'zossec', the property key would be 'PLEXMA.userid.JAT234'.  This would 
-	 *  result in the property 'dss.framework.resource.zossec.PLEXMA.userid.JAT234=L3456'.  The automation views would 
+	 *  the namespace is already set to 'zossec', the property key would be 'PLEXMA.userid.GAL234'.  This would 
+	 *  result in the property 'dss.framework.resource.zossec.PLEXMA.userid.GAL234=L3456'.  The automation views would 
 	 *  build a tree view of the properties starting 'dss.framework.resource'</p> 
 	 * 
 	 * @param key

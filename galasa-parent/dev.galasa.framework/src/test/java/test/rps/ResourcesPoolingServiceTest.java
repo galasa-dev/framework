@@ -84,7 +84,7 @@ public class ResourcesPoolingServiceTest {
         FrameworkResourcePoolingService frps = new FrameworkResourcePoolingService();
         List<String> resourceStrings = new ArrayList<>();
 
-        resourceStrings.add("JATP{9}{9}{9}{z}");
+        resourceStrings.add("GAL{9}{9}{9}{z}");
 
         List<String> resources = frps.obtainResources(resourceStrings, null);
         assertEquals("Unexpected number of resources retrieved",10, resources.size());
@@ -99,7 +99,7 @@ public class ResourcesPoolingServiceTest {
         FrameworkResourcePoolingService frps = new FrameworkResourcePoolingService();
         List<String> resourceStrings = new ArrayList<>();
 
-        resourceStrings.add("JATP{9}{9}{9}{z}");
+        resourceStrings.add("GAL{9}{9}{9}{z}");
 
         List<String> resources = frps.obtainResources(resourceStrings, null, 30);
         assertEquals("Unexpected number of resources retrieved",30, resources.size());
@@ -168,6 +168,16 @@ public class ResourcesPoolingServiceTest {
         answers.add("APPLID4");
         answers.add("APPLID5");
 
+        answers.add("GAL0");
+        answers.add("GAL1");
+        answers.add("GAL2");
+        answers.add("GAL3");
+        answers.add("GAL4");
+        answers.add("GAL5");
+        answers.add("GAL7");
+        answers.add("GAL8");
+        answers.add("GAL9");
+
         answers.add("GALASA3");
         answers.add("GALASA4");
         answers.add("GALASA5");
@@ -175,21 +185,11 @@ public class ResourcesPoolingServiceTest {
         answers.add("GALASA7");
         answers.add("GALASA8");
 
-        answers.add("JATP0");
-        answers.add("JATP1");
-        answers.add("JATP2");
-        answers.add("JATP3");
-        answers.add("JATP4");
-        answers.add("JATP5");
-        answers.add("JATP7");
-        answers.add("JATP8");
-        answers.add("JATP9");
-
         resourceStrings.add("APPLID{9}");
-        resourceStrings.add("JATP{9}");
+        resourceStrings.add("GAL{9}");
         resourceStrings.add("GALASA{9}");
 
-        bannedStrings.add("JATP6");
+        bannedStrings.add("GAL6");
         bannedStrings.add("APPLID6");
         bannedStrings.add("APPLID8");
         bannedStrings.add("GALASA2");
@@ -211,7 +211,7 @@ public class ResourcesPoolingServiceTest {
         List<String> resourceStrings = new ArrayList<>();
         Boolean caught = false;
 
-        resourceStrings.add("JAT{9}{9}{9}{9}");
+        resourceStrings.add("GAL{9}{9}{9}{9}");
 
         try {
             frps.obtainResources(resourceStrings, null, 41, 5);
