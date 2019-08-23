@@ -2,6 +2,8 @@ package dev.galasa.framework.spi;
 
 import java.time.Instant;
 
+import dev.galasa.framework.SerializedRun;
+
 public interface IRun {
 	
 	String getName();
@@ -37,5 +39,7 @@ public interface IRun {
 	Instant getFinished();
 
 	Instant getWaitUntil();
+
+	SerializedRun getSerializedRun();
 
 }
