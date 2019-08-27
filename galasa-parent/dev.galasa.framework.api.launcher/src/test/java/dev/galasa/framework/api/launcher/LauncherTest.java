@@ -6,7 +6,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
