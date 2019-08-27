@@ -106,6 +106,8 @@
 		<assertj-core>3.11.1</assertj-core>
 
 		<unpackBundle>true</unpackBundle>
+		<galasa.skip.bundletestcatatlog>true</galasa.skip.bundletestcatatlog>
+		<galasa.skip.deploytestcatatlog>true</galasa.skip.deploytestcatatlog>
 	</properties>
 
 
