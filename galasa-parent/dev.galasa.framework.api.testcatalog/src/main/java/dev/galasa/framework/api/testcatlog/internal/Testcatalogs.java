@@ -87,16 +87,16 @@ public class Testcatalogs extends HttpServlet {
 
 			JsonObject jsonCache = null;
 			if (rebuildCache || consumer.rebuildCache()) {
-				jsonCache = rebuildCacheFile(catalogs, cachePath);
+				jsonCache = rebuildCacheFile(catalogs, cachePath); //NOSONAR TODO put in proper json error response
 			} else {
-				jsonCache = gson.fromJson(Files.newBufferedReader(cachePath), JsonObject.class);
+				jsonCache = gson.fromJson(Files.newBufferedReader(cachePath), JsonObject.class); //NOSONAR TODO put in proper json error response
 			}
 
 			String jsonResponse = gson.toJson(jsonCache);
 
 			resp.setContentType("application/json");
 			resp.setContentLengthLong(jsonResponse.length());
-			IOUtils.write(jsonResponse, resp.getOutputStream(), "utf-8");
+			IOUtils.write(jsonResponse, resp.getOutputStream(), "utf-8"); //NOSONAR TODO put in proper json error response
 
 		} catch(JsonParseException e) {
 			throw new IOException("Problem processing the test catalog request", e); //NOSONAR TODO put in proper json error response
