@@ -97,8 +97,8 @@ public class Testcatalogs extends HttpServlet {
 			resp.setContentLengthLong(jsonResponse.length());
 			IOUtils.write(jsonResponse, resp.getOutputStream(), "utf-8");
 
-		} catch(IOException e) {
-			throw e;
+		} catch(Throwable t) {
+			throw new IOException("Problem processing the test catalog request", t); //NOSONAR
 		}
 
 		resp.setStatus(200);

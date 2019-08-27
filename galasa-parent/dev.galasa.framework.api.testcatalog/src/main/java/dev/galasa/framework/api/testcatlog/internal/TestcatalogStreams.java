@@ -46,11 +46,11 @@ import com.google.gson.JsonObject;
 		)
 public class TestcatalogStreams extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final Log logger = LogFactory.getLog(TestcatalogStreams.class);
-	
+
 	private final Pattern patternValidStreamName = Pattern.compile("/[a-z0-9-_]+");
-	
+
 	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 	private Path catalogDirectory; // NOSONAR
@@ -59,50 +59,55 @@ public class TestcatalogStreams extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 
-		checkDirectory();
+		try {
+			checkDirectory();
 
-		String extraPath = req.getPathInfo();
-		if (!checkPath(resp, extraPath)) {
-			return;
-		}
-		
-		String streamName = extraPath.substring(1);
-		
-		String contentType = req.getHeader("Accept");
-		if (!"application/json".equals(contentType)) {
-			resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "only application/json supported");
-			return;
-		}
-		
-		Path actualFile = catalogDirectory.resolve(streamName);
-		
-		if (!Files.exists(actualFile)) {
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Test Catalog is missing");
-			return;
-		}
-		
-		resp.setContentType("application/json");
-		resp.setContentLengthLong(Files.size(actualFile));
-		
-		Files.copy(actualFile, resp.getOutputStream());
+			String extraPath = req.getPathInfo();
+			if (!checkPath(resp, extraPath)) {
+				return;
+			}
 
-		resp.setStatus(200);
+			String streamName = extraPath.substring(1);
+
+			String contentType = req.getHeader("Accept");
+			if (!"application/json".equals(contentType)) {
+				resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "only application/json supported");
+				return;
+			}
+
+			Path actualFile = catalogDirectory.resolve(streamName);
+
+			if (!Files.exists(actualFile)) {
+				resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Test Catalog is missing");
+				return;
+			}
+
+			resp.setContentType("application/json");
+			resp.setContentLengthLong(Files.size(actualFile));
+
+			Files.copy(actualFile, resp.getOutputStream());
+
+			resp.setStatus(200);
+		} catch(Throwable t) {
+			throw new IOException("Problem processing the test catalog request", t); //NOSONAR
+		}
+
 	}
 
 
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
+
 		checkDirectory();
-		
+
 		String extraPath = req.getPathInfo();
 		if (!checkPath(resp, extraPath)) {
 			return;
 		}
-		
+
 		String streamName = extraPath.substring(1);
-		
+
 		String contentType = req.getHeader("Content-Type");
 		if (!"application/json".equals(contentType)) {
 			resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "only application/json supported");
@@ -111,15 +116,15 @@ public class TestcatalogStreams extends HttpServlet {
 
 		//*** Read it in just to make sure it looks ok
 		//*** TODO need to check the length or send to disk or something to avoid DOS
-		
+
 		String jsonData = IOUtils.toString(req.getReader());
 		JsonObject tc = gson.fromJson(jsonData, JsonObject.class);
-		
+
 		if (tc == null) {
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Test Catalog content is missing");
 			return;
 		}
-		
+
 		if (!tc.has("classes") 
 				|| !tc.has("bundles") 
 				|| !tc.has("packages")) {
@@ -128,11 +133,11 @@ public class TestcatalogStreams extends HttpServlet {
 		}
 
 		Path actualFile = catalogDirectory.resolve(streamName);
-		
+
 		Files.write(actualFile, jsonData.getBytes("utf-8"), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-		
+
 		logger.info("Test Catalog written for stream " + streamName);
-				
+
 		resp.setStatus(200);
 	}
 
