@@ -53,7 +53,7 @@ public class TestcatalogStreams extends HttpServlet {
 	
 	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-	private Path catalogDirectory;
+	private Path catalogDirectory; // NOSONAR
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -148,7 +148,7 @@ public class TestcatalogStreams extends HttpServlet {
 
 
 	private void checkDirectory() throws IOException {
-		synchronized (getClass()) {
+		synchronized (TestcatalogStreams.class) {
 			if (catalogDirectory == null) {
 				catalogDirectory = Paths.get(System.getProperty("karaf.data")).resolve("galasa").resolve("testcatalogs");
 			}

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -49,51 +50,57 @@ import com.google.gson.JsonSyntaxException;
 		)
 public class Testcatalogs extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final Log logger = LogFactory.getLog(Testcatalogs.class);
 
 	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-	private Path catalogDirectory;
+	private Path catalogDirectory; // NOSONAR
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 
-		checkDirectory();
+		try {
+			checkDirectory();
 
-		//*** locate the cached list and obtain the modified date
-		boolean rebuildCache = false;
-		FileTime cacheLastModified = FileTime.fromMillis(0);
-		Path cachePath = catalogDirectory.resolve("cache.json");
-		if (Files.exists(cachePath)) {
-			cacheLastModified = Files.getLastModifiedTime(cachePath);
-		} else {
-			rebuildCache = true;
+			//*** locate the cached list and obtain the modified date
+			boolean rebuildCache = false;
+			FileTime cacheLastModified = FileTime.fromMillis(0);
+			Path cachePath = catalogDirectory.resolve("cache.json");
+			if (Files.exists(cachePath)) {
+				cacheLastModified = Files.getLastModifiedTime(cachePath);
+			} else {
+				rebuildCache = true;
+			}
+
+
+			//*** Get a list of the streams and newest date
+			CatalogConsumer consumer = new CatalogConsumer(cacheLastModified);
+			try(Stream<Path> stream = Files.list(catalogDirectory)) {
+				stream.forEach(consumer);
+			}
+
+
+			List<Path> catalogs = consumer.getCatalogs();
+
+			JsonObject jsonCache = null;
+			if (rebuildCache || consumer.rebuildCache()) {
+				jsonCache = rebuildCacheFile(catalogs, cachePath);
+			} else {
+				jsonCache = gson.fromJson(Files.newBufferedReader(cachePath), JsonObject.class);
+			}
+
+			String jsonResponse = gson.toJson(jsonCache);
+
+			resp.setContentType("application/json");
+			resp.setContentLengthLong(jsonResponse.length());
+			IOUtils.write(jsonResponse, resp.getOutputStream(), "utf-8");
+
+		} catch(IOException e) {
+			throw e;
 		}
 
-
-		//*** Get a list of the streams and newest date
-		CatalogConsumer consumer = new CatalogConsumer(cacheLastModified);
-		Files.list(catalogDirectory).forEach(consumer);
-
-		List<Path> catalogs = consumer.getCatalogs();
-
-		JsonObject jsonCache = null;
-		if (rebuildCache || consumer.rebuildCache()) {
-			jsonCache = rebuildCacheFile(catalogs, cachePath);
-		} else {
-			jsonCache = gson.fromJson(Files.newBufferedReader(cachePath), JsonObject.class);
-		}
-
-		String jsonResponse = gson.toJson(jsonCache);
-		
-		resp.setContentType("application/json");
-		resp.setContentLengthLong(jsonResponse.length());
-		IOUtils.write(jsonResponse, resp.getOutputStream(), "utf-8");
-		
-		
-		
 		resp.setStatus(200);
 	}
 
@@ -124,7 +131,7 @@ public class Testcatalogs extends HttpServlet {
 
 
 	private void checkDirectory() throws IOException {
-		synchronized (getClass()) {
+		synchronized (Testcatalogs.class) {
 			if (catalogDirectory == null) {
 				catalogDirectory = Paths.get(System.getProperty("karaf.data")).resolve("galasa").resolve("testcatalogs");
 			}
