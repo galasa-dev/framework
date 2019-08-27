@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 /**
  * Basic Test Catalog store
@@ -88,8 +89,10 @@ public class TestcatalogStreams extends HttpServlet {
 			Files.copy(actualFile, resp.getOutputStream());
 
 			resp.setStatus(200);
+		} catch(JsonParseException e) {
+			throw new IOException("Problem processing the test catalog request", e); //NOSONAR TODO put in proper json error response
 		} catch(Throwable t) {
-			throw new IOException("Problem processing the test catalog request", t); //NOSONAR
+			throw new IOException("Problem processing the test catalog request", t); //NOSONAR TODO put in proper json error response
 		}
 
 	}
@@ -99,46 +102,52 @@ public class TestcatalogStreams extends HttpServlet {
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 
-		checkDirectory();
+		try {
+			checkDirectory();
 
-		String extraPath = req.getPathInfo();
-		if (!checkPath(resp, extraPath)) {
-			return;
+			String extraPath = req.getPathInfo();
+			if (!checkPath(resp, extraPath)) {
+				return;
+			}
+
+			String streamName = extraPath.substring(1);
+
+			String contentType = req.getHeader("Content-Type");
+			if (!"application/json".equals(contentType)) {
+				resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "only application/json supported");
+				return;
+			}
+
+			//*** Read it in just to make sure it looks ok
+			//*** TODO need to check the length or send to disk or something to avoid DOS
+
+			String jsonData = IOUtils.toString(req.getReader());
+			JsonObject tc = gson.fromJson(jsonData, JsonObject.class);
+
+			if (tc == null) {
+				resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Test Catalog content is missing");
+				return;
+			}
+
+			if (!tc.has("classes") 
+					|| !tc.has("bundles") 
+					|| !tc.has("packages")) {
+				resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Test Catalog");
+				return;
+			}
+
+			Path actualFile = catalogDirectory.resolve(streamName);
+
+			Files.write(actualFile, jsonData.getBytes("utf-8"), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+			logger.info("Test Catalog written for stream " + streamName);
+
+			resp.setStatus(200);
+		} catch(JsonParseException e) {
+			throw new IOException("Problem processing the test catalog request", e); //NOSONAR TODO put in proper json error response
+		} catch(Throwable t) {
+			throw new IOException("Problem processing the test catalog request", t); //NOSONAR TODO put in proper json error response
 		}
-
-		String streamName = extraPath.substring(1);
-
-		String contentType = req.getHeader("Content-Type");
-		if (!"application/json".equals(contentType)) {
-			resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "only application/json supported");
-			return;
-		}
-
-		//*** Read it in just to make sure it looks ok
-		//*** TODO need to check the length or send to disk or something to avoid DOS
-
-		String jsonData = IOUtils.toString(req.getReader());
-		JsonObject tc = gson.fromJson(jsonData, JsonObject.class);
-
-		if (tc == null) {
-			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Test Catalog content is missing");
-			return;
-		}
-
-		if (!tc.has("classes") 
-				|| !tc.has("bundles") 
-				|| !tc.has("packages")) {
-			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Test Catalog");
-			return;
-		}
-
-		Path actualFile = catalogDirectory.resolve(streamName);
-
-		Files.write(actualFile, jsonData.getBytes("utf-8"), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-		logger.info("Test Catalog written for stream " + streamName);
-
-		resp.setStatus(200);
 	}
 
 
@@ -178,7 +187,7 @@ public class TestcatalogStreams extends HttpServlet {
 				catalogDirectory = Paths.get(new URL(directoryProperty).toURI());
 				logger.info("Catalog directorty set to " + catalogDirectory.toUri().toString());
 			} catch(Exception e) {
-				e.printStackTrace();
+				logger.error("Problem with the catalog directory url",e);
 			}
 		} else {
 			catalogDirectory = null;

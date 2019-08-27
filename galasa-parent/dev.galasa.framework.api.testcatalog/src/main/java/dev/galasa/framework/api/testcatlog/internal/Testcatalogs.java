@@ -32,6 +32,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
 /**
@@ -97,8 +98,10 @@ public class Testcatalogs extends HttpServlet {
 			resp.setContentLengthLong(jsonResponse.length());
 			IOUtils.write(jsonResponse, resp.getOutputStream(), "utf-8");
 
+		} catch(JsonParseException e) {
+			throw new IOException("Problem processing the test catalog request", e); //NOSONAR TODO put in proper json error response
 		} catch(Throwable t) {
-			throw new IOException("Problem processing the test catalog request", t); //NOSONAR
+			throw new IOException("Problem processing the test catalog request", t); //NOSONAR TODO put in proper json error response
 		}
 
 		resp.setStatus(200);
@@ -156,7 +159,7 @@ public class Testcatalogs extends HttpServlet {
 				catalogDirectory = Paths.get(new URL(directoryProperty).toURI());
 				logger.info("Catalog directorty set to " + catalogDirectory.toUri().toString());
 			} catch(Exception e) {
-				e.printStackTrace();
+				logger.error("Problem with the catalog directory url",e);
 			}
 		} else {
 			catalogDirectory = null;
@@ -191,7 +194,7 @@ public class Testcatalogs extends HttpServlet {
 					}
 				} catch (IOException e) {
 					rebuildCache = true;
-					e.printStackTrace();
+					logger.error("Problem with the catalog directory",e);
 				}
 			}
 		}
