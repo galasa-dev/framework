@@ -26,6 +26,7 @@
 		<module>dev.galasa.framework.api.authentication</module>
 		<module>dev.galasa.framework.api.health</module>
 		<module>dev.galasa.framework.api.bootstrap</module>
+		<module>dev.galasa.framework.api.launcher</module>
 		<module>dev.galasa.framework.api.testcatalog</module>
 		<module>galasautils-maven-plugin</module>
 	</modules>
