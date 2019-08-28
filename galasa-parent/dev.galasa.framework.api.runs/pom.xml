@@ -8,7 +8,7 @@
 		<version>0.3.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>dev.galasa.framework.api.scheduleTests</artifactId>
+	<artifactId>dev.galasa.framework.api.runs</artifactId>
 	<version>0.3.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 

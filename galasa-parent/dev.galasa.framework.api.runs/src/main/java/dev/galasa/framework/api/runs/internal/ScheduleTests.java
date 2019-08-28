@@ -45,10 +45,10 @@ import dev.galasa.framework.spi.IRun;
 @Component(
 		service=Servlet.class,
 		scope=ServiceScope.PROTOTYPE,
-		property= {"osgi.http.whiteboard.servlet.pattern=/schedule/*"},
+		property= {"osgi.http.whiteboard.servlet.pattern=/run/*"},
 		configurationPid= {"dev.galasa"},
 		configurationPolicy=ConfigurationPolicy.REQUIRE,
-		name="galasa Schedule Tests"
+		name="Galasa Run Test"
 		)
 public class ScheduleTests extends HttpServlet {
 	private static final long serialVersionUID = 1L;
