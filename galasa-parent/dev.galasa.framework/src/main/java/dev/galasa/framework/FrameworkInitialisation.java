@@ -80,6 +80,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 			throws URISyntaxException, InvalidSyntaxException, FrameworkException {
 		this.bootstrapProperties = bootstrapProperties;
 		
+		//*** Copy the the bootstrap properties to the override properties so that they are available to the managers
+		this.bootstrapProperties.putAll(overrideProperties);
+		
 		if (initLogger == null) {
 			logger = LogFactory.getLog(this.getClass());
 		} else {
