@@ -70,11 +70,11 @@ public class TestcatalogStreams extends HttpServlet {
 
 			String streamName = extraPath.substring(1);
 
-			String contentType = req.getHeader("Accept");
-			if (!"application/json".equals(contentType)) {
-				resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "only application/json supported");
-				return;
-			}
+//			String contentType = req.getHeader("Accept");  //TODO add a proper way of checking for this
+//			if (!"application/json".equals(contentType)) {
+//				resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "only application/json supported");
+//				return;
+//			}
 
 			Path actualFile = catalogDirectory.resolve(streamName);
 
