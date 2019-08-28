@@ -1,9 +1,7 @@
-package dev.galasa.framework.api.scheduleTests.internal;
+package dev.galasa.framework.api.runs.internal;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -25,13 +23,10 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import com.google.gson.Gson;
 
-import dev.galasa.framework.SerializedRun;
-import dev.galasa.framework.api.scheduleTests.bind.RunStatus;
-import dev.galasa.framework.api.scheduleTests.bind.ScheduleRequest;
-import dev.galasa.framework.api.scheduleTests.bind.ScheduleStatus;
+import dev.galasa.framework.api.runs.bind.RunStatus;
+import dev.galasa.framework.api.runs.bind.ScheduleRequest;
+import dev.galasa.framework.api.runs.bind.ScheduleStatus;
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.IDynamicStatusStore;
-import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRun;
 
@@ -45,10 +40,10 @@ import dev.galasa.framework.spi.IRun;
 @Component(
 		service=Servlet.class,
 		scope=ServiceScope.PROTOTYPE,
-		property= {"osgi.http.whiteboard.servlet.pattern=/schedule/*"},
+		property= {"osgi.http.whiteboard.servlet.pattern=/run/*"},
 		configurationPid= {"dev.galasa"},
 		configurationPolicy=ConfigurationPolicy.REQUIRE,
-		name="galasa Schedule Tests"
+		name="Galasa Run Test"
 		)
 public class ScheduleTests extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -56,7 +51,7 @@ public class ScheduleTests extends HttpServlet {
 	@Reference
 	public IFramework framework;   // NOSONAR
 	
-	private Logger logger;
+	private static Logger logger;
 
 	private final Properties configurationProperties = new Properties();
 
@@ -77,13 +72,13 @@ public class ScheduleTests extends HttpServlet {
 		for(IRun run : runs) {
 			if(!"FINISHED".equalsIgnoreCase(run.getStatus()))
 				complete = false;
-			status.runs.add(run.getSerializedRun());
+			status.getRuns().add(run.getSerializedRun());
 		}
 				
 		if(complete) {
-			status.scheduleStatus = RunStatus.FINISHED_RUN;
+			status.setScheduleStatus(RunStatus.FINISHED_RUN);
 		}else {
-			status.scheduleStatus = RunStatus.TESTING;
+			status.setScheduleStatus(RunStatus.TESTING);
 		}
 		
 		resp.setStatus(200);
@@ -101,12 +96,19 @@ public class ScheduleTests extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		boolean submissionFailures = false;
 		String UUID = getUUID(req);
-		ScheduleRequest request = (ScheduleRequest)new Gson().fromJson(new InputStreamReader(req.getInputStream()), ScheduleRequest.class);
-		for(String className : request.classNames) {
+		ScheduleRequest request;
+		try {
+			request = (ScheduleRequest)new Gson().fromJson(new InputStreamReader(req.getInputStream()), ScheduleRequest.class);
+		}catch(Exception e) {
+			logger.warning("Error understanding / receiving run test request");
+			resp.setStatus(500);
+			return;
+		}
+		for(String className : request.getClassNames()) {
 			String bundle = className.split("/")[0];
 			String testClass = className.split("/")[1];
 			try {
-				framework.getFrameworkRuns().submitRun(null, request.requestorType.toString(), bundle, testClass, UUID, request.mavenRepository, request.obr, request.testStream, false, false);
+				framework.getFrameworkRuns().submitRun(null, request.getRequestorType().toString(), bundle, testClass, UUID, request.getMavenRepository(), request.getObr(), request.getTestStream(), false, false);
 			}catch(FrameworkException fe) {
 				logger.warning("Failure when submitting run: " + className + System.lineSeparator() + fe.getStackTrace());
 				submissionFailures = true;

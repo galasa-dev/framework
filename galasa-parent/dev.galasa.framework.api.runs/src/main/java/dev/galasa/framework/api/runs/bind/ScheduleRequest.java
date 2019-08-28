@@ -1,4 +1,4 @@
-package dev.galasa.framework.api.scheduleTests.bind;
+package dev.galasa.framework.api.runs.bind;
 
 
 import java.io.Serializable;
@@ -10,14 +10,14 @@ import java.util.Properties;
 public class ScheduleRequest implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	public List<String>  classNames;
-	public List<String>  rerunUUIDs;
-	public List<String>  testingAreas;
-	public RequestorType requestorType = RequestorType.INDIVIDUAL;
-	public String        buildVersion;
-	public String        testStream;
-	public String		 obr;
-	public String        mavenRepository;
+	private List<String>  classNames;
+	private List<String>  rerunUUIDs;
+	private List<String>  testingAreas;
+	private RequestorType requestorType = RequestorType.INDIVIDUAL;
+	private String        buildVersion;
+	private String        testStream;
+	private String		  obr;
+	private String        mavenRepository;
 	
 	private List<JatJaxbProperties> runProperties;
 
@@ -26,8 +26,8 @@ public class ScheduleRequest implements Serializable {
 		
 		private static final long serialVersionUID = 1L;
 		
-		public String key;
-		public String value;
+		private String key;
+		private String value;
 		
 		@Override
 		public String toString() {
@@ -73,6 +73,51 @@ public class ScheduleRequest implements Serializable {
 		}
 		
 		return props;
+	}
+
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+
+	public List<String> getClassNames() {
+		return classNames;
+	}
+
+
+	public List<String> getRerunUUIDs() {
+		return rerunUUIDs;
+	}
+
+
+	public List<String> getTestingAreas() {
+		return testingAreas;
+	}
+
+
+	public RequestorType getRequestorType() {
+		return requestorType;
+	}
+
+
+	public String getBuildVersion() {
+		return buildVersion;
+	}
+
+
+	public String getTestStream() {
+		return testStream;
+	}
+
+
+	public String getObr() {
+		return obr;
+	}
+
+
+	public String getMavenRepository() {
+		return mavenRepository;
 	}	
 	
 

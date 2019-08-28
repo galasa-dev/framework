@@ -29,6 +29,7 @@
 		<module>dev.galasa.framework.api.launcher</module>
 		<module>dev.galasa.framework.api.testcatalog</module>
 		<module>galasautils-maven-plugin</module>
+                <module>dev.galasa.framework.api.runs</module>
 	</modules>
 
 	<distributionManagement>
