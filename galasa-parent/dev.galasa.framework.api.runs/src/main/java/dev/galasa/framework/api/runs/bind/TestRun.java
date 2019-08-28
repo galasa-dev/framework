@@ -40,6 +40,26 @@ public class TestRun {
 	public int hashCode() {
 		return this.instance.hashCode();
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof TestRun))
+			return false;
+		
+		TestRun tr = (TestRun)obj;
+		if(!tr.getInstance().equals(this.instance))
+			return false;
+		if(!tr.type.equals(this.type))
+			return false;
+		if(!tr.getTestCases().equals(this.testCases))
+			return false;
+		if(!tr.getStatus().equals(this.status))
+			return false;
+		if(!tr.overrides.equals(this.overrides))
+			return false;
+		
+		return true;
+	}
 
 	public String getInstance() {
 		return this.instance;

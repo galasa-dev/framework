@@ -15,6 +15,23 @@ public class TestSelection {
 	public int hashCode() {
 		return this.instance.hashCode();
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof TestSelection))
+			return false;
+		
+		TestSelection ts = (TestSelection)obj;
+		if(!ts.instance.equals(this.instance))
+			return false;
+		if(!ts.type.equals(this.type))
+			return false;
+		if(!ts.status.equals(this.status))
+			return false;
+		if(!ts.overrides.equals(this.overrides))
+			return false;
+		return true;
+	}
 
 	public String getInstance() {
 		return this.instance;

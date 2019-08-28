@@ -56,7 +56,7 @@ public class ScheduleTests extends HttpServlet {
 	@Reference
 	public IFramework framework;   // NOSONAR
 	
-	private Logger logger;
+	private static Logger logger;
 
 	private final Properties configurationProperties = new Properties();
 
