@@ -1,4 +1,4 @@
-package dev.galasa.framework.api.scheduleTests.bind;
+package dev.galasa.framework.api.runs.bind;
 
 import javax.xml.bind.annotation.XmlType;
 

@@ -1,4 +1,4 @@
-package dev.galasa.framework.api.scheduleTests.internal;
+package dev.galasa.framework.api.runs.internal;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,9 +26,9 @@ import org.osgi.service.component.annotations.ServiceScope;
 import com.google.gson.Gson;
 
 import dev.galasa.framework.SerializedRun;
-import dev.galasa.framework.api.scheduleTests.bind.RunStatus;
-import dev.galasa.framework.api.scheduleTests.bind.ScheduleRequest;
-import dev.galasa.framework.api.scheduleTests.bind.ScheduleStatus;
+import dev.galasa.framework.api.runs.bind.RunStatus;
+import dev.galasa.framework.api.runs.bind.ScheduleRequest;
+import dev.galasa.framework.api.runs.bind.ScheduleStatus;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IDynamicStatusStore;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
