@@ -11,12 +11,12 @@ import javax.xml.bind.annotation.XmlType;
 
 public class TestCaseResult {
 	
-	public String status;
-	public String runId;
-	public String runIdFriendly;
-	public URI    resultUri;
-	public String resultUriDescription;
-	public String failureDocumentation;
+	private String status;
+	private String runId;
+	private String runIdFriendly;
+	private URI    resultUri;
+	private String resultUriDescription;
+	private String failureDocumentation;
 	
 	public String getStatus() {
 		if (status == null) {

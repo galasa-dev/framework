@@ -26,8 +26,8 @@ public class ScheduleRequest implements Serializable {
 		
 		private static final long serialVersionUID = 1L;
 		
-		public String key;
-		public String value;
+		private String key;
+		private String value;
 		
 		@Override
 		public String toString() {

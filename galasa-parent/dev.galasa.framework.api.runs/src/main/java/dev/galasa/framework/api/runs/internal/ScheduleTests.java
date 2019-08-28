@@ -96,7 +96,14 @@ public class ScheduleTests extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		boolean submissionFailures = false;
 		String UUID = getUUID(req);
-		ScheduleRequest request = (ScheduleRequest)new Gson().fromJson(new InputStreamReader(req.getInputStream()), ScheduleRequest.class);
+		ScheduleRequest request;
+		try {
+			request = (ScheduleRequest)new Gson().fromJson(new InputStreamReader(req.getInputStream()), ScheduleRequest.class);
+		}catch(Exception e) {
+			logger.warning("Error understanding / receiving run test request");
+			resp.setStatus(500);
+			return;
+		}
 		for(String className : request.getClassNames()) {
 			String bundle = className.split("/")[0];
 			String testClass = className.split("/")[1];

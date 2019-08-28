@@ -12,11 +12,11 @@ import javax.xml.bind.annotation.XmlType;
 
 public class TestRun {
 	
-	public String instance;
-	public String type;
+	private String instance;
+	private String type;
 	protected List<TestCase> testCases;
-	public Status status;
-	public String overrides;
+	private Status status;
+	private String overrides;
 	
 	
 	public TestRun() {
