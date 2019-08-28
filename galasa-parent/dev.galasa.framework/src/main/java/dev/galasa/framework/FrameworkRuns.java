@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -145,7 +146,8 @@ public class FrameworkRuns implements IFrameworkRuns {
 			String obr,
 			String stream,
 			boolean local,
-			boolean trace)
+			boolean trace,
+			Properties overrides)
 					throws FrameworkException {
 		if (testName == null) {
 			throw new FrameworkException("Missing test name");
@@ -250,6 +252,16 @@ public class FrameworkRuns implements IFrameworkRuns {
 					otherRunProperties.put(RUN_PREFIX + tempRunName + ".group", UUID.randomUUID().toString());
 				}
 				otherRunProperties.put(RUN_PREFIX + tempRunName + ".requestor", requestor.toLowerCase());
+				
+				//*** Add in the overrides
+				if (overrides != null) {
+					for(java.util.Map.Entry<Object, Object> entry : overrides.entrySet()) {
+						String key = (String)entry.getKey();
+						String value = (String)entry.getValue();
+						
+						otherRunProperties.put(RUN_PREFIX + tempRunName + ".override." + key, value);					
+					}
+				}
 
 				//*** See if we can setup the runnumber properties (clashes possible if low max number or sharing prefix
 				if (!this.dss.putSwap(RUN_PREFIX + tempRunName + ".test", null, bundleTest, otherRunProperties)) {
