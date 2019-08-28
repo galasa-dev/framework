@@ -453,7 +453,9 @@ public class Framework implements IFramework {
 
 	@Override
 	public URL getApiUrl(Api api) throws FrameworkException {
-		Objects.nonNull(api);
+		if (api == null) {
+			throw new FrameworkException("api has not been provided");
+		}
 		
 		try {
 			String urlProperty = AbstractManager.nulled(cpsFramework.getProperty(api.getProperty(), "url"));
