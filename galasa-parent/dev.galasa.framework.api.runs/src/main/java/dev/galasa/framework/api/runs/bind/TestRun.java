@@ -10,23 +10,12 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name="testrun", namespace="http://phoenix.devops.ibm.com")
-@XmlAccessorType( XmlAccessType.FIELD )
 public class TestRun {
 	
-	@XmlAttribute(name="instance", namespace="http://phoenix.devops.ibm.com")
 	public String instance;
-	
-	@XmlAttribute(name="type", namespace="http://phoenix.devops.ibm.com")
 	public String type;
-	
-	@XmlElement(name="testcase", namespace="http://phoenix.devops.ibm.com")
 	protected List<TestCase> testCases;
-	
-	@XmlElement(name="status", namespace="http://phoenix.devops.ibm.com")
 	public Status status;
-	
-	@XmlElement(name="overrides", namespace="http://phoenix.devops.ibm.com")
 	public String overrides;
 	
 	

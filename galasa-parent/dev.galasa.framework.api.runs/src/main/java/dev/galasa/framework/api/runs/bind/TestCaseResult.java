@@ -9,25 +9,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name="testcaseresult", namespace="http://phoenix.devops.ibm.com")
-@XmlAccessorType( XmlAccessType.FIELD )
 public class TestCaseResult {
 	
-	@XmlElement(name="status", namespace="http://phoenix.devops.ibm.com")
 	public String status;
-
-	@XmlElement(name="runid", namespace="http://phoenix.devops.ibm.com")
 	public String runId;
-	@XmlElement(name="runidfiendly", namespace="http://phoenix.devops.ibm.com")
 	public String runIdFriendly;
-
-	@XmlElement(name="resulturi", namespace="http://phoenix.devops.ibm.com")
-	public URI                    resultUri;
-	@XmlElement(name="resulturidescription", namespace="http://phoenix.devops.ibm.com")
-	public String                 resultUriDescription;
-	
-	@XmlElement(name="failuredocumentation", namespace="http://phoenix.devops.ibm.com")
-	public String                 failureDocumentation;
+	public URI    resultUri;
+	public String resultUriDescription;
+	public String failureDocumentation;
 	
 	public String getStatus() {
 		if (status == null) {

@@ -11,10 +11,10 @@ import javax.xml.bind.annotation.XmlType;
 
 public class TestCase {
 	
-	public String bundleName;
-	public String className;
-	public String type;
-	public String stream;
+	private String bundleName;
+	private String className;
+	private String type;
+	private String stream;
 	protected List<TestCaseResult> results;
 	
 	public TestCase() {
@@ -53,6 +53,41 @@ public class TestCase {
 		newCase.results = new ArrayList<TestCaseResult>();
 		
 		return newCase;
+	}
+
+
+	public String getType() {
+		return type;
+	}
+
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+
+	public String getStream() {
+		return stream;
+	}
+
+
+	public void setStream(String stream) {
+		this.stream = stream;
+	}
+
+
+	public void setBundleName(String bundleName) {
+		this.bundleName = bundleName;
+	}
+
+
+	public void setClassName(String className) {
+		this.className = className;
+	}
+
+
+	public void setResults(List<TestCaseResult> results) {
+		this.results = results;
 	}
 
 }

@@ -9,11 +9,27 @@ import dev.galasa.framework.SerializedRun;
 public class ScheduleStatus implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	public RunStatus scheduleStatus;
+	private RunStatus scheduleStatus;
 	
-	public List<SerializedRun> runs;
+	private List<SerializedRun> runs;
 	
 	public ScheduleStatus() {
 		runs = new ArrayList<>();
+	}
+
+	public RunStatus getScheduleStatus() {
+		return scheduleStatus;
+	}
+
+	public void setScheduleStatus(RunStatus scheduleStatus) {
+		this.scheduleStatus = scheduleStatus;
+	}
+
+	public List<SerializedRun> getRuns() {
+		return runs;
+	}
+
+	public void setRuns(List<SerializedRun> runs) {
+		this.runs = runs;
 	}
 }
