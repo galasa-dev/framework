@@ -121,8 +121,10 @@ public class Testcatalogs extends HttpServlet {
 				JsonObject jsonCacheCatalog = new JsonObject();
 				jsonCatalogs.add(pathCatalog.getFileName().toString(), jsonCacheCatalog);
 
-				jsonCacheCatalog.add("name", jsonCatalog.getAsJsonObject("name"));
-				jsonCacheCatalog.add("built", jsonCatalog.getAsJsonObject("build"));
+				jsonCacheCatalog.add("name", jsonCatalog.get("name"));
+				jsonCacheCatalog.add("build", jsonCatalog.get("build"));
+				jsonCacheCatalog.add("version", jsonCatalog.get("version"));
+				jsonCacheCatalog.add("built", jsonCatalog.get("built"));
 			}
 		}
 
