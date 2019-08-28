@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Random;
@@ -19,6 +20,7 @@ import org.junit.Test;
 
 import dev.galasa.framework.internal.dss.FpfDynamicStatusStore;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
+import dev.galasa.framework.spi.Api;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -238,6 +240,10 @@ import dev.galasa.framework.spi.creds.ICredentialsService;
 
 		@Override
 		public Properties getRecordProperties() {
+			return null;
+		}
+		@Override
+		public URL getApiUrl(@NotNull Api api) throws FrameworkException {
 			return null;
 		}
     } 

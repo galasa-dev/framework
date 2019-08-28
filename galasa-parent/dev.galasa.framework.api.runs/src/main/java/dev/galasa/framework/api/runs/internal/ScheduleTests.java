@@ -108,7 +108,7 @@ public class ScheduleTests extends HttpServlet {
 			String bundle = className.split("/")[0];
 			String testClass = className.split("/")[1];
 			try {
-				framework.getFrameworkRuns().submitRun(null, request.getRequestorType().toString(), bundle, testClass, UUID, request.getMavenRepository(), request.getObr(), request.getTestStream(), false, false);
+				framework.getFrameworkRuns().submitRun(null, request.getRequestorType().toString(), bundle, testClass, UUID, request.getMavenRepository(), request.getObr(), request.getTestStream(), false, false, null);
 			}catch(FrameworkException fe) {
 				logger.warning("Failure when submitting run: " + className + System.lineSeparator() + fe.getStackTrace());
 				submissionFailures = true;

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
 import java.util.Random;
 
@@ -17,6 +18,7 @@ import org.junit.Test;
 
 import dev.galasa.framework.internal.cps.FpfConfigurationPropertyStore;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
+import dev.galasa.framework.spi.Api;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -253,6 +255,11 @@ FpfConfigurationPropertyStore fpfcps = new FpfConfigurationPropertyStore(testPro
 
 		@Override
 		public Properties getRecordProperties() {
+			return null;
+		}
+
+		@Override
+		public URL getApiUrl(@NotNull Api api) throws FrameworkException {
 			return null;
 		}
        
