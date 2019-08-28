@@ -1,6 +1,7 @@
 package dev.galasa.framework.spi;
 
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -32,7 +33,8 @@ public interface IFrameworkRuns {
 			String obr,
 			String stream,
 			boolean local,
-			boolean trace) throws FrameworkException;
+			boolean trace,
+			Properties overrides) throws FrameworkException;
 
 	boolean delete(String runname) throws DynamicStatusStoreException;
 
