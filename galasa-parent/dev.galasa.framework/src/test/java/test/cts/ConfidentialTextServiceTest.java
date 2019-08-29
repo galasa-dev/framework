@@ -60,7 +60,7 @@ public class ConfidentialTextServiceTest {
         ctsService.registerText("test3", "This is a test comment");
 
         String testSentence = "The current password is test1, the old password is test3, and the new password is test2";
-        String expected = "The current password is **0**, the old password is **2**, and the new password is **1**";
+        String expected = "The current password is **1**, the old password is **3**, and the new password is **2**";
 
         String result = ctsService.removeConfidentialText(testSentence);
         System.out.println(result + "\n" + expected);
