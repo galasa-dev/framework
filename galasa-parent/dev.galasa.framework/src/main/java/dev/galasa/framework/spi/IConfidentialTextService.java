@@ -1,7 +1,5 @@
 package dev.galasa.framework.spi;
 
-import javax.validation.constraints.NotNull;
-
 /**
  * The confidential text services provides a manager with the ability to registered passwords, usernames, keys 
  * and other confidnetial texts so that they can be obscured inside logs and outputs.
