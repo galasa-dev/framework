@@ -2,10 +2,13 @@ package dev.galasa.framework.internal.cts;
 
 import javax.validation.constraints.NotNull;
 
+import org.osgi.service.component.annotations.Component;
+
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.IConfidentialTextServiceRegistration;
 import dev.galasa.framework.spi.IFrameworkInitialisation;
 
+@Component(service= {IConfidentialTextServiceRegistration.class})
 public class FrameworkConfidentialTextServiceRegistration implements IConfidentialTextServiceRegistration {
 
      /**

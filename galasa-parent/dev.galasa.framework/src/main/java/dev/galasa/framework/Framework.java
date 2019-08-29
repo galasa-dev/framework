@@ -1,7 +1,6 @@
 package dev.galasa.framework;
 
 import java.net.URL;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -104,7 +103,7 @@ public class Framework implements IFramework {
         if (cpsStore != null 
         		&& dssStore != null
         		&& rasService != null 
-//        		&& ctsService != null
+        		&& ctsService != null
         		&& credsStore != null) {
         	return true;
         }
@@ -116,7 +115,7 @@ public class Framework implements IFramework {
         if (cpsStore == null 
         		&& dssStore == null
         		&& rasService == null 
-//        		&& ctsService == null
+        		&& ctsService == null
         		&& credsStore == null) {
         	return true;
         }

@@ -27,6 +27,7 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfidentialTextService;
+import dev.galasa.framework.spi.IConfidentialTextServiceRegistration;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreRegistration;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -285,6 +286,25 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		}
 		this.logger
 		.trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
+		
+		// *** Initialise the Confidential Test Service
+		this.logger.trace("Searching for Confidential Text Service providers");
+		final ServiceReference<?>[] confidentialServiceReference = bundleContext
+				.getAllServiceReferences(IConfidentialTextServiceRegistration.class.getName(), null);
+		if ((confidentialServiceReference == null) || (confidentialServiceReference.length == 0)) {
+			throw new FrameworkException("No Confidential Text Services have been found");
+		}
+		for (final ServiceReference<?> confidentialReference : confidentialServiceReference) {
+			final IConfidentialTextServiceRegistration credsRegistration = (IConfidentialTextServiceRegistration) bundleContext
+					.getService(confidentialReference);
+			this.logger.trace("Found Confidential Text Services Provider " + credsRegistration.getClass().getName());
+			credsRegistration.initialise(this);
+		}
+		if (this.framework.getConfidentialTextService() == null) {
+			throw new FrameworkException("Failed to initialise a Confidential Text Services, unable to continue");
+		}
+		this.logger
+		.trace("Selected Confidential Text Service is " + this.framework.getConfidentialTextService().getClass().getName());
 		
 		if (framework.isInitialised()) {
 			this.logger.info("Framework initialised");
