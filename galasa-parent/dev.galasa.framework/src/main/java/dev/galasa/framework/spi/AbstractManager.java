@@ -155,7 +155,7 @@ public abstract class AbstractManager implements IManager {
                             }
                         }
                         if (foundAnnotation) {
-                            // *** Chdeck the method returns the right type and can be passed the correct
+                            // *** Check the method returns the right type and can be passed the correct
                             // types
                             final Class<?>[] parameterTypes = method.getParameterTypes();
                             if ((parameterTypes != null) && (parameterTypes.length == 2)
