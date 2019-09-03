@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -18,6 +19,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import dev.galasa.framework.internal.cps.FpfConfigurationPropertyStore;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FileCredentialsRegistration;
+import dev.galasa.framework.spi.Api;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -198,6 +200,10 @@ public class FileCredentialsRegistrationTest {
 
 		@Override
 		public Properties getRecordProperties() {
+			return null;
+		}
+		@Override
+		public URL getApiUrl(@NotNull Api api) throws FrameworkException {
 			return null;
 		}
       

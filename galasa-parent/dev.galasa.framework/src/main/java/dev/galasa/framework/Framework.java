@@ -1,5 +1,6 @@
 package dev.galasa.framework;
 
+import java.net.URL;
 import java.util.Properties;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -18,6 +19,8 @@ import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
 import dev.galasa.framework.internal.ras.FrameworkMultipleResultArchiveStore;
+import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.Api;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -100,7 +103,7 @@ public class Framework implements IFramework {
         if (cpsStore != null 
         		&& dssStore != null
         		&& rasService != null 
-//        		&& ctsService != null
+        		&& ctsService != null
         		&& credsStore != null) {
         	return true;
         }
@@ -112,7 +115,7 @@ public class Framework implements IFramework {
         if (cpsStore == null 
         		&& dssStore == null
         		&& rasService == null 
-//        		&& ctsService == null
+        		&& ctsService == null
         		&& credsStore == null) {
         	return true;
         }
@@ -444,6 +447,35 @@ public class Framework implements IFramework {
 			throw new FrameworkException("Shutdown did not complete successfully, see log");
 		} else {
 			shutdownLogger.info("Framework shutdown");
+		}
+	}
+
+	@Override
+	public URL getApiUrl(Api api) throws FrameworkException {
+		if (api == null) {
+			throw new FrameworkException("api has not been provided");
+		}
+		
+		try {
+			String urlProperty = AbstractManager.nulled(cpsFramework.getProperty(api.getProperty(), "url"));
+			
+			if (urlProperty != null) {
+				return new URL(urlProperty);
+			}
+			
+			String bootstrapProperty = AbstractManager.nulled(cpsFramework.getProperty("bootstrap", "url"));
+			if (bootstrapProperty == null) {
+				throw new FrameworkException("Unable to derive the URL for api " + api + " as the framework.bootstrap.url property is missing");
+			}
+			if (!bootstrapProperty.endsWith("/bootstrap")) {
+				throw new FrameworkException("Unable to derive the URL for api " + api + " as the framework.bootstrap.url property does not end with /bootstrap");
+			}
+			
+			urlProperty = bootstrapProperty.substring(0, bootstrapProperty.length() - 10) + "/" + api.getSuffix();
+			
+			return new URL(urlProperty);
+		} catch(Exception e) {
+			throw new FrameworkException("Unable to determine URL of API " + api,e);
 		}
 	}
 

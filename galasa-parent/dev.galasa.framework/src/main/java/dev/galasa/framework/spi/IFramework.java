@@ -1,5 +1,6 @@
 package dev.galasa.framework.spi;
 
+import java.net.URL;
 import java.util.Properties;
 import java.util.Random;
 
@@ -108,4 +109,6 @@ public interface IFramework {
 	IRun getTestRun();
 	
 	Properties getRecordProperties();
+	
+	URL getApiUrl(@NotNull Api api) throws FrameworkException;
 }

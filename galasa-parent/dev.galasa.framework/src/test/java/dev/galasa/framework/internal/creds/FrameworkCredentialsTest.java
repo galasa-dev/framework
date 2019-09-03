@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URL;
 import java.util.Properties;
 import java.util.Random;
 
@@ -18,6 +19,7 @@ import dev.galasa.framework.internal.cps.FpfConfigurationPropertyStore;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FileCredentialsStore;
 import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
+import dev.galasa.framework.spi.Api;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -166,7 +168,10 @@ public class FrameworkCredentialsTest {
 		public Properties getRecordProperties() {
 			return null;
 		}
-
+		@Override
+		public URL getApiUrl(@NotNull Api api) throws FrameworkException {
+			return null;
+		}
 	} 
 
 }

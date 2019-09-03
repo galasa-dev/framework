@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -25,6 +27,7 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfidentialTextService;
+import dev.galasa.framework.spi.IConfidentialTextServiceRegistration;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreRegistration;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -81,7 +84,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		this.bootstrapProperties = bootstrapProperties;
 		
 		//*** Copy the the bootstrap properties to the override properties so that they are available to the managers
-		this.bootstrapProperties.putAll(overrideProperties);
+		overrideProperties.putAll(bootstrapProperties);
 		
 		if (initLogger == null) {
 			logger = LogFactory.getLog(this.getClass());
@@ -283,13 +286,49 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		}
 		this.logger
 		.trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
-
+		
+		// *** Initialise the Confidential Test Service
+		this.logger.trace("Searching for Confidential Text Service providers");
+		final ServiceReference<?>[] confidentialServiceReference = bundleContext
+				.getAllServiceReferences(IConfidentialTextServiceRegistration.class.getName(), null);
+		if ((confidentialServiceReference == null) || (confidentialServiceReference.length == 0)) {
+			throw new FrameworkException("No Confidential Text Services have been found");
+		}
+		for (final ServiceReference<?> confidentialReference : confidentialServiceReference) {
+			final IConfidentialTextServiceRegistration credsRegistration = (IConfidentialTextServiceRegistration) bundleContext
+					.getService(confidentialReference);
+			this.logger.trace("Found Confidential Text Services Provider " + credsRegistration.getClass().getName());
+			credsRegistration.initialise(this);
+		}
+		if (this.framework.getConfidentialTextService() == null) {
+			throw new FrameworkException("Failed to initialise a Confidential Text Services, unable to continue");
+		}
+		this.logger
+		.trace("Selected Confidential Text Service is " + this.framework.getConfidentialTextService().getClass().getName());
+		
 		if (framework.isInitialised()) {
 			this.logger.info("Framework initialised");
 		} else {
 			this.logger.info("The Framework does not think it is initialised, but we didn't get any errors");
 		}
 		
+		
+		//*** If this is a test run, add the overrides from the run dss properties to these overrides
+		if (testrun) {
+			String prefix = "run." + framework.getTestRunName() + ".override.";
+			int len = prefix.length();
+			
+			Map<String, String> runOverrides = this.dssFramework.getPrefix(prefix);
+			for(Entry<String, String> override : runOverrides.entrySet()) {
+				String key = override.getKey().substring(len);
+				String value = override.getValue();
+				
+				if (logger.isTraceEnabled()) {
+					logger.trace("Setting run override " + key + "=" + value);
+				}
+				overrideProperties.put(override.getKey(), override.getValue());
+			}
+		}
 	}
 
 	/**
@@ -313,7 +352,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 				null, 
 				null, 
 				true,
-				false);
+				false,
+				null);
 
 		logger.info("Allocated Run Name " + run.getName() + " to this run");
 

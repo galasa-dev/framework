@@ -22,6 +22,7 @@ import java.nio.file.attribute.FileAttributeView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -32,6 +33,7 @@ import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider;
 import dev.galasa.framework.spi.ras.ResultArchiveStorePath;
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.ResultArchiveStoreFileAttributeView;
+import dev.galasa.SetContentType;
 
 /**
  * The Directory RAS Provider for stored artifacts, that does most of the work
@@ -150,8 +152,18 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
     		Files.createDirectories(realPath.getParent());
     	}
     	
+    	//*** Remove any SetContentType open options
+    	HashSet<OpenOption> newOptions = new HashSet<>();
+    	for(OpenOption option : options) {
+    		if (option instanceof SetContentType) {
+    			setContentType(path, ((SetContentType)option).getContentType());
+    		} else {
+    			newOptions.add(option);
+    		}
+    	}
+    	
         // *** Get a nice byte channel
-        final SeekableByteChannel byteChannel = Files.newByteChannel(realPath, options); // NOSONAR
+        final SeekableByteChannel byteChannel = Files.newByteChannel(realPath, newOptions); // NOSONAR
 
         // *** If we have a RAS attribute, contenttype, set it
         for (final FileAttribute<?> attr : attrs) {

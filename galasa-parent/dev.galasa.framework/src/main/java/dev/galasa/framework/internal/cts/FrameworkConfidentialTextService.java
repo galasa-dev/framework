@@ -4,6 +4,9 @@ package dev.galasa.framework.internal.cts;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import dev.galasa.framework.spi.IConfidentialTextService;
 
 /**
@@ -14,6 +17,7 @@ import dev.galasa.framework.spi.IConfidentialTextService;
  */
 public class FrameworkConfidentialTextService implements IConfidentialTextService{
     private List<ConfidentialText> confidentialTexts = new ArrayList<>();
+    private Log logger = LogFactory.getLog(FrameworkConfidentialTextService.class);
 
     /**
      * This method is for registering a text with the service. It creates the replacement tag (******1******) 
@@ -24,7 +28,7 @@ public class FrameworkConfidentialTextService implements IConfidentialTextServic
      * @param comment - a comment explaining the conidential text. 
      */
     public void registerText(String text, String comment) {
-        String number = Integer.toString(confidentialTexts.size());
+        String number = Integer.toString(confidentialTexts.size() + 1);
         StringBuilder builder = new StringBuilder();
         final String star = "*";
         builder.append(number);
@@ -40,6 +44,8 @@ public class FrameworkConfidentialTextService implements IConfidentialTextServic
 
         ConfidentialText ct = new ConfidentialText(text, builder.toString(), comment);
         confidentialTexts.add(ct);
+        
+        logger.info("Confidential text registered as '" + ct.replacementTag + "', with comment " + ct.getComment());
     }
 
     /**
