@@ -20,43 +20,43 @@
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa</artifactId>
-			<version>${dev.galasa}</version>
+			<version>0.3.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework</artifactId>
-			<version>${dev.galasa.framework}</version>
+			<version>0.3.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework.k8s.controller</artifactId>
-			<version>${dev.galasa.framework.k8s.controller}</version>
+			<version>0.3.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework.docker.controller</artifactId>
-			<version>${dev.galasa.framework.docker.controller}</version>
+			<version>0.3.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework.maven.repository.spi</artifactId>
-			<version>${dev.galasa.framework.maven.repository.spi}</version>
+			<version>0.3.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework.resource.management</artifactId>
-			<version>${dev.galasa.framework.resource.management}</version>
+			<version>0.3.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework.metrics</artifactId>
-			<version>${dev.galasa.framework.metrics}</version>
+			<version>0.3.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

@@ -29,7 +29,7 @@
 		<module>dev.galasa.framework.api.launcher</module>
 		<module>dev.galasa.framework.api.testcatalog</module>
 		<module>galasautils-maven-plugin</module>
-                <module>dev.galasa.framework.api.runs</module>
+        <module>dev.galasa.framework.api.runs</module>
 	</modules>
 
 	<distributionManagement>
@@ -53,13 +53,6 @@
 
 		<dev.galasa>0.3.0-SNAPSHOT</dev.galasa>
 		<dev.galasa.framework>0.3.0-SNAPSHOT</dev.galasa.framework>
-		<dev.galasa.framework.resource.management>0.3.0-SNAPSHOT</dev.galasa.framework.resource.management>
-		<dev.galasa.framework.metrics>0.3.0-SNAPSHOT</dev.galasa.framework.metrics>
-		<dev.galasa.framework.k8s.controller>0.3.0-SNAPSHOT</dev.galasa.framework.k8s.controller>
-		<dev.galasa.framework.docker.controller>0.3.0-SNAPSHOT</dev.galasa.framework.docker.controller>
-		<dev.galasa.framework.maven.repository.spi>0.3.0-SNAPSHOT</dev.galasa.framework.maven.repository.spi>
-		<dev.galasa.framework.maven.repository>0.3.0-SNAPSHOT</dev.galasa.framework.maven.repository>
-		<dev.galasa.framework.obr>0.3.0-SNAPSHOT</dev.galasa.framework.obr>
 		<galasa-boot>0.3.0-SNAPSHOT</galasa-boot>
 
 		<felix.framework>6.0.2</felix.framework>
