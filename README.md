@@ -1,6 +1,5 @@
-![SonarQube Badge](https://cicscit.hursley.ibm.com/sonar/api/project_badges/measure?project=eJATv3&metric=alert_status)
-![SonarQube Badge](https://cicscit.hursley.ibm.com/sonar/api/project_badges/measure?project=eJATv3&metric=coverage)
-![SonarQube Badge](https://cicscit.hursley.ibm.com/sonar/api/project_badges/measure?project=eJATv3&metric=code_smells)
-
-# framework
-Galasa Framework
+# Galasa Framework
+## Project Status
+| Project | Gate | Code Smells | Code Coverage |
+| ------- | ---- | ----------- | ------------- |
+| Parent | [![Quality Gate Status](https://sonarqube.galasa.dev/api/project_badges/measure?project=dev.galasa%3Agalasa-parent&metric=alert_status)](https://sonarqube.galasa.dev/dashboard?id=dev.galasa%3Agalasa-parent) | [![Code Smells](https://sonarqube.galasa.dev/api/project_badges/measure?project=dev.galasa%3Agalasa-parent&metric=code_smells)](https://sonarqube.galasa.dev/dashboard?id=dev.galasa%3Agalasa-parent) | | 
