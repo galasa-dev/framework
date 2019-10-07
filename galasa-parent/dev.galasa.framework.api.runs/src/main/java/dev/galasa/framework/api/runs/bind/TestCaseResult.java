@@ -35,17 +35,17 @@ public class TestCaseResult {
 	}
 	
 	public boolean isPassed() {
-		if ("PASSED".equals(status)) {
+		if ("PASSED".equals(getStatus())) {
 			return true;
-		} else if ("PASSED_DEFECTS".equals(status)) {
+		} else if ("PASSED_DEFECTS".equals(getStatus())) {
 			return true;
-		} else if ("FINISHED_RUN".equals(status)) {
+		} else if ("FINISHED_RUN".equals(getStatus())) {
 			return true;
-		} else if ("FINISHED_DEFECTS_RUN".equals(status)) {
+		} else if ("FINISHED_DEFECTS_RUN".equals(getStatus())) {
 			return true;
-		} else if ("IGNORED".equals(status)) {
+		} else if ("IGNORED".equals(getStatus())) {
 			return true;
-		} else if ("IGNORED_RUN".equals(status)) {
+		} else if ("IGNORED_RUN".equals(getStatus())) {
 			return true;
 		}
 		
@@ -66,6 +66,18 @@ public class TestCaseResult {
 
 	public void setRunIdFriendly(String runIdFriendly) {
 		this.runIdFriendly = runIdFriendly;
+	}
+
+	public String getRunId() {
+		return runId;
+	}
+
+	public void setRunId(String runId) {
+		this.runId = runId;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	
