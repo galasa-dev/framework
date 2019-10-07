@@ -27,11 +27,11 @@ public class TestCaseResult {
 	}
 	
 	public String getRunName() {
-		if (runIdFriendly == null) {
+		if (getRunIdFriendly() == null) {
 			return "None";
 		}
 		
-		return runIdFriendly;
+		return getRunIdFriendly();
 	}
 	
 	public boolean isPassed() {
@@ -58,6 +58,14 @@ public class TestCaseResult {
 
 	public String getResultUriDescription() {
 		return resultUriDescription;
+	}
+
+	public String getRunIdFriendly() {
+		return runIdFriendly;
+	}
+
+	public void setRunIdFriendly(String runIdFriendly) {
+		this.runIdFriendly = runIdFriendly;
 	}
 
 	
