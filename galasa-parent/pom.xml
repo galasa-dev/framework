@@ -129,8 +129,7 @@
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
 			<version>${validation-api}</version>
-			<scope>provided</scope>
-			<optional>true</optional>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
