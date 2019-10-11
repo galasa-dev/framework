@@ -1,13 +1,6 @@
 package dev.galasa.framework.api.runs.bind;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import dev.galasa.framework.SerializedRun;
 
 public class TestCase {
 	
@@ -15,13 +8,7 @@ public class TestCase {
 	private String className;
 	private String type;
 	private String stream;
-	protected List<TestCaseResult> results;
-	
-	public TestCase() {
-		this.results = new ArrayList<TestCaseResult>();
-		return;
-	}
-	
+	private SerializedRun runDetails;
 	
 	public String getBundleName() {
 		return this.bundleName;
@@ -35,14 +22,6 @@ public class TestCase {
 		return bundleName + "/" + className;
 	}
 	
-	public List<TestCaseResult> getResults() {
-		if (results == null) {
-			results = new ArrayList<TestCaseResult>();
-		}
-		
-		return results;
-	}
-	
 	public TestCase getClone() {
 		TestCase newCase = new TestCase();
 		
@@ -50,7 +29,7 @@ public class TestCase {
 		newCase.className = this.className;
 		newCase.type = this.type;
 		newCase.stream = this.stream;
-		newCase.results = new ArrayList<TestCaseResult>();
+		newCase.runDetails = this.runDetails;
 		
 		return newCase;
 	}
@@ -85,9 +64,13 @@ public class TestCase {
 		this.className = className;
 	}
 
-
-	public void setResults(List<TestCaseResult> results) {
-		this.results = results;
+	public SerializedRun getRunDetails() {
+		return runDetails;
 	}
+
+	public void setRunDetails(SerializedRun runDetails) {
+		this.runDetails = runDetails;
+	}
+
 
 }
