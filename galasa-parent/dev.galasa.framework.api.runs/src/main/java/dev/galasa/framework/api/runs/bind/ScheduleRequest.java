@@ -18,6 +18,7 @@ public class ScheduleRequest implements Serializable {
 	private String        testStream;
 	private String		  obr;
 	private String        mavenRepository;
+	private boolean		  trace;
 	
 	private List<JatJaxbProperties> runProperties;
 
@@ -163,6 +164,16 @@ public class ScheduleRequest implements Serializable {
 
 	public void setRunProperties(List<JatJaxbProperties> runProperties) {
 		this.runProperties = runProperties;
+	}
+
+
+	public boolean isTrace() {
+		return trace;
+	}
+
+
+	public void setTrace(boolean trace) {
+		this.trace = trace;
 	}	
 	
 
