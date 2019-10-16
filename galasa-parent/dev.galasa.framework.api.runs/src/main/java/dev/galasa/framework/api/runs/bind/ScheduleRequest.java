@@ -118,6 +118,51 @@ public class ScheduleRequest implements Serializable {
 
 	public String getMavenRepository() {
 		return mavenRepository;
+	}
+
+
+	public void setClassNames(List<String> classNames) {
+		this.classNames = classNames;
+	}
+
+
+	public void setRerunUUIDs(List<String> rerunUUIDs) {
+		this.rerunUUIDs = rerunUUIDs;
+	}
+
+
+	public void setTestingAreas(List<String> testingAreas) {
+		this.testingAreas = testingAreas;
+	}
+
+
+	public void setRequestorType(RequestorType requestorType) {
+		this.requestorType = requestorType;
+	}
+
+
+	public void setBuildVersion(String buildVersion) {
+		this.buildVersion = buildVersion;
+	}
+
+
+	public void setTestStream(String testStream) {
+		this.testStream = testStream;
+	}
+
+
+	public void setObr(String obr) {
+		this.obr = obr;
+	}
+
+
+	public void setMavenRepository(String mavenRepository) {
+		this.mavenRepository = mavenRepository;
+	}
+
+
+	public void setRunProperties(List<JatJaxbProperties> runProperties) {
+		this.runProperties = runProperties;
 	}	
 	
 
