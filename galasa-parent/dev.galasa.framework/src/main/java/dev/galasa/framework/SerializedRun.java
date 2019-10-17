@@ -11,6 +11,7 @@ public class SerializedRun {
 	private String bundleName;
 	private String testName;
 	private String status;
+	private String result;
 	private Instant queued;
 	private Instant finished;
 	private Instant waitUntil;
@@ -22,7 +23,7 @@ public class SerializedRun {
 	private Boolean trace;
 	
 	public SerializedRun(String name, Instant heartbeat, String type, String group, String test, String bundleName,
-			String testName, String status, Instant queue, Instant finished, Instant waitUntil, String requestor,
+			String testName, String status, String result,Instant queue, Instant finished, Instant waitUntil, String requestor,
 			String stream, String repo, String obr, Boolean local, Boolean trace) {
 		this.name = name;
 		this.heartbeat = heartbeat;
@@ -32,6 +33,7 @@ public class SerializedRun {
 		this.bundleName = bundleName;
 		this.testName = testName;
 		this.status = status;
+		this.result = result;
 		this.queued = queued;
 		this.finished = finished;
 		this.waitUntil = waitUntil;
@@ -92,6 +94,9 @@ public class SerializedRun {
 	}
 	public Boolean getTrace() {
 		return trace;
+	}
+	public String getResult() {
+		return result;
 	}
 
 }

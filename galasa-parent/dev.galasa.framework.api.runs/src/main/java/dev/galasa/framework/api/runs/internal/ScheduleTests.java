@@ -28,6 +28,7 @@ import dev.galasa.framework.api.runs.bind.ScheduleRequest;
 import dev.galasa.framework.api.runs.bind.ScheduleStatus;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRun;
 
 
@@ -70,8 +71,10 @@ public class ScheduleTests extends HttpServlet {
 		ScheduleStatus status = new ScheduleStatus();
 		boolean complete = true;
 		for(IRun run : runs) {
-			if(!"FINISHED".equalsIgnoreCase(run.getStatus()))
+			if(!"FINISHED".equalsIgnoreCase(run.getStatus())) {
 				complete = false;
+			}
+				
 			status.getRuns().add(run.getSerializedRun());
 		}
 				
