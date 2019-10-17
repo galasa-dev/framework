@@ -336,10 +336,19 @@ public class TestRunner {
 
         this.testStructure.setStatus(status);
         if ("finished".equals(status)) {
+        	updateResult();
             this.testStructure.setEndTime(Instant.now());
         }
 
         writeTestStructure();
+    }
+    
+    private void updateResult() throws TestRunException {
+    	try {
+    		this.dss.put("run." + run.getName() + "result", this.testStructure.getResult());
+    	} catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Failed to update result", e);
+        }
     }
 
     private void stopHeartbeat() {

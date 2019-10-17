@@ -17,6 +17,7 @@ public class RunImpl implements IRun {
 	private final String bundleName;
 	private final String testName;
 	private final String status;
+	private final String result;
 	private final Instant queued;
 	private final Instant finished;
 	private final Instant waitUntil;
@@ -44,6 +45,7 @@ public class RunImpl implements IRun {
 		type      = runProperties.get(prefix + "request.type");
 		test      = runProperties.get(prefix + "test");
 		status    = runProperties.get(prefix + "status");
+		result    = runProperties.get(prefix + "result");
 		requestor = runProperties.get(prefix + "requestor");
 		stream    = runProperties.get(prefix + "stream");
 		repo      = runProperties.get(prefix + "repository");
@@ -174,7 +176,12 @@ public class RunImpl implements IRun {
 	
 	@Override
 	public SerializedRun getSerializedRun() {
-		return new SerializedRun(name, heartbeat, type, group, test, bundleName, testName, status, queued, finished, waitUntil, requestor, stream, repo, obr, local, trace);
+		return new SerializedRun(name, heartbeat, type, group, test, bundleName, testName, status, result, queued, finished, waitUntil, requestor, stream, repo, obr, local, trace);
+	}
+	
+	@Override
+	public String getResult() {
+		return result;
 	}
 
 }
