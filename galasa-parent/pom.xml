@@ -29,7 +29,7 @@
 		<module>dev.galasa.framework.api.launcher</module>
 		<module>dev.galasa.framework.api.testcatalog</module>
 		<module>galasautils-maven-plugin</module>
-        <module>dev.galasa.framework.api.runs</module>
+		<module>dev.galasa.framework.api.runs</module>
 	</modules>
 
 	<distributionManagement>
@@ -103,6 +103,8 @@
 		<unpackBundle>true</unpackBundle>
 		<galasa.skip.bundletestcatatlog>true</galasa.skip.bundletestcatatlog>
 		<galasa.skip.deploytestcatatlog>true</galasa.skip.deploytestcatatlog>
+
+		<jarsigner.skip>true</jarsigner.skip>
 	</properties>
 
 
@@ -206,6 +208,11 @@
 					<version>3.0.1</version>
 				</plugin>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jarsigner-plugin</artifactId>
+					<version>3.0.0</version>
+				</plugin>
+				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
 					<version>1.0.0</version>
@@ -240,14 +247,14 @@
 				<groupId>dev.galasa</groupId>
 				<artifactId>galasa-maven-plugin</artifactId>
 				<extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <id>process-resources</id>
-                        <goals>
-                            <goal>gitcommithash</goal>
-                        </goals>
-                    </execution>
-                </executions>
+				<executions>
+					<execution>
+						<id>process-resources</id>
+						<goals>
+							<goal>gitcommithash</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
@@ -299,6 +306,28 @@
 				<configuration>
 					<failOnError>false</failOnError>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jarsigner-plugin</artifactId>
+				<configuration>
+					<tsa>http://timestamp.digicert.com/</tsa>
+					<keystore>NONE</keystore>
+					<storetype>PKCS11</storetype>
+					<storepass>null</storepass>
+					<providerClass>sun.security.pkcs11.SunPKCS11</providerClass>
+					<providerArg>/etc/ekm/config.txt</providerArg>
+					<alias>galasacert</alias>
+					<processAttachedArtifacts>false</processAttachedArtifacts>
+				</configuration>
+                <executions>
+                    <execution>
+                        <id>signjar</id>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
 			</plugin>
 		</plugins>
 	</build>
