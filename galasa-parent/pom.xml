@@ -318,6 +318,7 @@
 					<providerClass>sun.security.pkcs11.SunPKCS11</providerClass>
 					<providerArg>/etc/ekm/config.txt</providerArg>
 					<alias>galasacert</alias>
+					<processAttachedArtifacts>false</processAttachedArtifacts>
 				</configuration>
                 <executions>
                     <execution>
