@@ -345,7 +345,7 @@ public class TestRunner {
     
     private void updateResult() throws TestRunException {
     	try {
-    		this.dss.put("run." + run.getName() + "result", this.testStructure.getResult());
+    		this.dss.put("run." + run.getName() + ".result", this.testStructure.getResult());
     	} catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update result", e);
         }
