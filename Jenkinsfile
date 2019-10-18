@@ -1,4 +1,5 @@
 def mvnProfile    = 'galasa-dev'
+def galasaSignJarSkip = 'true'
 
 pipeline {
 // Initially run on any agent
@@ -21,6 +22,7 @@ pipeline {
          steps {
             script {
                mvnGoal       = 'deploy sonar:sonar'
+               galasaSignJarSkip = 'false'
             }
          }
       }
@@ -43,6 +45,7 @@ pipeline {
             echo "Workspace directory: ${workspace}"
             echo "Maven Goal         : ${mvnGoal}"
             echo "Maven profile      : ${mvnProfile}"
+            echo "Skip Signing JARs  : ${galasaSignJarSkip}"
          }
       }
    
@@ -67,7 +70,7 @@ pipeline {
                   sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
 
                   dir('dev.galasa') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Djarsigner.skip=${galasaSignJarSkip} -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.maven.repository.spi') {
@@ -75,7 +78,7 @@ pipeline {
                   }
 
                   dir('dev.galasa.framework') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Djarsigner.skip=${galasaSignJarSkip} -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.maven.repository') {
