@@ -22,7 +22,7 @@ pipeline {
          steps {
             script {
                mvnGoal       = 'deploy sonar:sonar'
-               galasaSignJarSkip = 'false'
+               galasaSignJarSkip = 'true'
             }
          }
       }
