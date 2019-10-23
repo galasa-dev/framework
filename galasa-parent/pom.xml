@@ -311,7 +311,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jarsigner-plugin</artifactId>
 				<configuration>
-					<tsa>http://timestamp.digicert.com/</tsa>
+					<tsa>http://time.certum.pl</tsa>
 					<keystore>NONE</keystore>
 					<storetype>PKCS11</storetype>
 					<storepass>null</storepass>
