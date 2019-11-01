@@ -47,11 +47,10 @@ import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
-@Component(immediate=true,
-scope=ServiceScope.SINGLETON)
+@Component(immediate = true, scope = ServiceScope.SINGLETON)
 public class Framework implements IFramework {
-	
-	private final static Log                   logger = LogFactory.getLog(Framework.class);
+
+    private final static Log                   logger           = LogFactory.getLog(Framework.class);
 
     private static final Pattern               namespacePattern = Pattern.compile("[a-z0-9]+");
 
@@ -62,72 +61,63 @@ public class Framework implements IFramework {
     private IDynamicStatusStore                dssStore;
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
-    private ICredentialsStore                  credsStore;             
+    private ICredentialsStore                  credsStore;
 
     @SuppressWarnings("unused")
-	private IConfigurationPropertyStoreService cpsFramework;
+    private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
-	private ICredentialsService                credsFramework;
-    
+    private ICredentialsService                credsFramework;
+
     private String                             runName;
-    
+
     private final Random                       random;
-    
+
     private FrameworkRuns                      frameworkRuns;
-    
+
     private TestRunLogCapture                  testRunLogCapture;
-    
-	private IRun run;
-    
+
+    private IRun                               run;
+
     public Framework() {
-        this.random             = new Random();
+        this.random = new Random();
     }
-    
+
     @Activate
-    public void activate() {    	
-    	logger.info("Framework service activated");
-    	logger.info("Framework version = " + FrameworkVersion.getBundleVersion());
-    	logger.info("Framework build   = " + FrameworkVersion.getBundleBuild());
+    public void activate() {
+        logger.info("Framework service activated");
+        logger.info("Framework version = " + FrameworkVersion.getBundleVersion());
+        logger.info("Framework build   = " + FrameworkVersion.getBundleBuild());
     }
-    
+
     @Deactivate
     public void deactivate() {
-    	if (this.testRunLogCapture != null) {
-    		this.testRunLogCapture.shutdown();
-    	}
-    	logger.info("Framework service deactivated");
+        if (this.testRunLogCapture != null) {
+            this.testRunLogCapture.shutdown();
+        }
+        logger.info("Framework service deactivated");
     }
-    
-    
-	public void setFrameworkProperties(Properties overridesProperties) {
-		this.overrideProperties = overridesProperties;
-	}
-	
+
+    public void setFrameworkProperties(Properties overridesProperties) {
+        this.overrideProperties = overridesProperties;
+    }
+
     @Override
-	public boolean isInitialised() {
-        if (cpsStore != null 
-        		&& dssStore != null
-        		&& rasService != null 
-        		&& ctsService != null
-        		&& credsStore != null) {
-        	return true;
+    public boolean isInitialised() {
+        if (cpsStore != null && dssStore != null && rasService != null && ctsService != null && credsStore != null) {
+            return true;
         }
-        
-		return false;
-	}
-    
-	public boolean isShutdown() {
-        if (cpsStore == null 
-        		&& dssStore == null
-        		&& rasService == null 
-        		&& ctsService == null
-        		&& credsStore == null) {
-        	return true;
+
+        return false;
+    }
+
+    public boolean isShutdown() {
+        if (cpsStore == null && dssStore == null && rasService == null && ctsService == null && credsStore == null) {
+            return true;
         }
-        
-		return false;
-	}
-    
+
+        return false;
+    }
+
     @Override
     public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
             throws ConfigurationPropertyStoreException {
@@ -148,7 +138,8 @@ public class Framework implements IFramework {
     /*
      * (non-Javadoc)
      * 
-     * @see dev.galasa.framework.spi.IFramework#getDynamicStatusStore(java.lang.String)
+     * @see
+     * dev.galasa.framework.spi.IFramework#getDynamicStatusStore(java.lang.String)
      */
     @Override
     public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
@@ -193,11 +184,10 @@ public class Framework implements IFramework {
     public @NotNull IResultArchiveStore getResultArchiveStore() {
         return this.rasService;
     }
-    
+
     protected IResultArchiveStoreService getResultArchiveStoreService() {
         return this.rasService;
     }
-
 
     /*
      * (non-Javadoc)
@@ -246,8 +236,7 @@ public class Framework implements IFramework {
         this.cpsFramework = getConfigurationPropertyService("framework");
     }
 
-    public void setDynamicStatusStore(@NotNull IDynamicStatusStore dssStore)
-            throws DynamicStatusStoreException {
+    public void setDynamicStatusStore(@NotNull IDynamicStatusStore dssStore) throws DynamicStatusStoreException {
         if (this.dssStore != null) {
             throw new DynamicStatusStoreException(
                     "Invalid 2nd registration of the Dynamic Status Store Service detected");
@@ -265,22 +254,23 @@ public class Framework implements IFramework {
      */
     public void addResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService)
             throws ResultArchiveStoreException {
-    	
-    	if (this.rasService == null) {
-    		this.rasService = resultArchiveStoreService;
-    		return;
-    	}
-    	
-        if (this.rasService instanceof FrameworkMultipleResultArchiveStore) {
-        	((FrameworkMultipleResultArchiveStore)this.rasService).addResultArchiveStoreService(resultArchiveStoreService);
-        	return;
+
+        if (this.rasService == null) {
+            this.rasService = resultArchiveStoreService;
+            return;
         }
-        
+
+        if (this.rasService instanceof FrameworkMultipleResultArchiveStore) {
+            ((FrameworkMultipleResultArchiveStore) this.rasService)
+                    .addResultArchiveStoreService(resultArchiveStoreService);
+            return;
+        }
+
         this.rasService = new FrameworkMultipleResultArchiveStore(this, this.rasService);
-        ((FrameworkMultipleResultArchiveStore)this.rasService).addResultArchiveStoreService(resultArchiveStoreService);
+        ((FrameworkMultipleResultArchiveStore) this.rasService).addResultArchiveStoreService(resultArchiveStoreService);
     }
 
-    public void setConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService) 
+    public void setConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
             throws ConfidentialTextException {
         if (this.ctsService != null) {
             throw new ConfidentialTextException("Invalid 2nd registration of the Confidential Text Service detected");
@@ -288,8 +278,7 @@ public class Framework implements IFramework {
         this.ctsService = confidentialTextService;
     }
 
-    public void setCredentialsStore(@NotNull ICredentialsStore credsStore) 
-            throws CredentialsException {
+    public void setCredentialsStore(@NotNull ICredentialsStore credsStore) throws CredentialsException {
         if (this.credsStore != null) {
             throw new CredentialsException("Invalid 2nd registration of the Credentials Store Service detected");
         }
@@ -320,7 +309,7 @@ public class Framework implements IFramework {
 
     @Override
     public Random getRandom() {
-    	return this.random;
+        return this.random;
     }
 
     /*
@@ -330,158 +319,160 @@ public class Framework implements IFramework {
      */
     @Override
     public String getTestRunName() {
-    	return this.runName;
+        return this.runName;
     }
-    
-	/**
-	 * Set the run name if it is a test run
-	 * 
-	 * @param runName The run name
-	 * @throws DynamicStatusStoreException 
-	 */
-	public void setTestRunName(String runName) throws FrameworkException {
-		this.runName = runName;
-		
-		this.run = getFrameworkRuns().getRun(runName);
-	}
-	
-	@Override
-	public IRun getTestRun() {
-		return this.run;
-	}
 
-	@Override
-	public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
-		if (this.frameworkRuns == null) {
-			this.frameworkRuns = new FrameworkRuns(this);
-		}
-		
-		return this.frameworkRuns;
-	}
-	
-	@Override
-	public Properties getRecordProperties() {
-		Properties clone = (Properties) this.recordProperties.clone();
-		return clone;
-	}
+    /**
+     * Set the run name if it is a test run
+     * 
+     * @param runName The run name
+     * @throws DynamicStatusStoreException
+     */
+    public void setTestRunName(String runName) throws FrameworkException {
+        this.runName = runName;
 
-	public void installLogCapture() {
-		if (this.testRunLogCapture != null) {
-			return;
-		}
-		
-		this.testRunLogCapture = new TestRunLogCapture(this);
-		
-	}
-	
-	public void shutdown(Log shutdownLogger) throws FrameworkException {
-		if (isShutdown()) {
-			return;
-		}
-		
-		if (shutdownLogger == null) {
-			shutdownLogger = logger;
-		}
-		
-		boolean error = false;
-		
-		shutdownLogger.info("Shutting down the framework");
-		
-		//*** Shutdown the Confidential Text Service
-		if (this.ctsService != null) {
-			try {
-				shutdownLogger.trace("Shutting down the Confidential Text Service");
-				this.ctsService.shutdown();
-				this.ctsService = null;
-			} catch(Throwable t) {
-				error = true;
-				shutdownLogger.error("Failed to shutdown the Confidential Text Service",t);
-			}
-		}
-		
-		//*** Shutdown the Credentials Service
-		if (this.credsStore != null) {
-			try {
-				shutdownLogger.trace("Shutting down the Credentials Service");
-				this.credsStore.shutdown();
-				this.credsStore = null;
-			} catch(Throwable t) {
-				error = true;
-				shutdownLogger.error("Failed to shutdown the Credentials Service",t);
-			}
-		}
-		
-		//*** Shutdown the Result Archive Store
-		if (this.rasService != null) {
-			try {
-				shutdownLogger.trace("Shutting down the Result Archive Store");
-				this.rasService.shutdown();
-				this.rasService = null;
-			} catch(Throwable t) {
-				error = true;
-				shutdownLogger.error("Failed to shutdown the Result Archive Store",t);
-			}
-		}
-		
-		//*** Shutdown the Dynamic Status Store
-		if (this.dssStore != null) {
-			try {
-				shutdownLogger.trace("Shutting down the Dynamic Status Store");
-				this.dssStore.shutdown();
-				this.dssStore = null;
-			} catch(Throwable t) {
-				error = true;
-				shutdownLogger.error("Failed to shutdown the Dynamic Status Store",t);
-			}
-		}
-		
-		//*** Shutdown the Configuration Property Store
-		if (this.cpsStore != null) {
-			try {
-				shutdownLogger.trace("Shutting down the Configuratopm Properties Store");
-				this.cpsStore.shutdown();
-				this.cpsStore = null;
-			} catch(Throwable t) {
-				error = true;
-				shutdownLogger.error("Failed to shutdown the Configuration Property Store",t);
-			}
-		}
-		
-		//*** All done
-		if (error) {
-			throw new FrameworkException("Shutdown did not complete successfully, see log");
-		} else {
-			shutdownLogger.info("Framework shutdown");
-		}
-	}
+        this.run = getFrameworkRuns().getRun(runName);
+    }
 
-	@Override
-	public URL getApiUrl(Api api) throws FrameworkException {
-		if (api == null) {
-			throw new FrameworkException("api has not been provided");
-		}
-		
-		try {
-			String urlProperty = AbstractManager.nulled(cpsFramework.getProperty(api.getProperty(), "url"));
-			
-			if (urlProperty != null) {
-				return new URL(urlProperty);
-			}
-			
-			String bootstrapProperty = AbstractManager.nulled(cpsFramework.getProperty("bootstrap", "url"));
-			if (bootstrapProperty == null) {
-				throw new FrameworkException("Unable to derive the URL for api " + api + " as the framework.bootstrap.url property is missing");
-			}
-			if (!bootstrapProperty.endsWith("/bootstrap")) {
-				throw new FrameworkException("Unable to derive the URL for api " + api + " as the framework.bootstrap.url property does not end with /bootstrap");
-			}
-			
-			urlProperty = bootstrapProperty.substring(0, bootstrapProperty.length() - 10) + "/" + api.getSuffix();
-			
-			return new URL(urlProperty);
-		} catch(Exception e) {
-			throw new FrameworkException("Unable to determine URL of API " + api,e);
-		}
-	}
+    @Override
+    public IRun getTestRun() {
+        return this.run;
+    }
+
+    @Override
+    public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
+        if (this.frameworkRuns == null) {
+            this.frameworkRuns = new FrameworkRuns(this);
+        }
+
+        return this.frameworkRuns;
+    }
+
+    @Override
+    public Properties getRecordProperties() {
+        Properties clone = (Properties) this.recordProperties.clone();
+        return clone;
+    }
+
+    public void installLogCapture() {
+        if (this.testRunLogCapture != null) {
+            return;
+        }
+
+        this.testRunLogCapture = new TestRunLogCapture(this);
+
+    }
+
+    public void shutdown(Log shutdownLogger) throws FrameworkException {
+        if (isShutdown()) {
+            return;
+        }
+
+        if (shutdownLogger == null) {
+            shutdownLogger = logger;
+        }
+
+        boolean error = false;
+
+        shutdownLogger.info("Shutting down the framework");
+
+        // *** Shutdown the Confidential Text Service
+        if (this.ctsService != null) {
+            try {
+                shutdownLogger.trace("Shutting down the Confidential Text Service");
+                this.ctsService.shutdown();
+                this.ctsService = null;
+            } catch (Throwable t) {
+                error = true;
+                shutdownLogger.error("Failed to shutdown the Confidential Text Service", t);
+            }
+        }
+
+        // *** Shutdown the Credentials Service
+        if (this.credsStore != null) {
+            try {
+                shutdownLogger.trace("Shutting down the Credentials Service");
+                this.credsStore.shutdown();
+                this.credsStore = null;
+            } catch (Throwable t) {
+                error = true;
+                shutdownLogger.error("Failed to shutdown the Credentials Service", t);
+            }
+        }
+
+        // *** Shutdown the Result Archive Store
+        if (this.rasService != null) {
+            try {
+                shutdownLogger.trace("Shutting down the Result Archive Store");
+                this.rasService.shutdown();
+                this.rasService = null;
+            } catch (Throwable t) {
+                error = true;
+                shutdownLogger.error("Failed to shutdown the Result Archive Store", t);
+            }
+        }
+
+        // *** Shutdown the Dynamic Status Store
+        if (this.dssStore != null) {
+            try {
+                shutdownLogger.trace("Shutting down the Dynamic Status Store");
+                this.dssStore.shutdown();
+                this.dssStore = null;
+            } catch (Throwable t) {
+                error = true;
+                shutdownLogger.error("Failed to shutdown the Dynamic Status Store", t);
+            }
+        }
+
+        // *** Shutdown the Configuration Property Store
+        if (this.cpsStore != null) {
+            try {
+                shutdownLogger.trace("Shutting down the Configuratopm Properties Store");
+                this.cpsStore.shutdown();
+                this.cpsStore = null;
+            } catch (Throwable t) {
+                error = true;
+                shutdownLogger.error("Failed to shutdown the Configuration Property Store", t);
+            }
+        }
+
+        // *** All done
+        if (error) {
+            throw new FrameworkException("Shutdown did not complete successfully, see log");
+        } else {
+            shutdownLogger.info("Framework shutdown");
+        }
+    }
+
+    @Override
+    public URL getApiUrl(Api api) throws FrameworkException {
+        if (api == null) {
+            throw new FrameworkException("api has not been provided");
+        }
+
+        try {
+            String urlProperty = AbstractManager.nulled(cpsFramework.getProperty(api.getProperty(), "url"));
+
+            if (urlProperty != null) {
+                return new URL(urlProperty);
+            }
+
+            String bootstrapProperty = AbstractManager.nulled(cpsFramework.getProperty("bootstrap", "url"));
+            if (bootstrapProperty == null) {
+                throw new FrameworkException("Unable to derive the URL for api " + api
+                        + " as the framework.bootstrap.url property is missing");
+            }
+            if (!bootstrapProperty.endsWith("/bootstrap")) {
+                throw new FrameworkException("Unable to derive the URL for api " + api
+                        + " as the framework.bootstrap.url property does not end with /bootstrap");
+            }
+
+            urlProperty = bootstrapProperty.substring(0, bootstrapProperty.length() - 10) + "/" + api.getSuffix();
+
+            return new URL(urlProperty);
+        } catch (Exception e) {
+            throw new FrameworkException("Unable to determine URL of API " + api, e);
+        }
+    }
 
 }

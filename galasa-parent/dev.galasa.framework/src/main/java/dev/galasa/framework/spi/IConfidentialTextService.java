@@ -6,19 +6,20 @@
 package dev.galasa.framework.spi;
 
 /**
- * The confidential text services provides a manager with the ability to registered passwords, usernames, keys 
- * and other confidnetial texts so that they can be obscured inside logs and outputs.
+ * The confidential text services provides a manager with the ability to
+ * registered passwords, usernames, keys and other confidnetial texts so that
+ * they can be obscured inside logs and outputs.
  * 
  * @author James Davies
  */
 public interface IConfidentialTextService {
 
     /**
-     * Regsiters a confidential text on the service. When any log or output is passed through this service it 
-     * will then obscure it with a numbered Tag.
+     * Regsiters a confidential text on the service. When any log or output is
+     * passed through this service it will then obscure it with a numbered Tag.
      * 
      * @param confidentialString - the string to be registered.
-     * @param comment - a comment explaining the string.
+     * @param comment            - a comment explaining the string.
      */
     void registerText(String confidentialString, String comment);
 
@@ -30,9 +31,9 @@ public interface IConfidentialTextService {
      */
     String removeConfidentialText(String text);
 
-	/**
-	 * Shutdown the confidential text service
-	 */
-	void shutdown();
+    /**
+     * Shutdown the confidential text service
+     */
+    void shutdown();
 
-} 
+}

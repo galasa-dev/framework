@@ -12,10 +12,10 @@ import com.google.gson.GsonBuilder;
 
 public class GalasaGsonBuilder {
 
-	public static Gson build() {
-		GsonBuilder builder = new GsonBuilder();
-		builder.registerTypeAdapter(Instant.class, new GsonInstantTypeAdapater());
-		return builder.setPrettyPrinting().create();
-	}
-	
+    public static Gson build() {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Instant.class, new GsonInstantTypeAdapater());
+        return builder.setPrettyPrinting().create();
+    }
+
 }

@@ -23,7 +23,8 @@ public class MetricsServerException extends Exception {
         super(message, cause);
     }
 
-    public MetricsServerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public MetricsServerException(String message, Throwable cause, boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

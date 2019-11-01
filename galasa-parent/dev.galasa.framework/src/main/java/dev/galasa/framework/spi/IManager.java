@@ -216,7 +216,7 @@ public interface IManager {
     /**
      * Called when we are about to start the Test Method.
      * 
-     * @param testMethod       The current test method
+     * @param testMethod The current test method
      *
      * @throws ManagerException On the off chance something when wrong
      */
@@ -231,6 +231,7 @@ public interface IManager {
      * If the Manager would like to override the result, it can return the result it
      * wishes to be used for the record
      * </p>
+     * 
      * @param testMethod       The current test method
      * @param currentResult    What the current result is, will not include what the
      *                         other Managers wish it to be.
@@ -238,7 +239,8 @@ public interface IManager {
      * @return Override the test result, or null if ok
      * @throws ManagerException If something went wrong
      */
-    String endOfTestMethod(@NotNull Method testMethod, @NotNull String currentResult, Throwable currentException) throws ManagerException;
+    String endOfTestMethod(@NotNull Method testMethod, @NotNull String currentResult, Throwable currentException)
+            throws ManagerException;
 
     /**
      * <p>

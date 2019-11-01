@@ -33,60 +33,78 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
 public class FpfConfigurationPropertyRegistrationTest {
 
     @Test
-    public void testIntialise() throws IOException, ConfigurationPropertyStoreException{
+    public void testIntialise() throws IOException, ConfigurationPropertyStoreException {
         File testProp = File.createTempFile("galasa", ".properties");
         FpfConfigurationPropertyRegistration fpfCpsReg = new FpfConfigurationPropertyRegistration();
         fpfCpsReg.initialise(new FrameworkInitialisation(testProp.toURI()));
-        assertTrue("Dummy",true);
+        assertTrue("Dummy", true);
     }
 
     /**
-     * <p>This class is used to test the implemented methods in the tests above. They are all noddy methods.</p>
+     * <p>
+     * This class is used to test the implemented methods in the tests above. They
+     * are all noddy methods.
+     * </p>
      */
     private class FrameworkInitialisation implements IFrameworkInitialisation {
-        private URI uri;
+        private URI                           uri;
         private FpfConfigurationPropertyStore fpf;
 
         public FrameworkInitialisation(URI uri) {
-        	this.uri = uri;
+            this.uri = uri;
             try {
                 fpf = new FpfConfigurationPropertyStore(uri);
             } catch (ConfigurationPropertyStoreException e) {
-                
-            }    
+
+            }
         }
 
         @Override
         public void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
-                throws ConfidentialTextException {     
+                throws ConfidentialTextException {
         }
+
         @Override
-        public URI getBootstrapConfigurationPropertyStore() {return uri;}
+        public URI getBootstrapConfigurationPropertyStore() {
+            return uri;
+        }
+
         @Override
-        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
+        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
+                throws DynamicStatusStoreException {
+        }
+
         @Override
-        public IFramework getFramework(){return null;}
-        
+        public IFramework getFramework() {
+            return null;
+        }
+
         @Override
         public void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore)
                 throws ConfigurationPropertyStoreException {
         }
 
-		@Override
-        public URI getDynamicStatusStoreUri() {return null;}
-        
         @Override
-		public URI getCredentialsStoreUri() {return null;}
-
-		@Override
-		public List<URI> getResultArchiveStoreUris() {return null;}
-
-		@Override
-		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        public URI getDynamicStatusStoreUri() {
+            return null;
         }
-        
+
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
+        public URI getCredentialsStoreUri() {
+            return null;
+        }
+
+        @Override
+        public List<URI> getResultArchiveStoreUris() {
+            return null;
+        }
+
+        @Override
+        public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        }
+
+        @Override
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         }
     }
 }

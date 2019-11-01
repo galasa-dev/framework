@@ -35,7 +35,10 @@ import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
 /**
- * <p>This tests class checks the behaviour of registering a local CPS using the FPF class is functional.</p>
+ * <p>
+ * This tests class checks the behaviour of registering a local CPS using the
+ * FPF class is functional.
+ * </p>
  * 
  * @author James Davies
  */
@@ -43,32 +46,45 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
 public class FpfConfigurationPropertyStoreTest {
 
     /**
-     * <p>This test method checks the returned boolean from a class that checks if a URI is a local file. Expected true.</p>
+     * <p>
+     * This test method checks the returned boolean from a class that checks if a
+     * URI is a local file. Expected true.
+     * </p>
+     * 
      * @throws IOException
      */
     @Test
-    public void testTheIsFileUriMethod() throws IOException{
+    public void testTheIsFileUriMethod() throws IOException {
         File testProp = File.createTempFile("galasafpf_", ".properties");
-        assertTrue("Return the incorrect scheme for the provided URI",FpfConfigurationPropertyStore.isFileUri(testProp.toURI()));
+        assertTrue("Return the incorrect scheme for the provided URI",
+                FpfConfigurationPropertyStore.isFileUri(testProp.toURI()));
     }
 
     /**
-     * <p>This test method checks the returned boolean from a class that checks if a URI is a local file. Expected false.</p>
+     * <p>
+     * This test method checks the returned boolean from a class that checks if a
+     * URI is a local file. Expected false.
+     * </p>
+     * 
      * @throws IOException
      */
     @Test
-    public void testTheIsFileUriMethodWithUrl() throws URISyntaxException{
+    public void testTheIsFileUriMethodWithUrl() throws URISyntaxException {
         URI uri = new URI("http://isthisevenreal.co.il.uk/nope");
-        assertFalse("Return the incorrect scheme for the provided URI",FpfConfigurationPropertyStore.isFileUri(uri));
+        assertFalse("Return the incorrect scheme for the provided URI", FpfConfigurationPropertyStore.isFileUri(uri));
     }
 
     /**
-     * <p> This methof checks that the implemented get method works through this interface.</p>
+     * <p>
+     * This methof checks that the implemented get method works through this
+     * interface.
+     * </p>
+     * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
      */
     @Test
-    public void testGet() throws ConfigurationPropertyStoreException, IOException{
+    public void testGet() throws ConfigurationPropertyStoreException, IOException {
         File testProp = File.createTempFile("galasafpf_", ".properties");
 
         Properties testProps = new Properties();
@@ -90,27 +106,34 @@ public class FpfConfigurationPropertyStoreTest {
     }
 
     /**
-     * <p>This method tests that the exception is caught is the local file is not there.</p>
+     * <p>
+     * This method tests that the exception is caught is the local file is not
+     * there.
+     * </p>
+     * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
      */
     @Test
-    public void testException() throws ConfigurationPropertyStoreException, IOException{
+    public void testException() throws ConfigurationPropertyStoreException, IOException {
         File file = new File("DefoNotAFile.com");
         boolean caught = false;
         try {
             FpfConfigurationPropertyStore fpfCps = new FpfConfigurationPropertyStore(file.toURI());
-        } catch (ConfigurationPropertyStoreException e){
+        } catch (ConfigurationPropertyStoreException e) {
             caught = true;
         }
         assertTrue("Exception not caught as expected.", caught);
     }
 
     /**
-     * <p>This class is used to test the implemented methods in the tests above. They are all noddy methods.</p>
+     * <p>
+     * This class is used to test the implemented methods in the tests above. They
+     * are all noddy methods.
+     * </p>
      */
     private class FrameworkInitialisation implements IFrameworkInitialisation {
-        private URI uri;
+        private URI                           uri;
         private FpfConfigurationPropertyStore fpf;
 
         public FrameworkInitialisation(URI uri) {
@@ -118,40 +141,56 @@ public class FpfConfigurationPropertyStoreTest {
             try {
                 fpf = new FpfConfigurationPropertyStore(uri);
             } catch (ConfigurationPropertyStoreException e) {
-                
-            }    
+
+            }
         }
 
         @Override
-        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
+        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts)
+                throws ConfidentialTextException {
         }
+
         @Override
-        public URI getBootstrapConfigurationPropertyStore() {return uri;}
+        public URI getBootstrapConfigurationPropertyStore() {
+            return uri;
+        }
+
         @Override
-        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
+        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
+                throws DynamicStatusStoreException {
+        }
+
         @Override
-        public IFramework getFramework(){return null;}
-        
+        public IFramework getFramework() {
+            return null;
+        }
+
         @Override
         public void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore)
                 throws ConfigurationPropertyStoreException {
         }
 
-		@Override
-        public URI getDynamicStatusStoreUri() {return null;}
-        
         @Override
-		public URI getCredentialsStoreUri() {return null;}
-
-		@Override
-		public List<URI> getResultArchiveStoreUris() {return null;}
-
-		@Override
-		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        public URI getDynamicStatusStoreUri() {
+            return null;
         }
-        
+
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
+        public URI getCredentialsStoreUri() {
+            return null;
+        }
+
+        @Override
+        public List<URI> getResultArchiveStoreUris() {
+            return null;
+        }
+
+        @Override
+        public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        }
+
+        @Override
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         }
     }
 

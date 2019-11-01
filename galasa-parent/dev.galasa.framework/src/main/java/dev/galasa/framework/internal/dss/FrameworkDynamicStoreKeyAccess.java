@@ -21,35 +21,33 @@ import dev.galasa.framework.spi.IDynamicStatusStore;
 import dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 
-
 /**
- *  Provides the common key access to the DSS
+ * Provides the common key access to the DSS
  * 
  * @author Bruce Abbott
  */
 
 public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAccess {
-	private final IDynamicStatusStore 		 dssStore;
-	private final String                     prefix;
-	
-	public FrameworkDynamicStoreKeyAccess(IDynamicStatusStore dssStore, String prefix) {
+    private final IDynamicStatusStore dssStore;
+    private final String              prefix;
+
+    public FrameworkDynamicStoreKeyAccess(IDynamicStatusStore dssStore, String prefix) {
         Objects.requireNonNull(dssStore);
         Objects.requireNonNull(prefix);
 
         this.dssStore = dssStore;
         this.prefix = prefix;
     }
-	
+
     protected IDynamicStatusStore getDssStore() {
-		return this.dssStore;
-	}
+        return this.dssStore;
+    }
 
-
-
-	/*
+    /*
      * (non-Javadoc)
      * 
-     * @see dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#put(java.lang.String,
+     * @see
+     * dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#put(java.lang.String,
      * java.lang.String)
      */
     @Override
@@ -84,9 +82,8 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#putSwap(java.lang.String,
-     * java.lang.String, java.lang.String)
+     * @see dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#putSwap(java.lang.
+     * String, java.lang.String, java.lang.String)
      */
     @Override
     public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue)
@@ -98,9 +95,8 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#putSwap(java.lang.String,
-     * java.lang.String, java.lang.String, java.util.Map)
+     * @see dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#putSwap(java.lang.
+     * String, java.lang.String, java.lang.String, java.util.Map)
      */
     @Override
     public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue,
@@ -126,7 +122,8 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
     /*
      * (non-Javadoc)
      * 
-     * @see dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#get(java.lang.String)
+     * @see
+     * dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#get(java.lang.String)
      */
     @Override
     public @Null String get(@NotNull String key) throws DynamicStatusStoreException {
@@ -136,7 +133,8 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
     /*
      * (non-Javadoc)
      * 
-     * @see dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#getPrefix(java.lang.
+     * @see
+     * dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#getPrefix(java.lang.
      * String)
      */
     @Override
@@ -145,7 +143,7 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
         final HashMap<String, String> returnSet = new HashMap<>();
 
         for (Entry<String, String> entry : gotSet.entrySet()) {
-            String key   = entry.getKey();
+            String key = entry.getKey();
             final String value = entry.getValue();
 
             if (key.startsWith(this.prefix)) {
@@ -162,8 +160,8 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#delete(java.lang.String)
+     * @see dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#delete(java.lang.
+     * String)
      */
     @Override
     public void delete(@NotNull String key) throws DynamicStatusStoreException {
@@ -173,7 +171,8 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
     /*
      * (non-Javadoc)
      * 
-     * @see dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#delete(java.util.Set)
+     * @see
+     * dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess#delete(java.util.Set)
      */
     @Override
     public void delete(@NotNull Set<String> keys) throws DynamicStatusStoreException {
@@ -200,7 +199,7 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
     public void deletePrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
         this.dssStore.deletePrefix(prefixKey(keyPrefix));
     }
-    
+
     /**
      * Prefix the supplied key with the namespace
      *
@@ -212,38 +211,38 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
         return this.prefix + key;
     }
 
-	@Override
-	public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {
-		return this.dssStore.watch(new PassthroughWatcher(watcher, prefix), prefixKey(key));
-	}
+    @Override
+    public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {
+        return this.dssStore.watch(new PassthroughWatcher(watcher, prefix), prefixKey(key));
+    }
 
-	@Override
-	public UUID watchPrefix(IDynamicStatusStoreWatcher watcher, String keyPrefix) throws DynamicStatusStoreException {
-		return this.dssStore.watchPrefix(new PassthroughWatcher(watcher, prefix), prefixKey(keyPrefix));
-	}
+    @Override
+    public UUID watchPrefix(IDynamicStatusStoreWatcher watcher, String keyPrefix) throws DynamicStatusStoreException {
+        return this.dssStore.watchPrefix(new PassthroughWatcher(watcher, prefix), prefixKey(keyPrefix));
+    }
 
-	@Override
-	public void unwatch(UUID watchId) throws DynamicStatusStoreException {
-		this.dssStore.unwatch(watchId);
-	}
-	
-	private static class PassthroughWatcher implements IDynamicStatusStoreWatcher {
-		
-		private final String                     prefix;
-		private final int                        offset;
-		private final IDynamicStatusStoreWatcher watcher;
-		
-		private PassthroughWatcher(IDynamicStatusStoreWatcher watcher, String prefix) {
-			this.prefix  = prefix;
-			this.offset  = this.prefix.length();
-			this.watcher = watcher;
-		}
+    @Override
+    public void unwatch(UUID watchId) throws DynamicStatusStoreException {
+        this.dssStore.unwatch(watchId);
+    }
 
-		@Override
-		public void propertyModified(String key, Event event, String oldValue, String newValue) {
-			key = key.substring(this.offset);
-			watcher.propertyModified(key, event, oldValue, newValue);
-		}
-	}
+    private static class PassthroughWatcher implements IDynamicStatusStoreWatcher {
+
+        private final String                     prefix;
+        private final int                        offset;
+        private final IDynamicStatusStoreWatcher watcher;
+
+        private PassthroughWatcher(IDynamicStatusStoreWatcher watcher, String prefix) {
+            this.prefix = prefix;
+            this.offset = this.prefix.length();
+            this.watcher = watcher;
+        }
+
+        @Override
+        public void propertyModified(String key, Event event, String oldValue, String newValue) {
+            key = key.substring(this.offset);
+            watcher.propertyModified(key, event, oldValue, newValue);
+        }
+    }
 
 }

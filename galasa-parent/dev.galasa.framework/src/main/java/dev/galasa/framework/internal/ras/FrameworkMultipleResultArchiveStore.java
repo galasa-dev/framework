@@ -18,89 +18,92 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 /**
- * Stub for multiple Result Archive Stores. 
+ * Stub for multiple Result Archive Stores.
  *
  * @author Michael Baylis
  *
  */
 public class FrameworkMultipleResultArchiveStore implements IResultArchiveStoreService {
 
-	private final ArrayList<IResultArchiveStoreService> rasServices = new ArrayList<>();
+    private final ArrayList<IResultArchiveStoreService> rasServices = new ArrayList<>();
 
-	public FrameworkMultipleResultArchiveStore(@NotNull IFramework framework, @NotNull IResultArchiveStoreService rasService) throws ResultArchiveStoreException {
-		if (framework.getTestRunName() != null) {
-			throw new ResultArchiveStoreException("RAS does not yet support multiple stores during test runs");
-		}
-		
-		this.rasServices.add(rasService);
-	}
+    public FrameworkMultipleResultArchiveStore(@NotNull IFramework framework,
+            @NotNull IResultArchiveStoreService rasService) throws ResultArchiveStoreException {
+        if (framework.getTestRunName() != null) {
+            throw new ResultArchiveStoreException("RAS does not yet support multiple stores during test runs");
+        }
 
-	public void addResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
-		this.rasServices.add(resultArchiveStoreService);
-	}
+        this.rasServices.add(rasService);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see dev.galasa.framework.spi.IResultArchiveStore#writeLog(java.lang.String)
-	 */
-	@Override
-	public void writeLog(@NotNull String message) throws ResultArchiveStoreException {
-		for(IResultArchiveStoreService rasService : this.rasServices) {
-			rasService.writeLog(message);
-		}
-	}
+    public void addResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        this.rasServices.add(resultArchiveStoreService);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see dev.galasa.framework.spi.IResultArchiveStore#writeLog(java.util.List)
-	 */
-	@Override
-	public void writeLog(@NotNull List<String> messages) throws ResultArchiveStoreException {
-		for(IResultArchiveStoreService rasService : this.rasServices) {
-			rasService.writeLog(messages);
-		}
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see dev.galasa.framework.spi.IResultArchiveStore#writeLog(java.lang.String)
+     */
+    @Override
+    public void writeLog(@NotNull String message) throws ResultArchiveStoreException {
+        for (IResultArchiveStoreService rasService : this.rasServices) {
+            rasService.writeLog(message);
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see dev.galasa.framework.spi.IResultArchiveStore#updateTestStructure(dev.galasa.
-	 * framework.spi.teststructure.ITestStructure)
-	 */
-	@Override
-	public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
-		for(IResultArchiveStoreService rasService : this.rasServices) {
-			rasService.updateTestStructure(testStructure);
-		}
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see dev.galasa.framework.spi.IResultArchiveStore#writeLog(java.util.List)
+     */
+    @Override
+    public void writeLog(@NotNull List<String> messages) throws ResultArchiveStoreException {
+        for (IResultArchiveStoreService rasService : this.rasServices) {
+            rasService.writeLog(messages);
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see dev.galasa.framework.spi.IResultArchiveStore#getStoredArtifactsRoot()
-	 */
-	@Override
-	public Path getStoredArtifactsRoot() {
-		//*** Multiple RASs not supported yet during test runs
-		//*** We need to create an stub filesystem to be able to write to 2 filesystms and read from the first
-		return this.rasServices.get(0).getStoredArtifactsRoot();  
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * dev.galasa.framework.spi.IResultArchiveStore#updateTestStructure(dev.galasa.
+     * framework.spi.teststructure.ITestStructure)
+     */
+    @Override
+    public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
+        for (IResultArchiveStoreService rasService : this.rasServices) {
+            rasService.updateTestStructure(testStructure);
+        }
+    }
 
-	@Override
-	public void flush() {
-		for(IResultArchiveStoreService rasService : this.rasServices) {
-			rasService.flush();
-		}
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see dev.galasa.framework.spi.IResultArchiveStore#getStoredArtifactsRoot()
+     */
+    @Override
+    public Path getStoredArtifactsRoot() {
+        // *** Multiple RASs not supported yet during test runs
+        // *** We need to create an stub filesystem to be able to write to 2 filesystms
+        // and read from the first
+        return this.rasServices.get(0).getStoredArtifactsRoot();
+    }
 
-	@Override
-	public void shutdown() {
-		for(IResultArchiveStoreService rasService : this.rasServices) {
-			rasService.shutdown();
-		}
-	}
+    @Override
+    public void flush() {
+        for (IResultArchiveStoreService rasService : this.rasServices) {
+            rasService.flush();
+        }
+    }
+
+    @Override
+    public void shutdown() {
+        for (IResultArchiveStoreService rasService : this.rasServices) {
+            rasService.shutdown();
+        }
+    }
 
 //	@Override
 //	public List<IRunResult> getRuns(String runName) throws ResultArchiveStoreException {
@@ -110,15 +113,15 @@ public class FrameworkMultipleResultArchiveStore implements IResultArchiveStoreS
 //		return new ArrayList<>();
 //	}
 
-	@Override
-	public @NotNull List<IResultArchiveStoreDirectoryService> getDirectoryServices() {
-		ArrayList<IResultArchiveStoreDirectoryService> dirs = new ArrayList<>();
-		
-		for(IResultArchiveStoreService rasService : this.rasServices) {
-			dirs.addAll(rasService.getDirectoryServices());
-		}
+    @Override
+    public @NotNull List<IResultArchiveStoreDirectoryService> getDirectoryServices() {
+        ArrayList<IResultArchiveStoreDirectoryService> dirs = new ArrayList<>();
 
-		return dirs;
-	}
+        for (IResultArchiveStoreService rasService : this.rasServices) {
+            dirs.addAll(rasService.getDirectoryServices());
+        }
+
+        return dirs;
+    }
 
 }

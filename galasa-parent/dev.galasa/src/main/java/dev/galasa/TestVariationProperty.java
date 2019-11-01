@@ -18,7 +18,7 @@ import java.lang.annotation.Retention;
 @Retention(RUNTIME)
 public @interface TestVariationProperty {
 
-	String property();
-	
-	String value();
+    String property();
+
+    String value();
 }

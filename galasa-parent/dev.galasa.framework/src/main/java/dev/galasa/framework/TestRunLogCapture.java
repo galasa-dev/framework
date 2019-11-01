@@ -19,155 +19,154 @@ import org.apache.log4j.spi.LoggingEvent;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 
-public class TestRunLogCapture  implements Appender {
-	
-	private final Framework framework;
-	
-	private IResultArchiveStore ras;
-	
-	private final ArrayList<String> startupCache = new ArrayList<>();
-	private Layout layout = new PatternLayout("%d{HH:mm:ss} %p [%t] %c - %m%n");
-	private Level minimumLevel = Level.ALL;
+public class TestRunLogCapture implements Appender {
 
-	
-	private boolean shutdown = false;
+    private final Framework         framework;
 
-	public TestRunLogCapture(Framework framework) {
-		this.framework = framework;
-		
-		Logger rootLogger = Logger.getRootLogger();
-		
-		Appender stdout = rootLogger.getAppender("stdout");
-		if (stdout != null) {
-			this.layout = stdout.getLayout();
-		}
-		
-		rootLogger.addAppender(this);
-	}
+    private IResultArchiveStore     ras;
 
-	public void shutdown() {
-		this.shutdown = true;
-	}
+    private final ArrayList<String> startupCache = new ArrayList<>();
+    private Layout                  layout       = new PatternLayout("%d{HH:mm:ss} %p [%t] %c - %m%n");
+    private Level                   minimumLevel = Level.ALL;
 
-	@Override
-	public void doAppend(LoggingEvent event) {
-		if (this.shutdown) {
-			return;
-		}
-		
-		if (!event.getLevel().isGreaterOrEqual(minimumLevel)) {
-			return;
-		}
-		
-		String message = layout.format(event);
-		String[] throwable = new String[0]; 
-		
-		if (event.getThrowableInformation() != null) {
-			throwable = event.getThrowableStrRep();
-		}
-		
-		if (ras == null) {
-			if (framework.isInitialised()) {
-				this.ras = framework.getResultArchiveStore();
-			} else {
-				startupCache.add(message);
-				if (throwable != null) {
-					for(String t : throwable) {
-						startupCache.add(t);
-					}
-				}
-				return;
-			}
-		}
+    private boolean                 shutdown     = false;
 
-		if (!startupCache.isEmpty()) {
-			try {
-				this.ras.writeLog(startupCache);
-				this.startupCache.clear();
-			} catch (ResultArchiveStoreException e) { 
-				e.printStackTrace(); //*** Do not use logger,  will cause a loop //NOSONAR
-				startupCache.add(message);
-				return;
-			}
-		}
-		
-		try {
-			this.ras.writeLog(message);
-			if (throwable != null) {
-				for(String t : throwable) {
-					this.ras.writeLog(t);
-				}
-			}
-		} catch (ResultArchiveStoreException e) { 
-			e.printStackTrace(); //*** Do not use logger,  will cause a loop //NOSONAR
-			startupCache.add(message);
-		}
-	}
+    public TestRunLogCapture(Framework framework) {
+        this.framework = framework;
 
-	@Override
-	public void addFilter(Filter newFilter) {
-		// TODO Auto-generated method stub
-		
-	}
+        Logger rootLogger = Logger.getRootLogger();
 
-	@Override
-	public Filter getFilter() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        Appender stdout = rootLogger.getAppender("stdout");
+        if (stdout != null) {
+            this.layout = stdout.getLayout();
+        }
 
-	@Override
-	public void clearFilters() {
-		// TODO Auto-generated method stub
-		
-	}
+        rootLogger.addAppender(this);
+    }
 
-	@Override
-	public void close() {
-		// TODO Auto-generated method stub
-		
-	}
+    public void shutdown() {
+        this.shutdown = true;
+    }
 
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public void doAppend(LoggingEvent event) {
+        if (this.shutdown) {
+            return;
+        }
 
-	@Override
-	public void setErrorHandler(ErrorHandler errorHandler) {
-		// TODO Auto-generated method stub
-		
-	}
+        if (!event.getLevel().isGreaterOrEqual(minimumLevel)) {
+            return;
+        }
 
-	@Override
-	public ErrorHandler getErrorHandler() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        String message = layout.format(event);
+        String[] throwable = new String[0];
 
-	@Override
-	public void setLayout(Layout layout) {
-		// TODO Auto-generated method stub
-		
-	}
+        if (event.getThrowableInformation() != null) {
+            throwable = event.getThrowableStrRep();
+        }
 
-	@Override
-	public Layout getLayout() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        if (ras == null) {
+            if (framework.isInitialised()) {
+                this.ras = framework.getResultArchiveStore();
+            } else {
+                startupCache.add(message);
+                if (throwable != null) {
+                    for (String t : throwable) {
+                        startupCache.add(t);
+                    }
+                }
+                return;
+            }
+        }
 
-	@Override
-	public void setName(String name) {
-		// TODO Auto-generated method stub
-		
-	}
+        if (!startupCache.isEmpty()) {
+            try {
+                this.ras.writeLog(startupCache);
+                this.startupCache.clear();
+            } catch (ResultArchiveStoreException e) {
+                e.printStackTrace(); // *** Do not use logger, will cause a loop //NOSONAR
+                startupCache.add(message);
+                return;
+            }
+        }
 
-	@Override
-	public boolean requiresLayout() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+        try {
+            this.ras.writeLog(message);
+            if (throwable != null) {
+                for (String t : throwable) {
+                    this.ras.writeLog(t);
+                }
+            }
+        } catch (ResultArchiveStoreException e) {
+            e.printStackTrace(); // *** Do not use logger, will cause a loop //NOSONAR
+            startupCache.add(message);
+        }
+    }
+
+    @Override
+    public void addFilter(Filter newFilter) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Filter getFilter() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void clearFilters() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void close() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setErrorHandler(ErrorHandler errorHandler) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public ErrorHandler getErrorHandler() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setLayout(Layout layout) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Layout getLayout() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setName(String name) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean requiresLayout() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }

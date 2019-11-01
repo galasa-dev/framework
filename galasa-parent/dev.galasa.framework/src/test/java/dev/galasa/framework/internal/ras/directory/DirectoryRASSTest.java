@@ -43,11 +43,11 @@ import dev.galasa.ResultArchiveStoreFileAttributeView;
  */
 public class DirectoryRASSTest {
 
-    private Path                     rasDirectory;
+    private Path                rasDirectory;
 
-    private IFramework               framework;
+    private IFramework          framework;
 
-    private static final String      runname = "BOB1";
+    private static final String runname = "BOB1";
 
     @Before
     public void before() throws IOException {
@@ -73,21 +73,23 @@ public class DirectoryRASSTest {
         rasURIs.add(this.rasDirectory.toUri());
 
         final DirectoryResultArchiveStoreRegistration drass = new DirectoryResultArchiveStoreRegistration();
-        
+
         IFrameworkInitialisation frameworkInit = mock(IFrameworkInitialisation.class);
         when(frameworkInit.getResultArchiveStoreUris()).thenReturn(rasURIs);
         when(frameworkInit.getFramework()).thenReturn(this.framework);
 
         drass.initialise(frameworkInit);
-        
+
         verify(frameworkInit).registerResultArchiveStoreService(Mockito.any(DirectoryResultArchiveStoreService.class));
     }
 
     @Test
     public void testStoredArtifacts() throws ResultArchiveStoreException, IOException {
-    	DirectoryResultArchiveStoreService drass = new DirectoryResultArchiveStoreService(framework, this.rasDirectory.toUri());
+        DirectoryResultArchiveStoreService drass = new DirectoryResultArchiveStoreService(framework,
+                this.rasDirectory.toUri());
 
-        Assert.assertTrue("Run RAS directory should have been created", Files.exists(this.rasDirectory.resolve(runname)));
+        Assert.assertTrue("Run RAS directory should have been created",
+                Files.exists(this.rasDirectory.resolve(runname)));
         Assert.assertTrue("Run RAS artifacts directory should have been created",
                 Files.exists(this.rasDirectory.resolve(runname).resolve("artifacts")));
 
@@ -106,7 +108,8 @@ public class DirectoryRASSTest {
 
     @Test
     public void testTestStructure() throws ResultArchiveStoreException, UnsupportedEncodingException, IOException {
-    	DirectoryResultArchiveStoreService drass = new DirectoryResultArchiveStoreService(framework, this.rasDirectory.toUri());
+        DirectoryResultArchiveStoreService drass = new DirectoryResultArchiveStoreService(framework,
+                this.rasDirectory.toUri());
 
         final TestStructure writeStructure = new TestStructure();
         writeStructure.setTestName("hello everyone");
@@ -134,7 +137,8 @@ public class DirectoryRASSTest {
         messages.add("3nd Message\n");
         messages.add("All done");
 
-    	DirectoryResultArchiveStoreService drass = new DirectoryResultArchiveStoreService(framework, this.rasDirectory.toUri());
+        DirectoryResultArchiveStoreService drass = new DirectoryResultArchiveStoreService(framework,
+                this.rasDirectory.toUri());
 
         drass.writeLog(message1);
         drass.writeLog(message2);

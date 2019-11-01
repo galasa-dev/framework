@@ -57,7 +57,7 @@ public class ResultArchiveStorePath implements Path {
         while (path.contains("\\")) {
             path = path.replaceAll("\\Q\\\\E", "/"); // NOSONAR
         }
-        
+
         this.absolute = path.startsWith("/");
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
@@ -573,18 +573,18 @@ public class ResultArchiveStorePath implements Path {
         }
         return new ResultArchiveStorePath(this.fileSystem, false, this.nameElements, 0, this.nameElements.size());
     }
-    
+
     @Override
     public int hashCode() {
-    	return toString().hashCode();
+        return toString().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
-    	if (o == null) {
-    		return false;
-    	}
-    	return toString().equals(o.toString());
+        if (o == null) {
+            return false;
+        }
+        return toString().equals(o.toString());
     }
 
 }

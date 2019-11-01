@@ -20,6 +20,6 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Summary {
-	
-	String value();
+
+    String value();
 }

@@ -33,10 +33,10 @@ import java.util.Set;
  */
 public class ResultArchiveStoreFileSystemProvider extends FileSystemProvider {
 
-    public static final String                   NOT_AVAILABLE_MESSAGE = "Not available in a Dummy Result Archive Store";
+    public static final String NOT_AVAILABLE_MESSAGE = "Not available in a Dummy Result Archive Store";
 
-    private final FileStore                      fileStore;
-    protected FileSystem fileSystem;
+    private final FileStore    fileStore;
+    protected FileSystem       fileSystem;
 
     protected ResultArchiveStoreFileSystemProvider(FileStore fileSystemStore) {
         this.fileStore = fileSystemStore;

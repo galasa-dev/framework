@@ -5,7 +5,6 @@
  */
 package dev.galasa.framework.internal.cts;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,22 +14,24 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.framework.spi.IConfidentialTextService;
 
 /**
- * This class is to provide the framework with a confidential text service that can remove usernames, passwords, 
- * keys,etc, from logs and console outputs if the work is registered.
+ * This class is to provide the framework with a confidential text service that
+ * can remove usernames, passwords, keys,etc, from logs and console outputs if
+ * the work is registered.
  * 
  * @author James Davies
  */
-public class FrameworkConfidentialTextService implements IConfidentialTextService{
+public class FrameworkConfidentialTextService implements IConfidentialTextService {
     private List<ConfidentialText> confidentialTexts = new ArrayList<>();
-    private Log logger = LogFactory.getLog(FrameworkConfidentialTextService.class);
+    private Log                    logger            = LogFactory.getLog(FrameworkConfidentialTextService.class);
 
     /**
-     * This method is for registering a text with the service. It creates the replacement tag (******1******) 
-     * which represents any registered password, etc, in a log or output. A comment can also be given explaining 
-     * what the credential is for.
+     * This method is for registering a text with the service. It creates the
+     * replacement tag (******1******) which represents any registered password,
+     * etc, in a log or output. A comment can also be given explaining what the
+     * credential is for.
      * 
-     * @param text - the word or phrase the manager wants obscuring.
-     * @param comment - a comment explaining the conidential text. 
+     * @param text    - the word or phrase the manager wants obscuring.
+     * @param comment - a comment explaining the conidential text.
      */
     public void registerText(String text, String comment) {
         String number = Integer.toString(confidentialTexts.size() + 1);
@@ -49,12 +50,13 @@ public class FrameworkConfidentialTextService implements IConfidentialTextServic
 
         ConfidentialText ct = new ConfidentialText(text, builder.toString(), comment);
         confidentialTexts.add(ct);
-        
+
         logger.info("Confidential text registered as '" + ct.replacementTag + "', with comment " + ct.getComment());
     }
 
     /**
-     * This method removes any registered strings with the service from any passed text.
+     * This method removes any registered strings with the service from any passed
+     * text.
      * 
      * @param text - the log or text that needs checking for confidential text.
      */
@@ -69,10 +71,10 @@ public class FrameworkConfidentialTextService implements IConfidentialTextServic
     }
 
     /**
-     * This class houses all the confidential texts and related infomation, including the replacement tag and the 
-     * comment.
+     * This class houses all the confidential texts and related infomation,
+     * including the replacement tag and the comment.
      */
-    private class ConfidentialText{
+    private class ConfidentialText {
         private String text;
         private String replacementTag;
         private String comment;
@@ -80,9 +82,10 @@ public class FrameworkConfidentialTextService implements IConfidentialTextServic
         /**
          * Registering a new confidential text
          * 
-         * @param text - the confidential text to hide
-         * @param replacementTag - what will replace the confidential text in the log or output
-         * @param comment - a quick comment explaining the text 
+         * @param text           - the confidential text to hide
+         * @param replacementTag - what will replace the confidential text in the log or
+         *                       output
+         * @param comment        - a quick comment explaining the text
          */
         public ConfidentialText(String text, String replacementTag, String comment) {
             this.text = text;
@@ -102,7 +105,7 @@ public class FrameworkConfidentialTextService implements IConfidentialTextServic
         /**
          * Retieves the replacement string for a particular registered text.
          * 
-         * @return replacementTag - string replacement. 
+         * @return replacementTag - string replacement.
          */
         public String getTag() {
             return replacementTag;
@@ -118,8 +121,8 @@ public class FrameworkConfidentialTextService implements IConfidentialTextServic
         }
     }
 
-	@Override
-	public void shutdown() {
-		//*** Nothing to shutdown
-	}
+    @Override
+    public void shutdown() {
+        // *** Nothing to shutdown
+    }
 }

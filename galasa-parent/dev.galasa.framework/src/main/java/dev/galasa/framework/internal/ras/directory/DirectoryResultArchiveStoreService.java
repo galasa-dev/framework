@@ -38,26 +38,26 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 @Component(service = { IResultArchiveStoreService.class })
 public class DirectoryResultArchiveStoreService implements IResultArchiveStoreService {
 
-    private static final Charset           UTF8 = Charset.forName("utf-8");
+    private static final Charset           UTF8     = Charset.forName("utf-8");
 
-    private final IFramework               framework;                      // NOSONAR
+    private final IFramework               framework;                           // NOSONAR
     private final URI                      rasUri;
     private final Path                     baseDirectory;
-    
+
     private boolean                        shutdown = false;
 
     private Path                           runDirectory;
     private Path                           testStructureFile;
     private Path                           runLog;
 
-    private final Gson                     gson = GalasaGsonBuilder.build();
+    private final Gson                     gson     = GalasaGsonBuilder.build();
 
     private DirectoryRASFileSystemProvider provider;
 
     public DirectoryResultArchiveStoreService(IFramework framework, URI rasUri) throws ResultArchiveStoreException {
-    	this.framework = framework;
-    	this.rasUri    = rasUri;
-    	
+        this.framework = framework;
+        this.rasUri = rasUri;
+
         // *** Create the base RAS directory
         this.baseDirectory = Paths.get(this.rasUri);
         try {
@@ -69,7 +69,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 
         // *** Get the runname to create the directory
         final String runName = this.framework.getTestRunName();
-        if (runName == null) { //*** Dont need to do anything more for non runs
+        if (runName == null) { // *** Dont need to do anything more for non runs
             return;
         }
         setRasRun(runName);
@@ -91,7 +91,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         } catch (final IOException e) {
             throw new ResultArchiveStoreException("Unable to create the RAS Provider", e);
         }
-	}
+    }
 
     /**
      * Setup the run directory
@@ -103,11 +103,13 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     private void setRasRun(String runname) throws ResultArchiveStoreException {
         this.runDirectory = this.baseDirectory.resolve(runname);
         try {
-            //*** If this run name directory exists move it to a similar named one.  This maybe 
-            //*** possible for framework and manager development where the runname maybe reused often
-            if (Files.exists(runDirectory)) {                
+            // *** If this run name directory exists move it to a similar named one. This
+            // maybe
+            // *** possible for framework and manager development where the runname maybe
+            // reused often
+            if (Files.exists(runDirectory)) {
                 Path movePath = null;
-                for (int i = 2;;i++) {
+                for (int i = 2;; i++) {
                     movePath = this.runDirectory.resolveSibling(runname + "-" + Integer.toString(i));
                     if (!Files.exists(movePath)) {
                         Files.move(runDirectory, movePath);
@@ -115,11 +117,11 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
                     }
                 }
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new ResultArchiveStoreException("Unable to create the RAS run directory '" + this.runDirectory + "'",
                     e);
         }
-        
+
         try {
             Files.createDirectories(this.runDirectory);
             Files.createDirectories(this.runDirectory.resolve("artifacts"));
@@ -174,13 +176,14 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     /*
      * (non-Javadoc)
      *
-     * @see dev.galasa.framework.spi.IResultArchiveStore#updateTestStructure(dev.galasa.
+     * @see
+     * dev.galasa.framework.spi.IResultArchiveStore#updateTestStructure(dev.galasa.
      * framework.spi.teststructure.ITestStructure)
      */
     @Override
     public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
         try {
-        	testStructure.normalise();
+            testStructure.normalise();
             final String json = this.gson.toJson(testStructure);
             Files.write(this.testStructureFile, json.getBytes(UTF8));
         } catch (final Exception e) {
@@ -198,26 +201,24 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         return this.provider.getActualFileSystem().getPath("/");
     }
 
-	@Override
-	public void flush() {
-	}
+    @Override
+    public void flush() {
+    }
 
-	@Override
-	public void shutdown() {
-		this.shutdown = true;
-	}
-	
-	public boolean isShutdown() {
-		return this.shutdown;
-	}
+    @Override
+    public void shutdown() {
+        this.shutdown = true;
+    }
 
-	@Override
-	public @NotNull List<IResultArchiveStoreDirectoryService> getDirectoryServices() {
-		ArrayList<IResultArchiveStoreDirectoryService> dirs = new ArrayList<>(1);
-		dirs.add(new DirectoryRASDirectoryService(this.baseDirectory, gson));
-		return dirs;
-	}
+    public boolean isShutdown() {
+        return this.shutdown;
+    }
 
-
+    @Override
+    public @NotNull List<IResultArchiveStoreDirectoryService> getDirectoryServices() {
+        ArrayList<IResultArchiveStoreDirectoryService> dirs = new ArrayList<>(1);
+        dirs.add(new DirectoryRASDirectoryService(this.baseDirectory, gson));
+        return dirs;
+    }
 
 }

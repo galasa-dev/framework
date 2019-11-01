@@ -27,19 +27,20 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 public class DirectoryResultArchiveStoreRegistration implements IResultArchiveStoreRegistration {
 
     private DirectoryResultArchiveStoreService service;
-    
-    private URI                            rasUri;
+
+    private URI                                rasUri;
+
     /*
      * (non-Javadoc)
      *
      * @see
-     * dev.galasa.framework.spi.IResultArchiveStoreService#initialise(dev.galasa.framework
-     * .spi.IFrameworkInitialisation)
+     * dev.galasa.framework.spi.IResultArchiveStoreService#initialise(dev.galasa.
+     * framework .spi.IFrameworkInitialisation)
      */
     @Override
     public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
             throws ResultArchiveStoreException {
-    	IFramework framework = frameworkInitialisation.getFramework();
+        IFramework framework = frameworkInitialisation.getFramework();
 
         // *** See if this RAS is to be activated, will eventually allow multiples of
         // itself
@@ -53,14 +54,14 @@ public class DirectoryResultArchiveStoreRegistration implements IResultArchiveSt
                 this.rasUri = uri;
             }
         }
-        
+
         if (this.rasUri == null) {
-        	return;
+            return;
         }
-        
+
         service = new DirectoryResultArchiveStoreService(framework, this.rasUri);
         frameworkInitialisation.registerResultArchiveStoreService(service);
-        
+
         return;
     }
 

@@ -21,5 +21,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface TestVariations {
 
-	TestVariation[] value();
+    TestVariation[] value();
 }

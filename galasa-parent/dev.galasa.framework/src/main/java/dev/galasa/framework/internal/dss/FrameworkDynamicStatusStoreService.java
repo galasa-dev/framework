@@ -14,19 +14,22 @@ import dev.galasa.framework.spi.IDynamicStatusStore;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 
-
 /**
- *  <p>This class is used when the FPF class is being operated as the Key-Value store for the Dynamic Status Store. 
- *  This class registers the Dynamic Status Store as the only DSS.</p>
+ * <p>
+ * This class is used when the FPF class is being operated as the Key-Value
+ * store for the Dynamic Status Store. This class registers the Dynamic Status
+ * Store as the only DSS.
+ * </p>
  * 
  * @author Bruce Abbott
  */
 
-public class FrameworkDynamicStatusStoreService extends FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreService {
-    private final String                     namespace;
-	
-	public FrameworkDynamicStatusStoreService(IFramework framework, IDynamicStatusStore dssStore, String namespace) {
-		super(dssStore, "dss." + namespace + ".");
+public class FrameworkDynamicStatusStoreService extends FrameworkDynamicStoreKeyAccess
+        implements IDynamicStatusStoreService {
+    private final String namespace;
+
+    public FrameworkDynamicStatusStoreService(IFramework framework, IDynamicStatusStore dssStore, String namespace) {
+        super(dssStore, "dss." + namespace + ".");
         Objects.requireNonNull(namespace);
 
         this.namespace = namespace;
@@ -60,11 +63,11 @@ public class FrameworkDynamicStatusStoreService extends FrameworkDynamicStoreKey
      */
     @Override
     public IDynamicResource getDynamicResource(String resourceKey) {
-    	String newPrefix = "dss.framework.resource." + this.namespace + "." + resourceKey + ".";
+        String newPrefix = "dss.framework.resource." + this.namespace + "." + resourceKey + ".";
         return new FrameworkDynamicResource(getDssStore(), newPrefix);
     }
 
-	/**
+    /**
      * <p>
      * Retrieve an interface to update the Run status with manager related
      * information. This is information above what the framework would display, like

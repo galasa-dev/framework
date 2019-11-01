@@ -30,67 +30,86 @@ import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
 /**
- * This test class ensures that confidential texts that have been registered are reomved from text.
+ * This test class ensures that confidential texts that have been registered are
+ * reomved from text.
  * 
  * @author James Davies
  */
 public class ConfidentialTextServiceRegistrationTest {
 
     /**
-     * This method intialises the confidentialTextService and checks no exceptions are thrown.
+     * This method intialises the confidentialTextService and checks no exceptions
+     * are thrown.
      * 
-     * @throws ConfidentialTextException - if the service cannot be registered (i.e more than 1 service).
+     * @throws ConfidentialTextException - if the service cannot be registered (i.e
+     *                                   more than 1 service).
      * @throws IOException
      */
     @Test
-    public void testInitialise() throws ConfidentialTextException, IOException{
+    public void testInitialise() throws ConfidentialTextException, IOException {
         FrameworkConfidentialTextServiceRegistration ctsService = new FrameworkConfidentialTextServiceRegistration();
         File testProp = File.createTempFile("galasa_", ".properties");
         ctsService.initialise(new FrameworkInitialisation(testProp.toURI()));
         assertTrue("dummy", true);
     }
 
-        /**
-     * This is a stubbed framework intialisation class to test the registering of the service.
+    /**
+     * This is a stubbed framework intialisation class to test the registering of
+     * the service.
      */
     private class FrameworkInitialisation implements IFrameworkInitialisation {
         private URI uri;
 
         public FrameworkInitialisation(URI uri) {
-            this.uri=uri;
+            this.uri = uri;
         }
 
         @Override
-        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
+        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts)
+                throws ConfidentialTextException {
         }
+
         @Override
-        public URI getBootstrapConfigurationPropertyStore() {return uri;}
+        public URI getBootstrapConfigurationPropertyStore() {
+            return uri;
+        }
+
         @Override
         public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
-                throws DynamicStatusStoreException{}
+                throws DynamicStatusStoreException {
+        }
+
         @Override
-        public IFramework getFramework(){return null;}
-        
+        public IFramework getFramework() {
+            return null;
+        }
+
         @Override
         public void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore)
                 throws ConfigurationPropertyStoreException {
         }
 
-		@Override
-        public URI getDynamicStatusStoreUri() {return null;}
-        
         @Override
-		public URI getCredentialsStoreUri() {return null;}
-
-		@Override
-		public List<URI> getResultArchiveStoreUris() {return null;}
-
-		@Override
-		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        public URI getDynamicStatusStoreUri() {
+            return null;
         }
-        
+
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
+        public URI getCredentialsStoreUri() {
+            return null;
+        }
+
+        @Override
+        public List<URI> getResultArchiveStoreUris() {
+            return null;
+        }
+
+        @Override
+        public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        }
+
+        @Override
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         }
     }
 }

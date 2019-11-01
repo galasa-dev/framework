@@ -22,11 +22,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Repeatable(TestVariations.class)
 public @interface TestVariation {
-	
-	String name();
-	
-	boolean defaultVariation() default false;
-	
-	TestVariationProperty[] properties() default {};
+
+    String name();
+
+    boolean defaultVariation() default false;
+
+    TestVariationProperty[] properties() default {};
 
 }

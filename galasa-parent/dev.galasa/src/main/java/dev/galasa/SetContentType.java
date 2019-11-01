@@ -8,15 +8,15 @@ package dev.galasa;
 import java.nio.file.OpenOption;
 
 public class SetContentType implements OpenOption {
-	
-	private final ResultArchiveStoreContentType contentType;
-	
-	public SetContentType(ResultArchiveStoreContentType contentType) {
-		this.contentType = contentType;
-	}
-	
-	public ResultArchiveStoreContentType getContentType() {
-		return contentType;
-	}
-	
+
+    private final ResultArchiveStoreContentType contentType;
+
+    public SetContentType(ResultArchiveStoreContentType contentType) {
+        this.contentType = contentType;
+    }
+
+    public ResultArchiveStoreContentType getContentType() {
+        return contentType;
+    }
+
 }

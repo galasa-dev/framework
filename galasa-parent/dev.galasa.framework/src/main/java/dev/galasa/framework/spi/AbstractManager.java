@@ -46,9 +46,7 @@ public abstract class AbstractManager implements IManager {
     protected void registerAnnotatedField(Field field, Object value) {
         this.annotatedFields.put(field, value);
     }
-    
-    
-    
+
     /**
      * Retrieve the generated object for an annotated field
      * 
@@ -56,7 +54,7 @@ public abstract class AbstractManager implements IManager {
      * @return the generated object or null if it has not been generated yet
      */
     protected Object getAnnotatedField(Field field) {
-    	return this.annotatedFields.get(field);
+        return this.annotatedFields.get(field);
     }
 
     /**
@@ -119,16 +117,20 @@ public abstract class AbstractManager implements IManager {
 
     /**
      * Will call {@link GenerateAnnotatedField} methods in the parent class to
-     * generate instances for each of the Test Class fields<p>
+     * generate instances for each of the Test Class fields
+     * <p>
      * 
-     * The annotated methods in the parent class must:<p><ul>
+     * The annotated methods in the parent class must:
+     * <p>
+     * <ul>
      * <li>be public
      * <li>return the interface of the field annotation
-     * <li>have 2 parameters of {@link java.lang.reflect.Field} and {@link java.util.List}
+     * <li>have 2 parameters of {@link java.lang.reflect.Field} and
+     * {@link java.util.List}
      *
      * @param managerAnnotation The Annotation for those annotated fields we are
      *                          interested in
-     * @throws ManagerException 
+     * @throws ManagerException
      */
     protected void generateAnnotatedFields(Class<? extends Annotation> managerAnnotation) throws ManagerException {
         final List<AnnotatedField> foundAnnotatedFields = findAnnotatedFields(managerAnnotation);
@@ -139,10 +141,10 @@ public abstract class AbstractManager implements IManager {
         for (final AnnotatedField entry : foundAnnotatedFields) {
             final Field field = entry.getField();
             final List<Annotation> annotations = entry.getAnnotations();
-            
-            //*** Check to see if it is already generated
+
+            // *** Check to see if it is already generated
             if (this.annotatedFields.containsKey(field)) {
-            	continue;
+                continue;
             }
 
             try {
@@ -184,20 +186,19 @@ public abstract class AbstractManager implements IManager {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * dev.galasa.framework.spi.IManager#extraBundles(dev.galasa.framework.spi.IFramework)
+     * @see dev.galasa.framework.spi.IManager#extraBundles(dev.galasa.framework.spi.
+     * IFramework)
      */
     @Override
     public List<String> extraBundles(@NotNull IFramework framework) throws ManagerException {
-        return null; //NOSONAR
+        return null; // NOSONAR
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * dev.galasa.framework.spi.IManager#initialise(dev.galasa.framework.spi.IFramework,
-     * java.util.List, java.util.List, java.lang.Class)
+     * @see dev.galasa.framework.spi.IManager#initialise(dev.galasa.framework.spi.
+     * IFramework, java.util.List, java.util.List, java.lang.Class)
      */
     @Override
     public void initialise(@NotNull IFramework framework, @NotNull List<IManager> allManagers,
@@ -235,8 +236,8 @@ public abstract class AbstractManager implements IManager {
      * (non-Javadoc)
      * 
      * @see
-     * dev.galasa.framework.spi.IManager#areYouProvisionalDependentOn(dev.galasa.framework
-     * .spi.IManager)
+     * dev.galasa.framework.spi.IManager#areYouProvisionalDependentOn(dev.galasa.
+     * framework .spi.IManager)
      */
     @Override
     public boolean areYouProvisionalDependentOn(@NotNull IManager otherManager) {
@@ -312,8 +313,8 @@ public abstract class AbstractManager implements IManager {
      * (non-Javadoc)
      * 
      * @see
-     * dev.galasa.framework.spi.IManager#anyReasonTestMethodShouldBeIgnored(java.lang.
-     * reflect.Method)
+     * dev.galasa.framework.spi.IManager#anyReasonTestMethodShouldBeIgnored(java.
+     * lang. reflect.Method)
      */
     @Override
     public String anyReasonTestMethodShouldBeIgnored(@NotNull Method method) throws ManagerException {
@@ -336,7 +337,8 @@ public abstract class AbstractManager implements IManager {
      * java.lang.Throwable)
      */
     @Override
-    public String endOfTestMethod(@NotNull Method testMethod, @NotNull String currentResult, Throwable currentException) throws ManagerException {
+    public String endOfTestMethod(@NotNull Method testMethod, @NotNull String currentResult, Throwable currentException)
+            throws ManagerException {
         return null;
     }
 
@@ -406,94 +408,93 @@ public abstract class AbstractManager implements IManager {
     @Override
     public void endOfTestRun() {
     }
-    
-    
-	/**
-	 * Helper method to find managers that implement an interface and tell them they are required
-	 * 
-	 * @param allManagers All available managers
-	 * @param activeManagers The currently active managers
-	 * @param dependentInterface The interface the manager needs to implement
-	 * @return 
-	 * @throws ManagerException If the required manager can't be added to the active list
-	 */
-	protected <T extends Object> T addDependentManager(@NotNull List<IManager> allManagers, @NotNull List<IManager> activeManagers, @NotNull Class<T> dependentInterface) throws ManagerException {
-		for(IManager manager : allManagers) {
-			if (dependentInterface.isAssignableFrom(manager.getClass())) {
-				manager.youAreRequired(allManagers, activeManagers);
-				return dependentInterface.cast(manager);
-			}
-		}
-		return null;
-	}
 
-	/**
-	 * null a String is if it is empty
-	 * 
-	 * TODO Needs to be moved to a more appropriate place as non managers use this,  a stringutils maybe
-	 * 
-	 * @param value 
-	 * @return a trimmed String or a null if emtpy or null
-	 */
-	public static String nulled(String value) {
-		if (value == null) { 
-			return null;
-		}
+    /**
+     * Helper method to find managers that implement an interface and tell them they
+     * are required
+     * 
+     * @param allManagers        All available managers
+     * @param activeManagers     The currently active managers
+     * @param dependentInterface The interface the manager needs to implement
+     * @return
+     * @throws ManagerException If the required manager can't be added to the active
+     *                          list
+     */
+    protected <T extends Object> T addDependentManager(@NotNull List<IManager> allManagers,
+            @NotNull List<IManager> activeManagers, @NotNull Class<T> dependentInterface) throws ManagerException {
+        for (IManager manager : allManagers) {
+            if (dependentInterface.isAssignableFrom(manager.getClass())) {
+                manager.youAreRequired(allManagers, activeManagers);
+                return dependentInterface.cast(manager);
+            }
+        }
+        return null;
+    }
 
-		value = value.trim();
-		if (value.isEmpty()) {
-			return value;
-		}
-		return value;
-	}
+    /**
+     * null a String is if it is empty
+     * 
+     * TODO Needs to be moved to a more appropriate place as non managers use this,
+     * a stringutils maybe
+     * 
+     * @param value
+     * @return a trimmed String or a null if emtpy or null
+     */
+    public static String nulled(String value) {
+        if (value == null) {
+            return null;
+        }
 
+        value = value.trim();
+        if (value.isEmpty()) {
+            return value;
+        }
+        return value;
+    }
 
-	public static List<String> split(String value) {
-		ArrayList<String> values = new ArrayList<>();
+    public static List<String> split(String value) {
+        ArrayList<String> values = new ArrayList<>();
 
-		if (value == null) { 
-			return values;
-		}
+        if (value == null) {
+            return values;
+        }
 
-		String[] parts = value.split(",");
+        String[] parts = value.split(",");
 
-		for(String part : parts) {
-			part = part.trim();
-			if (!part.isEmpty()) {
-				values.add(part);
-			}
-		}
+        for (String part : parts) {
+            part = part.trim();
+            if (!part.isEmpty()) {
+                values.add(part);
+            }
+        }
 
-		return values;
-	}
+        return values;
+    }
 
-	public static String defaultString(String value, String defaultValue) {
-		if (value == null) {
-			return defaultValue;
-		}
-		value = value.trim().toLowerCase();
-		if (value.isEmpty()) {
-			return defaultValue;
-		}
+    public static String defaultString(String value, String defaultValue) {
+        if (value == null) {
+            return defaultValue;
+        }
+        value = value.trim().toLowerCase();
+        if (value.isEmpty()) {
+            return defaultValue;
+        }
 
-		return value;
-	}
+        return value;
+    }
 
+    public static List<String> trim(String[] array) {
+        ArrayList<String> trimmed = new ArrayList<>();
+        for (String s : array) {
+            if (s != null) {
+                s = s.trim();
+                if (!s.isEmpty()) {
+                    trimmed.add(s);
+                }
+            }
+        }
 
-
-	public static List<String> trim(String[] array) {
-		ArrayList<String> trimmed = new ArrayList<>();
-		for(String s : array) {
-			if (s != null) {
-				s = s.trim();
-				if (!s.isEmpty()) {
-					trimmed.add(s);
-				}
-			}
-		}
-		
-		return trimmed;
-	}
-
+        return trimmed;
+    }
 
 }

@@ -46,20 +46,22 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
  */
 public class FpfDynamicStatusStoreTest {
 
-    // private static final String         NAMESPACE = "testy";
-    // private static final String         PREFIX    = "dss." + NAMESPACE + ".";
+    // private static final String NAMESPACE = "testy";
+    // private static final String PREFIX = "dss." + NAMESPACE + ".";
 
-    private Path                        tempProperties;
+    private Path                  tempProperties;
     private FpfDynamicStatusStore dss;
 
     @Before
     public void setup() throws IOException, FrameworkPropertyFileException, DynamicStatusStoreException {
         this.tempProperties = Files.createTempFile("galasa_dss_junit", ".propertes");
-        // final FrameworkInitialisation frameworkInitialisation = new FrameworkInitialisation(
-        //         this.tempProperties.toUri());
+        // final FrameworkInitialisation frameworkInitialisation = new
+        // FrameworkInitialisation(
+        // this.tempProperties.toUri());
 
-        //final FpfDynamicStatusStore dsss = new FpfDynamicStatusStore(tempProperties.toUri());
-        //dsss.initialise(frameworkInitialisation);
+        // final FpfDynamicStatusStore dsss = new
+        // FpfDynamicStatusStore(tempProperties.toUri());
+        // dsss.initialise(frameworkInitialisation);
         this.dss = new FpfDynamicStatusStore(tempProperties.toUri());
     }
 
@@ -142,11 +144,9 @@ public class FpfDynamicStatusStoreTest {
         final HashMap<String, String> map = new HashMap<>();
         map.put(key2, value2a);
 
-        Assert.assertTrue("Initial swap should work", dss.putSwap(key1, null,
-        value1a));
+        Assert.assertTrue("Initial swap should work", dss.putSwap(key1, null, value1a));
         Assert.assertEquals("Key values differ", value1a, getKey(key1));
-        Assert.assertFalse("2nd swap should false", dss.putSwap(key1, null,
-        value1a));
+        Assert.assertFalse("2nd swap should false", dss.putSwap(key1, null, value1a));
 
         {
             this.dss.put(key1, value1b);
@@ -179,16 +179,13 @@ public class FpfDynamicStatusStoreTest {
 //    public void testFutureDynamicRun() throws DynamicStatusStoreException {
 //        Assert.assertNotNull("Should get a dynamic run", this.dss.getDynamicRun());
 //    }
-    
-    
+
     private String getKey(String key) throws IOException {
         Properties properties = new Properties();
         properties.load(Files.newInputStream(tempProperties));
-        
+
         return properties.getProperty(key);
     }
-    
-
 
     /**
      * <p>
@@ -209,11 +206,14 @@ public class FpfDynamicStatusStoreTest {
         }
 
         @Override
-        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
+        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts)
+                throws ConfidentialTextException {
         }
 
         @Override
-        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
+        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
+                throws DynamicStatusStoreException {
+        }
 
         @Override
         public IFramework getFramework() {
@@ -221,9 +221,8 @@ public class FpfDynamicStatusStoreTest {
         }
 
         @Override
-        public void registerConfigurationPropertyStore(
-                @NotNull IConfigurationPropertyStore configurationPropertyStore)
-                        throws ConfigurationPropertyStoreException {
+        public void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore)
+                throws ConfigurationPropertyStoreException {
         }
 
         @Override
@@ -237,7 +236,9 @@ public class FpfDynamicStatusStoreTest {
         }
 
         @Override
-		public URI getCredentialsStoreUri() {return null;}
+        public URI getCredentialsStoreUri() {
+            return null;
+        }
 
         @Override
         public List<URI> getResultArchiveStoreUris() {
@@ -245,7 +246,7 @@ public class FpfDynamicStatusStoreTest {
         }
 
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         }
 
     }
