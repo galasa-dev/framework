@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package test.rps;
 
 import static org.junit.Assert.assertEquals;
@@ -15,40 +20,46 @@ import dev.galasa.framework.spi.InsufficientResourcesAvailableException;
 import dev.galasa.framework.spi.ResourcePoolingServiceException;
 
 /**
- * This test method creates resource tests strings and checks the behaviour of generating resources.
+ * This test method creates resource tests strings and checks the behaviour of
+ * generating resources.
  * 
  * @author James Davies
  */
 public class ResourcesPoolingServiceTest {
 
     /**
-     * This test metho ensures that a resource string can hold and maintain constant characters.
+     * This test metho ensures that a resource string can hold and maintain constant
+     * characters.
+     * 
      * @throws ResourcePoolingServiceException
      */
     @Test
-    public void testResourceString() throws ResourcePoolingServiceException{
-        
+    public void testResourceString() throws ResourcePoolingServiceException {
+
         ResourceString rs = new ResourceString("Hello");
-        assertEquals("Unexpected resource. ","Hello", rs.getRandomResource());
+        assertEquals("Unexpected resource. ", "Hello", rs.getRandomResource());
     }
 
     /**
      * This test method ensures that variable characters can be parsed.
+     * 
      * @throws ResourcePoolingServiceException
      */
     @Test
-    public void testComplexConstantString()throws ResourcePoolingServiceException{
-        
+    public void testComplexConstantString() throws ResourcePoolingServiceException {
+
         ResourceString rs = new ResourceString("Hello{0}{0}{0}{0}Test");
-        assertEquals("Unexpected resource","Hello0000Test",rs.getRandomResource());
+        assertEquals("Unexpected resource", "Hello0000Test", rs.getRandomResource());
     }
 
     /**
-     * This test method makes sure the getNextResource provides resources in the correct order.
+     * This test method makes sure the getNextResource provides resources in the
+     * correct order.
+     * 
      * @throws ResourcePoolingServiceException
      */
     @Test
-    public void testGetNextResource()throws ResourcePoolingServiceException{
+    public void testGetNextResource() throws ResourcePoolingServiceException {
         List<String> results = new ArrayList<>();
         List<String> expected = new ArrayList<>();
 
@@ -66,50 +77,54 @@ public class ResourcesPoolingServiceTest {
 
         ResourceString rs = new ResourceString("Hello{z}{9}Test");
         results.add(rs.getFirstResource());
-        for (int i=0; i<11; i++) {
+        for (int i = 0; i < 11; i++) {
             results.add(rs.getNextResource());
         }
 
-        for (int i=0; i<10; i++) {
-            assertEquals(" Unexpected resource.",expected.get(i), results.get(i));
+        for (int i = 0; i < 10; i++) {
+            assertEquals(" Unexpected resource.", expected.get(i), results.get(i));
         }
     }
 
     /**
      * This test method checks the most simple obtain resources method.
+     * 
      * @throws InsufficientResourcesAvailableException
      */
     @Test
-    public void testResourcePoolingObtainSimple() throws InsufficientResourcesAvailableException, ResourcePoolingServiceException{
+    public void testResourcePoolingObtainSimple()
+            throws InsufficientResourcesAvailableException, ResourcePoolingServiceException {
         FrameworkResourcePoolingService frps = new FrameworkResourcePoolingService();
         List<String> resourceStrings = new ArrayList<>();
 
         resourceStrings.add("GAL{9}{9}{9}{z}");
 
         List<String> resources = frps.obtainResources(resourceStrings, null);
-        assertEquals("Unexpected number of resources retrieved",10, resources.size());
+        assertEquals("Unexpected number of resources retrieved", 10, resources.size());
     }
 
     /**
      * This test method checks the most simple obtain resources method.
+     * 
      * @throws InsufficientResourcesAvailableException
      */
     @Test
-    public void testResourcePoolingObtainWithReturnNumber() throws InsufficientResourcesAvailableException, ResourcePoolingServiceException{
+    public void testResourcePoolingObtainWithReturnNumber()
+            throws InsufficientResourcesAvailableException, ResourcePoolingServiceException {
         FrameworkResourcePoolingService frps = new FrameworkResourcePoolingService();
         List<String> resourceStrings = new ArrayList<>();
 
         resourceStrings.add("GAL{9}{9}{9}{z}");
 
         List<String> resources = frps.obtainResources(resourceStrings, null, 30);
-        assertEquals("Unexpected number of resources retrieved",30, resources.size());
+        assertEquals("Unexpected number of resources retrieved", 30, resources.size());
     }
 
     /**
      * This test method checks the consecutive resources are created correctly.
      */
     @Test
-    public void testResourcePoolingObtainConsecutive() throws InsufficientResourcesAvailableException{
+    public void testResourcePoolingObtainConsecutive() throws InsufficientResourcesAvailableException {
         FrameworkResourcePoolingService frps = new FrameworkResourcePoolingService();
         List<String> resourceStrings = new ArrayList<>();
         List<String> bannedStrings = new ArrayList<>();
@@ -140,22 +155,24 @@ public class ResourcesPoolingServiceTest {
         bannedStrings.add("APPLID13");
         bannedStrings.add("APPLID14");
 
-
         List<String> resources = frps.obtainResources(resourceStrings, bannedStrings, 10, 5);
         Collections.sort(resources);
 
-        assertEquals("Unexpected resources retrieved",expected, resources);
+        assertEquals("Unexpected resources retrieved", expected, resources);
     }
 
     /**
-     * This test method checks a unlikely but complicated case pulling from multiple resource string definitions, where 
-     * there is only one possible way to pick the reousrces.
+     * This test method checks a unlikely but complicated case pulling from multiple
+     * resource string definitions, where there is only one possible way to pick the
+     * reousrces.
      * 
-     * It has the possibility to randomly generate the resources (but unlikely) but them generates sequentially if failed.
+     * It has the possibility to randomly generate the resources (but unlikely) but
+     * them generates sequentially if failed.
+     * 
      * @throws InsufficientResourcesAvailableException
      */
     @Test
-    public void testResourcePoolingObtainFromMultipleResourceStrings() throws InsufficientResourcesAvailableException{
+    public void testResourcePoolingObtainFromMultipleResourceStrings() throws InsufficientResourcesAvailableException {
         FrameworkResourcePoolingService frps = new FrameworkResourcePoolingService();
         List<String> resourceStrings = new ArrayList<>();
         List<String> bannedStrings = new ArrayList<>();
@@ -194,16 +211,17 @@ public class ResourcesPoolingServiceTest {
         bannedStrings.add("APPLID8");
         bannedStrings.add("GALASA2");
         bannedStrings.add("GALASA9");
-        
-        for(int i=0; i<10;i++) {
+
+        for (int i = 0; i < 10; i++) {
             List<String> resources = frps.obtainResources(resourceStrings, bannedStrings, 21, 3);
             Collections.sort(resources);
-            assertEquals("Unexpected resources retrieved on run  " + i,answers, resources);
+            assertEquals("Unexpected resources retrieved on run  " + i, answers, resources);
         }
     }
 
     /**
-     * This tests to see if an exception is thrown if the returnConsecutive is not a mulitple of the return min.
+     * This tests to see if an exception is thrown if the returnConsecutive is not a
+     * mulitple of the return min.
      */
     @Test
     public void testNonMultipleConsecutiveResource() {
@@ -219,6 +237,6 @@ public class ResourcesPoolingServiceTest {
             caught = true;
         }
 
-        assertTrue("Exception not thrown",caught);
+        assertTrue("Exception not thrown", caught);
     }
 }

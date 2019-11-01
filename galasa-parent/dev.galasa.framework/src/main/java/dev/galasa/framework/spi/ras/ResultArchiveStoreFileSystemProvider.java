@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.spi.ras;
 
 import java.io.IOException;
@@ -28,10 +33,10 @@ import java.util.Set;
  */
 public class ResultArchiveStoreFileSystemProvider extends FileSystemProvider {
 
-    public static final String                   NOT_AVAILABLE_MESSAGE = "Not available in a Dummy Result Archive Store";
+    public static final String NOT_AVAILABLE_MESSAGE = "Not available in a Dummy Result Archive Store";
 
-    private final FileStore                      fileStore;
-    protected FileSystem fileSystem;
+    private final FileStore    fileStore;
+    protected FileSystem       fileSystem;
 
     protected ResultArchiveStoreFileSystemProvider(FileStore fileSystemStore) {
         this.fileStore = fileSystemStore;

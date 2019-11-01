@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.maven.repository.internal;
 
 import java.net.URL;
@@ -8,30 +13,30 @@ import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 
-@Component	
+@Component
 public class GalasaMavenRepository implements IMavenRepository {
-	
-	private URL localRepository;
-	private List<URL> remoteRepositories = new ArrayList<URL>();
-	
-	@Override
-	public URL getLocalRepository() {
-		return this.localRepository;
-	}
 
-	@Override
-	public List<URL> getRemoteRepositories() {
-		return this.remoteRepositories;
-	}
+    private URL       localRepository;
+    private List<URL> remoteRepositories = new ArrayList<URL>();
 
-	@Override
-	public void setRepositories(URL localRepository, List<URL> remoteRepositories) {
-		this.localRepository = localRepository;
-		this.remoteRepositories.addAll(remoteRepositories);
-	}
+    @Override
+    public URL getLocalRepository() {
+        return this.localRepository;
+    }
 
-	@Override
-	public void addRemoteRepository(URL remoteRepository) {
-		this.remoteRepositories.add(0,remoteRepository);
-	}	
+    @Override
+    public List<URL> getRemoteRepositories() {
+        return this.remoteRepositories;
+    }
+
+    @Override
+    public void setRepositories(URL localRepository, List<URL> remoteRepositories) {
+        this.localRepository = localRepository;
+        this.remoteRepositories.addAll(remoteRepositories);
+    }
+
+    @Override
+    public void addRemoteRepository(URL remoteRepository) {
+        this.remoteRepositories.add(0, remoteRepository);
+    }
 }

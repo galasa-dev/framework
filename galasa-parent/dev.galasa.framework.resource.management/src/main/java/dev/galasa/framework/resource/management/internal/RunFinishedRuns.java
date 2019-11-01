@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.resource.management.internal;
 
 import java.time.Instant;
@@ -20,59 +25,63 @@ import dev.galasa.framework.spi.IRun;
 
 public class RunFinishedRuns implements Runnable {
 
-	private final IResourceManagement        resourceManagement;
-	private final IConfigurationPropertyStoreService cps;
-	private final IFrameworkRuns             frameworkRuns;
-	private final Log                        logger = LogFactory.getLog(this.getClass());
+    private final IResourceManagement                resourceManagement;
+    private final IConfigurationPropertyStoreService cps;
+    private final IFrameworkRuns                     frameworkRuns;
+    private final Log                                logger = LogFactory.getLog(this.getClass());
 
-	private final DateTimeFormatter           dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").withZone(ZoneId.systemDefault());	
+    private final DateTimeFormatter                  dtf    = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")
+            .withZone(ZoneId.systemDefault());
 
-	protected RunFinishedRuns(IFramework framework, IResourceManagement resourceManagement, IDynamicStatusStoreService dss, RunResourceManagement runResourceManagement, IConfigurationPropertyStoreService cps) throws FrameworkException {
-		this.resourceManagement = resourceManagement;
-		this.frameworkRuns = framework.getFrameworkRuns();
-		this.cps = cps;
-		this.logger.info("Finished Runs Monitor initialised");
-	}
+    protected RunFinishedRuns(IFramework framework, IResourceManagement resourceManagement,
+            IDynamicStatusStoreService dss, RunResourceManagement runResourceManagement,
+            IConfigurationPropertyStoreService cps) throws FrameworkException {
+        this.resourceManagement = resourceManagement;
+        this.frameworkRuns = framework.getFrameworkRuns();
+        this.cps = cps;
+        this.logger.info("Finished Runs Monitor initialised");
+    }
 
-	@Override
-	public void run() {
-		int defaultFinishedDelete = 300;  //** 5 minutes 
-		try { // TODO do we need a different timeout for automation run reset?
-			String overrideTime = AbstractManager.nulled(cps.getProperty("resource.management", "finished.timeout"));
-			if (overrideTime != null) {
-				defaultFinishedDelete = Integer.parseInt(overrideTime);
-			}
-		} catch(Exception e) {
-			logger.error("Problem with resource.management.finished.timeout, using default " + defaultFinishedDelete,e);
-		}
+    @Override
+    public void run() {
+        int defaultFinishedDelete = 300; // ** 5 minutes
+        try { // TODO do we need a different timeout for automation run reset?
+            String overrideTime = AbstractManager.nulled(cps.getProperty("resource.management", "finished.timeout"));
+            if (overrideTime != null) {
+                defaultFinishedDelete = Integer.parseInt(overrideTime);
+            }
+        } catch (Exception e) {
+            logger.error("Problem with resource.management.finished.timeout, using default " + defaultFinishedDelete,
+                    e);
+        }
 
-		logger.info("Starting Finished Run search");
-		try {
-			List<IRun> runs = frameworkRuns.getAllRuns();
-			for(IRun run : runs) {
-				String runName = run.getName();
-				
-				String status = run.getStatus();
-				if (!"finished".equals(status)) {
-					continue;
-				}
+        logger.info("Starting Finished Run search");
+        try {
+            List<IRun> runs = frameworkRuns.getAllRuns();
+            for (IRun run : runs) {
+                String runName = run.getName();
 
-				Instant finished = run.getFinished();
-				Instant expires = finished.plusSeconds(defaultFinishedDelete);
-				Instant now = Instant.now();
-				if (expires.compareTo(now) <= 0) {
-					String sFinished = dtf.format(LocalDateTime.ofInstant(finished, ZoneId.systemDefault()));
-					///TODO put time management into the framework
-					logger.info("Deleting run " + runName + ", finsihed at " + sFinished);
-					this.frameworkRuns.delete(runName);
-				}
-			}
-		} catch (FrameworkException e) {
-			logger.error("Scan of runs failed", e);
-		}
+                String status = run.getStatus();
+                if (!"finished".equals(status)) {
+                    continue;
+                }
 
-		this.resourceManagement.resourceManagementRunSuccessful();
-		logger.info("Finished Finished search");
-	}
+                Instant finished = run.getFinished();
+                Instant expires = finished.plusSeconds(defaultFinishedDelete);
+                Instant now = Instant.now();
+                if (expires.compareTo(now) <= 0) {
+                    String sFinished = dtf.format(LocalDateTime.ofInstant(finished, ZoneId.systemDefault()));
+                    /// TODO put time management into the framework
+                    logger.info("Deleting run " + runName + ", finsihed at " + sFinished);
+                    this.frameworkRuns.delete(runName);
+                }
+            }
+        } catch (FrameworkException e) {
+            logger.error("Scan of runs failed", e);
+        }
+
+        this.resourceManagement.resourceManagementRunSuccessful();
+        logger.info("Finished Finished search");
+    }
 
 }

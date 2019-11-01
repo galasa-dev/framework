@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.spi;
 
 public class MetricsServerException extends Exception {
@@ -18,7 +23,8 @@ public class MetricsServerException extends Exception {
         super(message, cause);
     }
 
-    public MetricsServerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public MetricsServerException(String message, Throwable cause, boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

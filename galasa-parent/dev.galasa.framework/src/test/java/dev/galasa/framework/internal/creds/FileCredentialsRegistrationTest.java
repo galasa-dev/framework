@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.internal.creds;
 
 import static org.junit.Assert.assertTrue;
@@ -41,7 +46,10 @@ import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
 /**
- * <p>This test class checks the behaviour of registering a local Credentials Store.</p>
+ * <p>
+ * This test class checks the behaviour of registering a local Credentials
+ * Store.
+ * </p>
  * 
  * @author Bruce Abbott
  */
@@ -50,7 +58,11 @@ public class FileCredentialsRegistrationTest {
     private Properties bootstrap;
 
     /**
-     * <p>This test method checks that a local Credentials Store can be registered and initialised.</p>
+     * <p>
+     * This test method checks that a local Credentials Store can be registered and
+     * initialised.
+     * </p>
+     * 
      * @throws IOException
      * @throws CredentialsStoreException
      * @throws URISyntaxException
@@ -58,7 +70,8 @@ public class FileCredentialsRegistrationTest {
      * @throws FrameworkException
      */
     @Test
-    public void testInitialise() throws IOException, CredentialsException, URISyntaxException, InvalidSyntaxException, FrameworkException {
+    public void testInitialise()
+            throws IOException, CredentialsException, URISyntaxException, InvalidSyntaxException, FrameworkException {
         File testCreds = File.createTempFile("galasa", ".properties");
         FileCredentialsRegistration fileCredsReg = new FileCredentialsRegistration();
 
@@ -71,102 +84,127 @@ public class FileCredentialsRegistrationTest {
     }
 
     /**
-     * <p>This class is used to test the implemented methods in the tests above. They are all noddy methods.</p>
+     * <p>
+     * This class is used to test the implemented methods in the tests above. They
+     * are all noddy methods.
+     * </p>
      */
     private class FrameworkInitialisation implements IFrameworkInitialisation {
-        private URI uri;
+        private URI                           uri;
         private FpfConfigurationPropertyStore fpf;
-        private IFramework framework;
-        private Properties overrides;
-        private Properties records;
+        private IFramework                    framework;
+        private Properties                    overrides;
+        private Properties                    records;
 
         public FrameworkInitialisation(URI uri) {
             this.framework = new Framework();
-        	this.uri = uri;
+            this.uri = uri;
             try {
                 fpf = new FpfConfigurationPropertyStore(uri);
             } catch (ConfigurationPropertyStoreException e) {
-                
-            }    
+
+            }
         }
 
         @Override
         public void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
-                throws ConfidentialTextException {     
+                throws ConfidentialTextException {
         }
 
         @Override
-        public URI getBootstrapConfigurationPropertyStore() {return uri;}
+        public URI getBootstrapConfigurationPropertyStore() {
+            return uri;
+        }
 
         @Override
-        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
-        
+        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
+                throws DynamicStatusStoreException {
+        }
+
         @Override
-        public IFramework getFramework(){
+        public IFramework getFramework() {
             return this.framework;
         }
-        
+
         @Override
         public void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore)
                 throws ConfigurationPropertyStoreException {
         }
 
-		@Override
-        public URI getDynamicStatusStoreUri() {return null;}
-        
         @Override
-		public URI getCredentialsStoreUri() {
+        public URI getDynamicStatusStoreUri() {
+            return null;
+        }
+
+        @Override
+        public URI getCredentialsStoreUri() {
             System.out.println(uri);
             return uri;
         }
 
-		@Override
-		public List<URI> getResultArchiveStoreUris() {return null;}
-
-		@Override
-		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
-        }
-        
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
+        public List<URI> getResultArchiveStoreUris() {
+            return null;
+        }
+
+        @Override
+        public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        }
+
+        @Override
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         }
     }
 
     /**
-     * <p>This is a private class used to implement the IFramework for testing purposes.</p>
+     * <p>
+     * This is a private class used to implement the IFramework for testing
+     * purposes.
+     * </p>
      */
-    private class Framework implements IFramework{
+    private class Framework implements IFramework {
         private Properties overrides = new Properties();
-        private Properties records = new Properties();
+        private Properties records   = new Properties();
 
-        public IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace) throws ConfigurationPropertyStoreException {
+        public IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
+                throws ConfigurationPropertyStoreException {
             FrameworkConfigurationPropertyService fcps;
             try {
                 File testFile = File.createTempFile("test", ".properties");
                 Framework framework = new Framework();
-                
-                fcps = new FrameworkConfigurationPropertyService(framework, new FpfConfigurationPropertyStore(testFile.toURI()) , overrides, records, "framework");
+
+                fcps = new FrameworkConfigurationPropertyService(framework,
+                        new FpfConfigurationPropertyStore(testFile.toURI()), overrides, records, "framework");
                 return fcps;
-                
+
             } catch (Exception e) {
                 System.out.println("Exception");
             }
-            
-            return null;  
-        }
 
-        public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace) throws DynamicStatusStoreException {
             return null;
         }
-        public IResultArchiveStore getResultArchiveStore(){return null;}
-        public IResourcePoolingService getResourcePoolingService(){return null;}
 
-		@Override
-		public @NotNull IConfidentialTextService getConfidentialTextService() {return null;}
+        public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
+                throws DynamicStatusStoreException {
+            return null;
+        }
 
-		@Override
-		public String getTestRunName() {
-			return null;
+        public IResultArchiveStore getResultArchiveStore() {
+            return null;
+        }
+
+        public IResourcePoolingService getResourcePoolingService() {
+            return null;
+        }
+
+        @Override
+        public @NotNull IConfidentialTextService getConfidentialTextService() {
+            return null;
+        }
+
+        @Override
+        public String getTestRunName() {
+            return null;
         }
 
         @Override
@@ -174,38 +212,39 @@ public class FileCredentialsRegistrationTest {
             return null;
         }
 
-		@Override
-		public Random getRandom() {
-			return null;
-		}
+        @Override
+        public Random getRandom() {
+            return null;
+        }
 
-		@Override
-		public IRun getTestRun() {
-			return null;
-		}
+        @Override
+        public IRun getTestRun() {
+            return null;
+        }
 
-		@Override
-		public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
-			return null;
-		}
+        @Override
+        public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
+            return null;
+        }
 
-		@Override
-		public void setFrameworkProperties(Properties overrideProperties) {
-		}
+        @Override
+        public void setFrameworkProperties(Properties overrideProperties) {
+        }
 
-		@Override
-		public boolean isInitialised() {
-			return false;
-		}
+        @Override
+        public boolean isInitialised() {
+            return false;
+        }
 
-		@Override
-		public Properties getRecordProperties() {
-			return null;
-		}
-		@Override
-		public URL getApiUrl(@NotNull Api api) throws FrameworkException {
-			return null;
-		}
-      
-    } 
+        @Override
+        public Properties getRecordProperties() {
+            return null;
+        }
+
+        @Override
+        public URL getApiUrl(@NotNull Api api) throws FrameworkException {
+            return null;
+        }
+
+    }
 }

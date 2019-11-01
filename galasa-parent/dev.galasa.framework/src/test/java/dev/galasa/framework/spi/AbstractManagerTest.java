@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.spi;
 
 import java.lang.annotation.Annotation;
@@ -22,12 +27,11 @@ public class AbstractManagerTest {
         final TestClass testClass = new TestClass();
         testManager.initialise(null, null, null, testClass.getClass());
 
-        final List<AnnotatedField> annotatedFields = testManager
-                .findAnnotatedFields(TestManagerAnnotation.class);
+        final List<AnnotatedField> annotatedFields = testManager.findAnnotatedFields(TestManagerAnnotation.class);
         Assert.assertNotNull("A list should always be returned", annotatedFields);
         HashMap<Field, List<Annotation>> testFields = new HashMap<>();
-        for(AnnotatedField annotatedField : annotatedFields) {
-        	testFields.put(annotatedField.getField(), annotatedField.getAnnotations());
+        for (AnnotatedField annotatedField : annotatedFields) {
+            testFields.put(annotatedField.getField(), annotatedField.getAnnotations());
         }
 
         final List<Annotation> field1Annotations = testFields.remove(testClass.getClass().getField("field1"));
@@ -99,7 +103,8 @@ public class AbstractManagerTest {
     }
 
     @Test
-    public void testFillingAnnotatedFields() throws NoSuchFieldException, SecurityException, ManagerException, ResourceUnavailableException {
+    public void testFillingAnnotatedFields()
+            throws NoSuchFieldException, SecurityException, ManagerException, ResourceUnavailableException {
         final TestManager testManager = new TestManager();
         final TestClass testClass = new TestClass();
         testManager.initialise(null, null, null, testClass.getClass());
