@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.api.runs.bind;
 
 import dev.galasa.framework.SerializedRun;
