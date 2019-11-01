@@ -42,38 +42,32 @@ import com.google.gson.JsonParseException;
  * @author Michael Baylis
  *
  */
-@Component(
-		service=Servlet.class,
-		scope=ServiceScope.PROTOTYPE,
-		property= {"osgi.http.whiteboard.servlet.pattern=/testcatalog/*"},
-		configurationPid= {"dev.galasa"},
-		configurationPolicy=ConfigurationPolicy.OPTIONAL,
-		name="Galasa Test Catalog Streams"
-		)
+@Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
+        "osgi.http.whiteboard.servlet.pattern=/testcatalog/*" }, configurationPid = {
+                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.OPTIONAL, name = "Galasa Test Catalog Streams")
 public class TestcatalogStreams extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID       = 1L;
 
-	private static final Log logger = LogFactory.getLog(TestcatalogStreams.class);
+    private static final Log  logger                 = LogFactory.getLog(TestcatalogStreams.class);
 
-	private final Pattern patternValidStreamName = Pattern.compile("/[a-z0-9-_]+");
+    private final Pattern     patternValidStreamName = Pattern.compile("/[a-z0-9-_]+");
 
-	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson        gson                   = new GsonBuilder().setPrettyPrinting().create();
 
-	private Path catalogDirectory; // NOSONAR
+    private Path              catalogDirectory;                                                       // NOSONAR
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		try {
-			checkDirectory();
+        try {
+            checkDirectory();
 
-			String extraPath = req.getPathInfo();
-			if (!checkPath(resp, extraPath)) {
-				return;
-			}
+            String extraPath = req.getPathInfo();
+            if (!checkPath(resp, extraPath)) {
+                return;
+            }
 
-			String streamName = extraPath.substring(1);
+            String streamName = extraPath.substring(1);
 
 //			String contentType = req.getHeader("Accept");  //TODO add a proper way of checking for this
 //			if (!"application/json".equals(contentType)) {
@@ -81,127 +75,127 @@ public class TestcatalogStreams extends HttpServlet {
 //				return;
 //			}
 
-			Path actualFile = catalogDirectory.resolve(streamName);
+            Path actualFile = catalogDirectory.resolve(streamName);
 
-			if (!Files.exists(actualFile)) {
-				resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Test Catalog is missing");
-				return;
-			}
+            if (!Files.exists(actualFile)) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Test Catalog is missing");
+                return;
+            }
 
-			resp.setContentType("application/json");
-			resp.setContentLengthLong(Files.size(actualFile));
+            resp.setContentType("application/json");
+            resp.setContentLengthLong(Files.size(actualFile));
 
-			Files.copy(actualFile, resp.getOutputStream());
+            Files.copy(actualFile, resp.getOutputStream());
 
-			resp.setStatus(200);
-		} catch(JsonParseException e) {
-			throw new IOException("Problem processing the test catalog request", e); //NOSONAR TODO put in proper json error response
-		} catch(Throwable t) {
-			throw new IOException("Problem processing the test catalog request", t); //NOSONAR TODO put in proper json error response
-		}
+            resp.setStatus(200);
+        } catch (JsonParseException e) {
+            throw new IOException("Problem processing the test catalog request", e); // NOSONAR TODO put in proper json
+                                                                                     // error response
+        } catch (Throwable t) {
+            throw new IOException("Problem processing the test catalog request", t); // NOSONAR TODO put in proper json
+                                                                                     // error response
+        }
 
-	}
+    }
 
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-	@Override
-	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+        try {
+            checkDirectory();
 
-		try {
-			checkDirectory();
+            String extraPath = req.getPathInfo();
+            if (!checkPath(resp, extraPath)) {
+                return;
+            }
 
-			String extraPath = req.getPathInfo();
-			if (!checkPath(resp, extraPath)) {
-				return;
-			}
+            String streamName = extraPath.substring(1);
 
-			String streamName = extraPath.substring(1);
+            String contentType = req.getHeader("Content-Type");
+            if (!"application/json".equals(contentType)) {
+                resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "only application/json supported");
+                return;
+            }
 
-			String contentType = req.getHeader("Content-Type");
-			if (!"application/json".equals(contentType)) {
-				resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "only application/json supported");
-				return;
-			}
+            // *** Read it in just to make sure it looks ok
+            // *** TODO need to check the length or send to disk or something to avoid DOS
 
-			//*** Read it in just to make sure it looks ok
-			//*** TODO need to check the length or send to disk or something to avoid DOS
+            String jsonData = IOUtils.toString(req.getReader());
+            JsonObject tc = gson.fromJson(jsonData, JsonObject.class);
 
-			String jsonData = IOUtils.toString(req.getReader());
-			JsonObject tc = gson.fromJson(jsonData, JsonObject.class);
+            if (tc == null) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Test Catalog content is missing");
+                return;
+            }
 
-			if (tc == null) {
-				resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Test Catalog content is missing");
-				return;
-			}
+            if (!tc.has("classes") || !tc.has("bundles") || !tc.has("packages")) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Test Catalog");
+                return;
+            }
 
-			if (!tc.has("classes") 
-					|| !tc.has("bundles") 
-					|| !tc.has("packages")) {
-				resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid Test Catalog");
-				return;
-			}
+            Path actualFile = catalogDirectory.resolve(streamName);
 
-			Path actualFile = catalogDirectory.resolve(streamName);
+            Files.write(actualFile, jsonData.getBytes("utf-8"), StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
 
-			Files.write(actualFile, jsonData.getBytes("utf-8"), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            logger.info("Test Catalog written for stream " + streamName);
 
-			logger.info("Test Catalog written for stream " + streamName);
+            resp.setStatus(200);
+        } catch (JsonParseException e) {
+            throw new IOException("Problem processing the test catalog request", e); // NOSONAR TODO put in proper json
+                                                                                     // error response
+        } catch (Throwable t) {
+            throw new IOException("Problem processing the test catalog request", t); // NOSONAR TODO put in proper json
+                                                                                     // error response
+        }
+    }
 
-			resp.setStatus(200);
-		} catch(JsonParseException e) {
-			throw new IOException("Problem processing the test catalog request", e); //NOSONAR TODO put in proper json error response
-		} catch(Throwable t) {
-			throw new IOException("Problem processing the test catalog request", t); //NOSONAR TODO put in proper json error response
-		}
-	}
+    private boolean checkPath(HttpServletResponse resp, String path) throws IOException {
+        Matcher m = patternValidStreamName.matcher(path);
+        if (!m.matches()) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                    "Invalid stream name '" + path + "', must match regex '" + patternValidStreamName.pattern() + "'");
+            return false;
+        }
+        return true;
+    }
 
+    private void checkDirectory() throws IOException {
+        synchronized (TestcatalogStreams.class) {
+            if (catalogDirectory == null) {
+                catalogDirectory = Paths.get(System.getProperty("karaf.data")).resolve("galasa")
+                        .resolve("testcatalogs");
+            }
+            if (!Files.exists(catalogDirectory)) {
+                Files.createDirectories(catalogDirectory);
+            }
+        }
+    }
 
-	private boolean checkPath(HttpServletResponse resp, String path) throws IOException {
-		Matcher m = patternValidStreamName.matcher(path);
-		if (!m.matches()) {
-			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid stream name '" + path + "', must match regex '" + patternValidStreamName.pattern() + "'");
-			return false;
-		}
-		return true;
-	}
+    @Activate
+    void activate(Map<String, Object> properties) {
+        modified(properties);
+    }
 
+    @Modified
+    void modified(Map<String, Object> properties) {
+        Object oDirectoryProperty = properties.get("framework.testcatalog.directory");
+        if (oDirectoryProperty != null && oDirectoryProperty instanceof String) {
+            String directoryProperty = (String) oDirectoryProperty;
+            try {
+                catalogDirectory = Paths.get(new URL(directoryProperty).toURI());
+                logger.info("Catalog directorty set to " + catalogDirectory.toUri().toString());
+            } catch (Exception e) {
+                logger.error("Problem with the catalog directory url", e);
+            }
+        } else {
+            catalogDirectory = null;
+        }
+    }
 
-	private void checkDirectory() throws IOException {
-		synchronized (TestcatalogStreams.class) {
-			if (catalogDirectory == null) {
-				catalogDirectory = Paths.get(System.getProperty("karaf.data")).resolve("galasa").resolve("testcatalogs");
-			}
-			if (!Files.exists(catalogDirectory)) {
-				Files.createDirectories(catalogDirectory);
-			}
-		}
-	}
-
-
-	@Activate
-	void activate(Map<String, Object> properties) {
-		modified(properties);
-	}
-
-	@Modified
-	void modified(Map<String, Object> properties) {
-		Object oDirectoryProperty = properties.get("framework.testcatalog.directory");
-		if (oDirectoryProperty != null && oDirectoryProperty instanceof String) {
-			String directoryProperty = (String) oDirectoryProperty;
-			try {
-				catalogDirectory = Paths.get(new URL(directoryProperty).toURI());
-				logger.info("Catalog directorty set to " + catalogDirectory.toUri().toString());
-			} catch(Exception e) {
-				logger.error("Problem with the catalog directory url",e);
-			}
-		} else {
-			catalogDirectory = null;
-		}
-	}
-
-	@Deactivate
-	void deactivate() {
-		this.catalogDirectory = null;
-	}
+    @Deactivate
+    void deactivate() {
+        this.catalogDirectory = null;
+    }
 
 }

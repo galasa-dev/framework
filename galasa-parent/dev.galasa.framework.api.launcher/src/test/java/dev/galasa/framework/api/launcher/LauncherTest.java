@@ -27,13 +27,13 @@ import dev.galasa.framework.spi.IFramework;
 //@RunWith(MockitoJUnitRunner.class)
 public class LauncherTest {
 
-    @Mock  // TODO should not be mocking classes,  only interfaces
+    @Mock // TODO should not be mocking classes, only interfaces
     FrameworkInitialisation mockedframeInit;
 
     @InjectMocks
-    Launcher mockLauncher = spy(new Launcher());
+    Launcher                mockLauncher = spy(new Launcher());
 
-    Map<String, Object> props = new HashMap<>();
+    Map<String, Object>     props        = new HashMap<>();
 
     @Before
     public void setProperties() {
@@ -43,13 +43,13 @@ public class LauncherTest {
     }
 
 //    @Test   TODO rewrite tests
-    public void testLauncher() throws Exception{
+    public void testLauncher() throws Exception {
         boolean caught = false;
 
         IFramework mockedFramework = Mockito.mock(IFramework.class);
-        
+
         doReturn(mockedframeInit).when(mockLauncher).init(any(Properties.class), any(Properties.class));
-        
+
         when(mockedFramework.isInitialised()).thenReturn(true);
         when(mockedframeInit.getFramework()).thenReturn(mockedFramework);
 

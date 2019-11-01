@@ -33,133 +33,131 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
-@Component(
-		service=Filter.class,
-		scope=ServiceScope.PROTOTYPE,
-		property = {"osgi.http.whiteboard.filter.pattern=/auth"},
-		//		configurationPid= {"dev.galasa"},
-		//		configurationPolicy=ConfigurationPolicy.REQUIRE,
-		name="Galasa Basic Auth"
-		)
+@Component(service = Filter.class, scope = ServiceScope.PROTOTYPE, property = {
+        "osgi.http.whiteboard.filter.pattern=/auth" },
+        // configurationPid= {"dev.galasa"},
+        // configurationPolicy=ConfigurationPolicy.REQUIRE,
+        name = "Galasa Basic Auth")
 public class BasicAuthFilter implements Filter {
-	
-	private final Log logger = LogFactory.getLog(getClass());
 
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-	}
+    private final Log logger = LogFactory.getLog(getClass());
 
-	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
 
-		if (!(request instanceof HttpServletRequest)) {
-			chain.doFilter(request, response);
-			return;
-		}
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
-		HttpServletRequest servletRequest = (HttpServletRequest) request;
-		HttpServletResponse servletResponse = (HttpServletResponse) response;
+        if (!(request instanceof HttpServletRequest)) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-		Principal principal = servletRequest.getUserPrincipal();
-		if (principal != null) {  // already authenticated
-			chain.doFilter(request, response);
-			return;
-		}
+        HttpServletRequest servletRequest = (HttpServletRequest) request;
+        HttpServletResponse servletResponse = (HttpServletResponse) response;
 
-		String authorization = servletRequest.getHeader("Authorization");
-		if (authorization == null) {
-			chain.doFilter(request, response);
-			return;
-		}
+        Principal principal = servletRequest.getUserPrincipal();
+        if (principal != null) { // already authenticated
+            chain.doFilter(request, response);
+            return;
+        }
 
-		StringTokenizer st = new StringTokenizer(authorization);
-		if (!st.hasMoreTokens()) {
-			chain.doFilter(request, response);
-			return;
-		}
+        String authorization = servletRequest.getHeader("Authorization");
+        if (authorization == null) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-		String basic = st.nextToken();
-		if (!"basic".equalsIgnoreCase(basic)) {
-			chain.doFilter(request, response);
-			return;
-		}
+        StringTokenizer st = new StringTokenizer(authorization);
+        if (!st.hasMoreTokens()) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-		if (!st.hasMoreTokens()) {
-			chain.doFilter(request, response);
-			return;
-		}
+        String basic = st.nextToken();
+        if (!"basic".equalsIgnoreCase(basic)) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-		String credentials = new String(Base64.getDecoder().decode(st.nextToken()));
-		String[] parts = credentials.split(":");
-		if (parts.length != 2) {
-			invalidAuth(servletRequest, servletResponse);
-			return;
-		}
+        if (!st.hasMoreTokens()) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-		final String username = parts[0].trim();
-		final String password = parts[1].trim();
+        String credentials = new String(Base64.getDecoder().decode(st.nextToken()));
+        String[] parts = credentials.split(":");
+        if (parts.length != 2) {
+            invalidAuth(servletRequest, servletResponse);
+            return;
+        }
 
-		CallbackHandler callbackHandler = new CallbackHandler() {
+        final String username = parts[0].trim();
+        final String password = parts[1].trim();
 
-			@Override
-			public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-				for(Callback callback : callbacks) {
-					if (callback instanceof NameCallback) {
-						NameCallback nc = (NameCallback) callback;
-						nc.setName(username);
-					} else if (callback instanceof PasswordCallback) {
-						PasswordCallback pc = (PasswordCallback) callback;
-						pc.setPassword(password.toCharArray());
-					} 
-				}
-			}
-		};
+        CallbackHandler callbackHandler = new CallbackHandler() {
 
-		Subject subject = null;
-		try {
-			LoginContext ctx = new LoginContext("galasa", callbackHandler); // TODO set realm
-			ctx.login();
-			subject = ctx.getSubject();
-		} catch(LoginException e) {
-			invalidAuth(servletRequest, servletResponse);
-			logger.info("Authentication failed for user '" + username + "'", e);
-			return;
-		}
-		
-		if (subject == null) {
-			invalidAuth(servletRequest, servletResponse);
-			return;
-		}
-		
-		String name = null;
-		HashSet<String> roles = new HashSet<>();
-		
-		for(Principal p : subject.getPrincipals()) {
-			String pName = p.getClass().getName();
-			if (pName.endsWith(".UserPrincipal")) {  // TODO got to be a better way to do this
-				name = p.getName();
-			} else if (pName.endsWith(".RolePrincipal")) {
-				roles.add(p.getName());
-			}
-		}
-		
-		if (name == null) {
-			name = username;
-		}
-		RequestWrapper wrapper = new RequestWrapper(name.toLowerCase(), roles, servletRequest);
-		chain.doFilter(wrapper, response);
-	}
+            @Override
+            public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+                for (Callback callback : callbacks) {
+                    if (callback instanceof NameCallback) {
+                        NameCallback nc = (NameCallback) callback;
+                        nc.setName(username);
+                    } else if (callback instanceof PasswordCallback) {
+                        PasswordCallback pc = (PasswordCallback) callback;
+                        pc.setPassword(password.toCharArray());
+                    }
+                }
+            }
+        };
 
-	private void invalidAuth(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException {
-		servletResponse.setStatus(401);
-		servletResponse.addHeader("WWW-Authenticate", "Basic realm=\"Galasa\"");  //*** Ability to set the realm
-		servletResponse.getWriter().write("Invalid authentication");
-		return;
-	}
+        Subject subject = null;
+        try {
+            LoginContext ctx = new LoginContext("galasa", callbackHandler); // TODO set realm
+            ctx.login();
+            subject = ctx.getSubject();
+        } catch (LoginException e) {
+            invalidAuth(servletRequest, servletResponse);
+            logger.info("Authentication failed for user '" + username + "'", e);
+            return;
+        }
 
-	@Override
-	public void destroy() {
-	}
+        if (subject == null) {
+            invalidAuth(servletRequest, servletResponse);
+            return;
+        }
+
+        String name = null;
+        HashSet<String> roles = new HashSet<>();
+
+        for (Principal p : subject.getPrincipals()) {
+            String pName = p.getClass().getName();
+            if (pName.endsWith(".UserPrincipal")) { // TODO got to be a better way to do this
+                name = p.getName();
+            } else if (pName.endsWith(".RolePrincipal")) {
+                roles.add(p.getName());
+            }
+        }
+
+        if (name == null) {
+            name = username;
+        }
+        RequestWrapper wrapper = new RequestWrapper(name.toLowerCase(), roles, servletRequest);
+        chain.doFilter(wrapper, response);
+    }
+
+    private void invalidAuth(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+            throws IOException {
+        servletResponse.setStatus(401);
+        servletResponse.addHeader("WWW-Authenticate", "Basic realm=\"Galasa\""); // *** Ability to set the realm
+        servletResponse.getWriter().write("Invalid authentication");
+        return;
+    }
+
+    @Override
+    public void destroy() {
+    }
 
 }

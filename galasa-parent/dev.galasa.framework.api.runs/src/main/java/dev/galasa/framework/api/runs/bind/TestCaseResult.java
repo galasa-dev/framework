@@ -15,75 +15,74 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 public class TestCaseResult {
-	
-	private String status;
-	private String runId;
-	private String runIdFriendly;
-	private URI    resultUri;
-	private String resultUriDescription;
-	private String failureDocumentation;
-	
-	public String getStatus() {
-		if (status == null) {
-			return "None";
-		}
-		
-		return status;
-	}
-	
-	public String getRunName() {
-		if (getRunIdFriendly() == null) {
-			return "None";
-		}
-		
-		return getRunIdFriendly();
-	}
-	
-	public boolean isPassed() {
-		if ("PASSED".equals(getStatus())) {
-			return true;
-		} else if ("PASSED_DEFECTS".equals(getStatus())) {
-			return true;
-		} else if ("FINISHED_RUN".equals(getStatus())) {
-			return true;
-		} else if ("FINISHED_DEFECTS_RUN".equals(getStatus())) {
-			return true;
-		} else if ("IGNORED".equals(getStatus())) {
-			return true;
-		} else if ("IGNORED_RUN".equals(getStatus())) {
-			return true;
-		}
-		
-		return false;
-	}
 
-	public URI getResultUri() {
-		return resultUri;
-	}
+    private String status;
+    private String runId;
+    private String runIdFriendly;
+    private URI    resultUri;
+    private String resultUriDescription;
+    private String failureDocumentation;
 
-	public String getResultUriDescription() {
-		return resultUriDescription;
-	}
+    public String getStatus() {
+        if (status == null) {
+            return "None";
+        }
 
-	public String getRunIdFriendly() {
-		return runIdFriendly;
-	}
+        return status;
+    }
 
-	public void setRunIdFriendly(String runIdFriendly) {
-		this.runIdFriendly = runIdFriendly;
-	}
+    public String getRunName() {
+        if (getRunIdFriendly() == null) {
+            return "None";
+        }
 
-	public String getRunId() {
-		return runId;
-	}
+        return getRunIdFriendly();
+    }
 
-	public void setRunId(String runId) {
-		this.runId = runId;
-	}
+    public boolean isPassed() {
+        if ("PASSED".equals(getStatus())) {
+            return true;
+        } else if ("PASSED_DEFECTS".equals(getStatus())) {
+            return true;
+        } else if ("FINISHED_RUN".equals(getStatus())) {
+            return true;
+        } else if ("FINISHED_DEFECTS_RUN".equals(getStatus())) {
+            return true;
+        } else if ("IGNORED".equals(getStatus())) {
+            return true;
+        } else if ("IGNORED_RUN".equals(getStatus())) {
+            return true;
+        }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+        return false;
+    }
 
-	
+    public URI getResultUri() {
+        return resultUri;
+    }
+
+    public String getResultUriDescription() {
+        return resultUriDescription;
+    }
+
+    public String getRunIdFriendly() {
+        return runIdFriendly;
+    }
+
+    public void setRunIdFriendly(String runIdFriendly) {
+        this.runIdFriendly = runIdFriendly;
+    }
+
+    public String getRunId() {
+        return runId;
+    }
+
+    public void setRunId(String runId) {
+        this.runId = runId;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
 }
