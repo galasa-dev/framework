@@ -1,159 +1,163 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.spi.teststructure;
 
 import java.time.Instant;
 import java.util.List;
 
 public class TestMethod {
-	
-	private String className;
-	
-	private String methodName;
-	private String type;
-	
-	private List<TestMethod> befores;
-	private List<TestMethod> afters;
-	
-	private String status;
-	private String result;
-	
-	private String exception;
-	
-	private int runLogStart;
-	private int runLogEnd;
 
-	private Instant startTime;
-	private Instant endTime;
+    private String           className;
 
-	@SuppressWarnings("unused")
-	private TestMethod() {
-		// NOP
-	}
-	
-	public TestMethod(Class<?> testClass) {
-		this.className = testClass.getName();
-	}
+    private String           methodName;
+    private String           type;
 
-	public String getClassName() {
-		return className;
-	}
+    private List<TestMethod> befores;
+    private List<TestMethod> afters;
 
-	public String getMethodName() {
-		return methodName;
-	}
+    private String           status;
+    private String           result;
 
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
+    private String           exception;
 
-	public String getType() {
-		return type;
-	}
+    private int              runLogStart;
+    private int              runLogEnd;
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    private Instant          startTime;
+    private Instant          endTime;
 
-	public List<TestMethod> getBefores() {
-		return befores;
-	}
+    @SuppressWarnings("unused")
+    private TestMethod() {
+        // NOP
+    }
 
-	public void setBefores(List<TestMethod> befores) {
-		this.befores = befores;
-	}
+    public TestMethod(Class<?> testClass) {
+        this.className = testClass.getName();
+    }
 
-	public List<TestMethod> getAfters() {
-		return afters;
-	}
+    public String getClassName() {
+        return className;
+    }
 
-	public void setAfters(List<TestMethod> afters) {
-		this.afters = afters;
-	}
+    public String getMethodName() {
+        return methodName;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public String getResult() {
-		return result;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public void setResult(String result) {
-		this.result = result;
-	}
+    public List<TestMethod> getBefores() {
+        return befores;
+    }
 
-	public String getException() {
-		return exception;
-	}
+    public void setBefores(List<TestMethod> befores) {
+        this.befores = befores;
+    }
 
-	public void setException(String exception) {
-		this.exception = exception;
-	}
+    public List<TestMethod> getAfters() {
+        return afters;
+    }
 
-	public int getRunLogStart() {
-		return runLogStart;
-	}
+    public void setAfters(List<TestMethod> afters) {
+        this.afters = afters;
+    }
 
-	public void setRunLogStart(int runLogStart) {
-		this.runLogStart = runLogStart;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public int getRunLogEnd() {
-		return runLogEnd;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public void setRunLogEnd(int runLogEnd) {
-		this.runLogEnd = runLogEnd;
-	}
+    public String getResult() {
+        return result;
+    }
 
-	public Instant getStartTime() {
-		return startTime;
-	}
+    public void setResult(String result) {
+        this.result = result;
+    }
 
-	public void setStartTime(Instant startTime) {
-		this.startTime = startTime;
-	}
+    public String getException() {
+        return exception;
+    }
 
-	public Instant getEndTime() {
-		return endTime;
-	}
+    public void setException(String exception) {
+        this.exception = exception;
+    }
 
-	public void setEndTime(Instant endTime) {
-		this.endTime = endTime;
-	}
+    public int getRunLogStart() {
+        return runLogStart;
+    }
 
+    public void setRunLogStart(int runLogStart) {
+        this.runLogStart = runLogStart;
+    }
 
-	public void report(String prefix, StringBuilder sb) {
-		String actualStatus = this.status;
-		if (actualStatus == null) {
-			actualStatus = "Unknown";
-		}
-		
-		String subPrefix = prefix + "    ";
-		if (this.befores != null) {  
-			for(TestMethod before : this.befores) {
-				before.report(subPrefix, sb);
-			}
-		}
-		
-		sb.append(prefix);
-		sb.append("Test Method ");
-		sb.append(className);
-		sb.append(".");
-		sb.append(methodName);
-		sb.append(", type=");
-		sb.append(type);
-		sb.append(", status=");
-		sb.append(actualStatus);
-		
-		if (this.afters != null) {
-			for(TestMethod after : this.afters) {
-				after.report(subPrefix, sb);
-			}
-		}
-	}
+    public int getRunLogEnd() {
+        return runLogEnd;
+    }
+
+    public void setRunLogEnd(int runLogEnd) {
+        this.runLogEnd = runLogEnd;
+    }
+
+    public Instant getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Instant startTime) {
+        this.startTime = startTime;
+    }
+
+    public Instant getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Instant endTime) {
+        this.endTime = endTime;
+    }
+
+    public void report(String prefix, StringBuilder sb) {
+        String actualStatus = this.status;
+        if (actualStatus == null) {
+            actualStatus = "Unknown";
+        }
+
+        String subPrefix = prefix + "    ";
+        if (this.befores != null) {
+            for (TestMethod before : this.befores) {
+                before.report(subPrefix, sb);
+            }
+        }
+
+        sb.append(prefix);
+        sb.append("Test Method ");
+        sb.append(className);
+        sb.append(".");
+        sb.append(methodName);
+        sb.append(", type=");
+        sb.append(type);
+        sb.append(", status=");
+        sb.append(actualStatus);
+
+        if (this.afters != null) {
+            for (TestMethod after : this.afters) {
+                after.report(subPrefix, sb);
+            }
+        }
+    }
 
 }

@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.api.testcatlog.internal;
 
 import java.io.IOException;
@@ -41,174 +46,169 @@ import com.google.gson.JsonSyntaxException;
  * @author Michael Baylis
  *
  */
-@Component(
-		service=Servlet.class,
-		scope=ServiceScope.PROTOTYPE,
-		property= {"osgi.http.whiteboard.servlet.pattern=/testcatalog"},
-		configurationPid= {"dev.galasa"},
-		configurationPolicy=ConfigurationPolicy.OPTIONAL,
-		name="Galasa Test Catalogs"
-		)
+@Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
+        "osgi.http.whiteboard.servlet.pattern=/testcatalog" }, configurationPid = {
+                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.OPTIONAL, name = "Galasa Test Catalogs")
 public class Testcatalogs extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static final Log logger = LogFactory.getLog(Testcatalogs.class);
+    private static final Log  logger           = LogFactory.getLog(Testcatalogs.class);
 
-	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson        gson             = new GsonBuilder().setPrettyPrinting().create();
 
-	private Path catalogDirectory; // NOSONAR
+    private Path              catalogDirectory;                                                 // NOSONAR
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		try {
-			checkDirectory();
+        try {
+            checkDirectory();
 
-			//*** locate the cached list and obtain the modified date
-			boolean rebuildCache = false;
-			FileTime cacheLastModified = FileTime.fromMillis(0);
-			Path cachePath = catalogDirectory.resolve("cache.json");
-			if (Files.exists(cachePath)) {
-				cacheLastModified = Files.getLastModifiedTime(cachePath);
-			} else {
-				rebuildCache = true;
-			}
+            // *** locate the cached list and obtain the modified date
+            boolean rebuildCache = false;
+            FileTime cacheLastModified = FileTime.fromMillis(0);
+            Path cachePath = catalogDirectory.resolve("cache.json");
+            if (Files.exists(cachePath)) {
+                cacheLastModified = Files.getLastModifiedTime(cachePath);
+            } else {
+                rebuildCache = true;
+            }
 
+            // *** Get a list of the streams and newest date
+            CatalogConsumer consumer = new CatalogConsumer(cacheLastModified);
+            try (Stream<Path> stream = Files.list(catalogDirectory)) {
+                stream.forEach(consumer);
+            }
 
-			//*** Get a list of the streams and newest date
-			CatalogConsumer consumer = new CatalogConsumer(cacheLastModified);
-			try(Stream<Path> stream = Files.list(catalogDirectory)) {
-				stream.forEach(consumer);
-			}
+            List<Path> catalogs = consumer.getCatalogs();
 
+            JsonObject jsonCache = null;
+            if (rebuildCache || consumer.rebuildCache()) {
+                jsonCache = rebuildCacheFile(catalogs, cachePath); // NOSONAR TODO put in proper json error response
+            } else {
+                jsonCache = gson.fromJson(Files.newBufferedReader(cachePath), JsonObject.class); // NOSONAR TODO put in
+                                                                                                 // proper json error
+                                                                                                 // response
+            }
 
-			List<Path> catalogs = consumer.getCatalogs();
+            String jsonResponse = gson.toJson(jsonCache);
 
-			JsonObject jsonCache = null;
-			if (rebuildCache || consumer.rebuildCache()) {
-				jsonCache = rebuildCacheFile(catalogs, cachePath); //NOSONAR TODO put in proper json error response
-			} else {
-				jsonCache = gson.fromJson(Files.newBufferedReader(cachePath), JsonObject.class); //NOSONAR TODO put in proper json error response
-			}
+            resp.setContentType("application/json");
+            resp.setContentLengthLong(jsonResponse.length());
+            IOUtils.write(jsonResponse, resp.getOutputStream(), "utf-8"); // NOSONAR TODO put in proper json error
+                                                                          // response
 
-			String jsonResponse = gson.toJson(jsonCache);
+        } catch (JsonParseException e) {
+            throw new IOException("Problem processing the test catalog request", e); // NOSONAR TODO put in proper json
+                                                                                     // error response
+        } catch (Throwable t) {
+            throw new IOException("Problem processing the test catalog request", t); // NOSONAR TODO put in proper json
+                                                                                     // error response
+        }
 
-			resp.setContentType("application/json");
-			resp.setContentLengthLong(jsonResponse.length());
-			IOUtils.write(jsonResponse, resp.getOutputStream(), "utf-8"); //NOSONAR TODO put in proper json error response
+        resp.setStatus(200);
+    }
 
-		} catch(JsonParseException e) {
-			throw new IOException("Problem processing the test catalog request", e); //NOSONAR TODO put in proper json error response
-		} catch(Throwable t) {
-			throw new IOException("Problem processing the test catalog request", t); //NOSONAR TODO put in proper json error response
-		}
+    private JsonObject rebuildCacheFile(List<Path> catalogs, Path cachePath)
+            throws JsonSyntaxException, JsonIOException, IOException {
+        JsonObject jsonCache = new JsonObject();
+        JsonObject jsonCatalogs = new JsonObject();
+        jsonCache.add("catalogs", jsonCatalogs);
 
-		resp.setStatus(200);
-	}
+        for (Path pathCatalog : catalogs) {
+            JsonObject jsonCatalog = gson.fromJson(Files.newBufferedReader(pathCatalog), JsonObject.class);
 
+            if (jsonCatalog != null) {
+                JsonObject jsonCacheCatalog = new JsonObject();
+                jsonCatalogs.add(pathCatalog.getFileName().toString(), jsonCacheCatalog);
 
-	private JsonObject rebuildCacheFile(List<Path> catalogs, Path cachePath) throws JsonSyntaxException, JsonIOException, IOException {
-		JsonObject jsonCache = new JsonObject();
-		JsonObject  jsonCatalogs = new JsonObject();
-		jsonCache.add("catalogs", jsonCatalogs);
+                jsonCacheCatalog.add("name", jsonCatalog.get("name"));
+                jsonCacheCatalog.add("build", jsonCatalog.get("build"));
+                jsonCacheCatalog.add("version", jsonCatalog.get("version"));
+                jsonCacheCatalog.add("built", jsonCatalog.get("built"));
+            }
+        }
 
+        String data = gson.toJson(jsonCache);
+        Files.write(cachePath, data.getBytes("utf-8"));
 
-		for(Path pathCatalog : catalogs) {
-			JsonObject jsonCatalog = gson.fromJson(Files.newBufferedReader(pathCatalog), JsonObject.class);
+        return jsonCache;
+    }
 
-			if (jsonCatalog != null) {
-				JsonObject jsonCacheCatalog = new JsonObject();
-				jsonCatalogs.add(pathCatalog.getFileName().toString(), jsonCacheCatalog);
+    private void checkDirectory() throws IOException {
+        synchronized (Testcatalogs.class) {
+            if (catalogDirectory == null) {
+                catalogDirectory = Paths.get(System.getProperty("karaf.data")).resolve("galasa")
+                        .resolve("testcatalogs");
+            }
+            if (!Files.exists(catalogDirectory)) {
+                Files.createDirectories(catalogDirectory);
+            }
+        }
+    }
 
-				jsonCacheCatalog.add("name", jsonCatalog.get("name"));
-				jsonCacheCatalog.add("build", jsonCatalog.get("build"));
-				jsonCacheCatalog.add("version", jsonCatalog.get("version"));
-				jsonCacheCatalog.add("built", jsonCatalog.get("built"));
-			}
-		}
+    @Activate
+    void activate(Map<String, Object> properties) {
+        modified(properties);
+    }
 
-		String data = gson.toJson(jsonCache);
-		Files.write(cachePath, data.getBytes("utf-8"));
+    @Modified
+    void modified(Map<String, Object> properties) {
+        Object oDirectoryProperty = properties.get("framework.testcatalog.directory");
+        if (oDirectoryProperty != null && oDirectoryProperty instanceof String) {
+            String directoryProperty = (String) oDirectoryProperty;
+            try {
+                catalogDirectory = Paths.get(new URL(directoryProperty).toURI());
+                logger.info("Catalog directorty set to " + catalogDirectory.toUri().toString());
+            } catch (Exception e) {
+                logger.error("Problem with the catalog directory url", e);
+            }
+        } else {
+            catalogDirectory = null;
+        }
+    }
 
-		return jsonCache;
-	}
+    @Deactivate
+    void deactivate() {
+        this.catalogDirectory = null;
+    }
 
+    private static final class CatalogConsumer implements Consumer<Path> {
 
-	private void checkDirectory() throws IOException {
-		synchronized (Testcatalogs.class) {
-			if (catalogDirectory == null) {
-				catalogDirectory = Paths.get(System.getProperty("karaf.data")).resolve("galasa").resolve("testcatalogs");
-			}
-			if (!Files.exists(catalogDirectory)) {
-				Files.createDirectories(catalogDirectory);
-			}
-		}
-	}
+        private ArrayList<Path> catalogs     = new ArrayList<>();
+        private FileTime        cacheLastModified;
+        private boolean         rebuildCache = false;
 
+        private CatalogConsumer(FileTime cacheLastModified) {
+            this.cacheLastModified = cacheLastModified;
+        }
 
-	@Activate
-	void activate(Map<String, Object> properties) {
-		modified(properties);
-	}
+        @Override
+        public void accept(Path t) {
+            if (Files.isRegularFile(t) && !t.getFileName().toString().equals("cache.json")) {
+                catalogs.add(t);
 
-	@Modified
-	void modified(Map<String, Object> properties) {
-		Object oDirectoryProperty = properties.get("framework.testcatalog.directory");
-		if (oDirectoryProperty != null && oDirectoryProperty instanceof String) {
-			String directoryProperty = (String) oDirectoryProperty;
-			try {
-				catalogDirectory = Paths.get(new URL(directoryProperty).toURI());
-				logger.info("Catalog directorty set to " + catalogDirectory.toUri().toString());
-			} catch(Exception e) {
-				logger.error("Problem with the catalog directory url",e);
-			}
-		} else {
-			catalogDirectory = null;
-		}
-	}
+                try {
+                    FileTime catalogtime = Files.getLastModifiedTime(t);
 
-	@Deactivate
-	void deactivate() {
-		this.catalogDirectory = null;
-	}
+                    if (catalogtime.compareTo(cacheLastModified) >= 0) {
+                        rebuildCache = true;
+                    }
+                } catch (IOException e) {
+                    rebuildCache = true;
+                    logger.error("Problem with the catalog directory", e);
+                }
+            }
+        }
 
-	private static final class CatalogConsumer implements Consumer<Path> {
+        private boolean rebuildCache() {
+            return this.rebuildCache;
+        }
 
-		private ArrayList<Path> catalogs = new ArrayList<>();
-		private FileTime cacheLastModified;
-		private boolean rebuildCache = false;
+        public List<Path> getCatalogs() {
+            return this.catalogs;
+        }
 
-		private CatalogConsumer(FileTime cacheLastModified) {
-			this.cacheLastModified = cacheLastModified;
-		}
-
-		@Override
-		public void accept(Path t) {
-			if (Files.isRegularFile(t) && !t.getFileName().toString().equals("cache.json")) {
-				catalogs.add(t);
-
-				try {
-					FileTime catalogtime = Files.getLastModifiedTime(t);
-
-					if (catalogtime.compareTo(cacheLastModified) >= 0) {
-						rebuildCache = true;
-					}
-				} catch (IOException e) {
-					rebuildCache = true;
-					logger.error("Problem with the catalog directory",e);
-				}
-			}
-		}
-
-		private boolean rebuildCache() {
-			return this.rebuildCache;
-		}
-
-		public List<Path> getCatalogs() {
-			return this.catalogs;
-		}
-
-	}
+    }
 
 }

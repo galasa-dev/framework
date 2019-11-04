@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.api.launcher;
 
 import java.io.IOException;
@@ -14,24 +19,21 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.spi.FrameworkException;
 
-@Component(
-		configurationPid= {"dev.galasa"},
-		configurationPolicy=ConfigurationPolicy.REQUIRE
-		)
+@Component(configurationPid = { "dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class Launcher {
-    private final String bootstapLocationKey = "framework.bootstrap.url"; 
+    private final String            bootstapLocationKey = "framework.bootstrap.url";
     private FrameworkInitialisation frameInit;
-    
-    private String bootstrapURL;
+
+    private String                  bootstrapURL;
 
     @Activate
-	public void activate(Map<String, Object> properties) throws FrameworkException {
+    public void activate(Map<String, Object> properties) throws FrameworkException {
         Properties bootstrapProperties = new Properties();
         Properties emptyOverrideProperties = new Properties();
 
-        this.bootstrapURL = (String)properties.get(this.bootstapLocationKey);
+        this.bootstrapURL = (String) properties.get(this.bootstapLocationKey);
 
-        try{
+        try {
             URL bootstrap = new URL(this.bootstrapURL);
             bootstrapProperties.load(bootstrap.openStream());
         } catch (IOException e) {
@@ -40,17 +42,18 @@ public class Launcher {
 
         try {
             frameInit = init(bootstrapProperties, emptyOverrideProperties);
-        } catch (FrameworkException |InvalidSyntaxException |URISyntaxException e) {
+        } catch (FrameworkException | InvalidSyntaxException | URISyntaxException e) {
             throw new FrameworkException("Failed to start framework", e);
         }
 
         if ((frameInit.getFramework()).isInitialised()) {
             return;
-        } 
+        }
         throw new FrameworkException("Framework not correctly Initialised");
     }
-    
-    public FrameworkInitialisation init(Properties bootstrap, Properties overrides) throws FrameworkException, InvalidSyntaxException, URISyntaxException{
+
+    public FrameworkInitialisation init(Properties bootstrap, Properties overrides)
+            throws FrameworkException, InvalidSyntaxException, URISyntaxException {
         return new FrameworkInitialisation(bootstrap, overrides);
     }
 }

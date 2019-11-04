@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.spi;
 
 import java.time.Instant;
@@ -5,43 +10,43 @@ import java.time.Instant;
 import dev.galasa.framework.SerializedRun;
 
 public interface IRun {
-	
-	String getName();
 
-	Instant getHeartbeat();
+    String getName();
 
-	String getType();
+    Instant getHeartbeat();
 
-	String getTest();
+    String getType();
 
-	String getStatus();
+    String getTest();
 
-	String getRequestor();
+    String getStatus();
 
-	String getStream();
+    String getRequestor();
 
-	String getTestBundleName();
+    String getStream();
 
-	String getTestClassName();
+    String getTestBundleName();
 
-	boolean isLocal();
+    String getTestClassName();
 
-	String getGroup();
+    boolean isLocal();
 
-	Instant getQueued();
+    String getGroup();
 
-	String getRepository();
+    Instant getQueued();
 
-	String getOBR();
+    String getRepository();
 
-	boolean isTrace();
+    String getOBR();
 
-	Instant getFinished();
+    boolean isTrace();
 
-	Instant getWaitUntil();
+    Instant getFinished();
 
-	SerializedRun getSerializedRun();
+    Instant getWaitUntil();
 
-	String getResult();
+    SerializedRun getSerializedRun();
+
+    String getResult();
 
 }

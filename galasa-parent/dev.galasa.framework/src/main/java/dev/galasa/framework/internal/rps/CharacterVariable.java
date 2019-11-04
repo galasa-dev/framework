@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.internal.rps;
 
 import java.util.ArrayList;
@@ -9,33 +14,37 @@ import dev.galasa.framework.internal.rps.tree.ASTMultiRange;
 import dev.galasa.framework.internal.rps.tree.ASTSingleRange;
 import dev.galasa.framework.internal.rps.tree.ASTVariable;
 import dev.galasa.framework.internal.rps.tree.SimpleNode;
+
 /**
- * This class implements the ICharacter interface and retruns the appropiate responses for a variable character.
+ * This class implements the ICharacter interface and retruns the appropiate
+ * responses for a variable character.
  * 
  * @author James Davies
  */
 public class CharacterVariable implements ICharacter {
-    private char character;
-    private Random random = new Random();
+    private char                 character;
+    private Random               random    = new Random();
 
-    public static final String UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    public static final String LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
-    public static final String NUMBERS   = "0123456789";
-    
-    private ArrayList<Character> chars = new ArrayList<>();
+    public static final String   UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public static final String   LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
+    public static final String   NUMBERS   = "0123456789";
+
+    private ArrayList<Character> chars     = new ArrayList<>();
 
     /**
-     * This constructor takes in a node which contains the deifnition of the variable character. The called method
-     *  generates the acceptable chars that satisfy the defintion an store them in the chars arrayList.
+     * This constructor takes in a node which contains the deifnition of the
+     * variable character. The called method generates the acceptable chars that
+     * satisfy the defintion an store them in the chars arrayList.
      * 
      * @param condition - a node containing the chacacter defintion.
      */
-    public CharacterVariable (SimpleNode child){
+    public CharacterVariable(SimpleNode child) {
         generateAcceptableChars((ASTVariable) child);
     }
 
     /**
-     * This method randomly chooses a char within the chars array list and returns it.
+     * This method randomly chooses a char within the chars array list and returns
+     * it.
      * 
      * @return - char, randomly selected.
      */
@@ -51,11 +60,11 @@ public class CharacterVariable implements ICharacter {
      */
     public char getNextChar() {
         int charIndex = chars.lastIndexOf(character);
-        if (charIndex == (chars.size()-1)){
+        if (charIndex == (chars.size() - 1)) {
             character = chars.get(0);
             return character;
         }
-        character = chars.get(charIndex+1);
+        character = chars.get(charIndex + 1);
         return character;
     }
 
@@ -88,7 +97,8 @@ public class CharacterVariable implements ICharacter {
     }
 
     /**
-     * This method returns the number of possible responses that can be achieved from the getRadomChar().
+     * This method returns the number of possible responses that can be achieved
+     * from the getRadomChar().
      * 
      * @return int - number of combinations.
      */
@@ -97,16 +107,18 @@ public class CharacterVariable implements ICharacter {
     }
 
     /**
-     * This method, called by the constructor, generates the acceptable chars defined in the defintion passed in the node.
+     * This method, called by the constructor, generates the acceptable chars
+     * defined in the defintion passed in the node.
      * 
      * @param condition - a string which can be simple (9) or complex ((a-z)(0-9))
-     * @return - a array list of all the possible chars for this char in the original string.
+     * @return - a array list of all the possible chars for this char in the
+     *         original string.
      */
     private void generateAcceptableChars(ASTVariable variable) {
-        for (int i=0; i< variable.jjtGetNumChildren(); i++) {
+        for (int i = 0; i < variable.jjtGetNumChildren(); i++) {
             SimpleNode child = (SimpleNode) variable.jjtGetChild(i);
 
-            if (child instanceof ASTSingleRange){
+            if (child instanceof ASTSingleRange) {
                 String constant = (String) ((ASTConstant) child.jjtGetChild(0)).jjtGetValue();
                 String range = getAppropriateRange(constant);
                 String firstCharacter = range.substring(0, 1);
@@ -125,36 +137,39 @@ public class CharacterVariable implements ICharacter {
     }
 
     /**
-     * This method adds characters to the chars array list. It defines the range, start and end point for the character deifntion.
+     * This method adds characters to the chars array list. It defines the range,
+     * start and end point for the character deifntion.
      * 
-     * @param range - what range we are looking at, (0-9)(a-z)(A-Z).
+     * @param range         - what range we are looking at, (0-9)(a-z)(A-Z).
      * @param characterFrom - which character to start at.
-     * @param characterTo - which chracter to go up too.
+     * @param characterTo   - which chracter to go up too.
      */
     private void addCharacters(String range, String characterFrom, String characterTo) {
-        
+
         int fromPos = range.indexOf(characterFrom);
-        int toPos   = range.indexOf(characterTo);
-        
+        int toPos = range.indexOf(characterTo);
 
         if (toPos < 0) {
-            throw new UnsupportedOperationException("To character not from the same range as the from character " + characterFrom + "-" + characterTo);
+            throw new UnsupportedOperationException(
+                    "To character not from the same range as the from character " + characterFrom + "-" + characterTo);
         }
-        
+
         if (toPos < fromPos) {
-            throw new UnsupportedOperationException("To character in range is before from character " + characterFrom + "-" + characterTo);
+            throw new UnsupportedOperationException(
+                    "To character in range is before from character " + characterFrom + "-" + characterTo);
         }
-        
-        for(int i = fromPos; i <= toPos; i++) {
+
+        for (int i = fromPos; i <= toPos; i++) {
             char c = range.charAt(i);
             if (!chars.contains(c)) {
                 chars.add(c);
             }
         }
     }
-    
+
     /**
-     * This method deterines which range of chracters relates to the passed character.
+     * This method deterines which range of chracters relates to the passed
+     * character.
      * 
      * @param character - number or letter(case sensitive.)
      * @return - the appropiate range.
@@ -168,6 +183,5 @@ public class CharacterVariable implements ICharacter {
             return NUMBERS;
         }
         throw new UnsupportedOperationException("Unknown character - '" + character + "'");
-    }   
+    }
 }
-

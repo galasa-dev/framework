@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.internal.ras.directory;
 
 import java.io.IOException;
@@ -140,28 +145,28 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
     /*
      * (non-Javadoc)
      *
-     * @see
-     * dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider#newByteChannel
-     * (java.nio.file.Path, java.util.Set, java.nio.file.attribute.FileAttribute[])
+     * @see dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider#
+     * newByteChannel (java.nio.file.Path, java.util.Set,
+     * java.nio.file.attribute.FileAttribute[])
      */
     @Override
     public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs)
             throws IOException {
-    	Path realPath = getRealPath(path);
-    	if (!Files.exists(realPath.getParent())) {
-    		Files.createDirectories(realPath.getParent());
-    	}
-    	
-    	//*** Remove any SetContentType open options
-    	HashSet<OpenOption> newOptions = new HashSet<>();
-    	for(OpenOption option : options) {
-    		if (option instanceof SetContentType) {
-    			setContentType(path, ((SetContentType)option).getContentType());
-    		} else {
-    			newOptions.add(option);
-    		}
-    	}
-    	
+        Path realPath = getRealPath(path);
+        if (!Files.exists(realPath.getParent())) {
+            Files.createDirectories(realPath.getParent());
+        }
+
+        // *** Remove any SetContentType open options
+        HashSet<OpenOption> newOptions = new HashSet<>();
+        for (OpenOption option : options) {
+            if (option instanceof SetContentType) {
+                setContentType(path, ((SetContentType) option).getContentType());
+            } else {
+                newOptions.add(option);
+            }
+        }
+
         // *** Get a nice byte channel
         final SeekableByteChannel byteChannel = Files.newByteChannel(realPath, newOptions); // NOSONAR
 
@@ -178,9 +183,8 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
     /*
      * (non-Javadoc)
      *
-     * @see
-     * dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider#checkAccess(
-     * java.nio.file.Path, java.nio.file.AccessMode[])
+     * @see dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider#
+     * checkAccess( java.nio.file.Path, java.nio.file.AccessMode[])
      */
     @Override
     public void checkAccess(Path path, AccessMode... modes) throws IOException {
@@ -274,9 +278,9 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
     /*
      * (non-Javadoc)
      *
-     * @see
-     * dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider#readAttributes
-     * (java.nio.file.Path, java.lang.Class, java.nio.file.LinkOption[])
+     * @see dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider#
+     * readAttributes (java.nio.file.Path, java.lang.Class,
+     * java.nio.file.LinkOption[])
      */
     @Override
     public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> type, LinkOption... options)
@@ -292,9 +296,9 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
     /*
      * (non-Javadoc)
      *
-     * @see
-     * dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider#readAttributes
-     * (java.nio.file.Path, java.lang.String, java.nio.file.LinkOption[])
+     * @see dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider#
+     * readAttributes (java.nio.file.Path, java.lang.String,
+     * java.nio.file.LinkOption[])
      */
     @Override
     public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options) throws IOException {
@@ -350,9 +354,8 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
     /*
      * (non-Javadoc)
      *
-     * @see
-     * dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider#setAttribute(
-     * java.nio.file.Path, java.lang.String, java.lang.Object,
+     * @see dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider#
+     * setAttribute( java.nio.file.Path, java.lang.String, java.lang.Object,
      * java.nio.file.LinkOption[])
      */
     @Override

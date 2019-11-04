@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.maven.repository.internal;
 
 import java.io.FileNotFoundException;
@@ -30,266 +35,267 @@ import org.osgi.service.url.URLStreamHandlerService;
 
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 
-@Component(service={URLStreamHandlerService.class}, property= {URLConstants.URL_HANDLER_PROTOCOL + "=mvn"})
+@Component(service = { URLStreamHandlerService.class }, property = { URLConstants.URL_HANDLER_PROTOCOL + "=mvn" })
 public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerService {
 
-	private static final Log logger = LogFactory.getLog(GalasaMavenUrlHandlerService.class);
-	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuuMMddHHmmss");
+    private static final Log               logger                = LogFactory
+            .getLog(GalasaMavenUrlHandlerService.class);
+    private static final DateTimeFormatter dtf                   = DateTimeFormatter.ofPattern("uuuuMMddHHmmss");
 
-	@Reference
-	private IMavenRepository galasaRepository;
-	
-	private final Path localGalasaRepository = Paths.get(System.getProperty("user.home") + "/", ".galasa", "mavenrepo");
-	
-	@Override
-	public URLConnection openConnection(URL arg0) throws IOException {
-		
-		String[] parts = arg0.getPath().split("/");
-		if (parts.length != 4) {
-			throw new MalformedURLException("Must have 4 parts in the maven artifact reference - " + arg0);
-		}
-		
-		String groupId = parts[0].trim();
-		String artifactId = parts[1].trim();
-		String version = parts[2].trim();
-		String packaging = parts[3].trim();
-		
-		if (groupId.isEmpty()) {
-			throw new MalformedURLException("groupId is missing - " + arg0);
-		}
-		if (artifactId.isEmpty()) {
-			throw new MalformedURLException("artifactId is missing - " + arg0);
-		}
-		if (version.isEmpty()) {
-			throw new MalformedURLException("version is missing - " + arg0);
-		}
-		if (packaging.isEmpty()) {
-			throw new MalformedURLException("packaging is missing - " + arg0);
-		}
-		
-		URL result = fetchArtifact(localGalasaRepository, groupId, artifactId, version, packaging);
-		if (result == null) {
-			throw new IOException("Unable to locate maven artifact " + arg0);
-		}
-		
-		return result.openConnection();
-	}
+    @Reference
+    private IMavenRepository               galasaRepository;
 
-	private URL fetchArtifact(Path localGalasaRepository, String groupid, String artifactid, String version, String type) throws IOException {
-		logger.trace("Resolving maven artifact " + groupid + ":" + artifactid + ":" + version + ":" + type);
+    private final Path                     localGalasaRepository = Paths.get(System.getProperty("user.home") + "/",
+            ".galasa", "mavenrepo");
 
-		URL localRepository = galasaRepository.getLocalRepository();
-		logger.trace("Checking local repository " + localRepository.toExternalForm());
+    @Override
+    public URLConnection openConnection(URL arg0) throws IOException {
 
-		//*** Check the local repository first, if the file exists,  use it from there
-		if (localRepository != null) {
-			try {
-				URL localFile = buildArtifactUrl(localRepository, groupid, artifactid, version, buildArtifactFilename(artifactid, version, type));
-				Path pathLocalFile = Paths.get(localFile.toURI());
-				logger.trace("Looking for file " + pathLocalFile.toFile().getAbsolutePath());
-				if (pathLocalFile.toFile().exists()) {
-					logger.trace("Found in local repository at " + localFile.toExternalForm());
-					return localFile;
-				}
-			} catch(Exception e) {
-				throw new IOException("Problem with local maven repository");
-			}
-		}
+        String[] parts = arg0.getPath().split("/");
+        if (parts.length != 4) {
+            throw new MalformedURLException("Must have 4 parts in the maven artifact reference - " + arg0);
+        }
 
-		if (galasaRepository.getRemoteRepositories() == null) {
-			return null;
-		}
+        String groupId = parts[0].trim();
+        String artifactId = parts[1].trim();
+        String version = parts[2].trim();
+        String packaging = parts[3].trim();
 
-		Path localGroupDirectory = localGalasaRepository.resolve(groupid);
-		Files.createDirectories(localGroupDirectory);
-		String targetFilename = artifactid + "-" + version + "." + type;
-		Path localArtifact = localGroupDirectory.resolve(targetFilename);
+        if (groupId.isEmpty()) {
+            throw new MalformedURLException("groupId is missing - " + arg0);
+        }
+        if (artifactId.isEmpty()) {
+            throw new MalformedURLException("artifactId is missing - " + arg0);
+        }
+        if (version.isEmpty()) {
+            throw new MalformedURLException("version is missing - " + arg0);
+        }
+        if (packaging.isEmpty()) {
+            throw new MalformedURLException("packaging is missing - " + arg0);
+        }
 
-		if (version.endsWith("-SNAPSHOT")) {
-			return fetchSnapshotArtifact(localArtifact, groupid, artifactid, version, type);
-		} else {
-			return fetchReleaseArtifact(localArtifact, groupid, artifactid, version, type);
-		}
-	}
+        URL result = fetchArtifact(localGalasaRepository, groupId, artifactId, version, packaging);
+        if (result == null) {
+            throw new IOException("Unable to locate maven artifact " + arg0);
+        }
 
-	private URL fetchSnapshotArtifact(Path localArtifact, String groupid, String artifactid, String version,	String type) throws IOException {
-		Path localTimestamp = localArtifact.resolveSibling(localArtifact.getFileName().toString() + ".lastupdated");
+        return result.openConnection();
+    }
 
-		long lastupdated = -1;
+    private URL fetchArtifact(Path localGalasaRepository, String groupid, String artifactid, String version,
+            String type) throws IOException {
+        logger.trace("Resolving maven artifact " + groupid + ":" + artifactid + ":" + version + ":" + type);
 
-		//*** Get the local last updated timestamp if it exists
-		if (localTimestamp.toFile().exists() && localArtifact.toFile().exists()) {
-			try {
-				lastupdated = Long.parseLong(new String(Files.readAllBytes(localTimestamp), "utf-8"));
-			} catch(Exception e) {
-				// NOP
-			}
-		}
+        URL localRepository = galasaRepository.getLocalRepository();
+        logger.trace("Checking local repository " + localRepository.toExternalForm());
 
-		//*** has it been updated today
-		LocalDate today = LocalDate.now();
-		long startOfDay = today.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
-		if (lastupdated >= startOfDay) {
-			logger.info("Downloaded snapshot is still valid");
-			return localArtifact.toUri().toURL();
-		}
+        // *** Check the local repository first, if the file exists, use it from there
+        if (localRepository != null) {
+            try {
+                URL localFile = buildArtifactUrl(localRepository, groupid, artifactid, version,
+                        buildArtifactFilename(artifactid, version, type));
+                Path pathLocalFile = Paths.get(localFile.toURI());
+                logger.trace("Looking for file " + pathLocalFile.toFile().getAbsolutePath());
+                if (pathLocalFile.toFile().exists()) {
+                    logger.trace("Found in local repository at " + localFile.toExternalForm());
+                    return localFile;
+                }
+            } catch (Exception e) {
+                throw new IOException("Problem with local maven repository");
+            }
+        }
 
-		logger.debug("Looking for updated snapshot of " + groupid + ":" + artifactid + ":" + version + ":" + type);
+        if (galasaRepository.getRemoteRepositories() == null) {
+            return null;
+        }
 
-		for(URL remoteRepository : galasaRepository.getRemoteRepositories()) {
-			URL found = retrieveSnapshot(remoteRepository, lastupdated, localArtifact, localTimestamp, groupid, artifactid, version, type);
-			if (found != null) {
-				return found;
-			}
-		}
+        Path localGroupDirectory = localGalasaRepository.resolve(groupid);
+        Files.createDirectories(localGroupDirectory);
+        String targetFilename = artifactid + "-" + version + "." + type;
+        Path localArtifact = localGroupDirectory.resolve(targetFilename);
 
-		return null;
-	}
+        if (version.endsWith("-SNAPSHOT")) {
+            return fetchSnapshotArtifact(localArtifact, groupid, artifactid, version, type);
+        } else {
+            return fetchReleaseArtifact(localArtifact, groupid, artifactid, version, type);
+        }
+    }
 
-	private static URL retrieveSnapshot(URL repository, 
-			long lastupdated, 
-			Path localArtifact, 
-			Path localTimestamp, 
-			String groupid,
-			String artifactid, 
-			String version, 
-			String type) throws IOException {
+    private URL fetchSnapshotArtifact(Path localArtifact, String groupid, String artifactid, String version,
+            String type) throws IOException {
+        Path localTimestamp = localArtifact.resolveSibling(localArtifact.getFileName().toString() + ".lastupdated");
 
+        long lastupdated = -1;
 
-		Path tempMetadata = Files.createTempFile("metadata", ".xml");
-		try {
-			URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version, "maven-metadata.xml");
-			logger.debug("Attempting to download " + urlRemoteFile);
+        // *** Get the local last updated timestamp if it exists
+        if (localTimestamp.toFile().exists() && localArtifact.toFile().exists()) {
+            try {
+                lastupdated = Long.parseLong(new String(Files.readAllBytes(localTimestamp), "utf-8"));
+            } catch (Exception e) {
+                // NOP
+            }
+        }
 
-			URLConnection connection = urlRemoteFile.openConnection();
-			connection.setDoOutput(false);
-			connection.connect();
-			Files.copy(connection.getInputStream(), tempMetadata, StandardCopyOption.REPLACE_EXISTING);
-		} catch(FileNotFoundException e) {
-			Files.delete(tempMetadata);
-			return null;
-		}
-		
-		String snapshotSuffix = null;
-		long updatedTime = 0;
-		try {
-			MetadataXpp3Reader reader = new MetadataXpp3Reader();
-			Metadata metadata = reader.read(Files.newInputStream(tempMetadata));
+        // *** has it been updated today
+        LocalDate today = LocalDate.now();
+        long startOfDay = today.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
+        if (lastupdated >= startOfDay) {
+            logger.info("Downloaded snapshot is still valid");
+            return localArtifact.toUri().toURL();
+        }
 
-			Versioning versioning = metadata.getVersioning();
-			if (versioning != null) {
-				String sUpdatedtime = versioning.getLastUpdated();
-				LocalDateTime updated = LocalDateTime.parse(sUpdatedtime, dtf);
-				updatedTime = updated.toEpochSecond(ZoneOffset.UTC);
+        logger.debug("Looking for updated snapshot of " + groupid + ":" + artifactid + ":" + version + ":" + type);
 
-				if (updatedTime < lastupdated) {
-					logger.debug("Snapshot is up to date");
-					return localArtifact.toUri().toURL();
-				}
+        for (URL remoteRepository : galasaRepository.getRemoteRepositories()) {
+            URL found = retrieveSnapshot(remoteRepository, lastupdated, localArtifact, localTimestamp, groupid,
+                    artifactid, version, type);
+            if (found != null) {
+                return found;
+            }
+        }
 
+        return null;
+    }
 
-				Snapshot snapshot = versioning.getSnapshot();
-				if (snapshot == null) {
-					return null;
-				}
+    private static URL retrieveSnapshot(URL repository, long lastupdated, Path localArtifact, Path localTimestamp,
+            String groupid, String artifactid, String version, String type) throws IOException {
 
-				if (snapshot.isLocalCopy()) {
-					snapshotSuffix = version;
-				} else {
-					snapshotSuffix = version.replace("SNAPSHOT", snapshot.getTimestamp() + "-" + snapshot.getBuildNumber());				
-				}
-			}
-		} catch(XmlPullParserException e) {
-			return null;
-		} finally {
-			Files.delete(tempMetadata);
-		}
+        Path tempMetadata = Files.createTempFile("metadata", ".xml");
+        try {
+            URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version, "maven-metadata.xml");
+            logger.debug("Attempting to download " + urlRemoteFile);
 
-		URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version, buildArtifactFilename(artifactid, snapshotSuffix, type));
-		logger.debug("Attempting to download " + urlRemoteFile);
+            URLConnection connection = urlRemoteFile.openConnection();
+            connection.setDoOutput(false);
+            connection.connect();
+            Files.copy(connection.getInputStream(), tempMetadata, StandardCopyOption.REPLACE_EXISTING);
+        } catch (FileNotFoundException e) {
+            Files.delete(tempMetadata);
+            return null;
+        }
 
-		URLConnection connection = urlRemoteFile.openConnection();
-		connection.setDoOutput(false);
-		connection.connect();
+        String snapshotSuffix = null;
+        long updatedTime = 0;
+        try {
+            MetadataXpp3Reader reader = new MetadataXpp3Reader();
+            Metadata metadata = reader.read(Files.newInputStream(tempMetadata));
 
-		try {
-			Files.copy(connection.getInputStream(), localArtifact, StandardCopyOption.REPLACE_EXISTING);
-		} catch(FileNotFoundException e) {
-			return null;
-		}
-		
-		logger.trace("Snapshot artifact downloaded from " + urlRemoteFile);
+            Versioning versioning = metadata.getVersioning();
+            if (versioning != null) {
+                String sUpdatedtime = versioning.getLastUpdated();
+                LocalDateTime updated = LocalDateTime.parse(sUpdatedtime, dtf);
+                updatedTime = updated.toEpochSecond(ZoneOffset.UTC);
 
-		Files.write(localTimestamp, Long.toString(Instant.now().getEpochSecond()).getBytes());
+                if (updatedTime < lastupdated) {
+                    logger.debug("Snapshot is up to date");
+                    return localArtifact.toUri().toURL();
+                }
 
-		return localArtifact.toUri().toURL();
-	}
+                Snapshot snapshot = versioning.getSnapshot();
+                if (snapshot == null) {
+                    return null;
+                }
 
-	private URL fetchReleaseArtifact(Path localArtifact, String groupid, String artifactid, String version, String type) throws IOException {
-		if (localArtifact.toFile().exists()) {
-			logger.trace("Release artifact already in Galasa repository");
-			return localArtifact.toUri().toURL();
-		}
+                if (snapshot.isLocalCopy()) {
+                    snapshotSuffix = version;
+                } else {
+                    snapshotSuffix = version.replace("SNAPSHOT",
+                            snapshot.getTimestamp() + "-" + snapshot.getBuildNumber());
+                }
+            }
+        } catch (XmlPullParserException e) {
+            return null;
+        } finally {
+            Files.delete(tempMetadata);
+        }
 
+        URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version,
+                buildArtifactFilename(artifactid, snapshotSuffix, type));
+        logger.debug("Attempting to download " + urlRemoteFile);
 
+        URLConnection connection = urlRemoteFile.openConnection();
+        connection.setDoOutput(false);
+        connection.connect();
 
-		for(URL remoteRepository : galasaRepository.getRemoteRepositories()) {
-			if (getArtifact(remoteRepository, localArtifact, groupid, artifactid, version)) {
-				return localArtifact.toUri().toURL();
-			}		
-		}
-		
-		return null;
-	}
+        try {
+            Files.copy(connection.getInputStream(), localArtifact, StandardCopyOption.REPLACE_EXISTING);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
 
+        logger.trace("Snapshot artifact downloaded from " + urlRemoteFile);
 
-	private static boolean getArtifact(URL repository, Path localArtifact, String groupid, String artifactid, String version) throws IOException {
-		logger.debug("Checking " + repository);
+        Files.write(localTimestamp, Long.toString(Instant.now().getEpochSecond()).getBytes());
 
-		//*** Read the artifact
-		URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version, localArtifact.getFileName().toString());
-		logger.debug("Attempting to download " + urlRemoteFile);
-		URLConnection connection = urlRemoteFile.openConnection();
-		connection.setDoOutput(false);
-		connection.connect();
+        return localArtifact.toUri().toURL();
+    }
 
-		try {
-			Files.copy(connection.getInputStream(), localArtifact, StandardCopyOption.REPLACE_EXISTING);
-		} catch(FileNotFoundException e) {
-			return false;
-		}
+    private URL fetchReleaseArtifact(Path localArtifact, String groupid, String artifactid, String version, String type)
+            throws IOException {
+        if (localArtifact.toFile().exists()) {
+            logger.trace("Release artifact already in Galasa repository");
+            return localArtifact.toUri().toURL();
+        }
 
-		logger.trace("Release artifact downloaded from " + urlRemoteFile);
+        for (URL remoteRepository : galasaRepository.getRemoteRepositories()) {
+            if (getArtifact(remoteRepository, localArtifact, groupid, artifactid, version)) {
+                return localArtifact.toUri().toURL();
+            }
+        }
 
-		return true;
-	}
+        return null;
+    }
 
-	private static URL buildArtifactUrl(URL repository, String groupid, String artifactid, String version, String filename) throws IOException {
-		String groupidDirectory = groupid.replaceAll("\\.", "/");
+    private static boolean getArtifact(URL repository, Path localArtifact, String groupid, String artifactid,
+            String version) throws IOException {
+        logger.debug("Checking " + repository);
 
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(repository.toExternalForm());
-		stringBuilder.append("/");
-		stringBuilder.append(groupidDirectory);
-		stringBuilder.append("/");
-		stringBuilder.append(artifactid);
-		stringBuilder.append("/");
-		stringBuilder.append(version);
-		stringBuilder.append("/");
-		stringBuilder.append(filename);
+        // *** Read the artifact
+        URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version,
+                localArtifact.getFileName().toString());
+        logger.debug("Attempting to download " + urlRemoteFile);
+        URLConnection connection = urlRemoteFile.openConnection();
+        connection.setDoOutput(false);
+        connection.connect();
 
-		//*** Read the artifact
-		return new URL(stringBuilder.toString());
-	}
+        try {
+            Files.copy(connection.getInputStream(), localArtifact, StandardCopyOption.REPLACE_EXISTING);
+        } catch (FileNotFoundException e) {
+            return false;
+        }
 
-	private static String buildArtifactFilename(String artifactid, String version, String filename) {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(artifactid);
-		stringBuilder.append("-");
-		stringBuilder.append(version);
-		stringBuilder.append(".");
-		stringBuilder.append(filename);
+        logger.trace("Release artifact downloaded from " + urlRemoteFile);
 
-		return stringBuilder.toString();
-	}
+        return true;
+    }
+
+    private static URL buildArtifactUrl(URL repository, String groupid, String artifactid, String version,
+            String filename) throws IOException {
+        String groupidDirectory = groupid.replaceAll("\\.", "/");
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(repository.toExternalForm());
+        stringBuilder.append("/");
+        stringBuilder.append(groupidDirectory);
+        stringBuilder.append("/");
+        stringBuilder.append(artifactid);
+        stringBuilder.append("/");
+        stringBuilder.append(version);
+        stringBuilder.append("/");
+        stringBuilder.append(filename);
+
+        // *** Read the artifact
+        return new URL(stringBuilder.toString());
+    }
+
+    private static String buildArtifactFilename(String artifactid, String version, String filename) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(artifactid);
+        stringBuilder.append("-");
+        stringBuilder.append(version);
+        stringBuilder.append(".");
+        stringBuilder.append(filename);
+
+        return stringBuilder.toString();
+    }
 }

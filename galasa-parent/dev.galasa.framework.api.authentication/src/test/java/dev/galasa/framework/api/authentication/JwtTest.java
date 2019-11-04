@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.api.authentication;
 
 import static org.junit.Assert.assertEquals;
@@ -8,7 +13,6 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -43,6 +47,7 @@ public class JwtTest {
         auth.activate(props);
         jwt = auth.createJWT(subject, role, expireDuration);
     }
+
     @Test
     public void createJwt() {
         assertNotNull(jwt);
@@ -52,9 +57,7 @@ public class JwtTest {
     public void decodeJwt() {
 
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
-        JWTVerifier verifier = JWT.require(algorithm)
-                        .withIssuer("galasa")
-                        .build();
+        JWTVerifier verifier = JWT.require(algorithm).withIssuer("galasa").build();
 
         DecodedJWT jwtdecode = verifier.verify(jwt);
         jwtdecode = JWT.decode(jwt);
@@ -68,9 +71,7 @@ public class JwtTest {
         Boolean caught = false;
 
         Algorithm algorithm = Algorithm.HMAC256(wrongSecret);
-        JWTVerifier verifier = JWT.require(algorithm)
-                        .withIssuer("galasa")
-                        .build();
+        JWTVerifier verifier = JWT.require(algorithm).withIssuer("galasa").build();
 
         try {
             DecodedJWT jwtdecode = verifier.verify(jwt);

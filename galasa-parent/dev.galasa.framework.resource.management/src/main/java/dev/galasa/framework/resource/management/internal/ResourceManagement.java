@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.resource.management.internal;
 
 import java.io.IOException;
@@ -34,278 +39,282 @@ import io.prometheus.client.exporter.HTTPServer;
 /**
  * Run Resource Management
  */
-@Component(service={ResourceManagement.class})
+@Component(service = { ResourceManagement.class })
 public class ResourceManagement implements IResourceManagement {
 
-	private Log logger = LogFactory.getLog(this.getClass());
+    private Log                                          logger                             = LogFactory
+            .getLog(this.getClass());
 
-	private BundleContext bundleContext;
+    private BundleContext                                bundleContext;
 
-	private final ArrayList<IResourceManagementProvider> resourceManagementProviders = new ArrayList<>();
-	private ScheduledExecutorService scheduledExecutorService;
+    private final ArrayList<IResourceManagementProvider> resourceManagementProviders        = new ArrayList<>();
+    private ScheduledExecutorService                     scheduledExecutorService;
 
-	private boolean shutdown = false;
-	private boolean shutdownComplete = false;
+    private boolean                                      shutdown                           = false;
+    private boolean                                      shutdownComplete                   = false;
 
-	private long successfulRunsSinceLastHealthCheck = 0;
+    private long                                         successfulRunsSinceLastHealthCheck = 0;
 
-	private HTTPServer metricsServer;
-	private Counter    successfulRunsCounter;
+    private HTTPServer                                   metricsServer;
+    private Counter                                      successfulRunsCounter;
 
-	private ResourceManagementHealth healthServer;
-	
-	private String serverName;
-	private String hostname;
+    private ResourceManagementHealth                     healthServer;
 
-	/**
-	 * Run Resource Management
-	 * 
-	 * @return
-	 * @throws TestRunException
-	 */
-	public void run(Properties bootstrapProperties, Properties overrideProperties) throws FrameworkException  {
+    private String                                       serverName;
+    private String                                       hostname;
 
-		//*** Add shutdown hook to allow for orderly shutdown
-		Runtime.getRuntime().addShutdownHook(new ShutdownHook()); 
+    /**
+     * Run Resource Management
+     * 
+     * @return
+     * @throws TestRunException
+     */
+    public void run(Properties bootstrapProperties, Properties overrideProperties) throws FrameworkException {
 
-		//*** Initialise the framework services
-		FrameworkInitialisation frameworkInitialisation = null;
-		try {
-			frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
-		} catch (Exception e) {
-			throw new FrameworkException("Unable to initialise the Framework Services", e);
-		}
-		IFramework framework = frameworkInitialisation.getFramework();
+        // *** Add shutdown hook to allow for orderly shutdown
+        Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
-		IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService("framework");
-		IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
+        // *** Initialise the framework services
+        FrameworkInitialisation frameworkInitialisation = null;
+        try {
+            frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+        } catch (Exception e) {
+            throw new FrameworkException("Unable to initialise the Framework Services", e);
+        }
+        IFramework framework = frameworkInitialisation.getFramework();
 
-		//*** Now start the Resource Management framework
+        IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService("framework");
+        IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
 
-		logger.info("Starting Resource Management");
-		
-		//*** Calculate servername
-		
-		this.hostname = "unknown";
-		try {
-			this.hostname = InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			logger.error("Unable to obtain the host name",e);
-		}
-		this.serverName = AbstractManager.nulled(cps.getProperty("server", "name"));
-		if (this.serverName == null) {
-			this.serverName = AbstractManager.nulled(System.getenv("framework.server.name"));
-			if (this.serverName == null) {
-				String[] split = this.hostname.split("\\.");
-				if (split.length >= 1) {
-					this.serverName = split[0];
-				}
-			}
-		}
-		if (serverName == null) {
-			this.serverName = "unknown";
-		}
-		this.serverName = this.serverName.toLowerCase();
-		this.hostname   = this.hostname.toLowerCase();
-		this.serverName = this.serverName.replaceAll("\\.", "-");
-		
-		//*** Setup defaults and properties
+        // *** Now start the Resource Management framework
 
-		int numberOfRunThreads = 5;
-		int metricsPort        = 9010;
-		int healthPort         = 9011;
+        logger.info("Starting Resource Management");
 
-		String threads = AbstractManager.nulled(cps.getProperty("resource.management", "threads"));
-		if (threads != null) {
-			numberOfRunThreads = Integer.parseInt(threads);
-		}
+        // *** Calculate servername
 
-		String port = AbstractManager.nulled(cps.getProperty("resource.management.metrics", "port"));
-		if (port != null) {
-			metricsPort = Integer.parseInt(port);
-		}
+        this.hostname = "unknown";
+        try {
+            this.hostname = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            logger.error("Unable to obtain the host name", e);
+        }
+        this.serverName = AbstractManager.nulled(cps.getProperty("server", "name"));
+        if (this.serverName == null) {
+            this.serverName = AbstractManager.nulled(System.getenv("framework.server.name"));
+            if (this.serverName == null) {
+                String[] split = this.hostname.split("\\.");
+                if (split.length >= 1) {
+                    this.serverName = split[0];
+                }
+            }
+        }
+        if (serverName == null) {
+            this.serverName = "unknown";
+        }
+        this.serverName = this.serverName.toLowerCase();
+        this.hostname = this.hostname.toLowerCase();
+        this.serverName = this.serverName.replaceAll("\\.", "-");
 
-		port = AbstractManager.nulled(cps.getProperty("resource.management.health", "port"));
-		if (port != null) {
-			healthPort = Integer.parseInt(port);
-		}
+        // *** Setup defaults and properties
 
-		//*** Setup scheduler
-		scheduledExecutorService = new ScheduledThreadPoolExecutor(numberOfRunThreads);
+        int numberOfRunThreads = 5;
+        int metricsPort = 9010;
+        int healthPort = 9011;
 
-		//*** Start the metrics server
-		if (metricsPort > 0) {
-			try {
-				this.metricsServer = new HTTPServer(metricsPort);
-				logger.info("Metrics server running on port " + metricsPort);
-			} catch (IOException e) {
-				throw new FrameworkException("Unable to start the metrics server",e);
-			}
-		} else {
-			logger.info("Metrics server disabled");
-		}
+        String threads = AbstractManager.nulled(cps.getProperty("resource.management", "threads"));
+        if (threads != null) {
+            numberOfRunThreads = Integer.parseInt(threads);
+        }
 
-		//*** Create metrics
-		//		DefaultExports.initialize()  - problem within the the exporter at the moment TODO
+        String port = AbstractManager.nulled(cps.getProperty("resource.management.metrics", "port"));
+        if (port != null) {
+            metricsPort = Integer.parseInt(port);
+        }
 
-		this.successfulRunsCounter = Counter.build()
-				.name("galasa_resource_management_successfull_runs")
-				.help("The number of successfull resource management runs")
-				.register();
+        port = AbstractManager.nulled(cps.getProperty("resource.management.health", "port"));
+        if (port != null) {
+            healthPort = Integer.parseInt(port);
+        }
 
-		//*** Create Health Server
-		if (healthPort > 0) {		
-			this.healthServer = new ResourceManagementHealth(this, healthPort);
-			logger.info("Health monitoring on port " + healthPort);
-		} else {
-			logger.info("Health monitoring disabled");
-		}
+        // *** Setup scheduler
+        scheduledExecutorService = new ScheduledThreadPoolExecutor(numberOfRunThreads);
 
-		//*** Locate all the Resource Management providers in the framework
-		try {
-			final ServiceReference<?>[] rmpServiceReference = bundleContext.getAllServiceReferences(IResourceManagementProvider.class.getName(), null);
-			if ((rmpServiceReference == null) || (rmpServiceReference.length == 0)) {
-				logger.info("No additional Resource Manager providers have been found");
-			} else {
-				for (final ServiceReference<?> rmpReference : rmpServiceReference) {
-					final IResourceManagementProvider rmpStoreRegistration = (IResourceManagementProvider)bundleContext.getService(rmpReference);
-					try {
-						if (rmpStoreRegistration.initialise(framework, this)) {
-							logger.info("Found Resource Management Provider "+ rmpStoreRegistration.getClass().getName());
-							resourceManagementProviders.add(rmpStoreRegistration);
-						} else {
-							logger.info("Resource Management Provider "+ rmpStoreRegistration.getClass().getName() + " opted out of this Resource Management run");
-						}
-					} catch(Exception e) {
-						logger.error("Failed initialisation of Resource Management Provider " + rmpStoreRegistration.getClass().getName() + " ignoring",e);
-					}
-				}
-			}
-		} catch(Exception e) {
-			throw new FrameworkException("Problem during Resource Manager initialisation",e);
-		}
+        // *** Start the metrics server
+        if (metricsPort > 0) {
+            try {
+                this.metricsServer = new HTTPServer(metricsPort);
+                logger.info("Metrics server running on port " + metricsPort);
+            } catch (IOException e) {
+                throw new FrameworkException("Unable to start the metrics server", e);
+            }
+        } else {
+            logger.info("Metrics server disabled");
+        }
 
-		//*** Start the providers
-		for(IResourceManagementProvider provider : resourceManagementProviders) {
-			provider.start();
-		}
+        // *** Create metrics
+        // DefaultExports.initialize() - problem within the the exporter at the moment
+        // TODO
 
-		//*** Start the Run watch thread
-		ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, this);
+        this.successfulRunsCounter = Counter.build().name("galasa_resource_management_successfull_runs")
+                .help("The number of successfull resource management runs").register();
 
-		logger.info("Resource Manager has started");
-		
-		//*** Loop until we are asked to shutdown
-		long heartbeatExpire = 0;
-		while(!shutdown) {
-			if (System.currentTimeMillis() >= heartbeatExpire) {
-				updateHeartbeat(dss);
-				heartbeatExpire = System.currentTimeMillis() + 20000;
-			}
-			
-			try {
-				Thread.sleep(500);
-			} catch(Exception e) {
-				throw new FrameworkException("Interrupted sleep", e);
-			}
-		}
+        // *** Create Health Server
+        if (healthPort > 0) {
+            this.healthServer = new ResourceManagementHealth(this, healthPort);
+            logger.info("Health monitoring on port " + healthPort);
+        } else {
+            logger.info("Health monitoring disabled");
+        }
 
-		//*** shutdown the scheduler
-		this.scheduledExecutorService.shutdown();
-		try {
-			this.scheduledExecutorService.awaitTermination(30, TimeUnit.SECONDS);
-		} catch(Exception e) {
-			logger.error("Unable to shutdown the scheduler");
-		}
+        // *** Locate all the Resource Management providers in the framework
+        try {
+            final ServiceReference<?>[] rmpServiceReference = bundleContext
+                    .getAllServiceReferences(IResourceManagementProvider.class.getName(), null);
+            if ((rmpServiceReference == null) || (rmpServiceReference.length == 0)) {
+                logger.info("No additional Resource Manager providers have been found");
+            } else {
+                for (final ServiceReference<?> rmpReference : rmpServiceReference) {
+                    final IResourceManagementProvider rmpStoreRegistration = (IResourceManagementProvider) bundleContext
+                            .getService(rmpReference);
+                    try {
+                        if (rmpStoreRegistration.initialise(framework, this)) {
+                            logger.info(
+                                    "Found Resource Management Provider " + rmpStoreRegistration.getClass().getName());
+                            resourceManagementProviders.add(rmpStoreRegistration);
+                        } else {
+                            logger.info("Resource Management Provider " + rmpStoreRegistration.getClass().getName()
+                                    + " opted out of this Resource Management run");
+                        }
+                    } catch (Exception e) {
+                        logger.error("Failed initialisation of Resource Management Provider "
+                                + rmpStoreRegistration.getClass().getName() + " ignoring", e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new FrameworkException("Problem during Resource Manager initialisation", e);
+        }
 
-		//*** Ask the run watch to terminate
-		runWatch.shutdown();
+        // *** Start the providers
+        for (IResourceManagementProvider provider : resourceManagementProviders) {
+            provider.start();
+        }
 
-		//*** shutdown the providers
-		for(IResourceManagementProvider provider : resourceManagementProviders) {
-			logger.info("Requesting Resource Management Provider " + provider.getClass().getName() + " shutdown");			
-			provider.shutdown();
-		}
+        // *** Start the Run watch thread
+        ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, this);
 
-		//*** Stop the metics server
-		if (metricsPort > 0) {
-			this.metricsServer.stop();
-		}
+        logger.info("Resource Manager has started");
 
-		//*** Stop the health server
-		if (healthPort > 0) {
-			this.healthServer.shutdown();
-		}
+        // *** Loop until we are asked to shutdown
+        long heartbeatExpire = 0;
+        while (!shutdown) {
+            if (System.currentTimeMillis() >= heartbeatExpire) {
+                updateHeartbeat(dss);
+                heartbeatExpire = System.currentTimeMillis() + 20000;
+            }
 
-		logger.info("Resource Management shutdown");
-		shutdownComplete = true;
-		return;
-	}
+            try {
+                Thread.sleep(500);
+            } catch (Exception e) {
+                throw new FrameworkException("Interrupted sleep", e);
+            }
+        }
 
-	private void updateHeartbeat(IDynamicStatusStoreService dss) {
-		Instant time = Instant.now();
-		
-		HashMap<String, String> props = new HashMap<>();
-		props.put("servers.resourcemonitor." + serverName + ".heartbeat", time.toString());
-		props.put("servers.resourcemonitor." + serverName + ".hostname", hostname);
-		
-		try {
-			dss.put(props);
-		} catch (DynamicStatusStoreException e) {
-			logger.error("Problem logging heartbeat",e);
-		}
-	}
+        // *** shutdown the scheduler
+        this.scheduledExecutorService.shutdown();
+        try {
+            this.scheduledExecutorService.awaitTermination(30, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logger.error("Unable to shutdown the scheduler");
+        }
 
-	@Activate
-	public void activate(BundleContext context) {
-		this.bundleContext = context;
-	}
+        // *** Ask the run watch to terminate
+        runWatch.shutdown();
 
-	public void runFinishedOrDeleted(String runName) {
-		for(IResourceManagementProvider provider : resourceManagementProviders) {
-			provider.runFinishedOrDeleted(runName);
-		}
-	}
+        // *** shutdown the providers
+        for (IResourceManagementProvider provider : resourceManagementProviders) {
+            logger.info("Requesting Resource Management Provider " + provider.getClass().getName() + " shutdown");
+            provider.shutdown();
+        }
 
-	@Override
-	public ScheduledExecutorService getScheduledExecutorService() {
-		return this.scheduledExecutorService;
-	}
+        // *** Stop the metics server
+        if (metricsPort > 0) {
+            this.metricsServer.stop();
+        }
 
-	@Override
-	public synchronized void resourceManagementRunSuccessful() {
-		if (this.successfulRunsSinceLastHealthCheck == Long.MAX_VALUE) {
-			this.successfulRunsSinceLastHealthCheck = 0;
-		}
-		this.successfulRunsSinceLastHealthCheck++;
+        // *** Stop the health server
+        if (healthPort > 0) {
+            this.healthServer.shutdown();
+        }
 
-		this.successfulRunsCounter.inc();
-	}
+        logger.info("Resource Management shutdown");
+        shutdownComplete = true;
+        return;
+    }
 
-	protected synchronized long getSuccessfulRunsSinceLastHealthCheck() {
-		long lastCount = this.successfulRunsSinceLastHealthCheck;
-		this.successfulRunsSinceLastHealthCheck = 0;
-		
-		return lastCount;
-	}
+    private void updateHeartbeat(IDynamicStatusStoreService dss) {
+        Instant time = Instant.now();
 
+        HashMap<String, String> props = new HashMap<>();
+        props.put("servers.resourcemonitor." + serverName + ".heartbeat", time.toString());
+        props.put("servers.resourcemonitor." + serverName + ".hostname", hostname);
 
-	private class ShutdownHook extends Thread {
-		@Override
-		public void run() {
-			ResourceManagement.this.logger.info("Shutdown request received");
-			ResourceManagement.this.shutdown = true;
+        try {
+            dss.put(props);
+        } catch (DynamicStatusStoreException e) {
+            logger.error("Problem logging heartbeat", e);
+        }
+    }
 
-			while(!shutdownComplete) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					ResourceManagement.this.logger.info("Shutdown wait was interrupted",e);
-					Thread.currentThread().interrupt();
-					return;
-				}
-			}
-		}
-	}
+    @Activate
+    public void activate(BundleContext context) {
+        this.bundleContext = context;
+    }
+
+    public void runFinishedOrDeleted(String runName) {
+        for (IResourceManagementProvider provider : resourceManagementProviders) {
+            provider.runFinishedOrDeleted(runName);
+        }
+    }
+
+    @Override
+    public ScheduledExecutorService getScheduledExecutorService() {
+        return this.scheduledExecutorService;
+    }
+
+    @Override
+    public synchronized void resourceManagementRunSuccessful() {
+        if (this.successfulRunsSinceLastHealthCheck == Long.MAX_VALUE) {
+            this.successfulRunsSinceLastHealthCheck = 0;
+        }
+        this.successfulRunsSinceLastHealthCheck++;
+
+        this.successfulRunsCounter.inc();
+    }
+
+    protected synchronized long getSuccessfulRunsSinceLastHealthCheck() {
+        long lastCount = this.successfulRunsSinceLastHealthCheck;
+        this.successfulRunsSinceLastHealthCheck = 0;
+
+        return lastCount;
+    }
+
+    private class ShutdownHook extends Thread {
+        @Override
+        public void run() {
+            ResourceManagement.this.logger.info("Shutdown request received");
+            ResourceManagement.this.shutdown = true;
+
+            while (!shutdownComplete) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    ResourceManagement.this.logger.info("Shutdown wait was interrupted", e);
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        }
+    }
 
 }

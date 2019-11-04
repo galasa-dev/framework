@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework;
 
 import java.io.ByteArrayOutputStream;
@@ -46,28 +51,27 @@ import dev.galasa.framework.spi.utils.DssUtils;
 /**
  * Run the supplied test class
  */
-@Component(service={TestRunner.class})
+@Component(service = { TestRunner.class })
 public class TestRunner {
 
+    private Log                                logger        = LogFactory.getLog(TestRunner.class);
 
-    private Log logger = LogFactory.getLog(TestRunner.class);
+    private BundleContext                      bundleContext;
 
-    private BundleContext bundleContext;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL)
+    private RepositoryAdmin                    repositoryAdmin;
 
-    @Reference(cardinality=ReferenceCardinality.OPTIONAL)
-    private RepositoryAdmin repositoryAdmin;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL)
+    private IMavenRepository                   mavenRepository;
 
-    @Reference(cardinality=ReferenceCardinality.OPTIONAL)
-    private IMavenRepository mavenRepository;
-
-    private TestRunHeartbeat heartbeat;
+    private TestRunHeartbeat                   heartbeat;
 
     private IConfigurationPropertyStoreService cps;
-    private IDynamicStatusStoreService dss;
-    private IResultArchiveStore        ras;
-    private IRun                       run;
+    private IDynamicStatusStoreService         dss;
+    private IResultArchiveStore                ras;
+    private IRun                               run;
 
-    private TestStructure              testStructure = new TestStructure();
+    private TestStructure                      testStructure = new TestStructure();
 
     /**
      * Run the supplied test class
@@ -77,9 +81,9 @@ public class TestRunner {
      * @return
      * @throws TestRunException
      */
-    public void runTest(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException  {
+    public void runTest(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {
 
-        //*** Initialise the framework services
+        // *** Initialise the framework services
         FrameworkInitialisation frameworkInitialisation = null;
         try {
             frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, true);
@@ -103,22 +107,22 @@ public class TestRunner {
         String testClassName = run.getTestClassName();
 
         String testRepository = null;
-        String testOBR        = null;
-        String stream         = AbstractManager.nulled(run.getStream());
+        String testOBR = null;
+        String stream = AbstractManager.nulled(run.getStream());
 
         this.testStructure.setRunName(run.getName());
         this.testStructure.setQueued(run.getQueued());
         this.testStructure.setStartTime(Instant.now());
-        this.testStructure.setRequestor(AbstractManager.defaultString(run.getRequestor(),"unknown"));
+        this.testStructure.setRequestor(AbstractManager.defaultString(run.getRequestor(), "unknown"));
         writeTestStructure();
 
         if (stream != null) {
             logger.debug("Loading test stream " + stream);
             try {
                 testRepository = this.cps.getProperty("stream", "repo", stream);
-                testOBR        = this.cps.getProperty("stream", "obr", stream);
-            } catch(Exception e) {
-                logger.error("Unable to load stream " + stream + " settings",e);
+                testOBR = this.cps.getProperty("stream", "obr", stream);
+            } catch (Exception e) {
+                logger.error("Unable to load stream " + stream + " settings", e);
                 updateStatus("finished", "finished");
                 this.ras.shutdown();
                 return;
@@ -139,7 +143,7 @@ public class TestRunner {
             try {
                 this.mavenRepository.addRemoteRepository(new URL(testRepository));
             } catch (MalformedURLException e) {
-                logger.error("Unable to add remote maven repository " + testRepository,e);
+                logger.error("Unable to add remote maven repository " + testRepository, e);
                 updateStatus("finished", "finished");
                 this.ras.shutdown();
                 return;
@@ -151,7 +155,7 @@ public class TestRunner {
             try {
                 repositoryAdmin.addRepository(testOBR);
             } catch (Exception e) {
-                logger.error("Unable to load specified OBR " + testOBR,e);
+                logger.error("Unable to load specified OBR " + testOBR, e);
                 updateStatus("finished", "finished");
                 this.ras.shutdown();
                 return;
@@ -160,8 +164,8 @@ public class TestRunner {
 
         try {
             loadBundle(testBundleName);
-        } catch(Exception e) {
-            logger.error("Unable to load the test bundle " + testBundleName,e);
+        } catch (Exception e) {
+            logger.error("Unable to load the test bundle " + testBundleName, e);
             updateStatus("finished", "finished");
             this.ras.shutdown();
             return;
@@ -180,7 +184,7 @@ public class TestRunner {
         logger.info("Run test: " + testBundleName + "/" + testClassName);
         Class<?> testClass = getTestClass(testBundleName, testClassName);
 
-        //*** Initialise the Managers ready for the test run
+        // *** Initialise the Managers ready for the test run
         TestRunManagers managers = null;
         try {
             managers = new TestRunManagers(frameworkInitialisation.getFramework(), testClass);
@@ -195,12 +199,11 @@ public class TestRunner {
                 stopHeartbeat();
                 updateStatus("finished", "finished");
                 this.ras.shutdown();
-                return; //TODO handle ignored classes
+                return; // TODO handle ignored classes
             }
         } catch (FrameworkException e) {
             throw new TestRunException("Problem asking Managers for an ignore reason", e);
         }
-
 
         TestClassWrapper testClassWrapper = new TestClassWrapper(this, testBundleName, testClass, testStructure);
 
@@ -208,16 +211,15 @@ public class TestRunner {
 
         testClassWrapper.instantiateTestClass();
 
-
-
         try {
             updateStatus("generating", null);
             managers.provisionGenerate();
-        } catch(Exception e) {  // TODO we need an exception is specific for resource exhaustion, diferrentiate between env fail
+        } catch (Exception e) { // TODO we need an exception is specific for resource exhaustion, diferrentiate
+                                // between env fail
             logger.info("Provision Generate failed", e);
-            stopHeartbeat(); //*** Stop the heartbeat immediately
+            stopHeartbeat(); // *** Stop the heartbeat immediately
 
-            managers.provisionDiscard(); //*** Get rid of what we managed to get
+            managers.provisionDiscard(); // *** Get rid of what we managed to get
 
             if (!run.isLocal()) {
                 markWaiting(frameworkInitialisation.getFramework());
@@ -228,17 +230,17 @@ public class TestRunner {
             try {
                 deleteRunProperties(frameworkInitialisation.getFramework());
             } catch (FrameworkException e1) {
-                //*** Any error, report it and leave for the core manager to clean up
+                // *** Any error, report it and leave for the core manager to clean up
                 logger.error("Error cleaning up local test run properties", e);
             }
-            this.ras.shutdown();			
+            this.ras.shutdown();
             throw new TestRunException("Unable to provision generate", e);
         }
 
         try {
             updateStatus("building", null);
             managers.provisionBuild();
-        } catch(Exception e) {
+        } catch (Exception e) {
             managers.provisionDiscard();
             stopHeartbeat();
             this.ras.shutdown();
@@ -248,7 +250,7 @@ public class TestRunner {
         try {
             updateStatus("provstart", null);
             managers.provisionStart();
-        } catch(Exception e) {
+        } catch (Exception e) {
             managers.provisionStop();
             managers.provisionDiscard();
             stopHeartbeat();
@@ -268,19 +270,22 @@ public class TestRunner {
         stopHeartbeat();
         updateStatus("finished", "finished");
 
-        //*** Record all the CPS properties that were accessed
+        // *** Record all the CPS properties that were accessed
         recordCPSProperties(frameworkInitialisation);
 
-        //*** If this was a local run, then we will want to remove the run properties from the DSS immediately
-        //*** for automation, we will let the core manager clean up after a while
-        //*** Local runs will have access to the run details via a view,
-        //*** But automation runs will only exist in the RAS if we delete them, so need to give 
-        //*** time for things like jenkins and other run requesters to obtain the result and RAS id before 
-        //*** deleting,  default is to keep the automation run properties for 5 minutes
+        // *** If this was a local run, then we will want to remove the run properties
+        // from the DSS immediately
+        // *** for automation, we will let the core manager clean up after a while
+        // *** Local runs will have access to the run details via a view,
+        // *** But automation runs will only exist in the RAS if we delete them, so need
+        // to give
+        // *** time for things like jenkins and other run requesters to obtain the
+        // result and RAS id before
+        // *** deleting, default is to keep the automation run properties for 5 minutes
         try {
             deleteRunProperties(frameworkInitialisation.getFramework());
         } catch (FrameworkException e) {
-            //*** Any error, report it and leave for the core manager to clean up
+            // *** Any error, report it and leave for the core manager to clean up
             logger.error("Error cleaning up local test run properties", e);
         }
 
@@ -304,8 +309,8 @@ public class TestRunner {
             if (sRandomDelay != null) {
                 randomDelay = Integer.parseInt(sRandomDelay);
             }
-        } catch(Exception e) {
-            logger.error("Problem reading delay properties",e);
+        } catch (Exception e) {
+            logger.error("Problem reading delay properties", e);
         }
 
         int totalDelay = initialDelay + framework.getRandom().nextInt(randomDelay);
@@ -336,17 +341,17 @@ public class TestRunner {
 
         this.testStructure.setStatus(status);
         if ("finished".equals(status)) {
-        	updateResult();
+            updateResult();
             this.testStructure.setEndTime(Instant.now());
         }
 
         writeTestStructure();
     }
-    
+
     private void updateResult() throws TestRunException {
-    	try {
-    		this.dss.put("run." + run.getName() + ".result", this.testStructure.getResult());
-    	} catch (DynamicStatusStoreException e) {
+        try {
+            this.dss.put("run." + run.getName() + ".result", this.testStructure.getResult());
+        } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update result", e);
         }
     }
@@ -355,13 +360,13 @@ public class TestRunner {
         heartbeat.shutdown();
         try {
             heartbeat.join(2000);
-        } catch(Exception e) {
+        } catch (Exception e) {
         }
 
         try {
             dss.delete("run." + run.getName() + ".heartbeat");
         } catch (DynamicStatusStoreException e) {
-            logger.error("Unable to delete heartbeat",e);
+            logger.error("Unable to delete heartbeat", e);
         }
     }
 
@@ -369,23 +374,21 @@ public class TestRunner {
         try {
             this.ras.updateTestStructure(testStructure);
         } catch (ResultArchiveStoreException e) {
-            logger.warn("Unable to write the test structure to the RAS",e);
+            logger.warn("Unable to write the test structure to the RAS", e);
         }
 
     }
-
 
     private void deleteRunProperties(@NotNull IFramework framework) throws FrameworkException {
 
         IRun run = framework.getTestRun();
 
-        if (!run.isLocal()) { //*** Not interested in non-local runs
+        if (!run.isLocal()) { // *** Not interested in non-local runs
             return;
         }
 
         framework.getFrameworkRuns().delete(run.getName());
     }
-
 
     /**
      * Get the test class from the supplied bundle
@@ -416,21 +419,19 @@ public class TestRunner {
         if (!bundleFound) {
             throw new TestRunException("Unable to find test bundle " + testBundleName);
         }
-        return testClazz;		
+        return testClazz;
     }
-
 
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
     }
 
-
     /**
      * Load a bundle from the OSGi Bundle Repository
      * 
      * @param bundleSymbolicName
-     * @throws LauncherException 
+     * @throws LauncherException
      */
     private void loadBundle(String bundleSymbolicName) throws TestRunException {
 
@@ -447,10 +448,11 @@ public class TestRunner {
             if (resources.length == 0) {
                 throw new TestRunException("Unable to locate bundle \"" + bundleSymbolicName + "\" in OBR repository");
             }
-            //*** Only load the first one
+            // *** Only load the first one
             addResource(bundleSymbolicName, resolver, resources[0]);
         } catch (TestRunException e) {
-            throw new TestRunException("Unable to install bundle \"" + bundleSymbolicName + "\" from OBR repository", e);
+            throw new TestRunException("Unable to install bundle \"" + bundleSymbolicName + "\" from OBR repository",
+                    e);
         }
     }
 
@@ -471,8 +473,7 @@ public class TestRunner {
             resourceHasReferenceUrl = true;
         }
 
-        if (resolver.resolve())
-        {
+        if (resolver.resolve()) {
             if (logger.isTraceEnabled()) {
                 Resource[] requiredResources = resolver.getRequiredResources();
                 for (Resource requiredResource : requiredResources) {
@@ -490,13 +491,12 @@ public class TestRunner {
                 }
             }
 
-
-            if (!resourceHasReferenceUrl) {	
+            if (!resourceHasReferenceUrl) {
                 resolver.deploy(Resolver.START);
             } else {
-                //*** The Resolver can't cope with reference: URIs which is valid for Felix.
-                //*** So we have to manually install and start the bundles if ANY bundle
-                //*** is a reference
+                // *** The Resolver can't cope with reference: URIs which is valid for Felix.
+                // *** So we have to manually install and start the bundles if ANY bundle
+                // *** is a reference
                 ArrayList<Bundle> bundlesToStart = new ArrayList<>();
                 try {
                     Resource[] requiredResources = resolver.getRequiredResources();
@@ -509,10 +509,10 @@ public class TestRunner {
                     }
 
                     bundlesToStart.add(this.bundleContext.installBundle(resource.getURI().toString()));
-                    for(Bundle bundle : bundlesToStart) {
+                    for (Bundle bundle : bundlesToStart) {
                         bundle.start();
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     throw new TestRunException("Unable to install bundles outside of resolver", e);
                 }
             }
@@ -522,13 +522,10 @@ public class TestRunner {
             }
 
             printBundles();
-        }
-        else
-        {
+        } else {
             logger.error("Unable to resolve " + resource.toString());
             Reason[] unsatisfiedRequirements = resolver.getUnsatisfiedRequirements();
-            for (Reason reason : unsatisfiedRequirements)
-            {
+            for (Reason reason : unsatisfiedRequirements) {
                 logger.error("Unsatisfied requirement: " + reason.getRequirement());
             }
             throw new TestRunException("Unable to resolve bundle " + bundleSymbolicName);
@@ -553,9 +550,8 @@ public class TestRunner {
         return false;
     }
 
-
-    /** 
-     * Print the currently installed bundles and their state 
+    /**
+     * Print the currently installed bundles and their state
      */
     private void printBundles() {
         if (!logger.isTraceEnabled()) {
@@ -569,15 +565,9 @@ public class TestRunner {
 
         for (Bundle bundle : bundles) {
             String bundleId = String.valueOf(bundle.getBundleId());
-            messageBuffer.append("\n").
-            append(String.format("%5s", bundleId)).
-            append("|").
-            append(String.format("%-11s", getBundleStateLabel(bundle))).
-            append("|     |").
-            append(bundle.getSymbolicName()).
-            append(" (").
-            append(bundle.getVersion()).
-            append(")");
+            messageBuffer.append("\n").append(String.format("%5s", bundleId)).append("|")
+                    .append(String.format("%-11s", getBundleStateLabel(bundle))).append("|     |")
+                    .append(bundle.getSymbolicName()).append(" (").append(bundle.getVersion()).append(")");
         }
 
         logger.trace(messageBuffer.toString());
@@ -585,38 +575,45 @@ public class TestRunner {
 
     /**
      * Convert bundle state to string
+     * 
      * @param bundle
      * @return The bundle state
      */
     private String getBundleStateLabel(Bundle bundle) {
         switch (bundle.getState()) {
-            case Bundle.UNINSTALLED: return "Uninstalled";
-            case Bundle.INSTALLED: return "Installed";
-            case Bundle.RESOLVED: return "Resolved";
-            case Bundle.STARTING: return "Starting";
-            case Bundle.STOPPING: return "Stopping";
-            case Bundle.ACTIVE: return "Active";
-            default: return "<Unknown (" + bundle.getState() + ")>";
+            case Bundle.UNINSTALLED:
+                return "Uninstalled";
+            case Bundle.INSTALLED:
+                return "Installed";
+            case Bundle.RESOLVED:
+                return "Resolved";
+            case Bundle.STARTING:
+                return "Starting";
+            case Bundle.STOPPING:
+                return "Stopping";
+            case Bundle.ACTIVE:
+                return "Active";
+            default:
+                return "<Unknown (" + bundle.getState() + ")>";
         }
     }
-
 
     private void recordCPSProperties(FrameworkInitialisation frameworkInitialisation) {
         try {
             Properties record = frameworkInitialisation.getFramework().getRecordProperties();
-            
+
             ArrayList<String> propertyNames = new ArrayList<>();
             propertyNames.addAll(record.stringPropertyNames());
             Collections.sort(propertyNames);
-            
+
             StringBuilder sb = new StringBuilder();
             String currentNamespace = null;
-            for(String propertyName : propertyNames) {
+            for (String propertyName : propertyNames) {
                 propertyName = propertyName.trim();
                 if (propertyName.isEmpty()) {
                     continue;
                 }
-                
+
                 String[] parts = propertyName.split("\\.");
                 if (!parts[0].equals(currentNamespace)) {
                     if (currentNamespace != null) {
@@ -624,7 +621,7 @@ public class TestRunner {
                     }
                     currentNamespace = parts[0];
                 }
-                
+
                 sb.append(propertyName);
                 sb.append("=");
                 sb.append(record.getProperty(propertyName));
@@ -635,12 +632,9 @@ public class TestRunner {
             Path rasProperties = rasRoot.resolve("framework").resolve("cps_record.properties");
             Files.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
             Files.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
-        } catch(Exception e) {
-            logger.error("Failed to save the recorded properties",e);
+        } catch (Exception e) {
+            logger.error("Failed to save the recorded properties", e);
         }
     }
-
-
-
 
 }

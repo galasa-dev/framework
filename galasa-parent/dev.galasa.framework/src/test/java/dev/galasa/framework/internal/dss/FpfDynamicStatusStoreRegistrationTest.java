@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.internal.dss;
 
 import static org.junit.Assert.assertTrue;
@@ -34,54 +39,72 @@ public class FpfDynamicStatusStoreRegistrationTest {
         fpfDssReg.initialise(new FrameworkInitialisation(testProp.toURI()));
         assertTrue("Dummy", true);
     }
-    
+
     /**
-     * <p>This class is used to test the implemented methods in the tests above. They are all noddy methods.</p>
+     * <p>
+     * This class is used to test the implemented methods in the tests above. They
+     * are all noddy methods.
+     * </p>
      */
     private class FrameworkInitialisation implements IFrameworkInitialisation {
-        private URI uri;
+        private URI                           uri;
         private FpfConfigurationPropertyStore fpf;
 
         public FrameworkInitialisation(URI uri) {
-        	this.uri = uri;
+            this.uri = uri;
             try {
                 fpf = new FpfConfigurationPropertyStore(uri);
             } catch (ConfigurationPropertyStoreException e) {
-                
-            }    
+
+            }
         }
 
         @Override
         public void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
-                throws ConfidentialTextException {     
+                throws ConfidentialTextException {
         }
+
         @Override
-        public URI getBootstrapConfigurationPropertyStore() {return null;}
+        public URI getBootstrapConfigurationPropertyStore() {
+            return null;
+        }
+
         @Override
-        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
+        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
+                throws DynamicStatusStoreException {
+        }
+
         @Override
-        public IFramework getFramework(){return null;}
-        
+        public IFramework getFramework() {
+            return null;
+        }
+
         @Override
         public void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore)
                 throws ConfigurationPropertyStoreException {
         }
 
-		@Override
-        public URI getDynamicStatusStoreUri() {return uri;}
-        
         @Override
-		public URI getCredentialsStoreUri() {return null;}
-
-		@Override
-		public List<URI> getResultArchiveStoreUris() {return null;}
-
-		@Override
-		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        public URI getDynamicStatusStoreUri() {
+            return uri;
         }
-        
+
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
+        public URI getCredentialsStoreUri() {
+            return null;
+        }
+
+        @Override
+        public List<URI> getResultArchiveStoreUris() {
+            return null;
+        }
+
+        @Override
+        public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        }
+
+        @Override
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         }
     }
 }
