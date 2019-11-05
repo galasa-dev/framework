@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package test.cts;
 
 import static org.junit.Assert.assertEquals;
@@ -25,7 +30,8 @@ import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
 /**
- * This test class ensures that confidential texts that have been registered are reomved from text.
+ * This test class ensures that confidential texts that have been registered are
+ * reomved from text.
  * 
  * @author James Davies
  */
@@ -38,21 +44,22 @@ public class ConfidentialTextServiceTest {
      * @throws IOException
      */
     @Test
-    public void testRegisterText() throws ConfidentialTextException, IOException{
+    public void testRegisterText() throws ConfidentialTextException, IOException {
         FrameworkConfidentialTextService ctsService = new FrameworkConfidentialTextService();
 
         ctsService.registerText("test1", "This is a test comment");
         assertTrue("dummy", true);
     }
 
-    /** 
-     * This test method ensures that any regitered words or phrases are removed from a text.
+    /**
+     * This test method ensures that any regitered words or phrases are removed from
+     * a text.
      * 
      * @throws ConfidentialTextException
      * @throws IOException
      */
     @Test
-    public void testRemoveConfidentialText() throws ConfidentialTextException, IOException{
+    public void testRemoveConfidentialText() throws ConfidentialTextException, IOException {
         FrameworkConfidentialTextService ctsService = new FrameworkConfidentialTextService();
 
         ctsService.registerText("test1", "This is a test comment");
@@ -64,50 +71,66 @@ public class ConfidentialTextServiceTest {
 
         String result = ctsService.removeConfidentialText(testSentence);
         System.out.println(result + "\n" + expected);
-        assertEquals("Did not remove confidential imfomation ",expected, result);
+        assertEquals("Did not remove confidential imfomation ", expected, result);
     }
 
-
     /**
-     * This is a stubbed framework intialisation class to test the registering of the service.
+     * This is a stubbed framework intialisation class to test the registering of
+     * the service.
      */
     private class FrameworkInitialisation implements IFrameworkInitialisation {
         private URI uri;
 
         public FrameworkInitialisation(URI uri) {
-            this.uri=uri;
+            this.uri = uri;
         }
 
         @Override
-        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts) throws ConfidentialTextException{
+        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts)
+                throws ConfidentialTextException {
         }
+
         @Override
-        public URI getBootstrapConfigurationPropertyStore() {return uri;}
+        public URI getBootstrapConfigurationPropertyStore() {
+            return uri;
+        }
+
         @Override
-        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore) throws DynamicStatusStoreException{}
+        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
+                throws DynamicStatusStoreException {
+        }
+
         @Override
-        public IFramework getFramework(){return null;}
-        
+        public IFramework getFramework() {
+            return null;
+        }
+
         @Override
         public void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore)
                 throws ConfigurationPropertyStoreException {
         }
 
-		@Override
-        public URI getDynamicStatusStoreUri() {return null;}
-        
         @Override
-		public URI getCredentialsStoreUri() {return null;}
-
-		@Override
-		public List<URI> getResultArchiveStoreUris() {return null;}
-
-		@Override
-		public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        public URI getDynamicStatusStoreUri() {
+            return null;
         }
-        
+
         @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {           
+        public URI getCredentialsStoreUri() {
+            return null;
+        }
+
+        @Override
+        public List<URI> getResultArchiveStoreUris() {
+            return null;
+        }
+
+        @Override
+        public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService) {
+        }
+
+        @Override
+        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         }
     }
 }

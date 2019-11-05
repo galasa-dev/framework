@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.internal.dss;
 
 import java.net.URI;
@@ -11,35 +16,40 @@ import dev.galasa.framework.spi.IDynamicStatusStoreRegistration;
 import dev.galasa.framework.spi.IFrameworkInitialisation;
 
 /**
-
+ * 
  * 
  * @author Bruce Abbott
  */
-@Component(service= {IDynamicStatusStoreRegistration.class})
+@Component(service = { IDynamicStatusStoreRegistration.class })
 public class FpfDynamicStatusStoreRegistration implements IDynamicStatusStoreRegistration {
 
-	/**
-	 * <p>This method registers this as the only DSS Store.</p>
-	 * 
-	 * @param IFrameworkInitialisation
-	 * @throws DynamicStatusStoreException
-	 */
+    /**
+     * <p>
+     * This method registers this as the only DSS Store.
+     * </p>
+     * 
+     * @param IFrameworkInitialisation
+     * @throws DynamicStatusStoreException
+     */
     @Override
-	public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
-			throws DynamicStatusStoreException {
+    public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
+            throws DynamicStatusStoreException {
         URI dss = frameworkInitialisation.getDynamicStatusStoreUri();
-		if (isFileUri(dss)) {
-			frameworkInitialisation.registerDynamicStatusStore(new FpfDynamicStatusStore(dss));
-		}
-	}
+        if (isFileUri(dss)) {
+            frameworkInitialisation.registerDynamicStatusStore(new FpfDynamicStatusStore(dss));
+        }
+    }
 
     /**
-	 * <p>A simple method thta checks the provided URI to the CPS is a local file or not.</p>
-	 * 
-	 * @param uri - URI to the CPS
-	 * @return - boolean if File or not.
-	 */
-	public static boolean isFileUri(URI uri) {
-		return "file".equals(uri.getScheme());
-	}
+     * <p>
+     * A simple method thta checks the provided URI to the CPS is a local file or
+     * not.
+     * </p>
+     * 
+     * @param uri - URI to the CPS
+     * @return - boolean if File or not.
+     */
+    public static boolean isFileUri(URI uri) {
+        return "file".equals(uri.getScheme());
+    }
 }

@@ -3,7 +3,9 @@ def galasaSignJarSkip = 'true'
 
 pipeline {
 // Initially run on any agent
-   agent any
+   agent {
+      label 'codesigning'
+   }
    environment {
 //Configure Maven from the maven tooling in Jenkins
       def mvnHome = tool 'Default'

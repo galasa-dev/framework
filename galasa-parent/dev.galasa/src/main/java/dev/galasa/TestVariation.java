@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -17,11 +22,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Repeatable(TestVariations.class)
 public @interface TestVariation {
-	
-	String name();
-	
-	boolean defaultVariation() default false;
-	
-	TestVariationProperty[] properties() default {};
+
+    String name();
+
+    boolean defaultVariation() default false;
+
+    TestVariationProperty[] properties() default {};
 
 }

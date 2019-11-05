@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.boot;
 
 /**
@@ -5,34 +10,34 @@ package dev.galasa.boot;
  */
 public class LauncherException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * @see java.lang.Exception#Exception()
-	 */
-	public LauncherException() {
-		super();
-	}
-	
-	/**
-	 * @see java.lang.Exception#Exception(String)
-	 */
-	public LauncherException(String message) {
-		super(message);
-	}
+    /**
+     * @see java.lang.Exception#Exception()
+     */
+    public LauncherException() {
+        super();
+    }
 
-	/**
-	 * @see java.lang.Exception#Exception(Throwable)
-	 */
-	public LauncherException(Throwable cause) {
-		super(cause);
-	}
-	
-	/**
-	 * @see java.lang.Exception#Exception(String, Throwable)
-	 */
-	public LauncherException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    /**
+     * @see java.lang.Exception#Exception(String)
+     */
+    public LauncherException(String message) {
+        super(message);
+    }
+
+    /**
+     * @see java.lang.Exception#Exception(Throwable)
+     */
+    public LauncherException(Throwable cause) {
+        super(cause);
+    }
+
+    /**
+     * @see java.lang.Exception#Exception(String, Throwable)
+     */
+    public LauncherException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }
