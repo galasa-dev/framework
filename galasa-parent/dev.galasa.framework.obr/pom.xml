@@ -179,12 +179,6 @@
 			<version>${assertj-core}</version>
 			<scope>compile</scope>
 		</dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>${validation-api}</version>
-            <scope>compile</scope>
-        </dependency>
 	</dependencies>
 
 	<build>
