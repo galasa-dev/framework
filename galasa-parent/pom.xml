@@ -6,10 +6,58 @@
 
 	<groupId>dev.galasa</groupId>
 	<artifactId>galasa-parent</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.3.0</version>
 	<packaging>pom</packaging>
 
 	<name>Galasa Parent</name>
+
+	<description>Galasa parent for all the framework/extensions/managers</description>
+	<url>https://galasa.dev</url>
+
+	<licenses>
+		<license>
+			<name>Eclipse Public License - v 2.0</name>
+			<url>https://www.eclipse.org/legal/epl-2.0/t</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Michael Baylis</name>
+			<email>Michael.Baylis@uk.ibm.com</email>
+			<organization>IBM</organization>
+			<organizationUrl>https://www.ibm.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>William Yates</name>
+			<email>wyates@uk.ibm.com</email>
+			<organization>IBM</organization>
+			<organizationUrl>https://www.ibm.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>David Roberts</name>
+			<email>david.roberts@uk.ibm.com</email>
+			<organization>IBM</organization>
+			<organizationUrl>https://www.ibm.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>James Davies</name>
+			<email>james.davies@ibm.com</email>
+			<organization>IBM</organization>
+			<organizationUrl>https://www.ibm.com</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<url>https://github.com/galasa-dev/framework</url>
+		<connection>scm:git:git:://github.com/galasa-dev/framework</connection>
+		<developerConnection>scm:git:git:://github.com/galasa-dev/framework</developerConnection>
+	</scm>
+
+	<issueManagement>
+		<url>https://github.com/galasa-dev/projectmanagement/issues</url>
+		<system>GitHub</system>
+	</issueManagement>
 
 	<modules>
 		<module>dev.galasa</module>
@@ -51,68 +99,22 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 
-		<dev.galasa>0.3.0-SNAPSHOT</dev.galasa>
-		<dev.galasa.framework>0.3.0-SNAPSHOT</dev.galasa.framework>
-		<galasa-boot>0.3.0-SNAPSHOT</galasa-boot>
-
-		<felix.framework>6.0.2</felix.framework>
-		<felix.bundlerepository>2.0.2</felix.bundlerepository>
-		<felix.scr>2.1.14</felix.scr>
-		<felix.gogo.shell>1.1.2</felix.gogo.shell>
-		<felix.gogo.runtime>1.1.2</felix.gogo.runtime>
-		<felix.gogo.command>1.1.0</felix.gogo.command>
-
-		<org.osgi.core>6.0.0</org.osgi.core>
-		<org.osgi.service.cm>1.6.0</org.osgi.service.cm>
-		<org.osgi.service.component.annotations>1.3.0</org.osgi.service.component.annotations>
-
-		<javax.servlet-api>3.1.0</javax.servlet-api>
-
-		<commons-logging>1.2</commons-logging>
-		<commons-logging-eclipse>1.1.1</commons-logging-eclipse>
-
-		<commons-io>2.6</commons-io>
-		<commons-io-eclipse>2.2</commons-io-eclipse>
-
-		<commons-lang3>3.8.1</commons-lang3>
-		<commons-lang3-eclipse>3.1</commons-lang3-eclipse>
-
-		<commons-codec>1.11</commons-codec>
-		<commons-codec-eclipse>1.9</commons-codec-eclipse>
-
-		<commons-lang>2.6</commons-lang>
-		<commons-collections>3.2.2</commons-collections>
-		<commons-cli>1.4</commons-cli>
-
-		<log4j>1.2.17</log4j>
-		<bcel>6.3</bcel>
-		<httpclient-osgi>4.5.8</httpclient-osgi>
-		<httpcore-osgi>4.4.11</httpcore-osgi>
-
-		<gson>2.8.5</gson>
-		<gson-eclipse>2.7</gson-eclipse>
-
-		<prometheus.simpleclient>0.6.0</prometheus.simpleclient>
-		<prometheus.httpserver>0.6.0</prometheus.httpserver>
-		<prometheus.hotspot>0.6.0</prometheus.hotspot>
-
-		<validation-api>2.0.1.Final</validation-api>
-
-		<assertj-core>3.11.1</assertj-core>
-
 		<unpackBundle>true</unpackBundle>
 		<galasa.skip.bundletestcatatlog>true</galasa.skip.bundletestcatatlog>
 		<galasa.skip.deploytestcatatlog>true</galasa.skip.deploytestcatatlog>
 
 		<jarsigner.skip>true</jarsigner.skip>
-	</properties>
 
+		<gpg.skip>true</gpg.skip>
+		<gpg.executable>/usr/bin/gpg2</gpg.executable>
+		<gpg.keyname>5712920B2E4880520B3A40CC85A934078534E695</gpg.keyname>
+	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
-			<version>${org.osgi.core}</version>
+			<version>6.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -124,13 +126,13 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.service.component.annotations</artifactId>
-			<version>${org.osgi.service.component.annotations}</version>
+			<version>1.3.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
-			<version>${validation-api}</version>
+			<version>2.0.1.Final</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -143,7 +145,7 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>2.24.0</version>
+			<version>3.1.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -320,16 +322,69 @@
 					<alias>galasacert</alias>
 					<processAttachedArtifacts>false</processAttachedArtifacts>
 				</configuration>
-                <executions>
-                    <execution>
-                        <id>signjar</id>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
+				<executions>
+					<execution>
+						<id>signjar</id>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+						<configuration>
+							<gpgArguments>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
+							<passphraseServerId>gpg.passphrase</passphraseServerId>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>dev</id>
+
+			<distributionManagement>
+				<repository>
+					<id>galasa.repo</id>
+					<url>https://nexus.galasa.dev/repository/master</url>
+				</repository>
+				<snapshotRepository>
+					<id>galasa.repo</id>
+					<url>https://nexus.galasa.dev/repository/master</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+		<profile>
+			<id>staging</id>
+
+			<distributionManagement>
+				<snapshotRepository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+				</snapshotRepository>
+				<repository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+	</profiles>
+
 
 </project>
