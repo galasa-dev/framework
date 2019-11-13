@@ -1,4 +1,4 @@
-def mvnProfile    = 'galasa-dev'
+def mvnProfile    = 'dev'
 def galasaSignJarSkip = 'true'
 
 pipeline {
@@ -23,22 +23,24 @@ pipeline {
          }
          steps {
             script {
-               mvnGoal       = 'deploy sonar:sonar'
+               mvnGoal           = 'deploy sonar:sonar'
                galasaSignJarSkip = 'false'
             }
          }
       }
-// If the test-preprod tag,  then set as appropriate
-//      stage('set-test-preprod') {
-//         when {
-//           environment name: 'GIT_BRANCH', value: 'origin/testpreprod'
-//         }
-//         steps {
-//            script {
-//               mvnProfile    = 'galasa-preprod'
-//            }
-//         }
-//     }
+// If it is the master branch, version 0.3.0 and master on all the other branches
+      stage('set-staging') {
+         when {
+           environment name: 'GIT_BRANCH', value: 'origin/staging'
+         }
+         steps {
+            script {
+               mvnGoal           = 'deploy'
+               mvnProfile        = 'staging'
+               galasaSignJarSkip = 'false'
+            }
+         }
+      }
 
 // for debugging purposes
       stage('report') {
@@ -69,78 +71,78 @@ pipeline {
          steps {
             withSonarQubeEnv('GalasaSonarQube') {
                dir('galasa-parent') {
-                  sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                  sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
 
                   dir('dev.galasa') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Djarsigner.skip=${galasaSignJarSkip} -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Djarsigner.skip=${galasaSignJarSkip} -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.maven.repository.spi') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Djarsigner.skip=${galasaSignJarSkip} -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Djarsigner.skip=${galasaSignJarSkip} -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.maven.repository') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.resource.management') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.metrics') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.k8s.controller') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.docker.controller') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.obr') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('galasa-demo-archetype') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.api.authentication') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.api.health') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.api.bootstrap') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.api.launcher') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.api.testcatalog') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('dev.galasa.framework.api.runs') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('galasa-boot') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
 
                   dir('galasautils-maven-plugin') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                   }
                }
             }
