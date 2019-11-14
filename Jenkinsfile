@@ -69,80 +69,82 @@ pipeline {
       
       stage('maven') {
          steps {
-            withSonarQubeEnv('GalasaSonarQube') {
-               dir('galasa-parent') {
-                  sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+            withCredentials([string(credentialsId: 'galasa-gpg', variable: 'GPG')]) {
+               withSonarQubeEnv('GalasaSonarQube') {
+                  dir('galasa-parent') {
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+ 
+                     dir('dev.galasa') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Djarsigner.skip=${galasaSignJarSkip} -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Djarsigner.skip=${galasaSignJarSkip} -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.maven.repository.spi') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.maven.repository.spi') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Djarsigner.skip=${galasaSignJarSkip} -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Djarsigner.skip=${galasaSignJarSkip} -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.maven.repository') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.maven.repository') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.resource.management') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.resource.management') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.metrics') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.metrics') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.k8s.controller') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.k8s.controller') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.docker.controller') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.docker.controller') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.obr') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.obr') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('galasa-demo-archetype') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('galasa-demo-archetype') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.api.authentication') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.api.authentication') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.api.health') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.api.health') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.api.bootstrap') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.api.bootstrap') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.api.launcher') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.api.launcher') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.api.testcatalog') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.api.testcatalog') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('dev.galasa.framework.api.runs') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('dev.galasa.framework.api.runs') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
+                     dir('galasa-boot') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
 
-                  dir('galasa-boot') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
-                  }
-
-                  dir('galasautils-maven-plugin') {
-                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     dir('galasautils-maven-plugin') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
                   }
                }
             }
