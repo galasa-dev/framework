@@ -354,37 +354,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>dev</id>
-
-			<distributionManagement>
-				<repository>
-					<id>galasa.repo</id>
-					<url>https://nexus.galasa.dev/repository/master</url>
-				</repository>
-				<snapshotRepository>
-					<id>galasa.repo</id>
-					<url>https://nexus.galasa.dev/repository/master</url>
-				</snapshotRepository>
-			</distributionManagement>
-		</profile>
-		<profile>
-			<id>staging</id>
-
-			<distributionManagement>
-				<snapshotRepository>
-					<id>ossrh</id>
-					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-				</snapshotRepository>
-				<repository>
-					<id>ossrh</id>
-					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-				</repository>
-			</distributionManagement>
-		</profile>
-	</profiles>
-
-
 </project>
