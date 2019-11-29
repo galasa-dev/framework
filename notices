@@ -1,4 +1,4 @@
-Apache Commons Logging             1.2     Apache-2.0
+Apache Commons Logging             1.1.1   Apache-2.0
 Apache Log4j                       1.2.17  Apache-2.0
 Apache Felix Bundle Repository     2.0.2   Apache-2.0
 Apache Felix SCR                   2.1.14  Apache-2.0
@@ -10,7 +10,7 @@ Apache Commons BCEL                6.3     Apache-2.0
 jsch                               0.1.55  -
 Apache Commons Codec               1.11    Apache-2.0
 Apache Commons Collections         3.2.2   Apache-2.0
-Apache Commons IO                  2.6     Apache-2.0
+Apache Commons IO                  2.2     Apache-2.0
 Apache Commons Lang 3              3.8.1   Apache-2.0
 Apache Commons Lang 3              3.7     Apache-2.0
 Apache Commons Lang                2.6     Apache-2.0
@@ -32,9 +32,9 @@ Checker-compat-qual                2.5.2   MIT
 Error-prone                        2.2.0   Apache-2.0
 Grpc-core and sub products         1.17.1  Apache-2.0
 Google Guava                       26      Apache-2.0
-Google Guava                       22      Apache-2.0
+Google Guava                       24.1.1  Apache-2.0
 j2obj annotations                  1.1.0   Apache-2.0
-etcd-java                          0.3.0   Apache-2.0
+etcd-java                          0.4.1   Apache-2.0
 jsr305                             3.0.2   Apache-2.0
 netty                              4.1.30  Apache-2.0
 Opencensus-contrib-grpc-metrics    0.17.0  Apache-2.0
@@ -42,7 +42,7 @@ Protobuf-java                      3.5.1   BSD-Clause
 Proto-google-common-protos         1.0.0   Apache-2.0
 slf4j                              1.7.25  MIT
 Animal Sniffer Annotations         1.14    MIT
-bcprov-jdk15on                     1.59    MIT
+bcprov-jdk15on                     1.60    MIT
 kubernetes-client java             1.0.0.  Apache-2.0
 Error-prone                        2.0.18  Apache-2.0
 joda time                          2.9.3   Apache-2.0
