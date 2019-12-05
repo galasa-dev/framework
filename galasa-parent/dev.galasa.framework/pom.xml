@@ -11,7 +11,13 @@
 	</parent>
 
 	<artifactId>dev.galasa.framework</artifactId>
-	<version>0.3.0</version>
+
+	<!-- If you change this version, you must update the pom.xml in the following projects:- 
+	dev.galasa.framework.obr
+	galasa-bom
+	dev.galasa.eclipse.feature (including feature.xml)
+	-->
+	<version>0.3.1</version>
 	<packaging>bundle</packaging>
 
 	<name>Galasa Framework</name>
