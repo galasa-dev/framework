@@ -1,0 +1,10 @@
+| Property: | $title |
+| --------------------------------------- | :------------------------------------- |
+| Name: | $name |
+| Description: | $description |
+| Required:  | $required |
+| Default value: | $default |
+| Valid values: | $validValues |
+| Examples: | $examples |
+
+$extra

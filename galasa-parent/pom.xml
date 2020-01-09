@@ -78,6 +78,7 @@
 		<module>dev.galasa.framework.api.testcatalog</module>
 		<module>galasautils-maven-plugin</module>
 		<module>dev.galasa.framework.api.runs</module>
+		<module>galasa-gendocs</module>
 	</modules>
 
 	<distributionManagement>
@@ -307,6 +308,49 @@
 				</executions>
 				<configuration>
 					<failOnError>false</failOnError>
+					<tags>
+						<tag>
+							<name>galasa.cps.property</name>
+							<placement>a</placement>
+							<head>CPS Property</head>
+						</tag>
+						<tag>
+							<name>galasa.name</name>
+							<placement>a</placement>
+							<head>Name</head>
+						</tag>
+						<tag>
+							<name>galasa.description</name>
+							<placement>a</placement>
+							<head>Description</head>
+						</tag>
+						<tag>
+							<name>galasa.required</name>
+							<placement>a</placement>
+							<head>Required</head>
+						</tag>
+						<tag>
+							<name>galasa.default</name>
+							<placement>a</placement>
+							<head>Default</head>
+						</tag>
+						<tag>
+							<name>galasa.valid_values</name>
+							<placement>a</placement>
+							<head>Valid Values</head>
+						</tag>
+						<tag>
+							<name>galasa.examples</name>
+							<placement>a</placement>
+							<head>Examples</head>
+						</tag>
+						<tag>
+							<name>galasa.extra</name>
+							<placement>a</placement>
+							<head>Further information</head>
+						</tag>
+
+					</tags>
 				</configuration>
 			</plugin>
 			<plugin>
