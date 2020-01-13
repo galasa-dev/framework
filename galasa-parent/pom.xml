@@ -109,6 +109,8 @@
 		<gpg.skip>true</gpg.skip>
 		<gpg.executable>/usr/bin/gpg2</gpg.executable>
 		<gpg.keyname>5712920B2E4880520B3A40CC85A934078534E695</gpg.keyname>
+
+		<excludePackageNames>*.internal</excludePackageNames>
 	</properties>
 
 	<dependencies>
@@ -310,9 +312,17 @@
 					<failOnError>false</failOnError>
 					<tags>
 						<tag>
+							<name>galasa.manager</name>
+							<placement>X</placement>
+						</tag>
+						<tag>
 							<name>galasa.cps.property</name>
 							<placement>a</placement>
 							<head>CPS Property</head>
+						</tag>
+						<tag>
+							<name>galasa.annotation</name>
+							<placement>X</placement>
 						</tag>
 						<tag>
 							<name>galasa.name</name>
@@ -323,6 +333,11 @@
 							<name>galasa.description</name>
 							<placement>a</placement>
 							<head>Description</head>
+						</tag>
+						<tag>
+							<name>galasa.limitations</name>
+							<placement>a</placement>
+							<head>Current Limitations</head>
 						</tag>
 						<tag>
 							<name>galasa.required</name>
@@ -349,7 +364,6 @@
 							<placement>a</placement>
 							<head>Further information</head>
 						</tag>
-
 					</tags>
 				</configuration>
 			</plugin>
