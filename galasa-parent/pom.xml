@@ -78,7 +78,6 @@
 		<module>dev.galasa.framework.api.testcatalog</module>
 		<module>galasautils-maven-plugin</module>
 		<module>dev.galasa.framework.api.runs</module>
-		<module>galasa-gendocs</module>
 	</modules>
 
 	<distributionManagement>
