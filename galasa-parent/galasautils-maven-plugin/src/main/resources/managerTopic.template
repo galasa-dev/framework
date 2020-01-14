@@ -1,9 +1,8 @@
 ---
-path: "/docs/managers//$filename-manager"
+path: "/docs/managers/${filename}-manager"
 title: "$name Manager"
 ---
 #set( $H = "#" )
-$H$H $name Manager
 $manager
 #if( $annotations )
 $H$H Annotations

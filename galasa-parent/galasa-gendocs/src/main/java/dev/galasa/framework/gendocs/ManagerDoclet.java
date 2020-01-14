@@ -133,9 +133,9 @@ public class ManagerDoclet {
         System.out.println("    Found Annotation " + qualifiedName);
 
         String manager = getTagString(doc, "@galasa.annotation", packageName);
-        
+       
         String propertyTitle = getFirstSentenceString(doc, packageName);
-        String propertyName = getTagString(doc, doc.name(), packageName);
+        String propertyName = "@" + doc.name();
         String propertyDescription = getTagString(doc, "@galasa.description", packageName);
         String propertyExamples = getTagString(doc, "@galasa.examples", packageName);
         String propertyExtra = getTagString(doc, "@galasa.extra", packageName);
