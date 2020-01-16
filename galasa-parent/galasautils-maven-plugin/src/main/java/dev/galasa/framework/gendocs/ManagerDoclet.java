@@ -7,6 +7,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,9 +19,12 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
+import com.sun.javadoc.FieldDoc;
+import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Tag;
+import com.sun.tools.doclint.HtmlTag.Attr;
 
 public class ManagerDoclet {
     public static boolean start(RootDoc root) throws Exception {
@@ -49,7 +53,7 @@ public class ManagerDoclet {
     private static void processClassDoc(VelocityEngine ve, ClassDoc classDoc) throws Exception {
         System.out.println("CatalogDoclet - Processing Class " + classDoc.qualifiedName());
         processTags(ve, classDoc, classDoc.qualifiedName(), getPackageName(classDoc.qualifiedName()));
-        
+               
        return;
     }
 
@@ -131,7 +135,11 @@ public class ManagerDoclet {
 
     private static void recordAnnotation(VelocityEngine ve, Doc doc, String qualifiedName, String packageName) throws IOException {
         System.out.println("    Found Annotation " + qualifiedName);
-
+        
+        ClassDoc classDoc = null;
+        if (doc instanceof ClassDoc) {
+            classDoc = (ClassDoc) doc;
+        }
         String manager = getTagString(doc, "@galasa.annotation", packageName);
        
         String propertyTitle = getFirstSentenceString(doc, packageName);
@@ -139,11 +147,21 @@ public class ManagerDoclet {
         String propertyDescription = getTagString(doc, "@galasa.description", packageName);
         String propertyExamples = getTagString(doc, "@galasa.examples", packageName);
         String propertyExtra = getTagString(doc, "@galasa.extra", packageName);
+        
+        ArrayList<Attribute> attrs = new ArrayList<>();
+        if (classDoc != null && classDoc.fields() != null) {
+            for(MethodDoc fieldDoc : classDoc.methods()) {
+                Attribute attr = new Attribute(fieldDoc.name(), getString(fieldDoc.getRawCommentText(), packageName));
+                attrs.add(attr);
+            }
+        }
+        
 
         VelocityContext context = new VelocityContext();
         context.put("title", propertyTitle);
         context.put("name", propertyName);
         context.put("description", propertyDescription);
+        context.put("attributes", attrs);
         context.put("examples", propertyExamples);
         context.put("extra", propertyExtra);
 
@@ -253,6 +271,12 @@ public class ManagerDoclet {
         if (text.isEmpty()) {
             return null;
         }
+        
+        return getString(text, packageName);
+    }
+    
+    
+    private static String getString(String text, String packageName) {
 
         text = text.replaceAll("\n", "");
         text = text.replaceAll("\\Q{@literal @}\\E", "@");
@@ -278,6 +302,25 @@ public class ManagerDoclet {
         }
 
         return text;
+    }
+    
+    
+    public static class Attribute {
+        public String name;
+        public String text;
+        
+        public Attribute(String name, String text) {
+            this.name = name;
+            this.text = text;
+        }
+        
+        public String getName() {
+            return name;
+        }
+        
+        public String getText() {
+            return text;
+        }
     }
 
 }
