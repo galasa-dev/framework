@@ -215,7 +215,7 @@ public class TestRunner {
             updateStatus("generating", null);
             managers.provisionGenerate();
         } catch (Exception e) { // TODO we need an exception is specific for resource exhaustion, diferrentiate
-                                // between env fail
+            // between env fail
             logger.info("Provision Generate failed", e);
             stopHeartbeat(); // *** Stop the heartbeat immediately
 
@@ -474,22 +474,26 @@ public class TestRunner {
         }
 
         if (resolver.resolve()) {
-            if (logger.isTraceEnabled()) {
-                Resource[] requiredResources = resolver.getRequiredResources();
-                for (Resource requiredResource : requiredResources) {
-                    if (requiredResource.getURI().startsWith("reference:")) {
-                        resourceHasReferenceUrl = true;
-                    }
-                    logger.trace("  RequiredResource: " + requiredResource.getSymbolicName());
+            Resource[] requiredResources = resolver.getRequiredResources();
+            for (Resource requiredResource : requiredResources) {
+                if (requiredResource.getURI().startsWith("reference:")) {
+                    resourceHasReferenceUrl = true;
                 }
-                Resource[] optionalResources = resolver.getOptionalResources();
-                for (Resource optionalResource : optionalResources) {
-                    if (optionalResource.getURI().startsWith("reference:")) {
-                        resourceHasReferenceUrl = true;
-                    }
+                if (logger.isTraceEnabled()) {
+                    logger.trace("  RequiredResource: " + requiredResource.getSymbolicName());
+
+                }
+            }
+            Resource[] optionalResources = resolver.getOptionalResources();
+            for (Resource optionalResource : optionalResources) {
+                if (optionalResource.getURI().startsWith("reference:")) {
+                    resourceHasReferenceUrl = true;
+                }
+                if (logger.isTraceEnabled()) {
                     logger.trace("  OptionalResource: " + optionalResource.getSymbolicName());
                 }
             }
+
 
             if (!resourceHasReferenceUrl) {
                 resolver.deploy(Resolver.START);
@@ -499,12 +503,12 @@ public class TestRunner {
                 // *** is a reference
                 ArrayList<Bundle> bundlesToStart = new ArrayList<>();
                 try {
-                    Resource[] requiredResources = resolver.getRequiredResources();
-                    for (Resource requiredResource : requiredResources) {
+                    Resource[] startRequiredResources = resolver.getRequiredResources();
+                    for (Resource requiredResource : startRequiredResources) {
                         bundlesToStart.add(this.bundleContext.installBundle(requiredResource.getURI().toString()));
                     }
-                    Resource[] optionalResources = resolver.getOptionalResources();
-                    for (Resource optionalResource : optionalResources) {
+                    Resource[] startOptionalResources = resolver.getOptionalResources();
+                    for (Resource optionalResource : startOptionalResources) {
                         bundlesToStart.add(this.bundleContext.installBundle(optionalResource.getURI().toString()));
                     }
 
@@ -566,8 +570,8 @@ public class TestRunner {
         for (Bundle bundle : bundles) {
             String bundleId = String.valueOf(bundle.getBundleId());
             messageBuffer.append("\n").append(String.format("%5s", bundleId)).append("|")
-                    .append(String.format("%-11s", getBundleStateLabel(bundle))).append("|     |")
-                    .append(bundle.getSymbolicName()).append(" (").append(bundle.getVersion()).append(")");
+            .append(String.format("%-11s", getBundleStateLabel(bundle))).append("|     |")
+            .append(bundle.getSymbolicName()).append(" (").append(bundle.getVersion()).append(")");
         }
 
         logger.trace(messageBuffer.toString());
