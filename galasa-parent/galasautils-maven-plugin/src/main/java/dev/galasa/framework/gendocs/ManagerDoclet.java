@@ -54,6 +54,8 @@ public class ManagerDoclet {
     private static final String PROPERTY_LIMITATIONS  = "limitations";
     private static final String PROPERTY_ATTRIBUTES   = "attributes";
     
+    private static final String REGEX_MANAGER_NAME    = "[\\s/\\\\]";
+    
     
     
     private ManagerDoclet() {
@@ -94,7 +96,7 @@ public class ManagerDoclet {
 
     public static String getPackageName(String qualifiedName) {
         
-        int pos = qualifiedName.lastIndexOf(".");
+        int pos = qualifiedName.lastIndexOf('.');
         if (pos < 0) {
             return "";
         }
@@ -153,7 +155,7 @@ public class ManagerDoclet {
            
         String managerPrefix = "";
         if (manager != null) {
-            manager = manager.trim().toLowerCase().replaceAll("[\\s/\\\\]", "_");
+            manager = manager.trim().toLowerCase().replaceAll(REGEX_MANAGER_NAME, "_");
             if (!manager.isEmpty()) {
                 managerPrefix = manager + FileSystems.getDefault().getSeparator();
             }
@@ -206,7 +208,7 @@ public class ManagerDoclet {
            
         String managerPrefix = "";
         if (manager != null) {
-            manager = manager.trim().toLowerCase().replaceAll("[\\s/\\\\]", "_");
+            manager = manager.trim().toLowerCase().replaceAll(REGEX_MANAGER_NAME, "_");
             if (!manager.isEmpty()) {
                 managerPrefix = manager + FileSystems.getDefault().getSeparator();
             }
@@ -223,12 +225,12 @@ public class ManagerDoclet {
         writer.close();
     }
 
-    public static void recordManager(VelocityEngine ve, Doc doc, String qualifiedName, String packageName, Path cwd) throws Exception {
+    public static void recordManager(VelocityEngine ve, Doc doc, String qualifiedName, String packageName, Path cwd) throws ManagerDocsException, IOException {
         System.out.println("    Found Manager " + qualifiedName);
 
         String manager = getTagString(doc, TAG_MANAGER, packageName);
         if (manager == null) {
-            throw new Exception("Manager javadoc for " + qualifiedName + " does not have a @galasa.manager id");
+            throw new ManagerDocsException("Manager javadoc for " + qualifiedName + " does not have a @galasa.manager id");
         }
         
         String propertyTitle = getFirstSentenceString(doc, packageName);
@@ -247,9 +249,9 @@ public class ManagerDoclet {
         Template propertiesTemplate = ve.getTemplate("/manager.template");
            
         String managerId = "";
-        managerId = manager.trim().toLowerCase().replaceAll("[\\s/\\\\]", "_");
+        managerId = manager.trim().toLowerCase().replaceAll(REGEX_MANAGER_NAME, "_");
         if (managerId.isEmpty()) {
-           throw new Exception("Manager javadoc for " + qualifiedName + " does not have a name for @galasa.manager");
+           throw new ManagerDocsException("Manager javadoc for " + qualifiedName + " does not have a name for @galasa.manager");
         }
         String managerPrefix = managerId + FileSystems.getDefault().getSeparator();
         
