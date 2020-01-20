@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package test.docs;
 
 import static org.assertj.core.api.Assertions.assertThat;

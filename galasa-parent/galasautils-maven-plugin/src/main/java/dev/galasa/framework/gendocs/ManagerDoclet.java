@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.gendocs;
 
 import java.io.BufferedWriter;
@@ -6,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +29,36 @@ import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Tag;
 
 public class ManagerDoclet {
+    
+    private static final String TAG_MANAGER      = "@galasa.manager";
+    private static final String TAG_ANNOTATION   = "@galasa.annotation";
+    private static final String TAG_CPS_PROPERTY = "@galasa.cps.property";
+    
+    private static final String TAG_DESCRIPTION  = "@galasa.description";
+    private static final String TAG_NAME         = "@galasa.name";
+    private static final String TAG_EXTRA        = "@galasa.extra";
+    private static final String TAG_LIMITATIONS  = "@galasa.limitations";
+    private static final String TAG_REQUIRED     = "@galasa.required";
+    private static final String TAG_DEFAULT      = "@galasa.default";
+    private static final String TAG_VALID_VALUES = "@galasa.valid_values";
+    private static final String TAG_EXAMPLES     = "@galasa.examples";
+
+    private static final String PROPERTY_NAME         = "name";
+    private static final String PROPERTY_TITLE        = "title";
+    private static final String PROPERTY_DESCRIPTION  = "description";
+    private static final String PROPERTY_REQUIRED     = "required";
+    private static final String PROPERTY_DEFAULT      = "default";
+    private static final String PROPERTY_VALID_VALUES = "validValues";
+    private static final String PROPERTY_EXAMPLES     = "examples";
+    private static final String PROPERTY_EXTRA        = "extra";
+    private static final String PROPERTY_LIMITATIONS  = "limitations";
+    private static final String PROPERTY_ATTRIBUTES   = "attributes";
+    
+    
+    
+    private ManagerDoclet() {
+        throw new IllegalStateException("Static class");
+      }
     
     public static boolean start(RootDoc root) throws Exception {
         return processRoot(root, FileSystems.getDefault().getPath(".").toAbsolutePath());
@@ -56,8 +90,6 @@ public class ManagerDoclet {
     private static void processClassDoc(VelocityEngine ve, ClassDoc classDoc, Path cwd) throws Exception {
         System.out.println("CatalogDoclet - Processing Class " + classDoc.qualifiedName());
         processTags(ve, classDoc, classDoc.qualifiedName(), getPackageName(classDoc.qualifiedName()), cwd);
-               
-       return;
     }
 
     public static String getPackageName(String qualifiedName) {
@@ -78,15 +110,17 @@ public class ManagerDoclet {
 
         for(Tag tag : tags) {
             switch(tag.name()) {
-                case "@galasa.cps.property":
+                case TAG_CPS_PROPERTY:
                     recordCpsProperty(ve, doc, name, packageName, cwd);
                     return;
-                case "@galasa.manager":
+                case TAG_MANAGER:
                     recordManager(ve, doc, name, packageName, cwd);
                     return;
-                case "@galasa.annotation":
+                case TAG_ANNOTATION:
                     recordAnnotation(ve, doc, name, packageName, cwd);
                     return;
+                default:
+                    break;
             }
         }
     }
@@ -94,26 +128,26 @@ public class ManagerDoclet {
     public static void recordCpsProperty(VelocityEngine ve, Doc doc, String qualifiedName, String packageName, Path cwd) throws IOException {
         System.out.println("    Found CPS Property " + qualifiedName);
 
-        String manager = getTagString(doc, "@galasa.cps.property", packageName);
+        String manager = getTagString(doc, TAG_CPS_PROPERTY, packageName);
         
         String propertyTitle = getFirstSentenceString(doc, packageName);
-        String propertyName = getTagString(doc, "@galasa.name", packageName);
-        String propertyDescription = getTagString(doc, "@galasa.description", packageName);
-        String propertyRequired = getTagString(doc, "@galasa.required", packageName);
-        String propertyDefault = getTagString(doc, "@galasa.default", packageName);
-        String propertyValidValues = getTagString(doc, "@galasa.valid_values", packageName);
-        String propertyExamples = getTagString(doc, "@galasa.examples", packageName);
-        String propertyExtra = getTagString(doc, "@galasa.extra", packageName);
+        String propertyName = getTagString(doc, TAG_NAME, packageName);
+        String propertyDescription = getTagString(doc, TAG_DESCRIPTION, packageName);
+        String propertyRequired = getTagString(doc, TAG_REQUIRED, packageName);
+        String propertyDefault = getTagString(doc, TAG_DEFAULT, packageName);
+        String propertyValidValues = getTagString(doc, TAG_VALID_VALUES, packageName);
+        String propertyExamples = getTagString(doc, TAG_EXAMPLES, packageName);
+        String propertyExtra = getTagString(doc, TAG_EXTRA, packageName);
 
         VelocityContext context = new VelocityContext();
-        context.put("title", propertyTitle);
-        context.put("name", propertyName);
-        context.put("description", propertyDescription);
-        context.put("required", propertyRequired);
-        context.put("default", propertyDefault);
-        context.put("validValues", propertyValidValues);
-        context.put("examples", propertyExamples);
-        context.put("extra", propertyExtra);
+        context.put(PROPERTY_TITLE, propertyTitle);
+        context.put(PROPERTY_NAME, propertyName);
+        context.put(PROPERTY_DESCRIPTION, propertyDescription);
+        context.put(PROPERTY_REQUIRED, propertyRequired);
+        context.put(PROPERTY_DEFAULT, propertyDefault);
+        context.put(PROPERTY_VALID_VALUES, propertyValidValues);
+        context.put(PROPERTY_EXAMPLES, propertyExamples);
+        context.put(PROPERTY_EXTRA, propertyExtra);
 
         Template propertiesTemplate = ve.getTemplate("/property.template");
            
@@ -143,13 +177,13 @@ public class ManagerDoclet {
         if (doc instanceof ClassDoc) {
             classDoc = (ClassDoc) doc;
         }
-        String manager = getTagString(doc, "@galasa.annotation", packageName);
+        String manager = getTagString(doc, TAG_ANNOTATION, packageName);
        
         String propertyTitle = getFirstSentenceString(doc, packageName);
         String propertyName = "@" + doc.name();
-        String propertyDescription = getTagString(doc, "@galasa.description", packageName);
-        String propertyExamples = getTagString(doc, "@galasa.examples", packageName);
-        String propertyExtra = getTagString(doc, "@galasa.extra", packageName);
+        String propertyDescription = getTagString(doc, TAG_DESCRIPTION, packageName);
+        String propertyExamples = getTagString(doc, TAG_EXAMPLES, packageName);
+        String propertyExtra = getTagString(doc, TAG_EXTRA, packageName);
         
         ArrayList<Attribute> attrs = new ArrayList<>();
         if (classDoc != null && classDoc.fields() != null) {
@@ -161,12 +195,12 @@ public class ManagerDoclet {
         
 
         VelocityContext context = new VelocityContext();
-        context.put("title", propertyTitle);
-        context.put("name", propertyName);
-        context.put("description", propertyDescription);
-        context.put("attributes", attrs);
-        context.put("examples", propertyExamples);
-        context.put("extra", propertyExtra);
+        context.put(PROPERTY_TITLE, propertyTitle);
+        context.put(PROPERTY_NAME, propertyName);
+        context.put(PROPERTY_DESCRIPTION, propertyDescription);
+        context.put(PROPERTY_ATTRIBUTES, attrs);
+        context.put(PROPERTY_EXAMPLES, propertyExamples);
+        context.put(PROPERTY_EXTRA, propertyExtra);
 
         Template propertiesTemplate = ve.getTemplate("/annotation.template");
            
@@ -192,20 +226,23 @@ public class ManagerDoclet {
     public static void recordManager(VelocityEngine ve, Doc doc, String qualifiedName, String packageName, Path cwd) throws Exception {
         System.out.println("    Found Manager " + qualifiedName);
 
-        String manager = getTagString(doc, "@galasa.manager", packageName);
+        String manager = getTagString(doc, TAG_MANAGER, packageName);
+        if (manager == null) {
+            throw new Exception("Manager javadoc for " + qualifiedName + " does not have a @galasa.manager id");
+        }
         
         String propertyTitle = getFirstSentenceString(doc, packageName);
-        String propertyName = getTagString(doc, "@galasa.name", packageName);
-        String propertyDescription = getTagString(doc, "@galasa.description", packageName);
-        String propertyExtra = getTagString(doc, "@galasa.extra", packageName);        
-        String propertyLimitations = getTagString(doc, "@galasa.limitations", packageName);
+        String propertyName = getTagString(doc, TAG_NAME, packageName);
+        String propertyDescription = getTagString(doc, TAG_DESCRIPTION, packageName);
+        String propertyExtra = getTagString(doc, TAG_EXTRA, packageName);        
+        String propertyLimitations = getTagString(doc, TAG_LIMITATIONS, packageName);
 
         VelocityContext context = new VelocityContext();
-        context.put("title", propertyTitle);
-        context.put("name", propertyName);
-        context.put("description", propertyDescription);
-        context.put("limitations", propertyLimitations);
-        context.put("extra", propertyExtra);
+        context.put(PROPERTY_TITLE, propertyTitle);
+        context.put(PROPERTY_NAME, propertyName);
+        context.put(PROPERTY_DESCRIPTION, propertyDescription);
+        context.put(PROPERTY_LIMITATIONS, propertyLimitations);
+        context.put(PROPERTY_EXTRA, propertyExtra);
 
         Template propertiesTemplate = ve.getTemplate("/manager.template");
            
@@ -306,8 +343,8 @@ public class ManagerDoclet {
     
     
     public static class Attribute {
-        public String name;
-        public String text;
+        private String name;
+        private String text;
         
         public Attribute(String name, String text) {
             this.name = name;
