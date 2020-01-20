@@ -19,15 +19,18 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
-import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Tag;
-import com.sun.tools.doclint.HtmlTag.Attr;
 
 public class ManagerDoclet {
+    
     public static boolean start(RootDoc root) throws Exception {
+        return processRoot(root, FileSystems.getDefault().getPath(".").toAbsolutePath());
+    }    
+    
+    public static boolean processRoot(RootDoc root, Path cwd) throws Exception {
 
         VelocityEngine ve = new VelocityEngine();
         ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath"); 
@@ -36,28 +39,28 @@ public class ManagerDoclet {
         ve.init();
         
         for(PackageDoc packageDoc : root.specifiedPackages()) {
-            processPackageDoc(ve, packageDoc);
+            processPackageDoc(ve, packageDoc, cwd);
         }
 
         for(ClassDoc classDoc : root.classes()) {
-            processClassDoc(ve, classDoc);
+            processClassDoc(ve, classDoc, cwd);
         }
         return true;
     }
 
-    private static void processPackageDoc(VelocityEngine ve, PackageDoc packageDoc) throws Exception {
+    private static void processPackageDoc(VelocityEngine ve, PackageDoc packageDoc, Path cwd) throws Exception {
         System.out.println("CatalogDoclet - Processing package " + packageDoc.name());
-        processTags(ve, packageDoc, packageDoc.name(), packageDoc.name());
+        processTags(ve, packageDoc, packageDoc.name(), packageDoc.name(), cwd);
     }
 
-    private static void processClassDoc(VelocityEngine ve, ClassDoc classDoc) throws Exception {
+    private static void processClassDoc(VelocityEngine ve, ClassDoc classDoc, Path cwd) throws Exception {
         System.out.println("CatalogDoclet - Processing Class " + classDoc.qualifiedName());
-        processTags(ve, classDoc, classDoc.qualifiedName(), getPackageName(classDoc.qualifiedName()));
+        processTags(ve, classDoc, classDoc.qualifiedName(), getPackageName(classDoc.qualifiedName()), cwd);
                
        return;
     }
 
-    private static String getPackageName(String qualifiedName) {
+    public static String getPackageName(String qualifiedName) {
         
         int pos = qualifiedName.lastIndexOf(".");
         if (pos < 0) {
@@ -67,7 +70,7 @@ public class ManagerDoclet {
         return qualifiedName.substring(0, pos);
     }
 
-    private static void processTags(VelocityEngine ve, Doc doc, String name, String packageName) throws Exception {
+    public static void processTags(VelocityEngine ve, Doc doc, String name, String packageName, Path cwd) throws Exception {
         Tag[] tags = doc.tags();
         if (tags == null) {
             return;
@@ -76,19 +79,19 @@ public class ManagerDoclet {
         for(Tag tag : tags) {
             switch(tag.name()) {
                 case "@galasa.cps.property":
-                    recordCpsProperty(ve, doc, name, packageName);
+                    recordCpsProperty(ve, doc, name, packageName, cwd);
                     return;
                 case "@galasa.manager":
-                    recordManager(ve, doc, name, packageName);
+                    recordManager(ve, doc, name, packageName, cwd);
                     return;
                 case "@galasa.annotation":
-                    recordAnnotation(ve, doc, name, packageName);
+                    recordAnnotation(ve, doc, name, packageName, cwd);
                     return;
             }
         }
     }
 
-    private static void recordCpsProperty(VelocityEngine ve, Doc doc, String qualifiedName, String packageName) throws IOException {
+    public static void recordCpsProperty(VelocityEngine ve, Doc doc, String qualifiedName, String packageName, Path cwd) throws IOException {
         System.out.println("    Found CPS Property " + qualifiedName);
 
         String manager = getTagString(doc, "@galasa.cps.property", packageName);
@@ -122,7 +125,7 @@ public class ManagerDoclet {
             }
         }
         
-        Path propertyFile = FileSystems.getDefault().getPath(managerPrefix + "cps_" + qualifiedName + ".md").toAbsolutePath();
+        Path propertyFile = cwd.resolve(managerPrefix + "cps_" + qualifiedName + ".md").toAbsolutePath();
         if (!Files.exists(propertyFile.getParent())) {
             Files.createDirectories(propertyFile.getParent());
         }
@@ -133,7 +136,7 @@ public class ManagerDoclet {
         writer.close();
     }
 
-    private static void recordAnnotation(VelocityEngine ve, Doc doc, String qualifiedName, String packageName) throws IOException {
+    public static void recordAnnotation(VelocityEngine ve, Doc doc, String qualifiedName, String packageName, Path cwd) throws IOException {
         System.out.println("    Found Annotation " + qualifiedName);
         
         ClassDoc classDoc = null;
@@ -175,7 +178,7 @@ public class ManagerDoclet {
             }
         }
         
-        Path propertyFile = FileSystems.getDefault().getPath(managerPrefix + "annotation_" + qualifiedName + ".md").toAbsolutePath();
+        Path propertyFile = cwd.resolve(managerPrefix + "annotation_" + qualifiedName + ".md").toAbsolutePath();
         if (!Files.exists(propertyFile.getParent())) {
             Files.createDirectories(propertyFile.getParent());
         }
@@ -186,7 +189,7 @@ public class ManagerDoclet {
         writer.close();
     }
 
-    private static void recordManager(VelocityEngine ve, Doc doc, String qualifiedName, String packageName) throws Exception {
+    public static void recordManager(VelocityEngine ve, Doc doc, String qualifiedName, String packageName, Path cwd) throws Exception {
         System.out.println("    Found Manager " + qualifiedName);
 
         String manager = getTagString(doc, "@galasa.manager", packageName);
@@ -213,7 +216,7 @@ public class ManagerDoclet {
         }
         String managerPrefix = managerId + FileSystems.getDefault().getSeparator();
         
-        Path propertyFile = FileSystems.getDefault().getPath(managerPrefix + "manager.md").toAbsolutePath();
+        Path propertyFile = cwd.resolve(managerPrefix + "manager.md").toAbsolutePath();
         if (!Files.exists(propertyFile.getParent())) {
             Files.createDirectories(propertyFile.getParent());
         }
@@ -222,29 +225,22 @@ public class ManagerDoclet {
         propertiesTemplate.merge(context, writer);
         writer.close();
         
-        Path idFile = Paths.get(managerPrefix + "id.txt");
+        Path idFile = cwd.resolve(managerPrefix + "id.txt");
         Files.write(idFile, manager.getBytes());
     }
 
-    private static String getFirstSentenceString(Doc dococ, String packageName) {
+    public static String getFirstSentenceString(Doc dococ, String packageName) {
         Tag[] tags = dococ.firstSentenceTags();
 
-        if (tags == null || tags.length == 0) {
-            return null;
-        }
-
-        for(Tag tag :tags) {
-            String text = getTagString(tag, packageName);
-            if (text != null) {
-                return text;
-            }
-        }
-
-        return null;
+        return getFirstTagString(tags, packageName);
     }
 
-    private static String getTagString(Doc doc, String tagName, String packageName) {
+    public static String getTagString(Doc doc, String tagName, String packageName) {
         Tag[] tags = doc.tags(tagName);
+        return getFirstTagString(tags, packageName);
+    }
+        
+    public static String getFirstTagString(Tag[] tags, String packageName) {
 
         if (tags == null || tags.length == 0) {
             return null;
@@ -260,7 +256,11 @@ public class ManagerDoclet {
         return null;
     }
 
-    private static String getTagString(Tag tag, String packageName) {
+    public static String getTagString(Tag tag, String packageName) {
+        
+        if (tag == null) {
+            return null;
+        }
 
         String text = tag.text();
         if (text == null) {
@@ -276,13 +276,13 @@ public class ManagerDoclet {
     }
     
     
-    private static String getString(String text, String packageName) {
+    public static String getString(String text, String packageName) {
 
         text = text.replaceAll("\n", "");
         text = text.replaceAll("\\Q{@literal @}\\E", "@");
         
         //*** Replace all the links
-        Pattern linkPattern = Pattern.compile("(\\Q{@link\\E\\s+(\\w+)\\s?\\Q}\\E)");
+        Pattern linkPattern = Pattern.compile("(\\Q{@link\\E\\s+([\\w|\\.]+)\\s?\\Q}\\E)");
 
         Matcher matcher = linkPattern.matcher(text);
         while(matcher.find()) {
