@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2019.
+ */
 package dev.galasa.framework.gendocs;
 
 import java.io.BufferedWriter;
@@ -11,7 +16,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.apache.maven.model.Resource;
@@ -37,9 +41,9 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 @Mojo(name = "buildmanagerdoc", 
 requiresProject = true)
 public class BuildManagerDoc extends AbstractMojo {
-    
+
     private static VelocityEngine ve = new VelocityEngine();
-    {
+    static {
         ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath"); 
         ve.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
     }
@@ -70,14 +74,9 @@ public class BuildManagerDoc extends AbstractMojo {
 
             //*** Process the managers that exist in the bundle
             try (Stream<Path> paths = Files.list(managerDocPath)) {
-                paths.forEach(new Consumer<Path>() {
-
-                    @Override
-                    public void accept(Path t) {
-                        System.out.println(t);
-                        if (Files.isDirectory(t)) {
-                            processManagerDirectory(t);
-                        }
+                paths.forEach(t -> {
+                    if (Files.isDirectory(t)) {
+                        processManagerDirectory(t);
                     }
                 });
             }
@@ -94,7 +93,7 @@ public class BuildManagerDoc extends AbstractMojo {
             Path idFile = managerDirectory.resolve("id.txt");
             Path managerFile = managerDirectory.resolve("manager.md");
 
-            if (!Files.exists(idFile) | !Files.exists(managerFile)) {
+            if (!Files.exists(idFile) || !Files.exists(managerFile)) {
                 return;
             }
 
@@ -102,42 +101,59 @@ public class BuildManagerDoc extends AbstractMojo {
             String manager = new String(Files.readAllBytes(managerFile));
 
             getLog().info("Processing documents for Manager " + id);
-            
-            
-            ArrayList<Path> annotationFiles = new ArrayList<Path>();
-            ArrayList<Path> codeSnippetFiles = new ArrayList<Path>();
-            ArrayList<Path> cpsPropertyFiles = new ArrayList<Path>();
-            
-            
+
+
+            ArrayList<Path> annotationFiles = new ArrayList<>();
+            ArrayList<Path> codeSnippetFiles = new ArrayList<>();
+            ArrayList<Path> cpsPropertyFiles = new ArrayList<>();
+
+
             //*** Search the manager directory for manager specific files
             try (Stream<Path> paths = Files.list(managerDirectory)) {
-                paths.forEach(new Consumer<Path>() {
+                paths.forEach(t -> {
+                    if (!Files.isRegularFile(t)) {
+                        return;
+                    }
+                    String fileName = t.getFileName().toString();
+                    if (!fileName.endsWith(".md")) {
+                        return;
+                    }
 
-                    @Override
-                    public void accept(Path t) {
-                        if (!Files.isRegularFile(t)) {
-                            return;
-                        }
-                        String fileName = t.getFileName().toString();
-                        if (!fileName.endsWith(".md")) {
-                            return;
-                        }
-                        
-                        if (fileName.startsWith("cps_")) {
-                            cpsPropertyFiles.add(t);
-                        } else if (fileName.startsWith("annotation_")) {
-                            annotationFiles.add(t);
-                        }
+                    if (fileName.startsWith("cps_")) {
+                        cpsPropertyFiles.add(t);
+                    } else if (fileName.startsWith("annotation_")) {
+                        annotationFiles.add(t);
                     }
                 });
             }
-            
+
             //*** Search the manager directory for common files in the bundle
             try (Stream<Path> paths = Files.list(managerDirectory.getParent())) {
-                paths.forEach(new Consumer<Path>() {
+                paths.forEach(t -> {
+                    if (!Files.isRegularFile(t)) {
+                        return;
+                    }
+                    String fileName = t.getFileName().toString();
+                    if (!fileName.endsWith(".md")) {
+                        return;
+                    }
 
-                    @Override
-                    public void accept(Path t) {
+                    if (fileName.startsWith("cps_")) {
+                        cpsPropertyFiles.add(t);
+                    } else if (fileName.startsWith("annotation_")) {
+                        annotationFiles.add(t);
+                    }
+                });
+            }
+
+
+            //*** Search for code snippet files in the source directories
+
+            for(String sourceRoot : this.project.getCompileSourceRoots()) {
+                Path sourceRootPath = FileSystems.getDefault().getPath(sourceRoot);
+
+                try (Stream<Path> paths = Files.walk(sourceRootPath.getParent())) {
+                    paths.forEach(t -> {
                         if (!Files.isRegularFile(t)) {
                             return;
                         }
@@ -145,82 +161,49 @@ public class BuildManagerDoc extends AbstractMojo {
                         if (!fileName.endsWith(".md")) {
                             return;
                         }
-                        
-                        if (fileName.startsWith("cps_")) {
-                            cpsPropertyFiles.add(t);
-                        } else if (fileName.startsWith("annotation_")) {
-                            annotationFiles.add(t);
-                        }
-                    }
-                });
-            }
-            
-            
-            //*** Search for code snippet files in the source directories
-            
-            for(String sourceRoot : this.project.getCompileSourceRoots()) {
-                Path sourceRootPath = FileSystems.getDefault().getPath(sourceRoot);
-                
-                try (Stream<Path> paths = Files.walk(sourceRootPath.getParent())) {
-                    paths.forEach(new Consumer<Path>() {
 
-                        @Override
-                        public void accept(Path t) {
-                            if (!Files.isRegularFile(t)) {
-                                return;
-                            }
-                            String fileName = t.getFileName().toString();
-                            if (!fileName.endsWith(".md")) {
-                                return;
-                            }
-                            
-                            if (fileName.startsWith("codesnippet_")) {
-                                codeSnippetFiles.add(t);
-                            }
+                        if (fileName.startsWith("codesnippet_")) {
+                            codeSnippetFiles.add(t);
                         }
                     });
                 }
             }
-            
+
             for(Resource resource : this.project.getResources()) {
                 Path resourceRootPath = FileSystems.getDefault().getPath(resource.getDirectory());
-                
-                try (Stream<Path> paths = Files.walk(resourceRootPath.getParent())) {
-                    paths.forEach(new Consumer<Path>() {
 
-                        @Override
-                        public void accept(Path t) {
-                            if (!Files.isRegularFile(t)) {
-                                return;
-                            }
-                            String fileName = t.getFileName().toString();
-                            if (!fileName.endsWith(".md")) {
-                                return;
-                            }
-                            
-                            if (fileName.startsWith("codesnippet_")) {
-                                codeSnippetFiles.add(t);
-                            }
+                try (Stream<Path> paths = Files.walk(resourceRootPath.getParent())) {
+                    paths.forEach(t -> {
+                        if (!Files.isRegularFile(t)) {
+                            return;
+                        }
+                        String fileName = t.getFileName().toString();
+                        if (!fileName.endsWith(".md")) {
+                            return;
+                        }
+
+                        if (fileName.startsWith("codesnippet_")) {
+                            codeSnippetFiles.add(t);
                         }
                     });
                 }
             }
-            
-            
+
+
             //*** sort then in filename order
             Collections.sort(annotationFiles, new FileNameComparator());
             Collections.sort(codeSnippetFiles, new FileNameComparator());
             Collections.sort(cpsPropertyFiles, new FileNameComparator());
-            
-            
+
+
             //*** read the contents of those files
             ArrayList<String> annotations = readFiles(annotationFiles);
             ArrayList<String> codeSnippets = readFiles(codeSnippetFiles);
             ArrayList<String> cpsProperties = readFiles(cpsPropertyFiles);
-            
-            
+
+
             String filename = id.toLowerCase().replaceAll("[\\s/\\\\]", "_");
-            
+
             VelocityContext context = new VelocityContext();
             context.put("name", id);
             context.put("filename", filename);
@@ -228,33 +211,33 @@ public class BuildManagerDoc extends AbstractMojo {
             context.put("annotations", annotations);
             context.put("codeSnippets", codeSnippets);
             context.put("cpsProperties", cpsProperties);
-            
+
             Template topicTemplate = ve.getTemplate("/managerTopic.template");
-            
+
             Path managerOutputPath = Paths.get(managerDocDir.toURI()).resolve(filename + "-manager.md");
-            
+
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter((Files.newOutputStream(managerOutputPath))));
             topicTemplate.merge(context, writer);
             writer.close();
-            
+
         } catch(IOException e) {
             getLog().error("Unable to process manager at " + managerDirectory.toString());
         }
 
     } 
-    
-    
+
+
     private ArrayList<String> readFiles(ArrayList<Path> files) throws IOException {
         if (files.isEmpty()) {
-            return null;
+            return new ArrayList<>(0);
         }
-        
-        ArrayList<String> contents = new ArrayList<String>();
-        
+
+        ArrayList<String> contents = new ArrayList<>();
+
         for(Path file : files) {
             contents.add(new String(Files.readAllBytes(file)));
         }
-        
+
         return contents;
     }
 
@@ -265,7 +248,7 @@ public class BuildManagerDoc extends AbstractMojo {
         public int compare(Path o1, Path o2) {
             return o1.getFileName().toString().compareTo(o2.getFileName().toString());
         }
-        
+
     }
 
 
