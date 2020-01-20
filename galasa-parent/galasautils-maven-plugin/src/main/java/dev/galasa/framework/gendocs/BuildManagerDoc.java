@@ -1,4 +1,4 @@
-package dev.galasa.mavenutils.plugin;
+package dev.galasa.framework.gendocs;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,6 +27,13 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
+/**
+ * this goal will sxtract the generated markdown files from the java doc and build a manager.md file in the 
+ * intended git repo directory.
+ * 
+ * @author Michael Baylis
+ *
+ */
 @Mojo(name = "buildmanagerdoc", 
 requiresProject = true)
 public class BuildManagerDoc extends AbstractMojo {
@@ -38,13 +45,13 @@ public class BuildManagerDoc extends AbstractMojo {
     }
 
     @Parameter(defaultValue = "${project}", readonly = true)
-    private MavenProject            project;
+    public MavenProject            project;
 
     @Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
-    private File                    outputDirectory;
+    public File                    outputDirectory;
 
     @Parameter(defaultValue = "${galasa.manager.doc.directory}", property = "managerDocDir", required = true)
-    private File                    managerDocDir;
+    public File                    managerDocDir;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
