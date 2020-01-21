@@ -34,25 +34,27 @@ public class ManagerDoclet {
     private static final String TAG_ANNOTATION   = "@galasa.annotation";
     private static final String TAG_CPS_PROPERTY = "@galasa.cps.property";
     
-    private static final String TAG_DESCRIPTION  = "@galasa.description";
-    private static final String TAG_NAME         = "@galasa.name";
-    private static final String TAG_EXTRA        = "@galasa.extra";
-    private static final String TAG_LIMITATIONS  = "@galasa.limitations";
-    private static final String TAG_REQUIRED     = "@galasa.required";
-    private static final String TAG_DEFAULT      = "@galasa.default";
-    private static final String TAG_VALID_VALUES = "@galasa.valid_values";
-    private static final String TAG_EXAMPLES     = "@galasa.examples";
+    private static final String TAG_DESCRIPTION   = "@galasa.description";
+    private static final String TAG_NAME          = "@galasa.name";
+    private static final String TAG_EXTRA         = "@galasa.extra";
+    private static final String TAG_LIMITATIONS   = "@galasa.limitations";
+    private static final String TAG_REQUIRED      = "@galasa.required";
+    private static final String TAG_DEFAULT       = "@galasa.default";
+    private static final String TAG_VALID_VALUES  = "@galasa.valid_values";
+    private static final String TAG_EXAMPLES      = "@galasa.examples";
+    private static final String TAG_RELEASE_STATE = "@galasa.release.state";
 
-    private static final String PROPERTY_NAME         = "name";
-    private static final String PROPERTY_TITLE        = "title";
-    private static final String PROPERTY_DESCRIPTION  = "description";
-    private static final String PROPERTY_REQUIRED     = "required";
-    private static final String PROPERTY_DEFAULT      = "default";
-    private static final String PROPERTY_VALID_VALUES = "validValues";
-    private static final String PROPERTY_EXAMPLES     = "examples";
-    private static final String PROPERTY_EXTRA        = "extra";
-    private static final String PROPERTY_LIMITATIONS  = "limitations";
-    private static final String PROPERTY_ATTRIBUTES   = "attributes";
+    private static final String PROPERTY_NAME          = "name";
+    private static final String PROPERTY_TITLE         = "title";
+    private static final String PROPERTY_DESCRIPTION   = "description";
+    private static final String PROPERTY_REQUIRED      = "required";
+    private static final String PROPERTY_DEFAULT       = "default";
+    private static final String PROPERTY_VALID_VALUES  = "validValues";
+    private static final String PROPERTY_EXAMPLES      = "examples";
+    private static final String PROPERTY_EXTRA         = "extra";
+    private static final String PROPERTY_LIMITATIONS   = "limitations";
+    private static final String PROPERTY_ATTRIBUTES    = "attributes";    
+    private static final String PROPERTY_RELEASE_STATE = "state";
     
     private static final String REGEX_MANAGER_NAME    = "[\\s/\\\\]";
     
@@ -238,6 +240,7 @@ public class ManagerDoclet {
         String propertyDescription = getTagString(doc, TAG_DESCRIPTION, packageName);
         String propertyExtra = getTagString(doc, TAG_EXTRA, packageName);        
         String propertyLimitations = getTagString(doc, TAG_LIMITATIONS, packageName);
+        String propertyReleaseState = getTagString(doc, TAG_RELEASE_STATE, packageName);
 
         VelocityContext context = new VelocityContext();
         context.put(PROPERTY_TITLE, propertyTitle);
@@ -245,6 +248,8 @@ public class ManagerDoclet {
         context.put(PROPERTY_DESCRIPTION, propertyDescription);
         context.put(PROPERTY_LIMITATIONS, propertyLimitations);
         context.put(PROPERTY_EXTRA, propertyExtra);
+        context.put(PROPERTY_RELEASE_STATE, propertyReleaseState);
+        
 
         Template propertiesTemplate = ve.getTemplate("/manager.template");
            

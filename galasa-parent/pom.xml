@@ -375,6 +375,11 @@
 							<placement>a</placement>
 							<head>Further information</head>
 						</tag>
+						<tag>
+							<name>galasa.release.state</name>
+							<placement>a</placement>
+							<head>Release Status</head>
+						</tag>
 					</tags>
 				</configuration>
 			</plugin>
