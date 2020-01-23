@@ -98,7 +98,12 @@ public class Launcher {
      */
     public static void main(String[] args) throws Exception {
         Launcher launcher = new Launcher();
-        launcher.launch(args);
+        try {
+            launcher.launch(args);
+        } catch(LauncherException e) {
+            logger.error("Existing launcher due to exception");
+            System.exit(16);
+        }
         System.exit(0);
     }
 
