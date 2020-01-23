@@ -44,8 +44,8 @@ public class Settings implements Runnable {
 
     private final CoreV1Api   api;
     private String            oldConfigMapResourceVersion = "";
-
-    public Settings(CoreV1Api api) {
+    
+    public Settings(CoreV1Api api) throws K8sControllerException {
         this.api = api;
 
         loadEnvironmentProperties();
@@ -54,17 +54,20 @@ public class Settings implements Runnable {
 
     @Override
     public void run() {
-        retrieveConfigMap();
+        try {
+            retrieveConfigMap();
+        } catch (K8sControllerException e) {
+            logger.error("Poll for the ConfigMap " + configMapName + " failed", e);
+        }
     }
 
-    private void retrieveConfigMap() {
+    private void retrieveConfigMap() throws K8sControllerException {
 
         V1ConfigMap configMap = null;
         try {
             configMap = api.readNamespacedConfigMap(configMapName, namespace, "true", false, false);
         } catch (ApiException e) {
-            logger.error("Failed to read configmap '" + configMapName + "' in namespace '" + namespace + "'", e);
-            return;
+            throw new K8sControllerException("Failed to read configmap '" + configMapName + "' in namespace '" + namespace + "'", e);
         }
 
         String newResourceVersion = configMap.getMetadata().getResourceVersion();

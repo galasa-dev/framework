@@ -194,6 +194,8 @@ public class MetricsServer implements IMetricsServer {
         for (IMetricsProvider provider : metricsProviders) {
             provider.start();
         }
+        
+        logger.info("Metrics Server has started");
 
         // *** Loop until we are asked to shutdown
         long heartbeatExpire = 0;
