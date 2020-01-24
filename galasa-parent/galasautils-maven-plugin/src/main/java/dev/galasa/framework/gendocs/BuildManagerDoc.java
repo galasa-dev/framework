@@ -152,7 +152,7 @@ public class BuildManagerDoc extends AbstractMojo {
             for(String sourceRoot : this.project.getCompileSourceRoots()) {
                 Path sourceRootPath = FileSystems.getDefault().getPath(sourceRoot);
 
-                try (Stream<Path> paths = Files.walk(sourceRootPath.getParent())) {
+                try (Stream<Path> paths = Files.walk(sourceRootPath)) {
                     paths.forEach(t -> {
                         if (!Files.isRegularFile(t)) {
                             return;
@@ -172,7 +172,7 @@ public class BuildManagerDoc extends AbstractMojo {
             for(Resource resource : this.project.getResources()) {
                 Path resourceRootPath = FileSystems.getDefault().getPath(resource.getDirectory());
 
-                try (Stream<Path> paths = Files.walk(resourceRootPath.getParent())) {
+                try (Stream<Path> paths = Files.walk(resourceRootPath)) {
                     paths.forEach(t -> {
                         if (!Files.isRegularFile(t)) {
                             return;
