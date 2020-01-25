@@ -56,6 +56,8 @@ public class BuildManagerDoc extends AbstractMojo {
 
     @Parameter(defaultValue = "${galasa.manager.doc.directory}", property = "managerDocDir", required = true)
     public File                    managerDocDir;
+    
+    private boolean                errorDuringProcessing = false;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -85,6 +87,9 @@ public class BuildManagerDoc extends AbstractMojo {
             throw new MojoExecutionException("Problem processing the Manager Documentation files", e);
         }
 
+        if (errorDuringProcessing) {
+            throw new MojoExecutionException("Problem processing the Manager Documentation files, see log");
+        }
 
     }
 
@@ -151,6 +156,9 @@ public class BuildManagerDoc extends AbstractMojo {
 
             for(String sourceRoot : this.project.getCompileSourceRoots()) {
                 Path sourceRootPath = FileSystems.getDefault().getPath(sourceRoot);
+                if (!Files.exists(sourceRootPath)) {
+                    continue;
+                }
 
                 try (Stream<Path> paths = Files.walk(sourceRootPath)) {
                     paths.forEach(t -> {
@@ -171,6 +179,9 @@ public class BuildManagerDoc extends AbstractMojo {
 
             for(Resource resource : this.project.getResources()) {
                 Path resourceRootPath = FileSystems.getDefault().getPath(resource.getDirectory());
+                if (!Files.exists(resourceRootPath)) {
+                    continue;
+                }
 
                 try (Stream<Path> paths = Files.walk(resourceRootPath)) {
                     paths.forEach(t -> {
@@ -222,6 +233,7 @@ public class BuildManagerDoc extends AbstractMojo {
 
         } catch(IOException e) {
             getLog().error("Unable to process manager at " + managerDirectory.toString(), e);
+            errorDuringProcessing = true;
         }
 
     } 
