@@ -221,7 +221,7 @@ public class BuildManagerDoc extends AbstractMojo {
             writer.close();
 
         } catch(IOException e) {
-            getLog().error("Unable to process manager at " + managerDirectory.toString());
+            getLog().error("Unable to process manager at " + managerDirectory.toString(), e);
         }
 
     } 
