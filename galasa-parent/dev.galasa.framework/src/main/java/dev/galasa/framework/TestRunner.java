@@ -5,7 +5,6 @@
  */
 package dev.galasa.framework;
 
-import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +34,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import dev.galasa.ResultArchiveStoreContentType;
+import dev.galasa.SharedEnvironment;
+import dev.galasa.Test;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -54,6 +55,13 @@ import dev.galasa.framework.spi.utils.DssUtils;
 @Component(service = { TestRunner.class })
 public class TestRunner {
 
+    private enum RunType {
+        Test,
+        SharedEnvironmentBuild,
+        SharedEnvironmentDiscard
+    }
+
+
     private Log                                logger        = LogFactory.getLog(TestRunner.class);
 
     private BundleContext                      bundleContext;
@@ -72,6 +80,8 @@ public class TestRunner {
     private IRun                               run;
 
     private TestStructure                      testStructure = new TestStructure();
+
+    private RunType                            runType;
 
     /**
      * Run the supplied test class
@@ -96,12 +106,6 @@ public class TestRunner {
         }
 
         IRun run = frameworkInitialisation.getFramework().getTestRun();
-
-        if (run.isLocal()) {
-            DssUtils.incrementMetric(dss, "metrics.runs.local");
-        } else {
-            DssUtils.incrementMetric(dss, "metrics.runs.automated");
-        }
 
         String testBundleName = run.getTestBundleName();
         String testClassName = run.getTestClassName();
@@ -171,18 +175,65 @@ public class TestRunner {
             return;
         }
 
-        try {
-            heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
-            heartbeat.start();
-        } catch (DynamicStatusStoreException e1) {
-            this.ras.shutdown();
-            throw new TestRunException("Unable to initialise the heartbeat");
+        Class<?> testClass = getTestClass(testBundleName, testClassName);
+        Test testAnnotation = testClass.getAnnotation(Test.class);
+        SharedEnvironment sharedEnvironmentAnnotation = testClass.getAnnotation(SharedEnvironment.class);
+
+        if (testAnnotation == null && sharedEnvironmentAnnotation == null) {
+            throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is neither a Test or SharedEnvironment");
+        } else if (testAnnotation != null && sharedEnvironmentAnnotation != null) {
+            throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is both a Test and a SharedEnvironment");
+        }
+
+        if (testAnnotation != null) {
+            logger.info("Run test: " + testBundleName + "/" + testClassName);
+            this.runType = RunType.Test;
+        } else {
+            logger.info("Shared Environment class: " + testBundleName + "/" + testClassName);
+        }
+
+
+        if (sharedEnvironmentAnnotation != null) {
+            try {
+                String sePhase = AbstractManager.nulled(cps.getProperty("run","shared.environment.phase"));
+                if (sePhase == null) {
+                    throw new TestRunException("The Shared Environment phase has not been set, framework.run.shared.environment.phase needs to be set to BUILD or DISCARD");
+                }
+                switch(sePhase) {
+                    case "BUILD":
+                        this.runType = RunType.SharedEnvironmentBuild;
+                        break;
+                    case "DISCARD":
+                        this.runType = RunType.SharedEnvironmentDiscard;
+                        break;
+                    default:
+                        throw new TestRunException("Invalid Shared Environment phase, '" + sePhase + "', needs to be BUILD or DISCARD");
+                }
+            } catch(TestRunException e) {
+                throw e;
+            } catch(Exception e) {
+                throw new TestRunException("Unable to determine the phase of the shared environment", e);
+            }
+        }
+
+        if (this.runType == RunType.Test) {
+            try {
+                heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
+                heartbeat.start();
+            } catch (DynamicStatusStoreException e1) {
+                this.ras.shutdown();
+                throw new TestRunException("Unable to initialise the heartbeat");
+            }
+            
+            if (run.isLocal()) {
+                DssUtils.incrementMetric(dss, "metrics.runs.local");
+            } else {
+                DssUtils.incrementMetric(dss, "metrics.runs.automated");
+            }
         }
 
         updateStatus("started", "started");
 
-        logger.info("Run test: " + testBundleName + "/" + testClassName);
-        Class<?> testClass = getTestClass(testBundleName, testClassName);
 
         // *** Initialise the Managers ready for the test run
         TestRunManagers managers = null;
@@ -357,6 +408,10 @@ public class TestRunner {
     }
 
     private void stopHeartbeat() {
+        if (this.heartbeat == null) {
+            return;
+        }
+        
         heartbeat.shutdown();
         try {
             heartbeat.join(2000);
