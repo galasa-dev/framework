@@ -218,6 +218,12 @@ public class TestClassWrapper {
 
         this.testStructure.setResult(this.result.getName());
 
+        try {
+            managers.testClassResult(this.result, null);
+        } catch (FrameworkException e) {
+            throw new TestRunException("Problem with test class result", e);
+        }
+
         String report = this.testStructure.report(LOG_START_LINE);
         logger.trace("Finishing Test Class structure:-" + report);
 
