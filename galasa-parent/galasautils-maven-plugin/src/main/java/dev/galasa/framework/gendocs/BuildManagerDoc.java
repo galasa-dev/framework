@@ -213,7 +213,7 @@ public class BuildManagerDoc extends AbstractMojo {
             ArrayList<String> cpsProperties = readFiles(cpsPropertyFiles);
 
 
-            String filename = id.toLowerCase().replaceAll("[\\s/\\\\]", "_");
+            String filename = id.toLowerCase().replaceAll("[\\s/\\\\]", "-");
 
             VelocityContext context = new VelocityContext();
             context.put("name", id);
