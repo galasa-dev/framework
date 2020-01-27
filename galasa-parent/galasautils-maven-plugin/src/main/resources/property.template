@@ -6,5 +6,7 @@
 | Default value: | $default |
 | Valid values: | $validValues |
 | Examples: | $examples |
+#if( $extra )
 
 $extra
+#end
