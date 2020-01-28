@@ -129,6 +129,17 @@ public interface IManager {
 
     /**
      * <p>
+     * After active managers have been decided, allows managers access to this list.
+     * Example of this is logging manager needing to get information from other 
+     * managers.
+     * </p>
+     *
+     * @param activeManagers The other active managers
+     */
+    void registerAllManagers(List<IManager> activeManagers);
+
+    /**
+     * <p>
      * Provision resource names, resource pools, settings etc, ready for building.
      * </p>
      *

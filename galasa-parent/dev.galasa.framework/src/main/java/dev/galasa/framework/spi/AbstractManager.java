@@ -257,6 +257,15 @@ public abstract class AbstractManager implements IManager {
     /*
      * (non-Javadoc)
      * 
+     * @see dev.galasa.framework.spi.IManager#registerAllManagers()
+     */
+    @Override
+    public void registerAllManagers(List<IManager> activeManagers) {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see dev.galasa.framework.spi.IManager#provisionGenerate()
      */
     @Override
