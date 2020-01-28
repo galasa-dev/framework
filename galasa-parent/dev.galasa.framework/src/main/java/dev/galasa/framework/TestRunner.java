@@ -260,8 +260,6 @@ public class TestRunner {
             throw new TestRunException("Problem asking Managers for an ignore reason", e);
         }
 
-        managers.registerAllManagers();
-
         TestClassWrapper testClassWrapper = new TestClassWrapper(this, testBundleName, testClass, testStructure);
 
         testClassWrapper.parseTestClass();

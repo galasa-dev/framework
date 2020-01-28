@@ -438,12 +438,6 @@ public class TestRunManagers {
         return false;
     }
 
-    public void registerAllManagers() {
-        for (IManager manager : activeManagers) {
-            manager.registerAllManagers(activeManagers);
-        }
-    }
-
     public void provisionGenerate() throws FrameworkException {
         for (IManager manager : activeManagers) {
             try {
