@@ -40,12 +40,15 @@ import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 
@@ -195,19 +198,20 @@ public class TestRunner {
 
         if (sharedEnvironmentAnnotation != null) {
             try {
-                String sePhase = AbstractManager.nulled(cps.getProperty("run","shared.environment.phase"));
-                if (sePhase == null) {
-                    throw new TestRunException("The Shared Environment phase has not been set, framework.run.shared.environment.phase needs to be set to BUILD or DISCARD");
-                }
-                switch(sePhase) {
-                    case "BUILD":
-                        this.runType = RunType.SharedEnvironmentBuild;
-                        break;
-                    case "DISCARD":
-                        this.runType = RunType.SharedEnvironmentDiscard;
-                        break;
-                    default:
-                        throw new TestRunException("Invalid Shared Environment phase, '" + sePhase + "', needs to be BUILD or DISCARD");
+                SharedEnvironmentRunType seType = frameworkInitialisation.getFramework().getSharedEnvironmentRunType();
+                if (seType != null) {
+                    switch(seType) {
+                        case BUILD:
+                            this.runType = RunType.SharedEnvironmentBuild;
+                            break;
+                        case DISCARD:
+                            this.runType = RunType.SharedEnvironmentDiscard;
+                            break;
+                        default:
+                            throw new TestRunException("Unknown Shared Environment phase, '" + seType + "', needs to be BUILD or DISCARD");
+                    }
+                } else {
+                    throw new TestRunException("Unknown Shared Environment phase, needs to be BUILD or DISCARD");
                 }
             } catch(TestRunException e) {
                 throw e;
@@ -224,7 +228,7 @@ public class TestRunner {
                 this.ras.shutdown();
                 throw new TestRunException("Unable to initialise the heartbeat");
             }
-            
+
             if (run.isLocal()) {
                 DssUtils.incrementMetric(dss, "metrics.runs.local");
             } else {
@@ -262,82 +266,99 @@ public class TestRunner {
 
         testClassWrapper.instantiateTestClass();
 
+        boolean allOk = true;
+        boolean resourcesUnavailable = false;
+
         try {
             updateStatus("generating", null);
             managers.provisionGenerate();
-        } catch (Exception e) { // TODO we need an exception is specific for resource exhaustion, diferrentiate
-            // between env fail
+        } catch (Exception e) { 
             logger.info("Provision Generate failed", e);
-            stopHeartbeat(); // *** Stop the heartbeat immediately
+            if (!(e instanceof FrameworkResourceUnavailableException)) {
+                testClassWrapper.setResult(Result.envfail(e));
+                testStructure.setResult(testClassWrapper.getResult().getName());
+            }
+            allOk = false;
+        }
 
-            managers.provisionDiscard(); // *** Get rid of what we managed to get
+        if (this.runType == RunType.Test || this.runType == RunType.SharedEnvironmentBuild) {
+            if (allOk) {
+                try {
+                    updateStatus("building", null);
+                    managers.provisionBuild();
+                } catch (Exception e) {
+                    managers.provisionDiscard();
+                    stopHeartbeat();
+                    this.ras.shutdown();
+                    throw new TestRunException("Unable to provision build", e);
+                }
+            }
 
-            if (!run.isLocal()) {
+            if (allOk) {
+                try {
+                    updateStatus("provstart", null);
+                    managers.provisionStart();
+                } catch (Exception e) {
+                    managers.provisionStop();
+                    managers.provisionDiscard();
+                    stopHeartbeat();
+                    this.ras.shutdown();
+                    throw new TestRunException("Unable to provision start", e);
+                }
+            }
+
+            if (allOk) {
+                updateStatus("running", null);
+                testClassWrapper.runTestMethods(managers);
+            }
+        }
+
+        if (!allOk || this.runType == RunType.Test || this.runType == RunType.SharedEnvironmentDiscard) {
+            updateStatus("stopping", null);
+            managers.provisionStop();
+            updateStatus("discarding", null);
+            managers.provisionDiscard();
+            updateStatus("ending", null);
+            managers.endOfTestRun();
+
+            boolean markedWaiting = false;
+
+            if (resourcesUnavailable && !run.isLocal()) {
                 markWaiting(frameworkInitialisation.getFramework());
                 logger.info("Placing queue on the waiting list");
-                this.ras.shutdown();
-                return;
+                markedWaiting = true;
+            } else {
+                if (this.runType == RunType.SharedEnvironmentDiscard) {
+                    this.testStructure.setResult("Discarded");
+                }
+                updateStatus("finished", "finished");
             }
+
+            stopHeartbeat();
+
+            // *** Record all the CPS properties that were accessed
+            recordCPSProperties(frameworkInitialisation);
+
+            // *** If this was a local run, then we will want to remove the run properties
+            // from the DSS immediately
+            // *** for automation, we will let the core manager clean up after a while
+            // *** Local runs will have access to the run details via a view,
+            // *** But automation runs will only exist in the RAS if we delete them, so need
+            // to give
+            // *** time for things like jenkins and other run requesters to obtain the
+            // result and RAS id before
+            // *** deleting, default is to keep the automation run properties for 5 minutes
             try {
-                deleteRunProperties(frameworkInitialisation.getFramework());
-            } catch (FrameworkException e1) {
+                if (!markedWaiting) {
+                    deleteRunProperties(frameworkInitialisation.getFramework());
+                }
+            } catch (FrameworkException e) {
                 // *** Any error, report it and leave for the core manager to clean up
                 logger.error("Error cleaning up local test run properties", e);
             }
-            this.ras.shutdown();
-            throw new TestRunException("Unable to provision generate", e);
-        }
-
-        try {
-            updateStatus("building", null);
-            managers.provisionBuild();
-        } catch (Exception e) {
-            managers.provisionDiscard();
-            stopHeartbeat();
-            this.ras.shutdown();
-            throw new TestRunException("Unable to provision build", e);
-        }
-
-        try {
-            updateStatus("provstart", null);
-            managers.provisionStart();
-        } catch (Exception e) {
-            managers.provisionStop();
-            managers.provisionDiscard();
-            stopHeartbeat();
-            this.ras.shutdown();
-            throw new TestRunException("Unable to provision start", e);
-        }
-
-        updateStatus("running", null);
-        testClassWrapper.runTestMethods(managers);
-
-        updateStatus("stopping", null);
-        managers.provisionStop();
-        updateStatus("discarding", null);
-        managers.provisionDiscard();
-        updateStatus("ending", null);
-        managers.endOfTestRun();
-        stopHeartbeat();
-        updateStatus("finished", "finished");
-
-        // *** Record all the CPS properties that were accessed
-        recordCPSProperties(frameworkInitialisation);
-
-        // *** If this was a local run, then we will want to remove the run properties
-        // from the DSS immediately
-        // *** for automation, we will let the core manager clean up after a while
-        // *** Local runs will have access to the run details via a view,
-        // *** But automation runs will only exist in the RAS if we delete them, so need
-        // to give
-        // *** time for things like jenkins and other run requesters to obtain the
-        // result and RAS id before
-        // *** deleting, default is to keep the automation run properties for 5 minutes
-        try {
-            deleteRunProperties(frameworkInitialisation.getFramework());
-        } catch (FrameworkException e) {
-            // *** Any error, report it and leave for the core manager to clean up
-            logger.error("Error cleaning up local test run properties", e);
+        } else if (this.runType == RunType.SharedEnvironmentBuild) {
+            recordCPSProperties(frameworkInitialisation);
+            updateStatus("up", "built");
         }
 
         this.ras.shutdown();
@@ -411,7 +432,7 @@ public class TestRunner {
         if (this.heartbeat == null) {
             return;
         }
-        
+
         heartbeat.shutdown();
         try {
             heartbeat.join(2000);

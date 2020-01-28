@@ -155,4 +155,12 @@ public interface IFramework {
     Properties getRecordProperties();
 
     URL getApiUrl(@NotNull Api api) throws FrameworkException;
+    
+    /**
+     * If this is a shared environment run, return the run type
+     * 
+     * @return returns the shared environment run type, or null if it is not
+     * @throws ConfigurationPropertyStoreException if there is a problem accessing the CPS
+     */
+    SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException;
 }
