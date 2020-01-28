@@ -289,5 +289,13 @@ public class TestClassWrapper {
             temporaryTestMethods.add(method);
         }
     }
+    
+    protected void setResult(Result result) {
+        this.result = result;
+    }
+    
+    protected Result getResult() {
+        return this.result;
+    }
 
 }

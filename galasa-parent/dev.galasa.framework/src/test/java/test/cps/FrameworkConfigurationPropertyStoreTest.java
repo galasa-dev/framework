@@ -35,6 +35,7 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 
 /**
@@ -307,6 +308,11 @@ public class FrameworkConfigurationPropertyStoreTest {
             return null;
         }
 
+
+        @Override
+        public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
+            return null;
+        }
     }
 
     /**

@@ -32,6 +32,7 @@ public class RunImpl implements IRun {
     private final String  obr;
     private final Boolean local;
     private final Boolean trace;
+    private final boolean sharedEnvironment;
 
     public RunImpl(String name, IDynamicStatusStoreService dss) throws DynamicStatusStoreException {
         this.name = name;
@@ -58,6 +59,7 @@ public class RunImpl implements IRun {
         group = runProperties.get(prefix + "group");
         local = Boolean.parseBoolean(runProperties.get(prefix + "local"));
         trace = Boolean.parseBoolean(runProperties.get(prefix + "trace"));
+        sharedEnvironment = Boolean.parseBoolean(runProperties.get(prefix + "shared.environment"));
 
         String sQueued = runProperties.get(prefix + "queued");
         if (sQueued != null) {
@@ -188,6 +190,11 @@ public class RunImpl implements IRun {
     @Override
     public String getResult() {
         return result;
+    }
+
+    @Override
+    public boolean isSharedEnvironment() {
+        return this.sharedEnvironment;
     }
 
 }

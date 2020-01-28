@@ -25,8 +25,10 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
+import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.ManagerException;
 
@@ -440,6 +442,8 @@ public class TestRunManagers {
         for (IManager manager : activeManagers) {
             try {
                 manager.provisionGenerate();
+            } catch (ResourceUnavailableException e) {
+                throw new FrameworkResourceUnavailableException("Resources unavailable during provision generate", e);
             } catch (ManagerException e) {
                 throw new FrameworkException(
                         "Problem in provision generate for manager " + manager.getClass().getName(), e);

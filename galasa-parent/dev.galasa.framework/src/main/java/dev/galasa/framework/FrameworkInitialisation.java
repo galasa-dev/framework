@@ -185,11 +185,18 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         // one, we need to allocate one
         // *** Need the DSS for this as the latest run number number is stored in there
         if (testrun) {
+            //*** Ensure the shared environment = true is set for Shenv runs
+            boolean sharedEnvironmentProcess = false;
+            String sharedEnvironment = AbstractManager.nulled(this.cpsFramework.getProperty("run","shared.environment.phase"));
+            if (sharedEnvironment != null) {
+                sharedEnvironmentProcess = true;
+            }
+
             String runName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "name"));
             if (runName == null) {
                 String runBundleClass = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testbundleclass"));
                 if (runBundleClass != null) {
-                    runName = createRunName(runBundleClass);
+                    runName = createRunName(runBundleClass, sharedEnvironmentProcess);
                     framework.setTestRunName(runName);
                 }
             } else {
@@ -343,10 +350,15 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * @param runName
      * @return
      */
-    protected String createRunName(String runBundleClass) throws FrameworkException {
+    protected String createRunName(String runBundleClass, boolean sharedEnvironment) throws FrameworkException {
         String split[] = runBundleClass.split("/");
         String bundle = split[0];
         String test = split[1];
+        
+        Properties overrides = new Properties();
+        if (sharedEnvironment) {
+            overrides.put("shared.environment", "true");
+        }
 
         IFrameworkRuns frameworkRuns = this.framework.getFrameworkRuns();
         IRun run = frameworkRuns.submitRun("local", null, bundle, test, null, null, null, null, true, false, null);
