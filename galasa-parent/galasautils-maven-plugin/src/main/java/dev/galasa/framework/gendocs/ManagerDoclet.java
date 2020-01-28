@@ -341,7 +341,8 @@ public class ManagerDoclet {
             String javadocPrefix = "https://javadoc-snapshot.galasa.dev";
             String fullnamePath = fullname.replaceAll("\\.", "/");
             
-            text = matcher.replaceFirst("[" + className + "](" + javadocPrefix + "/" + fullnamePath + ".html)");
+            text = matcher.replaceFirst("<a href=\"" + javadocPrefix + "/" + fullnamePath + ".html\" target=\"_blank\">" + className + "</a>");
+//            text = matcher.replaceFirst("[" + className + "](" + javadocPrefix + "/" + fullnamePath + ".html)");
             matcher = linkPattern.matcher(text);
         }
 

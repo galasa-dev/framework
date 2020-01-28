@@ -94,12 +94,12 @@ public class DocletTest {
         
         testString = "Here is more doc {@link Spider} hopefully";
         result = ManagerDoclet.getString(testString, "a.package");
-        assertThat(result).isEqualTo("Here is more doc [Spider](https://javadoc-snapshot.galasa.dev/a/package/Spider.html) hopefully");
+        assertThat(result).isEqualTo("Here is more doc <a href=\"https://javadoc-snapshot.galasa.dev/a/package/Spider.html\" target=\"_blank\">Spider</a> hopefully");
         
         //test with full classname
         testString = "Here is more doc {@link a.Spider} hopefully";
         result = ManagerDoclet.getString(testString, "a.package");
-        assertThat(result).isEqualTo("Here is more doc [a.Spider](https://javadoc-snapshot.galasa.dev/a/Spider.html) hopefully");       
+        assertThat(result).isEqualTo("Here is more doc <a href=\"https://javadoc-snapshot.galasa.dev/a/Spider.html\" target=\"_blank\">a.Spider</a> hopefully");       
     }
     
     /**
