@@ -48,5 +48,6 @@ public interface IRun {
     SerializedRun getSerializedRun();
 
     String getResult();
-
+    
+    boolean isSharedEnvironment();
 }

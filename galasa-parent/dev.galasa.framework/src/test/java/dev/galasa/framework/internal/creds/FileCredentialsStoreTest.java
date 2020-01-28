@@ -38,6 +38,7 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
@@ -264,6 +265,10 @@ public class FileCredentialsStoreTest {
             return null;
         }
 
-    }
+
+        @Override
+        public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
+            return null;
+        }    }
 
 }
