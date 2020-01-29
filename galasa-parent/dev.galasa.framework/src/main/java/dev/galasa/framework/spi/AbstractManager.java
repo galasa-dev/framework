@@ -496,5 +496,9 @@ public abstract class AbstractManager implements IManager {
 
         return trimmed;
     }
+    
+    @Override
+    public void shutdown() {
+    }
 
 }

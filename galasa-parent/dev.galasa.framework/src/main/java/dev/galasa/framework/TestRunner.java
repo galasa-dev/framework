@@ -360,6 +360,8 @@ public class TestRunner {
             recordCPSProperties(frameworkInitialisation);
             updateStatus("up", "built");
         }
+        
+        managers.shutdown();
 
         this.ras.shutdown();
         return;
