@@ -218,6 +218,12 @@ public class TestClassWrapper {
 
         this.testStructure.setResult(this.result.getName());
 
+        try {
+            managers.testClassResult(this.result, null);
+        } catch (FrameworkException e) {
+            throw new TestRunException("Problem with test class result", e);
+        }
+
         String report = this.testStructure.report(LOG_START_LINE);
         logger.trace("Finishing Test Class structure:-" + report);
 
@@ -282,6 +288,14 @@ public class TestClassWrapper {
         if (annotationType == dev.galasa.Test.class) {
             temporaryTestMethods.add(method);
         }
+    }
+    
+    protected void setResult(Result result) {
+        this.result = result;
+    }
+    
+    protected Result getResult() {
+        return this.result;
     }
 
 }

@@ -7,6 +7,7 @@ package dev.galasa.framework;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,15 +26,18 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
+import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.ManagerException;
 
 public class TestRunManagers {
 
-    private final List<IManager>  activeManagers = new ArrayList<>();
-    private final Log             logger         = LogFactory.getLog(TestRunManagers.class);
+    private final List<IManager>  activeManagers         = new ArrayList<>();
+    private final List<IManager>  activeManagersReversed = new ArrayList<>();
+    private final Log             logger                 = LogFactory.getLog(TestRunManagers.class);
     private final IFramework      framework;
 
     private final BundleContext   bundleContext;
@@ -133,6 +137,8 @@ public class TestRunManagers {
 
         activeManagers.clear();
         activeManagers.addAll(sortedManagers);
+        activeManagersReversed.addAll(activeManagers);
+        Collections.reverse(activeManagersReversed);
     }
 
     private void reportManagers() {
@@ -440,6 +446,8 @@ public class TestRunManagers {
         for (IManager manager : activeManagers) {
             try {
                 manager.provisionGenerate();
+            } catch (ResourceUnavailableException e) {
+                throw new FrameworkResourceUnavailableException("Resources unavailable during provision generate", e);
             } catch (ManagerException e) {
                 throw new FrameworkException(
                         "Problem in provision generate for manager " + manager.getClass().getName(), e);
@@ -471,13 +479,13 @@ public class TestRunManagers {
     }
 
     public void provisionStop() {
-        for (IManager manager : activeManagers) {
+        for (IManager manager : activeManagersReversed) {
             manager.provisionStop();
         }
     }
 
     public void provisionDiscard() {
-        for (IManager manager : activeManagers) {
+        for (IManager manager : activeManagersReversed) {
             manager.provisionDiscard();
         }
     }
@@ -574,8 +582,24 @@ public class TestRunManagers {
         return newResult;
     }
 
+    public void testClassResult(@NotNull Result finalResult, Throwable finalException) throws FrameworkException {
+        for (IManager manager : activeManagers) {
+            try {
+                manager.testClassResult(finalResult.getName(), finalException);
+            } catch (ManagerException e) {
+                throw new FrameworkException("Problem in test class result for manager " + manager.getClass().getName(), e);
+            }
+        }
+    }
+
     public void endOfTestRun() {
         for (IManager manager : activeManagers) {
+            manager.endOfTestRun();
+        }
+    }
+    
+    public void shutdown() {
+        for (IManager manager : activeManagersReversed) {
             manager.endOfTestRun();
         }
     }

@@ -328,5 +328,13 @@ public interface IManager {
      * @throws ManagerException
      */
     void endOfTestRun();
+    
+    
+    
+    /**
+     * Gives the Managers the opportunity to close everything down like http clients etc.   Managers must not call 
+     * other Managers in this method as they may have shutdown already.  Calls to the Framework, CPS, RAS etc will be safe.
+     */
+    void shutdown();
 
 }

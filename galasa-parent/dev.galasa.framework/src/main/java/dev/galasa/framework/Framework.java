@@ -43,6 +43,7 @@ import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IResultArchiveStoreService;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
@@ -63,7 +64,6 @@ public class Framework implements IFramework {
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;
 
-    @SuppressWarnings("unused")
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
     private ICredentialsService                credsFramework;
@@ -472,6 +472,23 @@ public class Framework implements IFramework {
             return new URL(urlProperty);
         } catch (Exception e) {
             throw new FrameworkException("Unable to determine URL of API " + api, e);
+        }
+    }
+
+    @Override
+    public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
+        String sePhase = AbstractManager.nulled(cpsFramework.getProperty("run","shared.environment.phase"));
+        if (sePhase == null) {
+            return null;
+        }
+        
+        switch(sePhase) {
+            case "BUILD":
+                return SharedEnvironmentRunType.BUILD;
+            case "DISCARD":
+                return SharedEnvironmentRunType.DISCARD;
+            default:
+                return null;
         }
     }
 

@@ -8,7 +8,6 @@ package dev.galasa.framework.k8s.controller;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -33,8 +32,9 @@ public class K8sController {
 
     private Log                      logger           = LogFactory.getLog(this.getClass());
 
-    private boolean                  shutdown         = false;
-    private boolean                  shutdownComplete = false;
+    private boolean                  shutdown          = false;
+    private boolean                  shutdownComplete  = false;
+    private boolean                  controllerRunning = false;
 
     private ScheduledExecutorService scheduledExecutorService;
 
@@ -134,6 +134,7 @@ public class K8sController {
         logger.info("Kubernetes controller has started");
 
         // *** Loop until we are asked to shutdown
+        controllerRunning = true;
         while (!shutdown) {
             try {
                 Thread.sleep(500);
@@ -141,7 +142,7 @@ public class K8sController {
                 throw new FrameworkException("Interrupted sleep", e);
             }
         }
-
+        
         // *** shutdown the scheduler
         this.scheduledExecutorService.shutdown();
         try {
@@ -172,7 +173,7 @@ public class K8sController {
             K8sController.this.logger.info("Shutdown request received");
             K8sController.this.shutdown = true;
 
-            while (!shutdownComplete) {
+            while (!shutdownComplete && controllerRunning) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {

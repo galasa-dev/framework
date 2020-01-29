@@ -12,6 +12,7 @@ public class Result {
     private static final String IGNORED     = "Ignored";
     private static final String PASSED      = "Passed";
     private static final String FAILED      = "Failed";
+    private static final String ENVFAIL     = "EnvFail";
 
     private String              name;
     private String              reason;
@@ -45,6 +46,19 @@ public class Result {
         result.failed = true;
         result.fullStop = true;
         result.iconUri = "internalicon:failed";
+        result.reason = t.getMessage();
+        result.throwable = t;
+
+        return result;
+    }
+
+    public static Result envfail(Throwable t) {
+        Result result = new Result();
+        result.name = ENVFAIL;
+        result.failed = true;
+        result.environment = true;
+        result.fullStop = true;
+        result.iconUri = "internalicon:envfail";
         result.reason = t.getMessage();
         result.throwable = t;
 
@@ -93,6 +107,10 @@ public class Result {
 
     public boolean isFailed() {
         return this.failed;
+    }
+
+    public boolean isEnvFail() {
+        return this.environment;
     }
 
     public boolean isFullStop() {
