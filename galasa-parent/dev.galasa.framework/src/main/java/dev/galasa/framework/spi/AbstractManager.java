@@ -500,5 +500,10 @@ public abstract class AbstractManager implements IManager {
     @Override
     public void shutdown() {
     }
+    
+    @Override
+    public boolean doYouSupportSharedEnvironments() {
+        return false; //*** Managers by default will not support shared environments
+    }
 
 }
