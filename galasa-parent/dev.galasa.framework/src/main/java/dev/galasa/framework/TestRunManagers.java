@@ -25,13 +25,13 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
+import dev.galasa.ManagerException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.framework.spi.Result;
-import dev.galasa.ManagerException;
 
 public class TestRunManagers {
 
@@ -53,7 +53,7 @@ public class TestRunManagers {
 
         List<IManager> allManagers = locateManagers();
         requestExtraBundlesFromManager(allManagers, allManagers);
-        getActiveManagers(allManagers, testClass);
+        buildActiveManagers(allManagers, testClass);
 
         logger.debug("The following Managers are active:-");
         reportManagers();
@@ -148,7 +148,7 @@ public class TestRunManagers {
 
     }
 
-    private void getActiveManagers(List<IManager> allManagers, Class<?> testClass) throws FrameworkException {
+    private void buildActiveManagers(List<IManager> allManagers, Class<?> testClass) throws FrameworkException {
         // *** Ask each one to initialise itself if required and chain request other
         // managers
         for (IManager manager : allManagers) {
@@ -602,6 +602,10 @@ public class TestRunManagers {
         for (IManager manager : activeManagersReversed) {
             manager.endOfTestRun();
         }
+    }
+
+    public List<IManager> getActiveManagers() {
+        return this.activeManagers;
     }
 
 }

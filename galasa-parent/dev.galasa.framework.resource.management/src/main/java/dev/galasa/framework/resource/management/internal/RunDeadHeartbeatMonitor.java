@@ -62,6 +62,9 @@ public class RunDeadHeartbeatMonitor implements Runnable {
             List<IRun> runs = frameworkRuns.getActiveRuns();
             logger.trace("Active Run count = " + runs.size());
             for (IRun run : runs) {
+                if (run.isSharedEnvironment()) {
+                    continue;  //*** Ignore shared environments,  handled by a different class
+                }
                 String runName = run.getName();
                 logger.trace("Checking run " + runName);
 

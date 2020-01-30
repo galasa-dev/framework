@@ -44,6 +44,7 @@ import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
@@ -234,6 +235,15 @@ public class TestRunner {
             } else {
                 DssUtils.incrementMetric(dss, "metrics.runs.automated");
             }
+        } else if (this.runType == RunType.SharedEnvironmentBuild) {
+            int expireHours = sharedEnvironmentAnnotation.expireAfterHours();
+            Instant expire = Instant.now().plus(expireHours, ChronoUnit.HOURS);
+            try {
+                this.dss.put("run." + this.run.getName() + ".shared.environment.expire", expire.toString());
+            } catch (DynamicStatusStoreException e) {
+                this.ras.shutdown();
+                throw new TestRunException("Unable to set the shared environment expire time",e);
+            }
         }
 
         updateStatus("started", "started");
@@ -266,19 +276,39 @@ public class TestRunner {
 
         testClassWrapper.instantiateTestClass();
 
-        boolean allOk = true;
         boolean resourcesUnavailable = false;
+        boolean allOk = true;
 
-        try {
-            updateStatus("generating", null);
-            managers.provisionGenerate();
-        } catch (Exception e) { 
-            logger.info("Provision Generate failed", e);
-            if (!(e instanceof FrameworkResourceUnavailableException)) {
-                testClassWrapper.setResult(Result.envfail(e));
-                testStructure.setResult(testClassWrapper.getResult().getName());
+        if (this.runType == RunType.SharedEnvironmentBuild) {
+            //*** Check all the active Managers to see if they support a shared environment build
+            boolean invalidManager = false;
+            for(IManager manager : managers.getActiveManagers()) {
+                if (!manager.doYouSupportSharedEnvironments()) {
+                    logger.error("Manager " + manager.getClass().getName() + " does not support Shared Environments");
+                    invalidManager = true;
+                }
             }
-            allOk = false;
+
+            if (invalidManager) {
+                logger.error("There are Managers that do not support Shared Environment builds");
+                testClassWrapper.setResult(Result.failed("Invalid Shared Environment build"));
+                testStructure.setResult(testClassWrapper.getResult().getName());
+                allOk = false;
+            }
+        }
+
+        if (allOk) {
+            try {
+                updateStatus("generating", null);
+                managers.provisionGenerate();
+            } catch (Exception e) { 
+                logger.info("Provision Generate failed", e);
+                if (!(e instanceof FrameworkResourceUnavailableException)) {
+                    testClassWrapper.setResult(Result.envfail(e));
+                    testStructure.setResult(testClassWrapper.getResult().getName());
+                }
+                allOk = false;
+            }
         }
 
         if (this.runType == RunType.Test || this.runType == RunType.SharedEnvironmentBuild) {
@@ -330,6 +360,11 @@ public class TestRunner {
             } else {
                 if (this.runType == RunType.SharedEnvironmentDiscard) {
                     this.testStructure.setResult("Discarded");
+                    try {
+                        this.dss.deletePrefix("run." + this.run.getName() + ".shared.environment");
+                    } catch (DynamicStatusStoreException e) {
+                        logger.error("Problem cleaning shared environment properties", e);
+                    }
                 }
                 updateStatus("finished", "finished");
             }
@@ -360,7 +395,7 @@ public class TestRunner {
             recordCPSProperties(frameworkInitialisation);
             updateStatus("up", "built");
         }
-        
+
         managers.shutdown();
 
         this.ras.shutdown();
