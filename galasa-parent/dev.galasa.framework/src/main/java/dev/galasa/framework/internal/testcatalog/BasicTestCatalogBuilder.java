@@ -28,4 +28,19 @@ public class BasicTestCatalogBuilder implements ITestCatalogBuilder {
         }
     }
 
+    @Override
+    public void appendTestCatalogForSharedEnvironment(JsonObject jsonSharedEnvironmentClass,
+            Class<?> sharedEnvironmentClass) {
+        Summary summary = sharedEnvironmentClass.getAnnotation(Summary.class);
+        if (summary != null) {
+            String text = summary.value();
+            if (text != null) {
+                text = text.trim();
+                if (!text.isEmpty()) {
+                    jsonSharedEnvironmentClass.addProperty("summary", text);
+                }
+            }
+        }
+    }
+
 }
