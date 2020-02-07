@@ -214,6 +214,17 @@ public class BuildManagerDoc extends AbstractMojo {
 
 
             String filename = id.toLowerCase().replaceAll("[\\s/\\\\]", "-");
+            
+            
+            if (annotations.isEmpty()) {
+                annotations = null;
+            }
+            if (codeSnippets.isEmpty()) {
+                codeSnippets = null;
+            }
+            if (cpsProperties.isEmpty()) {
+                cpsProperties = null;
+            }
 
             VelocityContext context = new VelocityContext();
             context.put("name", id);
