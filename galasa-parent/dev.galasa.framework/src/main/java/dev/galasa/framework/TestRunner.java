@@ -15,6 +15,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -110,9 +112,25 @@ public class TestRunner {
         }
 
         IRun run = frameworkInitialisation.getFramework().getTestRun();
+        if (run == null) {
+            throw new TestRunException("Unable to locate run properties");
+        }
 
         String testBundleName = run.getTestBundleName();
         String testClassName = run.getTestClassName();
+
+        //*** Load the overrides if present
+        try {
+            String prefix = "run." + run.getName() + ".override.";
+            Map<String, String> runOverrides = dss.getPrefix(prefix);
+            for(Entry<String, String> entry : runOverrides.entrySet()) {
+                String key = entry.getKey().substring(prefix.length());
+                String value = entry.getValue();
+                overrideProperties.put(key, value);
+            }
+        } catch(Exception e) {
+            throw new TestRunException("Problem loading overrides from the run properties", e);
+        }
 
         String testRepository = null;
         String testOBR = null;
