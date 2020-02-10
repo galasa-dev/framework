@@ -7,11 +7,11 @@
 	<parent>
 		<groupId>dev.galasa</groupId>
 		<artifactId>galasa-parent</artifactId>
-		<version>0.4.0-SNAPSHOT</version>
+		<version>0.4.0</version>
 	</parent>
 
 	<artifactId>galasa-boot</artifactId>
-	<version>0.4.0-SNAPSHOT</version>
+	<version>0.4.0</version>
 	<packaging>jar</packaging>
 
 	<name>Galasa Boot</name>
@@ -35,12 +35,12 @@
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework.maven.repository</artifactId>
-			<version>[0.3.0,1.0.0)</version>
+			<version>0.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework.maven.repository.spi</artifactId>
-			<version>[0.3.0,1.0.0)</version>
+			<version>0.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>
@@ -93,12 +93,12 @@
 						<artifactItem>
 							<groupId>dev.galasa</groupId>
 							<artifactId>dev.galasa.framework.maven.repository</artifactId>
-							<version>0.4.0-SNAPSHOT</version>
+							<version>0.4.0</version>
 						</artifactItem>
 						<artifactItem>
 							<groupId>dev.galasa</groupId>
 							<artifactId>dev.galasa.framework.maven.repository.spi</artifactId>
-							<version>0.4.0-SNAPSHOT</version>
+							<version>0.4.0</version>
 						</artifactItem>
 					</artifactItems>
 					<type>jar</type>
