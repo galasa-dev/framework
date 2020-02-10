@@ -69,7 +69,7 @@ public class FrameworkRuns implements IFrameworkRuns {
             if ("allocated".equals(run.getStatus())) {
                 continue;
             }
-            
+
             if (run.isSharedEnvironment()) {
                 continue;
             }
@@ -177,14 +177,14 @@ public class FrameworkRuns implements IFrameworkRuns {
         String runName = null;
 
         // *** Allocate the next number for the run type
-        
-        if (sharedEnvironmentPhase != null) {
+
+        if (sharedEnvironmentPhase != null && sharedEnvironmentPhase == SharedEnvironmentPhase.BUILD) {
             if (sharedEnvironmentRunName == null || sharedEnvironmentRunName.trim().isEmpty()) {
                 throw new FrameworkException("Missing run name for shared environment");
             }
-            
+
             sharedEnvironmentRunName = sharedEnvironmentRunName.trim().toUpperCase();
-            
+
             if (!storeRun(sharedEnvironmentRunName, 
                     bundleTest, 
                     bundleName, 
@@ -201,9 +201,40 @@ public class FrameworkRuns implements IFrameworkRuns {
                     sharedEnvironmentPhase)) {
                 throw new FrameworkException("Unable to submit shared environment run " + sharedEnvironmentRunName + ", is there a duplicate runname?");
             }
-            
+
             return new RunImpl(sharedEnvironmentRunName, this.dss);
         }
+
+        //*** If this is discard,  tweak the current run parameters
+
+        if (sharedEnvironmentPhase != null && sharedEnvironmentPhase == SharedEnvironmentPhase.DISCARD) {
+            if (sharedEnvironmentRunName == null || sharedEnvironmentRunName.trim().isEmpty()) {
+                throw new FrameworkException("Missing run name for shared environment");
+            }
+
+            sharedEnvironmentRunName = sharedEnvironmentRunName.trim().toUpperCase();
+
+            RunImpl run = new RunImpl(sharedEnvironmentRunName, this.dss);
+            if (!run.isSharedEnvironment()) {
+                throw new FrameworkException("Run " + sharedEnvironmentRunName + " is not a shared environment");
+            }
+
+            if (!"UP".equalsIgnoreCase(run.getStatus())) {
+                throw new FrameworkException("Shared Environment " + sharedEnvironmentRunName + " is not up and running");
+            }
+
+            HashMap<String, String> otherProperties = new HashMap<>();
+            otherProperties.put(RUN_PREFIX + sharedEnvironmentRunName + ".override.framework.run.shared.environment.phase", sharedEnvironmentPhase.toString());
+            if (groupName != null) {
+                otherProperties.put(RUN_PREFIX + sharedEnvironmentRunName + ".group", groupName);
+            }
+            if (!this.dss.putSwap(RUN_PREFIX + sharedEnvironmentRunName + ".status", "up", "queued", otherProperties)) {
+                throw new FrameworkException("Failed to switch Shared Environment " + sharedEnvironmentRunName + " to discard");
+            }
+
+            return new RunImpl(sharedEnvironmentRunName, this.dss);
+        }
+
 
         // *** Get the prefix of this run type
         String typePrefix = AbstractManager.nulled(this.cps.getProperty("request.type." + runType, "prefix"));
@@ -246,12 +277,12 @@ public class FrameworkRuns implements IFrameworkRuns {
                 String sNewNumber = Integer.toString(latestNumber);
                 if (!this.dss.putSwap(pLastused, sLatestNumber, sNewNumber)) {
                     Thread.sleep(this.framework.getRandom().nextInt(200)); // *** Wait for a bit, to avoid race
-                                                                           // conditions
+                    // conditions
                     continue; // Try again with the new latest number
                 }
 
                 String tempRunName = typePrefix + sNewNumber;
-                
+
                 if (!storeRun(tempRunName, 
                         bundleTest, 
                         bundleName, 
@@ -267,7 +298,7 @@ public class FrameworkRuns implements IFrameworkRuns {
                         overrides,
                         null)) {
                     Thread.sleep(this.framework.getRandom().nextInt(200)); // *** Wait for a bit, to avoid race
-                                                                           // conditions
+                    // conditions
                     continue; // *** Try again
                 }
 
@@ -282,8 +313,8 @@ public class FrameworkRuns implements IFrameworkRuns {
 
         return new RunImpl(runName, this.dss);
     }
-    
-    
+
+
     private boolean storeRun(String runName,
             String bundleTest,
             String bundleName, 
@@ -328,7 +359,7 @@ public class FrameworkRuns implements IFrameworkRuns {
             otherRunProperties.put(RUN_PREFIX + runName + ".group", UUID.randomUUID().toString());
         }
         otherRunProperties.put(RUN_PREFIX + runName + ".requestor", requestor.toLowerCase());
-        
+
         if (sharedEnvironmentPhase != null) {
             otherRunProperties.put(RUN_PREFIX + runName + ".shared.environment", "true");
             overrides.put("framework.run.shared.environment.phase", sharedEnvironmentPhase.toString());

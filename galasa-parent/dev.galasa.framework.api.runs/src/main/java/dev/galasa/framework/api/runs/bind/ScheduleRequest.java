@@ -23,6 +23,8 @@ public class ScheduleRequest implements Serializable {
     private String                  obr;
     private String                  mavenRepository;
     private boolean                 trace;
+    private String                  sharedEnvironmentPhase;
+    private String                  sharedEnvironmentRunName;
 
     private List<JatJaxbProperties> runProperties;
 
@@ -156,5 +158,23 @@ public class ScheduleRequest implements Serializable {
     public void setTrace(boolean trace) {
         this.trace = trace;
     }
+
+    public String getSharedEnvironmentPhase() {
+        return sharedEnvironmentPhase;
+    }
+
+    public void setSharedEnvironmentPhase(String sharedEnvironmentPhase) {
+        this.sharedEnvironmentPhase = sharedEnvironmentPhase;
+    }
+
+    public String getSharedEnvironmentRunName() {
+        return sharedEnvironmentRunName;
+    }
+
+    public void setSharedEnvironmentRunName(String sharedEnvironmentRunName) {
+        this.sharedEnvironmentRunName = sharedEnvironmentRunName;
+    }
+    
+    
 
 }
