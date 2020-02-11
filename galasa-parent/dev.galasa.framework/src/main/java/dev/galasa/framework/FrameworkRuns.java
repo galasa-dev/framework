@@ -70,6 +70,10 @@ public class FrameworkRuns implements IFrameworkRuns {
                 continue;
             }
 
+            if (run.isSharedEnvironment()) {
+                continue;
+            }
+
             iruns.remove();
         }
 
@@ -143,7 +147,7 @@ public class FrameworkRuns implements IFrameworkRuns {
     @NotNull
     public @NotNull IRun submitRun(String runType, String requestor, @NotNull String bundleName,
             @NotNull String testName, String groupName, String mavenRepository, String obr, String stream,
-            boolean local, boolean trace, Properties overrides) throws FrameworkException {
+            boolean local, boolean trace, Properties overrides, SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName) throws FrameworkException {
         if (testName == null) {
             throw new FrameworkException("Missing test name");
         }
@@ -173,6 +177,64 @@ public class FrameworkRuns implements IFrameworkRuns {
         String runName = null;
 
         // *** Allocate the next number for the run type
+
+        if (sharedEnvironmentPhase != null && sharedEnvironmentPhase == SharedEnvironmentPhase.BUILD) {
+            if (sharedEnvironmentRunName == null || sharedEnvironmentRunName.trim().isEmpty()) {
+                throw new FrameworkException("Missing run name for shared environment");
+            }
+
+            sharedEnvironmentRunName = sharedEnvironmentRunName.trim().toUpperCase();
+
+            if (!storeRun(sharedEnvironmentRunName, 
+                    bundleTest, 
+                    bundleName, 
+                    testName, 
+                    runType, 
+                    trace, 
+                    local, 
+                    mavenRepository, 
+                    obr, 
+                    stream, 
+                    groupName, 
+                    requestor, 
+                    overrides,
+                    sharedEnvironmentPhase)) {
+                throw new FrameworkException("Unable to submit shared environment run " + sharedEnvironmentRunName + ", is there a duplicate runname?");
+            }
+
+            return new RunImpl(sharedEnvironmentRunName, this.dss);
+        }
+
+        //*** If this is discard,  tweak the current run parameters
+
+        if (sharedEnvironmentPhase != null && sharedEnvironmentPhase == SharedEnvironmentPhase.DISCARD) {
+            if (sharedEnvironmentRunName == null || sharedEnvironmentRunName.trim().isEmpty()) {
+                throw new FrameworkException("Missing run name for shared environment");
+            }
+
+            sharedEnvironmentRunName = sharedEnvironmentRunName.trim().toUpperCase();
+
+            RunImpl run = new RunImpl(sharedEnvironmentRunName, this.dss);
+            if (!run.isSharedEnvironment()) {
+                throw new FrameworkException("Run " + sharedEnvironmentRunName + " is not a shared environment");
+            }
+
+            if (!"UP".equalsIgnoreCase(run.getStatus())) {
+                throw new FrameworkException("Shared Environment " + sharedEnvironmentRunName + " is not up and running");
+            }
+
+            HashMap<String, String> otherProperties = new HashMap<>();
+            otherProperties.put(RUN_PREFIX + sharedEnvironmentRunName + ".override.framework.run.shared.environment.phase", sharedEnvironmentPhase.toString());
+            if (groupName != null) {
+                otherProperties.put(RUN_PREFIX + sharedEnvironmentRunName + ".group", groupName);
+            }
+            if (!this.dss.putSwap(RUN_PREFIX + sharedEnvironmentRunName + ".status", "up", "queued", otherProperties)) {
+                throw new FrameworkException("Failed to switch Shared Environment " + sharedEnvironmentRunName + " to discard");
+            }
+
+            return new RunImpl(sharedEnvironmentRunName, this.dss);
+        }
+
 
         // *** Get the prefix of this run type
         String typePrefix = AbstractManager.nulled(this.cps.getProperty("request.type." + runType, "prefix"));
@@ -215,54 +277,28 @@ public class FrameworkRuns implements IFrameworkRuns {
                 String sNewNumber = Integer.toString(latestNumber);
                 if (!this.dss.putSwap(pLastused, sLatestNumber, sNewNumber)) {
                     Thread.sleep(this.framework.getRandom().nextInt(200)); // *** Wait for a bit, to avoid race
-                                                                           // conditions
+                    // conditions
                     continue; // Try again with the new latest number
                 }
 
                 String tempRunName = typePrefix + sNewNumber;
 
-                // *** Set up the otherRunProperties that will go with the Run number
-                HashMap<String, String> otherRunProperties = new HashMap<>();
-                otherRunProperties.put(RUN_PREFIX + tempRunName + ".status", "queued");
-                otherRunProperties.put(RUN_PREFIX + tempRunName + ".queued", Instant.now().toString());
-                otherRunProperties.put(RUN_PREFIX + tempRunName + ".testbundle", bundleName);
-                otherRunProperties.put(RUN_PREFIX + tempRunName + ".testclass", testName);
-                otherRunProperties.put(RUN_PREFIX + tempRunName + ".request.type", runType);
-                otherRunProperties.put(RUN_PREFIX + tempRunName + ".local", Boolean.toString(local));
-                if (trace) {
-                    otherRunProperties.put(RUN_PREFIX + tempRunName + ".trace", "true");
-                }
-                if (mavenRepository != null) {
-                    otherRunProperties.put(RUN_PREFIX + tempRunName + ".repository", mavenRepository);
-                }
-                if (obr != null) {
-                    otherRunProperties.put(RUN_PREFIX + tempRunName + ".obr", obr);
-                }
-                if (stream != null) {
-                    otherRunProperties.put(RUN_PREFIX + tempRunName + ".stream", stream);
-                }
-                if (groupName != null) {
-                    otherRunProperties.put(RUN_PREFIX + tempRunName + ".group", groupName);
-                } else {
-                    otherRunProperties.put(RUN_PREFIX + tempRunName + ".group", UUID.randomUUID().toString());
-                }
-                otherRunProperties.put(RUN_PREFIX + tempRunName + ".requestor", requestor.toLowerCase());
-
-                // *** Add in the overrides
-                if (overrides != null) {
-                    for (java.util.Map.Entry<Object, Object> entry : overrides.entrySet()) {
-                        String key = (String) entry.getKey();
-                        String value = (String) entry.getValue();
-
-                        otherRunProperties.put(RUN_PREFIX + tempRunName + ".override." + key, value);
-                    }
-                }
-
-                // *** See if we can setup the runnumber properties (clashes possible if low max
-                // number or sharing prefix
-                if (!this.dss.putSwap(RUN_PREFIX + tempRunName + ".test", null, bundleTest, otherRunProperties)) {
+                if (!storeRun(tempRunName, 
+                        bundleTest, 
+                        bundleName, 
+                        testName, 
+                        runType, 
+                        trace, 
+                        local, 
+                        mavenRepository, 
+                        obr, 
+                        stream, 
+                        groupName, 
+                        requestor, 
+                        overrides,
+                        null)) {
                     Thread.sleep(this.framework.getRandom().nextInt(200)); // *** Wait for a bit, to avoid race
-                                                                           // conditions
+                    // conditions
                     continue; // *** Try again
                 }
 
@@ -276,6 +312,76 @@ public class FrameworkRuns implements IFrameworkRuns {
         }
 
         return new RunImpl(runName, this.dss);
+    }
+
+
+    private boolean storeRun(String runName,
+            String bundleTest,
+            String bundleName, 
+            String testName, 
+            String runType,
+            boolean trace,
+            boolean local,
+            String mavenRepository,
+            String obr,
+            String stream,
+            String groupName,
+            String requestor,
+            Properties overrides, 
+            SharedEnvironmentPhase sharedEnvironmentPhase) throws DynamicStatusStoreException {
+
+        if (overrides == null) {
+            overrides = new Properties();
+        }
+        // *** Set up the otherRunProperties that will go with the Run number
+        HashMap<String, String> otherRunProperties = new HashMap<>();
+        otherRunProperties.put(RUN_PREFIX + runName + ".status", "queued");
+        otherRunProperties.put(RUN_PREFIX + runName + ".queued", Instant.now().toString());
+        otherRunProperties.put(RUN_PREFIX + runName + ".testbundle", bundleName);
+        otherRunProperties.put(RUN_PREFIX + runName + ".testclass", testName);
+        otherRunProperties.put(RUN_PREFIX + runName + ".request.type", runType);
+        otherRunProperties.put(RUN_PREFIX + runName + ".local", Boolean.toString(local));
+        if (trace) {
+            otherRunProperties.put(RUN_PREFIX + runName + ".trace", "true");
+        }
+        if (mavenRepository != null) {
+            otherRunProperties.put(RUN_PREFIX + runName + ".repository", mavenRepository);
+        }
+        if (obr != null) {
+            otherRunProperties.put(RUN_PREFIX + runName + ".obr", obr);
+        }
+        if (stream != null) {
+            otherRunProperties.put(RUN_PREFIX + runName + ".stream", stream);
+        }
+        if (groupName != null) {
+            otherRunProperties.put(RUN_PREFIX + runName + ".group", groupName);
+        } else {
+            otherRunProperties.put(RUN_PREFIX + runName + ".group", UUID.randomUUID().toString());
+        }
+        otherRunProperties.put(RUN_PREFIX + runName + ".requestor", requestor.toLowerCase());
+
+        if (sharedEnvironmentPhase != null) {
+            otherRunProperties.put(RUN_PREFIX + runName + ".shared.environment", "true");
+            overrides.put("framework.run.shared.environment.phase", sharedEnvironmentPhase.toString());
+        }
+
+        // *** Add in the overrides
+        if (overrides != null) {
+            for (java.util.Map.Entry<Object, Object> entry : overrides.entrySet()) {
+                String key = (String) entry.getKey();
+                String value = (String) entry.getValue();
+
+                otherRunProperties.put(RUN_PREFIX + runName + ".override." + key, value);
+            }
+        }
+
+        // *** See if we can setup the runnumber properties (clashes possible if low max
+        // number or sharing prefix
+        if (!this.dss.putSwap(RUN_PREFIX + runName + ".test", null, bundleTest, otherRunProperties)) {
+            return false; // *** Try again
+        }
+
+        return true;
     }
 
     @Override

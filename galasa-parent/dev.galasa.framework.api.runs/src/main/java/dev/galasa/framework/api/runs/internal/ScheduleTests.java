@@ -33,7 +33,7 @@ import dev.galasa.framework.api.runs.bind.ScheduleRequest;
 import dev.galasa.framework.api.runs.bind.ScheduleStatus;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
+import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
 import dev.galasa.framework.spi.IRun;
 
 /**
@@ -43,8 +43,8 @@ import dev.galasa.framework.spi.IRun;
  * 
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-        "osgi.http.whiteboard.servlet.pattern=/run/*" }, configurationPid = {
-                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Run Test")
+"osgi.http.whiteboard.servlet.pattern=/run/*" }, configurationPid = {
+"dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Run Test")
 public class ScheduleTests extends HttpServlet {
     private static final long serialVersionUID        = 1L;
 
@@ -69,7 +69,9 @@ public class ScheduleTests extends HttpServlet {
         ScheduleStatus status = new ScheduleStatus();
         boolean complete = true;
         for (IRun run : runs) {
-            if (!"FINISHED".equalsIgnoreCase(run.getStatus())) {
+            if (!"FINISHED".equalsIgnoreCase(run.getStatus()) &&
+                    !"UP".equalsIgnoreCase(run.getStatus()) &&
+                    !"DISCARDED".equalsIgnoreCase(run.getStatus())) {
                 complete = false;
             }
 
@@ -109,10 +111,22 @@ public class ScheduleTests extends HttpServlet {
         for (String className : request.getClassNames()) {
             String bundle = className.split("/")[0];
             String testClass = className.split("/")[1];
+
+            SharedEnvironmentPhase senvPhase = null;
+            if (request.getSharedEnvironmentPhase() != null) {
+                try {
+                    senvPhase = SharedEnvironmentPhase.valueOf(request.getSharedEnvironmentPhase());
+                } catch(Throwable t) {
+                    throw new ServletException("Unable to parse shared environment phase", t);
+                }
+            }
+
             try {
                 framework.getFrameworkRuns().submitRun(null, request.getRequestorType().toString(), bundle, testClass,
                         UUID, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
-                        request.isTrace(), null);
+                        request.isTrace(), null, 
+                        senvPhase, 
+                        request.getSharedEnvironmentRunName());
             } catch (FrameworkException fe) {
                 logger.warning(
                         "Failure when submitting run: " + className + System.lineSeparator() + fe.getStackTrace());

@@ -12,6 +12,12 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 public interface IFrameworkRuns {
+    
+    public enum SharedEnvironmentPhase {
+        BUILD,
+        DISCARD
+    }
+    
 
     @NotNull
     List<IRun> getActiveRuns() throws FrameworkException;
@@ -30,8 +36,8 @@ public interface IFrameworkRuns {
 
     @NotNull
     IRun submitRun(String type, String requestor, String bundleName, String testName, String groupName,
-            String mavenRepository, String obr, String stream, boolean local, boolean trace, Properties overrides)
-            throws FrameworkException;
+            String mavenRepository, String obr, String stream, boolean local, boolean trace, Properties overrides,
+            SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName) throws FrameworkException;
 
     boolean delete(String runname) throws DynamicStatusStoreException;
 

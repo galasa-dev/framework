@@ -18,3 +18,4 @@ bin/
 lib/
 dependency-reduced-pom.xml
 velocity.log
+*.versionsBackup

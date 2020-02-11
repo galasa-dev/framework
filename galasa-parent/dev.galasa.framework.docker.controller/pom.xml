@@ -6,18 +6,18 @@
 	<parent>
 		<groupId>dev.galasa</groupId>
 		<artifactId>galasa-parent</artifactId>
-		<version>0.4.0-SNAPSHOT</version>
+		<version>0.4.0</version>
 	</parent>
 
 	<artifactId>dev.galasa.framework.docker.controller</artifactId>
-	<version>0.4.0-SNAPSHOT</version>
+	<version>0.4.0</version>
 	<packaging>bundle</packaging>
 
 	<dependencies>
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework</artifactId>
-			<version>[0.3.0,1.0.0)</version>
+			<version>0.4.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

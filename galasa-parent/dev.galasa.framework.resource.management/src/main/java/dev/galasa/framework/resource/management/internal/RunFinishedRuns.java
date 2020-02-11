@@ -72,7 +72,7 @@ public class RunFinishedRuns implements Runnable {
                 if (expires.compareTo(now) <= 0) {
                     String sFinished = dtf.format(LocalDateTime.ofInstant(finished, ZoneId.systemDefault()));
                     /// TODO put time management into the framework
-                    logger.info("Deleting run " + runName + ", finsihed at " + sFinished);
+                    logger.info("Deleting run " + runName + ", finished at " + sFinished);
                     this.frameworkRuns.delete(runName);
                 }
             }
