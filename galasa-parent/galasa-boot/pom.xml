@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>dev.galasa</groupId>
 		<artifactId>galasa-parent</artifactId>
-		<version>0.4.0</version>
+		<version>0.5.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>galasa-boot</artifactId>
-	<version>0.4.0</version>
+	<version>0.5.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Galasa Boot</name>
@@ -35,12 +33,12 @@
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework.maven.repository</artifactId>
-			<version>0.4.0</version>
+			<version>0.5.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework.maven.repository.spi</artifactId>
-			<version>0.4.0</version>
+			<version>0.5.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>
@@ -93,12 +91,12 @@
 						<artifactItem>
 							<groupId>dev.galasa</groupId>
 							<artifactId>dev.galasa.framework.maven.repository</artifactId>
-							<version>0.4.0</version>
+							<version>0.5.0-SNAPSHOT</version>
 						</artifactItem>
 						<artifactItem>
 							<groupId>dev.galasa</groupId>
 							<artifactId>dev.galasa.framework.maven.repository.spi</artifactId>
-							<version>0.4.0</version>
+							<version>0.5.0-SNAPSHOT</version>
 						</artifactItem>
 					</artifactItems>
 					<type>jar</type>
@@ -123,39 +121,32 @@
 						</goals>
 						<configuration>
 							<transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Main-Class>dev.galasa.boot.Launcher</Main-Class>
 									</manifestEntries>
 								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
 									<resource>bundle/dev.galasa.framework.maven.repository.jar</resource>
 									<file>target/bundle/dev.galasa.framework.maven.repository.jar</file>
 								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
 									<resource>bundle/dev.galasa.framework.maven.repository.spi.jar</resource>
 									<file>target/bundle/dev.galasa.framework.maven.repository.spi.jar</file>
 								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
 									<resource>bundle/commons-logging.jar</resource>
 									<file>target/bundle/commons-logging.jar</file>
 								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
 									<resource>bundle/log4j.jar</resource>
 									<file>target/bundle/log4j.jar</file>
 								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
 									<resource>bundle/org.apache.felix.bundlerepository.jar</resource>
 									<file>target/bundle/org.apache.felix.bundlerepository.jar</file>
 								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
 									<resource>bundle/org.apache.felix.scr.jar</resource>
 									<file>target/bundle/org.apache.felix.scr.jar</file>
 								</transformer>
