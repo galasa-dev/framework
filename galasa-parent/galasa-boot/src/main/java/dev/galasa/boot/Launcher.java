@@ -157,7 +157,7 @@ public class Launcher {
                 felixFramework.runMetricsServer(boostrapProperties, overridesProperties, bundles, metrics, health);
             }
         } catch (LauncherException e) {
-            logger.error("Unable run test class", e);
+            logger.error("Unable to run test class", e);
             throw e;
         } finally {
             if (felixFramework != null) {
