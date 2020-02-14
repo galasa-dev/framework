@@ -3,9 +3,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<parent>
+		<groupId>dev.galasa</groupId>
+		<artifactId>galasa-parent</artifactId>
+		<version>0.5.0-SNAPSHOT</version>
+	</parent>
+
 	<groupId>dev.galasa</groupId>
 	<artifactId>galasastaging-maven-plugin</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.5.0-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>galasastaging-maven-plugin Maven Plugin</name>
