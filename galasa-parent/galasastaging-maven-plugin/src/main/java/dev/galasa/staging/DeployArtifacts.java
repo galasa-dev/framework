@@ -85,7 +85,7 @@ public class DeployArtifacts extends AbstractMojo {
 
         //*** Generate script
         StringBuilder sb = new StringBuilder();
-        sb.append("#!/bin/bash -e -x\n\n");
+        sb.append("#!/bin/bash -ex\n\n");
 
         for(Artifact artifact : sortedArtifacts) {
             System.out.println(artifact);
@@ -102,16 +102,16 @@ public class DeployArtifacts extends AbstractMojo {
                 throw new MojoExecutionException("Unable to copy artifact " + artifact, e);
             }
 
-            sb.append("mvn deploy:deploy-file ");
+            sb.append("mvn deploy:deploy-file -B -e ");
             if (settingsFile != null) {
                 sb.append("--settings '");
                 sb.append(this.settingsFile);
                 sb.append("' ");
             }
-            sb.append("-Durl=");
+            sb.append("-Durl='");
             sb.append(this.targetRepo.toString());
             sb.append("' ");
-            sb.append("-DrepositoryId=");
+            sb.append("-DrepositoryId='");
             sb.append(this.targetRepoId);
             sb.append("' ");
             sb.append("-Dfile='");
