@@ -259,6 +259,7 @@ public class TestRunner {
             try {
                 this.dss.put("run." + this.run.getName() + ".shared.environment.expire", expire.toString());
             } catch (DynamicStatusStoreException e) {
+                deleteRunProperties(frameworkInitialisation.getFramework());
                 this.ras.shutdown();
                 throw new TestRunException("Unable to set the shared environment expire time",e);
             }
@@ -272,7 +273,6 @@ public class TestRunner {
         try {
             managers = new TestRunManagers(frameworkInitialisation.getFramework(), testClass);
         } catch (FrameworkException e) {
-            stopHeartbeat();
             this.ras.shutdown();
             throw new TestRunException("Problem initialising the Managers for a test run", e);
         }
@@ -336,7 +336,6 @@ public class TestRunner {
                     managers.provisionBuild();
                 } catch (Exception e) {
                     managers.provisionDiscard();
-                    stopHeartbeat();
                     this.ras.shutdown();
                     throw new TestRunException("Unable to provision build", e);
                 }
@@ -349,7 +348,6 @@ public class TestRunner {
                 } catch (Exception e) {
                     managers.provisionStop();
                     managers.provisionDiscard();
-                    stopHeartbeat();
                     this.ras.shutdown();
                     throw new TestRunException("Unable to provision start", e);
                 }
@@ -401,13 +399,8 @@ public class TestRunner {
             // *** time for things like jenkins and other run requesters to obtain the
             // result and RAS id before
             // *** deleting, default is to keep the automation run properties for 5 minutes
-            try {
-                if (!markedWaiting) {
-                    deleteRunProperties(frameworkInitialisation.getFramework());
-                }
-            } catch (FrameworkException e) {
-                // *** Any error, report it and leave for the core manager to clean up
-                logger.error("Error cleaning up local test run properties", e);
+            if (!markedWaiting) {
+                deleteRunProperties(frameworkInitialisation.getFramework());
             }
         } else if (this.runType == RunType.SharedEnvironmentBuild) {
             recordCPSProperties(frameworkInitialisation);
@@ -457,14 +450,6 @@ public class TestRunner {
     }
 
     private void updateStatus(String status, String timestamp) throws TestRunException {
-        try {
-            this.dss.put("run." + run.getName() + ".status", status);
-            if (timestamp != null) {
-                this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
-            }
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Failed to update status", e);
-        }
 
         this.testStructure.setStatus(status);
         if ("finished".equals(status)) {
@@ -473,6 +458,15 @@ public class TestRunner {
         }
 
         writeTestStructure();
+
+        try {
+            this.dss.put("run." + run.getName() + ".status", status);
+            if (timestamp != null) {
+                this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
+            }
+        } catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Failed to update status", e);
+        }
     }
 
     private void updateResult() throws TestRunException {
@@ -510,7 +504,7 @@ public class TestRunner {
 
     }
 
-    private void deleteRunProperties(@NotNull IFramework framework) throws FrameworkException {
+    private void deleteRunProperties(@NotNull IFramework framework) {
 
         IRun run = framework.getTestRun();
 
@@ -518,7 +512,11 @@ public class TestRunner {
             return;
         }
 
-        framework.getFrameworkRuns().delete(run.getName());
+        try {
+            framework.getFrameworkRuns().delete(run.getName());
+        } catch (FrameworkException e) {
+            logger.error("Failed to delete run properties");
+        }
     }
 
     /**

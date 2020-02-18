@@ -302,8 +302,6 @@ public class Launcher {
                 for (String option : commandLine.getOptionValues(REMOTEMAVEN_OPTION)) {
                     this.remoteMavenRepos.add(new URL(option));
                 }
-            } else {
-                this.remoteMavenRepos.add(new URL("http://cicscit.hursley.ibm.com/galasa/maven")); // DEFAULT
             }
             this.remoteMavenRepos.add(new URL("https://repo.maven.apache.org/maven2"));
         } catch (MalformedURLException e) {
