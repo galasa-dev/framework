@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.health.internal;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -13,6 +14,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
@@ -31,6 +35,8 @@ import dev.galasa.framework.spi.IFramework;
         "osgi.http.whiteboard.servlet.pattern=/health" }, name = "Galasa Health")
 public class Health extends HttpServlet {
     private static final long serialVersionUID = 1L;
+
+    private Log logger = LogFactory.getLog(getClass());
 
     @Reference
     public IFramework         framework;            // NOSONAR
@@ -56,6 +62,11 @@ public class Health extends HttpServlet {
         resp.setStatus(200);
         resp.setContentType("text/plain");
         resp.getWriter().write("Ok");// NOSONAR
+    }
+    
+    @Activate
+    void activate(Map<String, Object> properties) {
+        logger.info("Galasa Health API activated");
     }
 
 }

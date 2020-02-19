@@ -33,9 +33,9 @@ import dev.galasa.framework.spi.IFramework;
  * Filters
  * 
  */
-@Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-        "osgi.http.whiteboard.servlet.pattern=/authrefresh" }, configurationPid = {
-                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Authentication Refresh")
+//@Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
+//        "osgi.http.whiteboard.servlet.pattern=/authrefresh" }, configurationPid = {
+//                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Authentication Refresh")
 public class AuthenticateRefresh extends HttpServlet {
     private static final long serialVersionUID        = 1L;
 

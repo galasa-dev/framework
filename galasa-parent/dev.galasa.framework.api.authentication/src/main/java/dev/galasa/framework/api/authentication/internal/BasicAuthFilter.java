@@ -30,14 +30,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ServiceScope;
 
-@Component(service = Filter.class, scope = ServiceScope.PROTOTYPE, property = {
-        "osgi.http.whiteboard.filter.pattern=/auth" },
-        // configurationPid= {"dev.galasa"},
-        // configurationPolicy=ConfigurationPolicy.REQUIRE,
-        name = "Galasa Basic Auth")
+//@Component(service = Filter.class, scope = ServiceScope.PROTOTYPE, property = {
+//        "osgi.http.whiteboard.filter.pattern=/auth" },
+//        // configurationPid= {"dev.galasa"},
+//        // configurationPolicy=ConfigurationPolicy.REQUIRE,
+//        name = "Galasa Basic Auth")
 public class BasicAuthFilter implements Filter {
 
     private final Log logger = LogFactory.getLog(getClass());

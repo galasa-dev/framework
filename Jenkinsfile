@@ -105,11 +105,11 @@ pipeline {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                      }
 
-                     dir('dev.galasa.framework.obr') {
+                     dir('galasa-demo-archetype') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                      }
 
-                     dir('galasa-demo-archetype') {
+                     dir('dev.galasa.framework.api') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                      }
 
@@ -134,6 +134,10 @@ pipeline {
                      }
 
                      dir('dev.galasa.framework.api.runs') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
+                     }
+
+                     dir('dev.galasa.framework.obr') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=false -Dgpg.passphrase=$GPG -P ${mvnProfile} -B -e -fae --non-recursive ${mvnGoal}"
                      }
 

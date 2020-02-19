@@ -11,24 +11,20 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.google.gson.Gson;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.spi.IFramework;
 
@@ -39,9 +35,9 @@ import dev.galasa.framework.spi.IFramework;
  * Filters
  * 
  */
-@Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-        "osgi.http.whiteboard.servlet.pattern=/auth" }, configurationPid = {
-                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Authentication")
+//@Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
+//        "osgi.http.whiteboard.servlet.pattern=/auth" }, configurationPid = {
+//                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Authentication")
 public class Authenticate extends HttpServlet {
     private static final long serialVersionUID        = 1L;
     private static String     SECRET_KEY              = "framework.jwt.secret";
