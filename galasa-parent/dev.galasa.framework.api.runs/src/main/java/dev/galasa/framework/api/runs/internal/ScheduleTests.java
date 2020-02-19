@@ -30,9 +30,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import com.google.gson.Gson;
 
-import dev.galasa.framework.api.runs.bind.RunStatus;
-import dev.galasa.framework.api.runs.bind.ScheduleRequest;
-import dev.galasa.framework.api.runs.bind.ScheduleStatus;
+import dev.galasa.api.runs.ScheduleRequest;
+import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
@@ -58,12 +57,12 @@ public class ScheduleTests extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String UUID = getUUID(req);
+        String groupName = getGroupName(req);
         List<IRun> runs = null;
         try {
-            runs = framework.getFrameworkRuns().getAllGroupedRuns(UUID);
+            runs = framework.getFrameworkRuns().getAllGroupedRuns(groupName);
         } catch (FrameworkException fe) {
-            logger.fatal("Unable to obtain framework runs for UUID: " + UUID, fe);
+            logger.error("Unable to obtain framework runs for Run Group: " + groupName, fe);
             resp.setStatus(500);
             return;
         }
@@ -79,11 +78,7 @@ public class ScheduleTests extends HttpServlet {
             status.getRuns().add(run.getSerializedRun());
         }
 
-        if (complete) {
-            status.setScheduleStatus(RunStatus.FINISHED_RUN);
-        } else {
-            status.setScheduleStatus(RunStatus.TESTING);
-        }
+        status.setComplete(complete);
 
         resp.setStatus(200);
         resp.setHeader("Content-Type", "Application/json");
@@ -99,7 +94,7 @@ public class ScheduleTests extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         boolean submissionFailures = false;
-        String UUID = getUUID(req);
+        String groupName = getGroupName(req);
         ScheduleRequest request;
         try {
             request = (ScheduleRequest) new Gson().fromJson(new InputStreamReader(req.getInputStream()),
@@ -124,8 +119,8 @@ public class ScheduleTests extends HttpServlet {
 
             try {
                 framework.getFrameworkRuns().submitRun(null, request.getRequestorType().toString(), bundle, testClass,
-                        UUID, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
-                        request.isTrace(), null, 
+                        groupName, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
+                        request.isTrace(), request.getOverrides(), 
                         senvPhase, 
                         request.getSharedEnvironmentRunName());
             } catch (FrameworkException fe) {
@@ -143,7 +138,7 @@ public class ScheduleTests extends HttpServlet {
         }
     }
 
-    private String getUUID(HttpServletRequest req) {
+    private String getGroupName(HttpServletRequest req) {
         return req.getPathInfo().substring(1);
     }
 

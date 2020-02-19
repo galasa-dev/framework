@@ -8,6 +8,7 @@ package dev.galasa.framework;
 import java.time.Instant;
 import java.util.Map;
 
+import dev.galasa.api.run.Run;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IRun;
@@ -182,8 +183,8 @@ public class RunImpl implements IRun {
     }
 
     @Override
-    public SerializedRun getSerializedRun() {
-        return new SerializedRun(name, heartbeat, type, group, test, bundleName, testName, status, result, queued,
+    public Run getSerializedRun() {
+        return new Run(name, heartbeat, type, group, test, bundleName, testName, status, result, queued,
                 finished, waitUntil, requestor, stream, repo, obr, local, trace);
     }
 
