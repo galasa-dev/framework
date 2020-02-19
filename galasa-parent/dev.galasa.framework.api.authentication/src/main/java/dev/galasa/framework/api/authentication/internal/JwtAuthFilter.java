@@ -37,9 +37,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 
-@Component(service = Filter.class, scope = ServiceScope.PROTOTYPE, property = {
-        "osgi.http.whiteboard.filter.pattern=/*" }, configurationPid = {
-                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa JWT Auth")
+//@Component(service = Filter.class, scope = ServiceScope.PROTOTYPE, property = {
+//        "osgi.http.whiteboard.filter.pattern=/*" }, configurationPid = {
+//                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa JWT Auth")
 public class JwtAuthFilter implements Filter {
 
     private final Log     logger                  = LogFactory.getLog(getClass());

@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -40,6 +42,8 @@ import dev.galasa.framework.spi.IFramework;
                 "dev.galasa.bootstrap" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Bootstrap")
 public class Bootstrap extends HttpServlet {
     private static final long       serialVersionUID        = 1L;
+    
+    private Log logger = LogFactory.getLog(getClass());
 
     private final ArrayList<String> bootstrapKeys           = new ArrayList<>(Arrays.asList("framework.config.store",
             "framework.extra.bundles", "framework.bootstrap.url", "framework.jwt.secret"));
@@ -69,6 +73,7 @@ public class Bootstrap extends HttpServlet {
     @Activate
     void activate(Map<String, Object> properties) {
         modified(properties);
+        logger.info("Galasa Bootstrap API activated");
     }
 
     @Modified

@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -43,15 +45,14 @@ import dev.galasa.framework.spi.IRun;
  * 
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-"osgi.http.whiteboard.servlet.pattern=/run/*" }, configurationPid = {
-"dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Run Test")
+"osgi.http.whiteboard.servlet.pattern=/runs/*" }, name = "Galasa Run Test")
 public class ScheduleTests extends HttpServlet {
     private static final long serialVersionUID        = 1L;
 
+    private Log logger = LogFactory.getLog(getClass());
+
     @Reference
     public IFramework         framework;                                 // NOSONAR
-
-    private static Logger     logger;
 
     private final Properties  configurationProperties = new Properties();
 
@@ -62,7 +63,7 @@ public class ScheduleTests extends HttpServlet {
         try {
             runs = framework.getFrameworkRuns().getAllGroupedRuns(UUID);
         } catch (FrameworkException fe) {
-            logger.severe("Unable to obtain framework runs for UUID: " + UUID);
+            logger.fatal("Unable to obtain framework runs for UUID: " + UUID, fe);
             resp.setStatus(500);
             return;
         }
@@ -90,7 +91,7 @@ public class ScheduleTests extends HttpServlet {
         try {
             resp.getWriter().write(new Gson().toJson(status));
         } catch (IOException ioe) {
-            logger.severe("Unable to respond to requester" + System.lineSeparator() + ioe.getStackTrace());
+            logger.fatal("Unable to respond to requester", ioe);
             resp.setStatus(500);
         }
     }
@@ -104,7 +105,7 @@ public class ScheduleTests extends HttpServlet {
             request = (ScheduleRequest) new Gson().fromJson(new InputStreamReader(req.getInputStream()),
                     ScheduleRequest.class);
         } catch (Exception e) {
-            logger.warning("Error understanding / receiving run test request");
+            logger.warn("Error understanding / receiving run test request",e );
             resp.setStatus(500);
             return;
         }
@@ -128,8 +129,8 @@ public class ScheduleTests extends HttpServlet {
                         senvPhase, 
                         request.getSharedEnvironmentRunName());
             } catch (FrameworkException fe) {
-                logger.warning(
-                        "Failure when submitting run: " + className + System.lineSeparator() + fe.getStackTrace());
+                logger.error(
+                        "Failure when submitting run: " + className, fe);
                 submissionFailures = true;
                 continue;
             }
@@ -149,7 +150,7 @@ public class ScheduleTests extends HttpServlet {
     @Activate
     void activate(Map<String, Object> properties) {
         modified(properties);
-        this.logger = Logger.getLogger(this.getClass().toString());
+        logger.info("Galasa Shedule Tests API activated");
     }
 
     @Modified
