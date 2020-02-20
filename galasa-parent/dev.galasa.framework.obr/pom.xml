@@ -133,6 +133,12 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.fileinstall</artifactId>
+			<version>3.6.4</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>

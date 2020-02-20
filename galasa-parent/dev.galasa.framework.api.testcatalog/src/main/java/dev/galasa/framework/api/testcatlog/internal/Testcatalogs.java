@@ -48,7 +48,7 @@ import com.google.gson.JsonSyntaxException;
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
         "osgi.http.whiteboard.servlet.pattern=/testcatalog" }, configurationPid = {
-                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.OPTIONAL, name = "Galasa Test Catalogs")
+                "dev.galasa.testcatalog" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Test Catalogs")
 public class Testcatalogs extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -138,8 +138,7 @@ public class Testcatalogs extends HttpServlet {
     private void checkDirectory() throws IOException {
         synchronized (Testcatalogs.class) {
             if (catalogDirectory == null) {
-                catalogDirectory = Paths.get(System.getProperty("karaf.data")).resolve("galasa")
-                        .resolve("testcatalogs");
+                throw new IOException("Catalog directory has not been defined");
             }
             if (!Files.exists(catalogDirectory)) {
                 Files.createDirectories(catalogDirectory);
@@ -150,6 +149,7 @@ public class Testcatalogs extends HttpServlet {
     @Activate
     void activate(Map<String, Object> properties) {
         modified(properties);
+        logger.info("Galasa Test Catalog activated");
     }
 
     @Modified
