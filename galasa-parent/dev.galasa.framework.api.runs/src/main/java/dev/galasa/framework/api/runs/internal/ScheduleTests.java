@@ -118,7 +118,7 @@ public class ScheduleTests extends HttpServlet {
             }
 
             try {
-                framework.getFrameworkRuns().submitRun(null, request.getRequestorType().toString(), bundle, testClass,
+                framework.getFrameworkRuns().submitRun(null, request.getRequestorType(), bundle, testClass,
                         groupName, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
                         request.isTrace(), request.getOverrides(), 
                         senvPhase, 
