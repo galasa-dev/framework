@@ -441,6 +441,7 @@ public class FelixFramework {
         // Get the Jetty server running
         loadBundle("org.apache.felix.http.servlet-api");
         loadBundle("org.apache.felix.http.jetty");
+        loadBundle("org.apache.felix.fileinstall");
         
         // Get the framework bundle
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");

@@ -53,7 +53,7 @@ public class Launcher {
     private static final String     OVERRIDES_OPTION          = "overrides";
     private static final String     RESOURCEMANAGEMENT_OPTION = "resourcemanagement";
     private static final String     K8SCONTROLLER_OPTION      = "k8scontroller";
-    private static final String     WEBBUNDLE_OPTION          = "webbundle";
+    private static final String     API_OPTION                = "api";
     private static final String     DOCKERCONTROLLER_OPTION   = "dockercontroller";
     private static final String     METRICSERVER_OPTION       = "metricserver";
     private static final String     TEST_OPTION               = "test";
@@ -85,7 +85,7 @@ public class Launcher {
     private boolean                 k8sController;
     private boolean                 dockerController;
     private boolean                 metricsServer;
-    private boolean                 webBundle;
+    private boolean                 api;
 
     private Integer                 metrics;
     private Integer                 health;
@@ -157,7 +157,7 @@ public class Launcher {
             } else if (metricsServer) {
                 logger.debug("Metrics Server");
                 felixFramework.runMetricsServer(boostrapProperties, overridesProperties, bundles, metrics, health);
-            } else if (webBundle) {
+            } else if (api) {
                 logger.debug("Web API Server");
                 felixFramework.runWebApiServer(boostrapProperties, overridesProperties, bundles, metrics, health);
             }
@@ -207,7 +207,7 @@ public class Launcher {
         options.addOption(null, OVERRIDES_OPTION, true, "Overrides properties file url");
         options.addOption(null, RESOURCEMANAGEMENT_OPTION, false, "A Resource Management server");
         options.addOption(null, K8SCONTROLLER_OPTION, false, "A k8s Controller server");
-        options.addOption(null, WEBBUNDLE_OPTION, false, "A Web App server, list bundles to load or ALL");
+        options.addOption(null, API_OPTION, false, "A Web App server, list bundles to load or ALL");
         options.addOption(null, DOCKERCONTROLLER_OPTION, false, "A Docker Controller server");
         options.addOption(null, METRICSERVER_OPTION, false, "A Metrics server");
         options.addOption(null, TEST_OPTION, true, "The test to run");
@@ -256,7 +256,7 @@ public class Launcher {
         k8sController = commandLine.hasOption(K8SCONTROLLER_OPTION);
         dockerController = commandLine.hasOption(DOCKERCONTROLLER_OPTION);
         metricsServer = commandLine.hasOption(METRICSERVER_OPTION);
-        webBundle = commandLine.hasOption(WEBBUNDLE_OPTION);
+        api = commandLine.hasOption(API_OPTION);
 
         if (testRun) {
             runName = commandLine.getOptionValue(RUN_OPTION);
@@ -298,7 +298,7 @@ public class Launcher {
             return;
         }
         
-        if (webBundle) {
+        if (api) {
             return;
         }
 
