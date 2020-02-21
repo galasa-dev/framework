@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Logger;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -22,7 +20,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
@@ -36,6 +33,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 /**
  * Schedule Tests API
@@ -49,11 +47,11 @@ public class ScheduleTests extends HttpServlet {
     private static final long serialVersionUID        = 1L;
 
     private Log logger = LogFactory.getLog(getClass());
+    
+    private final Gson        gson = GalasaGsonBuilder.build();
 
     @Reference
     public IFramework         framework;                                 // NOSONAR
-
-    private final Properties  configurationProperties = new Properties();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -84,7 +82,7 @@ public class ScheduleTests extends HttpServlet {
         resp.setHeader("Content-Type", "Application/json");
 
         try {
-            resp.getWriter().write(new Gson().toJson(status));
+            resp.getWriter().write(gson.toJson(status));
         } catch (IOException ioe) {
             logger.fatal("Unable to respond to requester", ioe);
             resp.setStatus(500);
@@ -97,7 +95,7 @@ public class ScheduleTests extends HttpServlet {
         String groupName = getGroupName(req);
         ScheduleRequest request;
         try {
-            request = (ScheduleRequest) new Gson().fromJson(new InputStreamReader(req.getInputStream()),
+            request = (ScheduleRequest) gson.fromJson(new InputStreamReader(req.getInputStream()),
                     ScheduleRequest.class);
         } catch (Exception e) {
             logger.warn("Error understanding / receiving run test request",e );
