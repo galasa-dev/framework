@@ -23,7 +23,8 @@ pipeline {
          }
          steps {
             script {
-               mvnGoal           = 'deploy sonar:sonar'
+//               mvnGoal           = 'deploy sonar:sonar'
+               mvnGoal           = 'deploy'
             }
          }
       }
