@@ -93,7 +93,7 @@ public class DeployArtifacts extends AbstractMojo {
             //*** Copy file out of the local repository
             Path sourceFile = Paths.get(artifact.getFile().toURI());
             
-            String targetFileName = artifact.getArtifactId() + "." + artifact.getVersion();
+            String targetFileName = artifact.getArtifactId() + "." + artifact.getBaseVersion();
             if (artifact.hasClassifier()) {
                 targetFileName += "-" + artifact.getClassifier();
             }
@@ -131,7 +131,7 @@ public class DeployArtifacts extends AbstractMojo {
             sb.append(artifact.getArtifactId());
             sb.append(" ");
             sb.append("-Dversion=");
-            sb.append(artifact.getVersion());
+            sb.append(artifact.getBaseVersion());
             sb.append(" ");
             sb.append("-Dpackaging=");
             sb.append(artifact.getType());
