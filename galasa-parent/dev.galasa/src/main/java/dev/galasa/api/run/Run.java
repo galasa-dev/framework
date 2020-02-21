@@ -26,6 +26,8 @@ public class Run {
     private String  obr;
     private Boolean local;
     private Boolean trace;
+    
+    public Run() {};
 
     public Run(String name, Instant heartbeat, String type, String group, String test, String bundleName,
             String testName, String status, String result, Instant queued, Instant finished, Instant waitUntil,

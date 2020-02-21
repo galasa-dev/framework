@@ -92,7 +92,14 @@ public class DeployArtifacts extends AbstractMojo {
 
             //*** Copy file out of the local repository
             Path sourceFile = Paths.get(artifact.getFile().toURI());
-            Path targetFile = outputRepositoryDirectory.resolve(sourceFile.getFileName());
+            
+            String targetFileName = artifact.getArtifactId() + "." + artifact.getVersion();
+            if (artifact.hasClassifier()) {
+                targetFileName += "-" + artifact.getClassifier();
+            }
+            targetFileName += "." + artifact.getType();
+            
+            Path targetFile = outputRepositoryDirectory.resolve(targetFileName);
             try {
                 if (Files.exists(targetFile)) {
                     Files.delete(targetFile);
