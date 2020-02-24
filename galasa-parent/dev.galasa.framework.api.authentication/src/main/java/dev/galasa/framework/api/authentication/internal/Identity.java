@@ -7,25 +7,22 @@ package dev.galasa.framework.api.authentication.internal;
 
 import java.io.IOException;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.osgi.service.component.annotations.Reference;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ServiceScope;
-
 import dev.galasa.framework.spi.IFramework;
 
-import org.osgi.service.component.annotations.Reference;
-
-@Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = ("osgi.http.whiteboard.servlet.pattern=/auth/identity"), name = "Galasa Identity")
+//@Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = ("osgi.http.whiteboard.servlet.pattern=/auth/identity"), name = "Galasa Identity")
 public class Identity extends HttpServlet {
-
+   private static final long serialVersionUID = 1L;
+   
     @Reference
     public IFramework framework; // NOSONAR
 

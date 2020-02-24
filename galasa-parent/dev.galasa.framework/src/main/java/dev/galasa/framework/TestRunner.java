@@ -189,7 +189,7 @@ public class TestRunner {
         }
 
         try {
-            loadBundle(testBundleName);
+            BundleManagement.loadBundle(repositoryAdmin, bundleContext, testBundleName);
         } catch (Exception e) {
             logger.error("Unable to load the test bundle " + testBundleName, e);
             updateStatus("finished", "finished");
@@ -259,6 +259,7 @@ public class TestRunner {
             try {
                 this.dss.put("run." + this.run.getName() + ".shared.environment.expire", expire.toString());
             } catch (DynamicStatusStoreException e) {
+                deleteRunProperties(frameworkInitialisation.getFramework());
                 this.ras.shutdown();
                 throw new TestRunException("Unable to set the shared environment expire time",e);
             }
@@ -272,7 +273,6 @@ public class TestRunner {
         try {
             managers = new TestRunManagers(frameworkInitialisation.getFramework(), testClass);
         } catch (FrameworkException e) {
-            stopHeartbeat();
             this.ras.shutdown();
             throw new TestRunException("Problem initialising the Managers for a test run", e);
         }
@@ -336,7 +336,6 @@ public class TestRunner {
                     managers.provisionBuild();
                 } catch (Exception e) {
                     managers.provisionDiscard();
-                    stopHeartbeat();
                     this.ras.shutdown();
                     throw new TestRunException("Unable to provision build", e);
                 }
@@ -349,7 +348,6 @@ public class TestRunner {
                 } catch (Exception e) {
                     managers.provisionStop();
                     managers.provisionDiscard();
-                    stopHeartbeat();
                     this.ras.shutdown();
                     throw new TestRunException("Unable to provision start", e);
                 }
@@ -401,13 +399,8 @@ public class TestRunner {
             // *** time for things like jenkins and other run requesters to obtain the
             // result and RAS id before
             // *** deleting, default is to keep the automation run properties for 5 minutes
-            try {
-                if (!markedWaiting) {
-                    deleteRunProperties(frameworkInitialisation.getFramework());
-                }
-            } catch (FrameworkException e) {
-                // *** Any error, report it and leave for the core manager to clean up
-                logger.error("Error cleaning up local test run properties", e);
+            if (!markedWaiting) {
+                deleteRunProperties(frameworkInitialisation.getFramework());
             }
         } else if (this.runType == RunType.SharedEnvironmentBuild) {
             recordCPSProperties(frameworkInitialisation);
@@ -457,14 +450,6 @@ public class TestRunner {
     }
 
     private void updateStatus(String status, String timestamp) throws TestRunException {
-        try {
-            this.dss.put("run." + run.getName() + ".status", status);
-            if (timestamp != null) {
-                this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
-            }
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Failed to update status", e);
-        }
 
         this.testStructure.setStatus(status);
         if ("finished".equals(status)) {
@@ -473,6 +458,15 @@ public class TestRunner {
         }
 
         writeTestStructure();
+
+        try {
+            this.dss.put("run." + run.getName() + ".status", status);
+            if (timestamp != null) {
+                this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
+            }
+        } catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Failed to update status", e);
+        }
     }
 
     private void updateResult() throws TestRunException {
@@ -510,7 +504,7 @@ public class TestRunner {
 
     }
 
-    private void deleteRunProperties(@NotNull IFramework framework) throws FrameworkException {
+    private void deleteRunProperties(@NotNull IFramework framework) {
 
         IRun run = framework.getTestRun();
 
@@ -518,7 +512,11 @@ public class TestRunner {
             return;
         }
 
-        framework.getFrameworkRuns().delete(run.getName());
+        try {
+            framework.getFrameworkRuns().delete(run.getName());
+        } catch (FrameworkException e) {
+            logger.error("Failed to delete run properties");
+        }
     }
 
     /**
@@ -558,180 +556,6 @@ public class TestRunner {
         this.bundleContext = context;
     }
 
-    /**
-     * Load a bundle from the OSGi Bundle Repository
-     * 
-     * @param bundleSymbolicName
-     * @throws LauncherException
-     */
-    private void loadBundle(String bundleSymbolicName) throws TestRunException {
-
-        logger.trace("Installing bundle " + bundleSymbolicName);
-        Resolver resolver = repositoryAdmin.resolver();
-        String filterString = "(symbolicname=" + bundleSymbolicName + ")";
-        Resource[] resources = null;
-        try {
-            resources = repositoryAdmin.discoverResources(filterString);
-        } catch (InvalidSyntaxException e) {
-            throw new TestRunException("Unable to discover repoistory resources", e);
-        }
-        try {
-            if (resources.length == 0) {
-                throw new TestRunException("Unable to locate bundle \"" + bundleSymbolicName + "\" in OBR repository");
-            }
-            // *** Only load the first one
-            addResource(bundleSymbolicName, resolver, resources[0]);
-        } catch (TestRunException e) {
-            throw new TestRunException("Unable to install bundle \"" + bundleSymbolicName + "\" from OBR repository",
-                    e);
-        }
-    }
-
-    /**
-     * Add the Resource to the Resolver and resolve
-     * 
-     * @param bundleSymbolicName
-     * @param resolver
-     * @param resource
-     * @throws LauncherException
-     */
-    private void addResource(String bundleSymbolicName, Resolver resolver, Resource resource) throws TestRunException {
-        logger.trace("Resouce: " + resource);
-        resolver.add(resource);
-
-        boolean resourceHasReferenceUrl = false;
-        if (resource.getURI().startsWith("reference:")) {
-            resourceHasReferenceUrl = true;
-        }
-
-        if (resolver.resolve()) {
-            Resource[] requiredResources = resolver.getRequiredResources();
-            for (Resource requiredResource : requiredResources) {
-                if (requiredResource.getURI().startsWith("reference:")) {
-                    resourceHasReferenceUrl = true;
-                }
-                if (logger.isTraceEnabled()) {
-                    logger.trace("  RequiredResource: " + requiredResource.getSymbolicName());
-
-                }
-            }
-            Resource[] optionalResources = resolver.getOptionalResources();
-            for (Resource optionalResource : optionalResources) {
-                if (optionalResource.getURI().startsWith("reference:")) {
-                    resourceHasReferenceUrl = true;
-                }
-                if (logger.isTraceEnabled()) {
-                    logger.trace("  OptionalResource: " + optionalResource.getSymbolicName());
-                }
-            }
-
-
-            if (!resourceHasReferenceUrl) {
-                resolver.deploy(Resolver.START);
-            } else {
-                // *** The Resolver can't cope with reference: URIs which is valid for Felix.
-                // *** So we have to manually install and start the bundles if ANY bundle
-                // *** is a reference
-                ArrayList<Bundle> bundlesToStart = new ArrayList<>();
-                try {
-                    Resource[] startRequiredResources = resolver.getRequiredResources();
-                    for (Resource requiredResource : startRequiredResources) {
-                        bundlesToStart.add(this.bundleContext.installBundle(requiredResource.getURI().toString()));
-                    }
-                    Resource[] startOptionalResources = resolver.getOptionalResources();
-                    for (Resource optionalResource : startOptionalResources) {
-                        bundlesToStart.add(this.bundleContext.installBundle(optionalResource.getURI().toString()));
-                    }
-
-                    bundlesToStart.add(this.bundleContext.installBundle(resource.getURI().toString()));
-                    for (Bundle bundle : bundlesToStart) {
-                        bundle.start();
-                    }
-                } catch (Exception e) {
-                    throw new TestRunException("Unable to install bundles outside of resolver", e);
-                }
-            }
-
-            if (!isBundleActive(bundleSymbolicName)) {
-                throw new TestRunException("Bundle failed to install and activate");
-            }
-
-            printBundles();
-        } else {
-            logger.error("Unable to resolve " + resource.toString());
-            Reason[] unsatisfiedRequirements = resolver.getUnsatisfiedRequirements();
-            for (Reason reason : unsatisfiedRequirements) {
-                logger.error("Unsatisfied requirement: " + reason.getRequirement());
-            }
-            throw new TestRunException("Unable to resolve bundle " + bundleSymbolicName);
-        }
-
-    }
-
-    /**
-     * Is the supplied active in the OSGi framework
-     * 
-     * @param bundleSymbolicName
-     * @return true or false
-     */
-    private boolean isBundleActive(String bundleSymbolicName) {
-        Bundle[] bundles = this.bundleContext.getBundles();
-        for (Bundle bundle : bundles) {
-            if (bundle.getSymbolicName().equals(bundleSymbolicName) && bundle.getState() == Bundle.ACTIVE) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Print the currently installed bundles and their state
-     */
-    private void printBundles() {
-        if (!logger.isTraceEnabled()) {
-            return;
-        }
-        // Get the bundles
-        Bundle[] bundles = this.bundleContext.getBundles();
-        // Format and print the bundle Id, State, Symbolic name and Version.
-        StringBuilder messageBuffer = new StringBuilder(2048);
-        messageBuffer.append("Bundle status:");
-
-        for (Bundle bundle : bundles) {
-            String bundleId = String.valueOf(bundle.getBundleId());
-            messageBuffer.append("\n").append(String.format("%5s", bundleId)).append("|")
-            .append(String.format("%-11s", getBundleStateLabel(bundle))).append("|     |")
-            .append(bundle.getSymbolicName()).append(" (").append(bundle.getVersion()).append(")");
-        }
-
-        logger.trace(messageBuffer.toString());
-    }
-
-    /**
-     * Convert bundle state to string
-     * 
-     * @param bundle
-     * @return The bundle state
-     */
-    private String getBundleStateLabel(Bundle bundle) {
-        switch (bundle.getState()) {
-            case Bundle.UNINSTALLED:
-                return "Uninstalled";
-            case Bundle.INSTALLED:
-                return "Installed";
-            case Bundle.RESOLVED:
-                return "Resolved";
-            case Bundle.STARTING:
-                return "Starting";
-            case Bundle.STOPPING:
-                return "Stopping";
-            case Bundle.ACTIVE:
-                return "Active";
-            default:
-                return "<Unknown (" + bundle.getState() + ")>";
-        }
-    }
 
     private void recordCPSProperties(FrameworkInitialisation frameworkInitialisation) {
         try {

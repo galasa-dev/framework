@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,6 +42,12 @@ public class TestClassWrapper {
     private ArrayList<GenericMethodWrapper> beforeClassMethods = new ArrayList<>();
     private ArrayList<TestMethodWrapper>    testMethods        = new ArrayList<>();
     private ArrayList<GenericMethodWrapper> afterClassMethods  = new ArrayList<>();
+    
+    private static final String BEFORE_CLASS_ANNOTATION_TYPE = "L" + dev.galasa.BeforeClass.class.getName().replaceAll("\\.", "/") + ";";
+    private static final String BEFORE_ANNOTATION_TYPE = "L" + dev.galasa.Before.class.getName().replaceAll("\\.", "/") + ";";
+    private static final String TEST_ANNOTATION_TYPE = "L" + dev.galasa.Test.class.getName().replaceAll("\\.", "/") + ";";
+    private static final String AFTER_ANNOTATION_TYPE = "L" + dev.galasa.After.class.getName().replaceAll("\\.", "/") + ";";
+    private static final String AFTER_CLASS_ANNOTATION_TYPE = "L" + dev.galasa.AfterClass.class.getName().replaceAll("\\.", "/") + ";";
 
     // Logger statics
     public static final String  LOG_STARTING   = "Starting";
@@ -253,7 +260,7 @@ public class TestClassWrapper {
         }
         org.apache.bcel.classfile.Method[] bcelMethods = bcelJavaClass.getMethods();
         for (org.apache.bcel.classfile.Method bcelMethod : bcelMethods) {
-            if (bcelMethod.isPublic() && !bcelMethod.getName().equals("<init>")) {
+            if (isTestMethod(bcelMethod)) {
                 Method method = testClassXXX.getMethod(bcelMethod.getName());
                 Annotation[] annotations = method.getAnnotations();
                 for (Annotation annotation : annotations) {
@@ -262,6 +269,42 @@ public class TestClassWrapper {
                 }
             }
         }
+    }
+
+    /**
+     * Check if test method has one of the test annotations
+     * @param bcelMethod
+     * @return
+     * @throws TestRunException
+     */
+    private boolean isTestMethod(org.apache.bcel.classfile.Method bcelMethod) throws TestRunException {
+        if (!bcelMethod.getName().equals("<init>")) {
+            AnnotationEntry[] annotationEntries = bcelMethod.getAnnotationEntries();
+            int testAnnotations = 0;
+            for (AnnotationEntry annotationEntry : annotationEntries) {
+                if (annotationEntry.getAnnotationType().equals(BEFORE_CLASS_ANNOTATION_TYPE) ||
+                    annotationEntry.getAnnotationType().equals(BEFORE_ANNOTATION_TYPE) || 
+                    annotationEntry.getAnnotationType().equals(TEST_ANNOTATION_TYPE) || 
+                    annotationEntry.getAnnotationType().equals(AFTER_ANNOTATION_TYPE) || 
+                    annotationEntry.getAnnotationType().equals(AFTER_CLASS_ANNOTATION_TYPE)) {
+                    
+                    testAnnotations++;
+                    if (!bcelMethod.isPublic()) {
+                        throw new TestRunException("Method " + bcelMethod.getName() + " must be public");
+                    }
+                    if (bcelMethod.getArgumentTypes().length > 0) {
+                        throw new TestRunException("Method " + bcelMethod.getName() + " should have no parameters");
+                    }
+                }
+            }
+            if (testAnnotations == 1) {
+                return true;
+            }
+            if (testAnnotations > 1) {
+                throw new TestRunException("Method " + bcelMethod.getName() + " should have a single test annotation");
+            }            
+        }
+        return false;
     }
 
     /**

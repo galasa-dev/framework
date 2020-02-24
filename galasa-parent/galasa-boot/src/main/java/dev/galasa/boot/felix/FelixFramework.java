@@ -432,6 +432,58 @@ public class FelixFramework {
         }
 
     }
+    
+    
+    
+    public void runWebApiServer(Properties boostrapProperties, Properties overridesProperties, List<String> bundles,
+            Integer metrics, Integer health) throws LauncherException  {
+        
+        // Get the Jetty server running
+        loadBundle("org.apache.felix.http.servlet-api");
+        loadBundle("org.apache.felix.http.jetty");
+        loadBundle("org.apache.felix.fileinstall");
+        
+        // Get the framework bundle
+        Bundle frameWorkBundle = getBundle("dev.galasa.framework");
+        // Get the framework bundle
+        loadBundle("dev.galasa.framework.api");
+
+        // Get the dev.galasa.framework.api.internal.ApiStartup class service
+        String classString = "dev.galasa.framework.api.internal.ApiStartup";
+        String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
+        ServiceReference<?>[] serviceReferences;
+        try {
+            serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
+        } catch (InvalidSyntaxException e) {
+            throw new LauncherException("Unable to get framework service reference", e);
+        }
+        if (serviceReferences == null || serviceReferences.length != 1) {
+            throw new LauncherException("Unable to get single reference to ApiStartup service: "
+                    + ((serviceReferences == null) ? 0 : serviceReferences.length) + " service(s) returned");
+        }
+        Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
+        if (service == null) {
+            throw new LauncherException("Unable to get ApiStartup service");
+        }
+
+        // ApiStartup.run() method
+        Method runTestMethod;
+        try {
+            runTestMethod = service.getClass().getMethod("run", Properties.class, Properties.class, List.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new LauncherException("Unable to get Framework ApiStartup run method", e);
+        }
+
+        // Invoke the runTest method
+        logger.debug("Invoking ApiStartup run()");
+        try {
+            runTestMethod.invoke(service, boostrapProperties, overridesProperties, bundles);
+        } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+            throw new LauncherException(e.getCause());
+        }
+    }
+
+
 
     /**
      * Run the Kubernetes Controller Server

@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Logger;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -18,9 +16,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
@@ -28,13 +27,13 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import com.google.gson.Gson;
 
-import dev.galasa.framework.api.runs.bind.RunStatus;
-import dev.galasa.framework.api.runs.bind.ScheduleRequest;
-import dev.galasa.framework.api.runs.bind.ScheduleStatus;
+import dev.galasa.api.runs.ScheduleRequest;
+import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 /**
  * Schedule Tests API
@@ -43,26 +42,25 @@ import dev.galasa.framework.spi.IRun;
  * 
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-"osgi.http.whiteboard.servlet.pattern=/run/*" }, configurationPid = {
-"dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Run Test")
+"osgi.http.whiteboard.servlet.pattern=/runs/*" }, name = "Galasa Run Test")
 public class ScheduleTests extends HttpServlet {
     private static final long serialVersionUID        = 1L;
+
+    private Log logger = LogFactory.getLog(getClass());
+    
+    private final Gson        gson = GalasaGsonBuilder.build();
 
     @Reference
     public IFramework         framework;                                 // NOSONAR
 
-    private static Logger     logger;
-
-    private final Properties  configurationProperties = new Properties();
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String UUID = getUUID(req);
+        String groupName = getGroupName(req);
         List<IRun> runs = null;
         try {
-            runs = framework.getFrameworkRuns().getAllGroupedRuns(UUID);
+            runs = framework.getFrameworkRuns().getAllGroupedRuns(groupName);
         } catch (FrameworkException fe) {
-            logger.severe("Unable to obtain framework runs for UUID: " + UUID);
+            logger.error("Unable to obtain framework runs for Run Group: " + groupName, fe);
             resp.setStatus(500);
             return;
         }
@@ -78,19 +76,15 @@ public class ScheduleTests extends HttpServlet {
             status.getRuns().add(run.getSerializedRun());
         }
 
-        if (complete) {
-            status.setScheduleStatus(RunStatus.FINISHED_RUN);
-        } else {
-            status.setScheduleStatus(RunStatus.TESTING);
-        }
+        status.setComplete(complete);
 
         resp.setStatus(200);
         resp.setHeader("Content-Type", "Application/json");
 
         try {
-            resp.getWriter().write(new Gson().toJson(status));
+            resp.getWriter().write(gson.toJson(status));
         } catch (IOException ioe) {
-            logger.severe("Unable to respond to requester" + System.lineSeparator() + ioe.getStackTrace());
+            logger.fatal("Unable to respond to requester", ioe);
             resp.setStatus(500);
         }
     }
@@ -98,13 +92,13 @@ public class ScheduleTests extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         boolean submissionFailures = false;
-        String UUID = getUUID(req);
+        String groupName = getGroupName(req);
         ScheduleRequest request;
         try {
-            request = (ScheduleRequest) new Gson().fromJson(new InputStreamReader(req.getInputStream()),
+            request = (ScheduleRequest) gson.fromJson(new InputStreamReader(req.getInputStream()),
                     ScheduleRequest.class);
         } catch (Exception e) {
-            logger.warning("Error understanding / receiving run test request");
+            logger.warn("Error understanding / receiving run test request",e );
             resp.setStatus(500);
             return;
         }
@@ -122,14 +116,14 @@ public class ScheduleTests extends HttpServlet {
             }
 
             try {
-                framework.getFrameworkRuns().submitRun(null, request.getRequestorType().toString(), bundle, testClass,
-                        UUID, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
-                        request.isTrace(), null, 
+                framework.getFrameworkRuns().submitRun(null, request.getRequestorType(), bundle, testClass,
+                        groupName, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
+                        request.isTrace(), request.getOverrides(), 
                         senvPhase, 
                         request.getSharedEnvironmentRunName());
             } catch (FrameworkException fe) {
-                logger.warning(
-                        "Failure when submitting run: " + className + System.lineSeparator() + fe.getStackTrace());
+                logger.error(
+                        "Failure when submitting run: " + className, fe);
                 submissionFailures = true;
                 continue;
             }
@@ -142,14 +136,14 @@ public class ScheduleTests extends HttpServlet {
         }
     }
 
-    private String getUUID(HttpServletRequest req) {
+    private String getGroupName(HttpServletRequest req) {
         return req.getPathInfo().substring(1);
     }
 
     @Activate
     void activate(Map<String, Object> properties) {
         modified(properties);
-        this.logger = Logger.getLogger(this.getClass().toString());
+        logger.info("Galasa Shedule Tests API activated");
     }
 
     @Modified

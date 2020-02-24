@@ -3,11 +3,11 @@
  * 
  * (c) Copyright IBM Corp. 2019.
  */
-package dev.galasa.framework;
+package dev.galasa.api.run;
 
 import java.time.Instant;
 
-public class SerializedRun {
+public class Run {
     private String  name;
     private Instant heartbeat;
     private String  type;
@@ -26,9 +26,11 @@ public class SerializedRun {
     private String  obr;
     private Boolean local;
     private Boolean trace;
+    
+    public Run() {};
 
-    public SerializedRun(String name, Instant heartbeat, String type, String group, String test, String bundleName,
-            String testName, String status, String result, Instant queue, Instant finished, Instant waitUntil,
+    public Run(String name, Instant heartbeat, String type, String group, String test, String bundleName,
+            String testName, String status, String result, Instant queued, Instant finished, Instant waitUntil,
             String requestor, String stream, String repo, String obr, Boolean local, Boolean trace) {
         this.name = name;
         this.heartbeat = heartbeat;
