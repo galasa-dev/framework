@@ -43,7 +43,7 @@ public class FrameworkRuns implements IFrameworkRuns {
     private final IConfigurationPropertyStoreService cps;
 
     private final String                             NO_GROUP     = "none";
-    private final String                             NO_RUNTYPE   = "unknown";
+    private final String                             NO_RUNTYPE   = "UNKNOWN";
     private final String                             NO_REQUESTER = "unknown";
 
     private final String                             RUN_PREFIX   = "run.";
@@ -165,6 +165,7 @@ public class FrameworkRuns implements IFrameworkRuns {
         if (runType == null) {
             runType = NO_RUNTYPE;
         }
+        runType = runType.toUpperCase();
         requestor = AbstractManager.nulled(requestor);
         if (requestor == null) {
             requestor = AbstractManager.nulled(cps.getProperty("run", "requestor"));
