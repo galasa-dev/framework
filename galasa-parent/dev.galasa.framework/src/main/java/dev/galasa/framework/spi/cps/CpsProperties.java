@@ -31,7 +31,6 @@ public class CpsProperties {
      * missing or there is an issue
      * 
      * @param cps          The Configuration Property Store
-     * @param logger       the logger to use if there is a problem
      * @param defaultValue The default int if property is missing or there is an
      *                     issue
      * @param prefix       The property prefix
@@ -61,7 +60,6 @@ public class CpsProperties {
      * default value is provided
      * 
      * @param cps     The Configuration Property Store
-     * @param logger  the logger to use if there is a problem
      * @param prefix  The property prefix
      * @param suffix  The property suffix
      * @param infixes Options infixes
@@ -83,7 +81,6 @@ public class CpsProperties {
      * the default value is returned.
      * 
      * @param cps          The Configuration Property Store
-     * @param logger       the logger to use if there is a problem
      * @param defaultValue The default string if property is missing or there is an
      *                     issue
      * @param prefix       The property prefix
@@ -113,7 +110,6 @@ public class CpsProperties {
      * is missing or there is an error
      * 
      * @param cps           The Configuration Property Store
-     * @param logger        the logger to use if there is a problem
      * @param defaultValues The default comma separated list if property is missing
      *                      or there is an issue
      * @param prefix        The property prefix
@@ -143,10 +139,9 @@ public class CpsProperties {
     }
 
     /**
-     * Retrieve a comma separated string property or an empty list if missning
+     * Retrieve a comma separated string property or an empty list if missing
      * 
      * @param cps     The Configuration Property Store
-     * @param logger  the logger to use if there is a problem
      * @param prefix  The property prefix
      * @param suffix  The property suffix
      * @param infixes Options infixes
@@ -168,7 +163,7 @@ public class CpsProperties {
 
     /**
      * Convert a comma separated string into a List. null or empty strings are
-     * removed fromthe list
+     * removed from the list
      * 
      * @param values a comma separated string
      * @return a list of strings
