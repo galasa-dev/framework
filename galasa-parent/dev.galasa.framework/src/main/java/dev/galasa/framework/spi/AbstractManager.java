@@ -475,7 +475,7 @@ public abstract class AbstractManager implements IManager {
         if (value == null) {
             return defaultValue;
         }
-        value = value.trim().toLowerCase();
+        value = value.trim();
         if (value.isEmpty()) {
             return defaultValue;
         }
