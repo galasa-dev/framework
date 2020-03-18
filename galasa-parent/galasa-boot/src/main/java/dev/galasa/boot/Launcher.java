@@ -330,7 +330,7 @@ public class Launcher {
                     this.localMavenRepo = null;
                 } else {
                     try {
-                        this.localMavenRepo = new URL(repo);
+                        this.localMavenRepo = new URL(repo.replaceFirst("/*$", ""));
                     } catch (MalformedURLException e) {
                         logger.error("--localmaven has an invalid URL", e);
                         commandLineError(null);
