@@ -19,6 +19,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,14 +85,22 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
             String type) throws IOException {
         logger.trace("Resolving maven artifact " + groupid + ":" + artifactid + ":" + version + ":" + type);
 
+        if (groupid.equals("dev.galasa") && version.equals("LATEST") && type.equals("obr")) {
+            String latestVersion = resolveLatest(groupid, artifactid, type);
+            if (latestVersion == null) {
+                return null;
+            }
+            logger.trace("Maven artifact " + groupid + ":" + artifactid + ":" + version + ":" + type + " resolved to " + groupid + ":" + artifactid + ":" + latestVersion + ":" + type);
+            version = latestVersion;
+        }
+
         URL localRepository = galasaRepository.getLocalRepository();
         logger.trace("Checking local repository " + localRepository.toExternalForm());
 
         // *** Check the local repository first, if the file exists, use it from there
         Path pathLocalFile;
         try {
-            URL localFile = buildArtifactUrl(localRepository, groupid, artifactid, version,
-                    buildArtifactFilename(artifactid, version, type));
+            URL localFile = buildArtifactUrl(localRepository, groupid, artifactid, version, buildArtifactFilename(artifactid, version, type));
             pathLocalFile = Paths.get(localFile.toURI());
             logger.trace("Looking for file " + pathLocalFile.toFile().getAbsolutePath());
             if (pathLocalFile.toFile().exists()) {
@@ -112,6 +122,47 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         } else {
             return fetchReleaseArtifact(pathLocalFile, groupid, artifactid, version, type);
         }
+    }
+
+    private String resolveLatest(String groupid, String artifactid, String type) throws IOException {
+        Path tempMetadata = null;
+        for (URL remoteRepository : galasaRepository.getRemoteRepositories()) {
+            tempMetadata = getTempMetadata(remoteRepository, groupid, artifactid, null);
+            if (tempMetadata != null) {
+                break;
+            }
+        }
+        String resolvedVersion = null;
+        if (tempMetadata != null) {        
+            try {
+                MetadataXpp3Reader reader = new MetadataXpp3Reader();
+                Metadata metadata = reader.read(Files.newInputStream(tempMetadata));
+    
+                Versioning versioning = metadata.getVersioning();
+                if (versioning != null) {
+                    String latest = versioning.getLatest();
+                    if (latest != null) {
+                        resolvedVersion = latest;
+                    } else {
+                        List<String> versions = versioning.getVersions();
+                        if (!versions.isEmpty()) {
+                            resolvedVersion = Collections.max(versions);
+                        }
+                    }
+                }
+            } catch (XmlPullParserException e) {
+            } finally {
+                Files.delete(tempMetadata);
+            }
+        }
+        
+        if (resolvedVersion != null) {
+            logger.debug("Version 'LATEST' resolved to " + resolvedVersion);
+        } else {
+            logger.error("Unable to resolve vesion 'LATEST'");
+        }
+        
+        return resolvedVersion;
     }
 
     private URL fetchSnapshotArtifact(Path localArtifact, String groupid, String artifactid, String version,
@@ -153,17 +204,8 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
     private static URL retrieveSnapshot(URL repository, long lastupdated, Path localArtifact, Path localTimestamp,
             String groupid, String artifactid, String version, String type) throws IOException {
 
-        Path tempMetadata = Files.createTempFile("metadata", ".xml");
-        try {
-            URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version, "maven-metadata.xml");
-            logger.debug("Attempting to download " + urlRemoteFile);
-
-            URLConnection connection = urlRemoteFile.openConnection();
-            connection.setDoOutput(false);
-            connection.connect();
-            Files.copy(connection.getInputStream(), tempMetadata, StandardCopyOption.REPLACE_EXISTING);
-        } catch (FileNotFoundException e) {
-            Files.delete(tempMetadata);
+        Path tempMetadata = getTempMetadata(repository, groupid, artifactid, version);
+        if (tempMetadata == null) {
             return null;
         }
 
@@ -223,6 +265,23 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         return localArtifact.toUri().toURL();
     }
 
+    private static Path getTempMetadata(URL repository, String groupid, String artifactid, String version) throws IOException {
+      Path tempMetadata = Files.createTempFile("metadata", ".xml");
+      try {
+          URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version, "maven-metadata.xml");
+          logger.debug("Attempting to download " + urlRemoteFile);
+
+          URLConnection connection = urlRemoteFile.openConnection();
+          connection.setDoOutput(false);
+          connection.connect();
+          Files.copy(connection.getInputStream(), tempMetadata, StandardCopyOption.REPLACE_EXISTING);
+      } catch (FileNotFoundException e) {
+          Files.delete(tempMetadata);
+          return null;
+      }
+      return tempMetadata;
+    }
+
     private URL fetchReleaseArtifact(Path localArtifact, String groupid, String artifactid, String version, String type)
             throws IOException {
         if (localArtifact.toFile().exists()) {
@@ -273,8 +332,10 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         stringBuilder.append("/");
         stringBuilder.append(artifactid);
         stringBuilder.append("/");
-        stringBuilder.append(version);
-        stringBuilder.append("/");
+        if (version != null) {
+            stringBuilder.append(version);
+            stringBuilder.append("/");
+        }
         stringBuilder.append(filename);
 
         // *** Read the artifact

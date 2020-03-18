@@ -311,7 +311,7 @@ public class Launcher {
         try {
             if (commandLine.hasOption(REMOTEMAVEN_OPTION)) {
                 for (String option : commandLine.getOptionValues(REMOTEMAVEN_OPTION)) {
-                    this.remoteMavenRepos.add(new URL(option));
+                    this.remoteMavenRepos.add(new URL(option.replaceFirst("/*$", "")));
                 }
             }
             this.remoteMavenRepos.add(new URL("https://repo.maven.apache.org/maven2"));
