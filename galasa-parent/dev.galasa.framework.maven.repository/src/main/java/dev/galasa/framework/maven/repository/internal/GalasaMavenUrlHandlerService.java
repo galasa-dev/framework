@@ -45,9 +45,6 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
     @Reference
     private IMavenRepository               galasaRepository;
 
-    private final Path                     localGalasaRepository = Paths.get(System.getProperty("user.home") + "/",
-            ".galasa", "mavenrepo");
-
     @Override
     public URLConnection openConnection(URL arg0) throws IOException {
 
@@ -74,7 +71,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
             throw new MalformedURLException("packaging is missing - " + arg0);
         }
 
-        URL result = fetchArtifact(localGalasaRepository, groupId, artifactId, version, packaging);
+        URL result = fetchArtifact(groupId, artifactId, version, packaging);
         if (result == null) {
             throw new IOException("Unable to locate maven artifact " + arg0);
         }
@@ -82,7 +79,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         return result.openConnection();
     }
 
-    private URL fetchArtifact(Path localGalasaRepository, String groupid, String artifactid, String version,
+    private URL fetchArtifact(String groupid, String artifactid, String version,
             String type) throws IOException {
         logger.trace("Resolving maven artifact " + groupid + ":" + artifactid + ":" + version + ":" + type);
 
@@ -90,34 +87,30 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         logger.trace("Checking local repository " + localRepository.toExternalForm());
 
         // *** Check the local repository first, if the file exists, use it from there
-        if (localRepository != null) {
-            try {
-                URL localFile = buildArtifactUrl(localRepository, groupid, artifactid, version,
-                        buildArtifactFilename(artifactid, version, type));
-                Path pathLocalFile = Paths.get(localFile.toURI());
-                logger.trace("Looking for file " + pathLocalFile.toFile().getAbsolutePath());
-                if (pathLocalFile.toFile().exists()) {
-                    logger.trace("Found in local repository at " + localFile.toExternalForm());
-                    return localFile;
-                }
-            } catch (Exception e) {
-                throw new IOException("Problem with local maven repository");
+        Path pathLocalFile;
+        try {
+            URL localFile = buildArtifactUrl(localRepository, groupid, artifactid, version,
+                    buildArtifactFilename(artifactid, version, type));
+            pathLocalFile = Paths.get(localFile.toURI());
+            logger.trace("Looking for file " + pathLocalFile.toFile().getAbsolutePath());
+            if (pathLocalFile.toFile().exists()) {
+                logger.trace("Found in local repository at " + localFile.toExternalForm());
+                return localFile;
             }
+        } catch (Exception e) {
+            throw new IOException("Problem with local maven repository");
         }
 
         if (galasaRepository.getRemoteRepositories() == null) {
             return null;
         }
 
-        Path localGroupDirectory = localGalasaRepository.resolve(groupid);
-        Files.createDirectories(localGroupDirectory);
-        String targetFilename = artifactid + "-" + version + "." + type;
-        Path localArtifact = localGroupDirectory.resolve(targetFilename);
+        Files.createDirectories(pathLocalFile.getParent());
 
         if (version.endsWith("-SNAPSHOT")) {
-            return fetchSnapshotArtifact(localArtifact, groupid, artifactid, version, type);
+            return fetchSnapshotArtifact(pathLocalFile, groupid, artifactid, version, type);
         } else {
-            return fetchReleaseArtifact(localArtifact, groupid, artifactid, version, type);
+            return fetchReleaseArtifact(pathLocalFile, groupid, artifactid, version, type);
         }
     }
 
