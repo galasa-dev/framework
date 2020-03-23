@@ -311,7 +311,7 @@ public class Launcher {
         try {
             if (commandLine.hasOption(REMOTEMAVEN_OPTION)) {
                 for (String option : commandLine.getOptionValues(REMOTEMAVEN_OPTION)) {
-                    this.remoteMavenRepos.add(new URL(option));
+                    this.remoteMavenRepos.add(new URL(option.replaceFirst("/*$", "")));
                 }
             }
             this.remoteMavenRepos.add(new URL("https://repo.maven.apache.org/maven2"));
@@ -330,7 +330,7 @@ public class Launcher {
                     this.localMavenRepo = null;
                 } else {
                     try {
-                        this.localMavenRepo = new URL(repo);
+                        this.localMavenRepo = new URL(repo.replaceFirst("/*$", ""));
                     } catch (MalformedURLException e) {
                         logger.error("--localmaven has an invalid URL", e);
                         commandLineError(null);

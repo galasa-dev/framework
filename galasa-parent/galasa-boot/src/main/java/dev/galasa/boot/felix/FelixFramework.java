@@ -655,7 +655,7 @@ public class FelixFramework {
 
             if (logger.isTraceEnabled()) {
                 // Print repository content
-                logger.trace("Loaded repository " + repository.getName() + " " + repository.getURI());
+                logger.trace("Loaded repository " + repository.getName() + " from URI " + repository.getURI());
                 Resource[] resources = repository.getResources();
                 String sp3 = "   ";
                 for (Resource resource : resources) {
