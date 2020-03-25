@@ -5,31 +5,28 @@ title: "$name Manager"
 #set( $H = "#" )
 $manager
 #if( $annotations )
-<details><summary>Annotations</summary>
 $H$H Annotations
 
 The following annotations are available with the $name Manager
 #foreach( $annotation in $annotations )
- 
 $annotation
 #end
 #end
-</details>
+
 
 #if( $codeSnippets )
-<details><summary>Code Snippets</summary>
-$H$H Code Snippets
+<details>
+<summary>Code snippets</summary>
 
 Use the following code snippets to help you get started with the $name Manager.
 #foreach( $codeSnippet in $codeSnippets )
  
 $codeSnippet
 #end
-#end
 </details>
+#end
 
 #if( $cpsProperties )
-<details><summary>Configuration Properties</summary>
 $H$H Configuration Properties
 
 The following are properties used to configure the $name Manager.
@@ -38,4 +35,3 @@ The following are properties used to configure the $name Manager.
 $cpsProperty
 #end
 #end
-</details>
