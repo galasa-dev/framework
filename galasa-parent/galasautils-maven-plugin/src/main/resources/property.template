@@ -1,5 +1,6 @@
 <details>
 <summary>$title</summary>
+
 | Property: | $title |
 | --------------------------------------- | :------------------------------------- |
 | Name: | $name |
@@ -12,4 +13,5 @@
 
 $extra
 #end
+
 </details>
