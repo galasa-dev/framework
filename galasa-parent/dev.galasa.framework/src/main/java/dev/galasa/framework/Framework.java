@@ -15,6 +15,8 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -83,10 +85,15 @@ public class Framework implements IFramework {
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext bundleContext) {
         logger.info("Framework service activated");
         logger.info("Framework version = " + FrameworkVersion.getBundleVersion());
         logger.info("Framework build   = " + FrameworkVersion.getBundleBuild());
+        try {
+            bundleContext.addServiceListener(new ManagerServiceListener(), "(objectClass=dev.galasa.framework.spi.IManager)");
+        } catch (InvalidSyntaxException e) {
+            logger.error("Unable to add ManagerServiceListener", e);
+        }
     }
 
     @Deactivate

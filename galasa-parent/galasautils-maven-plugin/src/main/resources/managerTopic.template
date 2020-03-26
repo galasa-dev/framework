@@ -9,12 +9,13 @@ $H$H Annotations
 
 The following annotations are available with the $name Manager
 #foreach( $annotation in $annotations )
- 
 $annotation
 #end
 #end
+
+
 #if( $codeSnippets )
-$H$H Code Snippets
+$H$H Code snippets
 
 Use the following code snippets to help you get started with the $name Manager.
 #foreach( $codeSnippet in $codeSnippets )
@@ -22,6 +23,7 @@ Use the following code snippets to help you get started with the $name Manager.
 $codeSnippet
 #end
 #end
+
 #if( $cpsProperties )
 $H$H Configuration Properties
 
