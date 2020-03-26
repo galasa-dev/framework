@@ -6,8 +6,6 @@
 package dev.galasa.framework.api.bootstrap.internal;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
@@ -45,9 +43,6 @@ public class Bootstrap extends HttpServlet {
     
     private Log logger = LogFactory.getLog(getClass());
 
-    private final ArrayList<String> bootstrapKeys           = new ArrayList<>(Arrays.asList("framework.config.store",
-            "framework.extra.bundles", "framework.bootstrap.url", "framework.jwt.secret"));
-
     @Reference
     public IFramework               framework;                                                                       // NOSONAR
 
@@ -61,7 +56,7 @@ public class Bootstrap extends HttpServlet {
             actualBootstrap.putAll(this.configurationProperties);
         }
 
-        if (this.framework == null || this.framework.isInitialised()) {
+        if (this.framework != null && this.framework.isInitialised()) {
             // TODO look for additional bootstrap properties like the auth server
         }
 
@@ -79,14 +74,8 @@ public class Bootstrap extends HttpServlet {
     @Modified
     void modified(Map<String, Object> properties) {
         synchronized (configurationProperties) {
-            for (String key : bootstrapKeys) {
-                String value = (String) properties.get(key);
-                if (value != null) {
-                    this.configurationProperties.put(key, value);
-                } else {
-                    this.configurationProperties.remove(key);
-                }
-            }
+            configurationProperties.clear();
+            configurationProperties.putAll(properties);
         }
     }
 
