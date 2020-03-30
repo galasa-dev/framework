@@ -85,7 +85,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
             String type) throws IOException {
         logger.trace("Resolving maven artifact " + groupid + ":" + artifactid + ":" + version + ":" + type);
 
-        if (groupid.equals("dev.galasa") && version.equals("LATEST") && type.equals("obr")) {
+        if (groupid.equals("dev.galasa") && type.equals("obr") && version.equals("LATEST")) {
             String latestVersion = resolveLatest(groupid, artifactid, type);
             if (latestVersion == null) {
                 return null;
@@ -102,10 +102,13 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         try {
             URL localFile = buildArtifactUrl(localRepository, groupid, artifactid, version, buildArtifactFilename(artifactid, version, type));
             pathLocalFile = Paths.get(localFile.toURI());
-            logger.trace("Looking for file " + pathLocalFile.toFile().getAbsolutePath());
-            if (pathLocalFile.toFile().exists()) {
-                logger.trace("Found in local repository at " + localFile.toExternalForm());
-                return localFile;
+            // Don't use the a local SNAPSHOT. It will be checked to see if it's the latest later on
+            if (!(groupid.equals("dev.galasa") && version.endsWith("-SNAPSHOT"))) {                
+                logger.trace("Looking for file " + pathLocalFile.toFile().getAbsolutePath());
+                if (pathLocalFile.toFile().exists()) {
+                    logger.trace("Found in local repository at " + localFile.toExternalForm());
+                    return localFile;
+                }
             }
         } catch (Exception e) {
             throw new IOException("Problem with local maven repository");

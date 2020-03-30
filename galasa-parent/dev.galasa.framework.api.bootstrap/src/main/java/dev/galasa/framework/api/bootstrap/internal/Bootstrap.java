@@ -6,6 +6,8 @@
 package dev.galasa.framework.api.bootstrap.internal;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
@@ -47,6 +49,9 @@ public class Bootstrap extends HttpServlet {
     public IFramework               framework;                                                                       // NOSONAR
 
     private final Properties        configurationProperties = new Properties();
+    
+    private final ArrayList<String> bootstrapKeys           = new ArrayList<>(Arrays.asList("framework.config.store",
+            "framework.extra.bundles", "framework.testcatalog.url"));
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -74,8 +79,14 @@ public class Bootstrap extends HttpServlet {
     @Modified
     void modified(Map<String, Object> properties) {
         synchronized (configurationProperties) {
-            configurationProperties.clear();
-            configurationProperties.putAll(properties);
+            for (String key : bootstrapKeys) {
+                String value = (String) properties.get(key);
+                if (value != null) {
+                    this.configurationProperties.put(key, value);
+                } else {
+                    this.configurationProperties.remove(key);
+                }
+            }
         }
     }
 

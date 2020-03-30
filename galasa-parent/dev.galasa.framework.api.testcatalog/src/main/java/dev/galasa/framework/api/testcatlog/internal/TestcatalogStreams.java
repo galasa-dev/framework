@@ -44,7 +44,7 @@ import com.google.gson.JsonParseException;
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
         "osgi.http.whiteboard.servlet.pattern=/testcatalog/*" }, configurationPid = {
-                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.OPTIONAL, name = "Galasa Test Catalog Streams")
+                "dev.galasa.testcatalog" }, configurationPolicy = ConfigurationPolicy.OPTIONAL, name = "Galasa Test Catalog Streams")
 public class TestcatalogStreams extends HttpServlet {
     private static final long serialVersionUID       = 1L;
 
@@ -161,10 +161,9 @@ public class TestcatalogStreams extends HttpServlet {
     }
 
     private void checkDirectory() throws IOException {
-        synchronized (TestcatalogStreams.class) {
+        synchronized (Testcatalogs.class) {
             if (catalogDirectory == null) {
-                catalogDirectory = Paths.get(System.getProperty("karaf.data")).resolve("galasa")
-                        .resolve("testcatalogs");
+                throw new IOException("Catalog directory has not been defined");
             }
             if (!Files.exists(catalogDirectory)) {
                 Files.createDirectories(catalogDirectory);
