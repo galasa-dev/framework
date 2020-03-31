@@ -44,6 +44,24 @@
 			<organization>IBM</organization>
 			<organizationUrl>https://www.ibm.com</organizationUrl>
 		</developer>
+		<developer>
+			<name>Richard Somers</name>
+			<email>jrsomers1@sheffield.ac.uk</email>
+			<organization>IBM</organization>
+			<organizationUrl>https://www.ibm.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Robbie Avill</name>
+			<email>roavill2@uk.ibm.comm</email>
+			<organization>IBM</organization>
+			<organizationUrl>https://www.ibm.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Lukas Martivoet</name>
+			<email>lukas.marivoet@ibm.com</email>
+			<organization>IBM</organization>
+			<organizationUrl>https://www.ibm.com</organizationUrl>
+		</developer>
 	</developers>
 
 	<scm>
