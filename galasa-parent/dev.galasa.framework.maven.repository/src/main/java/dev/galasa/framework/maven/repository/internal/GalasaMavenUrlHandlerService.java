@@ -97,18 +97,21 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         URL localRepository = galasaRepository.getLocalRepository();
         logger.trace("Checking local repository " + localRepository.toExternalForm());
 
-        // *** Check the local repository first, if the file exists, use it from there
+        // *** Check the local repository first, if the file exists
+        URL localFile;
         Path pathLocalFile;
         try {
-            URL localFile = buildArtifactUrl(localRepository, groupid, artifactid, version, buildArtifactFilename(artifactid, version, type));
+            localFile = buildArtifactUrl(localRepository, groupid, artifactid, version, buildArtifactFilename(artifactid, version, type));
             pathLocalFile = Paths.get(localFile.toURI());
-            // Don't use the a local SNAPSHOT. It will be checked to see if it's the latest later on
-            if (!(groupid.equals("dev.galasa") && version.endsWith("-SNAPSHOT"))) {                
-                logger.trace("Looking for file " + pathLocalFile.toFile().getAbsolutePath());
-                if (pathLocalFile.toFile().exists()) {
-                    logger.trace("Found in local repository at " + localFile.toExternalForm());
+            logger.trace("Looking for file " + pathLocalFile.toFile().getAbsolutePath());
+            if (pathLocalFile.toFile().exists()) {
+                logger.trace("Found in local repository at " + localFile.toExternalForm());
+                // Don't use the a local SNAPSHOT. It will be checked to see if it's the latest later on
+                if (!(groupid.equals("dev.galasa") && version.endsWith("-SNAPSHOT"))) {
                     return localFile;
                 }
+            } else {
+                localFile = null;
             }
         } catch (Exception e) {
             throw new IOException("Problem with local maven repository");
@@ -121,7 +124,8 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         Files.createDirectories(pathLocalFile.getParent());
 
         if (version.endsWith("-SNAPSHOT")) {
-            return fetchSnapshotArtifact(pathLocalFile, groupid, artifactid, version, type);
+            URL remoteArtifact = fetchSnapshotArtifact(pathLocalFile, groupid, artifactid, version, type);
+            return remoteArtifact == null ? localFile : remoteArtifact;
         } else {
             return fetchReleaseArtifact(pathLocalFile, groupid, artifactid, version, type);
         }
