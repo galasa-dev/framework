@@ -179,7 +179,13 @@ public class TestRunner {
         if (testOBR != null) {
             logger.debug("Loading test obr repository " + testOBR);
             try {
-                repositoryAdmin.addRepository(testOBR);
+                String[] testOBRs = testOBR.split("\\,");
+                for(String obr : testOBRs) {
+                    obr = obr.trim();
+                    if (!obr.isEmpty()) {
+                        repositoryAdmin.addRepository(testOBR);
+                    }
+                }
             } catch (Exception e) {
                 logger.error("Unable to load specified OBR " + testOBR, e);
                 updateStatus("finished", "finished");
