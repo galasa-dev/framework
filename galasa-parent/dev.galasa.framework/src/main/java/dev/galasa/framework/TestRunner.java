@@ -23,13 +23,9 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.felix.bundlerepository.Reason;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
-import org.apache.felix.bundlerepository.Resolver;
-import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -145,8 +141,17 @@ public class TestRunner {
         if (stream != null) {
             logger.debug("Loading test stream " + stream);
             try {
-                testRepository = this.cps.getProperty("stream", "repo", stream);
-                testOBR = this.cps.getProperty("stream", "obr", stream);
+                testRepository = this.cps.getProperty("test.stream", "repo", stream);
+                testOBR = this.cps.getProperty("test.stream", "obr", stream);
+
+                //*** TODO remove this code in 0.9.0 - renames stream to test.stream to be consistent #198
+                if (testRepository == null) {
+                    testRepository = this.cps.getProperty("stream", "repo", stream);
+                }
+                if (testOBR == null) {
+                    testOBR = this.cps.getProperty("stream", "obr", stream);
+                }
+                //*** TODO remove above code in 0.9.0
             } catch (Exception e) {
                 logger.error("Unable to load stream " + stream + " settings", e);
                 updateStatus("finished", "finished");
@@ -167,7 +172,13 @@ public class TestRunner {
         if (testRepository != null) {
             logger.debug("Loading test maven repository " + testRepository);
             try {
-                this.mavenRepository.addRemoteRepository(new URL(testRepository));
+                String[] repos = testRepository.split("\\,");
+                for(String repo : repos) {
+                    repo = repo.trim();
+                    if (!repo.isEmpty()) {
+                        this.mavenRepository.addRemoteRepository(new URL(repo));
+                    }
+                }
             } catch (MalformedURLException e) {
                 logger.error("Unable to add remote maven repository " + testRepository, e);
                 updateStatus("finished", "finished");
