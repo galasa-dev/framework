@@ -26,9 +26,9 @@ public class ManagerServiceListener implements ServiceListener {
     }
 
     private void reportBundleVersion(Bundle bundle) {
-        logger.info("Manager started : " + getBundleName(bundle));
-        logger.info("        version : " + bundle.getVersion());
-        logger.info("          build : " + getBundleBuild(bundle));
+        logger.trace("Manager started : " + getBundleName(bundle));
+        logger.trace("        version : " + bundle.getVersion());
+        logger.trace("          build : " + getBundleBuild(bundle));
     }
 
     public String getBundleName(Bundle bundle) {
