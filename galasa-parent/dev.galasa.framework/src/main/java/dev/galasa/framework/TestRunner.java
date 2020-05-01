@@ -194,7 +194,7 @@ public class TestRunner {
                 for(String obr : testOBRs) {
                     obr = obr.trim();
                     if (!obr.isEmpty()) {
-                        repositoryAdmin.addRepository(testOBR);
+                        repositoryAdmin.addRepository(obr);
                     }
                 }
             } catch (Exception e) {
