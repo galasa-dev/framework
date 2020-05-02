@@ -151,7 +151,7 @@ public class ResultArchiveStorePath implements Path {
      */
     @Override
     public Path getRoot() {
-        return new ResultArchiveStorePath(this.fileSystem, true, new ArrayList<>(), 0, 0);
+        return newPathObject(true, new ArrayList<>(), 0, 0);
     }
 
     /*
@@ -178,7 +178,7 @@ public class ResultArchiveStorePath implements Path {
         if (this.nameElements.isEmpty()) {
             return null;
         }
-        return new ResultArchiveStorePath(this.fileSystem, this.absolute, this.nameElements, 0,
+        return newPathObject(this.absolute, this.nameElements, 0,
                 this.nameElements.size() - 1);
     }
 
@@ -202,7 +202,7 @@ public class ResultArchiveStorePath implements Path {
         if ((index < 0) || (index >= this.nameElements.size())) {
             return null;
         }
-        return new ResultArchiveStorePath(this.fileSystem, this.nameElements.get(index));
+        return newPathObject(this.nameElements.get(index));
     }
 
     /*
@@ -226,7 +226,7 @@ public class ResultArchiveStorePath implements Path {
         if (beginIndex > 0) {
             newAbolute = false;
         }
-        return new ResultArchiveStorePath(this.fileSystem, newAbolute, this.nameElements, beginIndex, endIndex);
+        return newPathObject(newAbolute, this.nameElements, beginIndex, endIndex);
     }
 
     /*
@@ -277,7 +277,7 @@ public class ResultArchiveStorePath implements Path {
      */
     @Override
     public boolean startsWith(String other) {
-        return startsWith(new ResultArchiveStorePath(this.fileSystem, other));
+        return startsWith(newPathObject(other));
     }
 
     /*
@@ -312,7 +312,7 @@ public class ResultArchiveStorePath implements Path {
      */
     @Override
     public boolean endsWith(String other) {
-        return endsWith(new ResultArchiveStorePath(this.fileSystem, other));
+        return endsWith(newPathObject(other));
     }
 
     /*
@@ -342,7 +342,7 @@ public class ResultArchiveStorePath implements Path {
         final ArrayList<String> combined = new ArrayList<>(this.nameElements);
         combined.addAll(o.nameElements);
 
-        return new ResultArchiveStorePath(this.fileSystem, this.absolute, combined, 0, combined.size());
+        return newPathObject(this.absolute, combined, 0, combined.size());
     }
 
     /*
@@ -352,7 +352,7 @@ public class ResultArchiveStorePath implements Path {
      */
     @Override
     public Path resolve(String other) {
-        return resolve(new ResultArchiveStorePath(this.fileSystem, other));
+        return resolve(newPathObject(other));
     }
 
     /*
@@ -371,7 +371,7 @@ public class ResultArchiveStorePath implements Path {
         combined.remove(combined.size() - 1);
         combined.addAll(o.nameElements);
 
-        return new ResultArchiveStorePath(this.fileSystem, this.absolute, combined, 0, combined.size());
+        return newPathObject(this.absolute, combined, 0, combined.size());
     }
 
     /*
@@ -381,7 +381,7 @@ public class ResultArchiveStorePath implements Path {
      */
     @Override
     public Path resolveSibling(String other) {
-        return resolveSibling(new ResultArchiveStorePath(this.fileSystem, other));
+        return newPathObject(other);
     }
 
     /*
@@ -402,14 +402,14 @@ public class ResultArchiveStorePath implements Path {
         }
 
         if (equals(o)) {
-            return new ResultArchiveStorePath(this.fileSystem, "");
+            return newPathObject("");
         }
 
         if (!o.startsWith(this)) {
             return null;
         }
 
-        return new ResultArchiveStorePath(this.fileSystem, false, o.nameElements, this.nameElements.size(),
+        return newPathObject(false, o.nameElements, this.nameElements.size(),
                 o.nameElements.size());
     }
 
@@ -461,7 +461,7 @@ public class ResultArchiveStorePath implements Path {
             return this;
         }
 
-        return new ResultArchiveStorePath(this.fileSystem, true, this.nameElements, 0, this.nameElements.size());
+        return newPathObject(true, this.nameElements, 0, this.nameElements.size());
     }
 
     /*
@@ -515,7 +515,7 @@ public class ResultArchiveStorePath implements Path {
     public Iterator<Path> iterator() {
         final ArrayList<Path> it = new ArrayList<>();
         for (final String element : this.nameElements) {
-            it.add(new ResultArchiveStorePath(this.fileSystem, element));
+            it.add(newPathObject(element));
         }
         return it.iterator();
     }
@@ -571,7 +571,7 @@ public class ResultArchiveStorePath implements Path {
         if (!this.absolute) {
             return this;
         }
-        return new ResultArchiveStorePath(this.fileSystem, false, this.nameElements, 0, this.nameElements.size());
+        return newPathObject(false, this.nameElements, 0, this.nameElements.size());
     }
 
     @Override
@@ -586,5 +586,14 @@ public class ResultArchiveStorePath implements Path {
         }
         return toString().equals(o.toString());
     }
+    
+    protected ResultArchiveStorePath newPathObject(String newPath) {
+        return new ResultArchiveStorePath(this.fileSystem, newPath);
+    }
+    
+    protected ResultArchiveStorePath newPathObject(boolean absolute, List<String> nameElements, int start, int end) {
+        return new ResultArchiveStorePath(this.fileSystem, absolute, nameElements, start, end);
+    }
+
 
 }
