@@ -381,7 +381,7 @@ public class ResultArchiveStorePath implements Path {
      */
     @Override
     public Path resolveSibling(String other) {
-        return newPathObject(other);
+        return resolveSibling(newPathObject(other));
     }
 
     /*
