@@ -96,7 +96,7 @@ public class ResultArchiveStoreFileSystem extends FileSystem {
     @Override
     public Iterable<Path> getRootDirectories() {
         final ArrayList<Path> roots = new ArrayList<>();
-        roots.add(new ResultArchiveStorePath(this, "/"));
+        roots.add(newPathObject("/"));
         return roots;
     }
 
@@ -145,7 +145,11 @@ public class ResultArchiveStoreFileSystem extends FileSystem {
             }
         }
 
-        return new ResultArchiveStorePath(this, sb.toString());
+        return newPathObject(sb.toString());
+    }
+    
+    protected ResultArchiveStorePath newPathObject(String path) {
+        return new ResultArchiveStorePath(this, path);
     }
 
     /*

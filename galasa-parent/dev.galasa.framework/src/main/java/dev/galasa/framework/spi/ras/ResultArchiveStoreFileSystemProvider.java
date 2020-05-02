@@ -97,7 +97,7 @@ public class ResultArchiveStoreFileSystemProvider extends FileSystemProvider {
      */
     @Override
     public Path getPath(URI uri) {
-        return new ResultArchiveStorePath(this.fileSystem, uri.getPath());
+        return getActualFileSystem().newPathObject(uri.getPath());
     }
 
     /*
@@ -206,10 +206,14 @@ public class ResultArchiveStoreFileSystemProvider extends FileSystemProvider {
      */
     @Override
     public void checkAccess(Path path, AccessMode... modes) throws IOException {
+        if (modes.length == 0) { // Check the file exists
+            throw new IOException("File does not exist in Dummy RAS");
+        }
+        
         for (final AccessMode mode : modes) {
             switch (mode) {
                 case EXECUTE:
-                    throw new UnsupportedOperationException("Path '" + path.toString() + " is not available execute");
+                    throw new UnsupportedOperationException("Path '" + path.toString() + " is not executable");
                 case READ:
                     throw new UnsupportedOperationException(
                             "Path '" + path.toString() + " is not available read in dummy RAS");
@@ -272,8 +276,8 @@ public class ResultArchiveStoreFileSystemProvider extends FileSystemProvider {
         throw new UnsupportedOperationException("Not available in a Result Archive Store");
     }
 
-    public FileSystem getActualFileSystem() {
-        return this.fileSystem;
+    public ResultArchiveStoreFileSystem getActualFileSystem() {
+        return (ResultArchiveStoreFileSystem) this.fileSystem;
     }
 
 }
