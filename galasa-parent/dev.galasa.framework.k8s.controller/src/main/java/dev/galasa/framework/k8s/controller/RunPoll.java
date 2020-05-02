@@ -118,7 +118,7 @@ public class RunPoll implements Runnable {
                 startPod(selectedRun);
 
                 if (!queuedRuns.isEmpty()) {
-                    Thread.sleep(1000); // *** Slight delay to allow Kubernetes to catch up
+                    Thread.sleep(600); // *** Slight delay to allow Kubernetes to catch up
                 } else {
                     return;
                 }

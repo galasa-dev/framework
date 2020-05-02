@@ -8,6 +8,7 @@ package dev.galasa.framework.k8s.controller;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +42,15 @@ public class K8sController {
     private HTTPServer               metricsServer;
 
     private Health                   healthServer;
+
+    private RunPoll runPoll;
+    private ScheduledFuture<?> pollFuture;
+
+    private RunDeleted runDeleted;
+
+    private ScheduledFuture<?> deleteFuture;
+
+    private Settings settings;
 
     public void run(Properties bootstrapProperties, Properties overrideProperties) throws FrameworkException {
 
@@ -77,7 +87,7 @@ public class K8sController {
 
         // *** Fetch the settings
 
-        Settings settings = new Settings(api);
+        settings = new Settings(this, api);
 
         // *** Setup defaults and properties
 
@@ -126,11 +136,12 @@ public class K8sController {
             logger.info("Health monitoring disabled");
         }
         // *** Start the run polling
-        RunDeleted runDeleted = new RunDeleted(settings, api, pc, framework.getFrameworkRuns());
-        scheduledExecutorService.scheduleWithFixedDelay(runDeleted, 0, 20, TimeUnit.SECONDS);
-        RunPoll runPoll = new RunPoll(dss, settings, api, framework.getFrameworkRuns());
-        scheduledExecutorService.scheduleWithFixedDelay(runPoll, 1, 20, TimeUnit.SECONDS);
+        runDeleted = new RunDeleted(settings, api, pc, framework.getFrameworkRuns());
+        scheduleDelete();
+        runPoll = new RunPoll(dss, settings, api, framework.getFrameworkRuns());
+        schedulePoll();
 
+        
         logger.info("Kubernetes controller has started");
 
         // *** Loop until we are asked to shutdown
@@ -165,6 +176,22 @@ public class K8sController {
         shutdownComplete = true;
         return;
 
+    }
+
+    private void schedulePoll() {
+        if (pollFuture != null) {
+            this.pollFuture.cancel(false);
+        }
+        
+        pollFuture = scheduledExecutorService.scheduleWithFixedDelay(runPoll, 1, settings.getPoll(), TimeUnit.SECONDS);
+    }
+
+    private void scheduleDelete() {
+        if (deleteFuture != null) {
+            this.deleteFuture.cancel(false);
+        }
+        
+        deleteFuture = scheduledExecutorService.scheduleWithFixedDelay(runDeleted, 0, settings.getPoll(), TimeUnit.SECONDS);
     }
 
     private class ShutdownHook extends Thread {
@@ -204,6 +231,15 @@ public class K8sController {
             return value;
         }
         return value;
+    }
+
+    public void pollUpated() {
+        if (pollFuture == null) {
+            return;
+        }
+        
+        schedulePoll();
+        scheduleDelete();
     }
 
 }
