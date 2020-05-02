@@ -19,6 +19,8 @@ import io.kubernetes.client.models.V1ConfigMap;
 public class Settings implements Runnable {
 
     private final Log         logger                      = LogFactory.getLog(getClass());
+    
+    private final K8sController controller;
 
     private String            namespace;
     private String            bootstrap                   = "http://bootstrap";
@@ -37,7 +39,6 @@ public class Settings implements Runnable {
     private String            reportCapabilties           = null;
 
     private int               runPoll                     = 60;
-    private int               runPollRecheck              = 30;
     private int               maxEngines                  = 0;
 
     private ArrayList<String> requestorsByScheduleID      = new ArrayList<>();
@@ -45,8 +46,9 @@ public class Settings implements Runnable {
     private final CoreV1Api   api;
     private String            oldConfigMapResourceVersion = "";
     
-    public Settings(CoreV1Api api) throws K8sControllerException {
+    public Settings(K8sController controller, CoreV1Api api) throws K8sControllerException {
         this.api = api;
+        this.controller = controller;
 
         loadEnvironmentProperties();
         retrieveConfigMap();
@@ -182,23 +184,10 @@ public class Settings implements Runnable {
             if (poll != runPoll) {
                 logger.info("Setting Run Poll from '" + runPoll + "' to '" + poll + "'");
                 runPoll = poll;
+                controller.pollUpated();
             }
         } catch (Exception e) {
             logger.error("Error processing run_poll in configmap", e);
-        }
-
-        try {
-            String newRunPoll = configMap.getData().get("run_poll_recheck");
-            if (newRunPoll == null || newRunPoll.trim().isEmpty()) {
-                newRunPoll = "5";
-            }
-            Integer poll = Integer.parseInt(newRunPoll);
-            if (poll != runPollRecheck) {
-                logger.info("Setting Run Poll Recheck from '" + runPollRecheck + "' to '" + poll + "'");
-                runPollRecheck = poll;
-            }
-        } catch (Exception e) {
-            logger.error("Error processing run_poll_recheck in configmap", e);
         }
 
         try {
@@ -404,6 +393,10 @@ public class Settings implements Runnable {
 
     public String getBootstrap() {
         return this.bootstrap;
+    }
+
+    public long getPoll() {
+        return this.runPoll;
     }
 
 }
