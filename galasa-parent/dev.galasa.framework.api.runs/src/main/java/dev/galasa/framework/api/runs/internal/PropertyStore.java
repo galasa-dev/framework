@@ -54,7 +54,9 @@ public class PropertyStore extends HttpServlet {
             String propValue = cps.getProperty(prefix, suffix, infixes);
             resp.setStatus(200);
             resp.setHeader("Content-Type", "Application/json");
-            resp.getWriter().write(propValue);
+            JsonObject respValue = new JsonObject();
+            respValue.addProperty("value", propValue);
+            resp.getWriter().write(gson.toJson(respValue));
         } catch (Exception e) {
             logger.error("Unable to get property", e);
             resp.setStatus(500);
