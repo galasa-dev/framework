@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -68,9 +69,9 @@ public class ResultArchive extends HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject requestBody = gson.fromJson(new InputStreamReader(req.getInputStream()), JsonObject.class);
         String resultPath = requestBody.get("resultPath").getAsString();
-        if(isInRas(resultPath)) {
+        File file = isInRas(resultPath);
+        if(file != null) {
             try {
-                File file = new File(resultPath);
                 InputStream fi = new FileInputStream(file);
                 OutputStream os = resp.getOutputStream();
                 byte[] buffer = new byte[10240];
@@ -105,18 +106,20 @@ public class ResultArchive extends HttpServlet {
             JsonObject file = new JsonObject();
             file.addProperty("name", root.getName());
             file.addProperty("directory", false);
-            file.addProperty("resultPath", root.getPath());
+            String requiredPath = root.getPath().substring(0, root.getPath().indexOf("/ras/"));
+            file.addProperty("resultPath", root.getPath().replace(requiredPath, ""));
             return file;
         }
     }
 
-    private Boolean isInRas(String path) {
+    private File isInRas(String path) {
         for(IResultArchiveStoreDirectoryService x : framework.getResultArchiveStore().getDirectoryServices()) {
-            String directoryPath = x.getName().substring(x.getName().indexOf("/")).trim();
-            if(path.contains(directoryPath)) {
-                return true;
+            Path directoryPath = Paths.get(x.getName().substring(x.getName().indexOf("/")).trim());
+            File file = directoryPath.resolve(path.replace("/ras/", "")).toFile();
+            if(file.exists() && !file.isDirectory()) {
+                return file;
             }
         }
-        return false;
+        return null;
     }
 }
