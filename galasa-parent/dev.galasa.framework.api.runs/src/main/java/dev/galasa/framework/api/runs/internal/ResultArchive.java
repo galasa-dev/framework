@@ -67,21 +67,26 @@ public class ResultArchive extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject requestBody = gson.fromJson(new InputStreamReader(req.getInputStream()), JsonObject.class);
+        String resultPath = requestBody.get("resultPath").getAsString();
+        if(isInRas(resultPath)) {
+            try {
+                File file = new File(resultPath);
+                InputStream fi = new FileInputStream(file);
+                OutputStream os = resp.getOutputStream();
+                byte[] buffer = new byte[10240];
 
-        try {
-            File file = new File(requestBody.get("resultPath").getAsString());
-            InputStream fi = new FileInputStream(file);
-            OutputStream os = resp.getOutputStream();
-            byte[] buffer = new byte[10240];
-
-            for (int length = 0; (length = fi.read(buffer)) > 0;) {
-                os.write(buffer, 0, length);
+                for (int length = 0; (length = fi.read(buffer)) > 0;) {
+                    os.write(buffer, 0, length);
+                }
+                resp.setStatus(200);
+                fi.close();
+            } catch (Exception e) {
+                logger.fatal("Unable to respond to requester", e);
+                resp.setStatus(500);
             }
-            resp.setStatus(200);
-            fi.close();
-        } catch (Exception e) {
-            logger.fatal("Unable to respond to requester", e);
-            resp.setStatus(500);
+        } else {
+            logger.warn("Attempt to access file not in RAS: " + resultPath);
+            resp.setStatus(400);
         }
     }
 
@@ -103,5 +108,15 @@ public class ResultArchive extends HttpServlet {
             file.addProperty("resultPath", root.getPath());
             return file;
         }
+    }
+
+    private Boolean isInRas(String path) {
+        for(IResultArchiveStoreDirectoryService x : framework.getResultArchiveStore().getDirectoryServices()) {
+            String directoryPath = x.getName().substring(x.getName().indexOf("/")).trim();
+            if(path.contains(directoryPath)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
