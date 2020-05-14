@@ -25,10 +25,12 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
+import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-"osgi.http.whiteboard.servlet.pattern=/resultarchive" }, name = "Galasa RAS")
+        "osgi.http.whiteboard.servlet.pattern=/resultarchive" }, name = "Galasa RAS")
 public class ResultArchive extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -41,10 +43,17 @@ public class ResultArchive extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Path rasRoot = framework.getResultArchiveStore().getStoredArtifactsRoot();
-        JsonObject responseJson = getRasStructure(rasRoot.toFile());
-
         try {
+            JsonObject responseJson = new JsonObject();
+            JsonArray directoryArray = new JsonArray();
+            for(IResultArchiveStoreDirectoryService x : framework.getResultArchiveStore().getDirectoryServices()) {
+                JsonObject directoryService = new JsonObject();
+                directoryService.addProperty("name", x.getName().substring(0,x.getName().indexOf("/")).trim());
+                directoryService.add("structure", getRasStructure(new File(x.getName().substring(x.getName().indexOf("/")).trim())));
+                directoryArray.add(directoryService);
+            }
+            responseJson.add("rasServices", directoryArray);
+        
             resp.setStatus(200);
             resp.setHeader("Content-Type", "Application/json");
             resp.getWriter().write(gson.toJson(responseJson));
