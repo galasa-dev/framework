@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.zip.GZIPInputStream;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -72,12 +73,20 @@ public class ResultArchive extends HttpServlet {
         File file = isInRas(resultPath);
         if(file != null) {
             try {
+
                 InputStream fi = new FileInputStream(file);
                 OutputStream os = resp.getOutputStream();
                 byte[] buffer = new byte[10240];
-
-                for (int length = 0; (length = fi.read(buffer)) > 0;) {
-                    os.write(buffer, 0, length);
+                if(!file.getName().substring(file.getName().lastIndexOf(".")).equals(".gz")) {
+                    for (int length = 0; (length = fi.read(buffer)) > 0;) {
+                        os.write(buffer, 0, length);
+                    }
+                } else {
+                    GZIPInputStream in = new GZIPInputStream(fi);
+                    for (int length = 0; (length = in.read(buffer)) > 0;) {
+                        os.write(buffer, 0, length);
+                    }
+                    in.close();
                 }
                 resp.setStatus(200);
                 fi.close();
