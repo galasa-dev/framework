@@ -73,11 +73,10 @@ public class ResultArchive extends HttpServlet {
         File file = isInRas(resultPath);
         if(file != null) {
             try {
-
                 InputStream fi = new FileInputStream(file);
                 OutputStream os = resp.getOutputStream();
                 byte[] buffer = new byte[10240];
-                if(!file.getName().substring(file.getName().lastIndexOf(".")).equals(".gz")) {
+                if(file.getName().lastIndexOf(".") == -1 || !file.getName().substring(file.getName().lastIndexOf(".")).equals(".gz")) {
                     for (int length = 0; (length = fi.read(buffer)) > 0;) {
                         os.write(buffer, 0, length);
                     }
