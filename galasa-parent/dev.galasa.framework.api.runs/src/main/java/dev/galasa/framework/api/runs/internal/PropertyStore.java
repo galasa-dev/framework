@@ -42,11 +42,14 @@ public class PropertyStore extends HttpServlet {
         String namespace = requestBody.get("namespace").getAsString();
         String prefix = requestBody.get("prefix").getAsString();
         String suffix = requestBody.get("suffix").getAsString();
-        JsonArray infixesArray = requestBody.get("infixes").getAsJsonArray();
+        String[] infixes = new String[0];
+        if(requestBody.get("infixes") != null) {
+            JsonArray infixesArray = requestBody.get("infixes").getAsJsonArray();
 
-        String[] infixes = new String[infixesArray.size()];
-        for(int i = 0; i < infixesArray.size(); i++) {
-            infixes[i] = infixesArray.get(i).getAsString();
+            infixes = new String[infixesArray.size()];
+            for(int i = 0; i < infixesArray.size(); i++) {
+                infixes[i] = infixesArray.get(i).getAsString();
+            }
         }
 
         try {
