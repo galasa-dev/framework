@@ -219,9 +219,9 @@ public class TestRunner {
         SharedEnvironment sharedEnvironmentAnnotation = testClass.getAnnotation(SharedEnvironment.class);
 
         if (testAnnotation == null && sharedEnvironmentAnnotation == null) {
-            throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is neither a Test or SharedEnvironment");
+            throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is not annotated with either the dev.galasa @Test or @SharedEnvironment annotations");
         } else if (testAnnotation != null && sharedEnvironmentAnnotation != null) {
-            throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is both a Test and a SharedEnvironment");
+            throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is annotated with both the dev.galasa @Test and @SharedEnvironment annotations");
         }
 
         if (testAnnotation != null) {
