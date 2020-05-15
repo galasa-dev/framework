@@ -121,8 +121,8 @@ public class ResultArchive extends HttpServlet {
     }
 
     private File isInRas(String path) {
-        for(IResultArchiveStoreDirectoryService x : framework.getResultArchiveStore().getDirectoryServices()) {
-            Path directoryPath = Paths.get(x.getName().substring(x.getName().indexOf("/")).trim());
+        for(IResultArchiveStoreDirectoryService dirService : framework.getResultArchiveStore().getDirectoryServices()) {
+            Path directoryPath = Paths.get(dirService.getName().substring(dirService.getName().indexOf("/")).trim());
             File file = directoryPath.resolve(path.replace("/ras/", "")).toFile();
             if(file.exists() && !file.isDirectory()) {
                 return file;
