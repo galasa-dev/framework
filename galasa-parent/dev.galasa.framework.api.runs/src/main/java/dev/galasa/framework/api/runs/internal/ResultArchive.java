@@ -1,13 +1,18 @@
 package dev.galasa.framework.api.runs.internal;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 
 import javax.servlet.Servlet;
@@ -29,6 +34,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
@@ -44,90 +50,73 @@ public class ResultArchive extends HttpServlet {
     public IFramework framework; // NOSONAR
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        JsonObject requestBody = gson.fromJson(new InputStreamReader(req.getInputStream()), JsonObject.class);
+        String runName = requestBody.get("runName").getAsString();
         try {
-            JsonObject responseJson = new JsonObject();
-            JsonArray directoryArray = new JsonArray();
-            for(IResultArchiveStoreDirectoryService x : framework.getResultArchiveStore().getDirectoryServices()) {
-                JsonObject directoryService = new JsonObject();
-                directoryService.addProperty("name", x.getName().substring(0,x.getName().indexOf("/")).trim());
-                directoryService.add("structure", getRasStructure(new File(x.getName().substring(x.getName().indexOf("/")).trim())));
-                directoryArray.add(directoryService);
+            JsonObject response = new JsonObject();
+            for (IResultArchiveStoreDirectoryService x : framework.getResultArchiveStore().getDirectoryServices()) {
+                if (x.getRuns(runName).size() > 0) {
+                    IRunResult result = x.getRuns(runName).get(0);
+                    response.addProperty("runlog", result.getLog());
+                    response.add("testStructure", gson.toJsonTree(result.getTestStructure()));
+
+                    JsonArray artifactFiles = new JsonArray();
+                    Files.list(result.getArtifactsRoot()).forEach(new ConsumeDirectory(artifactFiles));
+                    response.add("artifactFiles", artifactFiles);
+                    break;
+                }
             }
-            responseJson.add("rasServices", directoryArray);
-        
+
             resp.setStatus(200);
             resp.setHeader("Content-Type", "Application/json");
-            resp.getWriter().write(gson.toJson(responseJson));
+            resp.getWriter().write(gson.toJson(response));
         } catch (Exception e) {
             logger.fatal("Unable to respond to requester", e);
             resp.setStatus(500);
         }
-
     }
 
-    @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JsonObject requestBody = gson.fromJson(new InputStreamReader(req.getInputStream()), JsonObject.class);
-        String resultPath = requestBody.get("resultPath").getAsString();
-        File file = isInRas(resultPath);
-        if(file != null) {
+    private static class ConsumeDirectory implements Consumer<Path> {
+
+        private final JsonArray folders;
+        private final Gson gson = GalasaGsonBuilder.build();
+
+        public ConsumeDirectory(JsonArray folders) {
+            this.folders = folders;
+        }
+
+        @Override
+        public void accept(Path path) {
             try {
-                InputStream fi = new FileInputStream(file);
-                OutputStream os = resp.getOutputStream();
-                byte[] buffer = new byte[10240];
-                if(file.getName().lastIndexOf(".") == -1 || !file.getName().substring(file.getName().lastIndexOf(".")).equals(".gz")) {
-                    for (int length = 0; (length = fi.read(buffer)) > 0;) {
-                        os.write(buffer, 0, length);
-                    }
+                if(Files.isDirectory(path)) {
+                    JsonObject directory = new JsonObject();
+                    directory.addProperty("name", path.getFileName().toString());
+                    JsonArray children = new JsonArray();
+                    Files.list(path).forEach(new ConsumeDirectory(children));
+                    directory.add("children", children);
+                    folders.add(directory);
                 } else {
-                    GZIPInputStream in = new GZIPInputStream(fi);
-                    for (int length = 0; (length = in.read(buffer)) > 0;) {
-                        os.write(buffer, 0, length);
+                    JsonObject file = new JsonObject();
+                    file.addProperty("name", path.getFileName().toString());
+
+                    if(path.getFileName().toString().endsWith(".gz")) {
+                        ByteArrayInputStream bis = new ByteArrayInputStream(Files.readAllBytes(path));
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        GZIPInputStream in = new GZIPInputStream(bis);
+                        byte[] buffer = new byte[10240];
+                        for (int length = 0; (length = in.read(buffer)) > 0;) {
+                            bos.write(buffer, 0, length);
+                        }
+                        file.add("content", gson.fromJson(new String(bos.toByteArray()), JsonObject.class));
+                    } else {
+                        file.add("content", gson.toJsonTree(new String(Files.readAllBytes(path))));
                     }
-                    in.close();
+                    folders.add(file);
                 }
-                resp.setStatus(200);
-                fi.close();
             } catch (Exception e) {
-                logger.fatal("Unable to respond to requester", e);
-                resp.setStatus(500);
-            }
-        } else {
-            logger.warn("Attempt to access file not in RAS: " + resultPath);
-            resp.setStatus(400);
-        }
-    }
-
-    private JsonObject getRasStructure(File root) {
-        if(root.isDirectory()) {
-            JsonObject directory = new JsonObject();
-            directory.addProperty("name", root.getName());
-            directory.addProperty("directory", true);
-            JsonArray children = new JsonArray();
-            for(File child : root.listFiles()) {
-                children.add(getRasStructure(child));
-            }
-            directory.add("children", children);
-            return directory;
-        } else {
-            JsonObject file = new JsonObject();
-            file.addProperty("name", root.getName());
-            file.addProperty("directory", false);
-            String requiredPath = root.getPath().substring(0, root.getPath().indexOf("/ras/"));
-            file.addProperty("resultPath", root.getPath().replace(requiredPath, ""));
-            return file;
-        }
-    }
-
-    private File isInRas(String path) {
-        for(IResultArchiveStoreDirectoryService dirService : framework.getResultArchiveStore().getDirectoryServices()) {
-            Path directoryPath = Paths.get(dirService.getName().substring(dirService.getName().indexOf("/")).trim());
-            File file = directoryPath.resolve(path.replace("/ras/", "")).toFile();
-            if(file.exists() && !file.isDirectory()) {
-                return file;
+                e.printStackTrace();
             }
         }
-        return null;
     }
 }
