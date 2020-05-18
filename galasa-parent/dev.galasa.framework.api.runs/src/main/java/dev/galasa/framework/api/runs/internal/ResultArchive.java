@@ -50,7 +50,7 @@ public class ResultArchive extends HttpServlet {
             JsonObject response = new JsonObject();
             for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
                 if (directoryService.getRuns(runName).size() > 0) {
-                    IRunResult result = directoryService.getRuns(runName).get(0);
+                    IRunResult result = directoryService.getRuns(runName).get(directoryService.getRuns(runName).size() - 1);
                     response.addProperty("runlog", result.getLog());
                     response.add("testStructure", gson.toJsonTree(result.getTestStructure()));
 
