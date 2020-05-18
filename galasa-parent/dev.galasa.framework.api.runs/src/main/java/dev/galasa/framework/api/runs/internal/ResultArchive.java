@@ -2,16 +2,10 @@ package dev.galasa.framework.api.runs.internal;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 
@@ -34,7 +28,6 @@ import org.osgi.service.component.annotations.ServiceScope;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
-import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
@@ -55,9 +48,9 @@ public class ResultArchive extends HttpServlet {
         String runName = requestBody.get("runName").getAsString();
         try {
             JsonObject response = new JsonObject();
-            for (IResultArchiveStoreDirectoryService x : framework.getResultArchiveStore().getDirectoryServices()) {
-                if (x.getRuns(runName).size() > 0) {
-                    IRunResult result = x.getRuns(runName).get(0);
+            for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+                if (directoryService.getRuns(runName).size() > 0) {
+                    IRunResult result = directoryService.getRuns(runName).get(0);
                     response.addProperty("runlog", result.getLog());
                     response.add("testStructure", gson.toJsonTree(result.getTestStructure()));
 

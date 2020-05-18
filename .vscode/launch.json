@@ -1,0 +1,30 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Launcher<galasa-boot>",
+            "request": "launch",
+            "mainClass": "dev.galasa.boot.Launcher",
+            "projectName": "galasa-boot"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Galasa Boot",
+            "request": "launch",
+            "classPaths": ["/Users/richard.somers@ibm.com/Documents/github/Galasa/framework/galasa-parent/galasa-boot/target/galasa-boot-0.8.0-SNAPSHOT.jar"],
+            "mainClass": "dev.galasa.boot.Launcher",
+            "args": "--api --localmaven file:/Users/richard.somers@ibm.com/.m2/repository --obr mvn:dev.galasa/dev.galasa.uber.obr/0.8.0-SNAPSHOT/obr --trace"
+        }
+    ]
+}
+//java -jar galasa-boot-0.8.0-SNAPSHOT.jar --api --obr mvn:dev.galasa/dev.galasa.uber.obr/0.8.0-SNAPSHOT/obr --localmaven file:/Users/richard.somers@ibm.com/.m2/repository --trace
