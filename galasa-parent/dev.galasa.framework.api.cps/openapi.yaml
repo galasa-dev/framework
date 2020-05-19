@@ -1,0 +1,57 @@
+openapi: 3.0.0
+info:
+  title: Galasa CPS Requests
+  version: 0.0.1
+
+servers:
+  - url: 'http://{server}:{port}'
+    variables:
+      server:
+        default: localhost
+      port:
+        default: "8080"
+
+paths:
+  /cps/{namespace}:
+    get:
+      summary: Get CPS Property
+      parameters:
+        - name: namespace
+          in: path
+          description: Property Namespace
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: query
+          description: Property Prefix
+          required: true
+          schema:
+            type: string
+        - name: suffix
+          in: query
+          description: Property Suffix
+          required: true
+          schema:
+            type: string
+        - name: infixes
+          in: query
+          description: Property Infixes
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Value of CPS Property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CPSResponse'
+
+components:
+  schemas:
+    CPSResponse:
+      properties:
+        value:
+          type: string

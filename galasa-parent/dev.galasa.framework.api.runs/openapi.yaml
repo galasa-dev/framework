@@ -1,0 +1,82 @@
+openapi: 3.0.0
+info:
+  title: Galasa Runs Requests
+  version: 0.0.1
+
+servers:
+  - url: 'http://{server}:{port}'
+    variables:
+      server:
+        default: localhost
+      port:
+        default: "8080"
+
+paths:
+  /runs/{id}:
+    get:
+      summary: Get Run Info
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Run Info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRuns'
+    post:
+      summary: Start Test Runs
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRunRequest'
+      responses:
+        '200':
+          description: Test Submitted
+        
+components:
+  schemas:
+    TestRuns:
+      properties:
+        complete:
+          type: boolean
+        runs:
+          type: array
+          items:
+            type: object
+    TestRunRequest:
+      properties:
+        classNames:
+          type: array
+          items:
+            type: object
+        requestorType:
+          type: string
+        testStream:
+          type: string
+        obr:
+          type: string
+        mavenRepository:
+          type: string
+        sharedEnvironmentPhase:
+          type: string
+        sharedEnvironmentRunName:
+          type: string
+        overrides:
+          type: object
+        trace:
+          type: boolean

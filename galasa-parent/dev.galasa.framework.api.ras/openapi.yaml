@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: Galasa RAS Requests
+  version: 0.0.1
+
+servers:
+  - url: 'http://{server}:{port}'
+    variables:
+      server:
+        default: localhost
+      port:
+        default: "8080"
+
+paths:
+  /ras/{runName}:
+    get:
+      summary: Get RAS info for a test
+      parameters:
+        - name: runName
+          in: path
+          description: Run Name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: RAS Info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RASResponse'
+
+components:
+  schemas:
+    RASResponse:
+      properties:
+        runlog:
+          type: string
+        testStructure:
+          type: object
+        artifactFiles:
+          type: array
+          items:
+            type: object
