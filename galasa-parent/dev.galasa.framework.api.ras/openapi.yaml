@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Galasa RAS Requests
+  title: Galasa Web Requests
   version: 0.0.1
 
 servers:
@@ -28,17 +28,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RASResponse'
+                properties:
+                  runlog:
+                    type: string
+                  testStructure:
+                    $ref: '#/components/schemas/JsonValue'
+                  artifactFiles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/JsonValue'
 
 components:
   schemas:
-    RASResponse:
-      properties:
-        runlog:
-          type: string
-        testStructure:
-          type: object
-        artifactFiles:
-          type: array
-          items:
-            type: object
+    JsonValue:
+      nullable: true
+      anyOf:
+        - type: string
+        - type: number
+        - type: integer
+        - type: boolean
+        - type: array
+          items: {}
+        - type: object
