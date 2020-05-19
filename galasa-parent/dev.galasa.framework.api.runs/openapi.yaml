@@ -57,7 +57,37 @@ components:
         runs:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/TestRun'
+    TestRun:
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        group:
+          type: string
+        test:
+          type: string
+        bundleName:
+          type: string
+        testName:
+          type: string
+        status:
+          type: string
+        queued:
+          type: string
+        requestor:
+          type: string
+        stream:
+          type: string
+        repo:
+          type: string
+        obr:
+          type: string
+        local:
+          type: boolean
+        trace:
+          type: boolean
     TestRunRequest:
       properties:
         classNames:
