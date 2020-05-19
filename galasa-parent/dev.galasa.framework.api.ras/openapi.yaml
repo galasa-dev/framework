@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Galasa Web Requests
-  version: 0.0.1
+  version: 0.8.0
 
 servers:
   - url: 'http://{server}:{port}'
@@ -12,11 +12,11 @@ servers:
         default: "8080"
 
 paths:
-  /ras/{runName}:
+  /ras/runname/{runname}:
     get:
-      summary: Get RAS info for a test
+      summary: Get all Run Ids from a Run Name
       parameters:
-        - name: runName
+        - name: runname
           in: path
           description: Run Name
           required: true
@@ -24,29 +24,179 @@ paths:
             type: string
       responses:
         '200':
-          description: RAS Info
+          description: Array of Run Ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /ras/run/{id}:
+    get:
+      summary: Get Run Data
+      parameters:
+        - name: id
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Data
           content:
             application/json:
               schema:
                 properties:
-                  runlog:
-                    type: string
-                  testStructure:
-                    $ref: '#/components/schemas/JsonValue'
-                  artifactFiles:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/JsonValue'
-
+                  teststructure:
+                    $ref: '#/components/schemas/TestStructure'
+                  artifacts:
+                    $ref: '#/components/schemas/Artifact'
+  /ras/run/{id}/artifact/{artifactid}:
+    get:
+      summary: Get Artifact Content
+      parameters:
+        - name: id
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+        - name: artifactid
+          in: path
+          description: Run Artifact Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Artifact Content
+          content:
+            text/plain:
+              schema:
+                type: string
+  /ras/run:
+    get:
+      summary: Get Run Ids from Query
+      parameters:
+        - name: requestor
+          in: query
+          description: Requestor Name
+          schema:
+            type: string
+        - name: from
+          in: query
+          description: Date Number From
+          schema:
+            type: number
+        - name: to
+          in: query
+          description: Date Number To
+          schema:
+            type: number
+        - name: testclass
+          in: query
+          description: Test Class Name
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page Number
+          schema:
+            type: number
+        - name: size
+          in: query
+          description: Request Size
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Array of Run Ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /ras/id/{id}/runlog:
+    get:
+      summary: Get Run Data
+      parameters:
+        - name: id
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Data
+          content:
+            text/plain:
+              schema:
+                type: string
 components:
   schemas:
-    JsonValue:
-      nullable: true
-      anyOf:
-        - type: string
-        - type: number
-        - type: integer
-        - type: boolean
-        - type: array
-          items: {}
-        - type: object
+    TestStructure:
+      properties:
+        runName:
+          type: string
+        bundle:
+          type: string
+        testName:
+          type: string
+        testShortName:
+          type: string
+        requestor:
+          type: string
+        status:
+          type: string
+        result:
+          type: string
+        queued:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestMethod'
+    TestMethod:
+      properties:
+        className:
+          type: string
+        methodName:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+        result:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        runLogStart:
+          type: integer
+        runLogEnd:
+          type: integer
+        befores:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestMethod'
+        afters:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestMethod'
+    Artifact:
+      properties:
+        artifactId:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Artifact'
+          nullable: true

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Galasa Runs Requests
-  version: 0.0.1
+  version: 0.8.0
 
 servers:
   - url: 'http://{server}:{port}'
@@ -18,7 +18,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: User ID
+          description: Run Group ID
           required: true
           schema:
             type: integer
@@ -34,7 +34,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: User ID
+          description: Run Group ID
           required: true
           schema:
             type: integer
@@ -65,6 +65,8 @@ components:
           items:
             type: object
         requestorType:
+          type: string
+        requestor:
           type: string
         testStream:
           type: string

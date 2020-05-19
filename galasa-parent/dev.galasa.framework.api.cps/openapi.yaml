@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Galasa CPS Requests
-  version: 0.0.1
+  title: Galasa Web Requests
+  version: 0.8.0
 
 servers:
   - url: 'http://{server}:{port}'
@@ -12,9 +12,21 @@ servers:
         default: "8080"
 
 paths:
-  /cps/{namespace}:
+  /cps/namespace:
     get:
-      summary: Get CPS Property
+      summary: Get CPS Namespaces
+      responses:
+        '200':
+          description: Array of CPS Namespaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /cps/namespace/{namespace}:
+    get:
+      summary: Get all properties for a namepace
       parameters:
         - name: namespace
           in: path
@@ -22,36 +34,88 @@ paths:
           required: true
           schema:
             type: string
-        - name: prefix
-          in: query
-          description: Property Prefix
-          required: true
-          schema:
-            type: string
-        - name: suffix
-          in: query
-          description: Property Suffix
-          required: true
-          schema:
-            type: string
-        - name: infixes
-          in: query
-          description: Property Infixes
-          schema:
-            type: array
-            items:
-              type: string
       responses:
         '200':
-          description: Value of CPS Property
+          description: Array of CPS Properties
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CPSResponse'
-
-components:
-  schemas:
-    CPSResponse:
-      properties:
-        value:
+                type: array
+                items:
+                  type: string
+  /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
+    get:
+      parameters:
+      - name: namespace
+        in: path
+        description: Property Namespace
+        required: true
+        schema:
           type: string
+      - name: prefix
+        in: path
+        description: Property Prefix
+        required: true
+        schema:
+          type: string
+      - name: suffix
+        in: path
+        description: Property Suffix
+        required: true
+        schema:
+          type: string
+      - name: infixes
+        in: query
+        description: Property Infixes
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                properties:
+                  propertyname:
+                    type: string
+                  propertyvalue:
+                    type: string
+  /cps/namespace/{namespace}/property/{property}:
+    put:
+      summary: Put new CPS Property
+      parameters:
+      - name: namespace
+        in: path
+        description: Property Namespace
+        required: true
+        schema:
+          type: string
+      - name: property
+        in: path
+        description: Property Name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                propertyname:
+                  type: string
+                propertyvalue:
+                  type: string
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                properties:
+                  propertyname:
+                    type: string
+                  propertyvalue:
+                    type: string
