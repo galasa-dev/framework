@@ -1,0 +1,114 @@
+openapi: 3.0.0
+info:
+  title: Galasa Runs Requests
+  version: 0.8.0
+
+servers:
+  - url: 'http://{server}:{port}'
+    variables:
+      server:
+        default: localhost
+      port:
+        default: "8080"
+
+paths:
+  /runs/{id}:
+    get:
+      summary: Get Run Info
+      parameters:
+        - name: id
+          in: path
+          description: Run Group ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Run Info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRuns'
+    post:
+      summary: Start Test Runs
+      parameters:
+        - name: id
+          in: path
+          description: Run Group ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRunRequest'
+      responses:
+        '200':
+          description: Test Submitted
+        
+components:
+  schemas:
+    TestRuns:
+      properties:
+        complete:
+          type: boolean
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestRun'
+    TestRun:
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        group:
+          type: string
+        test:
+          type: string
+        bundleName:
+          type: string
+        testName:
+          type: string
+        status:
+          type: string
+        queued:
+          type: string
+        requestor:
+          type: string
+        stream:
+          type: string
+        repo:
+          type: string
+        obr:
+          type: string
+        local:
+          type: boolean
+        trace:
+          type: boolean
+    TestRunRequest:
+      properties:
+        classNames:
+          type: array
+          items:
+            type: object
+        requestorType:
+          type: string
+        requestor:
+          type: string
+        testStream:
+          type: string
+        obr:
+          type: string
+        mavenRepository:
+          type: string
+        sharedEnvironmentPhase:
+          type: string
+        sharedEnvironmentRunName:
+          type: string
+        overrides:
+          type: object
+        trace:
+          type: boolean

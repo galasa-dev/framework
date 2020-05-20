@@ -1,0 +1,121 @@
+openapi: 3.0.0
+info:
+  title: Galasa Web Requests
+  version: 0.8.0
+
+servers:
+  - url: 'http://{server}:{port}'
+    variables:
+      server:
+        default: localhost
+      port:
+        default: "8080"
+
+paths:
+  /cps/namespace:
+    get:
+      summary: Get CPS Namespaces
+      responses:
+        '200':
+          description: Array of CPS Namespaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /cps/namespace/{namespace}:
+    get:
+      summary: Get all properties for a namepace
+      parameters:
+        - name: namespace
+          in: path
+          description: Property Namespace
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of CPS Properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CPSProperty'
+  /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
+    get:
+      parameters:
+      - name: namespace
+        in: path
+        description: Property Namespace
+        required: true
+        schema:
+          type: string
+      - name: prefix
+        in: path
+        description: Property Prefix
+        required: true
+        schema:
+          type: string
+      - name: suffix
+        in: path
+        description: Property Suffix
+        required: true
+        schema:
+          type: string
+      - name: infixes
+        in: query
+        description: Property Infixes
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRun'
+  /cps/namespace/{namespace}/property/{property}:
+    put:
+      summary: Put new CPS Property
+      parameters:
+      - name: namespace
+        in: path
+        description: Property Namespace
+        required: true
+        schema:
+          type: string
+      - name: property
+        in: path
+        description: Property Name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRun'
+components:
+  schemas:
+    CPSProperty:
+      properties:
+        name:
+          type: string
+        value:
+          type: string
