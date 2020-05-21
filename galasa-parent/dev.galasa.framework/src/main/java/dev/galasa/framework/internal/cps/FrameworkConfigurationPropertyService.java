@@ -5,6 +5,8 @@
  */
 package dev.galasa.framework.internal.cps;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -86,6 +88,15 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
             }
         }
         return null;
+    }
+
+    public Map<String,String> getAllProperties() {
+        return cpsStore.getPropertiesFromNamespace(namespace);
+    }
+
+    public void setProperty(@NotNull String name, @NotNull String value)
+            throws ConfigurationPropertyStoreException {
+        cpsStore.setProperty(namespace + "." + name, value);
     }
 
     /**
@@ -218,5 +229,9 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
             infixOrderList[i] = majorInfix.toString();
         }
         return infixOrderList;
+    }
+
+    public List<String> getCPSNamespaces() {
+        return cpsStore.getNamespaces();
     }
 }

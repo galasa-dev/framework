@@ -6,6 +6,7 @@
 package dev.galasa.framework;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.regex.Matcher;

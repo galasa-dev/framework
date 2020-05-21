@@ -5,7 +5,12 @@
  */
 package dev.galasa.framework.internal.cps;
 
+import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -53,6 +58,29 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
 
     /**
      * <p>
+     * This method implements the setProperty method from the framework property
+     * file class.
+     * </p>
+     * 
+     * @param String key
+     * @param String value
+     * @throws ConfigurationPropertyStoreException
+     */
+    @Override
+    public void setProperty(@NotNull String key, @NotNull String value) throws ConfigurationPropertyStoreException {
+        try {
+            fpf.set(key, value);
+        } catch (FrameworkPropertyFileException e) {
+            throw new ConfigurationPropertyStoreException("Unable to set property value", e);
+        }
+    }
+
+    public Map<String,String> getPropertiesFromNamespace(String namespace) {
+        return fpf.getPrefix(namespace);
+    }
+
+    /**
+     * <p>
      * A simple method thta checks the provided URI to the CPS is a local file or
      * not.
      * </p>
@@ -62,6 +90,10 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
      */
     public static boolean isFileUri(URI uri) {
         return "file".equals(uri.getScheme());
+    }
+
+    public List<String> getNamespaces() {
+        return fpf.getNamespaces();
     }
 
     @Override
