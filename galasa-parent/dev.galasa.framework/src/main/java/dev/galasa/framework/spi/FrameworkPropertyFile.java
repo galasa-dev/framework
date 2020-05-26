@@ -125,6 +125,14 @@ public class FrameworkPropertyFile implements FileAlterationListener {
         return values;
     }
 
+    /**
+     * <p>
+     * This method retrieves a List of namespaces which have properties set
+     * in the properties file.
+     * </p>
+     * 
+     * @return - List of namespaces
+     */
     public synchronized List<String> getNamespaces() {
         List<String> namespaces = new ArrayList<>();
         observer.checkAndNotify();

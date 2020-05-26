@@ -5,10 +5,7 @@
  */
 package dev.galasa.framework.internal.cps;
 
-import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +72,16 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
         }
     }
 
+    /**
+     * <p>
+     * This method returns all properties for a given namespace from the framework property
+     * file class.
+     * </p>
+     * 
+     * @param String namespace
+     * @return properties
+     */
+    @Override
     public Map<String,String> getPropertiesFromNamespace(String namespace) {
         return fpf.getPrefix(namespace);
     }
@@ -92,6 +99,13 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
         return "file".equals(uri.getScheme());
     }
 
+    /**
+     * <p>
+     * Return all Namespaces for the framework property file
+     * </p>
+     * 
+     * @return - List of namespaces
+     */
     public List<String> getNamespaces() {
         return fpf.getNamespaces();
     }

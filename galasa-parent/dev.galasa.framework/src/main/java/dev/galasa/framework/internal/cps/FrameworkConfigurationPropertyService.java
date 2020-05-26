@@ -90,10 +90,25 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
         return null;
     }
 
+    /**
+     * <p>
+     * This method sets a cps property with a given name and value in the provided namespace
+     * </p>
+     * 
+     * @return all properties from a given namespace
+     */
     public Map<String,String> getAllProperties() {
         return cpsStore.getPropertiesFromNamespace(namespace);
     }
 
+    /**
+     * <p>
+     * This method sets a cps property with a given name and value in the provided namespace
+     * </p>
+     * 
+     * @param name
+     * @param value
+     */
     public void setProperty(@NotNull String name, @NotNull String value)
             throws ConfigurationPropertyStoreException {
         cpsStore.setProperty(namespace + "." + name, value);

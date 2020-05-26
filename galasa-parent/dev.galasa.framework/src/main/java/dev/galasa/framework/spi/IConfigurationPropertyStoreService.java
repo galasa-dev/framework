@@ -112,11 +112,18 @@ public interface IConfigurationPropertyStoreService {
     @Null
     void setProperty(@NotNull String name, @NotNull String value) throws ConfigurationPropertyStoreException;
 
-    public Map<String,String> getAllProperties();
+    /**
+     * <p>
+     * Retrieves all possible different properties set from a namespace
+     * </p>
+     * 
+     * @return Map of names and values of all properties
+     */
+    Map<String,String> getAllProperties();
 
     /**
      * <p>
-     * Retireives all possible different property variations that would be searched,
+     * Retrieves all possible different property variations that would be searched,
      * in the search order.
      * </p>
      * 
@@ -134,7 +141,7 @@ public interface IConfigurationPropertyStoreService {
 
     /**
      * <p>
-     * Retireives all possible different property variations that would be searched,
+     * Retrieves all possible different property variations that would be searched,
      * in the search order.
      * </p>
      * 
@@ -150,6 +157,13 @@ public interface IConfigurationPropertyStoreService {
      */
     String reportPropertyVariantsString(@NotNull String prefix, @NotNull String suffix, String... infixes);
 
+    /**
+     * <p>
+     * Return all namespaces which have properties set
+     * </p>
+     * 
+     * @return List all namespaces with properties set
+     */
     List<String> getCPSNamespaces();
 
 }

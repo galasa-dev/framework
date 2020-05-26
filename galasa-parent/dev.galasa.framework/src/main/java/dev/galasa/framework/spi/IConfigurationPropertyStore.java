@@ -66,8 +66,22 @@ public interface IConfigurationPropertyStore {
     @Null
     void setProperty(@NotNull String key, @NotNull String value) throws ConfigurationPropertyStoreException;
 
+    /**
+     * <p>
+     * Retrieves all possible different properties set from a given namespace
+     * </p>
+     * 
+     * @return Map of names and values of all properties
+     */
     Map<String,String> getPropertiesFromNamespace(String namespace);
 
+    /**
+     * <p>
+     * Return all namespaces which have properties set
+     * </p>
+     * 
+     * @return List all namespaces with properties set
+     */
     List<String> getNamespaces();
 
     void shutdown() throws ConfigurationPropertyStoreException;
