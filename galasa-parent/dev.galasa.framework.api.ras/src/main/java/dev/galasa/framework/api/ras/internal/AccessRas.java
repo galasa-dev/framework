@@ -132,9 +132,7 @@ public class AccessRas extends HttpServlet {
                 return;
             }
             Map<String, String> query = new HashMap<>();
-            System.out.println(reqQuery);
             for (String pair : reqQuery.split("&")) {
-                System.out.println(pair);
                 String[] keyValue = pair.split("=");
                 if (!RASQUERY.contains(keyValue[0])) {
                     logger.error("Invalid RAS Query field: " + keyValue[0]);
@@ -144,7 +142,7 @@ public class AccessRas extends HttpServlet {
                 if (keyValue.length == 2)
                     query.put(keyValue[0], keyValue[1]);
             }
-            if (query.size() != RASQUERY.size()) {
+            if (!query.containsKey("to") || !query.containsKey("from") || (query.containsKey("page") && !query.containsKey("size"))) {
                 logger.error("Invalid RAS Query fields");
                 resp.setStatus(500);
                 return;
@@ -153,12 +151,28 @@ public class AccessRas extends HttpServlet {
             JsonArray respArray = new JsonArray();
             JsonArray respJson = new JsonArray();
             try {
-                for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore()
-                        .getDirectoryServices()) {
-                    for (IRunResult result : directoryService.getRuns(query.get("requestor"),
-                            Instant.parse(query.get("from")), Instant.parse(query.get("to")))) {
-                        if (query.get("testclass").equals(result.getTestStructure().getTestName())) {
-                            respArray.add(result.getTestStructure().getRunName());
+                for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+                    if(query.containsKey("requestor")) {
+                        for (IRunResult result : directoryService.getRuns(query.get("requestor"), Instant.parse(query.get("from")), Instant.parse(query.get("to")))) {
+                            if(query.containsKey("testclass")) {
+                                if (query.get("testclass").equals(result.getTestStructure().getTestName())) {
+                                    respArray.add(result.getTestStructure().getRunName());
+                                }
+                            } else {
+                                respArray.add(result.getTestStructure().getRunName());
+                            }
+                        }
+                    } else {
+                        for (String requestor : directoryService.getRequestors()) {
+                            for (IRunResult result : directoryService.getRuns(requestor, Instant.parse(query.get("from")), Instant.parse(query.get("to")))) {
+                                if(query.containsKey("testclass")) {
+                                    if (query.get("testclass").equals(result.getTestStructure().getTestName())) {
+                                        respArray.add(result.getTestStructure().getRunName());
+                                    }
+                                } else {
+                                    respArray.add(result.getTestStructure().getRunName());
+                                }
+                            }
                         }
                     }
                 }
@@ -171,11 +185,24 @@ public class AccessRas extends HttpServlet {
                 resp.setStatus(500);
                 return;
             }
-            int size = Integer.parseInt(query.get("size"));
-            int page = Integer.parseInt(query.get("page"));
-            for(int i = size * (page - 1); i < size * page && i < respArray.size(); i++) {
-                respJson.add(respArray.get(i));
+
+            if(query.containsKey("page")) {
+                int size = Integer.parseInt(query.get("size"));
+                int page = Integer.parseInt(query.get("page"));
+                for(int i = size * (page - 1); i < size * page && i < respArray.size(); i++) {
+                    respJson.add(respArray.get(i));
+                }
+            } else if(query.containsKey("size")) {
+                int size = Integer.parseInt(query.get("size"));
+                for(int i = 0; i < size && i < respArray.size(); i++) {
+                    respJson.add(respArray.get(i));
+                }
+            } else {
+                for(int i = 0; i < respArray.size(); i++) {
+                    respJson.add(respArray.get(i));
+                }
             }
+            
             resp.getWriter().write(gson.toJson(respJson));
             resp.setStatus(200);
             return;
