@@ -320,7 +320,7 @@ public class AccessRas extends HttpServlet {
         try {
             resp.getWriter().write(gson.toJson(json));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fatal("Unable to respond", e);
         }
     }
 
