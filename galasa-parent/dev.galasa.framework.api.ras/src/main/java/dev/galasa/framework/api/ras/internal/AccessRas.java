@@ -69,7 +69,7 @@ public class AccessRas extends HttpServlet {
     public IFramework framework; // NOSONAR
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
         try {
             Pattern pattern1 = Pattern.compile("/runname/([A-z0-9.\\-_']+)/?");
             Matcher matcher1 = pattern1.matcher(req.getPathInfo());
@@ -213,18 +213,12 @@ public class AccessRas extends HttpServlet {
         resp.setStatus(200);
     }
 
-    private void getRunLog(HttpServletResponse resp, String runId) throws IOException {
+    private void getRunLog(HttpServletResponse resp, String runId) throws IOException, ResultArchiveStoreException {
         String runlog = "";
-        try {
-            for(IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-                for(IRunResult result : directoryService.getRuns(runId)) {
-                    runlog = result.getLog();
-                }
+        for(IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+            for(IRunResult result : directoryService.getRuns(runId)) {
+                runlog = result.getLog();
             }
-        } catch (Exception e) {
-            logger.error("Error accessing RAS", e);
-            resp.setStatus(500);
-            return;
         }
         resp.getWriter().write(runlog);
         resp.setStatus(200);

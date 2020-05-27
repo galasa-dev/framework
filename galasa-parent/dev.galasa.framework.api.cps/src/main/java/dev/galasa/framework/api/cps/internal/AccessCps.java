@@ -73,7 +73,7 @@ public class AccessCps extends HttpServlet {
             } else {
                 sendError(resp, "Invalid GET URL - " + req.getPathInfo());
             }
-        } catch (IOException e) {
+        } catch (IOException | ConfigurationPropertyStoreException e) {
             sendError(resp, e.getStackTrace());
         }
     }
@@ -119,20 +119,15 @@ public class AccessCps extends HttpServlet {
             return;
     }
 
-    private void getNamespaceProperties(HttpServletResponse resp, String namespace) throws IOException {
+    private void getNamespaceProperties(HttpServletResponse resp, String namespace) throws IOException,
+            ConfigurationPropertyStoreException {
         JsonArray propertyArray = new JsonArray();
-        try {
-            Map<String,String> properties = framework.getConfigurationPropertyService(namespace).getAllProperties();
-            for(String prop : properties.keySet()) {
-                JsonObject cpsProp = new JsonObject();
-                cpsProp.addProperty("name", prop);
-                cpsProp.addProperty("value", properties.get(prop));
-                propertyArray.add(cpsProp);
-            }
-        } catch(ConfigurationPropertyStoreException e) {
-            logger.error("Unable to access CPS", e);
-            resp.setStatus(500);
-            return;
+        Map<String,String> properties = framework.getConfigurationPropertyService(namespace).getAllProperties();
+        for(String prop : properties.keySet()) {
+            JsonObject cpsProp = new JsonObject();
+            cpsProp.addProperty("name", prop);
+            cpsProp.addProperty("value", properties.get(prop));
+            propertyArray.add(cpsProp);
         }
         resp.getWriter().write(gson.toJson(propertyArray));
         resp.setStatus(200);
@@ -140,7 +135,7 @@ public class AccessCps extends HttpServlet {
     }
 
     private void getCPSProperty(HttpServletResponse resp, String namespace, String prefix, String suffix, String infixQuery)
-            throws IOException {
+            throws IOException, ConfigurationPropertyStoreException {
         String[] infixArray = null;
         if(infixQuery == null) {
             infixArray = new String[0];
@@ -160,20 +155,14 @@ public class AccessCps extends HttpServlet {
         }
         JsonObject respJson = new JsonObject();
 
-        try {
-            String propValue = framework.getConfigurationPropertyService(namespace).getProperty(prefix, suffix, infixArray);
-            Map<String, String> pairs = framework.getConfigurationPropertyService(namespace).getAllProperties();
-            for(String key : pairs.keySet()) {
-                if(pairs.get(key).equals(propValue) && key.startsWith(namespace + "." + prefix) && key.endsWith(suffix)) {
-                    respJson.addProperty("name", key);
-                    respJson.addProperty("value", pairs.get(key));
-                    break;
-                }
+        String propValue = framework.getConfigurationPropertyService(namespace).getProperty(prefix, suffix, infixArray);
+        Map<String, String> pairs = framework.getConfigurationPropertyService(namespace).getAllProperties();
+        for(String key : pairs.keySet()) {
+            if(pairs.get(key).equals(propValue) && key.startsWith(namespace + "." + prefix) && key.endsWith(suffix)) {
+                respJson.addProperty("name", key);
+                respJson.addProperty("value", pairs.get(key));
+                break;
             }
-        } catch (Exception e) {
-            logger.error("Unable to Access CPS");
-            resp.setStatus(500);
-            return;
         }
         resp.getWriter().write(gson.toJson(respJson));
         resp.setStatus(200);
