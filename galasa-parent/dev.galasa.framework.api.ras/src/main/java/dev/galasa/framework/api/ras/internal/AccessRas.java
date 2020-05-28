@@ -8,6 +8,8 @@ package dev.galasa.framework.api.ras.internal;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -63,7 +65,13 @@ public class AccessRas extends HttpServlet {
 
     private final List<String> RASQUERY = Arrays.asList("requestor", "from", "to", "testclass", "page", "size");
 
-    private final static Double FROM = 2 * Math.pow(10, 8);
+    private final static Double FROM = 2 * Math.pow(10, 8); //Number of seconds in approx 6.3 years
+
+    private final static Pattern pattern1 = Pattern.compile("/runname/([A-z0-9.\\-_']+)/?");
+    private final static Pattern pattern2 = Pattern.compile("/run/([A-z0-9.\\-_']+)/?");
+    private final static Pattern pattern3 = Pattern.compile("/run/([A-z0-9.\\-_']+)/artifact/([A-z0-9.\\-_']+)/?");
+    private final static Pattern pattern4 = Pattern.compile("/run/?");
+    private final static Pattern pattern5 = Pattern.compile("/run/([A-z0-9.\\-_']+)/runlog/?");
 
     @Reference
     public IFramework framework; // NOSONAR
@@ -71,32 +79,35 @@ public class AccessRas extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
         try {
-            Pattern pattern1 = Pattern.compile("/runname/([A-z0-9.\\-_']+)/?");
+            resp.setHeader("Content-Type", "Application/json");
             Matcher matcher1 = pattern1.matcher(req.getPathInfo());
-            Pattern pattern2 = Pattern.compile("/run/([A-z0-9.\\-_']+)/?");
-            Matcher matcher2 = pattern2.matcher(req.getPathInfo());
-            Pattern pattern3 = Pattern.compile("/run/([A-z0-9.\\-_']+)/artifact/([A-z0-9.\\-_']+)/?");
-            Matcher matcher3 = pattern3.matcher(req.getPathInfo());
-            Pattern pattern4 = Pattern.compile("/run/?");
-            Matcher matcher4 = pattern4.matcher(req.getPathInfo());
-            Pattern pattern5 = Pattern.compile("/run/([A-z0-9.\\-_']+)/runlog/?");
-            Matcher matcher5 = pattern5.matcher(req.getPathInfo());
-
             if (matcher1.matches()) {
                 getRunsWithRunname(resp, matcher1.group(1));
-            } else if (matcher2.matches()) {
-                getRunStructure(resp, matcher2.group(1));
-            } else if (matcher3.matches()) {
-                getArtifactData(resp, matcher3.group(1), matcher3.group(2));
-            } else if (matcher4.matches()) {
-                getRunsByQuery(resp, req.getQueryString());
-            } else if (matcher5.matches()) {
-                getRunLog(resp, matcher5.group(1));
-            } else {
-                sendError(resp, "Invalid GET URL - " + req.getPathInfo());
+                return;
             }
-        } catch(IOException | ResultArchiveStoreException | DateTimeParseException e) {
-            sendError(resp, e.getStackTrace());
+            Matcher matcher2 = pattern2.matcher(req.getPathInfo());
+            if (matcher2.matches()) {
+                getRunStructure(resp, matcher2.group(1));
+                return;
+            }
+            Matcher matcher3 = pattern3.matcher(req.getPathInfo());
+            if (matcher3.matches()) {
+                getArtifactData(resp, matcher3.group(1), matcher3.group(2));
+                return;
+            }
+            Matcher matcher4 = pattern4.matcher(req.getPathInfo());
+            if (matcher4.matches()) {
+                getRunsByQuery(resp, req.getQueryString());
+                return;
+            }
+            Matcher matcher5 = pattern5.matcher(req.getPathInfo());
+            if (matcher5.matches()) {
+                getRunLog(resp, matcher5.group(1));
+                return;
+            }
+            sendError(resp, "Invalid GET URL - " + req.getPathInfo());
+        } catch(IOException | DateTimeParseException | ResultArchiveStoreException e) {
+            sendError(resp, e);
         }
     }
 
@@ -305,18 +316,16 @@ public class AccessRas extends HttpServlet {
         }
     }
 
-    public void sendError(HttpServletResponse resp, StackTraceElement[] trace) {
-        StringBuilder message = new StringBuilder();
-        for(StackTraceElement element : trace) {
-            message.append(element.toString());
-        }
-        sendError(resp, message.toString());
+    public void sendError(HttpServletResponse resp, Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        sendError(resp, sw.toString());
     }
 
-    public void sendError(HttpServletResponse resp, String trace) {
+    public void sendError(HttpServletResponse resp, String errorMessage) {
         resp.setStatus(500);
         JsonObject json = new JsonObject();
-        json.addProperty("error", trace);
+        json.addProperty("error", errorMessage);
         try {
             resp.getWriter().write(gson.toJson(json));
         } catch (IOException e) {
