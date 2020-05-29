@@ -48,21 +48,27 @@ public class TestMethodWrapper {
             if (before.getResult().isFullStop()) {
                 this.fullStop = true;
                 this.result = Result.failed("Before method failed");
-                return;
+                break;
             }
         }
 
-        testMethod.invoke(managers, testClassObject);
-        this.fullStop = this.testMethod.fullStop();
-        this.result = this.testMethod.getResult();
+        if (this.result == null) {
+            testMethod.invoke(managers, testClassObject);
+            this.fullStop = this.testMethod.fullStop();
+            this.result = this.testMethod.getResult();
+        }
 
         // run all the @Afters after the test method
+        Result afterResult = null;
         for (GenericMethodWrapper after : this.afters) {
             after.invoke(managers, testClassObject);
             if (after.fullStop()) {
                 this.fullStop = true;
-                if (this.result == null) {
-                    this.result = Result.failed("After method failed");
+                if (afterResult == null) {
+                    afterResult = Result.failed("After method failed");
+                    if (this.result == null || this.result.isPassed()) {
+                        this.result = afterResult;
+                    }
                 }
             }
         }
