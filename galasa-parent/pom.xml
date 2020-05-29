@@ -95,8 +95,6 @@
 		<module>galasautils-maven-plugin</module>
 		<module>galasastaging-maven-plugin</module>
 		<module>dev.galasa.framework.api.runs</module>
-		<module>dev.galasa.framework.api.cps</module>
-		<module>dev.galasa.framework.api.ras</module>
 		<module>dev.galasa.framework.api</module>
 	</modules>
 

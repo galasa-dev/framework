@@ -5,9 +5,6 @@
  */
 package dev.galasa.framework.spi;
 
-import java.util.List;
-import java.util.Map;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
@@ -81,49 +78,7 @@ public interface IConfigurationPropertyStoreService {
 
     /**
      * <p>
-     * Sets a string property from the Configuration Property Store within the
-     * namespace for this object.
-     * </p>
-     * 
-     * <p>
-     * setProperty will set the property in the standard Configuration Property Store.
-     * </p>
-     * 
-     * <p>
-     * As an example, if we called setProperty("image.PLEXMA.credentialid", "PLEXMACREDS") 
-     * within the zos namespace, then the following property will be set:-<br>
-     * zos.image.PLEXMA.credentialid=PLEXMACREDS
-     * </p>
-     * 
-     * <p>
-     * If a property is not set, a ConfigurationPropertyStoreException is thrown .
-     * </p>
-     * 
-     * <p>
-     * Set properties and their values will be saved in the Result Archive for
-     * diagnostic purposes to understand how the properties should be configured for
-     * Managers
-     * </p>
-     * 
-     * @param name The property name within the namespace.
-     * @param value The value of the property.
-     * @throws ConfigurationPropertyStoreException
-     */
-    @Null
-    void setProperty(@NotNull String name, @NotNull String value) throws ConfigurationPropertyStoreException;
-
-    /**
-     * <p>
-     * Retrieves all possible different properties set from a namespace
-     * </p>
-     * 
-     * @return Map of names and values of all properties
-     */
-    Map<String,String> getAllProperties();
-
-    /**
-     * <p>
-     * Retrieves all possible different property variations that would be searched,
+     * Retireives all possible different property variations that would be searched,
      * in the search order.
      * </p>
      * 
@@ -141,7 +96,7 @@ public interface IConfigurationPropertyStoreService {
 
     /**
      * <p>
-     * Retrieves all possible different property variations that would be searched,
+     * Retireives all possible different property variations that would be searched,
      * in the search order.
      * </p>
      * 
@@ -156,14 +111,5 @@ public interface IConfigurationPropertyStoreService {
      * @return comma separated property names
      */
     String reportPropertyVariantsString(@NotNull String prefix, @NotNull String suffix, String... infixes);
-
-    /**
-     * <p>
-     * Return all namespaces which have properties set
-     * </p>
-     * 
-     * @return List all namespaces with properties set
-     */
-    List<String> getCPSNamespaces();
 
 }

@@ -24,12 +24,6 @@ paths:
                 type: array
                 items:
                   type: string
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
   /cps/namespace/{namespace}:
     get:
       summary: Get all properties for a namepace
@@ -49,12 +43,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CPSProperty'
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
   /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
     get:
       parameters:
@@ -89,13 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CPSProperty'
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+                $ref: '#/components/schemas/TestRun'
   /cps/namespace/{namespace}/property/{property}:
     put:
       summary: Put new CPS Property
@@ -128,13 +110,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CPSProperty'
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+                $ref: '#/components/schemas/TestRun'
 components:
   schemas:
     CPSProperty:
@@ -142,8 +118,4 @@ components:
         name:
           type: string
         value:
-          type: string
-    JsonError:
-      properties:
-        error:
           type: string

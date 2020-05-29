@@ -15,13 +15,11 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -123,26 +121,6 @@ public class FrameworkPropertyFile implements FileAlterationListener {
             }
         }
         return values;
-    }
-
-    /**
-     * <p>
-     * This method retrieves a List of namespaces which have properties set
-     * in the properties file.
-     * </p>
-     * 
-     * @return - List of namespaces
-     */
-    public synchronized List<String> getNamespaces() {
-        List<String> namespaces = new ArrayList<>();
-        observer.checkAndNotify();
-        for (Object k : currentProperties.keySet()) {
-            String name = ((String)k).substring(0,((String)k).indexOf("."));
-            if(!namespaces.contains(name)) {
-                namespaces.add(name);
-            }
-        }
-        return namespaces;
     }
 
     /**
