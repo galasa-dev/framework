@@ -187,7 +187,7 @@ public class TestClassWrapper {
 
             for (TestMethodWrapper testMethod : this.testMethods) {
                 Result testMethodResult = testMethod.getResult();
-                if (testMethodResult.isFailed()) {
+                if (testMethodResult != null && testMethodResult.isFailed()) {
                     this.result = Result.failed("A Test failed");
                     break;
                 }
@@ -201,10 +201,9 @@ public class TestClassWrapper {
         // Run @AfterClass methods
         for (GenericMethodWrapper afterClassMethod : afterClassMethods) {
             afterClassMethod.invoke(managers, this.testClassObject);
-            if (!afterClassMethod.fullStop()) {
+            if (afterClassMethod.fullStop()) {
                 if (this.result == null) {
                     this.result = Result.failed("AfterClass method failed");
-                    break;
                 }
             }
         }

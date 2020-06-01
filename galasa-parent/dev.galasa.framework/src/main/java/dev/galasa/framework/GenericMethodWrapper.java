@@ -132,7 +132,7 @@ public class GenericMethodWrapper {
     }
 
     public boolean fullStop() {
-        return false;
+        return this.result.isFailed();
     }
 
     public Result getResult() {
