@@ -1,6 +1,13 @@
 package dev.galasa;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.validation.constraints.NotNull;
+
 public class ProductVersion implements Comparable<ProductVersion> {
+
+    private static final Pattern patternVersion = Pattern.compile("(\\d+)(\\.(\\d+)(\\.(\\d+))?)?");
 
     private final int version;
     private final int release;
@@ -31,7 +38,7 @@ public class ProductVersion implements Comparable<ProductVersion> {
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(@NotNull Object other) {
         if (!(other instanceof ProductVersion)) {
             return false;
         }
@@ -46,26 +53,49 @@ public class ProductVersion implements Comparable<ProductVersion> {
     }
 
     @Override
-    public int compareTo(ProductVersion o) {
+    public int compareTo(@NotNull ProductVersion o) {
         int c = this.version - o.version;
         if (c != 0) {
             return c;
         } 
-                
+
         c = this.release - o.release;
         if (c != 0) {
             return c;
         } 
-                
+
         return this.modification - o.modification;
     }
 
-    public boolean isEarlierThan(ProductVersion o) {
+    public boolean isEarlierThan(@NotNull ProductVersion o) {
         return (compareTo(o) < 0);
     }
 
-    public boolean isLaterThan(ProductVersion o) {
+    public boolean isLaterThan(@NotNull ProductVersion o) {
         return (compareTo(o) > 0);
+    }
+
+    public static ProductVersion parse(@NotNull String versionString) throws ManagerException {
+        Matcher matcherVersion = patternVersion.matcher(versionString);
+        if (!matcherVersion.matches()) {
+            throw new ManagerException("Invalid product version string '" + versionString + "'");
+        }
+
+        String v = matcherVersion.group(1);
+        String r = matcherVersion.group(3);
+        String m = matcherVersion.group(5);
+
+        ProductVersion pVersion = ProductVersion.v(Integer.parseInt(v));
+
+        if (r != null) {
+            pVersion = pVersion.r(Integer.parseInt(r));
+        }
+
+        if (m != null) {
+            pVersion = pVersion.m(Integer.parseInt(m));
+        }
+
+        return pVersion;
     }
 
 }
