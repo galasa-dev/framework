@@ -5,6 +5,9 @@
  */
 package dev.galasa.framework.internal.cps;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -219,4 +222,44 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
         }
         return infixOrderList;
     }
+    
+    @Override
+    public Map<String, String> getPrefixedProperties(@NotNull String prefix)
+            throws ConfigurationPropertyStoreException {
+        
+        HashMap<String, String> returnValues = new HashMap<>();
+        
+        String fullPrefix = this.namespace + "." + prefix;        
+        //*** First build from the overrides
+        for(Entry<Object, Object> entry : this.overrides.entrySet()) {
+            String key = (String) entry.getKey();
+            String value = (String) entry.getValue();
+            
+            if (key.startsWith(fullPrefix)) {
+                this.record.setProperty(key, value);
+                
+                key = key.substring(this.namespace.length() + 1);
+                returnValues.put(key, value);
+            }
+        }
+        
+        //*** Now get them from the store
+        Map<String, String> cpsEntries = this.cpsStore.getPrefixedProperties(fullPrefix);
+        for(Entry<String, String> entry : cpsEntries.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            
+            String unPrefixedKey = key.substring(this.namespace.length() + 1);
+            
+            if (!returnValues.containsKey(unPrefixedKey)) {
+                this.record.setProperty(key, value);
+                
+                returnValues.put(unPrefixedKey, value);
+            }
+        }
+        
+        return returnValues;
+    }
+
+
 }
