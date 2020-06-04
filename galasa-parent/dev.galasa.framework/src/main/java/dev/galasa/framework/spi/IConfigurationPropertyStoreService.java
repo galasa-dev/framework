@@ -5,6 +5,8 @@
  */
 package dev.galasa.framework.spi;
 
+import java.util.Map;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
@@ -75,6 +77,18 @@ public interface IConfigurationPropertyStoreService {
     @Null
     String getProperty(@NotNull String prefix, @NotNull String suffix, String... infixes)
             throws ConfigurationPropertyStoreException;
+    
+    /**
+     * Retrieves the properties for the namespace using the supplied prefix.
+     * 
+     * getProperty will search the Override Configuration Store first.
+     * 
+     * @param prefix - the prefix to use
+     * @return A map of the properties and the values
+     * @throws ConfigurationPropertyStoreException - If there is a problem with the fetch
+     */
+    @NotNull 
+    Map<String, String> getPrefixedProperties(@NotNull String prefix) throws ConfigurationPropertyStoreException;
 
     /**
      * <p>
