@@ -6,7 +6,10 @@
 package dev.galasa.framework.internal.cps;
 
 import java.net.URI;
+<<<<<<< HEAD
 import java.util.List;
+=======
+>>>>>>> d7139f42ebff3ad17b6cb2e1445f5f575df49d79
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
@@ -51,6 +54,12 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
     @Override
     public @Null String getProperty(@NotNull String key) throws ConfigurationPropertyStoreException {
         return fpf.get(key);
+    }
+    
+    @Override
+    public @NotNull Map<String, String> getPrefixedProperties(@NotNull String prefix)
+            throws ConfigurationPropertyStoreException {
+        return fpf.getPrefix(prefix);
     }
 
     /**
@@ -118,4 +127,5 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
             throw new ConfigurationPropertyStoreException("Problem shutting down the CPS File", e);
         }
     }
+
 }
