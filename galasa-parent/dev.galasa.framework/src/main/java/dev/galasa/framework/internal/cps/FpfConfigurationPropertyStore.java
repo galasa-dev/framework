@@ -6,10 +6,7 @@
 package dev.galasa.framework.internal.cps;
 
 import java.net.URI;
-<<<<<<< HEAD
 import java.util.List;
-=======
->>>>>>> d7139f42ebff3ad17b6cb2e1445f5f575df49d79
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
