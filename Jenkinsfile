@@ -113,6 +113,8 @@ pipeline {
                         script {
                            if (!env.BRANCH_NAME.startsWith('PR-')) {
                               sh "npm publish generated-openapi"
+                           } else {
+                              sh "echo 'Skipping npm publish'"
                            }
                         }
 
@@ -126,6 +128,8 @@ pipeline {
                         script {
                            if (!env.BRANCH_NAME.startsWith('PR-')) {
                               sh "npm publish generated-openapi"
+                           } else {
+                              sh "echo 'Skipping npm publish'"
                            }
                         }
 
@@ -139,6 +143,8 @@ pipeline {
                         script {
                            if (!env.BRANCH_NAME.startsWith('PR-')) {
                               sh "npm publish generated-openapi"
+                           } else {
+                              sh "echo 'Skipping npm publish'"
                            }
                         }
                         
