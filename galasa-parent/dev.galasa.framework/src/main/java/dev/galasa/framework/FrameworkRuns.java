@@ -48,7 +48,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     private final String                             RUN_PREFIX   = "run.";
 
-    public FrameworkRuns(Framework framework) throws FrameworkException {
+    public FrameworkRuns(IFramework framework) throws FrameworkException {
         this.framework = framework;
         this.dss = framework.getDynamicStatusStoreService("framework");
         this.cps = framework.getConfigurationPropertyService("framework");
