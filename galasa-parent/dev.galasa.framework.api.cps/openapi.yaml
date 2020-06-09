@@ -117,11 +117,7 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                name:
-                  type: string
-                value:
-                  type: string
+              $ref: '#/components/schemas/CPSProperty'
       responses:
         '200':
           description: CPS Property

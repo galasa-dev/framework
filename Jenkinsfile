@@ -114,7 +114,7 @@ pipeline {
                            if (env.JOB_NAME.contains('PullRequest')) {
                               echo 'Skipping npm publish'
                            } else {
-                              echo 'npm publish'
+                              npm publish generated-openapi
                            }
                         }
 
@@ -129,7 +129,7 @@ pipeline {
                            if (env.JOB_NAME.contains('PullRequest')) {
                               echo 'Skipping npm publish'
                            } else {
-                              echo 'npm publish'
+                              npm publish generated-openapi
                            }
                         }
 
@@ -144,7 +144,7 @@ pipeline {
                            if (env.JOB_NAME.contains('PullRequest')) {
                               echo 'Skipping npm publish'
                            } else {
-                              echo 'npm publish'
+                              npm publish generated-openapi
                            }
                         }
                         
