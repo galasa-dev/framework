@@ -111,7 +111,7 @@ pipeline {
                         sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-runs-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (env.JOB_NAME.constains('PullRequest')) {
+                           if (env.JOB_NAME.contains('PullRequest')) {
                               echo 'Skipping npm publish'
                            } else {
                               echo 'npm publish'
@@ -126,7 +126,7 @@ pipeline {
                         sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-cps-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (env.JOB_NAME.constains('PullRequest')) {
+                           if (env.JOB_NAME.contains('PullRequest')) {
                               echo 'Skipping npm publish'
                            } else {
                               echo 'npm publish'
@@ -141,7 +141,7 @@ pipeline {
                         sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-ras-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (env.JOB_NAME.constains('PullRequest')) {
+                           if (env.JOB_NAME.contains('PullRequest')) {
                               echo 'Skipping npm publish'
                            } else {
                               echo 'npm publish'
