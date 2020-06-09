@@ -111,10 +111,10 @@ pipeline {
                         sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-runs-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (!env.BRANCH_NAME.startsWith('PR-')) {
-                              npm publish generated-openapi
-                           } else {
+                           if (env.BRANCH_NAME.startsWith('PR-')) {
                               echo 'Skipping npm publish'
+                           } else {
+                              npm publish generated-openapi
                            }
                         }
 
@@ -126,10 +126,10 @@ pipeline {
                         sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-cps-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (!env.BRANCH_NAME.startsWith('PR-')) {
-                              sh "npm publish generated-openapi"
+                           if (env.BRANCH_NAME.startsWith('PR-')) {
+                              echo 'Skipping npm publish'
                            } else {
-                              sh "echo 'Skipping npm publish'"
+                              npm publish generated-openapi
                            }
                         }
 
@@ -141,10 +141,10 @@ pipeline {
                         sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-ras-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (!env.BRANCH_NAME.startsWith('PR-')) {
-                              sh "npm publish generated-openapi"
+                           if (env.BRANCH_NAME.startsWith('PR-')) {
+                              echo 'Skipping npm publish'
                            } else {
-                              sh "echo 'Skipping npm publish'"
+                              npm publish generated-openapi
                            }
                         }
                         
