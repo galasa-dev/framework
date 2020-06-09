@@ -108,8 +108,8 @@ pipeline {
 
                      dir('dev.galasa.framework.api.runs') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
-                        sh "npm install openapi-generator"
-                        sh "npx openapi-generator generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-runs-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
+                        sh "npm install @openapitools/openapi-generator-cli"
+                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-runs-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
                            if (!env.BRANCH_NAME.startsWith('PR-')) {
@@ -120,8 +120,8 @@ pipeline {
 
                      dir('dev.galasa.framework.api.cps') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
-                        sh "npm install openapi-generator"
-                        sh "npx openapi-generator generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-cps-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
+                        sh "npm install @openapitools/openapi-generator-cli"
+                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-cps-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
                            if (!env.BRANCH_NAME.startsWith('PR-')) {
@@ -132,8 +132,8 @@ pipeline {
 
                      dir('dev.galasa.framework.api.ras') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
-                        sh "npm install openapi-generator"
-                        sh "npx openapi-generator generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-ras-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
+                        sh "npm install @openapitools/openapi-generator-cli"
+                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-ras-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
                            if (!env.BRANCH_NAME.startsWith('PR-')) {
