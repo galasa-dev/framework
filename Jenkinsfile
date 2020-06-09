@@ -10,6 +10,10 @@ pipeline {
       
 //Set some defaults
       def workspace = pwd()
+
+      def npmVersion = "0.9.0"
+      def npmSnapshot = true
+      def npmRepository = "https://nexus.galasa.dev/repository/npm-development"
    }
    stages {
 // Set up the workspace, clear the git directories and setup the manve settings.xml files
@@ -23,6 +27,16 @@ pipeline {
             dir('repository/dev/galasa') {
                deleteDir()
             }
+         }
+      }
+
+      stage('prep-npm') {
+         environment {
+            CREDS = credentials('galasa-nexus')
+         }
+         steps {
+            sh "npm install -g openapi-generator"
+            sh "npm set _auth $(echo -n '$CREDS_USR:$CREDS_PWD' | openssl base64)"
          }
       }
       
@@ -95,14 +109,29 @@ pipeline {
 
                      dir('dev.galasa.framework.api.runs') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
+                        sh "openapi-generator generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-runs-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
+                        sh "npm install --prefix generated-openapi"
+                        if (!env.BRANCH_NAME.startsWith('PR-')) {
+                           sh "npm publish generated-openapi"
+                        }
                      }
 
                      dir('dev.galasa.framework.api.cps') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
+                        sh "openapi-generator generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-cps-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
+                        sh "npm install --prefix generated-openapi"
+                        if (!env.BRANCH_NAME.startsWith('PR-')) {
+                           sh "npm publish generated-openapi"
+                        }
                      }
 
                      dir('dev.galasa.framework.api.ras') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
+                        sh "openapi-generator generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-ras-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
+                        sh "npm install --prefix generated-openapi"
+                        if (!env.BRANCH_NAME.startsWith('PR-')) {
+                           sh "npm publish generated-openapi"
+                        }
                      }
 
                      dir('dev.galasa.framework.obr') {
