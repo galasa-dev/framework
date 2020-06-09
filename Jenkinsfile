@@ -36,7 +36,7 @@ pipeline {
          }
          steps {
             sh "npm install -g openapi-generator"
-            sh "npm set _auth $(echo -n '$CREDS_USR:$CREDS_PWD' | openssl base64)"
+            sh "npm set _auth \$(echo -n '$CREDS_USR:$CREDS_PWD' | openssl base64)"
          }
       }
       
