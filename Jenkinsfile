@@ -10,11 +10,6 @@ pipeline {
       
 //Set some defaults
       def workspace = pwd()
-
-//Set npm package variables
-      def npmVersion = "0.9.0"
-      def npmSnapshot = true
-      def npmRepository = "https://nexus.galasa.dev/repository/npm-development"
    }
    stages {
 // Set up the workspace, clear the git directories and setup the manve settings.xml files
@@ -112,10 +107,10 @@ pipeline {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
 
                         sh "npm install @openapitools/openapi-generator-cli"
-                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-runs-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
+                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-runs-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (env.JOB_NAME.contains('PullRequest')) {
+                           if (${PULL_REQ}) {
                               echo 'Skipping npm publish'
                            } else {
                               npm publish generated-openapi
@@ -127,10 +122,10 @@ pipeline {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
 
                         sh "npm install @openapitools/openapi-generator-cli"
-                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-cps-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
+                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-cps-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (env.JOB_NAME.contains('PullRequest')) {
+                           if (${PULL_REQ}) {
                               echo 'Skipping npm publish'
                            } else {
                               npm publish generated-openapi
@@ -142,10 +137,10 @@ pipeline {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
 
                         sh "npm install @openapitools/openapi-generator-cli"
-                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-ras-api,npmRepository=${npmRepository},npmVersion=${npmVersion},snapshot=${npmSnapshot},supportsES6=false,modelPropertyNaming=original"
+                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-ras-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (env.JOB_NAME.contains('PullRequest')) {
+                           if (${PULL_REQ}) {
                               echo 'Skipping npm publish'
                            } else {
                               npm publish generated-openapi
