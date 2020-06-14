@@ -1,10 +1,17 @@
 package dev.galasa.staging;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -23,8 +30,10 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 
@@ -35,16 +44,23 @@ import dev.galasa.staging.json.ComponentResponse;
 import dev.galasa.staging.json.Item;
 
 /**
- * Clean artifacts from the staging repos
+ * Extracts the artifacts into a directory
  * 
- * @author mikebyls
+ * @author Michael Baylis
  *
  */
-@Mojo(name = "stageartifacts", requiresProject = false)
-public class StageArtifacts extends AbstractMojo {
+@Mojo(name = "extractartifacts", 
+requiresProject = false)
+public class ExtractArtifacts extends AbstractMojo {
 
     @Parameter( defaultValue = "${settings}", readonly = true )
     private Settings settings;
+
+    @Parameter(defaultValue = "${project}", readonly = true)
+    private MavenProject project;
+
+    @Parameter(defaultValue = "${galasa.output.directory}", property = "outputDir", required = true)
+    private File         outputDirectory;
 
     @Parameter(defaultValue = "${galasa.source.repo.nexus}", property = "sourceRepoNexus", required = true)
     private URL               sourceNexus;
@@ -55,14 +71,6 @@ public class StageArtifacts extends AbstractMojo {
     @Parameter(defaultValue = "${galasa.source.repo.name}", property = "sourceRepoName", required = true)
     private String            sourceName;
 
-    @Parameter(defaultValue = "${galasa.target.repo}", property = "targetRepo", required = false)
-    private URL               target;
-
-    @Parameter(defaultValue = "${galasa.target.repo.id}", property = "targetRepoId", required = false)
-    private String            targetId;
-
-    @Parameter(defaultValue = "${galasa.dry.run}", property = "dryRun", required = false)
-    private Boolean           dryRun;
 
     private CloseableHttpClient httpClient;
     private Header authNexus;
@@ -72,39 +80,36 @@ public class StageArtifacts extends AbstractMojo {
 
     private ArrayList<Artifact> artifacts = new ArrayList<>();
 
-    public void execute() throws MojoExecutionException {
-
-        if (this.dryRun == null) {
-            this.dryRun = Boolean.FALSE;
-        }
+    public void execute() throws MojoExecutionException, MojoFailureException {
 
         buildHttpClient();
-
 
         try {
             retrieveKnowArtifacts();
 
             report();
 
-            if (dryRun) {
-                getLog().info("Not performing staging as dry run indicated");
+            if (this.artifacts.isEmpty()) {
+                getLog().info("There are no extracted artifacts");
             } else {
-                if (this.artifacts.isEmpty()) {
-                    getLog().info("There are no staging artifacts");
-                } else {
-                    getLog().info("Staged Artifacts:-");
-                    stageArtifacts(this.artifacts);
-                }
+                getLog().info("Extracted Artifacts:-");
+                stageArtifacts(this.artifacts);
             }
 
         } catch (UnsupportedEncodingException e) {
             throw new MojoExecutionException("Unexpected issue processing repositories", e);
         } 
 
-
     }
 
+
     private void stageArtifacts(ArrayList<Artifact> stageArtifacts) throws MojoExecutionException {
+        Path outDir = Paths.get(outputDirectory.toURI());
+        try {
+            Files.createDirectories(outDir);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Unable to create target directory", e);
+        }
 
         try {
             for(Artifact artifact : stageArtifacts) {
@@ -117,43 +122,38 @@ public class StageArtifacts extends AbstractMojo {
                             get.addHeader(authNexus);
                         }  
 
-                        HttpPut put = new HttpPut(this.target.toString() + "/" + asset.path);
-                        if (authTarget != null) {
-                            put.addHeader(authTarget);
-                        }  
+                        Path targetPath = outDir.resolve(asset.path);
+                        
+                        Files.createDirectories(targetPath.getParent());
 
                         try(CloseableHttpResponse getResponse = this.httpClient.execute(get)) {
                             if (getResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                                 throw new MojoExecutionException("Unexpected response from get artifact " + artifact.getNameVersion() + " - " + getResponse.getStatusLine().toString());
                             }
-                            
+
                             InputStream getInputStream = getResponse.getEntity().getContent();
-                            
-                            InputStreamEntity putEntity = new InputStreamEntity(getInputStream);
-                            put.setEntity(putEntity);                            
-                            try(CloseableHttpResponse putResponse = this.httpClient.execute(put)) {
-                                if (putResponse.getStatusLine().getStatusCode() != HttpStatus.SC_CREATED) {
-                                    throw new MojoExecutionException("Unexpected response from put artifact " + artifact.getNameVersion() + " - " + putResponse.getStatusLine().toString());
-                                }
-                                
-                                EntityUtils.consume(putResponse.getEntity());
-                                
-                                getLog().info("        " + asset.path);
+
+                            try (OutputStream outputStream = Files.newOutputStream(targetPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                                IOUtils.copy(getInputStream, outputStream);
                             }
+
+                            getLog().info("        " + asset.path);
                         }
                     }
                 }
             }
         } catch(Exception e) {
-            throw new MojoExecutionException("Unable to clean an artifact",e);
+            throw new MojoExecutionException("Unable to copy an artifact",e);
         }
 
     }
 
+
+
     private void report() {
-        getLog().info("The folllowing artifacts will be staged:-");
+        getLog().info("The folllowing artifacts will be extracted:-");
         if (artifacts.isEmpty()) {
-            getLog().info("    No artifacts to be staged");
+            getLog().info("    No artifacts to be extracted");
         } else {
             for(Artifact artifact : this.artifacts) {
                 getLog().info("    " + artifact.getNameVersion());
@@ -219,13 +219,6 @@ public class StageArtifacts extends AbstractMojo {
 
         }
 
-        if (this.targetId != null) {
-            UsernamePasswordCredentials credentials = getCredentials(this.targetId);
-            String creds = credentials.getUserName() + ":" + credentials.getPassword();
-            String auth = Base64.getEncoder().encodeToString(creds.getBytes());
-            authTarget = new BasicHeader("Authorization", "Basic " + auth);
-        }
-
         this.httpClient = HttpClientBuilder.create().build();
     }
 
@@ -239,4 +232,5 @@ public class StageArtifacts extends AbstractMojo {
 
         return credentials;
     }
+
 }
