@@ -1,13 +1,26 @@
 package dev.galasa.staging;
 
-import java.io.InputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
@@ -15,33 +28,30 @@ import org.apache.http.HttpStatus;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.util.EntityUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.yaml.snakeyaml.Yaml;
 
 import com.google.gson.Gson;
 
-import dev.galasa.staging.json.Asset;
 import dev.galasa.staging.json.ComponentResponse;
 import dev.galasa.staging.json.Item;
 
 /**
- * Clean artifacts from the staging repos
+ * Build the whitelist files
  * 
  * @author mikebyls
  *
  */
-@Mojo(name = "stageartifacts", requiresProject = false)
-public class StageArtifacts extends AbstractMojo {
+@Mojo(name = "whitelists", requiresProject = false)
+public class WhiteLists extends AbstractMojo {
 
     @Parameter( defaultValue = "${settings}", readonly = true )
     private Settings settings;
@@ -49,53 +59,51 @@ public class StageArtifacts extends AbstractMojo {
     @Parameter(defaultValue = "${galasa.source.repo.nexus}", property = "sourceRepoNexus", required = true)
     private URL               sourceNexus;
 
+    @Parameter(defaultValue = "${galasa.outputDir}", property = "outputDir", required = true)
+    private File              outputDirectory;
+
     @Parameter(defaultValue = "${galasa.source.repo.id}", property = "sourceRepoId", required = false)
     private String            sourceId;
 
     @Parameter(defaultValue = "${galasa.source.repo.name}", property = "sourceRepoName", required = true)
     private String            sourceName;
-
-    @Parameter(defaultValue = "${galasa.target.repo}", property = "targetRepo", required = false)
-    private URL               target;
-
-    @Parameter(defaultValue = "${galasa.target.repo.id}", property = "targetRepoId", required = false)
-    private String            targetId;
-
-    @Parameter(defaultValue = "${galasa.dry.run}", property = "dryRun", required = false)
-    private Boolean           dryRun;
+    
+    @Parameter(defaultValue = "${galasa.control.file}", property = "controlFile", required = false)
+    private URL               controlFile;
 
     private CloseableHttpClient httpClient;
     private Header authNexus;
-    private Header authTarget;
 
     private final Gson gson = new Gson();
 
     private ArrayList<Artifact> artifacts = new ArrayList<>();
+    
+    HashMap<Pattern, String> conversions = new HashMap<>();
 
     public void execute() throws MojoExecutionException {
-
-        if (this.dryRun == null) {
-            this.dryRun = Boolean.FALSE;
+        Path outDir = Paths.get(outputDirectory.toURI());
+        try {
+            Files.createDirectories(outDir);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Unable to create target directory", e);
         }
+        
 
         buildHttpClient();
 
 
         try {
+            loadControlFile();
+            
             retrieveKnowArtifacts();
+            
+            produceRawNexusArtifactList();
+
+            produceRawMavenArtifactList();
+            
+            produceCondensedNexusArtifactList();
 
             report();
-
-            if (dryRun) {
-                getLog().info("Not performing staging as dry run indicated");
-            } else {
-                if (this.artifacts.isEmpty()) {
-                    getLog().info("There are no staging artifacts");
-                } else {
-                    getLog().info("Staged Artifacts:-");
-                    stageArtifacts(this.artifacts);
-                }
-            }
 
         } catch (UnsupportedEncodingException e) {
             throw new MojoExecutionException("Unexpected issue processing repositories", e);
@@ -104,50 +112,96 @@ public class StageArtifacts extends AbstractMojo {
 
     }
 
-    private void stageArtifacts(ArrayList<Artifact> stageArtifacts) throws MojoExecutionException {
+    private void produceRawMavenArtifactList() throws MojoExecutionException {
+        Path outDir = Paths.get(outputDirectory.toURI());
+        Path rawFile = outDir.resolve("maven-raw.txt");
 
-        try {
-            for(Artifact artifact : stageArtifacts) {
-                getLog().info("     Processing " + artifact.getNameVersion());
-
-                if (artifact.assets != null && !artifact.assets.isEmpty()) {
-                    for(Asset asset : artifact.assets) {
-                        HttpGet get = new HttpGet(asset.downloadUrl);
-                        if (authNexus != null) {
-                            get.addHeader(authNexus);
-                        }  
-
-                        HttpPut put = new HttpPut(this.target.toString() + "/" + asset.path);
-                        if (authTarget != null) {
-                            put.addHeader(authTarget);
-                        }  
-
-                        try(CloseableHttpResponse getResponse = this.httpClient.execute(get)) {
-                            if (getResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                                throw new MojoExecutionException("Unexpected response from get artifact " + artifact.getNameVersion() + " - " + getResponse.getStatusLine().toString());
-                            }
-                            
-                            InputStream getInputStream = getResponse.getEntity().getContent();
-                            
-                            InputStreamEntity putEntity = new InputStreamEntity(getInputStream);
-                            put.setEntity(putEntity);                            
-                            try(CloseableHttpResponse putResponse = this.httpClient.execute(put)) {
-                                if (putResponse.getStatusLine().getStatusCode() != HttpStatus.SC_CREATED) {
-                                    throw new MojoExecutionException("Unexpected response from put artifact " + artifact.getNameVersion() + " - " + putResponse.getStatusLine().toString());
-                                }
-                                
-                                EntityUtils.consume(putResponse.getEntity());
-                                
-                                getLog().info("        " + asset.path);
-                            }
-                        }
-                    }
+        try (OutputStream os = Files.newOutputStream(rawFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)){
+            try (Writer w = new OutputStreamWriter(os)) {
+                for(Artifact artifact : this.artifacts) {
+                    w.write(artifact.getNameVersion());
+                    w.write('\n');
                 }
             }
         } catch(Exception e) {
-            throw new MojoExecutionException("Unable to clean an artifact",e);
+            throw new MojoExecutionException("Unable to create raw maven whitelist file", e);
         }
+    }
 
+    private void produceRawNexusArtifactList() throws MojoExecutionException {
+        Path outDir = Paths.get(outputDirectory.toURI());
+        Path rawFile = outDir.resolve("nexus-routing-raw.txt");
+
+        try (OutputStream os = Files.newOutputStream(rawFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)){
+            try (Writer w = new OutputStreamWriter(os)) {
+                for(Artifact artifact : this.artifacts) {
+                    
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("^");
+                    sb.append(convertArtifactToPath(artifact));
+                    sb.append(".*");
+                    sb.append("\n");
+                    w.write(sb.toString());
+                }
+            }
+        } catch(Exception e) {
+            throw new MojoExecutionException("Unable to create raw nexus routing whitelist file", e);
+        }
+    }
+
+    private void produceCondensedNexusArtifactList() throws MojoExecutionException {
+        Path outDir = Paths.get(outputDirectory.toURI());
+        Path rawFile = outDir.resolve("nexus-routing-condensed.txt");
+        
+        HashSet<String> paths = new HashSet<>();
+        
+        for(Artifact artifact : this.artifacts) {
+            String path = convertArtifactToPath(artifact);
+            
+            for(Entry<Pattern, String> entry : conversions.entrySet()) {
+                Matcher m = entry.getKey().matcher(path);
+                if (m.matches()) {
+                    path = entry.getValue();
+                    break;
+                }
+            }
+            
+            if (!paths.contains(path)) {
+                paths.add(path);
+            }
+        }
+        
+        ArrayList<String> sortedPaths = new ArrayList<>(paths);
+        Collections.sort(sortedPaths);
+
+        try (OutputStream os = Files.newOutputStream(rawFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)){
+            try (Writer w = new OutputStreamWriter(os)) {
+                for(String path : sortedPaths) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("^");
+                    sb.append(path);
+                    sb.append(".*");
+                    sb.append("\n");
+                    w.write(sb.toString());
+                }
+            }
+        } catch(Exception e) {
+            throw new MojoExecutionException("Unable to create condensed nexus routing whitelist file", e);
+        }
+    }
+    
+    private String convertArtifactToPath(Artifact artifact) {
+        StringBuilder sb = new StringBuilder();
+        String groupName = artifact.group.replaceAll("\\.", "/");
+        sb.append("/");
+        sb.append(groupName);
+        sb.append("/");
+        sb.append(artifact.artifact);
+        sb.append("/");
+        sb.append(artifact.version);
+        sb.append("/");
+       
+        return sb.toString();
     }
 
     private void report() {
@@ -158,6 +212,9 @@ public class StageArtifacts extends AbstractMojo {
             for(Artifact artifact : this.artifacts) {
                 getLog().info("    " + artifact.getNameVersion());
             }
+
+            getLog().info("");
+            getLog().info("" + artifacts.size() + " artifacts");
         }
         getLog().info("");
     }
@@ -219,13 +276,6 @@ public class StageArtifacts extends AbstractMojo {
 
         }
 
-        if (this.targetId != null) {
-            UsernamePasswordCredentials credentials = getCredentials(this.targetId);
-            String creds = credentials.getUserName() + ":" + credentials.getPassword();
-            String auth = Base64.getEncoder().encodeToString(creds.getBytes());
-            authTarget = new BasicHeader("Authorization", "Basic " + auth);
-        }
-
         this.httpClient = HttpClientBuilder.create().build();
     }
 
@@ -239,4 +289,22 @@ public class StageArtifacts extends AbstractMojo {
 
         return credentials;
     }
+    
+    
+    private void loadControlFile() throws MojoExecutionException {
+        Yaml yaml = new Yaml();
+
+        try {
+            HashMap<String, Object> controlFile = yaml.load(this.controlFile.openStream());
+            
+            for(Entry<String, Object> entry : controlFile.entrySet()) {
+                Pattern pattern = Pattern.compile(entry.getKey());
+                conversions.put(pattern, (String) entry.getValue());
+            }
+        } catch(Exception e) {
+            throw new MojoExecutionException("Unable to load control file",e);
+        }
+
+    }
+
 }
