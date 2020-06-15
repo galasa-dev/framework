@@ -47,6 +47,18 @@ public interface IConfigurationPropertyStore {
      */
     @Null
     String getProperty(@NotNull String key) throws ConfigurationPropertyStoreException;
+    
+    /**
+     * Retrieve prefixed properties from the underlying configuration property store.
+     * 
+     * The framework will prefix with the appropriate namespace before calling this method
+     * 
+     * @param prefix - The prefix to use
+     * @return A map of found properties with includes the namesapce
+     * @throws ConfigurationPropertyStoreException - if there is a error in the underlying cps
+     */
+    @NotNull
+    Map<String, String> getPrefixedProperties(@NotNull String prefix) throws ConfigurationPropertyStoreException;
 
     /**
      * <p>

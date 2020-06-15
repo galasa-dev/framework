@@ -7,6 +7,8 @@ package dev.galasa.framework.api.cps.internal;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +46,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  * 
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-    "osgi.http.whiteboard.servlet.pattern=/cps/*" }, name = "Galasa CPS")
+        "osgi.http.whiteboard.servlet.pattern=/cps/*" }, name = "Galasa CPS")
 public class AccessCps extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -52,78 +54,70 @@ public class AccessCps extends HttpServlet {
 
     private final Gson gson = GalasaGsonBuilder.build();
 
+    private static final Pattern pattern1 = Pattern.compile("/namespace/?");
+    private static final Pattern pattern2 = Pattern.compile("/namespace/([A-z0-9]+)/?");
+    private static final Pattern pattern3 = Pattern.compile("/namespace/([A-z0-9]+)/prefix/([A-z0-9._\\-]+)/suffix/([A-z0-9._\\-]+)/?");
+    private static final Pattern pattern4 = Pattern.compile("/namespace/([A-z0-9]+)/property/([A-z0-9._\\-]+)/?");
+
     @Reference
     public IFramework framework; // NOSONAR
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
         try {
-            Pattern pattern1 = Pattern.compile("/namespace/?");
+            resp.setHeader("Content-Type", "Application/json");
             Matcher matcher1 = pattern1.matcher(req.getPathInfo());
-            Pattern pattern2 = Pattern.compile("/namespace/([A-z0-9]+)/?");
-            Matcher matcher2 = pattern2.matcher(req.getPathInfo());
-            Pattern pattern3 = Pattern.compile("/namespace/([A-z0-9]+)/prefix/([A-z0-9._\\-]+)/suffix/([A-z0-9._\\-]+)/?");
-            Matcher matcher3 = pattern3.matcher(req.getPathInfo());
-            if(matcher1.matches()) {
+            if (matcher1.matches()) {
                 getNamespaces(resp);
-            } else if(matcher2.matches()) {
-                getNamespaceProperties(resp, matcher2.group(1));
-            } else if(matcher3.matches()) {
-                getCPSProperty(resp, matcher3.group(1), matcher3.group(2), matcher3.group(3), req.getQueryString());
-            } else {
-                sendError(resp, "Invalid GET URL - " + req.getPathInfo());
+                return;
             }
+            Matcher matcher2 = pattern2.matcher(req.getPathInfo());
+            if (matcher2.matches()) {
+                getNamespaceProperties(resp, matcher2.group(1));
+                return;
+            }
+            Matcher matcher3 = pattern3.matcher(req.getPathInfo());
+            if (matcher3.matches()) {
+                getCPSProperty(resp, matcher3.group(1), matcher3.group(2), matcher3.group(3), req.getQueryString());
+                return;
+            }
+            sendError(resp, "Invalid GET URL - " + req.getPathInfo());
         } catch (IOException | ConfigurationPropertyStoreException e) {
-            sendError(resp, e.getStackTrace());
+            sendError(resp, e);
         }
     }
 
     @Override
     public void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
         try {
-            Pattern pattern1 = Pattern.compile("/namespace/([A-z0-9]+)/property/([A-z0-9._\\-]+)/?");
-            Matcher matcher1 = pattern1.matcher(req.getPathInfo());
-            if(matcher1.matches()) {
-                String namespace = matcher1.group(1);
-                String property = matcher1.group(2);
-                JsonObject reqJson = gson.fromJson(new InputStreamReader(req.getInputStream()),JsonObject.class);
-                if(!property.equals(reqJson.get("name").getAsString())) {
-                    sendError(resp, "Different CPS property name in url and request: " + property + ", " + reqJson.get("name"));
-                } else {
-                    IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService(namespace);
-                    cps.setProperty(reqJson.get("name").getAsString(), reqJson.get("value").getAsString());
-                    resp.setStatus(200);
-                }
-            } else {
-                sendError(resp, "Invalid PUT URL - " + req.getPathInfo());
+            resp.setHeader("Content-Type", "Application/json");
+            Matcher matcher4 = pattern4.matcher(req.getPathInfo());
+            if (matcher4.matches()) {
+                addCPSProperty(resp, req, matcher4.group(1), matcher4.group(2));
+                return;
             }
+            sendError(resp, "Invalid PUT URL - " + req.getPathInfo());
         } catch (IOException | ConfigurationPropertyStoreException e) {
-            sendError(resp, e.getStackTrace());
+            sendError(resp, e);
         }
     }
 
-    private void getNamespaces(HttpServletResponse resp) throws IOException {
+    private void getNamespaces(HttpServletResponse resp) throws IOException, ConfigurationPropertyStoreException {
         JsonArray namespaceArray = new JsonArray();
-            try {
-                List<String> namespaces = framework.getConfigurationPropertyService("framework").getCPSNamespaces();
-                for(String name : namespaces) {
-                    namespaceArray.add(name);
-                }
-            } catch(ConfigurationPropertyStoreException e) {
-                logger.error("Unable to access CPS", e);
-                resp.setStatus(500);
-                return;
-            }
-            resp.getWriter().write(gson.toJson(namespaceArray));
-            resp.setStatus(200);
-            return;
+        List<String> namespaces = framework.getConfigurationPropertyService("framework").getCPSNamespaces();
+        for (String name : namespaces) {
+            namespaceArray.add(name);
+        }
+        resp.getWriter().write(gson.toJson(namespaceArray));
+        resp.setStatus(200);
+        return;
     }
 
-    private void getNamespaceProperties(HttpServletResponse resp, String namespace) throws IOException,
-            ConfigurationPropertyStoreException {
+    private void getNamespaceProperties(HttpServletResponse resp, String namespace)
+            throws IOException, ConfigurationPropertyStoreException {
         JsonArray propertyArray = new JsonArray();
-        Map<String,String> properties = framework.getConfigurationPropertyService(namespace).getAllProperties();
-        for(String prop : properties.keySet()) {
+        Map<String, String> properties = framework.getConfigurationPropertyService(namespace).getAllProperties();
+        for (String prop : properties.keySet()) {
             JsonObject cpsProp = new JsonObject();
             cpsProp.addProperty("name", prop);
             cpsProp.addProperty("value", properties.get(prop));
@@ -134,17 +128,17 @@ public class AccessCps extends HttpServlet {
         return;
     }
 
-    private void getCPSProperty(HttpServletResponse resp, String namespace, String prefix, String suffix, String infixQuery)
-            throws IOException, ConfigurationPropertyStoreException {
+    private void getCPSProperty(HttpServletResponse resp, String namespace, String prefix, String suffix,
+            String infixQuery) throws IOException, ConfigurationPropertyStoreException {
         String[] infixArray = null;
-        if(infixQuery == null) {
+        if (infixQuery == null) {
             infixArray = new String[0];
         } else {
             String[] queries = infixQuery.split("&");
             List<String> infixes = new ArrayList<>();
-            for(String pair : queries) {
+            for (String pair : queries) {
                 String[] keyValue = pair.split("=");
-                if(!keyValue[0].equals("infix")) {
+                if (!keyValue[0].equals("infix")) {
                     logger.error("Invalid Infix in URL");
                     resp.setStatus(500);
                     return;
@@ -157,8 +151,8 @@ public class AccessCps extends HttpServlet {
 
         String propValue = framework.getConfigurationPropertyService(namespace).getProperty(prefix, suffix, infixArray);
         Map<String, String> pairs = framework.getConfigurationPropertyService(namespace).getAllProperties();
-        for(String key : pairs.keySet()) {
-            if(pairs.get(key).equals(propValue) && key.startsWith(namespace + "." + prefix) && key.endsWith(suffix)) {
+        for (String key : pairs.keySet()) {
+            if (pairs.get(key).equals(propValue) && key.startsWith(namespace + "." + prefix) && key.endsWith(suffix)) {
                 respJson.addProperty("name", key);
                 respJson.addProperty("value", pairs.get(key));
                 break;
@@ -169,19 +163,31 @@ public class AccessCps extends HttpServlet {
         return;
     }
 
-    public void sendError(HttpServletResponse resp, StackTraceElement[] trace) {
-        StringBuilder message = new StringBuilder();
-        for(StackTraceElement element : trace) {
-            message.append(element.toString());
+    private void addCPSProperty(HttpServletResponse resp, HttpServletRequest req, String namespace, String property)
+            throws IOException, ConfigurationPropertyStoreException {
+        JsonObject reqJson = gson.fromJson(new InputStreamReader(req.getInputStream()),JsonObject.class);
+        if(!property.equals(reqJson.get("name").getAsString())) {
+            sendError(resp, "Different CPS property name in url and request: " + property + ", " + reqJson.get("name"));
+        } else {
+            IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService(namespace);
+            cps.setProperty(reqJson.get("name").getAsString(), reqJson.get("value").getAsString());
+            resp.setStatus(200);
+            resp.getWriter().write(gson.toJson(reqJson));
         }
-        sendError(resp, message.toString());
     }
 
-    public void sendError(HttpServletResponse resp, String trace) {
+    public void sendError(HttpServletResponse resp, Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        sendError(resp, sw.toString());
+    }
+
+    public void sendError(HttpServletResponse resp, String errorMessage) {
         resp.setStatus(500);
         JsonObject json = new JsonObject();
-        json.addProperty("error", trace);
+        json.addProperty("error", errorMessage);
         try {
+
             resp.getWriter().write(gson.toJson(json));
         } catch (IOException e) {
             logger.fatal("Unable to respond", e);

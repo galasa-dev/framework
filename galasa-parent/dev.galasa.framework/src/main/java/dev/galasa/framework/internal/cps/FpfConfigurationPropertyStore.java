@@ -52,6 +52,12 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
     public @Null String getProperty(@NotNull String key) throws ConfigurationPropertyStoreException {
         return fpf.get(key);
     }
+    
+    @Override
+    public @NotNull Map<String, String> getPrefixedProperties(@NotNull String prefix)
+            throws ConfigurationPropertyStoreException {
+        return fpf.getPrefix(prefix);
+    }
 
     /**
      * <p>
@@ -118,4 +124,5 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
             throw new ConfigurationPropertyStoreException("Problem shutting down the CPS File", e);
         }
     }
+
 }
