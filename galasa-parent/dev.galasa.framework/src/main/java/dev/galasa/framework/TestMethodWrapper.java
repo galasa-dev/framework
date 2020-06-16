@@ -44,7 +44,7 @@ public class TestMethodWrapper {
     public void invoke(@NotNull TestRunManagers managers, Object testClassObject) throws TestRunException {
         // run all the @Befores before the test method
         for (GenericMethodWrapper before : this.befores) {
-            before.invoke(managers, testClassObject);
+            before.invoke(managers, testClassObject, testMethod);
             if (before.getResult().isFullStop()) {
                 this.fullStop = true;
                 this.result = Result.failed("Before method failed");
@@ -53,7 +53,7 @@ public class TestMethodWrapper {
         }
 
         if (this.result == null) {
-            testMethod.invoke(managers, testClassObject);
+            testMethod.invoke(managers, testClassObject, null);
             this.fullStop = this.testMethod.fullStop();
             this.result = this.testMethod.getResult();
         }
@@ -61,7 +61,7 @@ public class TestMethodWrapper {
         // run all the @Afters after the test method
         Result afterResult = null;
         for (GenericMethodWrapper after : this.afters) {
-            after.invoke(managers, testClassObject);
+            after.invoke(managers, testClassObject, testMethod);
             if (after.fullStop()) {
                 this.fullStop = true;
                 if (afterResult == null) {

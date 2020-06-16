@@ -38,15 +38,15 @@ public class GenericMethodWrapper {
         Test
     }
 
-    private Method     testMethod;
+    private Method     excecutionMethod;
     private Class<?>   testClass;
     private Type       type;
     private Result     result;
 
     private TestMethod testStructureMethod;
 
-    public GenericMethodWrapper(Method testMethod, Class<?> testClass, Type type) {
-        this.testMethod = testMethod;
+    public GenericMethodWrapper(Method excecutionMethod, Class<?> testClass, Type type) {
+        this.excecutionMethod = excecutionMethod;
         this.testClass = testClass;
         this.type = type;
     }
@@ -54,30 +54,31 @@ public class GenericMethodWrapper {
     /**
      * Run the supplied method
      * 
-     * @param method     the method
-     * @param methodType the method type for logging
+     * @param managers the managers used in this test
+     * @param testClassObject the test class
+     * @param testMethod the test method if the execution method is @Before or @After 
      * @throws TestRunException
      */
-    public void invoke(@NotNull TestRunManagers managers, Object testClassObject) throws TestRunException {
+    public void invoke(@NotNull TestRunManagers managers, Object testClassObject, GenericMethodWrapper testMethod) throws TestRunException {
         try {
             String methodType = ",type=" + type.toString();
-            Result ignored = managers.anyReasonTestMethodShouldBeIgnored(this.testMethod);
+            Result ignored = managers.anyReasonTestMethodShouldBeIgnored(this.excecutionMethod);
             if (ignored != null) {
                 this.result = ignored;
                 return;
             }
             managers.fillAnnotatedFields(testClassObject);
-            managers.startOfTestMethod(this.testMethod);
+            managers.startOfTestMethod(this.excecutionMethod, (testMethod != null ? testMethod.excecutionMethod: null));
 
             logger.info(TestClassWrapper.LOG_STARTING + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS
                     + TestClassWrapper.LOG_START_LINE + "*** Start of test method " + testClass.getName() + "#"
-                    + testMethod.getName() + methodType + TestClassWrapper.LOG_START_LINE
+                    + excecutionMethod.getName() + methodType + TestClassWrapper.LOG_START_LINE
                     + TestClassWrapper.LOG_ASTERS);
             testStructureMethod.setStartTime(Instant.now());
             testStructureMethod.setStatus("started");
 
             try {
-                this.testMethod.invoke(testClassObject);
+                this.excecutionMethod.invoke(testClassObject);
                 this.result = Result.passed();
             } catch (InvocationTargetException e) {
                 this.result = Result.failed(e.getCause());
@@ -85,7 +86,7 @@ public class GenericMethodWrapper {
                 this.result = Result.failed(e);
             }
 
-            Result overrideResult = managers.endOfTestMethod(this.testMethod, this.result, this.result.getThrowable());
+            Result overrideResult = managers.endOfTestMethod(this.excecutionMethod, this.result, this.result.getThrowable());
             if (overrideResult != null) {
                 this.result = overrideResult;
             }
@@ -110,7 +111,7 @@ public class GenericMethodWrapper {
                 }
                 logger.info(TestClassWrapper.LOG_ENDING + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS
                         + TestClassWrapper.LOG_START_LINE + "*** " + resname + " - Test method " + testClass.getName()
-                        + "#" + testMethod.getName() + methodType + TestClassWrapper.LOG_START_LINE
+                        + "#" + excecutionMethod.getName() + methodType + TestClassWrapper.LOG_START_LINE
                         + TestClassWrapper.LOG_ASTERS);
             } else {
                 String exception = "";
@@ -119,7 +120,7 @@ public class GenericMethodWrapper {
                 }
                 logger.info(TestClassWrapper.LOG_ENDING + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS
                         + TestClassWrapper.LOG_START_LINE + "*** " + this.result.getName() + " - Test method "
-                        + testClass.getName() + "#" + testMethod.getName() + methodType
+                        + testClass.getName() + "#" + excecutionMethod.getName() + methodType
                         + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS + exception);
             }
 
@@ -141,7 +142,7 @@ public class GenericMethodWrapper {
 
     public TestMethod getStructure() {
         this.testStructureMethod = new TestMethod(testClass);
-        this.testStructureMethod.setMethodName(testMethod.getName());
+        this.testStructureMethod.setMethodName(excecutionMethod.getName());
         this.testStructureMethod.setType(this.type.toString());
 
         return this.testStructureMethod;
