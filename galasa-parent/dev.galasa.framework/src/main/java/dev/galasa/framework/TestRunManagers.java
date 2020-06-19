@@ -527,10 +527,10 @@ public class TestRunManagers {
         }
     }
 
-    public void startOfTestMethod(@NotNull Method testMethod) throws FrameworkException {
+    public void startOfTestMethod(@NotNull Method excecutionMethod, Method testMethod) throws FrameworkException {
         for (IManager manager : activeManagers) {
             try {
-                manager.startOfTestMethod(testMethod);
+                manager.startOfTestMethod(excecutionMethod, testMethod);
             } catch (ManagerException e) {
                 throw new FrameworkException(
                         "Problem in start of test test method for manager " + manager.getClass().getName(), e);
@@ -600,7 +600,7 @@ public class TestRunManagers {
     
     public void shutdown() {
         for (IManager manager : activeManagersReversed) {
-            manager.endOfTestRun();
+            manager.shutdown();
         }
     }
 

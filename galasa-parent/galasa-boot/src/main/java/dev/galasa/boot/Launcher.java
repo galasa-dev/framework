@@ -103,7 +103,7 @@ public class Launcher {
         try {
             launcher.launch(args);
         } catch(LauncherException e) {
-            logger.error("Existing launcher due to exception",e);
+            logger.error("Exiting launcher due to exception",e);
             System.exit(16);
         }
         System.exit(0);
