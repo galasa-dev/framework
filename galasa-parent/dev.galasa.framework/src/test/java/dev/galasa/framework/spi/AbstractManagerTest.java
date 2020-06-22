@@ -13,10 +13,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.AnnotatedField;
-import dev.galasa.framework.spi.GenerateAnnotatedField;
-import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.ManagerException;
 
 public class AbstractManagerTest {
@@ -139,7 +135,7 @@ public class AbstractManagerTest {
         testManager.provisionStart();
         testManager.startOfTestClass();
         testManager.anyReasonTestMethodShouldBeIgnored(null);
-        testManager.startOfTestMethod(null);
+        testManager.startOfTestMethod(null, null);
         testManager.endOfTestMethod(null, null, null);
         testManager.testMethodResult(null, null);
         testManager.endOfTestClass(null, null);
