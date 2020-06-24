@@ -69,6 +69,9 @@ public class CleanArtifacts extends AbstractMojo {
     @Parameter(defaultValue = "${galasa.dry.run}", property = "dryRun", required = false)
     private Boolean           dryRun;
 
+    @Parameter(defaultValue = "${galasa.process.all}", property = "processAll", required = false)
+    private boolean           processAll;
+
     private CloseableHttpClient httpClient;
     private Header authNexus;
     private Header authTarget;
@@ -80,7 +83,7 @@ public class CleanArtifacts extends AbstractMojo {
     private HashSet<String> stageNames = new HashSet<>();
     private HashSet<String> intermediateNames = new HashSet<>();
     private HashSet<String> keepNames = new HashSet<>();
-    
+
     private ArrayList<Artifact> stageArtifacts = new ArrayList<>();
     private ArrayList<Artifact> intermediateArtifacts = new ArrayList<>();
     private ArrayList<Artifact> duplicatedArtifacts = new ArrayList<>();
@@ -93,7 +96,13 @@ public class CleanArtifacts extends AbstractMojo {
         }
 
         buildHttpClient();
-        loadControlFile();
+        if (controlFile != null) {
+            loadControlFile();
+        } else {
+            if (!processAll) {
+                throw new MojoExecutionException("Missing control file as process all is false");
+            }
+        }
 
 
         try {
@@ -207,7 +216,7 @@ public class CleanArtifacts extends AbstractMojo {
         Iterator<Artifact> iArtifact = stageArtifacts.iterator();
         while(iArtifact.hasNext()) {
             Artifact artifact = iArtifact.next();
-            
+
             if (this.keepNames.contains(artifact.getName())) {
                 continue;
             }
@@ -253,12 +262,16 @@ public class CleanArtifacts extends AbstractMojo {
         for(Artifact artifact : this.artifacts) {
             String name = artifact.getName();
 
-            if (this.stageNames.contains(name)) {
+            if (processAll) {
                 this.stageArtifacts.add(artifact);
-            } else if (this.intermediateNames.contains(name)) {
-                this.intermediateArtifacts.add(artifact);
             } else {
-                this.unknownArtifacts.add(artifact);
+                if (this.stageNames.contains(name)) {
+                    this.stageArtifacts.add(artifact);
+                } else if (this.intermediateNames.contains(name)) {
+                    this.intermediateArtifacts.add(artifact);
+                } else {
+                    this.unknownArtifacts.add(artifact);
+                }
             }
         }
     }
@@ -285,7 +298,7 @@ public class CleanArtifacts extends AbstractMojo {
         if (oList == null) {
             return;
         }
-        
+
         if (!(oList instanceof List)) {
             throw new MojoExecutionException("Control file property " + property +" is not an array");
         }
@@ -356,7 +369,7 @@ public class CleanArtifacts extends AbstractMojo {
             String creds = credentials.getUserName() + ":" + credentials.getPassword();
             String auth = Base64.getEncoder().encodeToString(creds.getBytes());
             authNexus = new BasicHeader("Authorization", "Basic " + auth);
-            
+
         }
 
         if (this.targetId != null) {

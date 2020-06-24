@@ -1,6 +1,6 @@
 /*
  * Licensed Materials - Property of IBM
- * 
+ *
  * (c) Copyright IBM Corp. 2019.
  */
 package dev.galasa.framework.gendocs;
@@ -21,6 +21,9 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.MethodDoc;
@@ -29,11 +32,11 @@ import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Tag;
 
 public class ManagerDoclet {
-    
+
     private static final String TAG_MANAGER      = "@galasa.manager";
     private static final String TAG_ANNOTATION   = "@galasa.annotation";
     private static final String TAG_CPS_PROPERTY = "@galasa.cps.property";
-    
+
     private static final String TAG_DESCRIPTION   = "@galasa.description";
     private static final String TAG_NAME          = "@galasa.name";
     private static final String TAG_EXTRA         = "@galasa.extra";
@@ -53,29 +56,29 @@ public class ManagerDoclet {
     private static final String PROPERTY_EXAMPLES      = "examples";
     private static final String PROPERTY_EXTRA         = "extra";
     private static final String PROPERTY_LIMITATIONS   = "limitations";
-    private static final String PROPERTY_ATTRIBUTES    = "attributes";    
+    private static final String PROPERTY_ATTRIBUTES    = "attributes";
     private static final String PROPERTY_RELEASE_STATE = "state";
-    
+
     private static final String REGEX_MANAGER_NAME    = "[\\s/\\\\]";
-    
-    
-    
+
+    private static Gson gson = new Gson();
+
     private ManagerDoclet() {
         throw new IllegalStateException("Static class");
       }
-    
+
     public static boolean start(RootDoc root) throws Exception {
         return processRoot(root, FileSystems.getDefault().getPath(".").toAbsolutePath());
-    }    
-    
+    }
+
     public static boolean processRoot(RootDoc root, Path cwd) throws Exception {
 
         VelocityEngine ve = new VelocityEngine();
-        ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath"); 
+        ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
         ve.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
 
         ve.init();
-        
+
         for(PackageDoc packageDoc : root.specifiedPackages()) {
             processPackageDoc(ve, packageDoc, cwd);
         }
@@ -97,12 +100,12 @@ public class ManagerDoclet {
     }
 
     public static String getPackageName(String qualifiedName) {
-        
+
         int pos = qualifiedName.lastIndexOf('.');
         if (pos < 0) {
             return "";
         }
-                
+
         return qualifiedName.substring(0, pos);
     }
 
@@ -112,11 +115,14 @@ public class ManagerDoclet {
             return;
         }
 
+        JsonObject cpsProperty = new JsonObject();
+        String propertyName = "";
+
         for(Tag tag : tags) {
             switch(tag.name()) {
                 case TAG_CPS_PROPERTY:
-                    recordCpsProperty(ve, doc, name, packageName, cwd);
-                    return;
+                propertyName = recordCpsProperty(ve, doc, name, packageName, cwd, cpsProperty);
+                    break;
                 case TAG_MANAGER:
                     recordManager(ve, doc, name, packageName, cwd);
                     return;
@@ -127,13 +133,32 @@ public class ManagerDoclet {
                     break;
             }
         }
+
+        if(cpsProperty.size() != 0) {
+            Path snippetFile = cwd.resolve("vscode_cps_snippets.json").toAbsolutePath();
+            if (!Files.exists(snippetFile.getParent())) {
+                Files.createDirectories(snippetFile.getParent());
+            }
+
+            JsonObject fullCps = new JsonObject();
+            if(snippetFile.toFile().exists()) {
+                fullCps = gson.fromJson(new String(Files.readAllBytes(snippetFile)), JsonObject.class);
+            }
+            if (propertyName != null) {
+                fullCps.add(propertyName, cpsProperty);
+            } 
+            
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter((Files.newOutputStream(snippetFile))));
+            writer.write(gson.toJson(fullCps));
+            writer.close();
+        }
     }
 
-    public static void recordCpsProperty(VelocityEngine ve, Doc doc, String qualifiedName, String packageName, Path cwd) throws IOException {
+    public static String recordCpsProperty(VelocityEngine ve, Doc doc, String qualifiedName, String packageName, Path cwd, JsonObject property) throws IOException {
         System.out.println("    Found CPS Property " + qualifiedName);
 
         String manager = getTagString(doc, TAG_CPS_PROPERTY, packageName);
-        
+
         String propertyTitle = getFirstSentenceString(doc, packageName);
         String propertyName = getTagString(doc, TAG_NAME, packageName);
         String propertyDescription = getTagString(doc, TAG_DESCRIPTION, packageName);
@@ -154,7 +179,7 @@ public class ManagerDoclet {
         context.put(PROPERTY_EXTRA, propertyExtra);
 
         Template propertiesTemplate = ve.getTemplate("/property.template");
-           
+
         String managerPrefix = "";
         if (manager != null) {
             manager = manager.trim().toLowerCase().replaceAll(REGEX_MANAGER_NAME, "_");
@@ -162,33 +187,46 @@ public class ManagerDoclet {
                 managerPrefix = manager + FileSystems.getDefault().getSeparator();
             }
         }
-        
+
         Path propertyFile = cwd.resolve(managerPrefix + "cps_" + qualifiedName + ".md").toAbsolutePath();
         if (!Files.exists(propertyFile.getParent())) {
             Files.createDirectories(propertyFile.getParent());
         }
-        
-        
+
+
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter((Files.newOutputStream(propertyFile))));
         propertiesTemplate.merge(context, writer);
         writer.close();
+
+        property.addProperty("name", propertyTitle);
+        property.addProperty("description", propertyDescription);
+        if (propertyName != null && propertyName.indexOf(".") > -1) {
+            property.addProperty("prefix", propertyName.substring(0, propertyName.indexOf(".")));
+        } else {
+            property.addProperty("prefix", propertyName);
+        }
+        JsonArray body = new JsonArray();
+        body.add(propertyName);
+        property.add("body", body);
+
+        return propertyName;
     }
 
     public static void recordAnnotation(VelocityEngine ve, Doc doc, String qualifiedName, String packageName, Path cwd) throws IOException {
         System.out.println("    Found Annotation " + qualifiedName);
-        
+
         ClassDoc classDoc = null;
         if (doc instanceof ClassDoc) {
             classDoc = (ClassDoc) doc;
         }
         String manager = getTagString(doc, TAG_ANNOTATION, packageName);
-       
+
         String propertyTitle = getFirstSentenceString(doc, packageName);
         String propertyName = "@" + doc.name();
         String propertyDescription = getTagString(doc, TAG_DESCRIPTION, packageName);
         String propertyExamples = getTagString(doc, TAG_EXAMPLES, packageName);
         String propertyExtra = getTagString(doc, TAG_EXTRA, packageName);
-        
+
         ArrayList<Attribute> attrs = new ArrayList<>();
         if (classDoc != null && classDoc.fields() != null) {
             for(MethodDoc fieldDoc : classDoc.methods()) {
@@ -196,7 +234,7 @@ public class ManagerDoclet {
                 attrs.add(attr);
             }
         }
-        
+
 
         VelocityContext context = new VelocityContext();
         context.put(PROPERTY_TITLE, propertyTitle);
@@ -207,7 +245,7 @@ public class ManagerDoclet {
         context.put(PROPERTY_EXTRA, propertyExtra);
 
         Template propertiesTemplate = ve.getTemplate("/annotation.template");
-           
+
         String managerPrefix = "";
         if (manager != null) {
             manager = manager.trim().toLowerCase().replaceAll(REGEX_MANAGER_NAME, "_");
@@ -215,13 +253,13 @@ public class ManagerDoclet {
                 managerPrefix = manager + FileSystems.getDefault().getSeparator();
             }
         }
-        
+
         Path propertyFile = cwd.resolve(managerPrefix + "annotation_" + qualifiedName + ".md").toAbsolutePath();
         if (!Files.exists(propertyFile.getParent())) {
             Files.createDirectories(propertyFile.getParent());
         }
-        
-        
+
+
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter((Files.newOutputStream(propertyFile))));
         propertiesTemplate.merge(context, writer);
         writer.close();
@@ -234,11 +272,11 @@ public class ManagerDoclet {
         if (manager == null) {
             throw new ManagerDocsException("Manager javadoc for " + qualifiedName + " does not have a @galasa.manager id");
         }
-        
+
         String propertyTitle = getFirstSentenceString(doc, packageName);
         String propertyName = getTagString(doc, TAG_NAME, packageName);
         String propertyDescription = getTagString(doc, TAG_DESCRIPTION, packageName);
-        String propertyExtra = getTagString(doc, TAG_EXTRA, packageName);        
+        String propertyExtra = getTagString(doc, TAG_EXTRA, packageName);
         String propertyLimitations = getTagString(doc, TAG_LIMITATIONS, packageName);
         String propertyReleaseState = getTagString(doc, TAG_RELEASE_STATE, packageName);
 
@@ -249,26 +287,26 @@ public class ManagerDoclet {
         context.put(PROPERTY_LIMITATIONS, propertyLimitations);
         context.put(PROPERTY_EXTRA, propertyExtra);
         context.put(PROPERTY_RELEASE_STATE, propertyReleaseState);
-        
+
 
         Template propertiesTemplate = ve.getTemplate("/manager.template");
-           
+
         String managerId = "";
         managerId = manager.trim().toLowerCase().replaceAll(REGEX_MANAGER_NAME, "_");
         if (managerId.isEmpty()) {
            throw new ManagerDocsException("Manager javadoc for " + qualifiedName + " does not have a name for @galasa.manager");
         }
         String managerPrefix = managerId + FileSystems.getDefault().getSeparator();
-        
+
         Path propertyFile = cwd.resolve(managerPrefix + "manager.md").toAbsolutePath();
         if (!Files.exists(propertyFile.getParent())) {
             Files.createDirectories(propertyFile.getParent());
         }
-         
+
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter((Files.newOutputStream(propertyFile))));
         propertiesTemplate.merge(context, writer);
         writer.close();
-        
+
         Path idFile = cwd.resolve(managerPrefix + "id.txt");
         Files.write(idFile, manager.getBytes());
     }
@@ -283,7 +321,7 @@ public class ManagerDoclet {
         Tag[] tags = doc.tags(tagName);
         return getFirstTagString(tags, packageName);
     }
-        
+
     public static String getFirstTagString(Tag[] tags, String packageName) {
 
         if (tags == null || tags.length == 0) {
@@ -301,7 +339,7 @@ public class ManagerDoclet {
     }
 
     public static String getTagString(Tag tag, String packageName) {
-        
+
         if (tag == null) {
             return null;
         }
@@ -310,21 +348,21 @@ public class ManagerDoclet {
         if (text == null) {
             return null;
         }
-        
+
         text = text.trim();
         if (text.isEmpty()) {
             return null;
         }
-        
+
         return getString(text, packageName);
     }
-    
-    
+
+
     public static String getString(String text, String packageName) {
 
         text = text.replaceAll("\n", "");
         text = text.replaceAll("\\Q{@literal @}\\E", "@");
-        
+
         //*** Replace all the links
         Pattern linkPattern = Pattern.compile("(\\Q{@link\\E\\s+([\\w|\\.]+)\\s?\\Q}\\E)");
 
@@ -337,10 +375,10 @@ public class ManagerDoclet {
             } else {
                 fullname = className;
             }
-            
+
             String javadocPrefix = "https://javadoc-snapshot.galasa.dev";
             String fullnamePath = fullname.replaceAll("\\.", "/");
-            
+
             text = matcher.replaceFirst("<a href=\"" + javadocPrefix + "/" + fullnamePath + ".html\" target=\"_blank\">" + className + "</a>");
 //            text = matcher.replaceFirst("[" + className + "](" + javadocPrefix + "/" + fullnamePath + ".html)");
             matcher = linkPattern.matcher(text);
@@ -348,21 +386,21 @@ public class ManagerDoclet {
 
         return text;
     }
-    
-    
+
+
     public static class Attribute {
         private String name;
         private String text;
-        
+
         public Attribute(String name, String text) {
             this.name = name;
             this.text = text;
         }
-        
+
         public String getName() {
             return name;
         }
-        
+
         public String getText() {
             return text;
         }

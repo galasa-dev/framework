@@ -375,7 +375,7 @@ public abstract class AbstractManager implements IManager {
      * @see dev.galasa.framework.spi.IManager#startOfTestMethod()
      */
     @Override
-    public void startOfTestMethod(@NotNull Method testMethod) throws ManagerException {
+    public void startOfTestMethod(@NotNull Method excecutionMethod, Method testMetho) throws ManagerException {
     }
 
     /*
