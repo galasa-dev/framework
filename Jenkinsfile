@@ -110,7 +110,7 @@ pipeline {
                         sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-runs-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (env.PULL_REQ) {
+                           if (env.PULL_REQ == 'true') {
                               echo 'Skipping npm publish'
                            } else {
                               npm publish generated-openapi
@@ -125,7 +125,7 @@ pipeline {
                         sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-cps-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (env.PULL_REQ) {
+                           if (env.PULL_REQ == 'true') {
                               echo 'Skipping npm publish'
                            } else {
                               npm publish generated-openapi
@@ -140,7 +140,7 @@ pipeline {
                         sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-ras-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
-                           if (env.PULL_REQ) {
+                           if (env.PULL_REQ == 'true') {
                               echo 'Skipping npm publish'
                            } else {
                               npm publish generated-openapi
