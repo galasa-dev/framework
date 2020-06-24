@@ -174,10 +174,10 @@ pipeline {
          }
       }
    }
-   // post {
-   //     // triggered when red sign
-   //     failure {
-   //         slackSend (channel: '#galasa-devs', color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
-   //     }
-   //  }
+   post {
+       // triggered when red sign
+       failure {
+           slackSend (channel: '#galasa-devs', color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+       }
+    }
 }
