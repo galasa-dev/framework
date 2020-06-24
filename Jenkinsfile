@@ -113,7 +113,7 @@ pipeline {
                            if (env.PULL_REQ == 'true') {
                               echo 'Skipping npm publish'
                            } else {
-                              npm publish generated-openapi
+                              sh "npm publish generated-openapi"
                            }
                         }
                      }
@@ -128,7 +128,7 @@ pipeline {
                            if (env.PULL_REQ == 'true') {
                               echo 'Skipping npm publish'
                            } else {
-                              npm publish generated-openapi
+                              sh "npm publish generated-openapi"
                            }
                         }
                      }
@@ -143,7 +143,7 @@ pipeline {
                            if (env.PULL_REQ == 'true') {
                               echo 'Skipping npm publish'
                            } else {
-                              npm publish generated-openapi
+                              sh "npm publish generated-openapi"
                            }
                         }                        
                      }
