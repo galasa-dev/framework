@@ -1,6 +1,6 @@
 /*
  * Licensed Materials - Property of IBM
- * 
+ *
  * (c) Copyright IBM Corp. 2019.
  */
 package dev.galasa.framework.gendocs;
@@ -18,6 +18,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,19 +35,19 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
 /**
- * this goal will sxtract the generated markdown files from the java doc and build a manager.md file in the 
+ * this goal will sxtract the generated markdown files from the java doc and build a manager.md file in the
  * intended git repo directory.
- * 
+ *
  * @author Michael Baylis
  *
  */
-@Mojo(name = "buildmanagerdoc", 
+@Mojo(name = "buildmanagerdoc",
 requiresProject = true)
 public class BuildManagerDoc extends AbstractMojo {
 
     private static VelocityEngine ve = new VelocityEngine();
     static {
-        ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath"); 
+        ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
         ve.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
     }
 
@@ -56,7 +59,10 @@ public class BuildManagerDoc extends AbstractMojo {
 
     @Parameter(defaultValue = "${galasa.manager.doc.directory}", property = "managerDocDir", required = true)
     public File                    managerDocDir;
-    
+
+    @Parameter(defaultValue = "${galasa.manager.snippet.directory}", property = "managerSnippetDir", required = false)
+    public File                    managerSnippetDir;
+
     private boolean                errorDuringProcessing = false;
 
     @Override
@@ -111,6 +117,7 @@ public class BuildManagerDoc extends AbstractMojo {
             ArrayList<Path> annotationFiles = new ArrayList<>();
             ArrayList<Path> codeSnippetFiles = new ArrayList<>();
             ArrayList<Path> cpsPropertyFiles = new ArrayList<>();
+            ArrayList<Path> cpsSnippetFiles = new ArrayList<>();
 
 
             //*** Search the manager directory for manager specific files
@@ -120,7 +127,9 @@ public class BuildManagerDoc extends AbstractMojo {
                         return;
                     }
                     String fileName = t.getFileName().toString();
-                    if (!fileName.endsWith(".md")) {
+                    if (fileName.startsWith("vscode")) {
+                        cpsSnippetFiles.add(t);
+                    } else if (!fileName.endsWith(".md")) {
                         return;
                     }
 
@@ -139,7 +148,9 @@ public class BuildManagerDoc extends AbstractMojo {
                         return;
                     }
                     String fileName = t.getFileName().toString();
-                    if (!fileName.endsWith(".md")) {
+                    if (fileName.startsWith("vscode")) {
+                        cpsSnippetFiles.add(t);
+                    } else if (!fileName.endsWith(".md")) {
                         return;
                     }
 
@@ -211,11 +222,12 @@ public class BuildManagerDoc extends AbstractMojo {
             ArrayList<String> annotations = readFiles(annotationFiles);
             ArrayList<String> codeSnippets = readFiles(codeSnippetFiles);
             ArrayList<String> cpsProperties = readFiles(cpsPropertyFiles);
+            ArrayList<String> cpsSnippets = readFiles(cpsSnippetFiles);
 
 
             String filename = id.toLowerCase().replaceAll("[\\s/\\\\]", "-");
-            
-            
+
+
             if (annotations.isEmpty()) {
                 annotations = null;
             }
@@ -242,12 +254,37 @@ public class BuildManagerDoc extends AbstractMojo {
             topicTemplate.merge(context, writer);
             writer.close();
 
+            if(managerSnippetDir != null) {
+                Path snippetOutputPath = Paths.get(managerSnippetDir.toURI()).resolve("vscode_cps_full_snippets.json");
+                if (!Files.exists(snippetOutputPath.getParent())) {
+                    Files.createDirectories(snippetOutputPath.getParent());
+                }
+
+                Gson gson = new Gson();
+                JsonObject fullProps = new JsonObject();
+
+                if(snippetOutputPath.toFile().exists()) {
+                    fullProps = gson.fromJson(new String(Files.readAllBytes(snippetOutputPath)), JsonObject.class);
+                }
+
+                for(String cpsSnippet : cpsSnippets) {
+                    JsonObject snippet = gson.fromJson(cpsSnippet, JsonObject.class);
+                    for(String key : snippet.keySet()) {
+                        fullProps.add(key, snippet.get(key));
+                    }
+                }
+
+                BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter((Files.newOutputStream(snippetOutputPath))));
+                writer2.write(gson.toJson(fullProps));
+                writer2.close();
+            }
+
         } catch(IOException e) {
             getLog().error("Unable to process manager at " + managerDirectory.toString(), e);
             errorDuringProcessing = true;
         }
 
-    } 
+    }
 
 
     private ArrayList<String> readFiles(ArrayList<Path> files) throws IOException {
