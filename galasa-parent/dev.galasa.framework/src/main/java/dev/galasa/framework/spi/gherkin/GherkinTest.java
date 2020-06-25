@@ -15,7 +15,7 @@ import dev.galasa.framework.spi.IRun;
 
 public class GherkinTest {
 
-    private List<GhrekinMethod> methods;
+    private List<GherkinMethod> methods;
     private URI gherkinUri;
 
     private String testName;
@@ -33,7 +33,7 @@ public class GherkinTest {
                 BufferedReader br = new BufferedReader(new FileReader(gherkinFile));
 
                 String line;
-                GhrekinMethod currentMethod = null;
+                GherkinMethod currentMethod = null;
                 while ((line = br.readLine()) != null) {
                     line = line.trim();
                     if(line.isEmpty()) {
@@ -46,7 +46,7 @@ public class GherkinTest {
                         if(currentMethod != null) {
                             methods.add(currentMethod);
                         }
-                        currentMethod = new GhrekinMethod(line.substring(9).trim());
+                        currentMethod = new GherkinMethod(line.substring(9).trim());
                     } else if(currentMethod != null) {
                         currentMethod.addStatement(line);
                     } else {
@@ -73,7 +73,7 @@ public class GherkinTest {
         return this.testName;
     }
 
-    public List<GhrekinMethod> getMethods() {
+    public List<GherkinMethod> getMethods() {
         return this.methods;
     }
 

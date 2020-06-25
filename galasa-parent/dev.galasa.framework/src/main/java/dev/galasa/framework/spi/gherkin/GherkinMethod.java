@@ -3,12 +3,12 @@ package dev.galasa.framework.spi.gherkin;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GhrekinMethod {
+public class GherkinMethod {
 
     private String name;
     private List<GherkinStatement> statements;
 
-    public GhrekinMethod (String name) {
+    public GherkinMethod (String name) {
         this.name = name;
         this.statements = new ArrayList<>();
     }
