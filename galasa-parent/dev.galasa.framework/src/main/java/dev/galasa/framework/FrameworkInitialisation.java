@@ -192,6 +192,10 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                 if (runBundleClass != null) {
                     runName = createRunName(runBundleClass);
                     framework.setTestRunName(runName);
+                } else {
+                    String runGherkinName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "ghrekintest"));
+                    runName = createRunName(runGherkinName);
+                    framework.setTestRunName(runName);
                 }
             } else {
                 framework.setTestRunName(runName);
@@ -345,12 +349,18 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * @return
      */
     protected String createRunName(String runBundleClass) throws FrameworkException {
-        String split[] = runBundleClass.split("/");
-        String bundle = split[0];
-        String test = split[1];
-        
+        IRun run = null;
         IFrameworkRuns frameworkRuns = this.framework.getFrameworkRuns();
-        IRun run = frameworkRuns.submitRun("local", null, bundle, test, null, null, null, null, true, false, null, null, null);
+
+        String split[] = runBundleClass.split("/");
+        if(split.length == 2) {
+            String bundle = split[0];
+            String test = split[1];
+            
+            run = frameworkRuns.submitRun("local", null, bundle, test, null, null, null, null, true, false, null, null, null);
+        } else {
+            run = frameworkRuns.submitRun("local", null, null, runBundleClass, null, null, null, null, true, false, null, null, null);
+        }
 
         logger.info("Allocated Run Name " + run.getName() + " to this run");
 

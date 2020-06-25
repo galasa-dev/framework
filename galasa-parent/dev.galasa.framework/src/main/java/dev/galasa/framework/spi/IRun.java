@@ -50,4 +50,6 @@ public interface IRun {
     String getResult();
     
     boolean isSharedEnvironment();
+
+    public String getGherkin();
 }

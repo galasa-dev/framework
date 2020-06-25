@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ManagerException;
+import dev.galasa.framework.spi.gherkin.GherkinTest;
 
 /**
  * An abstract manager which attempts to provide all the boilerplate code
@@ -553,5 +554,11 @@ public abstract class AbstractManager implements IManager {
     public boolean doYouSupportSharedEnvironments() {
         return false; //*** Managers by default will not support shared environments
     }
+
+    @Override
+    public void registerStatements(@NotNull IFramework framework, @NotNull List<IManager> allManagers,
+            @NotNull List<IManager> activeManagers, @NotNull GherkinTest gherkinTest) throws ManagerException {
+        return;
+    };
 
 }

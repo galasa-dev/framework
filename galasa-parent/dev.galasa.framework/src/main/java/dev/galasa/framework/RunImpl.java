@@ -22,6 +22,7 @@ public class RunImpl implements IRun {
     private final String  test;
     private final String  bundleName;
     private final String  testName;
+    private final String  gherkin;
     private final String  status;
     private final String  result;
     private final Instant queued;
@@ -89,11 +90,19 @@ public class RunImpl implements IRun {
 
         if (test != null) {
             String[] split = test.split("/");
-            this.bundleName = split[0];
-            this.testName = split[1];
+            if(split.length == 2) {
+                this.bundleName = split[0];
+                this.testName = split[1];
+                this.gherkin = null;
+            } else {
+                this.gherkin = runProperties.get(prefix + "gherkin");
+                this.bundleName = null;
+                this.testName = null;
+            }
         } else {
             this.bundleName = null;
             this.testName = null;
+            this.gherkin = null;
         }
     }
 
@@ -196,6 +205,11 @@ public class RunImpl implements IRun {
     @Override
     public boolean isSharedEnvironment() {
         return this.sharedEnvironment;
+    }
+
+    @Override
+    public String getGherkin() {
+        return this.gherkin;
     }
 
 }

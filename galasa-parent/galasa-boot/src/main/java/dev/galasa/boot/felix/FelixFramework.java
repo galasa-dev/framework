@@ -186,6 +186,9 @@ public class FelixFramework {
 
         // Get the dev.galasa.framework.TestRunner class service
         String classString = "dev.galasa.framework.TestRunner";
+        if(overridesProperties.containsKey("framework.run.ghrekintest")) {
+            classString = "dev.galasa.framework.GherkinTestRunner";
+        }
         String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
         ServiceReference<?>[] serviceReferences;
         try {

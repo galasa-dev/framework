@@ -32,6 +32,7 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.gherkin.GherkinTest;
 
 public class TestRunManagers {
 
@@ -54,6 +55,27 @@ public class TestRunManagers {
         List<IManager> allManagers = locateManagers();
         requestExtraBundlesFromManager(allManagers, allManagers);
         buildActiveManagers(allManagers, testClass);
+
+        logger.debug("The following Managers are active:-");
+        reportManagers();
+
+        calculateProvisioningDependencies();
+
+        logger.debug("The following Managers are sorted in provisioning order:-");
+        reportManagers();
+
+    }
+
+    public TestRunManagers(IFramework framework, GherkinTest gherkinTest) throws FrameworkException {
+        this.framework = framework;
+        this.bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
+
+        ServiceReference<?> serviceReference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
+        repositoryAdmin = (RepositoryAdmin) bundleContext.getService(serviceReference);
+
+        List<IManager> allManagers = locateManagers();
+        requestExtraBundlesFromManager(allManagers, allManagers);
+        buildActiveManagersGherkin(allManagers, gherkinTest);
 
         logger.debug("The following Managers are active:-");
         reportManagers();
@@ -159,6 +181,18 @@ public class TestRunManagers {
             }
         }
 
+    }
+
+    private void buildActiveManagersGherkin(List<IManager> allManagers, GherkinTest gherkinTest) throws FrameworkException {
+        // *** Ask each one to initialise itself if required and chain request other
+        // managers
+        for (IManager manager : allManagers) {
+            try {
+                manager.registerStatements(framework, allManagers, activeManagers, gherkinTest);
+            } catch (ManagerException e) {
+                throw new FrameworkException("Unable to initialise Manager " + manager.getClass().getName(), e);
+            }
+        }
     }
 
     private void requestExtraBundlesFromManager(List<IManager> managersToCheck, List<IManager> allManagers)

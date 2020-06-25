@@ -47,6 +47,30 @@ public class BundleManagement {
         }
     }
 
+    public static void loadAllManagerBundles(RepositoryAdmin repositoryAdmin, BundleContext bundleContext) throws FrameworkException {
+        logger.trace("Installing manager bundles");
+        Resolver resolver = repositoryAdmin.resolver();
+        String filterString = "(symbolicname=dev.galasa.*.manager)";
+        Resource[] resources = null;
+        try {
+            resources = repositoryAdmin.discoverResources(filterString);
+        } catch (InvalidSyntaxException e) {
+            throw new FrameworkException("Unable to discover repoistory resources", e);
+        }
+        try {
+            if (resources.length == 0) {
+                throw new FrameworkException("Unable to locate manager bundles in OBR repository");
+            }
+            // *** Only load the first one
+            for(Resource resource : resources) {
+                addResource(bundleContext, resource.getSymbolicName(), resolver, resource);
+            }
+        } catch (FrameworkException e) {
+            throw new FrameworkException("Unable to install manager bundles from OBR repository",
+                    e);
+        }
+    }
+
     /**
      * Add the Resource to the Resolver and resolve
      * 

@@ -58,6 +58,7 @@ public class Launcher {
     private static final String     METRICSERVER_OPTION       = "metricserver";
     private static final String     TEST_OPTION               = "test";
     private static final String     RUN_OPTION                = "run";
+    private static final String     GHERKIN_OPTION            = "gherkin";
     private static final String     BUNDLE_OPTION             = "bundle";
     private static final String     METRICS_OPTION            = "metrics";
     private static final String     HEALTH_OPTION             = "health";
@@ -74,6 +75,7 @@ public class Launcher {
     private String                  testBundleName;
     private String                  testClassName;
     private String                  runName;
+    private String                  gherkinName;
 
     private FelixFramework          felixFramework;
 
@@ -134,14 +136,17 @@ public class Launcher {
             buildFramework();
 
             if (testRun) {
-                if (runName == null) {
+                if (testBundleName != null && testClassName != null) {
                     // Run test class
                     logger.debug("Test Bundle: " + testBundleName);
                     logger.debug("Test Class: " + testClassName);
                     overridesProperties.setProperty("framework.run.testbundleclass", this.testName);
-                } else {
+                } else if (runName != null) {
                     logger.debug("Test Run: " + runName);
                     overridesProperties.setProperty("framework.run.name", this.runName);
+                } else {
+                    logger.debug("Gherkin Run: " + gherkinName.toString());
+                    overridesProperties.setProperty("framework.run.ghrekintest", this.gherkinName);
                 }
 
                 felixFramework.runTest(boostrapProperties, overridesProperties);
@@ -212,6 +217,7 @@ public class Launcher {
         options.addOption(null, METRICSERVER_OPTION, false, "A Metrics server");
         options.addOption(null, TEST_OPTION, true, "The test to run");
         options.addOption(null, RUN_OPTION, true, "The run name");
+        options.addOption(null, GHERKIN_OPTION, true, "The gherkin test to run");
         options.addOption(null, BUNDLE_OPTION, true, "Extra bundles to load");
         options.addOption(null, METRICS_OPTION, true, "The port the metrics server will open, 0 to disable");
         options.addOption(null, HEALTH_OPTION, true, "The port the health server will open, 0 to disable");
@@ -251,7 +257,7 @@ public class Launcher {
         checkForLocalMaven(commandLine);
         checkForRemoteMaven(commandLine);
 
-        testRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION);
+        testRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION) || commandLine.hasOption(GHERKIN_OPTION);
         resourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
         k8sController = commandLine.hasOption(K8SCONTROLLER_OPTION);
         dockerController = commandLine.hasOption(DOCKERCONTROLLER_OPTION);
@@ -260,14 +266,12 @@ public class Launcher {
 
         if (testRun) {
             runName = commandLine.getOptionValue(RUN_OPTION);
+            testName = commandLine.getOptionValue(TEST_OPTION);
+            gherkinName = commandLine.getOptionValue(GHERKIN_OPTION);
+
             if (runName != null) {
                 runName = runName.toUpperCase();
-            } else {
-                testName = commandLine.getOptionValue(TEST_OPTION);
-                if (testName == null) {
-                    commandLineError("Error: A single test method must be supplied");
-                }
-
+            } else if (testName != null) {
                 String[] bundleclass = testName.split("/");
                 if (bundleclass.length != 2) {
                     commandLineError("Error: Invalid test name format");
@@ -278,6 +282,10 @@ public class Launcher {
                 if (testBundleName.isEmpty() || testClassName.isEmpty()) {
                     commandLineError("Error: Invalid test name format");
                 }
+            } else if (gherkinName != null) {
+                return;
+            } else {
+                commandLineError("Error: A valid run, java test or gherkin test must be supplied");
             }
             return;
         }
@@ -303,7 +311,7 @@ public class Launcher {
         }
 
         commandLineError(
-                "Error: Must select either --test, --run, --k8scontroller, --metricserver, --resourcemanagement or --webbundle");
+                "Error: Must select either --test, --run, --gherkin, --k8scontroller, --metricserver, --resourcemanagement or --webbundle");
     }
 
     private void checkForRemoteMaven(CommandLine commandLine) {
