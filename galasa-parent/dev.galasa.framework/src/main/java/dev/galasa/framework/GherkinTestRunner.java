@@ -111,7 +111,7 @@ public class GherkinTestRunner {
             throw new TestRunException("Unable to locate run properties");
         }
 
-        gherkinTest = new GherkinTest(run);
+        gherkinTest = new GherkinTest(run, testStructure);
 
         //*** Load the overrides if present
         try {
@@ -131,6 +131,7 @@ public class GherkinTestRunner {
         String stream = AbstractManager.nulled(run.getStream());
 
         this.testStructure.setRunName(run.getName());
+        this.testStructure.setTestName(gherkinTest.getName());
         this.testStructure.setQueued(run.getQueued());
         this.testStructure.setStartTime(Instant.now());
         this.testStructure.setRequestor(AbstractManager.defaultString(run.getRequestor(), "unknown"));
@@ -204,7 +205,7 @@ public class GherkinTestRunner {
         }
 
         try {
-            BundleManagement.loadAllManagerBundles(repositoryAdmin, bundleContext);
+            BundleManagement.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
         } catch (Exception e) {
             logger.error("Unable to load the managers obr", e);
             updateStatus("finished", "finished");
@@ -243,6 +244,13 @@ public class GherkinTestRunner {
             throw new TestRunException("Problem initialising the Managers for a test run", e);
         }
 
+        if(!gherkinTest.allMethodsRegistered()) {
+            stopHeartbeat();
+            updateStatus("finished", "finished");
+            this.ras.shutdown();
+            throw new TestRunException("Not all methods in test are registered to a manager");
+        }
+
         try {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
                 stopHeartbeat();
@@ -253,6 +261,192 @@ public class GherkinTestRunner {
         } catch (FrameworkException e) {
             throw new TestRunException("Problem asking Managers for an ignore reason", e);
         }
+
+        try {
+            generateEnvironment(gherkinTest, managers);
+        } catch(Exception e) {
+            logger.fatal("Error within test runner",e);
+            this.runOk = false;
+        }
+
+        updateStatus("ending", null);
+        managers.endOfTestRun();
+
+        boolean markedWaiting = false;
+
+        if (resourcesUnavailable && !run.isLocal()) {
+            markWaiting(frameworkInitialisation.getFramework());
+            logger.info("Placing queue on the waiting list");
+            markedWaiting = true;
+        } else {
+            updateStatus("finished", "finished");
+        }
+
+        stopHeartbeat();
+
+        // *** Record all the CPS properties that were accessed
+        recordCPSProperties(frameworkInitialisation);
+
+        // *** If this was a local run, then we will want to remove the run properties
+        // from the DSS immediately
+        // *** for automation, we will let the core manager clean up after a while
+        // *** Local runs will have access to the run details via a view,
+        // *** But automation runs will only exist in the RAS if we delete them, so need
+        // to give
+        // *** time for things like jenkins and other run requesters to obtain the
+        // result and RAS id before
+        // *** deleting, default is to keep the automation run properties for 5 minutes
+        if (!markedWaiting) {
+            deleteRunProperties(frameworkInitialisation.getFramework());
+        }
+
+        managers.shutdown();
+
+        this.ras.shutdown();
+        return;
+    }
+
+    private void generateEnvironment(GherkinTest testObject, TestRunManagers managers) throws TestRunException {
+        if (!runOk) {
+            return;
+        }
+
+        try {
+            updateStatus("generating", null);
+            logger.info("Starting Provision Generate phase");
+            managers.gherkinProvisionGenerate();
+        } catch (Exception e) { 
+            logger.info("Provision Generate failed", e);
+            if (e instanceof FrameworkResourceUnavailableException) {
+                this.resourcesUnavailable = true;
+            }
+            testObject.setResult(Result.envfail(e));
+            testStructure.setResult(testObject.getResult().getName());
+            runOk = false;
+            return;
+        }
+
+        createEnvironment(testObject, managers);
+    }
+
+
+    private void createEnvironment(GherkinTest testObject, TestRunManagers managers) throws TestRunException {
+        if (!runOk) {
+            return;
+        }
+
+        try {
+            try {
+                updateStatus("building", null);
+                logger.info("Starting Provision Build phase");
+                managers.provisionBuild();
+            } catch (FrameworkException e) {
+                this.runOk = false;
+                logger.error("Provision build failed",e);
+                if (e instanceof FrameworkResourceUnavailableException) {
+                    this.resourcesUnavailable = true;
+                }
+                testObject.setResult(Result.envfail(e));
+                testStructure.setResult(testObject.getResult().getName());
+                return;
+            }
+
+            runEnvironment(testObject, managers);
+        } finally {
+            discardEnvironment(managers);
+        }
+    }
+
+
+    private void discardEnvironment(TestRunManagers managers) {
+        logger.info("Starting Provision Discard phase");
+        managers.provisionDiscard();
+    }
+
+
+    private void runEnvironment(GherkinTest testObject, TestRunManagers managers) throws TestRunException {
+        if (!runOk) {
+            return;
+        }
+
+        try {
+            try {
+                updateStatus("provstart", null);
+                logger.info("Starting Provision Start phase");
+                managers.provisionStart();
+            } catch (FrameworkException e) {
+                this.runOk = false;
+                logger.error("Provision start failed",e);
+                if (e instanceof FrameworkResourceUnavailableException) {
+                    this.resourcesUnavailable = true;
+                }
+                testObject.setResult(Result.envfail(e));
+                testStructure.setResult(testObject.getResult().getName());
+                return;
+            }
+
+            runGherkinTest(testObject, managers);
+        } finally {
+            stopEnvironment(managers);
+        }
+    }
+
+    private void stopEnvironment(TestRunManagers managers) {
+        logger.info("Starting Provision Stop phase");
+        managers.provisionStop();
+    }
+
+
+    private void runGherkinTest(GherkinTest testObject, TestRunManagers managers) throws TestRunException {
+        if (!runOk) {
+            return;
+        }
+
+        updateStatus("running", null);
+        try {
+            logger.info("Running the test class");
+            testObject.runTestMethods(managers);
+        } finally {
+            updateStatus("rundone", null);
+        }
+
+    }
+
+    private void markWaiting(@NotNull IFramework framework) throws TestRunException {
+        int initialDelay = 600;
+        int randomDelay = 180;
+
+        DssUtils.incrementMetric(dss, "metrics.runs.made.to.wait");
+
+        try {
+            String sInitialDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "delay"));
+            String sRandomDelay = AbstractManager.nulled(this.cps.getProperty("waiting.random", "delay"));
+
+            if (sInitialDelay != null) {
+                initialDelay = Integer.parseInt(sInitialDelay);
+            }
+            if (sRandomDelay != null) {
+                randomDelay = Integer.parseInt(sRandomDelay);
+            }
+        } catch (Exception e) {
+            logger.error("Problem reading delay properties", e);
+        }
+
+        int totalDelay = initialDelay + framework.getRandom().nextInt(randomDelay);
+        logger.info("Placing this run on waiting for " + totalDelay + " seconds");
+
+        Instant until = Instant.now();
+        until = until.plus(totalDelay, ChronoUnit.SECONDS);
+
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put("run." + run.getName() + ".status", "waiting");
+        properties.put("run." + run.getName() + ".wait.until", until.toString());
+        try {
+            this.dss.put(properties);
+        } catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Unable to place run in waiting state", e);
+        }
+    }
 
     private void updateStatus(String status, String timestamp) throws TestRunException {
 
@@ -312,9 +506,63 @@ public class GherkinTestRunner {
 
     }
 
+    private void deleteRunProperties(@NotNull IFramework framework) {
+
+        IRun run = framework.getTestRun();
+
+        if (!run.isLocal()) { // *** Not interested in non-local runs
+            return;
+        }
+
+        try {
+            framework.getFrameworkRuns().delete(run.getName());
+        } catch (FrameworkException e) {
+            logger.error("Failed to delete run properties");
+        }
+    }
+
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
+    }
+
+    private void recordCPSProperties(FrameworkInitialisation frameworkInitialisation) {
+        try {
+            Properties record = frameworkInitialisation.getFramework().getRecordProperties();
+
+            ArrayList<String> propertyNames = new ArrayList<>();
+            propertyNames.addAll(record.stringPropertyNames());
+            Collections.sort(propertyNames);
+
+            StringBuilder sb = new StringBuilder();
+            String currentNamespace = null;
+            for (String propertyName : propertyNames) {
+                propertyName = propertyName.trim();
+                if (propertyName.isEmpty()) {
+                    continue;
+                }
+
+                String[] parts = propertyName.split("\\.");
+                if (!parts[0].equals(currentNamespace)) {
+                    if (currentNamespace != null) {
+                        sb.append("\n");
+                    }
+                    currentNamespace = parts[0];
+                }
+
+                sb.append(propertyName);
+                sb.append("=");
+                sb.append(record.getProperty(propertyName));
+                sb.append("\n");
+            }
+            IResultArchiveStore ras = frameworkInitialisation.getFramework().getResultArchiveStore();
+            Path rasRoot = ras.getStoredArtifactsRoot();
+            Path rasProperties = rasRoot.resolve("framework").resolve("cps_record.properties");
+            Files.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
+            Files.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            logger.error("Failed to save the recorded properties", e);
+        }
     }
 
 }

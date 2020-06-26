@@ -1,6 +1,5 @@
 package dev.galasa.framework.spi.gherkin;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -9,54 +8,84 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.TestRunException;
+import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class GherkinTest {
 
+    private Log logger = LogFactory.getLog(GherkinTest.class);
+
+    private final static Pattern featurePattern = Pattern.compile("Feature:(.*)");
+    private final static Pattern scenarioPattern = Pattern.compile("Scenario:(.*)");
+
     private List<GherkinMethod> methods;
     private URI gherkinUri;
+    private TestStructure testStructure;
+    private Result result;
 
     private String testName;
     private List<String> comments;
+    
+    // Logger statics
+    public static final String  LOG_STARTING   = "Starting";
+    public static final String  LOG_ENDING     = "Ending";
+    public static final String  LOG_START_LINE = "\n" + StringUtils.repeat("-", 23) + " ";
+    public static final String  LOG_ASTERS     = StringUtils.repeat("*", 100);
 
-    public GherkinTest(IRun run) throws TestRunException {
+    public GherkinTest(IRun run, TestStructure testStructure) throws TestRunException {
         this.methods = new ArrayList<>();
         this.comments = new ArrayList<>();
+        this.testStructure = testStructure;
 
         try {
             gherkinUri = new URI(run.getGherkin());
 
             if (gherkinUri.getScheme().equals("file")) {
                 File gherkinFile = new File(gherkinUri);
-                BufferedReader br = new BufferedReader(new FileReader(gherkinFile));
-
-                String line;
+                List<String> lines = IOUtils.readLines(new FileReader(gherkinFile));
                 GherkinMethod currentMethod = null;
-                while ((line = br.readLine()) != null) {
+
+                for(String line : lines) {
                     line = line.trim();
                     if(line.isEmpty()) {
                         continue;
                     }
 
-                    if(line.startsWith("Feature:")) {
-                        testName = line.substring(8).trim();
-                    } else if (line.startsWith("Scenario:")) {
+                    Matcher featureMatch = featurePattern.matcher(line);
+                    if (featureMatch.matches()) {
+                        this.testName = featureMatch.group(1).trim();
+                        continue;
+                    }
+                    Matcher scenarioMatch = scenarioPattern.matcher(line);
+                    if (scenarioMatch.matches()) {
                         if(currentMethod != null) {
                             methods.add(currentMethod);
                         }
-                        currentMethod = new GherkinMethod(line.substring(9).trim());
-                    } else if(currentMethod != null) {
+                        currentMethod = new GherkinMethod(scenarioMatch.group(1).trim(), testName);
+                        continue;
+                    }
+                    if(currentMethod != null) {
                         currentMethod.addStatement(line);
                     } else {
                         this.comments.add(line);
                     }
+
                 }
                 if(currentMethod != null) {
                     methods.add(currentMethod);
                 }
-                br.close();
+                this.testStructure.setGherkinMethods(methods);
             } else {
                 throw new TestRunException("Gherkin URI scheme " + gherkinUri.getScheme() + "is not supported");
             }
@@ -77,4 +106,37 @@ public class GherkinTest {
         return this.methods;
     }
 
+    public List<GherkinStatement> getAllStatements() {
+        List<GherkinStatement> allStatements = new ArrayList<>();
+        for(GherkinMethod method : this.methods) {
+            allStatements.addAll(method.getStatements());
+        }
+        return allStatements;
+    }
+
+    public Boolean allMethodsRegistered() {
+        Boolean allRegistered = true;
+        for(GherkinStatement statement : getAllStatements()) {
+            if(statement.getRegisteredManager() == null) {
+                allRegistered = false;
+            }
+        }
+        return allRegistered;
+    }
+
+    public Result getResult() {
+        return this.result;
+    }
+
+    public void setResult(Result result) {
+        this.result = result;
+    }
+
+    public void runTestMethods(TestRunManagers managers) {
+        String report = this.testStructure.gherkinReport(LOG_START_LINE);
+        logger.trace("Test Class structure:-" + report);
+
+        logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of feature file "
+                + this.testName + LOG_START_LINE + LOG_ASTERS);
+    }
 }

@@ -188,15 +188,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             //*** Ensure the shared environment = true is set for Shenv runs
             String runName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "name"));
             if (runName == null) {
-                String runBundleClass = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testbundleclass"));
-                if (runBundleClass != null) {
-                    runName = createRunName(runBundleClass);
-                    framework.setTestRunName(runName);
-                } else {
-                    String runGherkinName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "ghrekintest"));
-                    runName = createRunName(runGherkinName);
-                    framework.setTestRunName(runName);
+                String testName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testbundleclass"));
+                if (testName == null) {
+                    testName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "ghrekintest"));
                 }
+                runName = createRunName(testName);
+                framework.setTestRunName(runName);
             } else {
                 framework.setTestRunName(runName);
             }

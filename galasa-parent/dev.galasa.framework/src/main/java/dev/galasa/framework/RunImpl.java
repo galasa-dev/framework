@@ -62,6 +62,7 @@ public class RunImpl implements IRun {
         local = Boolean.parseBoolean(runProperties.get(prefix + "local"));
         trace = Boolean.parseBoolean(runProperties.get(prefix + "trace"));
         sharedEnvironment = Boolean.parseBoolean(runProperties.get(prefix + "shared.environment"));
+        gherkin = runProperties.get(prefix + "gherkin");
 
         String sQueued = runProperties.get(prefix + "queued");
         if (sQueued != null) {
@@ -89,20 +90,17 @@ public class RunImpl implements IRun {
         }
 
         if (test != null) {
-            String[] split = test.split("/");
-            if(split.length == 2) {
-                this.bundleName = split[0];
-                this.testName = split[1];
-                this.gherkin = null;
-            } else {
-                this.gherkin = runProperties.get(prefix + "gherkin");
+            if(gherkin != null) {
                 this.bundleName = null;
                 this.testName = null;
+            } else {
+                String[] split = test.split("/");
+                this.bundleName = split[0];
+                this.testName = split[1];
             }
         } else {
             this.bundleName = null;
             this.testName = null;
-            this.gherkin = null;
         }
     }
 

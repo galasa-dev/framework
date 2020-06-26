@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import dev.galasa.framework.spi.gherkin.GherkinMethod;
+
 /**
  * <p>
  * This class represents the Test Class structure, ie it's test methods, order
@@ -36,6 +38,7 @@ public class TestStructure {
     private Instant          endTime;
 
     private List<TestMethod> methods;
+    private List<GherkinMethod> gherkinMethods;
 
     private List<String>     logRecordIds;
 
@@ -89,6 +92,10 @@ public class TestStructure {
         this.methods = methods;
     }
 
+    public void setGherkinMethods(List<GherkinMethod> methods) {
+        this.gherkinMethods = methods;
+    }
+
     public void setRequestor(String requestor) {
         this.requestor = requestor;
     }
@@ -128,6 +135,27 @@ public class TestStructure {
 
         String methodPrefix = prefix + "    ";
         for (TestMethod method : this.methods) {
+            method.report(methodPrefix, sb);
+        }
+
+        return sb.toString();
+    }
+
+    public String gherkinReport(String prefix) {
+        String actualStatus = this.status;
+        if (actualStatus == null) {
+            actualStatus = "Unknown";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(prefix);
+        sb.append("Test Name ");
+        sb.append(this.testName);
+        sb.append(" status=");
+        sb.append(actualStatus);
+
+        String methodPrefix = prefix + "    ";
+        for (GherkinMethod method : this.gherkinMethods) {
             method.report(methodPrefix, sb);
         }
 

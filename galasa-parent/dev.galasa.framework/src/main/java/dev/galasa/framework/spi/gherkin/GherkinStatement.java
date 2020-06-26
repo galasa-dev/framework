@@ -18,4 +18,8 @@ public class GherkinStatement {
         }
         this.registeredManager = manager;
     }
+
+    protected IManager getRegisteredManager() {
+        return this.registeredManager;
+    }
 }

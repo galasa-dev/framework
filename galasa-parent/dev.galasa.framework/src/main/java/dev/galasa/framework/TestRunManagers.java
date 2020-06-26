@@ -29,6 +29,7 @@ import dev.galasa.ManagerException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IGherkinManager;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.framework.spi.Result;
@@ -187,10 +188,13 @@ public class TestRunManagers {
         // *** Ask each one to initialise itself if required and chain request other
         // managers
         for (IManager manager : allManagers) {
-            try {
-                manager.registerStatements(framework, allManagers, activeManagers, gherkinTest);
-            } catch (ManagerException e) {
-                throw new FrameworkException("Unable to initialise Manager " + manager.getClass().getName(), e);
+            if(manager instanceof IGherkinManager) {
+                IGherkinManager gherkinManager = (IGherkinManager) manager;
+                try {
+                    gherkinManager.initialise(framework, allManagers, activeManagers, gherkinTest);
+                } catch (ManagerException e) {
+                    throw new FrameworkException("Unable to initialise Manager " + manager.getClass().getName(), e);
+                }
             }
         }
     }
@@ -486,6 +490,25 @@ public class TestRunManagers {
                 throw new FrameworkException(
                         "Problem in provision generate for manager " + manager.getClass().getName(), e);
             }
+        }
+    }
+
+    public void gherkinProvisionGenerate() throws FrameworkException {
+        for (IManager manager : activeManagers) {
+            try {
+                if(manager instanceof IGherkinManager) {
+                    IGherkinManager gherkinManager = (IGherkinManager) manager;
+                    gherkinManager.gherkinProvisionGenerate();
+                } else {
+                    manager.provisionGenerate();
+                }
+            } catch (ResourceUnavailableException e) {
+                throw new FrameworkResourceUnavailableException("Resources unavailable during provision generate", e);
+            } catch (ManagerException e) {
+                throw new FrameworkException(
+                        "Problem in provision generate for manager " + manager.getClass().getName(), e);
+            }
+            
         }
     }
 

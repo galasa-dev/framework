@@ -1,11 +1,15 @@
 package dev.galasa.framework;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.bundlerepository.Capability;
+import org.apache.felix.bundlerepository.Property;
 import org.apache.felix.bundlerepository.Reason;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
+import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Bundle;
@@ -47,10 +51,10 @@ public class BundleManagement {
         }
     }
 
-    public static void loadAllManagerBundles(RepositoryAdmin repositoryAdmin, BundleContext bundleContext) throws FrameworkException {
+    public static void loadAllGherkinManagerBundles(RepositoryAdmin repositoryAdmin, BundleContext bundleContext) throws FrameworkException {
         logger.trace("Installing manager bundles");
         Resolver resolver = repositoryAdmin.resolver();
-        String filterString = "(symbolicname=dev.galasa.*.manager)";
+        String filterString = "(symbolicname=*)";
         Resource[] resources = null;
         try {
             resources = repositoryAdmin.discoverResources(filterString);
@@ -63,7 +67,20 @@ public class BundleManagement {
             }
             // *** Only load the first one
             for(Resource resource : resources) {
-                addResource(bundleContext, resource.getSymbolicName(), resolver, resource);
+                Boolean gherkinSupport = false;
+                Capability[] capabilities = resource.getCapabilities();
+                for(Capability capability : capabilities) {
+                    if(capability.getName().equals("service")) {
+                        for(Property prop : capability.getProperties()) {
+                            if(prop.getValue().contains("dev.galasa.framework.spi.IGherkinManager") && prop.getValue().contains("dev.galasa.framework.spi.IManager")) {
+                                gherkinSupport = true;
+                            }
+                        }
+                    }
+                }
+                if(gherkinSupport) {
+                    addResource(bundleContext, resource.getSymbolicName(), resolver, resource);
+                }
             }
         } catch (FrameworkException e) {
             throw new FrameworkException("Unable to install manager bundles from OBR repository",
