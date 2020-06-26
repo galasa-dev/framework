@@ -189,10 +189,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             String runName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "name"));
             if (runName == null) {
                 String testName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testbundleclass"));
+                String testLanguage  = "java";
                 if (testName == null) {
-                    testName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "ghrekintest"));
+                    testName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "gherkintest"));
+                    testLanguage = "gherkin";
                 }
-                runName = createRunName(testName);
+                runName = createRunName(testName, testLanguage);
                 framework.setTestRunName(runName);
             } else {
                 framework.setTestRunName(runName);
@@ -345,18 +347,22 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * @param runName
      * @return
      */
-    protected String createRunName(String runBundleClass) throws FrameworkException {
+    protected String createRunName(String runBundleClass, String language) throws FrameworkException {
         IRun run = null;
         IFrameworkRuns frameworkRuns = this.framework.getFrameworkRuns();
 
-        String split[] = runBundleClass.split("/");
-        if(split.length == 2) {
-            String bundle = split[0];
-            String test = split[1];
-            
-            run = frameworkRuns.submitRun("local", null, bundle, test, null, null, null, null, true, false, null, null, null, "java");
-        } else {
-            run = frameworkRuns.submitRun("local", null, null, runBundleClass, null, null, null, null, true, false, null, null, null, "gherkin");
+        switch(language) {
+            case "java": 
+                String split[] = runBundleClass.split("/");
+                String bundle = split[0];
+                String test = split[1];
+                run = frameworkRuns.submitRun("local", null, bundle, test, null, null, null, null, true, false, null, null, null, language);
+                break;
+            case "gherkin":
+                run = frameworkRuns.submitRun("local", null, null, runBundleClass, null, null, null, null, true, false, null, null, null, language);
+                break;
+            default:
+                throw new FrameworkException("Unknown language to create run");
         }
 
         logger.info("Allocated Run Name " + run.getName() + " to this run");

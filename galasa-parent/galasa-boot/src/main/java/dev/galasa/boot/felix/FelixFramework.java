@@ -186,7 +186,7 @@ public class FelixFramework {
 
         // Get the dev.galasa.framework.TestRunner class service
         String classString = "dev.galasa.framework.TestRunner";
-        if(overridesProperties.containsKey("framework.run.ghrekintest")) {
+        if(overridesProperties.containsKey("framework.run.gherkintest")) {
             classString = "dev.galasa.framework.GherkinTestRunner";
         }
         String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";

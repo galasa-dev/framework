@@ -146,7 +146,7 @@ public class Launcher {
                     overridesProperties.setProperty("framework.run.name", this.runName);
                 } else {
                     logger.debug("Gherkin Run: " + gherkinName.toString());
-                    overridesProperties.setProperty("framework.run.ghrekintest", this.gherkinName);
+                    overridesProperties.setProperty("framework.run.gherkintest", this.gherkinName);
                 }
 
                 felixFramework.runTest(boostrapProperties, overridesProperties);
