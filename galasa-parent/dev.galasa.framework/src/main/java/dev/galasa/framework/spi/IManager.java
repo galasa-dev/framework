@@ -11,7 +11,6 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ManagerException;
-import dev.galasa.framework.spi.gherkin.GherkinTest;
 
 /**
  * <p>

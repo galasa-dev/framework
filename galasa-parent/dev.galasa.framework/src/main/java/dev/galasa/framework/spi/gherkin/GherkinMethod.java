@@ -34,8 +34,6 @@ public class GherkinMethod {
             actualStatus = "Unknown";
         }
 
-        String subPrefix = prefix + "    ";
-
         sb.append(prefix);
         sb.append("Test Method ");
         sb.append(testName);
