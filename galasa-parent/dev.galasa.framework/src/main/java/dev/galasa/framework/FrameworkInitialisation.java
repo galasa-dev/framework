@@ -354,9 +354,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             String bundle = split[0];
             String test = split[1];
             
-            run = frameworkRuns.submitRun("local", null, bundle, test, null, null, null, null, true, false, null, null, null);
+            run = frameworkRuns.submitRun("local", null, bundle, test, null, null, null, null, true, false, null, null, null, "java");
         } else {
-            run = frameworkRuns.submitRun("local", null, null, runBundleClass, null, null, null, null, true, false, null, null, null);
+            run = frameworkRuns.submitRun("local", null, null, runBundleClass, null, null, null, null, true, false, null, null, null, "gherkin");
         }
 
         logger.info("Allocated Run Name " + run.getName() + " to this run");
