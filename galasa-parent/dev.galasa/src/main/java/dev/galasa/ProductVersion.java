@@ -7,16 +7,22 @@ import javax.validation.constraints.NotNull;
 
 public class ProductVersion implements Comparable<ProductVersion> {
 
-    private static final Pattern patternVersion = Pattern.compile("(\\d+)(\\.(\\d+)(\\.(\\d+))?)?");
+    protected static final Pattern patternVersion = Pattern.compile("(\\d+)(\\.(\\d+)(\\.(\\d+))?)?");
 
     private final int version;
     private final int release;
     private final int modification;
 
-    private ProductVersion(int version, int release, int modification) {
+    protected ProductVersion(int version, int release, int modification) {
         this.version = version;
         this.release = release;
         this.modification = modification;
+    }
+
+    protected ProductVersion(ProductVersion productVersion) {
+        this.version = productVersion.version;
+        this.release = productVersion.release;
+        this.modification = productVersion.modification;
     }
 
     public static ProductVersion v(int version) {
