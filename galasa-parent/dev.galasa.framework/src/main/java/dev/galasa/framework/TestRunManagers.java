@@ -33,6 +33,7 @@ import dev.galasa.framework.spi.IGherkinManager;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.gherkin.GherkinTest;
 
 public class TestRunManagers {
@@ -493,25 +494,6 @@ public class TestRunManagers {
         }
     }
 
-    public void gherkinProvisionGenerate() throws FrameworkException {
-        for (IManager manager : activeManagers) {
-            try {
-                if(manager instanceof IGherkinManager) {
-                    IGherkinManager gherkinManager = (IGherkinManager) manager;
-                    gherkinManager.gherkinProvisionGenerate();
-                } else {
-                    manager.provisionGenerate();
-                }
-            } catch (ResourceUnavailableException e) {
-                throw new FrameworkResourceUnavailableException("Resources unavailable during provision generate", e);
-            } catch (ManagerException e) {
-                throw new FrameworkException(
-                        "Problem in provision generate for manager " + manager.getClass().getName(), e);
-            }
-            
-        }
-    }
-
     public void provisionBuild() throws FrameworkException {
         for (IManager manager : activeManagers) {
             try {
@@ -573,6 +555,24 @@ public class TestRunManagers {
         return null;
     }
 
+    public Result anyReasonGherkinTestMethodShouldBeIgnored(@NotNull GherkinMethod method) throws FrameworkException {
+        for (IManager manager : activeManagers) {
+            if(manager instanceof IGherkinManager) {
+                IGherkinManager gherkinManager = (IGherkinManager) manager;
+                try {
+                    String reason = gherkinManager.anyReasonGherkinTestMethodShouldBeIgnored(method);
+                    if (reason != null) {
+                        logger.info("Ignoring method due to " + reason);
+                        return Result.ignore(reason + " from " + manager.getClass().getName());
+                    }
+                } catch (ManagerException e) {
+                    throw new FrameworkException("Unable to calculate Test Method ignore status", e);
+                }
+            }
+        }
+        return null;
+    }
+
     public void fillAnnotatedFields(Object testClassObject) throws FrameworkException {
         for (IManager manager : activeManagers) {
             try {
@@ -591,6 +591,20 @@ public class TestRunManagers {
             } catch (ManagerException e) {
                 throw new FrameworkException(
                         "Problem in start of test test method for manager " + manager.getClass().getName(), e);
+            }
+        }
+    }
+
+    public void startOfGherkinTestMethod(@NotNull GherkinMethod testMethod) throws FrameworkException {
+        for (IManager manager : activeManagers) {
+            if(manager instanceof IGherkinManager) {
+                IGherkinManager gherkinManager = (IGherkinManager) manager;
+                try {
+                    gherkinManager.startOfGherkinTestMethod(testMethod);
+                } catch (ManagerException e) {
+                    throw new FrameworkException(
+                            "Problem in start of test test method for manager " + manager.getClass().getName(), e);
+                }
             }
         }
     }
@@ -614,6 +628,34 @@ public class TestRunManagers {
             } catch (ManagerException e) {
                 throw new FrameworkException(
                         "Problem in end of test method for manager " + manager.getClass().getName(), e);
+            }
+        }
+
+        return newResult;
+    }
+
+    public Result endOfGherkinTestMethod(@NotNull GherkinMethod testMethod, @NotNull Result currentResult, Throwable currentException)
+            throws FrameworkException {
+        Result newResult = null;
+
+        for (IManager manager : activeManagers) {
+            if(manager instanceof IGherkinManager) {
+                IGherkinManager gherkinManager = (IGherkinManager) manager;
+                try {
+                    String managerResult = gherkinManager.endOfGherkinTestMethod(testMethod, currentResult.getName(), currentException); // TODO
+                                                                                                                        // change
+                                                                                                                        // managers
+                                                                                                                        // to
+                                                                                                                        // pass
+                                                                                                                        // actual
+                                                                                                                        // result
+                    if (managerResult != null && newResult == null) {
+                        newResult = Result.custom(managerResult);
+                    }
+                } catch (ManagerException e) {
+                    throw new FrameworkException(
+                            "Problem in end of test method for manager " + manager.getClass().getName(), e);
+                }
             }
         }
 

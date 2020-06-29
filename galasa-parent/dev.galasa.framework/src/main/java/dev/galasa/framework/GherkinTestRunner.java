@@ -307,7 +307,7 @@ public class GherkinTestRunner {
         try {
             updateStatus("generating", null);
             logger.info("Starting Provision Generate phase");
-            managers.gherkinProvisionGenerate();
+            managers.provisionGenerate();
         } catch (Exception e) { 
             logger.info("Provision Generate failed", e);
             if (e instanceof FrameworkResourceUnavailableException) {

@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -85,7 +86,8 @@ public class GherkinTest {
                 if(currentMethod != null) {
                     methods.add(currentMethod);
                 }
-                this.testStructure.setGherkinMethods(methods);
+                this.testStructure.setTestShortName(this.testName);
+                this.testStructure.setGherkinMethods(this.methods);
             } else {
                 throw new TestRunException("Gherkin URI scheme " + gherkinUri.getScheme() + "is not supported");
             }
@@ -132,11 +134,61 @@ public class GherkinTest {
         this.result = result;
     }
 
-    public void runTestMethods(TestRunManagers managers) {
+    public void runTestMethods(TestRunManagers managers) throws TestRunException {
         String report = this.testStructure.gherkinReport(LOG_START_LINE);
         logger.trace("Test Class structure:-" + report);
 
-        logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of feature file "
+        logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of feature file: "
                 + this.testName + LOG_START_LINE + LOG_ASTERS);
+
+        try {
+            managers.startOfTestClass();
+        } catch (FrameworkException e) {
+            throw new TestRunException("Unable to inform managers of start of test class", e);
+        }
+
+        for (GherkinMethod method : this.methods) {
+            method.invoke(managers);
+            if(method.fullStop()) {
+                break;
+            }
+        }
+
+        for (GherkinMethod method : this.methods) {
+            Result methodResult = method.getResult();
+            if (methodResult != null && methodResult.isFailed()) {
+                this.result = Result.failed("A Test failed");
+                break;
+            }
+        }
+
+        if (this.result == null) {
+            this.result = Result.passed();
+        }
+
+        try {
+            Result newResult = managers.endOfTestClass(this.result, null); // TODO pass the class level exception
+            if (newResult != null) {
+                logger.info("Result of test run overridden to " + newResult);
+                this.result = newResult;
+            }
+        } catch (FrameworkException e) {
+            throw new TestRunException("Problem with end of test class", e);
+        }
+
+        // Test result
+        logger.info(LOG_ENDING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** " + this.result.getName()
+                + " - Test class " + this.testName +  LOG_START_LINE + LOG_ASTERS);
+
+        this.testStructure.setResult(this.result.getName());
+
+        try {
+            managers.testClassResult(this.result, null);
+        } catch (FrameworkException e) {
+            throw new TestRunException("Problem with test class result", e);
+        }
+
+        String postReport = this.testStructure.gherkinReport(LOG_START_LINE);
+        logger.trace("Finishing Test Class structure:-" + postReport);
     }
 }

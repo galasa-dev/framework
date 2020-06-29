@@ -10,6 +10,8 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ManagerException;
+import dev.galasa.framework.spi.gherkin.GherkinMethod;
+import dev.galasa.framework.spi.gherkin.GherkinStatement;
 import dev.galasa.framework.spi.gherkin.GherkinTest;
 
 public abstract class AbstractGherkinManager extends AbstractManager implements IGherkinManager {
@@ -21,7 +23,22 @@ public abstract class AbstractGherkinManager extends AbstractManager implements 
     };
 
     @Override
-    public void gherkinProvisionGenerate() throws ManagerException {
-        return;
+    public String anyReasonGherkinTestMethodShouldBeIgnored(@NotNull GherkinMethod method) throws ManagerException {
+        return null;
     };
+
+    @Override
+    public void startOfGherkinTestMethod(@NotNull GherkinMethod method) throws ManagerException {
+        return;
+    }
+
+    @Override
+    public String endOfGherkinTestMethod(@NotNull GherkinMethod method, @NotNull String currentResult, Throwable currentException) throws ManagerException {
+        return null;
+    }
+
+    @Override
+    public void executeStatement(@NotNull GherkinStatement statement) throws ManagerException {
+        return;
+    }
 }
