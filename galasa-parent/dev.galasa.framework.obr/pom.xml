@@ -9,8 +9,8 @@
 	</parent>
 
 	<artifactId>dev.galasa.framework.obr</artifactId>
-	<!-- If updating version, reflect change in dev.galasa.uber.obr -->
 	<version>0.9.0-SNAPSHOT</version>
+	<!-- If updating version, reflect change in dev.galasa.uber.obr -->
 	<packaging>galasa-obr</packaging>
 
 	<name>galasa Framework OBR</name>
