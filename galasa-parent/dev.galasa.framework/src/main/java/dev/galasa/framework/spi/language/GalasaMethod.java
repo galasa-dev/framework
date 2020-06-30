@@ -27,6 +27,14 @@ public class GalasaMethod {
         return this.language;
     }
 
+    public Boolean isJava() {
+        return this.language == GalasaLanguage.java;
+    }
+
+    public Boolean isGherkin() {
+        return this.language == GalasaLanguage.gherkin;
+    }
+
     public Method getJavaTestMethod() {
         return this.javaTestMethod;
     }

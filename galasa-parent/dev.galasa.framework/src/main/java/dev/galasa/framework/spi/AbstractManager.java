@@ -255,7 +255,7 @@ public abstract class AbstractManager implements IManager {
     public void initialise(@NotNull IFramework framework, @NotNull List<IManager> allManagers,
             @NotNull List<IManager> activeManagers, @NotNull GalasaTest galasaTest) throws ManagerException {
         this.framework = framework;
-        if(galasaTest.getLanguage() == GalasaLanguage.java) {
+        if(galasaTest.isJava()) {
             this.testClass = galasaTest.getJavaTestClass();
         }
     }
