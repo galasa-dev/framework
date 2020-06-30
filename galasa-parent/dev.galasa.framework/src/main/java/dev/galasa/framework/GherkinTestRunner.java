@@ -43,7 +43,7 @@ import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.gherkin.GherkinTest;
+import dev.galasa.framework.spi.language.gherkin.GherkinTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 

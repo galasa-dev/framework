@@ -10,7 +10,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.framework.spi.gherkin.GherkinMethod;
+import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 
 /**
  * <p>

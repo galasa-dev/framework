@@ -21,6 +21,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ManagerException;
+import dev.galasa.framework.spi.language.GalasaLanguage;
+import dev.galasa.framework.spi.language.GalasaMethod;
+import dev.galasa.framework.spi.language.GalasaTest;
 
 /**
  * An abstract manager which attempts to provide all the boilerplate code
@@ -250,9 +253,11 @@ public abstract class AbstractManager implements IManager {
      */
     @Override
     public void initialise(@NotNull IFramework framework, @NotNull List<IManager> allManagers,
-            @NotNull List<IManager> activeManagers, @NotNull Class<?> testClass) throws ManagerException {
+            @NotNull List<IManager> activeManagers, @NotNull GalasaTest galasaTest) throws ManagerException {
         this.framework = framework;
-        this.testClass = testClass;
+        if(galasaTest.getLanguage() == GalasaLanguage.java) {
+            this.testClass = galasaTest.getJavaTestClass();
+        }
     }
 
     /**
@@ -365,7 +370,7 @@ public abstract class AbstractManager implements IManager {
      * lang. reflect.Method)
      */
     @Override
-    public String anyReasonTestMethodShouldBeIgnored(@NotNull Method method) throws ManagerException {
+    public String anyReasonTestMethodShouldBeIgnored(@NotNull GalasaMethod galasaMethod) throws ManagerException {
         return null;
     }
 
@@ -375,7 +380,7 @@ public abstract class AbstractManager implements IManager {
      * @see dev.galasa.framework.spi.IManager#startOfTestMethod()
      */
     @Override
-    public void startOfTestMethod(@NotNull Method excecutionMethod, Method testMetho) throws ManagerException {
+    public void startOfTestMethod(@NotNull GalasaMethod galasaMethod) throws ManagerException {
     }
 
     /*
@@ -385,7 +390,7 @@ public abstract class AbstractManager implements IManager {
      * java.lang.Throwable)
      */
     @Override
-    public String endOfTestMethod(@NotNull Method testMethod, @NotNull String currentResult, Throwable currentException)
+    public String endOfTestMethod(@NotNull GalasaMethod galasaMethod, @NotNull String currentResult, Throwable currentException)
             throws ManagerException {
         return null;
     }

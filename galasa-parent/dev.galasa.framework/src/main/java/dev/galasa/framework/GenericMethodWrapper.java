@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.language.GalasaMethod;
 import dev.galasa.framework.spi.teststructure.TestMethod;
 
 public class GenericMethodWrapper {
@@ -62,13 +63,13 @@ public class GenericMethodWrapper {
     public void invoke(@NotNull TestRunManagers managers, Object testClassObject, GenericMethodWrapper testMethod) throws TestRunException {
         try {
             String methodType = ",type=" + type.toString();
-            Result ignored = managers.anyReasonTestMethodShouldBeIgnored(this.excecutionMethod);
+            Result ignored = managers.anyReasonTestMethodShouldBeIgnored(new GalasaMethod(this.excecutionMethod, null));
             if (ignored != null) {
                 this.result = ignored;
                 return;
             }
             managers.fillAnnotatedFields(testClassObject);
-            managers.startOfTestMethod(this.excecutionMethod, (testMethod != null ? testMethod.excecutionMethod: null));
+            managers.startOfTestMethod(new GalasaMethod(this.excecutionMethod, (testMethod != null ? testMethod.excecutionMethod: null)));
 
             logger.info(TestClassWrapper.LOG_STARTING + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS
                     + TestClassWrapper.LOG_START_LINE + "*** Start of test method " + testClass.getName() + "#"
@@ -86,7 +87,7 @@ public class GenericMethodWrapper {
                 this.result = Result.failed(e);
             }
 
-            Result overrideResult = managers.endOfTestMethod(this.excecutionMethod, this.result, this.result.getThrowable());
+            Result overrideResult = managers.endOfTestMethod(new GalasaMethod(this.excecutionMethod, null), this.result, this.result.getThrowable());
             if (overrideResult != null) {
                 this.result = overrideResult;
             }

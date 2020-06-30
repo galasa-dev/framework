@@ -1,27 +1,30 @@
-package dev.galasa.framework.spi.gherkin;
+package dev.galasa.framework.spi.language.gherkin;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ManagerException;
+import dev.galasa.framework.IGherkinExecutable;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IGherkinManager;
 import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.language.GalasaMethod;
 
 public class GherkinMethod {
 
     private Log logger  = LogFactory.getLog(GherkinMethod.class);
 
     private String name;
-    private List<GherkinStatement> statements;
+    private transient List<IGherkinExecutable> executables;
     private String status;
     private String testName;
 
@@ -32,20 +35,20 @@ public class GherkinMethod {
 
     public GherkinMethod(String name, String testName) {
         this.name = name;
-        this.statements = new ArrayList<>();
+        this.executables = new ArrayList<>();
         this.testName = testName;
     }
 
     public void addStatement(String statement) {
-        this.statements.add(new GherkinStatement(statement));
+        this.executables.add(GherkinStatement.get(statement));
     }
 
     public String getName() {
         return this.name;
     }
 
-    public List<GherkinStatement> getStatements() {
-        return this.statements;
+    public List<IGherkinExecutable> getExecutables() {
+        return this.executables;
     }
 
     public void report(String prefix, StringBuilder sb) {
@@ -63,14 +66,9 @@ public class GherkinMethod {
         sb.append(actualStatus);
     }
 
-    public void invoke(TestRunManagers managers) throws TestRunException {
+    public void invoke(TestRunManagers managers, Map<String, Object> testVariables) throws TestRunException {
         try {
-            Result ignored = managers.anyReasonGherkinTestMethodShouldBeIgnored(this);
-            if (ignored != null) {
-                this.result = ignored;
-                return;
-            }
-            managers.startOfGherkinTestMethod(this);
+            managers.startOfTestMethod(new GalasaMethod(this));
 
             logger.info(GherkinTest.LOG_STARTING + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS
                     + GherkinTest.LOG_START_LINE + "*** Start of test method " + this.testName + "#"
@@ -79,18 +77,21 @@ public class GherkinMethod {
             this.startTime = Instant.now();
             this.status = "started";
 
-            for(GherkinStatement statement : this.statements) {
-                IGherkinManager manager = statement.getRegisteredManager();
+            for(IGherkinExecutable executable : this.executables) {
+                IGherkinManager manager = executable.getRegisteredManager();
                 try {
-                    logger.info("Executing Statement: " + statement.toString());
-                    manager.executeStatement(statement);
+                    logger.info("Executing Statement: " + executable.getText());
+                    manager.executeGherkin(executable, testVariables);
                 } catch (ManagerException e) {
                     this.result = Result.failed(e);
                 }
             }
-            this.result = Result.passed();
 
-            Result overrideResult = managers.endOfGherkinTestMethod(this, this.result, this.result.getThrowable());
+            if(this.result == null) {
+                this.result = Result.passed();
+            }
+
+            Result overrideResult = managers.endOfTestMethod(new GalasaMethod(this), this.result, this.result.getThrowable());
             if (overrideResult != null) {
                 this.result = overrideResult;
             }
@@ -138,5 +139,13 @@ public class GherkinMethod {
 
     public Result getResult() {
         return this.result;
+    }
+
+    public Instant getStartTime() {
+        return this.startTime;
+    }
+
+    public Instant getEndTime() {
+        return this.endTime;
     }
 }

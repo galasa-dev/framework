@@ -1,16 +1,21 @@
-package dev.galasa.framework.spi.gherkin;
+package dev.galasa.framework.spi.language.gherkin;
 
+import dev.galasa.framework.IGherkinExecutable;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.spi.IGherkinManager;
-import dev.galasa.framework.spi.IManager;
 
-public class GherkinStatement {
+public class GherkinStatement implements IGherkinExecutable {
 
     private String statement;
     private IGherkinManager registeredManager;
     
-    public GherkinStatement(String statement) {
+    private GherkinStatement(String statement) {
         this.statement = statement;
+    }
+
+    public static IGherkinExecutable get(String statement) {
+        IGherkinExecutable executable = new GherkinStatement(statement);
+        return executable;
     }
 
     public void registerManager(IGherkinManager manager) throws TestRunException {
@@ -20,11 +25,11 @@ public class GherkinStatement {
         this.registeredManager = manager;
     }
 
-    protected IGherkinManager getRegisteredManager() {
+    public IGherkinManager getRegisteredManager() {
         return this.registeredManager;
     }
 
-    public String toString() {
+    public String getText() {
         return this.statement;
     }
 }

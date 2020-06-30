@@ -1,4 +1,4 @@
-package dev.galasa.framework.spi.gherkin;
+package dev.galasa.framework.spi.language.gherkin;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.IGherkinExecutable;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.FrameworkException;
@@ -34,6 +37,7 @@ public class GherkinTest {
     private URI gherkinUri;
     private TestStructure testStructure;
     private Result result;
+    private Map<String, Object> variables;
 
     private String testName;
     private List<String> comments;
@@ -47,6 +51,7 @@ public class GherkinTest {
     public GherkinTest(IRun run, TestStructure testStructure) throws TestRunException {
         this.methods = new ArrayList<>();
         this.comments = new ArrayList<>();
+        this.variables = new HashMap<>();
         this.testStructure = testStructure;
 
         try {
@@ -108,18 +113,18 @@ public class GherkinTest {
         return this.methods;
     }
 
-    public List<GherkinStatement> getAllStatements() {
-        List<GherkinStatement> allStatements = new ArrayList<>();
+    public List<IGherkinExecutable> getAllExecutables() {
+        List<IGherkinExecutable> allExecutables = new ArrayList<>();
         for(GherkinMethod method : this.methods) {
-            allStatements.addAll(method.getStatements());
+            allExecutables.addAll(method.getExecutables());
         }
-        return allStatements;
+        return allExecutables;
     }
 
     public Boolean allMethodsRegistered() {
         Boolean allRegistered = true;
-        for(GherkinStatement statement : getAllStatements()) {
-            if(statement.getRegisteredManager() == null) {
+        for(IGherkinExecutable executable : getAllExecutables()) {
+            if(executable.getRegisteredManager() == null) {
                 allRegistered = false;
             }
         }
@@ -148,7 +153,7 @@ public class GherkinTest {
         }
 
         for (GherkinMethod method : this.methods) {
-            method.invoke(managers);
+            method.invoke(managers, this.variables);
             if(method.fullStop()) {
                 break;
             }
