@@ -112,11 +112,6 @@ public class StageArtifacts extends AbstractMojo {
 
                 if (artifact.assets != null && !artifact.assets.isEmpty()) {
                     for(Asset asset : artifact.assets) {
-//                        if (asset.path.endsWith(".sha1") || asset.path.endsWith(".md5")) {
-//                            continue;  // Do not send the hashes
-//                        }
-
-
                         HttpGet get = new HttpGet(asset.downloadUrl);
                         if (authNexus != null) {
                             get.addHeader(authNexus);

@@ -31,6 +31,12 @@ paths:
                 type: array
                 items:
                   type: string
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
   /ras/run/{id}:
     get:
       summary: Get Run Data
@@ -52,6 +58,12 @@ paths:
                     $ref: '#/components/schemas/TestStructure'
                   artifacts:
                     $ref: '#/components/schemas/Artifact'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
   /ras/run/{id}/artifact/{artifactid}:
     get:
       summary: Get Artifact Content
@@ -75,6 +87,12 @@ paths:
             text/plain:
               schema:
                 type: string
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
   /ras/run:
     get:
       summary: Get Run Ids from Query
@@ -118,7 +136,13 @@ paths:
                 type: array
                 items:
                   type: string
-  /ras/id/{id}/runlog:
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /ras/run/{id}/runlog:
     get:
       summary: Get Run Data
       parameters:
@@ -135,6 +159,12 @@ paths:
             text/plain:
               schema:
                 type: string
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
 components:
   schemas:
     TestStructure:
@@ -200,3 +230,7 @@ components:
           items:
             $ref: '#/components/schemas/Artifact'
           nullable: true
+    JsonError:
+      properties:
+        error:
+          type: string

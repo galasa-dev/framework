@@ -227,11 +227,12 @@ public interface IManager {
     /**
      * Called when we are about to start the Test Method.
      * 
-     * @param testMethod The current test method
+     * @param excecutionMethod The current executing method 
+     * @param testMethod The current test method if excecutionMethod is {@code @Before} or {@code @After} method
      *
      * @throws ManagerException On the off chance something when wrong
      */
-    void startOfTestMethod(@NotNull Method testMethod) throws ManagerException;
+    void startOfTestMethod(@NotNull Method excecutionMethod, Method testMethod) throws ManagerException;
 
     /**
      * <p>

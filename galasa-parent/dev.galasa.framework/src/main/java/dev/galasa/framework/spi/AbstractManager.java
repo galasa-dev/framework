@@ -10,7 +10,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.validation.constraints.NotNull;
@@ -183,6 +185,52 @@ public abstract class AbstractManager implements IManager {
         }
     }
 
+    /**
+     * Used to locate the TAG names used in Annotations that indicate a dependency on a Manager.  See ZosImageDependencyField as an example.
+     * 
+     * Where ZosImageDependencyField is annotated on a Manager field annotation,  zOS Manager will ask for the imageTag attribute value.  zOS Manager
+     * will then provision as appropriate for each of the returned tags, which means the means the tester does not need to code a ZosImage for every
+     * image the test wants.  For example CICSRegion(imageTag="a") will cause the zOS Manager to provision an image for tag "a" without the ZosImage(imageTag="a")
+     * 
+     * @param managerAnnotation the dependency annotation
+     * @param the name of the attribute on the annotation that returns a String only
+     * @return the tags found from the dependency annotations and the attribute, uppercased
+     */
+    @NotNull
+    protected Set<String> findProvisionDependentAnnotatedFieldTags(@NotNull Class<? extends Annotation> managerAnnotation, @NotNull String attributeName) {
+        
+        HashSet<String> foundTags = new HashSet<>();
+        
+        // Locate all the fields and their annotations where the manager annotation is found
+        final List<AnnotatedField> foundAnnotatedFields = findAnnotatedFields(managerAnnotation);
+        
+        // Iterate through them all
+        for(AnnotatedField annotatedField : foundAnnotatedFields) {
+            List<Annotation> annotations = annotatedField.getAnnotations();
+            // Find the manager annotation we need
+            for(Annotation annotation : annotations) {
+                Class<? extends Annotation> annotationType = annotation.annotationType();
+                // is this one our manager annotation
+                if (annotationType.isAnnotationPresent(managerAnnotation)) {
+                    try {
+                        Method methodImageTag = annotation.getClass().getMethod(attributeName);
+                        String tag = (String) methodImageTag.invoke(annotation);
+                        if (tag != null) {
+                            tag = tag.trim();
+                            if (!tag.isEmpty()) {
+                                foundTags.add(tag.toUpperCase());
+                            }
+                        }
+                    } catch(Exception e) {
+                        logger.warn("Error processing a Manager dependency annotation on field " + annotatedField.getField().getName() + " for " + managerAnnotation.getName() + " attribute " + attributeName, e);
+                    }
+                }
+            }
+        }
+
+        return foundTags;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -327,7 +375,7 @@ public abstract class AbstractManager implements IManager {
      * @see dev.galasa.framework.spi.IManager#startOfTestMethod()
      */
     @Override
-    public void startOfTestMethod(@NotNull Method testMethod) throws ManagerException {
+    public void startOfTestMethod(@NotNull Method excecutionMethod, Method testMetho) throws ManagerException {
     }
 
     /*

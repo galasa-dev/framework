@@ -168,7 +168,7 @@ public class TestClassWrapper {
 
         // Run @BeforeClass methods
         for (GenericMethodWrapper beforeClassMethod : beforeClassMethods) {
-            beforeClassMethod.invoke(managers, this.testClassObject);
+            beforeClassMethod.invoke(managers, this.testClassObject, null);
             if (beforeClassMethod.fullStop()) {
                 this.result = Result.failed("BeforeClass method failed");
                 break;
@@ -200,7 +200,7 @@ public class TestClassWrapper {
 
         // Run @AfterClass methods
         for (GenericMethodWrapper afterClassMethod : afterClassMethods) {
-            afterClassMethod.invoke(managers, this.testClassObject);
+            afterClassMethod.invoke(managers, this.testClassObject, null);
             if (afterClassMethod.fullStop()) {
                 if (this.result == null) {
                     this.result = Result.failed("AfterClass method failed");

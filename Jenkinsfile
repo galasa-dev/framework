@@ -25,6 +25,16 @@ pipeline {
             }
          }
       }
+
+//Set up auth key for npm publishing
+      stage('prep-npm') {
+         environment {
+            CREDS = credentials('galasa-nexus')
+         }
+         steps {
+            sh "npm set _auth \$(echo -n '$CREDS_USR:$CREDS_PSW' | openssl base64)"
+         }
+      }
       
       stage('maven') {
          steps {
@@ -95,6 +105,47 @@ pipeline {
 
                      dir('dev.galasa.framework.api.runs') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
+
+                        sh "npm install @openapitools/openapi-generator-cli"
+                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-runs-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
+                        sh "npm install --prefix generated-openapi"
+                        script {
+                           if (env.PULL_REQ == 'true') {
+                              echo 'Skipping npm publish'
+                           } else {
+                              sh "npm publish generated-openapi"
+                           }
+                        }
+                     }
+
+                     dir('dev.galasa.framework.api.cps') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
+
+                        sh "npm install @openapitools/openapi-generator-cli"
+                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-cps-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
+                        sh "npm install --prefix generated-openapi"
+                        script {
+                           if (env.PULL_REQ == 'true') {
+                              echo 'Skipping npm publish'
+                           } else {
+                              sh "npm publish generated-openapi"
+                           }
+                        }
+                     }
+
+                     dir('dev.galasa.framework.api.ras') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
+
+                        sh "npm install @openapitools/openapi-generator-cli"
+                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-ras-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
+                        sh "npm install --prefix generated-openapi"
+                        script {
+                           if (env.PULL_REQ == 'true') {
+                              echo 'Skipping npm publish'
+                           } else {
+                              sh "npm publish generated-openapi"
+                           }
+                        }                        
                      }
 
                      dir('dev.galasa.framework.obr') {
@@ -112,6 +163,11 @@ pipeline {
                      dir('galasastaging-maven-plugin') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
                      }
+
+                     dir('galasa-testharness') {
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
+                     }
+
                   } }
                }
             }
