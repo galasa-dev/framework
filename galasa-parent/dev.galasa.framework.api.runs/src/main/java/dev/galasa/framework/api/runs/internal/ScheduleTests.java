@@ -120,7 +120,8 @@ public class ScheduleTests extends HttpServlet {
                         groupName, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
                         request.isTrace(), request.getOverrides(), 
                         senvPhase, 
-                        request.getSharedEnvironmentRunName());
+                        request.getSharedEnvironmentRunName(),
+                        "java");
             } catch (FrameworkException fe) {
                 logger.error(
                         "Failure when submitting run: " + className, fe);

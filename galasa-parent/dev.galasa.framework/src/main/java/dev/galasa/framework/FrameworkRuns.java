@@ -43,6 +43,7 @@ public class FrameworkRuns implements IFrameworkRuns {
     private final IConfigurationPropertyStoreService cps;
 
     private final String                             NO_GROUP     = "none";
+    private final String                             NO_BUNDLE     = "none";
     private final String                             NO_RUNTYPE   = "UNKNOWN";
     private final String                             NO_REQUESTER = "unknown";
 
@@ -145,17 +146,21 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     @Override
     @NotNull
-    public @NotNull IRun submitRun(String runType, String requestor, @NotNull String bundleName,
+    public @NotNull IRun submitRun(String runType, String requestor, String bundleName,
             @NotNull String testName, String groupName, String mavenRepository, String obr, String stream,
-            boolean local, boolean trace, Properties overrides, SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName) throws FrameworkException {
+            boolean local, boolean trace, Properties overrides, SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName,
+            String language) throws FrameworkException {
         if (testName == null) {
             throw new FrameworkException("Missing test name");
         }
-        if (bundleName == null) {
-            throw new FrameworkException("Missing bundle name");
+        String bundleTest = null;
+        if(language.equals("java")) {
+            if(bundleName == null) {
+                throw new FrameworkException("Missing bundle name");
+            } else {
+                bundleTest = bundleName + "/" + testName;
+            }
         }
-
-        String bundleTest = bundleName + "/" + testName;
 
         groupName = AbstractManager.nulled(groupName);
         if (groupName == null) {
@@ -199,7 +204,8 @@ public class FrameworkRuns implements IFrameworkRuns {
                     groupName, 
                     requestor, 
                     overrides,
-                    sharedEnvironmentPhase)) {
+                    sharedEnvironmentPhase,
+                    language)) {
                 throw new FrameworkException("Unable to submit shared environment run " + sharedEnvironmentRunName + ", is there a duplicate runname?");
             }
 
@@ -235,7 +241,6 @@ public class FrameworkRuns implements IFrameworkRuns {
 
             return new RunImpl(sharedEnvironmentRunName, this.dss);
         }
-
 
         // *** Get the prefix of this run type
         String typePrefix = AbstractManager.nulled(this.cps.getProperty("request.type." + runType, "prefix"));
@@ -297,7 +302,8 @@ public class FrameworkRuns implements IFrameworkRuns {
                         groupName, 
                         requestor, 
                         overrides,
-                        null)) {
+                        null,
+                        language)) {
                     Thread.sleep(this.framework.getRandom().nextInt(200)); // *** Wait for a bit, to avoid race
                     // conditions
                     continue; // *** Try again
@@ -315,7 +321,6 @@ public class FrameworkRuns implements IFrameworkRuns {
         return new RunImpl(runName, this.dss);
     }
 
-
     private boolean storeRun(String runName,
             String bundleTest,
             String bundleName, 
@@ -329,10 +334,17 @@ public class FrameworkRuns implements IFrameworkRuns {
             String groupName,
             String requestor,
             Properties overrides, 
-            SharedEnvironmentPhase sharedEnvironmentPhase) throws DynamicStatusStoreException {
+            SharedEnvironmentPhase sharedEnvironmentPhase,
+            String language) throws DynamicStatusStoreException {
 
         if (overrides == null) {
             overrides = new Properties();
+        }
+        String gherkinTest = null;
+        if(language.equals("gherkin")) {
+            bundleTest = NO_BUNDLE;
+            gherkinTest = testName;
+            bundleName = NO_BUNDLE;
         }
         // *** Set up the otherRunProperties that will go with the Run number
         HashMap<String, String> otherRunProperties = new HashMap<>();
@@ -364,6 +376,9 @@ public class FrameworkRuns implements IFrameworkRuns {
         if (sharedEnvironmentPhase != null) {
             otherRunProperties.put(RUN_PREFIX + runName + ".shared.environment", "true");
             overrides.put("framework.run.shared.environment.phase", sharedEnvironmentPhase.toString());
+        }
+        if(gherkinTest != null) {
+            otherRunProperties.put(RUN_PREFIX + runName + ".gherkin", gherkinTest);
         }
 
         // *** Add in the overrides
