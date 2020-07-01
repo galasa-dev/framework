@@ -11,8 +11,6 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ManagerException;
-import dev.galasa.framework.spi.language.GalasaMethod;
-import dev.galasa.framework.spi.language.GalasaTest;
 
 /**
  * <p>
@@ -86,7 +84,7 @@ public interface IManager {
      * @throws ManagerException If there is a problem initialising the Manager
      */
     void initialise(@NotNull IFramework framework, @NotNull List<IManager> allManagers,
-            @NotNull List<IManager> activeManagers, @NotNull GalasaTest galasaTest) throws ManagerException;
+            @NotNull List<IManager> activeManagers, @NotNull Class<?> testClass) throws ManagerException;
     
     /**
      * The framework will check each manager during Shared Environment Build to see if they support shared environments.
@@ -223,7 +221,7 @@ public interface IManager {
      *         should be ignored
      * @throws ManagerException - Just in case something goes wrong, eg CPS
      */
-    String anyReasonTestMethodShouldBeIgnored(@NotNull GalasaMethod galasaMethod) throws ManagerException;
+    String anyReasonTestMethodShouldBeIgnored(@NotNull Method method) throws ManagerException;
 
     /**
      * Called when we are about to start the Test Method.
@@ -233,7 +231,7 @@ public interface IManager {
      *
      * @throws ManagerException On the off chance something when wrong
      */
-    void startOfTestMethod(@NotNull GalasaMethod galasaMethod) throws ManagerException;
+    void startOfTestMethod(@NotNull Method excecutionMethod, Method testMethod) throws ManagerException;
 
     /**
      * <p>
@@ -252,7 +250,7 @@ public interface IManager {
      * @return Override the test result, or null if ok
      * @throws ManagerException If something went wrong
      */
-    String endOfTestMethod(@NotNull GalasaMethod galasaMethod, @NotNull String currentResult, Throwable currentException)
+    String endOfTestMethod(@NotNull Method testMethod, @NotNull String currentResult, Throwable currentException)
             throws ManagerException;
 
     /**

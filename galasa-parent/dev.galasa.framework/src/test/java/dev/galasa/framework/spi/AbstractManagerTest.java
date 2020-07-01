@@ -14,7 +14,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import dev.galasa.ManagerException;
-import dev.galasa.framework.spi.language.GalasaTest;
 
 public class AbstractManagerTest {
 
@@ -22,7 +21,7 @@ public class AbstractManagerTest {
     public void testAnnotatedFields() throws NoSuchFieldException, SecurityException, ManagerException {
         final TestManager testManager = new TestManager();
         final TestClass testClass = new TestClass();
-        testManager.initialise(null, null, null, new GalasaTest(testClass.getClass()));
+        testManager.initialise(null, null, null, testClass.getClass());
 
         final List<AnnotatedField> annotatedFields = testManager.findAnnotatedFields(TestManagerAnnotation.class);
         Assert.assertNotNull("A list should always be returned", annotatedFields);
@@ -104,7 +103,7 @@ public class AbstractManagerTest {
             throws NoSuchFieldException, SecurityException, ManagerException, ResourceUnavailableException {
         final TestManager testManager = new TestManager();
         final TestClass testClass = new TestClass();
-        testManager.initialise(null, null, null, new GalasaTest(testClass.getClass()));
+        testManager.initialise(null, null, null, testClass.getClass());
 
         testManager.provisionGenerate();
         testManager.fillAnnotatedFields(testClass);
@@ -136,7 +135,7 @@ public class AbstractManagerTest {
         testManager.provisionStart();
         testManager.startOfTestClass();
         testManager.anyReasonTestMethodShouldBeIgnored(null);
-        testManager.startOfTestMethod(null);
+        testManager.startOfTestMethod(null, null);
         testManager.endOfTestMethod(null, null, null);
         testManager.testMethodResult(null, null);
         testManager.endOfTestClass(null, null);
