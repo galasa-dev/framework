@@ -16,11 +16,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ManagerException;
-import dev.galasa.framework.IGherkinExecutable;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
+import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.IGherkinManager;
 import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.language.GalasaMethod;
 
 public class GherkinMethod {
 
@@ -42,7 +44,7 @@ public class GherkinMethod {
         this.testName = testName;
     }
 
-    public void addStatement(String statement) {
+    public void addStatement(String statement) throws TestRunException {
         this.executables.add(GherkinStatement.get(statement));
     }
 
@@ -70,67 +72,70 @@ public class GherkinMethod {
     }
 
     public void invoke(TestRunManagers managers, Map<String, Object> testVariables) throws TestRunException {
-        //TODO Galasa standard wrapper passed to managers
-        //managers.startOfTestMethod(new GalasaMethod(this));
+        try {
+            managers.startOfTestMethod(new GalasaMethod(this));
 
-        logger.info(GherkinTest.LOG_STARTING + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS
-                + GherkinTest.LOG_START_LINE + "*** Start of test method " + this.testName + "#"
-                + this.name + GherkinTest.LOG_START_LINE
-                + GherkinTest.LOG_ASTERS);
-        this.startTime = Instant.now();
-        this.status = "started";
-
-        for(IGherkinExecutable executable : this.executables) {
-            IGherkinManager manager = executable.getRegisteredManager();
-            try {
-                logger.info("Executing Statement: " + executable.getText());
-                manager.executeGherkin(executable, testVariables);
-            } catch (ManagerException e) {
-                this.result = Result.failed(e);
-            }
-        }
-
-        if(this.result == null) {
-            this.result = Result.passed();
-        }
-
-        //TODO Galasa standard wrapper passed to managers
-        // Result overrideResult = managers.endOfTestMethod(new GalasaMethod(this), this.result, this.result.getThrowable());
-        // if (overrideResult != null) {
-        //     this.result = overrideResult;
-        // }
-
-        if (this.result.getThrowable() != null) {
-            Throwable t = this.result.getThrowable();
-            try {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                t.printStackTrace(pw);
-                this.exception = sw.toString();
-            } catch (Exception e) {
-                this.exception = "Unable to report exception because of " + e.getMessage();
-            }
-        }
-
-        if (this.result.isPassed()) {
-            String resname = this.result.getName();
-            logger.info(GherkinTest.LOG_ENDING + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS
-                    + GherkinTest.LOG_START_LINE + "*** " + resname + " - Test method " + this.testName
-                    + "#" + this.name + GherkinTest.LOG_START_LINE
+            logger.info(GherkinTest.LOG_STARTING + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS
+                    + GherkinTest.LOG_START_LINE + "*** Start of test method " + this.testName + "#"
+                    + this.name + GherkinTest.LOG_START_LINE
                     + GherkinTest.LOG_ASTERS);
-        } else {
-            String exception = "";
-            if (this.exception != null) {
-                exception = "\n" + this.exception;
-            }
-            logger.info(GherkinTest.LOG_ENDING + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS
-                    + GherkinTest.LOG_START_LINE + "*** " + this.result.getName() + " - Test method "
-                    + this.testName + "#" + this.name
-                    + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS + exception);
-        }
+            this.startTime = Instant.now();
+            this.status = "started";
 
-        this.endTime = Instant.now();
-        this.status = "finished";
+            for(IGherkinExecutable executable : this.executables) {
+                IGherkinManager manager = executable.getRegisteredManager();
+                try {
+                    logger.info("Executing Statement: " + executable.getValue());
+                    manager.executeGherkin(executable, testVariables);
+                } catch (ManagerException e) {
+                    this.result = Result.failed(e);
+                }
+            }
+
+            if(this.result == null) {
+                this.result = Result.passed();
+            }
+
+            Result overrideResult = managers.endOfTestMethod(new GalasaMethod(this), this.result, this.result.getThrowable());
+            if (overrideResult != null) {
+                this.result = overrideResult;
+            }
+
+            if (this.result.getThrowable() != null) {
+                Throwable t = this.result.getThrowable();
+                try {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    t.printStackTrace(pw);
+                    this.exception = sw.toString();
+                } catch (Exception e) {
+                    this.exception = "Unable to report exception because of " + e.getMessage();
+                }
+            }
+
+            if (this.result.isPassed()) {
+                String resname = this.result.getName();
+                logger.info(GherkinTest.LOG_ENDING + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS
+                        + GherkinTest.LOG_START_LINE + "*** " + resname + " - Test method " + this.testName
+                        + "#" + this.name + GherkinTest.LOG_START_LINE
+                        + GherkinTest.LOG_ASTERS);
+            } else {
+                String exception = "";
+                if (this.exception != null) {
+                    exception = "\n" + this.exception;
+                }
+                logger.info(GherkinTest.LOG_ENDING + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS
+                        + GherkinTest.LOG_START_LINE + "*** " + this.result.getName() + " - Test method "
+                        + this.testName + "#" + this.name
+                        + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS + exception);
+            }
+
+            this.endTime = Instant.now();
+            this.status = "finished";
+
+        } catch (FrameworkException e) {
+            throw new TestRunException("There was a problem with the framework, please check stacktrace", e);
+        }
     }
 
     public boolean fullStop() {

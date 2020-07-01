@@ -5,20 +5,22 @@
  */
 package dev.galasa.framework.spi.language.gherkin;
 
-import dev.galasa.framework.IGherkinExecutable;
+import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.spi.IGherkinManager;
 
 public class GherkinStatement implements IGherkinExecutable {
 
     private String statement;
+    private GherkinKeyword keyword;
     private IGherkinManager registeredManager;
     
-    private GherkinStatement(String statement) {
-        this.statement = statement;
+    private GherkinStatement(String statement) throws TestRunException {
+        this.keyword = GherkinKeyword.get(statement);
+        this.statement = statement.substring(statement.indexOf(" ") + 1).trim();
     }
 
-    public static IGherkinExecutable get(String statement) {
+    public static IGherkinExecutable get(String statement) throws TestRunException {
         IGherkinExecutable executable = new GherkinStatement(statement);
         return executable;
     }
@@ -34,7 +36,11 @@ public class GherkinStatement implements IGherkinExecutable {
         return this.registeredManager;
     }
 
-    public String getText() {
+    public String getValue() {
         return this.statement;
+    }
+
+    public GherkinKeyword getKeyword() {
+        return this.keyword;
     }
 }
