@@ -46,7 +46,7 @@ public class TestRunManagers {
 
     private final RepositoryAdmin repositoryAdmin;
 
-    public TestRunManagers(IFramework framework, Class<?> testClass) throws FrameworkException {
+    public TestRunManagers(IFramework framework, GalasaTest galasaTest) throws FrameworkException {
         this.framework = framework;
         this.bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
@@ -55,28 +55,7 @@ public class TestRunManagers {
 
         List<IManager> allManagers = locateManagers();
         requestExtraBundlesFromManager(allManagers, allManagers);
-        buildActiveManagers(allManagers, new GalasaTest(testClass));
-
-        logger.debug("The following Managers are active:-");
-        reportManagers();
-
-        calculateProvisioningDependencies();
-
-        logger.debug("The following Managers are sorted in provisioning order:-");
-        reportManagers();
-
-    }
-
-    public TestRunManagers(IFramework framework, GherkinTest gherkinTest) throws FrameworkException {
-        this.framework = framework;
-        this.bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
-
-        ServiceReference<?> serviceReference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
-        repositoryAdmin = (RepositoryAdmin) bundleContext.getService(serviceReference);
-
-        List<IManager> allManagers = locateManagers();
-        requestExtraBundlesFromManager(allManagers, allManagers);
-        buildActiveManagers(allManagers, new GalasaTest(gherkinTest));
+        buildActiveManagers(allManagers, galasaTest);
 
         logger.debug("The following Managers are active:-");
         reportManagers();
