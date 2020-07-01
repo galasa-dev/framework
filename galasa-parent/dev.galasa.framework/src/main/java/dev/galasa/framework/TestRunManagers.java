@@ -158,7 +158,7 @@ public class TestRunManagers {
                 throw new FrameworkException("Unable to initialise Manager " + manager.getClass().getName(), e);
             }
         }
-        
+
     }
 
     private void requestExtraBundlesFromManager(List<IManager> managersToCheck, List<IManager> allManagers)
