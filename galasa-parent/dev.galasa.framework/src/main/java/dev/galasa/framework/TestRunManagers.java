@@ -32,7 +32,6 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.framework.spi.Result;
-import dev.galasa.framework.spi.language.gherkin.GherkinTest;
 
 public class TestRunManagers {
 
@@ -159,6 +158,7 @@ public class TestRunManagers {
                 throw new FrameworkException("Unable to initialise Manager " + manager.getClass().getName(), e);
             }
         }
+        
     }
 
     private void requestExtraBundlesFromManager(List<IManager> managersToCheck, List<IManager> allManagers)
