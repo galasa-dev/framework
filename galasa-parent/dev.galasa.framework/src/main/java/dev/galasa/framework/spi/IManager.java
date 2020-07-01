@@ -86,7 +86,7 @@ public interface IManager {
     void initialise(@NotNull IFramework framework, @NotNull List<IManager> allManagers,
             @NotNull List<IManager> activeManagers, @NotNull Class<?> testClass) throws ManagerException;
     
-
+    
     /**
      * The framework will check each manager during Shared Environment Build to see if they support shared environments.
      * Those Managers that don't provision resources should return true.
