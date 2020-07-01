@@ -230,13 +230,12 @@ public class GherkinTestRunner {
 
         // *** Initialise the Managers ready for the test run
         TestRunManagers managers = null;
-        // TODO ENABLE passing gherkinTest object to managers
-        // try {
-        //     managers = new TestRunManagers(frameworkInitialisation.getFramework(), gherkinTest);
-        // } catch (FrameworkException e) {
-        //     this.ras.shutdown();
-        //     throw new TestRunException("Problem initialising the Managers for a test run", e);
-        // }
+        try {
+            managers = new TestRunManagers(frameworkInitialisation.getFramework(), null);
+        } catch (FrameworkException e) {
+            this.ras.shutdown();
+            throw new TestRunException("Problem initialising the Managers for a test run", e);
+        }
 
         if(!gherkinTest.allMethodsRegistered()) {
             stopHeartbeat();
