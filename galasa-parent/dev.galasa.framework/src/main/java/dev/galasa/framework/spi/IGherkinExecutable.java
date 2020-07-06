@@ -3,9 +3,10 @@
  * 
  * (c) Copyright IBM Corp. 2019.
  */
-package dev.galasa.framework;
+package dev.galasa.framework.spi;
 
-import dev.galasa.framework.spi.IGherkinManager;
+import dev.galasa.framework.TestRunException;
+import dev.galasa.framework.spi.language.gherkin.GherkinKeyword;
 
 public interface IGherkinExecutable {
 
@@ -13,6 +14,8 @@ public interface IGherkinExecutable {
 
     void registerManager(IGherkinManager manager) throws TestRunException;
 
-    String getText();
+    String getValue();
+
+    GherkinKeyword getKeyword();
     
 }

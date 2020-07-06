@@ -43,6 +43,7 @@ import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
@@ -231,7 +232,7 @@ public class GherkinTestRunner {
         // *** Initialise the Managers ready for the test run
         TestRunManagers managers = null;
         try {
-            managers = new TestRunManagers(frameworkInitialisation.getFramework(), null);
+            managers = new TestRunManagers(frameworkInitialisation.getFramework(), new GalasaTest(gherkinTest));
         } catch (FrameworkException e) {
             this.ras.shutdown();
             throw new TestRunException("Problem initialising the Managers for a test run", e);

@@ -48,6 +48,7 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
+import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 
@@ -291,7 +292,7 @@ public class TestRunner {
         // *** Initialise the Managers ready for the test run
         TestRunManagers managers = null;
         try {
-            managers = new TestRunManagers(frameworkInitialisation.getFramework(), testClass);
+            managers = new TestRunManagers(frameworkInitialisation.getFramework(), new GalasaTest(testClass));
         } catch (FrameworkException e) {
             this.ras.shutdown();
             throw new TestRunException("Problem initialising the Managers for a test run", e);

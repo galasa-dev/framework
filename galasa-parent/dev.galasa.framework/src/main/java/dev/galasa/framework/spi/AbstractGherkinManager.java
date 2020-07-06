@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ManagerException;
-import dev.galasa.framework.IGherkinExecutable;
 
 public abstract class AbstractGherkinManager extends AbstractManager implements IGherkinManager {
 
