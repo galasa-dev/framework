@@ -110,7 +110,7 @@ public class Settings implements Runnable {
         try {
             String newEngineLabel = properties.getProperty("engine_label");
             if (newEngineLabel == null || newEngineLabel.trim().isEmpty()) {
-                newEngineLabel = "docker-standard-engine";
+                newEngineLabel = "docker_standard_engine";
             }
             if (!newEngineLabel.equals(engineLabel)) {
                 logger.info("Setting Engine Label from '" + engineLabel + "' to '" + newEngineLabel + "'");

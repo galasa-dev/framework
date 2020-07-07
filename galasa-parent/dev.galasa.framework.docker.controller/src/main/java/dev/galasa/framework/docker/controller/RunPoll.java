@@ -175,7 +175,7 @@ public class RunPoll implements Runnable {
                     break;
                 } catch(ConflictException e) {
                     retry++;
-                    choosenEngineName = engineName + "-" + retry;
+                    choosenEngineName = engineName + "_" + retry;
                     logger.info(
                             "Engine Pod " + engineName + " already exists, trying with " + choosenEngineName);
                 } catch(Exception e) {
