@@ -189,11 +189,6 @@ public class DockerController {
 
     }
 
-    private void pullEngineImage(DockerClient dockerClient) {
-        // TODO Auto-generated method stub
-        
-    }
-
     private class ShutdownHook extends Thread {
         @Override
         public void run() {
