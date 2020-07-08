@@ -10,31 +10,22 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.ListContainersCmd;
+import com.github.dockerjava.api.command.StartContainerCmd;
+import com.github.dockerjava.api.exception.ConflictException;
+import com.github.dockerjava.api.model.Container;
 
-import dev.galasa.framework.docker.controller.pojo.Container;
-import dev.galasa.framework.docker.controller.pojo.HostConfig;
-import dev.galasa.framework.docker.controller.pojo.Labels;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
@@ -44,19 +35,17 @@ public class RunPoll implements Runnable {
     private final Log                        logger           = LogFactory.getLog(getClass());
 
     private final Settings                   settings;
-    private final CloseableHttpClient        httpClient;
+    private final DockerClient               dockerClient;
     private final IDynamicStatusStoreService dss;
     private final IFrameworkRuns             runs;
     private final QueuedComparator           queuedComparator = new QueuedComparator();
 
     private Counter                          submittedRuns;
 
-    private static Gson                      gson             = new GsonBuilder().setPrettyPrinting().create();
-
-    public RunPoll(IDynamicStatusStoreService dss, Settings settings, CloseableHttpClient httpClient,
+    public RunPoll(IDynamicStatusStoreService dss, Settings settings, DockerClient dockerClient,
             IFrameworkRuns runs) {
         this.settings = settings;
-        this.httpClient = httpClient;
+        this.dockerClient = dockerClient;
         this.runs = runs;
         this.dss = dss;
 
@@ -92,7 +81,7 @@ public class RunPoll implements Runnable {
 
             while (true) {
                 // *** Check we are not at max engines
-                List<Container> pods = getContainers(this.httpClient, this.settings);
+                List<Container> pods = getContainers(this.dockerClient, this.settings);
                 filterActiveRuns(pods);
                 logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
 
@@ -120,7 +109,7 @@ public class RunPoll implements Runnable {
 
                 if (!queuedRuns.isEmpty()) {
                     Thread.sleep((long) settings.getRunPollRecheck() * 1000l); // *** Slight delay to allow Docker to
-                                                                               // catch up
+                    // catch up
                 } else {
                     return;
                 }
@@ -134,10 +123,11 @@ public class RunPoll implements Runnable {
 
     private void startPod(IRun run) {
         String runName = run.getName();
-        String engineName = this.settings.getEngineLabel() + "-" + runName.toLowerCase();
+        String engineName = this.settings.getEngineLabel() + "_" + runName.toLowerCase();
 
         logger.info("Received run " + runName);
 
+        String containerId = null;
         try {
             // *** First attempt to allocate the run to this controller
             HashMap<String, String> props = new HashMap<>();
@@ -147,70 +137,49 @@ public class RunPoll implements Runnable {
                 return;
             }
 
-            Container container = new Container();
-            container.Labels = new Labels();
-            container.Labels.galasaEngineController = this.settings.getEngineLabel();
-            container.Labels.galasaRun = runName;
-
-            container.Image = settings.getEngineImage();
-
-            container.HostConfig = new HostConfig();
-            if (!settings.getNetwork().isEmpty()) {
-                container.HostConfig.NetworkMode = settings.getNetwork();
-            }
-
-            if (!settings.getDns().isEmpty()) {
-                container.HostConfig.Dns = new ArrayList<>(settings.getDns());
-            }
-
-            container.Cmd = new ArrayList<>();
-            container.Cmd.add("java");
-            container.Cmd.add("-jar");
-            container.Cmd.add("boot.jar");
-            container.Cmd.add("--obr");
-            container.Cmd.add("file:galasa.obr");
-            container.Cmd.add("--bootstrap");
-            container.Cmd.add(settings.getBootstrap());
-            container.Cmd.add("--run");
-            container.Cmd.add(runName);
-            if (run.isTrace()) {
-                container.Cmd.add("--trace");
-            }
+            String choosenEngineName = engineName;
 
             boolean successful = false;
             int retry = 0;
-            String choosenEngineName = engineName;
-            String id = null;
+
             while (!successful) {
                 try {
-                    HttpPost post = new HttpPost(
-                            settings.getDockerUrl().toString() + "/containers/create?name=" + choosenEngineName);
-                    post.setEntity(new StringEntity(gson.toJson(container), ContentType.APPLICATION_JSON));
-                    try (CloseableHttpResponse response = httpClient.execute(post)) {
-                        StatusLine status = response.getStatusLine();
-                        String entity = EntityUtils.toString(response.getEntity());
+                    CreateContainerCmd cmd = dockerClient.createContainerCmd(choosenEngineName);
+                    cmd.withName(choosenEngineName);
+                    cmd.withImage(settings.getEngineImage());
 
-                        if (status.getStatusCode() == HttpStatus.SC_CONFLICT) {
-                            retry++;
-                            choosenEngineName = engineName + "-" + retry;
-                            logger.info(
-                                    "Engine Pod " + engineName + " already exists, trying with " + choosenEngineName);
-                            continue;
-                        }
+                    HashMap<String, String> labels = new HashMap<>();
+                    labels.put("galasaEngineController", this.settings.getEngineLabel());
+                    labels.put("galasaRun", runName);
+                    cmd.withLabels(labels);
 
-                        if (status.getStatusCode() != HttpStatus.SC_CREATED) {
-                            throw new DockerControllerException("Container Create failed - " + status + "\n" + entity);
-                        }
-
-                        Container newContainer = gson.fromJson(entity, Container.class);
-                        id = newContainer.Id;
+                    ArrayList<String> cmds = new ArrayList<>();
+                    cmds.add("java");
+                    cmds.add("-jar");
+                    cmds.add("boot.jar");
+                    cmds.add("--obr");
+                    cmds.add("file:galasa.obr");
+                    cmds.add("--bootstrap");
+                    cmds.add(settings.getBootstrap());
+                    cmds.add("--run");
+                    cmds.add(runName);
+                    if (run.isTrace()) {
+                        cmds.add("--trace");
                     }
+                    cmd.withCmd(cmds); 
 
-                    logger.info("Engine Container " + engineName + " created with id " + id);
+                    CreateContainerResponse response = cmd.exec();
+                    containerId = response.getId();
+                    logger.info("Engine Container " + engineName + " created with id " + containerId);
                     successful = true;
                     break;
-                } catch (Exception e) {
-                    logger.error("Failed to create engine container", e);
+                } catch(ConflictException e) {
+                    retry++;
+                    choosenEngineName = engineName + "_" + retry;
+                    logger.info(
+                            "Engine Pod " + engineName + " already exists, trying with " + choosenEngineName);
+                } catch(Exception e) {
+                    throw new DockerControllerException("Container create failed",e);
                 }
                 logger.info("Waiting 2 seconds before trying to create container again");
                 Thread.sleep(2000);
@@ -221,17 +190,10 @@ public class RunPoll implements Runnable {
             successful = false;
             while (!successful) {
                 try {
-                    HttpPost post = new HttpPost(settings.getDockerUrl().toString() + "/containers/" + id + "/start");
-                    try (CloseableHttpResponse response = httpClient.execute(post)) {
-                        StatusLine status = response.getStatusLine();
-                        EntityUtils.consume(response.getEntity());
+                    StartContainerCmd cmd = dockerClient.startContainerCmd(containerId);
+                    cmd.exec();
 
-                        if (status.getStatusCode() != HttpStatus.SC_NO_CONTENT) {
-                            throw new DockerControllerException("Container Start failed - " + status);
-                        }
-                    }
-
-                    logger.info("Engine Container " + engineName + " started with id " + id);
+                    logger.info("Engine Container " + choosenEngineName + " started with id " + containerId);
                     successful = true;
                     submittedRuns.inc();
                     break;
@@ -270,49 +232,46 @@ public class RunPoll implements Runnable {
     // return run.getRequestor();
     // }
 
-    public static @NotNull List<Container> getContainers(CloseableHttpClient httpClient, Settings settings)
+    public static @NotNull List<Container> getContainers(DockerClient dockerClient, Settings settings)
             throws DockerControllerException {
-        LinkedList<Container> returnContainers = new LinkedList<>();
+
 
         try {
-            HttpGet get = new HttpGet(settings.getDockerUrl().toString() + "/containers/json?all=true");
-            try (CloseableHttpResponse response = httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
-                String entity = EntityUtils.toString(response.getEntity());
+            ListContainersCmd cmd = dockerClient.listContainersCmd();
+            cmd.withShowAll(true);
 
-                if (status.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new DockerControllerException("Get containers failed - " + status);
-                }
+            ArrayList<String> labels = new ArrayList<>();
+            labels.add("galasaEngineController=" + settings.getEngineLabel());
+            cmd.withLabelFilter(labels);
 
-                JsonArray array = gson.fromJson(entity, JsonArray.class);
-                for (JsonElement element : array) {
-                    Container container = gson.fromJson(element, Container.class);
+            List<Container> possibleContainers = cmd.exec(); 
 
-                    if (container.Labels == null) {
+            ArrayList<Container> containers = new ArrayList<>(possibleContainers.size());
+
+            if (possibleContainers != null) {
+                for(Container container : possibleContainers) {
+                    Map<String, String> containerLabels = container.getLabels();
+                    if (containerLabels == null) {
                         continue;
                     }
 
-                    if (container.Labels.galasaEngineController == null || container.Labels.galasaRun == null) {
-                        continue;
+                    if (containerLabels.containsKey("galasaRun")) {
+                        containers.add(container);
                     }
-
-                    returnContainers.add(container);
                 }
             }
-        } catch (DockerControllerException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DockerControllerException("Failed retrieving containers", e);
-        }
 
-        return returnContainers;
+            return containers;
+        } catch(Exception e) {
+            throw new DockerControllerException("Problem listing the engine containers",e);
+        }
     }
 
     public static void filterActiveRuns(@NotNull List<Container> containers) {
         Iterator<Container> iContainer = containers.iterator();
         while (iContainer.hasNext()) {
             Container container = iContainer.next();
-            if ("exited".equals(container.State)) {
+            if ("exited".equals(container.getState())) {
                 iContainer.remove();
             }
         }
@@ -323,7 +282,7 @@ public class RunPoll implements Runnable {
         while (iContainer.hasNext()) {
             Container container = iContainer.next();
 
-            if ("exited".equals(container.State)) {
+            if ("exited".equals(container.getState())) {
                 continue;
             }
             iContainer.remove();

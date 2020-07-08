@@ -14,9 +14,18 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.osgi.service.component.annotations.Component;
+
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.command.PullImageCmd;
+import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.DockerClientImpl;
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import com.github.dockerjava.transport.DockerHttpClient;
 
 import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.spi.FrameworkException;
@@ -110,41 +119,58 @@ public class DockerController {
         // DefaultExports.initialize() - problem within the the exporter at the moment
         // TODO
 
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        // *** Create Health Server
+        if (healthPort > 0) {
+            this.healthServer = new Health(healthPort);
+            logger.info("Health monitoring on port " + healthPort);
+        } else {
+            logger.info("Health monitoring disabled");
+        }
 
-            // *** Create Health Server
-            if (healthPort > 0) {
-                this.healthServer = new Health(healthPort);
-                logger.info("Health monitoring on port " + healthPort);
-            } else {
-                logger.info("Health monitoring disabled");
-            }
-            // *** Start the run polling
-            RunDeleted runDeleted = new RunDeleted(settings, httpClient, framework.getFrameworkRuns());
-            scheduledExecutorService.scheduleWithFixedDelay(runDeleted, 0, settings.getRunPoll(), TimeUnit.SECONDS);
-            RunPoll runPoll = new RunPoll(dss, settings, httpClient, framework.getFrameworkRuns());
-            scheduledExecutorService.scheduleWithFixedDelay(runPoll, 1, settings.getRunPoll(), TimeUnit.SECONDS);
+        // Create the Docker client
 
-            logger.info("Docker controller has started");
+        DockerClientConfig config = DefaultDockerClientConfig
+                .createDefaultConfigBuilder()
+                .build();
 
-            // *** Loop until we are asked to shutdown
-            while (!shutdown) {
-                try {
-                    Thread.sleep(500);
-                } catch (Exception e) {
-                    throw new DockerControllerException("Interrupted sleep", e);
-                }
-            }
+        DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
+                .dockerHost(config.getDockerHost())
+                .sslConfig(config.getSSLConfig())
+                .build();
 
-            // *** shutdown the scheduler
-            this.scheduledExecutorService.shutdown();
+        DockerClient dockerClient = DockerClientImpl.getInstance(config, httpClient);
+
+        try {
+            dockerClient.pingCmd().exec();
+        } catch(Exception e) {
+            throw new DockerControllerException("Problem contacting the Docker engine", e);
+        }
+        
+        getImageId(dockerClient, settings.getEngineImage());
+
+        // *** Start the run polling
+        RunDeleted runDeleted = new RunDeleted(settings, dockerClient, framework.getFrameworkRuns());
+        scheduledExecutorService.scheduleWithFixedDelay(runDeleted, 0, settings.getRunPoll(), TimeUnit.SECONDS);
+        RunPoll runPoll = new RunPoll(dss, settings, dockerClient, framework.getFrameworkRuns());
+        scheduledExecutorService.scheduleWithFixedDelay(runPoll, 1, settings.getRunPoll(), TimeUnit.SECONDS);
+
+        logger.info("Docker controller has started");
+
+        // *** Loop until we are asked to shutdown
+        while (!shutdown) {
             try {
-                this.scheduledExecutorService.awaitTermination(30, TimeUnit.SECONDS);
+                Thread.sleep(500);
             } catch (Exception e) {
-                logger.error("Unable to shutdown the scheduler");
+                throw new DockerControllerException("Interrupted sleep", e);
             }
+        }
+
+        // *** shutdown the scheduler
+        this.scheduledExecutorService.shutdown();
+        try {
+            this.scheduledExecutorService.awaitTermination(30, TimeUnit.SECONDS);
         } catch (Exception e) {
-            throw new DockerControllerException("Controller failed", e);
+            logger.error("Unable to shutdown the scheduler");
         }
 
         // *** Stop the metics server
@@ -201,5 +227,32 @@ public class DockerController {
         }
         return value;
     }
+    
+    protected String getImageId(DockerClient dockerClient, String imageName) throws DockerControllerException {
+        try {
+            InspectImageResponse response = dockerClient.inspectImageCmd(imageName).exec();
+            return response.getId();
+        } catch(NotFoundException e) {
+            try {
+                System.out.println("Pulling image '" + imageName + "'");
+                PullImageCmd cmd = dockerClient.pullImageCmd(imageName);
+                PullImageResultCallback callback = new PullImageResultCallback();
+                cmd.exec(callback);
+                if (!callback.awaitCompletion(5, TimeUnit.MINUTES)) {
+                    throw new DockerControllerException("Timed out pulling '" + imageName + "' image");
+                }
+
+                InspectImageResponse response = dockerClient.inspectImageCmd(imageName).exec();
+                return response.getId();
+            } catch(Exception e1) {
+                throw new DockerControllerException("Problem pulling '" + imageName + "' image", e1);
+            }
+        } catch(Exception e) {
+            throw new DockerControllerException("Problem inspecting '" + imageName + "' image", e);
+        }
+
+    }
+
+
 
 }

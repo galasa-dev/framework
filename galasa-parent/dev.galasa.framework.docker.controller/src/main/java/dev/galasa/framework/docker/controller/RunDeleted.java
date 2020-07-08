@@ -9,14 +9,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
 
-import dev.galasa.framework.docker.controller.pojo.Container;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.Container;
+
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 
@@ -24,12 +21,12 @@ public class RunDeleted implements Runnable {
     private final Log                 logger = LogFactory.getLog(getClass());
 
     private final Settings            settings;
-    private final CloseableHttpClient httpClient;
+    private final DockerClient        dockerClient;
     private final IFrameworkRuns      runs;
 
-    public RunDeleted(Settings settings, CloseableHttpClient httpClient, IFrameworkRuns runs) {
+    public RunDeleted(Settings settings, DockerClient dockerClient, IFrameworkRuns runs) {
         this.settings = settings;
-        this.httpClient = httpClient;
+        this.dockerClient = dockerClient;
         this.runs = runs;
     }
 
@@ -38,11 +35,11 @@ public class RunDeleted implements Runnable {
         logger.info("Starting Deleted runs scan");
 
         try {
-            List<Container> containers = RunPoll.getContainers(httpClient, settings);
+            List<Container> containers = RunPoll.getContainers(dockerClient, settings);
             RunPoll.filterTerminated(containers);
 
             for (Container container : containers) {
-                String runName = container.Labels.galasaRun;
+                String runName = container.getLabels().get("galasaRun");
                 if (runName == null) {
                     continue;
                 }
@@ -52,7 +49,7 @@ public class RunDeleted implements Runnable {
                     continue;
                 }
 
-                logger.info("Deleting container " + container.Names.get(0) + " as run has been deleted");
+                logger.info("Deleting container " + container.getNames()[0] + " as run has been deleted");
                 deleteContainer(container);
             }
 
@@ -64,17 +61,9 @@ public class RunDeleted implements Runnable {
 
     private void deleteContainer(Container container) {
         try {
-            String containerName = container.Names.get(0);
-            logger.info("Deleting container " + containerName + " id " + container.Id);
-            HttpDelete Delete = new HttpDelete(settings.getDockerUrl().toString() + "/containers/" + container.Id);
-            try (CloseableHttpResponse response = httpClient.execute(Delete)) {
-                StatusLine status = response.getStatusLine();
-                EntityUtils.consume(response.getEntity());
-
-                if (status.getStatusCode() != HttpStatus.SC_NO_CONTENT) {
-                    throw new DockerControllerException("Delete container failed - " + status);
-                }
-            }
+            logger.info("Deleting container " + container.getNames()[0] + " id " + container.getId());
+            dockerClient.removeContainerCmd(container.getId()).withForce(true).exec();
+        } catch (NotFoundException e) {
         } catch (Exception e) {
             logger.error("Failed to delete engine pod", e);
         }

@@ -24,7 +24,6 @@ public class Settings implements Runnable {
     private final Log         logger                 = LogFactory.getLog(getClass());
 
     private URL               configFileUrl;
-    private URL               dockerUrl              = new URL("http://172.21.0.1:2375");
     private String            bootstrap              = "http://galasa-api:8181/bootstrap";
     private String            containername;
     private String            engineLabel            = "none";
@@ -111,7 +110,7 @@ public class Settings implements Runnable {
         try {
             String newEngineLabel = properties.getProperty("engine_label");
             if (newEngineLabel == null || newEngineLabel.trim().isEmpty()) {
-                newEngineLabel = "docker-standard-engine";
+                newEngineLabel = "docker_standard_engine";
             }
             if (!newEngineLabel.equals(engineLabel)) {
                 logger.info("Setting Engine Label from '" + engineLabel + "' to '" + newEngineLabel + "'");
@@ -124,7 +123,7 @@ public class Settings implements Runnable {
         try {
             String newEngineImage = properties.getProperty("engine_image");
             if (newEngineImage == null || newEngineImage.trim().isEmpty()) {
-                newEngineImage = "cicsts-docker-local.artifactory.swg-devops.com/galasa-boot-embedded";
+                newEngineImage = "galasadev/galasa-boot-embedded-amd64:latest";
             }
             if (!newEngineImage.equals(engineImage)) {
                 logger.info("Setting Engine Image from '" + engineImage + "' to '" + newEngineImage + "'");
@@ -300,54 +299,6 @@ public class Settings implements Runnable {
             logger.error("Error processing engine_capabilities in configfile", e);
         }
 
-        try {
-            String newDns = properties.getProperty("dns");
-            if (newDns == null || newDns.trim().isEmpty()) {
-                newDns = "";
-            }
-            ArrayList<String> newDnsList = new ArrayList<>();
-
-            String dnss[] = newDns.split(",");
-            for (String dns : dnss) {
-                newDnsList.add(dns);
-            }
-
-            if (!dnsList.equals(newDnsList)) {
-                logger.info("Setting DNS from '" + dnsList + "' to '" + newDnsList + "'");
-                dnsList = newDnsList;
-            }
-        } catch (Exception e) {
-            logger.error("Error processing dns in configfile", e);
-        }
-
-        try {
-            String newNetwork = properties.getProperty("network");
-            if (newNetwork == null || newNetwork.trim().isEmpty()) {
-                newNetwork = "";
-            }
-            if (!newNetwork.equals(network)) {
-                logger.info("Setting Network from '" + network + "' to '" + newNetwork + "'");
-                network = newNetwork;
-            }
-        } catch (Exception e) {
-            logger.error("Error processing network in configfile", e);
-        }
-
-        try {
-            String sNewDocker = properties.getProperty("dockerUrl");
-            if (sNewDocker == null || sNewDocker.trim().isEmpty()) {
-                sNewDocker = "http://172.21.0.1:2375";
-            }
-            URL newDocker = new URL(sNewDocker);
-
-            if (!newDocker.equals(dockerUrl)) {
-                logger.info("Setting Docker URL from '" + dockerUrl + "' to '" + newDocker + "'");
-                dockerUrl = newDocker;
-            }
-        } catch (Exception e) {
-            logger.error("Error processing docker URL in configfile", e);
-        }
-
         return;
     }
 
@@ -384,10 +335,6 @@ public class Settings implements Runnable {
 
     public int getMaxEngines() {
         return this.maxEngines;
-    }
-
-    public URL getDockerUrl() {
-        return this.dockerUrl;
     }
 
     public List<String> getRequestorsByGroup() {
