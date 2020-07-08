@@ -123,7 +123,7 @@ public class RunPoll implements Runnable {
 
     private void startPod(IRun run) {
         String runName = run.getName();
-        String engineName = this.settings.getEngineLabel() + "-" + runName.toLowerCase();
+        String engineName = this.settings.getEngineLabel() + "_" + runName.toLowerCase();
 
         logger.info("Received run " + runName);
 
