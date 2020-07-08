@@ -5,13 +5,19 @@
  */
 package dev.galasa.framework.spi.language.gherkin;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +29,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.ICredentials;
+import dev.galasa.ICredentialsToken;
+import dev.galasa.ICredentialsUsernamePassword;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.FrameworkException;
@@ -53,7 +62,7 @@ public class GherkinTest {
     public static final String  LOG_START_LINE = "\n" + StringUtils.repeat("-", 23) + " ";
     public static final String  LOG_ASTERS     = StringUtils.repeat("*", 100);
 
-    public GherkinTest(IRun run, TestStructure testStructure) throws TestRunException {
+    public GherkinTest(IRun run, TestStructure testStructure, ICredentials creds) throws TestRunException {
         this.methods = new ArrayList<>();
         this.comments = new ArrayList<>();
         this.variables = new HashMap<>();
@@ -65,39 +74,10 @@ public class GherkinTest {
             if (gherkinUri.getScheme().equals("file")) {
                 File gherkinFile = new File(gherkinUri);
                 List<String> lines = IOUtils.readLines(new FileReader(gherkinFile));
-                GherkinMethod currentMethod = null;
-
-                for(String line : lines) {
-                    line = line.trim();
-                    if(line.isEmpty()) {
-                        continue;
-                    }
-
-                    Matcher featureMatch = featurePattern.matcher(line);
-                    if (featureMatch.matches()) {
-                        this.testName = featureMatch.group(1).trim();
-                        continue;
-                    }
-                    Matcher scenarioMatch = scenarioPattern.matcher(line);
-                    if (scenarioMatch.matches()) {
-                        if(currentMethod != null) {
-                            methods.add(currentMethod);
-                        }
-                        currentMethod = new GherkinMethod(scenarioMatch.group(1).trim(), testName);
-                        continue;
-                    }
-                    if(currentMethod != null) {
-                        currentMethod.addStatement(line);
-                    } else {
-                        this.comments.add(line);
-                    }
-
-                }
-                if(currentMethod != null) {
-                    methods.add(currentMethod);
-                }
-                this.testStructure.setTestShortName(this.testName);
-                this.testStructure.setGherkinMethods(this.methods);
+                buildLines(lines);
+            } else if (gherkinUri.getScheme().contains("http")) {
+                List<String> lines = getOnlineData(gherkinUri, creds);
+                buildLines(lines);
             } else {
                 throw new TestRunException("Gherkin URI scheme " + gherkinUri.getScheme() + "is not supported");
             }
@@ -108,6 +88,99 @@ public class GherkinTest {
         } catch (IOException e) {
             throw new TestRunException("Error reading gherkin test file", e);
         }
+    }
+
+    private List<String> getOnlineData(URI gherkinUri, ICredentials creds) throws IOException {
+        URL gherkinUrl = new URL(gherkinUri.toString());
+        Map<String, String> reqProps = new HashMap<>();
+
+        if(gherkinUrl.toString().contains("github")) {
+            /*
+                https://raw.{base_github_url}/{github_org}/{project_name}/{branch}/{path_to_file}
+            */
+            if(creds != null && creds instanceof ICredentialsToken) {
+                ICredentialsToken credsT = (ICredentialsToken) creds;
+                if(!gherkinUrl.toString().contains("?token=")) {
+                    gherkinUrl = new URL(gherkinUrl.toString() + "?token=" + new String(credsT.getToken()));
+                }
+            }
+        } else if(gherkinUrl.toString().contains("/api/v4/projects/")) {
+            /*
+                https://{base_gitlabs_url}/api/v4/projects/{project_id}/repository/files/{path_to_file}(/raw?ref={branch})
+            */
+            if(!gherkinUrl.toString().contains("raw")) {
+                if(!gherkinUrl.toString().endsWith("/")) {
+                    gherkinUrl = new URL(gherkinUrl.toString() + "/");
+                }
+                gherkinUrl = new URL(gherkinUrl.toString() + "raw");
+            }
+            if(!gherkinUrl.toString().contains("ref=")) {
+                gherkinUrl = new URL(gherkinUrl.toString() + "?ref=master");
+            }
+            if(creds != null && creds instanceof ICredentialsToken) {
+                ICredentialsToken credsT = (ICredentialsToken) creds;
+                gherkinUrl = new URL(gherkinUrl.toString() + "&private_token=" + new String(credsT.getToken()));
+            }
+        }
+
+        if(creds != null && creds instanceof ICredentialsUsernamePassword) {
+            ICredentialsUsernamePassword credsUP = (ICredentialsUsernamePassword) creds;
+            String userpass = credsUP.getUsername() + ":" + credsUP.getPassword();
+            String basicAuth = "Basic " + new String(Base64.getEncoder().encode(userpass.getBytes()));
+            reqProps.put("Authorization", basicAuth);
+        }
+
+        URLConnection uc = gherkinUrl.openConnection();
+        uc.setRequestProperty("X-Requested-With", "Curl");
+
+        for(String key : reqProps.keySet()) {
+            uc.setRequestProperty(key, reqProps.get(key));
+        }
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(uc.getInputStream()));
+        String line = null;
+        List<String> lines = new ArrayList<>();
+        while ((line = reader.readLine()) != null) {
+            lines.add(line);
+        }
+
+        return lines;
+    }
+
+    private void buildLines(List<String> lines) throws TestRunException {
+        GherkinMethod currentMethod = null;
+
+        for(String line : lines) {
+            line = line.trim();
+            if(line.isEmpty()) {
+                continue;
+            }
+
+            Matcher featureMatch = featurePattern.matcher(line);
+            if (featureMatch.matches()) {
+                this.testName = featureMatch.group(1).trim();
+                continue;
+            }
+            Matcher scenarioMatch = scenarioPattern.matcher(line);
+            if (scenarioMatch.matches()) {
+                if(currentMethod != null) {
+                    methods.add(currentMethod);
+                }
+                currentMethod = new GherkinMethod(scenarioMatch.group(1).trim(), testName);
+                continue;
+            }
+            if(currentMethod != null) {
+                currentMethod.addStatement(line);
+            } else {
+                this.comments.add(line);
+            }
+
+        }
+        if(currentMethod != null) {
+            methods.add(currentMethod);
+        }
+        this.testStructure.setTestShortName(this.testName);
+        this.testStructure.setGherkinMethods(this.methods);
     }
 
     public String getName() {
