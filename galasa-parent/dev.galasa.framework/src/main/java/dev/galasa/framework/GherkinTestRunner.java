@@ -30,12 +30,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import dev.galasa.ICredentials;
-import dev.galasa.ICredentialsUsernamePassword;
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
@@ -46,8 +43,6 @@ import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.creds.CredentialsException;
-import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -74,7 +69,6 @@ public class GherkinTestRunner {
     private IConfigurationPropertyStoreService cps;
     private IDynamicStatusStoreService dss;
     private IResultArchiveStore ras;
-    private ICredentialsService creds;
     private IRun run;
 
     private TestStructure testStructure = new TestStructure();
@@ -102,7 +96,6 @@ public class GherkinTestRunner {
             dss = frameworkInitialisation.getFramework().getDynamicStatusStoreService("framework");
             run = frameworkInitialisation.getFramework().getTestRun();
             ras = frameworkInitialisation.getFramework().getResultArchiveStore();
-            creds = frameworkInitialisation.getFramework().getCredentialsService();
         } catch (Exception e) {
             throw new TestRunException("Unable to initialise the Framework Services", e);
         }
@@ -112,16 +105,7 @@ public class GherkinTestRunner {
             throw new TestRunException("Unable to locate run properties");
         }
 
-        try {
-            String credsId = cps.getProperty("gherkin", "credentials");
-            ICredentials cred = creds.getCredentials(credsId);
-            gherkinTest = new GherkinTest(run, testStructure, cred);
-        } catch (CredentialsException e) {
-            throw new TestRunException("Issue getting credentials for gherkin", e);
-        } catch (ConfigurationPropertyStoreException e) {
-            throw new TestRunException("Issue getting cps property for gherkin credentials", e);
-        }
-        
+        gherkinTest = new GherkinTest(run, testStructure);
 
         //*** Load the overrides if present
         try {
