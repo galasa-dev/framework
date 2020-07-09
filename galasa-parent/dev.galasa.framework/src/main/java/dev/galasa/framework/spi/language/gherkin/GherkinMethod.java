@@ -89,6 +89,7 @@ public class GherkinMethod {
                     manager.executeGherkin(executable, testVariables);
                 } catch (ManagerException e) {
                     this.result = Result.failed(e);
+                    break;
                 }
             }
 
