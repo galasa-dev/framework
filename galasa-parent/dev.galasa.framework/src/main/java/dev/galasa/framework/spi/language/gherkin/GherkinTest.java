@@ -27,6 +27,7 @@ import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IGherkinExecutable;
+import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -150,6 +151,10 @@ public class GherkinTest {
 
         logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of feature file: "
                 + this.testName + LOG_START_LINE + LOG_ASTERS);
+
+        for(IManager manager : managers.getActiveManagers()) {
+            this.variables.put(manager.getClass().getName(), manager);
+        }
 
         try {
             managers.startOfTestClass();
