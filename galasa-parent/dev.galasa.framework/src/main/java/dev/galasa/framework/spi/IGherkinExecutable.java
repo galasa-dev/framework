@@ -9,6 +9,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 import dev.galasa.ManagerException;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.spi.language.gherkin.GherkinKeyword;
@@ -17,11 +19,11 @@ public interface IGherkinExecutable {
 
     IGherkinManager getRegisteredManager();
 
-    void execute(Map<String, Object> testVariables) throws ManagerException;
+    void execute(@NotNull Map<String, Object> testVariables) throws ManagerException;
 
-    void registerManager(IGherkinManager manager) throws TestRunException;
+    void registerManager(@NotNull IGherkinManager manager) throws TestRunException;
 
-    void registerExecutionMethod(Method method, Object owner) throws TestRunException;
+    void registerExecutionMethod(@NotNull Method method, Object owner) throws TestRunException;
 
     String getValue();
 
@@ -29,6 +31,6 @@ public interface IGherkinExecutable {
 
     List<String> getRegexGroups();
 
-    void setRegexGroups(List<String> groups);
+    void setRegexGroups(@NotNull List<String> groups);
     
 }

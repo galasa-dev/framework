@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.validation.constraints.NotNull;
+
 import dev.galasa.ManagerException;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.spi.language.gherkin.ExecutionMethod;
@@ -20,7 +22,7 @@ import dev.galasa.framework.spi.language.gherkin.GherkinTest;
 
 public abstract class AbstractGherkinManager extends AbstractManager implements IGherkinManager {
 
-    public Boolean registerStatements(GherkinTest test, IStatementOwner[] owners) throws ManagerException {
+    public Boolean registerStatements(@NotNull GherkinTest test, @NotNull IStatementOwner[] owners) throws ManagerException {
         Boolean required = false;
         Class<?>[] methodParams = { IGherkinExecutable.class , Map.class };
         try {
