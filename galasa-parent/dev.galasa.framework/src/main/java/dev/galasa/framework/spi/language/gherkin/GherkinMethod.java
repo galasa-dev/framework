@@ -20,7 +20,6 @@ import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IGherkinExecutable;
-import dev.galasa.framework.spi.IGherkinManager;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.language.GalasaMethod;
 
@@ -83,10 +82,9 @@ public class GherkinMethod {
             this.status = "started";
 
             for(IGherkinExecutable executable : this.executables) {
-                IGherkinManager manager = executable.getRegisteredManager();
                 try {
                     logger.info("Executing Statement: " + executable.getValue());
-                    manager.executeGherkin(executable, testVariables);
+                    executable.execute(testVariables);
                 } catch (ManagerException e) {
                     this.result = Result.failed(e);
                     break;
