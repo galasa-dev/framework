@@ -151,7 +151,6 @@ public class GherkinTest {
         logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of feature file: "
                 + this.testName + LOG_START_LINE + LOG_ASTERS);
 
-
         try {
             managers.startOfTestClass();
         } catch (FrameworkException e) {
