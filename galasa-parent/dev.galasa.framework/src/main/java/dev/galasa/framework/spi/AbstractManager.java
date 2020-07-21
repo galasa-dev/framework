@@ -500,7 +500,7 @@ public abstract class AbstractManager implements IManager {
 
         value = value.trim();
         if (value.isEmpty()) {
-            return value;
+            return null;
         }
         return value;
     }
