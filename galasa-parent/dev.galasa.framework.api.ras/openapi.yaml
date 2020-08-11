@@ -12,6 +12,9 @@ servers:
         default: "8080"
 
 paths:
+  /ras/requestors:
+    get:
+      summary: Get all Requestors
   /ras/runname/{runname}:
     get:
       summary: Get all Run Ids from a Run Name
