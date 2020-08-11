@@ -165,6 +165,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+  /ras/testclasses:
+    get:
+      summary: Get Testclasses
+      parameters:
+        - name: sort
+          in: query
+          description: Provide Sorting 
+          required: false
+          schema:
+            properties:
+              testclasses:
+                $ref: '#/components/schemas/TestClasses'
+      responses:
+        '200':
+          description: TestClasses
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
 components:
   schemas:
     TestStructure:
@@ -233,4 +258,11 @@ components:
     JsonError:
       properties:
         error:
+          type: string
+    TestClasses:
+      type: object
+      properties:
+        testclass: 
+          type: string
+        bundle:
           type: string
