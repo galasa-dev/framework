@@ -15,6 +15,28 @@ paths:
   /ras/requestors:
     get:
       summary: Get all Requestors
+      parameters:
+        - name: requestors
+          in: query
+          description: defines ascending or descending
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of Requestors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
   /ras/runname/{runname}:
     get:
       summary: Get all Run Ids from a Run Name
