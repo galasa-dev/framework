@@ -24,11 +24,11 @@ paths:
             type: string
       responses:
         '200':
-          description: Array of Requestors
+          description: Requestors
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArrayOfRequestors'
+                $ref: '#/components/schemas/Requestors'
         '500':
           description: Error
           content:
@@ -190,7 +190,7 @@ paths:
                 $ref: '#/components/schemas/JsonError'
 components:
   schemas:
-    ArrayOfRequestors:
+    Requestors:
       type: object
       properties:
         requestors:
