@@ -12,6 +12,29 @@ servers:
         default: "8080"
 
 paths:
+  /ras/requestors:
+    get:
+      summary: Get all Requestors
+      parameters:
+        - name: sort
+          in: query
+          description: provides sorting, requestor:asc or requestor:desc
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Requestors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Requestors'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
   /ras/runname/{runname}:
     get:
       summary: Get all Run Ids from a Run Name
@@ -167,6 +190,13 @@ paths:
                 $ref: '#/components/schemas/JsonError'
 components:
   schemas:
+    Requestors:
+      type: object
+      properties:
+        requestors:
+          type: array
+          items:
+            type: string
     TestStructure:
       properties:
         runName:
