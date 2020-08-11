@@ -16,9 +16,9 @@ paths:
     get:
       summary: Get all Requestors
       parameters:
-        - name: requestors
+        - name: sort
           in: query
-          description: defines ascending or descending
+          description: provides sorting, requestor:asc or requestor:desc
           required: false
           schema:
             type: string
@@ -28,9 +28,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
+                $ref: '#/components/schemas/ArrayOfRequestors'
         '500':
           description: Error
           content:
@@ -192,6 +190,13 @@ paths:
                 $ref: '#/components/schemas/JsonError'
 components:
   schemas:
+    ArrayOfRequestors:
+      type: object
+      properties:
+        requestors:
+          type: array
+          items:
+            type: string
     TestStructure:
       properties:
         runName:
