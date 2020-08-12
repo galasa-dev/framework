@@ -174,7 +174,7 @@ paths:
           description: Provide Sorting 
           required: false
           schema:
-            type: array
+            type: string
       responses:
         '200':
           description: TestClasses
