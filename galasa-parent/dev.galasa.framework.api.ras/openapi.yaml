@@ -174,16 +174,16 @@ paths:
           description: Provide Sorting 
           required: false
           schema:
-            properties:
-              testclasses:
-                $ref: '#/components/schemas/TestClasses'
+            type: array
       responses:
         '200':
           description: TestClasses
           content:
             text/plain:
               schema:
-                type: string
+                properties:
+                testclasses:
+                $ref: '#/components/schemas/TestClasses'
         '500':
           description: Error
           content:
