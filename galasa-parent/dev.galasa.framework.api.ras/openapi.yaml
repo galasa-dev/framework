@@ -202,10 +202,8 @@ paths:
         '200':
           description: TestClasses
           content:
-            text/plain:
-              schema:
-                properties:
-                testclasses:
+            application/json:  
+             schema:
                 $ref: '#/components/schemas/TestClasses'
         '500':
           description: Error
@@ -290,9 +288,11 @@ components:
         error:
           type: string
     TestClasses:
-      type: object
-      properties:
-        testclass: 
-          type: string
-        bundle:
-          type: string
+      type: array
+      items: 
+        type: object
+        properties:
+          testclass: 
+            type: string
+          bundle:
+            type: string
