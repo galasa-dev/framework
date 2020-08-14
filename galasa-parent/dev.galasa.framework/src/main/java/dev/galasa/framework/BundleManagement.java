@@ -17,7 +17,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import dev.galasa.framework.spi.FrameworkException;
 
 public class BundleManagement {
-    
+
     private static final Log logger = LogFactory.getLog(BundleManagement.class);
 
     /**
@@ -63,7 +63,8 @@ public class BundleManagement {
             if (resources.length == 0) {
                 throw new FrameworkException("Unable to locate manager bundles in OBR repository");
             }
-            // *** Only load the first one
+
+            //*** Load only bundles that are not already resolved
             for(Resource resource : resources) {
                 Boolean gherkinSupport = false;
                 Capability[] capabilities = resource.getCapabilities();
@@ -77,7 +78,9 @@ public class BundleManagement {
                     }
                 }
                 if(gherkinSupport) {
-                    addResource(bundleContext, resource.getSymbolicName(), resolver, resource);
+                    if (!isBundleActive(bundleContext, resource.getSymbolicName())) {
+                        addResource(bundleContext, resource.getSymbolicName(), resolver, resource);
+                    }
                 }
             }
         } catch (FrameworkException e) {
