@@ -71,7 +71,7 @@ public class RequestorRas extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
        
     	//gets string query
-    	String query = req.getQueryString();
+    	Map<String, String[]> query = req.getParameterMap();
     	
     	//gets requestors
     	List<String> list = getRequestors(resp);
@@ -82,16 +82,20 @@ public class RequestorRas extends HttpServlet {
     	JsonObject requestors = new JsonObject();
     	
     	Gson gson = new Gson();
-    
-    	//if desc then reverse list
-    	if(query.equals("sort=requestor:desc")) {
-    		Collections.reverse(list);
+  
+    	if(query.containsKey("sort")) {
+    		String[] params = query.get("sort");
+    		for(String value : params) {
+    			List<String> val = Arrays.asList(value.split(","));
+    			if(val.contains("requestor:desc")) {
+    				Collections.reverse(list);
+    			}
+    		}
     	}
     	
     	//create json object
     	JsonElement json = new Gson().toJsonTree(list);
     	requestors.add("requestors", json);
-    	
     	
         try {
             
