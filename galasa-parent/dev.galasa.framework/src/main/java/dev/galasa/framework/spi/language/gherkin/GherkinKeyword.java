@@ -16,7 +16,7 @@ public enum GherkinKeyword {
                 return keyword;
             }
         }
-        throw new TestRunException("Invalid statement: " + statement);
+        throw new TestRunException("Unrecognised keyword: " + words[0]);
     }
 }
 
