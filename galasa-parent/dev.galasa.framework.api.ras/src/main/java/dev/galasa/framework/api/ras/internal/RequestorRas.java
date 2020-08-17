@@ -14,8 +14,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -31,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.apache.commons.logging.Log;
@@ -55,7 +58,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  * 
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-        "osgi.http.whiteboard.servlet.pattern=/char" }, name = "Galasa Requestor microservice")
+        "osgi.http.whiteboard.servlet.pattern=/ras/requestors" }, name = "Galasa Requestor microservice")
 public class RequestorRas extends HttpServlet {
     
     private static final long serialVersionUID = 1L;
@@ -67,12 +70,35 @@ public class RequestorRas extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
        
+    	//gets string query
+    	String query = req.getQueryString();
+    	
+    	//gets requestors
+    	List<String> list = getRequestors(resp);
+    	
+    	//sorts list
+    	Collections.sort(list);
+    	
+    	JsonObject requestors = new JsonObject();
+    	
+    	Gson gson = new Gson();
+    
+    	//if desc then reverse list
+    	if(query.equals("sort=requestor:desc")) {
+    		Collections.reverse(list);
+    	}
+    	
+    	//create json object
+    	JsonElement json = new Gson().toJsonTree(list);
+    	requestors.add("requestors", json);
+    	
+    	
         try {
             
         PrintWriter out = resp.getWriter();
         resp.setHeader("Content-Type", "Application/json");
-        out.print(getRequestors(resp));
-        out.flush();
+        out.print(requestors);
+        out.close();
         
         }
         catch(Exception e) {
@@ -82,15 +108,14 @@ public class RequestorRas extends HttpServlet {
        
     }
     
-    private JsonObject getRequestors(HttpServletResponse resp) {
-        JsonObject requestorsObj = new JsonObject();
-        JsonArray requestors = new JsonArray();
+    private List<String> getRequestors(HttpServletResponse resp) {
+    	
+    	
+        List<String> requestorsJson = new ArrayList<>(Arrays.asList("c", "a", "d"));
         
-        requestorsObj.add("requestors", requestors);
         
-        return requestorsObj;
+        return requestorsJson;
     }
-
-
+    
 
 }
