@@ -81,24 +81,10 @@ public class RequestorRas extends HttpServlet {
     	
     	JsonObject requestors = new JsonObject();
     	
-    	Gson gson = new Gson();
-  
-    	//checks to see if sort is valid
-    	if(query.containsKey("sort")) {
-    		//retrieves parameters
-    		String[] params = query.get("sort");
-    		if(params != null) {
-    			//for the value in the parameters, split at ','
-	    		for(String value : params) {
-	    			List<String> val = Arrays.asList(value.split(","));
-	    			if(val != null) {
-	    				if(val.contains("requestor:desc")) {
-	    				Collections.reverse(list);
-	    				break;
-	    				}
-	    			}
-	    		}
-    		}
+    	Gson gson = new Gson();    	
+    	
+    	if(!ExtractQuerySort.isAscending(query, "requestor")) {
+    		Collections.reverse(list);
     	}
     	
     	//create json object
@@ -128,6 +114,8 @@ public class RequestorRas extends HttpServlet {
         
         return requestorsJson;
     }
+    
+
     
 
 }
