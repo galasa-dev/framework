@@ -5,9 +5,7 @@
  */
 package dev.galasa;
 
-public interface ICredentialsUsernameToken extends ICredentials {
-
-    String getUsername();
+public interface ICredentialsUsernameToken extends ICredentialsUsername {
 
     byte[] getToken();
 

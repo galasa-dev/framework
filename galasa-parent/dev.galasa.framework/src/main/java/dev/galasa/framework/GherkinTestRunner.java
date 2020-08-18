@@ -39,11 +39,13 @@ import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.language.GalasaTest;
+import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
@@ -239,10 +241,25 @@ public class GherkinTestRunner {
         }
 
         if(!gherkinTest.allMethodsRegistered()) {
+            logger.error("The following Gherkin statements have not been registered to a Manager");
+            
+            for(GherkinMethod method : gherkinTest.getMethods()) {
+                logger.info("    Method: " + method.getName());
+                for(IGherkinExecutable executable : method.getExecutables()) {
+                    Object owner = executable.getOwner();
+                    if (owner != null) {
+                        logger.info("        OK - " + executable.getKeyword() + " " + executable.getValue());
+                    } else {
+                        logger.error("        MISSING - " + executable.getKeyword() + " " + executable.getValue());
+                    }
+                }
+            }
+            
+            
             stopHeartbeat();
             updateStatus("finished", "finished");
             this.ras.shutdown();
-            throw new TestRunException("Not all methods in test are registered to a manager");
+            throw new TestRunException("Not all methods in test are registered to a Manager");
         }
 
         try {
