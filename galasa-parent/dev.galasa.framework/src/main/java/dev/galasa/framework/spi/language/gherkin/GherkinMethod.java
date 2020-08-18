@@ -83,7 +83,7 @@ public class GherkinMethod {
 
             for(IGherkinExecutable executable : this.executables) {
                 try {
-                    logger.info("Executing Statement: " + executable.getValue());
+                    logger.info("Executing Statement: " + executable.getKeyword() + " " + executable.getValue());
                     executable.execute(testVariables);
                 } catch (ManagerException e) {
                     this.result = Result.failed(e);
