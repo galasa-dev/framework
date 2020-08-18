@@ -5,25 +5,17 @@
  */
 package dev.galasa.framework.api.ras.internal;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.time.format.DateTimeParseException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
+
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -70,6 +62,9 @@ public class RequestorRas extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
        
+    	
+        try {
+        	
     	//gets string query as hashmap
     	Map<String, String[]> query = req.getParameterMap();
     	
@@ -90,8 +85,6 @@ public class RequestorRas extends HttpServlet {
     	//create json object
     	JsonElement json = new Gson().toJsonTree(list);
     	requestors.add("requestors", json);
-    	
-        try {
             
         PrintWriter out = resp.getWriter();
         resp.setHeader("Content-Type", "Application/json");
@@ -106,13 +99,17 @@ public class RequestorRas extends HttpServlet {
        
     }
     
-    private List<String> getRequestors(HttpServletResponse resp) {
+    private List<String> getRequestors(HttpServletResponse resp) throws ResultArchiveStoreException{
     	
+    	List<String> requestors = new ArrayList<>();
+    			
+    	for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+    		requestors = directoryService.getRequestors();
+    	}
     	
-        List<String> requestorsJson = new ArrayList<>(Arrays.asList("c", "a", "d"));
+    	return requestors;
         
         
-        return requestorsJson;
     }
     
 
