@@ -80,4 +80,9 @@ public class GherkinStatement implements IGherkinExecutable {
         }
         
     }
+    
+    @Override
+    public Object getOwner() {
+        return this.owningClass;
+    }
 }
