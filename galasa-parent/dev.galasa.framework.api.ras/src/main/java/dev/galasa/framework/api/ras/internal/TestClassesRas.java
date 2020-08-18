@@ -1,9 +1,12 @@
 
 package dev.galasa.framework.api.ras.internal;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.Servlet;
@@ -21,55 +24,69 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.ras.RasTestClass;
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-    "osgi.http.whiteboard.servlet.pattern=/ras/testclasses" }, name = "TestClasses RAS")
+        "osgi.http.whiteboard.servlet.pattern=/ras/testclasses" }, name = "TestClasses RAS")
 
-public class TestClassesRas extends HttpServlet{
+public class TestClassesRas extends HttpServlet {
 
     /**
      *
      */
     private static final long serialVersionUID = 1L;
-    
+
     private Gson gson = new Gson();
-    private final List<String> DUMMYQUERY = Arrays.asList("requestor", "from", "to", "testclasses", "page", "size");
-    private final List<String> TESTCLASSDUMMY = Arrays.asList("testclass","xxxxxxx","bundle","yyyyyy","testclass","xxxxxxx","bundle","yyyyyy");
+    private final List<String> DUMMYQUERY = Arrays.asList("assc","ascc","aasc","ascbundle","descc","ddesc","deesc", "desc" );
+    private final List<RasTestClass> TESTCLASSDUMMY = Arrays.asList(new RasTestClass("FirstTest", "Abundle"),new RasTestClass("SecondTest", "BigBundle"),new RasTestClass("ThirdTest", "MiniBundle"),new RasTestClass("ZeroTest", "NanoBundle"));
+    // sorting options to search for in querry not testclasses, use equals intead of
+    // ==,
+    // throw servlet exception, not hide it
+    // error not needed, should return empty array with 200
 
     @Reference
     public IFramework framework; // NOSONAR
+
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
-        boolean found = false;
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        
         JsonObject testclasses = new JsonObject();
         JsonArray testObjects = new JsonArray();
-        try{ 
-            for(String search: DUMMYQUERY){
-                if(search=="testclasses"){
-                    for(int i=0;i<TESTCLASSDUMMY.size();i++){
-                        JsonObject test = new JsonObject();
-                        test.addProperty(TESTCLASSDUMMY.get(i),TESTCLASSDUMMY.get(i+1));
-                        testObjects.add(test);
-                        i++;
-                    }
+
+        for(String search: DUMMYQUERY){
+                if(search.equals("asctest")){
+                    TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getTestClass));
                     
-                    testclasses.add(search, testObjects);
-                    found = true;
+                }
+                else if(search.equals("desctest")){
+                    TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
+                }
+                else if(search.equals("ascbundle")){
+                    TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getBundleName));
+                }
+                else if(search.equals("descbundle")){
+                    TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getBundleName).reversed());
                 }
             }
-            if(!found){
-                resp.setStatus(500);
-            }else{
+            for(int i=0;i<TESTCLASSDUMMY.size();i++){
+                        JsonObject test = new JsonObject();
+                        test.addProperty("testclass",TESTCLASSDUMMY.get(i).getTestClass());
+                        test.addProperty("bundle", TESTCLASSDUMMY.get(i).getBundleName());
+                        testObjects.add(test);
+                    }
+
+        
+        
+
+            testclasses.add("testclasses", testObjects);
+            
 
             resp.setStatus(200);
             resp.setContentType("application/json");
             PrintWriter out = resp.getWriter();
             out.print(testclasses);
-        }
-        }
-        catch (Exception e){
-
-        }
+        
+        
         
         
     }
