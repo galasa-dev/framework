@@ -5,9 +5,7 @@
  */
 package dev.galasa;
 
-public interface ICredentialsUsernamePassword extends ICredentials {
-
-    String getUsername();
+public interface ICredentialsUsernamePassword extends ICredentialsUsername {
 
     String getPassword();
 
