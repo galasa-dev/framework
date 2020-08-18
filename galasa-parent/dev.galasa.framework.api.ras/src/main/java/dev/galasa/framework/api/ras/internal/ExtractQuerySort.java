@@ -24,9 +24,9 @@ public class ExtractQuerySort {
 	    				for (String item : val) {
 	    					List<String> split = Arrays.asList(item.split(":"));
 	    					if(split.get(1).equals("desc")) {
-	    						paramMap.put(split.get(0), false);
+	    						paramMap.put(split.get(0), Boolean.FALSE);
 	    					}else {
-	    						paramMap.put(split.get(0), true);
+	    						paramMap.put(split.get(0), Boolean.TRUE);
 	    					}
 	    				}
 	    			}
@@ -38,12 +38,7 @@ public class ExtractQuerySort {
     }
 	
 	public static Boolean isAscending(Map<String, String[]> query, String param) {
-		
-		if(extractParameters(query).get(param) == false) {
-			return false;
-		}
-		
-		return true;
+		return extractParameters(query).get(param);
 	}
 }
 	
