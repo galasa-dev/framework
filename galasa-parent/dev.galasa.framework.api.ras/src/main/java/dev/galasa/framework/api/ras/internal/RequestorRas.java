@@ -93,7 +93,7 @@ public class RequestorRas extends HttpServlet {
         
         }
         catch(Exception e) {
-            e.printStackTrace();
+            throw new ServletException();
         }
        
        
@@ -104,7 +104,7 @@ public class RequestorRas extends HttpServlet {
     	List<String> requestors = new ArrayList<>();
     			
     	for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-    		requestors = directoryService.getRequestors();
+    		requestors.addAll(directoryService.getRequestors());
     	}
     	
     	return requestors;
