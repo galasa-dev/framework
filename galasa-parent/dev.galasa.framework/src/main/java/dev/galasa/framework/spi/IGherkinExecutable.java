@@ -33,4 +33,6 @@ public interface IGherkinExecutable {
 
     void setRegexGroups(@NotNull List<String> groups);
     
+    Object getOwner();
+    
 }
