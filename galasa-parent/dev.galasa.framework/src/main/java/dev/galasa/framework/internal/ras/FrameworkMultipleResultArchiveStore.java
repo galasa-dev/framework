@@ -124,14 +124,5 @@ public class FrameworkMultipleResultArchiveStore implements IResultArchiveStoreS
         return dirs;
     }
 
-    @Override
-    public List<Object> getTestClassObjects(@NotNull List<Object> testClasses) {
-        // TODO Auto-generated method stub
-        List<Object> test = new ArrayList<>();
-        for (IResultArchiveStoreService rasService : this.rasServices) {
-            test.addAll(rasService.getTestClassObjects(testClasses));
-        }
-        return test;
-    }
 
 }

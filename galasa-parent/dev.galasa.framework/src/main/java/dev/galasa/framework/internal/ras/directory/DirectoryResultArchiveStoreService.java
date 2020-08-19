@@ -221,13 +221,4 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         return dirs;
     }
 
-    @Override
-    public List<Object> getTestClassObjects(@NotNull List<Object> testClasses) {
-        // TODO Auto-generated method stub
-        List<Object> test = new ArrayList<>();
-            
-        
-        return test;
-    }
-
 }

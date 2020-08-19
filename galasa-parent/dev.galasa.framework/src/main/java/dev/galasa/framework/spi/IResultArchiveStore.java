@@ -64,13 +64,6 @@ public interface IResultArchiveStore {
      */
     void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException;
 
-    /**
-     * Return a List of Objects of Testclasses and bundle names.
-     * 
-     * @param testClassesList - list of testclasses
-     * 
-     */
-    List<Object> getTestClassObjects(@NotNull List<Object> testClasses);
 
     /**
      * Obtain the root directory of the stored artifacts file system
