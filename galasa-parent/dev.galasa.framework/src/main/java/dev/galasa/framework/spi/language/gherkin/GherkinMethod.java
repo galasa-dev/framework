@@ -22,6 +22,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.language.GalasaMethod;
+import dev.galasa.framework.spi.teststructure.TestGherkinMethod;
 
 public class GherkinMethod {
 
@@ -29,18 +30,19 @@ public class GherkinMethod {
 
     private String name;
     private transient List<IGherkinExecutable> executables;
-    private String status;
     private String testName;
 
     private Result result;
-    private Instant startTime;
-    private Instant endTime;
-    private String exception;
+    
+    private TestGherkinMethod testStructureMethod;
 
     public GherkinMethod(String name, String testName) {
         this.name = name;
         this.executables = new ArrayList<>();
         this.testName = testName;
+        
+        this.testStructureMethod = new TestGherkinMethod();
+        this.testStructureMethod.setMethodName(name);
     }
 
     public void addStatement(String statement) throws TestRunException {
@@ -55,21 +57,6 @@ public class GherkinMethod {
         return this.executables;
     }
 
-    public void report(String prefix, StringBuilder sb) {
-        String actualStatus = this.status;
-        if (actualStatus == null) {
-            actualStatus = "Unknown";
-        }
-
-        sb.append(prefix);
-        sb.append("Test Method ");
-        sb.append(testName);
-        sb.append(".");
-        sb.append(name);
-        sb.append(", status=");
-        sb.append(actualStatus);
-    }
-
     public void invoke(TestRunManagers managers, Map<String, Object> testVariables) throws TestRunException {
         try {
             managers.startOfTestMethod(new GalasaMethod(this));
@@ -78,9 +65,9 @@ public class GherkinMethod {
                     + GherkinTest.LOG_START_LINE + "*** Start of test method " + this.testName + "#"
                     + this.name + GherkinTest.LOG_START_LINE
                     + GherkinTest.LOG_ASTERS);
-            this.startTime = Instant.now();
-            this.status = "started";
-
+            testStructureMethod.setStartTime(Instant.now());
+            testStructureMethod.setStatus("started");
+            
             for(IGherkinExecutable executable : this.executables) {
                 try {
                     logger.info("Executing Statement: " + executable.getKeyword() + " " + executable.getValue());
@@ -95,6 +82,7 @@ public class GherkinMethod {
                 this.result = Result.passed();
             }
 
+            this.testStructureMethod.setResult(this.result.getName());
             Result overrideResult = managers.endOfTestMethod(new GalasaMethod(this), this.result, this.result.getThrowable());
             if (overrideResult != null) {
                 this.result = overrideResult;
@@ -106,9 +94,9 @@ public class GherkinMethod {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     t.printStackTrace(pw);
-                    this.exception = sw.toString();
+                    this.testStructureMethod.setException(sw.toString());
                 } catch (Exception e) {
-                    this.exception = "Unable to report exception because of " + e.getMessage();
+                    this.testStructureMethod.setException("Unable to report exception because of " + e.getMessage());
                 }
             }
 
@@ -120,8 +108,8 @@ public class GherkinMethod {
                         + GherkinTest.LOG_ASTERS);
             } else {
                 String exception = "";
-                if (this.exception != null) {
-                    exception = "\n" + this.exception;
+                if (this.testStructureMethod.getException() != null) {
+                    exception = "\n" + this.testStructureMethod.getException();
                 }
                 logger.info(GherkinTest.LOG_ENDING + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS
                         + GherkinTest.LOG_START_LINE + "*** " + this.result.getName() + " - Test method "
@@ -129,9 +117,8 @@ public class GherkinMethod {
                         + GherkinTest.LOG_START_LINE + GherkinTest.LOG_ASTERS + exception);
             }
 
-            this.endTime = Instant.now();
-            this.status = "finished";
-
+            testStructureMethod.setEndTime(Instant.now());
+            testStructureMethod.setStatus("finished");
         } catch (FrameworkException e) {
             throw new TestRunException("There was a problem with the framework, please check stacktrace", e);
         }
@@ -144,12 +131,8 @@ public class GherkinMethod {
     public Result getResult() {
         return this.result;
     }
-
-    public Instant getStartTime() {
-        return this.startTime;
-    }
-
-    public Instant getEndTime() {
-        return this.endTime;
+   
+    public TestGherkinMethod getStructure() {
+        return this.testStructureMethod;
     }
 }

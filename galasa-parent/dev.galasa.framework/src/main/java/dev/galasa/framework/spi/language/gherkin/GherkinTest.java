@@ -29,6 +29,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.teststructure.TestGherkinMethod;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class GherkinTest {
@@ -97,7 +98,12 @@ public class GherkinTest {
                     methods.add(currentMethod);
                 }
                 this.testStructure.setTestShortName(this.testName);
-                this.testStructure.setGherkinMethods(this.methods);
+                
+                List<TestGherkinMethod> structureMethods = new ArrayList<TestGherkinMethod>(this.methods.size());
+                for(GherkinMethod method : this.methods) {
+                    structureMethods.add(method.getStructure());
+                }
+                this.testStructure.setGherkinMethods(structureMethods);
             } else {
                 throw new TestRunException("Gherkin URI scheme " + gherkinUri.getScheme() + "is not supported");
             }
