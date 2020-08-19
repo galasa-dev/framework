@@ -27,40 +27,5 @@ public class RasTestClass {
         this.bundleName = bundleName;
     }
 
-
-    // public TestClass testClass(String testClass) {
-    //     this.testClass = testClass;
-    //     return this;
-    // }
-
-    // public TestClass bundleName(String bundleName) {
-    //     this.bundleName = bundleName;
-    //     return this;
-    // }
-
-    // @Override
-    // public boolean equals(Object o) {
-    //     if (o == this)
-    //         return true;
-    //     if (!(o instanceof TestClass)) {
-    //         return false;
-    //     }
-    //     TestClass testClass = (TestClass) o;
-    //     return Objects.equals(testClass, testClass.testClass) && Objects.equals(bundleName, testClass.bundleName);
-    // }
-
-    // @Override
-    // public int hashCode() {
-    //     return Objects.hash(testClass, bundleName);
-    // }
-
-    @Override
-    public String toString() {
-        return "{" +
-            " testClass:'" + getTestClass() + "'" +
-            ", bundleName:'" + getBundleName() + "'" +
-            "}";
-    }
-
     
 }
