@@ -35,7 +35,7 @@ public class TestClassesRas extends HttpServlet {
      */
     private static final long serialVersionUID = 1L;
 
-    //private final List<String> DUMMYQUERY = Arrays.asList("assc","ascc","aasc","ascbundle","descc","ddesc","deesc", "desc" );
+
     private final List<RasTestClass> TESTCLASSDUMMY = Arrays.asList(new RasTestClass("FirstTest", "Abundle"),new RasTestClass("SecondTest", "BigBundle"),new RasTestClass("ThirdTest", "MiniBundle"),new RasTestClass("ZeroTest", "NanoBundle"));
     
 
@@ -50,27 +50,7 @@ public class TestClassesRas extends HttpServlet {
     		TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getTestClass));
     	}if(!ExtractQuerySort.isAscending(query, "testclass")) {
     		TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
-    	}if(ExtractQuerySort.isAscending(query, "bundle")) {
-    		TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getBundleName));
-    	}if(!ExtractQuerySort.isAscending(query, "bundle")) {
-    		TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getBundleName).reversed());
     	}
-
-        // for(String search: DUMMYQUERY){
-        //         if(search.equals("asctest")){
-        //             TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getTestClass));
-        //         }
-        //         else if(search.equals("desctest")){
-        //             TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
-        //         }
-        //         else if(search.equals("ascbundle")){
-        //             TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getBundleName));
-        //         }
-        //         else if(search.equals("descbundle")){
-        //             TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getBundleName).reversed());
-        //         }
-        //     }
-        
             JsonElement json = new Gson().toJsonTree(TESTCLASSDUMMY);
             JsonObject testclasses = new JsonObject();
             testclasses.add("testclasses", json);
