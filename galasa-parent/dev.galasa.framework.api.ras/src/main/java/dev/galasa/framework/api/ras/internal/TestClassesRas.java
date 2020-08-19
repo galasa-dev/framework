@@ -35,7 +35,7 @@ public class TestClassesRas extends HttpServlet {
      */
     private static final long serialVersionUID = 1L;
 
-
+    /* a dummy list of testclasses and bundles */
     private final List<RasTestClass> TESTCLASSDUMMY = Arrays.asList(new RasTestClass("FirstTest", "Abundle"),new RasTestClass("SecondTest", "BigBundle"),new RasTestClass("ThirdTest", "MiniBundle"),new RasTestClass("ZeroTest", "NanoBundle"));
     
 
@@ -46,23 +46,22 @@ public class TestClassesRas extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Map<String, String[]> query = req.getParameterMap();
 
+        /* looking for sort options in query and sorting accordingly */
         if(ExtractQuerySort.isAscending(query, "testclass")) {
     		TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getTestClass));
-    	}if(!ExtractQuerySort.isAscending(query, "testclass")) {
+    	}else if(!ExtractQuerySort.isAscending(query, "testclass")) {
     		TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
-    	}
+        }
+        /* converting data to json */
             JsonElement json = new Gson().toJsonTree(TESTCLASSDUMMY);
             JsonObject testclasses = new JsonObject();
             testclasses.add("testclasses", json);
             
-
+        /* setting response status and type */
             resp.setStatus(200);
             resp.setContentType("application/json");
             PrintWriter out = resp.getWriter();
             out.print(testclasses);
-        
-        
-        
         
     }
 }
