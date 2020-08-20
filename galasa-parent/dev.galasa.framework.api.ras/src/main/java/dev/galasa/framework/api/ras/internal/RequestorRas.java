@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -66,28 +65,30 @@ public class RequestorRas extends HttpServlet {
         try {
         	
     	//gets string query as hashmap
+        
     	Map<String, String[]> query = req.getParameterMap();
-    	
+
     	//gets requestors
-    	List<String> list = getRequestors(resp);
+    	List<String> list = getRequestors();
     	
     	//sorts list
     	Collections.sort(list);
     	
-    	JsonObject requestors = new JsonObject();
+    	JsonObject requestors = new JsonObject();   	
     	
-    	Gson gson = new Gson();    	
-    	
-    	if(!ExtractQuerySort.isAscending(query, "requestor")) {
-    		Collections.reverse(list);
-    	}
-    	
+    	if(!query.isEmpty()) {
+		    if(!ExtractQuerySort.isAscending(query, "requestor")) {
+		    		Collections.reverse(list);
+		    }
+        }
+    
     	//create json object
     	JsonElement json = new Gson().toJsonTree(list);
     	requestors.add("requestors", json);
-            
+        
         PrintWriter out = resp.getWriter();
         resp.setHeader("Content-Type", "Application/json");
+        resp.setCharacterEncoding("UTF-8");
         out.print(requestors);
         out.close();
         
@@ -99,7 +100,7 @@ public class RequestorRas extends HttpServlet {
        
     }
     
-    private List<String> getRequestors(HttpServletResponse resp) throws ResultArchiveStoreException{
+    private List<String> getRequestors() throws ResultArchiveStoreException{
     	
     	List<String> requestors = new ArrayList<>();
     			
