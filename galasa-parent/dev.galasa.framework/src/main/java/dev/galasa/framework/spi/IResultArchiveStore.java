@@ -64,6 +64,7 @@ public interface IResultArchiveStore {
      */
     void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException;
 
+
     /**
      * Obtain the root directory of the stored artifacts file system
      * 
