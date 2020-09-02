@@ -67,6 +67,8 @@ public class RequestorRas extends HttpServlet {
     	//gets string query as hashmap
         
     	Map<String, String[]> query = req.getParameterMap();
+    	
+    	
 
     	//gets requestors
     	List<String> list = getRequestors();
@@ -76,10 +78,10 @@ public class RequestorRas extends HttpServlet {
     	
     	JsonObject requestors = new JsonObject();   	
     	
-    	if(!query.isEmpty()) {
-		    if(!ExtractQuerySort.isAscending(query, "requestor")) {
-		    		Collections.reverse(list);
-		    }
+    	if(!query.isEmpty()) { 
+    		if(!ExtractQuerySort.isAscending(query, "requestor")) {
+			    		Collections.reverse(list);
+    		}
         }
     
     	//create json object
