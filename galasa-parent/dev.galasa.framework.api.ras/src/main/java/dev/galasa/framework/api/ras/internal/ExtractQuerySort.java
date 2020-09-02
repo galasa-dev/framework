@@ -38,7 +38,10 @@ public class ExtractQuerySort {
     }
 	
 	public static Boolean isAscending(Map<String, String[]> query, String param) {
+		if(!query.isEmpty()) {
 			return extractParameters(query).get(param);
+		}
+		return Boolean.TRUE;
 	}
 }
 	

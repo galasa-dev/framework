@@ -94,7 +94,7 @@ public class RequestorRas extends HttpServlet {
         
         }
         catch(Exception e) {
-            throw new ServletException();
+            throw new ServletException("Error occured during get requestors", e);
         }
        
        
