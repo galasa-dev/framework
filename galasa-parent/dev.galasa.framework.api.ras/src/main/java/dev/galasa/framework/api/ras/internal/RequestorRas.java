@@ -23,24 +23,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
-import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+
 
 /**
  * CPS API
@@ -104,11 +97,21 @@ public class RequestorRas extends HttpServlet {
     
     private List<String> getRequestors() throws ResultArchiveStoreException{
     	
-    	List<String> requestors = new ArrayList<>();
+    	HashMap<String, String> map = new HashMap<String, String>();
+    
     			
     	for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-    		requestors.addAll(directoryService.getRequestors());
+    		
+    		//add to hashmap to ensure no duplicates
+    		for(String requestor : directoryService.getRequestors()) {
+    			if(!map.containsKey(requestor)) {
+    				map.put(requestor, null);
+    			}
+    		}
     	}
+    	
+    	//convert to list of strings
+    	List<String> requestors = new ArrayList<>(map.keySet());
     	
     	return requestors;
         
