@@ -10,7 +10,7 @@ import org.junit.Test;
 public class RequestorRasTest {
 	
 	@Test
-	public void testWithParameterThatIsNull() {
+	public void testAssertsTrueWhenParameterDoesntExist() {
 		Map<String, String[]> map = new HashMap<>();
 		
 		String[] stringArr = {"requestor:asc"};
@@ -21,16 +21,28 @@ public class RequestorRasTest {
 	}
 	
 	@Test
-	public void testWithParameterThatIsNotNull() {
+	public void testAssertsTrueForRequestorAsc() {
 		
 		Map<String, String[]> map = new HashMap<>();
 		
-		String[] stringArr = {"requestor:desc"};
+		String[] stringArr = {"requestor:asc"};
 		
 		map.put("sort", stringArr);
 		
-		assertFalse(ExtractQuerySort.isAscending(map, "requestor"));
+		assertTrue(ExtractQuerySort.isAscending(map, "requestor"));
 		
+	}
+	
+	@Test
+	public void testMultipleSortOptions() {
+		
+		Map<String, String[]> map = new HashMap<>();
+		
+		String[] stringArr = {"requestor:asc,testclass:asc,bundle:asc"};
+		
+		map.put("sort", stringArr);
+		
+		assertTrue(ExtractQuerySort.isAscending(map, "requestor"));
 	}
 
 }
