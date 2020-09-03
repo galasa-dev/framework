@@ -34,6 +34,19 @@ public class RequestorRasTest {
 	}
 	
 	@Test
+	public void testAssertsFalseForRequestorDesc() {
+		
+		Map<String, String[]> map = new HashMap<>();
+		
+		String[] stringArr = {"requestor:desc"};
+		
+		map.put("sort", stringArr);
+		
+		assertFalse(ExtractQuerySort.isAscending(map, "requestor"));
+		
+	}
+	
+	@Test
 	public void testMultipleSortOptions() {
 		
 		Map<String, String[]> map = new HashMap<>();
