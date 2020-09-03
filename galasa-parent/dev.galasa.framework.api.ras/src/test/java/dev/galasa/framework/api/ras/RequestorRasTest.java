@@ -51,11 +51,16 @@ public class RequestorRasTest {
 		
 		Map<String, String[]> map = new HashMap<>();
 		
-		String[] stringArr = {"requestor:asc,testclass:asc,bundle:asc"};
+		String[] stringArr = {"requestor:asc,testclass:asc,bundle:asc,bob:desc"};
 		
 		map.put("sort", stringArr);
 		
 		assertTrue(ExtractQuerySort.isAscending(map, "requestor"));
+		assertTrue(ExtractQuerySort.isAscending(map, "testclass"));
+		assertTrue(ExtractQuerySort.isAscending(map, "bundle"));
+		assertTrue(ExtractQuerySort.isAscending(map, "jenny"));
+		
+		assertFalse(ExtractQuerySort.isAscending(map, "bob"));
 	}
 
 }
