@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import dev.galasa.framework.spi.ras.RasTestClass;
+
 /**
  * 
  * @author Michael Baylis
@@ -41,5 +43,6 @@ public interface IResultArchiveStoreDirectoryService {
     List<String> getRequestors() throws ResultArchiveStoreException;
 
     @NotNull
-    List<String> getTests() throws ResultArchiveStoreException;
+    List<RasTestClass> getTests() throws ResultArchiveStoreException;
+
 }
