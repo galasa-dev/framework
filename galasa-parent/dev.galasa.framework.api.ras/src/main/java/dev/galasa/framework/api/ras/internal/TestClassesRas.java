@@ -3,6 +3,7 @@ package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -23,45 +24,69 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.RasTestClass;
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-        "osgi.http.whiteboard.servlet.pattern=/ras/testclasses" }, name = "TestClasses RAS")
+"osgi.http.whiteboard.servlet.pattern=/ras/testclasses" }, name = "TestClasses RAS")
 
 public class TestClassesRas extends HttpServlet {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
 
-    /* a dummy list of testclasses and bundles */
-    private final List<RasTestClass> TESTCLASSDUMMY = Arrays.asList(new RasTestClass("FirstTest", "Abundle"),new RasTestClass("SecondTest", "BigBundle"),new RasTestClass("ThirdTest", "MiniBundle"),new RasTestClass("ZeroTest", "NanoBundle"));
-    
+	private List<IResultArchiveStoreDirectoryService> archiveStore;
 
-    @Reference
-    public IFramework framework; // NOSONAR
+	private IResultArchiveStoreDirectoryService directoryService;
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Map<String, String[]> query = req.getParameterMap();
+	private static List<RasTestClass> classArray = new ArrayList<>();
+	/* a dummy list of testclasses and bundles */
+	private final List<RasTestClass> TESTCLASSDUMMY = Arrays.asList(new RasTestClass("FirstTest", "Abundle"),
+			new RasTestClass("SecondTest", "BigBundle"), new RasTestClass("ThirdTest", "MiniBundle"),
+			new RasTestClass("ZeroTest", "NanoBundle"));
 
-        /* looking for sort options in query and sorting accordingly */
-        if(ExtractQuerySort.isAscending(query, "testclass")) {
-    		TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getTestClass));
-    	}else if(!ExtractQuerySort.isAscending(query, "testclass")) {
-    		TESTCLASSDUMMY.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
-        }
-        /* converting data to json */
-            JsonElement json = new Gson().toJsonTree(TESTCLASSDUMMY);
-            JsonObject testclasses = new JsonObject();
-            testclasses.add("testclasses", json);
-            
-        /* setting response status and type */
-            resp.setStatus(200);
-            resp.setContentType("application/json");
-            PrintWriter out = resp.getWriter();
-            out.print(testclasses);
-        
-    }
+	@Reference
+	public IFramework framework; // NOSONAR
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		Map<String, String[]> query = req.getParameterMap();
+		archiveStore = framework.getResultArchiveStore().getDirectoryServices();
+		for(IResultArchiveStoreDirectoryService directory: archiveStore){
+			directoryService=directory;
+		}
+		try{
+			classArray = directoryService.getTests();
+		} catch (ResultArchiveStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if(!query.isEmpty()){
+
+
+			if(ExtractQuerySort.isAscending(query, "testclass")) {
+				classArray.sort(Comparator.comparing(RasTestClass::getTestClass));
+			}else if(!ExtractQuerySort.isAscending(query, "testclass")) {
+				classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
+			}
+		}
+		/* looking for sort options in query and sorting accordingly */
+
+		/* converting data to json */
+		JsonElement json = new Gson().toJsonTree(classArray);
+		JsonObject testclasses = new JsonObject();
+		testclasses.add("testclasses", json);
+
+		/* setting response status and type */
+		resp.setStatus(200);
+		resp.setContentType("application/json");
+		PrintWriter out = resp.getWriter();
+		out.print(testclasses);
+
+	}
+
 }
