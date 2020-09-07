@@ -4,7 +4,6 @@ package dev.galasa.framework.api.ras.internal;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +42,6 @@ public class TestClassesRas extends HttpServlet {
 	private IResultArchiveStoreDirectoryService directoryService;
 
 	private static List<RasTestClass> classArray = new ArrayList<>();
-	/* a dummy list of testclasses and bundles */
-	private final List<RasTestClass> TESTCLASSDUMMY = Arrays.asList(new RasTestClass("FirstTest", "Abundle"),
-			new RasTestClass("SecondTest", "BigBundle"), new RasTestClass("ThirdTest", "MiniBundle"),
-			new RasTestClass("ZeroTest", "NanoBundle"));
 
 	@Reference
 	public IFramework framework; // NOSONAR
@@ -54,17 +49,19 @@ public class TestClassesRas extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		Map<String, String[]> query = req.getParameterMap();
+		
+		/* getting tests */
 		archiveStore = framework.getResultArchiveStore().getDirectoryServices();
-		for(IResultArchiveStoreDirectoryService directory: archiveStore){
-			directoryService=directory;
-		}
+		directoryService=archiveStore.get(archiveStore.size()-1);
 		try{
 			classArray = directoryService.getTests();
 		} catch (ResultArchiveStoreException e) {
-			// TODO Auto-generated catch block
+			resp.setStatus(500);
+			System.out.println("Unable to get tests");
 			e.printStackTrace();
 		}
 
+		/* looking for sort options in query and sorting accordingly */
 		if(!query.isEmpty()){
 
 
@@ -74,7 +71,7 @@ public class TestClassesRas extends HttpServlet {
 				classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
 			}
 		}
-		/* looking for sort options in query and sorting accordingly */
+		
 
 		/* converting data to json */
 		JsonElement json = new Gson().toJsonTree(classArray);
