@@ -56,9 +56,7 @@ public class TestClassesRas extends HttpServlet {
 		try{
 			classArray = directoryService.getTests();
 		} catch (ResultArchiveStoreException e) {
-			resp.setStatus(500);
-			System.out.println("Unable to get tests");
-			e.printStackTrace();
+			throw new ServletException("Problem with retrieving tests", e);
 		}
 
 		/* looking for sort options in query and sorting accordingly */
