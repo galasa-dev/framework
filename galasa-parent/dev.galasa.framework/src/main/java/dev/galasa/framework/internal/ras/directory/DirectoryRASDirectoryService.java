@@ -126,8 +126,8 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 					if(!tests.containsKey(key)){
 						tests.put(key,new RasTestClass(testStructure.getTestName(), testStructure.getBundle()));
 					}
-				}else break;
-			}else break;
+				}
+			}
 		}
 		
 		return new ArrayList<>(tests.values());
