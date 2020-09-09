@@ -22,23 +22,31 @@ public class ExtractQuerySort {
 	    			List<String> val = Arrays.asList(value.split(","));
 	    			if(val != null) {
 	    				for (String item : val) {
-	    					List<String> split = Arrays.asList(item.split(":"));
-	    					if(split.get(1).equals("desc")) {
-	    						paramMap.put(split.get(0), Boolean.FALSE);
-	    					}else {
-	    						paramMap.put(split.get(0), Boolean.TRUE);
+		    				if(item.contains(":")) {
+		    					List<String> split = Arrays.asList(item.split(":"));
+		    					if(split.get(1).equals("desc")) {
+		    						paramMap.put(split.get(0), Boolean.FALSE);
+		    					}else {
+		    						paramMap.put(split.get(0), Boolean.TRUE);
+		    					}
 	    					}
 	    				}
 	    			}
 	    		}
     		}
     	}
+    	
     	return paramMap;
     	
     }
 	
 	public static Boolean isAscending(Map<String, String[]> query, String param) {
-		return extractParameters(query).get(param);
+			if(query.containsKey("sort")) {
+				if(extractParameters(query).containsKey(param)) {
+					return extractParameters(query).get(param);
+				};
+			}
+		return Boolean.TRUE;
 	}
 }
 	
