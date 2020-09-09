@@ -5,13 +5,11 @@
  */
 package dev.galasa.framework.api.ras.internal;
 
-
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +82,7 @@ public class RequestorRas extends HttpServlet {
         PrintWriter out = resp.getWriter();
         resp.setHeader("Content-Type", "Application/json");
         resp.setCharacterEncoding("UTF-8");
+        resp.addHeader("Access-Control-Allow-Origin", "*");
         out.print(requestors);
         out.close();
         
@@ -97,21 +96,17 @@ public class RequestorRas extends HttpServlet {
     
     private List<String> getRequestors() throws ResultArchiveStoreException{
     	
-    	HashMap<String, String> map = new HashMap<String, String>();
+    	HashSet<String> requestorSet = new HashSet<>();
     
     			
     	for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
     		
-    		//add to hashmap to ensure no duplicates
-    		for(String requestor : directoryService.getRequestors()) {
-    			if(!map.containsKey(requestor)) {
-    				map.put(requestor, null);
-    			}
-    		}
+    		requestorSet.addAll(directoryService.getRequestors());
+    		
     	}
     	
     	//convert to list of strings
-    	List<String> requestors = new ArrayList<>(map.keySet());
+    	List<String> requestors = new ArrayList<>(requestorSet);
     	
     	return requestors;
         
