@@ -138,18 +138,18 @@ pipeline {
                      }
 
                      dir('dev.galasa.framework.api.ras') {
-                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
+                        sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -Dnpm.repo==${NPM_REPO} -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
 
-                        sh "npm install @openapitools/openapi-generator-cli"
-                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-ras-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
-                        sh "npm install --prefix generated-openapi"
-                        script {
-                           if (env.PULL_REQ == 'true') {
-                              echo 'Skipping npm publish'
-                           } else {
-                              sh "npm publish generated-openapi"
-                           }
-                        }                        
+						dir('target/openapi') {
+                           sh "npm install"
+                           script {
+                              if (env.PULL_REQ == 'true') {
+                                 echo 'Skipping npm publish'
+                              } else {
+                                 sh "npm publish"
+                             }
+                           }                      
+                        }
                      }
 
                      dir('dev.galasa.framework.obr') {
