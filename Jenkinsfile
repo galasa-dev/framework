@@ -146,7 +146,7 @@ pipeline {
                               if (env.PULL_REQ == 'true') {
                                  echo 'Skipping npm publish'
                               } else {
-                                 sh "npm publish"
+                                 sh "npm publish dist"
                              }
                            }                      
                         }
