@@ -107,7 +107,7 @@ pipeline {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
 
                         sh "npm install @openapitools/openapi-generator-cli"
-                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs --model-name-prefix GalasaRas -o generated-openapi --additional-properties=npmName=galasa-runs-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
+                        sh "npx @openapitools/openapi-generator-cli generate -i openapi.yaml --skip-validate-spec --generator-name typescript-rxjs -o generated-openapi --additional-properties=npmName=galasa-runs-api-ts-rxjs,npmRepository=${NPM_REPO},npmVersion=${NPM_VERSION},snapshot=${NPM_SNAPSHOT},supportsES6=false,modelPropertyNaming=original"
                         sh "npm install --prefix generated-openapi"
                         script {
                            if (env.PULL_REQ == 'true') {
