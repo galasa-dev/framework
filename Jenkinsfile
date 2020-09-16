@@ -104,6 +104,10 @@ pipeline {
                      }
 
                      dir('dev.galasa.framework.api.runs') {
+                     	dir('generated-openapi') {
+                     	   deleteDir()
+                     	}
+                     
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
 
                         sh "npm install @openapitools/openapi-generator-cli"
