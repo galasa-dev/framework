@@ -152,7 +152,7 @@ pipeline {
                                     echo 'Skipping npm publish'
                                     sh "npm --ignore-scripts publish --dry-run"
                                  } else {
-                                    sh "npm publish"
+                                    sh "npm --ignore-scripts publish"
                                  }
                               }
                            }                      
