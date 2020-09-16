@@ -141,13 +141,20 @@ pipeline {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -Dnpm.repo=${NPM_REPO} -Dnpm.version=${NPM_VERSION} -Dnpm.snapshot=${NPM_SNAPSHOT} -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
 
 						dir('target/openapi') {
-                           sh "npm install"
+                           sh "npm --ignore-scripts install"
+                           sh "npm --ignore-scripts update"
+                           sh "npm run-script build"
                            script {
-                              if (env.PULL_REQ == 'true') {
-                                 echo 'Skipping npm publish'
-                              } else {
-                                 sh "npm publish dist"
-                             }
+                              sh "cp package.json dist/"
+                              sh "cp README.md dist/" 
+                              dir('dist') {
+                                 if (env.PULL_REQ == 'true') {
+                                    echo 'Skipping npm publish'
+                                    sh "npm --ignore-scripts publish --dry-run"
+                                 } else {
+                                    sh "npm publish"
+                                 }
+                              }
                            }                      
                         }
                      }
