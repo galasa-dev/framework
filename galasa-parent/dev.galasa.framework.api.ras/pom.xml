@@ -69,7 +69,7 @@
 							<inputSpec>${project.basedir}/openapi.yaml</inputSpec>
 							<generatorName>typescript-rxjs</generatorName>
 							<output>${project.build.directory}/openapi</output>
-							<additionalProperties>npmName=galasa-ras-api-ts-rxjs,npmRepository=${npm.repo},npmVersion=${npm.version},snapshot=${npm.snapshot},supportsES6=true</additionalProperties>
+							<additionalProperties>npmName=galasa-ras-api-ts-rxjs,npmRepository=${npm.repo},npmVersion=${npm.version},snapshot=${npm.snapshot},supportsES6=false</additionalProperties>
 						</configuration>
 					</execution>
 				</executions>
