@@ -126,9 +126,15 @@ paths:
                 $ref: '#/components/schemas/JsonError'
   /ras/run:
     get:
+<<<<<<< HEAD
       summary: Get Runs from Query
       tags:
         - RasRun
+=======
+      tags:
+        - RasRun
+      summary: Get Runs from Query
+>>>>>>> 68f6e78f5bb12786b7b65fd5e3ee9015057ce315
       parameters:
         - name: requestor
           in: query
