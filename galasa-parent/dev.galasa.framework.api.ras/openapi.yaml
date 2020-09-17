@@ -126,9 +126,9 @@ paths:
                 $ref: '#/components/schemas/JsonError'
   /ras/run:
     get:
+      summary: Get Runs from Query
       tags:
         - RasRun
-      summary: Get Run Ids from Query
       parameters:
         - name: requestor
           in: query
@@ -139,12 +139,14 @@ paths:
           in: query
           description: Date Number From
           schema:
-            type: number
+            type: string
+            format: date-time
         - name: to
           in: query
           description: Date Number To
           schema:
-            type: number
+            type: string
+            format: date-time
         - name: testclass
           in: query
           description: Test Class Name
@@ -162,13 +164,11 @@ paths:
             type: number
       responses:
         '200':
-          description: Array of Run Ids
+          description: Array of Run Objects
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
+                $ref: '#/components/schemas/RunResults'
         '500':
           description: Error
           content:
@@ -310,3 +310,43 @@ components:
             type: string
           bundle:
             type: string
+    Run:
+      type: object
+      properties:
+        runName:
+          type: string
+        testClass:
+          type: string
+        bundle:
+          type: string
+        requestor:
+          type: string
+        result:  
+          type: string
+        status:
+          type: string
+        queued:
+          type: string
+        testShortName:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+    RunResults:
+      type: array
+      items:
+        type: object
+        properties:
+          pageNumber:
+            type: integer
+          pageSize:
+            type: integer
+          numPages:
+            type: integer
+          runs:
+            type: array
+            items:
+              $ref: '#/components/schemas/Run'

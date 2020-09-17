@@ -80,9 +80,8 @@ public class RequestorRas extends HttpServlet {
     	requestors.add("requestors", json);
         
         PrintWriter out = resp.getWriter();
-        resp.setHeader("Content-Type", "Application/json");
-        resp.setCharacterEncoding("UTF-8");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.setContentType( "Application/json");
+        resp.setHeader("Access-Control-Allow-Origin", "*");
         out.print(requestors);
         out.close();
         
