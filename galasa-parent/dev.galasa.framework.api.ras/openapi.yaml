@@ -14,6 +14,8 @@ servers:
 paths:
   /ras/requestors:
     get:
+      tags:
+        - RasRequestors
       summary: Get all Requestors
       parameters:
         - name: sort
@@ -37,6 +39,8 @@ paths:
                 $ref: '#/components/schemas/JsonError'
   /ras/runname/{runname}:
     get:
+      tags:
+        - RasRunname
       summary: Get all Run Ids from a Run Name
       parameters:
         - name: runname
@@ -62,6 +66,8 @@ paths:
                 $ref: '#/components/schemas/JsonError'
   /ras/run/{id}:
     get:
+      tags:
+        - RasRun
       summary: Get Run Data
       parameters:
         - name: id
@@ -89,6 +95,8 @@ paths:
                 $ref: '#/components/schemas/JsonError'
   /ras/run/{id}/artifact/{artifactid}:
     get:
+      tags:
+        - RasRun
       summary: Get Artifact Content
       parameters:
         - name: id
@@ -118,6 +126,8 @@ paths:
                 $ref: '#/components/schemas/JsonError'
   /ras/run:
     get:
+      tags:
+        - RasRun
       summary: Get Runs from Query
       parameters:
         - name: requestor
@@ -167,6 +177,8 @@ paths:
                 $ref: '#/components/schemas/JsonError'
   /ras/run/{id}/runlog:
     get:
+      tags:
+        - RasRun
       summary: Get Run Data
       parameters:
         - name: id
@@ -190,6 +202,8 @@ paths:
                 $ref: '#/components/schemas/JsonError'
   /ras/testclasses:
     get:
+      tags:
+        - RasTestclasses
       summary: Get Testclasses
       parameters:
         - name: sort
