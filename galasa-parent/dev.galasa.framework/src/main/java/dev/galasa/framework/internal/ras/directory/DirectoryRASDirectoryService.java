@@ -106,8 +106,13 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		HashSet<String> requestors = new HashSet<>();
 
 		for (DirectoryRASRunResult result : getAllRuns()) {
-			TestStructure testStructure = result.getTestStructure();
-			requestors.add(testStructure.getRequestor());
+			if(result!=null) {
+				TestStructure testStructure = result.getTestStructure();
+				if(testStructure != null && testStructure.getTestName()!=null) {
+					requestors.add(testStructure.getRequestor());
+				}
+
+			}
 		}
 
 		return new ArrayList<>(requestors);
@@ -129,7 +134,7 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 				}
 			}
 		}
-		
+
 		return new ArrayList<>(tests.values());
 	}
 
