@@ -130,6 +130,11 @@ paths:
       tags:
         - RasRun
       parameters:
+        - name: sort
+          in: query
+          description: provides sorting, to:asc or to:desc
+          schema: 
+            type: string
         - name: requestor
           in: query
           description: Requestor Name
