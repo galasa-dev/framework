@@ -132,7 +132,7 @@ paths:
       parameters:
         - name: sort
           in: query
-          description: provides sorting, timeend:asc or timeend:desc
+          description: provides sorting, to:asc or to:desc
           schema: 
             type: string
         - name: requestor
