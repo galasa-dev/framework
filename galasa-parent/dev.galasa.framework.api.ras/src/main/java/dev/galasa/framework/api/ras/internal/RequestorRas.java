@@ -40,79 +40,80 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
  * 
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-        "osgi.http.whiteboard.servlet.pattern=/ras/requestors" }, name = "Galasa Requestor microservice")
+"osgi.http.whiteboard.servlet.pattern=/ras/requestors" }, name = "Galasa Requestor microservice")
 public class RequestorRas extends HttpServlet {
-    
-    private static final long serialVersionUID = 1L;
 
- 
-    @Reference
-    public IFramework framework; // NOSONAR
+	private static final long serialVersionUID = 1L;
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
-       
-    	
-        try {
-        	
-    	//gets string query as hashmap
-        
-    	Map<String, String[]> query = req.getParameterMap();
-    	
-    	
 
-    	//gets requestors
-    	List<String> list = getRequestors();
-    	
-    	//sorts list
-    	Collections.sort(list);
-    	
-    	JsonObject requestors = new JsonObject();   	
-    	
-    	if(!query.isEmpty()) { 
-    		if(!ExtractQuerySort.isAscending(query, "requestor")) {
-			    		Collections.reverse(list);
-    		}
-        }
-    
-    	//create json object
-    	JsonElement json = new Gson().toJsonTree(list);
-    	requestors.add("requestors", json);
-        
-        PrintWriter out = resp.getWriter();
-        resp.setContentType( "Application/json");
-        resp.setHeader("Access-Control-Allow-Origin", "*");
-        out.print(requestors);
-        out.close();
-        
-        }
-        catch(Exception e) {
-            throw new ServletException("Error occured during get requestors", e);
-        }
-       
-       
-    }
-    
-    private List<String> getRequestors() throws ResultArchiveStoreException{
-    	
-    	HashSet<String> requestorSet = new HashSet<>();
-    
-    			
-    	for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-    		
-    		requestorSet.addAll(directoryService.getRequestors());
-    		
-    	}
-    	
-    	//convert to list of strings
-    	List<String> requestors = new ArrayList<>(requestorSet);
-    	
-    	return requestors;
-        
-        
-    }
-    
+	@Reference
+	public IFramework framework; // NOSONAR
 
-    
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+
+
+		try {
+
+			//gets string query as hashmap
+
+			Map<String, String[]> query = req.getParameterMap();
+
+
+
+			//gets requestors
+			List<String> list = getRequestors();
+
+			//sorts list
+			Collections.sort(list);
+
+			JsonObject requestors = new JsonObject();   	
+
+			if(!query.isEmpty()) { 
+				if(!ExtractQuerySort.isAscending(query, "requestor")) {
+					Collections.reverse(list);
+				}
+			}
+
+			//create json object
+			JsonElement json = new Gson().toJsonTree(list);
+			requestors.add("requestors", json);
+
+			PrintWriter out = resp.getWriter();
+			resp.setContentType( "Application/json");
+			resp.setHeader("Access-Control-Allow-Origin", "*");
+			out.print(requestors);
+			out.close();
+
+		}
+		catch(Exception e) {
+			throw new ServletException("Error occured during get requestors", e);
+		}
+
+
+	}
+
+	private List<String> getRequestors() throws ResultArchiveStoreException{
+
+		HashSet<String> requestorSet = new HashSet<>();
+
+
+		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+			if(!directoryService.getRequestors().isEmpty()) {
+
+				requestorSet.addAll(directoryService.getRequestors());
+			}
+		}
+
+		//convert to list of strings
+		List<String> requestors = new ArrayList<>(requestorSet);
+
+		return requestors;
+
+
+	}
+
+
+
 
 }
