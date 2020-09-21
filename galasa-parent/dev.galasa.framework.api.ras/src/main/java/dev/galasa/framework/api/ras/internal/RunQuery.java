@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
 "osgi.http.whiteboard.servlet.pattern=/ras/run" }, name = "Galasa Runs microservice")
-public class RunResultsRas extends HttpServlet {
+public class RunQuery extends HttpServlet {
 	
 	
 	private static final long serialVersionUID = 1L;
