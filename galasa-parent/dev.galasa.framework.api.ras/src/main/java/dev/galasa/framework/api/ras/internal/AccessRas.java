@@ -70,7 +70,6 @@ public class AccessRas extends HttpServlet {
     private final static Pattern pattern1 = Pattern.compile("/runname/([A-z0-9.\\-_']+)/?");
     private final static Pattern pattern2 = Pattern.compile("/run/([A-z0-9.\\-_']+)/?");
     private final static Pattern pattern3 = Pattern.compile("/run/([A-z0-9.\\-_']+)/artifact/([A-z0-9.\\-_']+)/?");
-    private final static Pattern pattern4 = Pattern.compile("/run/?");
     private final static Pattern pattern5 = Pattern.compile("/run/([A-z0-9.\\-_']+)/runlog/?");
 
     @Reference
@@ -93,11 +92,6 @@ public class AccessRas extends HttpServlet {
             Matcher matcher3 = pattern3.matcher(req.getPathInfo());
             if (matcher3.matches()) {
                 getArtifactData(resp, matcher3.group(1), matcher3.group(2));
-                return;
-            }
-            Matcher matcher4 = pattern4.matcher(req.getPathInfo());
-            if (matcher4.matches()) {
-                getRunsByQuery(resp, req.getQueryString());
                 return;
             }
             Matcher matcher5 = pattern5.matcher(req.getPathInfo());
