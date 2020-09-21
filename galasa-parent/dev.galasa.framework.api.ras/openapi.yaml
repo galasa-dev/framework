@@ -312,12 +312,14 @@ components:
         testclasses:
           type: array
           items: 
-            type: object
-            properties:
-              testclass: 
-                type: string
-              bundle:
-                type: string
+            $ref: '#/components/schemas/TestClass'
+    TestClass:
+      type: object
+      properties:
+        testclass: 
+           type: string
+        bundle:
+           type: string
     Run:
       type: object
       properties:
