@@ -37,7 +37,7 @@ public interface IResultArchiveStoreDirectoryService {
      * @throws ResultArchiveStoreException if there are errors accessing the RAS
      */
     @NotNull
-    List<IRunResult> getRuns(String requestor, Instant from, Instant to) throws ResultArchiveStoreException;
+    List<IRunResult> getRuns(String requestor, Instant from, Instant to, String testClass) throws ResultArchiveStoreException;
 
     @NotNull
     List<String> getRequestors() throws ResultArchiveStoreException;

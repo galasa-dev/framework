@@ -152,7 +152,7 @@ paths:
           schema:
             type: string
             format: date-time
-        - name: testclass
+        - name: testname
           in: query
           description: Test Class Name
           schema:
@@ -320,7 +320,7 @@ components:
       properties:
         runName:
           type: string
-        testClass:
+        testName:
           type: string
         bundle:
           type: string
@@ -341,17 +341,22 @@ components:
           type: string
           format: date-time
     RunResults:
-      type: array
-      items:
-        type: object
-        properties:
-          pageNumber:
-            type: integer
-          pageSize:
-            type: integer
-          numPages:
-            type: integer
-          runs:
-            type: array
-            items:
-              $ref: '#/components/schemas/Run'
+      type: object
+      properties:
+        runResults:
+          type: array
+          items:
+              type: object
+              properties:
+                pageNumber:
+                  type: integer
+                pageSize:
+                  type: integer
+                numPages:
+                  type: integer
+                runs:
+                  type: array
+                items:
+                  $ref: '#/components/schemas/Run'
+        
+          

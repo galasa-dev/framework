@@ -116,7 +116,7 @@ public class AccessRas extends HttpServlet {
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
             for (String requestor : directoryService.getRequestors()) {
                 Instant from = Instant.now().minusSeconds(FROM.longValue());
-                for (IRunResult result : directoryService.getRuns(requestor, from, Instant.now())) {
+                for (IRunResult result : directoryService.getRuns(requestor, from, Instant.now(), null)) {
                     if (runName.equals(result.getTestStructure().getTestName())) {
                         respJson.add(result.getTestStructure().getRunName());
                     }
@@ -179,7 +179,7 @@ public class AccessRas extends HttpServlet {
         JsonArray respJson = new JsonArray();
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
             if(query.containsKey("requestor")) {
-                for (IRunResult result : directoryService.getRuns(query.get("requestor"), Instant.parse(query.get("from")), Instant.parse(query.get("to")))) {
+                for (IRunResult result : directoryService.getRuns(query.get("requestor"), Instant.parse(query.get("from")), Instant.parse(query.get("to")), query.get("testclass"))) {
                     if(query.containsKey("testclass")) {
                         if (query.get("testclass").equals(result.getTestStructure().getTestName())) {
                             respArray.add(result.getTestStructure().getRunName());
@@ -190,7 +190,7 @@ public class AccessRas extends HttpServlet {
                 }
             } else {
                 for (String requestor : directoryService.getRequestors()) {
-                    for (IRunResult result : directoryService.getRuns(requestor, Instant.parse(query.get("from")), Instant.parse(query.get("to")))) {
+                    for (IRunResult result : directoryService.getRuns(requestor, Instant.parse(query.get("from")), Instant.parse(query.get("to")), query.get("testclass"))) {
                         if(query.containsKey("testclass")) {
                             if (query.get("testclass").equals(result.getTestStructure().getTestName())) {
                                 respArray.add(result.getTestStructure().getRunName());
