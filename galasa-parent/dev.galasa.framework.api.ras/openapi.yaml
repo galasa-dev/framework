@@ -345,7 +345,7 @@ components:
         end:
           type: string
           format: date-time
-      RunResults:
+    RunResults:
       type: object
       properties:
         runResults:

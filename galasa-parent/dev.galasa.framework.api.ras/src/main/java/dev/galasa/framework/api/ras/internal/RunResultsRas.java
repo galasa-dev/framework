@@ -56,7 +56,8 @@ public class RunResultsRas extends HttpServlet {
 			List<IRunResult> newList = runs.subList(index, runs.size());
 			for(IRunResult run : newList) {
 				JsonObject returnObj = new JsonObject();
-				returnObj.add("pageSize", String.valueOf(pageSize));
+				returnObj.addProperty("pageSize", String.valueOf(pageSize));
+				returnObj.addProperty("pageNumber", String.valueOf(pageNum));
 			}
 		}
 		
