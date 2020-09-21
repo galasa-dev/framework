@@ -1,4 +1,3 @@
-
 package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
@@ -49,9 +48,10 @@ public class TestClassesRas extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		Map<String, String[]> query = req.getParameterMap();
-		
+
 		/* getting tests */
 		archiveStore = framework.getResultArchiveStore().getDirectoryServices();
+		
 		directoryService=archiveStore.get(archiveStore.size()-1);
 		try{
 			classArray = directoryService.getTests();
@@ -79,6 +79,7 @@ public class TestClassesRas extends HttpServlet {
 		/* setting response status and type */
 		resp.setStatus(200);
 		resp.setContentType("application/json");
+		resp.addHeader("Access-Control-Allow-Origin", "*");
 		PrintWriter out = resp.getWriter();
 		out.print(testclasses);
 
