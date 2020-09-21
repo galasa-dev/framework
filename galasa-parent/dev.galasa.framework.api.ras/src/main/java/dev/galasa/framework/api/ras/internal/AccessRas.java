@@ -173,7 +173,7 @@ public class AccessRas extends HttpServlet {
         JsonArray respJson = new JsonArray();
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
             if(query.containsKey("requestor")) {
-                for (IRunResult result : directoryService.getRuns(query.get("requestor"), Instant.parse(query.get("from")), Instant.parse(query.get("to")), query.get("testclass"))) {
+                for (IRunResult result : directoryService.getRuns(query.get("requestor"), Instant.parse(query.get("from")), Instant.parse(query.get("to")), query.get("testName"))) {
                     if(query.containsKey("testclass")) {
                         if (query.get("testclass").equals(result.getTestStructure().getTestName())) {
                             respArray.add(result.getTestStructure().getRunName());
@@ -184,7 +184,7 @@ public class AccessRas extends HttpServlet {
                 }
             } else {
                 for (String requestor : directoryService.getRequestors()) {
-                    for (IRunResult result : directoryService.getRuns(requestor, Instant.parse(query.get("from")), Instant.parse(query.get("to")), query.get("testclass"))) {
+                    for (IRunResult result : directoryService.getRuns(requestor, Instant.parse(query.get("from")), Instant.parse(query.get("to")), query.get("testName"))) {
                         if(query.containsKey("testclass")) {
                             if (query.get("testclass").equals(result.getTestStructure().getTestName())) {
                                 respArray.add(result.getTestStructure().getRunName());
