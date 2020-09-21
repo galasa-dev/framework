@@ -345,22 +345,22 @@ components:
         end:
           type: string
           format: date-time
-    RunResults:
+      RunResults:
       type: object
       properties:
         runResults:
           type: array
           items:
-              type: object
-              properties:
-                pageNumber:
-                  type: integer
-                pageSize:
-                  type: integer
-                numPages:
-                  type: integer
-                runs:
-                  type: array
+            type: object
+            properties:
+              pageNumber:
+                type: integer
+              pageSize:
+                type: integer
+              numPages:
+                type: integer
+              runs:
+                type: array
                 items:
                   $ref: '#/components/schemas/Run'
         

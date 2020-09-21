@@ -40,19 +40,23 @@ public class RunResultsRas extends HttpServlet {
 		Map<String, String> paramMap = getParameterMap(req);
 		
 		JsonArray returnArray = new JsonArray();
-		JsonObject returnObj = new JsonObject();
 		
 		try {
 			
 		List<IRunResult> runs = getRuns(paramMap.get("requestor"), Instant.parse(paramMap.get("to")), 
 				Instant.parse(paramMap.get("from")), paramMap.get("testname"));
 		
-		int pageSize = Integer.parseInt(paramMap.get("pageSize").trim());
+		int pageSize = Integer.parseInt(paramMap.get("pageSize").trim()) | 100;
 		
-		for(IRunResult run : runs) {
-			int amountOfRuns = runs.size()|100;
-			while(pageSize > amountOfRuns) {
-				
+		int amountOfRuns = runs.size();
+		int index = 0;
+		int pageNum = 1;
+		
+		while(pageSize > amountOfRuns) {
+			List<IRunResult> newList = runs.subList(index, runs.size());
+			for(IRunResult run : newList) {
+				JsonObject returnObj = new JsonObject();
+				returnObj.add("pageSize", String.valueOf(pageSize));
 			}
 		}
 		
