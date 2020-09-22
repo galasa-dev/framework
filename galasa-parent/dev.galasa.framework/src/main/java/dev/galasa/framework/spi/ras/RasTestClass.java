@@ -3,28 +3,28 @@ package dev.galasa.framework.spi.ras;
 
 public class RasTestClass {
     
-    public String testClass;
-    public String bundleName;
+    public String testclass;
+    public String bundle;
 
     public RasTestClass(String testClass, String bundleName) {
-        this.testClass = testClass;
-        this.bundleName = bundleName;
+        this.testclass = testClass;
+        this.bundle = bundleName;
     }
 
     public String getTestClass() {
-        return this.testClass;
+        return this.testclass;
     }
 
     public void setTestClass(String testClass) {
-        this.testClass = testClass;
+        this.testclass = testClass;
     }
 
     public String getBundleName() {
-        return this.bundleName;
+        return this.bundle;
     }
 
     public void setBundleName(String bundleName) {
-        this.bundleName = bundleName;
+        this.bundle = bundleName;
     }
 
     
