@@ -244,7 +244,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Resluts
+          description: Results
           content:
             application/json:
               schema:
