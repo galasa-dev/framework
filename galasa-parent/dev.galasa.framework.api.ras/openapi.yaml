@@ -230,6 +230,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+/ras/results:
+    get:
+      tags:
+        - Results
+      summary: Get test results
+      parameters:
+        - name: sort
+          in: query
+          description: provides sorting, requestor:asc or requestor:desc
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resluts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Results'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
 components:
   schemas:
     Requestors:
@@ -320,6 +345,13 @@ components:
            type: string
         bundle:
            type: string
+    Results:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: string
     Run:
       type: object
       properties:
