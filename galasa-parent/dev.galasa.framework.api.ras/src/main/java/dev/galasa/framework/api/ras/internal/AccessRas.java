@@ -70,7 +70,6 @@ public class AccessRas extends HttpServlet {
     private final static Pattern pattern1 = Pattern.compile("/runname/([A-z0-9.\\-_']+)/?");
     private final static Pattern pattern2 = Pattern.compile("/run/([A-z0-9.\\-_']+)/?");
     private final static Pattern pattern3 = Pattern.compile("/run/([A-z0-9.\\-_']+)/artifact/([A-z0-9.\\-_']+)/?");
-    private final static Pattern pattern4 = Pattern.compile("/run/?");
     private final static Pattern pattern5 = Pattern.compile("/run/([A-z0-9.\\-_']+)/runlog/?");
 
     @Reference
@@ -95,11 +94,6 @@ public class AccessRas extends HttpServlet {
                 getArtifactData(resp, matcher3.group(1), matcher3.group(2));
                 return;
             }
-            Matcher matcher4 = pattern4.matcher(req.getPathInfo());
-            if (matcher4.matches()) {
-                getRunsByQuery(resp, req.getQueryString());
-                return;
-            }
             Matcher matcher5 = pattern5.matcher(req.getPathInfo());
             if (matcher5.matches()) {
                 getRunLog(resp, matcher5.group(1));
@@ -116,7 +110,7 @@ public class AccessRas extends HttpServlet {
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
             for (String requestor : directoryService.getRequestors()) {
                 Instant from = Instant.now().minusSeconds(FROM.longValue());
-                for (IRunResult result : directoryService.getRuns(requestor, from, Instant.now())) {
+                for (IRunResult result : directoryService.getRuns(requestor, from, Instant.now(), null)) {
                     if (runName.equals(result.getTestStructure().getTestName())) {
                         respJson.add(result.getTestStructure().getRunName());
                     }
@@ -155,75 +149,7 @@ public class AccessRas extends HttpServlet {
         }
     }
 
-    private void getRunsByQuery(HttpServletResponse resp, String queryString) throws IOException, ResultArchiveStoreException, DateTimeParseException {
-        if (queryString == null) {
-            sendError(resp, "Empty RAS Query");
-            return;
-        }
-        Map<String, String> query = new HashMap<>();
-        for (String pair : queryString.split("&")) {
-            String[] keyValue = pair.split("=");
-            if (!RASQUERY.contains(keyValue[0])) {
-                sendError(resp, "Invalid RAS Query field: " + keyValue[0]);
-                return;
-            }
-            if (keyValue.length == 2)
-                query.put(keyValue[0], keyValue[1]);
-        }
-        if (!query.containsKey("to") || !query.containsKey("from") || (query.containsKey("page") && !query.containsKey("size"))) {
-            sendError(resp, "Invalid RAS Query fields");
-            return;
-        }
-
-        JsonArray respArray = new JsonArray();
-        JsonArray respJson = new JsonArray();
-        for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-            if(query.containsKey("requestor")) {
-                for (IRunResult result : directoryService.getRuns(query.get("requestor"), Instant.parse(query.get("from")), Instant.parse(query.get("to")))) {
-                    if(query.containsKey("testclass")) {
-                        if (query.get("testclass").equals(result.getTestStructure().getTestName())) {
-                            respArray.add(result.getTestStructure().getRunName());
-                        }
-                    } else {
-                        respArray.add(result.getTestStructure().getRunName());
-                    }
-                }
-            } else {
-                for (String requestor : directoryService.getRequestors()) {
-                    for (IRunResult result : directoryService.getRuns(requestor, Instant.parse(query.get("from")), Instant.parse(query.get("to")))) {
-                        if(query.containsKey("testclass")) {
-                            if (query.get("testclass").equals(result.getTestStructure().getTestName())) {
-                                respArray.add(result.getTestStructure().getRunName());
-                            }
-                        } else {
-                            respArray.add(result.getTestStructure().getRunName());
-                        }
-                    }
-                }
-            }
-        }
-
-        if(query.containsKey("page")) {
-            int size = Integer.parseInt(query.get("size"));
-            int page = Integer.parseInt(query.get("page"));
-            for(int i = size * (page - 1); i < size * page && i < respArray.size(); i++) {
-                respJson.add(respArray.get(i));
-            }
-        } else if(query.containsKey("size")) {
-            int size = Integer.parseInt(query.get("size"));
-            for(int i = 0; i < size && i < respArray.size(); i++) {
-                respJson.add(respArray.get(i));
-            }
-        } else {
-            for(int i = 0; i < respArray.size(); i++) {
-                respJson.add(respArray.get(i));
-            }
-        }
-        
-        resp.getWriter().write(gson.toJson(respJson));
-        resp.setStatus(200);
-    }
-
+    
     private void getRunLog(HttpServletResponse resp, String runId) throws IOException, ResultArchiveStoreException {
         String runlog = "";
         for(IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
