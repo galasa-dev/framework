@@ -230,7 +230,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
-/ras/results:
+  /ras/results:
     get:
       tags:
         - Results
@@ -238,7 +238,7 @@ paths:
       parameters:
         - name: sort
           in: query
-          description: provides sorting, requestor:asc or requestor:desc
+          description: provides sorting, results:asc or results:desc
           required: false
           schema:
             type: string
