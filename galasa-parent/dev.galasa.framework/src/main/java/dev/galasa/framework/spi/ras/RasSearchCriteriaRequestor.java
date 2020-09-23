@@ -8,16 +8,22 @@ public class RasSearchCriteriaRequestor implements IRasSearchCriteria{
 	
 	private final String[] requestors;
 	
-	public RasSearchCriteriaRequestor(String... requestorCriteria) {
+	public RasSearchCriteriaRequestor(@NotNull String... requestorCriteria) {
 		this.requestors = requestorCriteria;
 	}
 	
 	@Override
 	public boolean criteriaMatched(@NotNull TestStructure structure) {
 		
-		for(String requestor : requestors) {
-			if(requestor.equals(structure.getRequestor())){
-				return Boolean.TRUE;
+		if(structure == null) {
+			return Boolean.FALSE;	
+		}
+		
+		if(requestors != null) {
+			for(String requestor : requestors) {
+				if(requestor.equals(structure.getRequestor())){
+					return Boolean.TRUE;
+				}
 			}
 		}
 		

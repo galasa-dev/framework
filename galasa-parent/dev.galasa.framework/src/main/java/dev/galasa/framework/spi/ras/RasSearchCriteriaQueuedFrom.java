@@ -9,14 +9,22 @@ public class RasSearchCriteriaQueuedFrom implements IRasSearchCriteria {
 	
 	private final Instant from;
 	
-	public RasSearchCriteriaQueuedFrom(Instant fromCriteria) {
+	public RasSearchCriteriaQueuedFrom(@NotNull Instant fromCriteria) {
 		this.from = fromCriteria;
 	}
 	
 	@Override
 	public boolean criteriaMatched(@NotNull TestStructure structure) {
 		
-		if(from.equals(structure.getStartTime())) {
+		if(structure == null) {
+			return Boolean.FALSE;	
+		}
+		
+		if(structure.getStartTime() == null) {
+			return Boolean.FALSE;
+		}
+		
+		if(from.equals(structure.getStartTime()) || from.isBefore(structure.getStartTime())) {
 			return Boolean.TRUE;
 		}
 		

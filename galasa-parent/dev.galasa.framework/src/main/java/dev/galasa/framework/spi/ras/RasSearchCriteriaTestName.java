@@ -8,16 +8,22 @@ public class RasSearchCriteriaTestName implements IRasSearchCriteria {
 	
 	private final String[] testNames;
 	
-	public RasSearchCriteriaTestName(String... testNameCriteria) {
+	public RasSearchCriteriaTestName(@NotNull String... testNameCriteria) {
 		this.testNames = testNameCriteria;
 	}
 	
 	@Override
 	public boolean criteriaMatched(@NotNull TestStructure structure) {
 		
-		for(String testName : testNames) {
-			if(testName.equals(structure.getTestName())) {
-				return Boolean.TRUE;
+		if(structure == null) {
+			return Boolean.FALSE;	
+		}
+		
+		if(testNames != null) {
+			for(String testName : testNames) {
+				if(testName.equals(structure.getTestName())) {
+					return Boolean.TRUE;
+				}
 			}
 		}
 		
