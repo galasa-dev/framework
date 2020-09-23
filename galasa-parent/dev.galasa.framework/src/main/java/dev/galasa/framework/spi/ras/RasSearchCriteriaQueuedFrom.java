@@ -4,6 +4,9 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 public class RasSearchCriteriaQueuedFrom implements IRasSearchCriteria {
 	
 	@Override
-	public boolean criteriaMatched(TestStructure structure) {}
+	public boolean criteriaMatched(TestStructure structure) {
+		return Boolean.TRUE;
+	}
 	
 }
+
