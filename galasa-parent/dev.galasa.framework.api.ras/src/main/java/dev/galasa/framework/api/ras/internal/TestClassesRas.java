@@ -36,10 +36,6 @@ public class TestClassesRas extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private List<IResultArchiveStoreDirectoryService> archiveStore;
-
-	private IResultArchiveStoreDirectoryService directoryService;
-
 	private static List<RasTestClass> classArray = new ArrayList<>();
 
 	@Reference
@@ -49,27 +45,25 @@ public class TestClassesRas extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		Map<String, String[]> query = req.getParameterMap();
 
-		/* getting tests */
-		archiveStore = framework.getResultArchiveStore().getDirectoryServices();
-		
-		directoryService=archiveStore.get(archiveStore.size()-1);
 		try{
-			classArray = directoryService.getTests();
+			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+				if(!directoryService.getTests().isEmpty()) {
+					classArray.addAll(directoryService.getTests());
+				}
+			}
 		} catch (ResultArchiveStoreException e) {
 			throw new ServletException("Problem with retrieving tests", e);
 		}
 
+		classArray.sort(Comparator.comparing(RasTestClass::getTestClass));
+		
 		/* looking for sort options in query and sorting accordingly */
 		if(!query.isEmpty()){
-
-
-			if(ExtractQuerySort.isAscending(query, "testclass")) {
-				classArray.sort(Comparator.comparing(RasTestClass::getTestClass));
-			}else if(!ExtractQuerySort.isAscending(query, "testclass")) {
+			if(!ExtractQuerySort.isAscending(query, "testclass")) {
 				classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
 			}
 		}
-		
+
 
 		/* converting data to json */
 		JsonElement json = new Gson().toJsonTree(classArray);
