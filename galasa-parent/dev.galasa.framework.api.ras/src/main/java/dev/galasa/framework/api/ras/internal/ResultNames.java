@@ -32,16 +32,13 @@ public class ResultNames extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private static @NotNull List<String> resultsList = new ArrayList<>();
-
-
 	@Reference
 	public IFramework framework; // NOSONAR
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		Map<String, String[]> query = req.getParameterMap();
-
+		List<String> resultsList = new ArrayList<>();
 
 		try {
 			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
