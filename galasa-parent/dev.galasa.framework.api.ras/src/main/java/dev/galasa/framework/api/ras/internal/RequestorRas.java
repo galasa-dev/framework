@@ -100,7 +100,6 @@ public class RequestorRas extends HttpServlet {
 
 		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
 			if(!directoryService.getRequestors().isEmpty()) {
-
 				requestorSet.addAll(directoryService.getRequestors());
 			}
 		}

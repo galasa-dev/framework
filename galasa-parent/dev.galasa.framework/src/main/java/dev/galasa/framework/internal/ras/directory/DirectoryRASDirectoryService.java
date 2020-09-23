@@ -65,7 +65,7 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 	}
 
 	@Override
-	public @NotNull List<IRunResult> getRuns(String requestor, Instant from, Instant to)
+	public @NotNull List<IRunResult> getRuns(String requestor, Instant from, Instant to, String testName)
 			throws ResultArchiveStoreException {
 
 		ArrayList<IRunResult> runs = new ArrayList<>();
@@ -80,6 +80,13 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 					continue;
 				}
 			}
+			
+			if(testName != null) {
+				if(!testName.equals(testStructure.getTestName())) {
+					continue;
+				}
+			}
+			
 
 			Instant queued = testStructure.getQueued();
 
