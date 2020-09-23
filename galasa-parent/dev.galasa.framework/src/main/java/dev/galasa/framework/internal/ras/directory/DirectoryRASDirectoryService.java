@@ -137,6 +137,24 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 
 		return new ArrayList<>(tests.values());
 	}
+	
+	@Override
+	public @NotNull List<String> getResultNames() throws ResultArchiveStoreException {
+		HashSet<String> results = new HashSet<>();
+
+		for (DirectoryRASRunResult result : getAllRuns()) {
+			if(result!=null) {
+				TestStructure testStructure = result.getTestStructure();
+				if(testStructure != null  ) {
+					if(testStructure.getResult()==null)results.add("Unknown");
+					else results.add(testStructure.getResult());
+				}
+
+			}
+		}
+
+		return new ArrayList<>(results);
+	}
 
 	private @NotNull List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException {
 		try {
@@ -182,5 +200,6 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		}
 
 	}
+
 
 }

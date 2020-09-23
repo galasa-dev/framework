@@ -230,11 +230,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
-  /ras/results:
+  /ras/resultnames:
     get:
       tags:
-        - Results
-      summary: Get test results
+        - RasResultNames
+      summary: Return a list of result names
       parameters:
         - name: sort
           in: query
@@ -244,11 +244,11 @@ paths:
             type: string
       responses:
         '200':
-          description: Results
+          description: ResultNames
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Results'
+                $ref: '#/components/schemas/ResultNames'
         '500':
           description: Error
           content:
@@ -345,7 +345,7 @@ components:
            type: string
         bundle:
            type: string
-    Results:
+    ResultNames:
       type: object
       properties:
         results:
