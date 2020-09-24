@@ -80,13 +80,13 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 					continue;
 				}
 			}
-			
+
 			if(testName != null) {
 				if(!testName.equals(testStructure.getTestName())) {
 					continue;
 				}
 			}
-			
+
 
 			Instant queued = testStructure.getQueued();
 
@@ -145,6 +145,27 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		return new ArrayList<>(tests.values());
 	}
 
+	@Override
+	public @NotNull List<String> getResultNames() throws ResultArchiveStoreException {
+		HashSet<String> results = new HashSet<>();
+
+		for (DirectoryRASRunResult result : getAllRuns()) {
+			if(result!=null) {
+				TestStructure testStructure = result.getTestStructure();
+				if(testStructure != null  ) {
+					if(testStructure.getResult()==null) {
+						results.add("UNKNOWN");
+					}else { 
+						results.add(testStructure.getResult());
+					}
+				}
+
+			}
+		}
+
+		return new ArrayList<>(results);
+	}
+
 	private @NotNull List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException {
 		try {
 			ArrayList<DirectoryRASRunResult> runs = new ArrayList<>();
@@ -189,5 +210,6 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		}
 
 	}
+
 
 }
