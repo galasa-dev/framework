@@ -191,7 +191,7 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		return new ArrayList<>(results);
 	}
 
-	private @NotNull List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException {
+	protected @NotNull List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException {
 		try {
 			ArrayList<DirectoryRASRunResult> runs = new ArrayList<>();
 
