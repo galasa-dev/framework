@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.ras.RasTestClass;
 
 /**
@@ -26,6 +27,9 @@ public interface IResultArchiveStoreDirectoryService {
 
     @NotNull
     List<IRunResult> getRuns(@NotNull String runName) throws ResultArchiveStoreException;
+    
+    @NotNull
+    List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
 
     /**
      * Get runs within the parameters specified
