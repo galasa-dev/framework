@@ -48,5 +48,9 @@ public interface IResultArchiveStoreDirectoryService {
 
     @NotNull
     List<RasTestClass> getTests() throws ResultArchiveStoreException;
+    
+    @NotNull
+    List<String> getResultNames() throws ResultArchiveStoreException;
+    
 
 }
