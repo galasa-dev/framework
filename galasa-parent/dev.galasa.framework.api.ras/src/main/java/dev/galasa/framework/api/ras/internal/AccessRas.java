@@ -46,6 +46,12 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 /**
@@ -107,10 +113,17 @@ public class AccessRas extends HttpServlet {
 
     private void getRunsWithRunname(HttpServletResponse resp, String runName) throws IOException, ResultArchiveStoreException {
         JsonArray respJson = new JsonArray();
+        
+        
+    	
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
             for (String requestor : directoryService.getRequestors()) {
+            	RasSearchCriteriaRequestor requestorCrit = new RasSearchCriteriaRequestor(requestor);
                 Instant from = Instant.now().minusSeconds(FROM.longValue());
-                for (IRunResult result : directoryService.getRuns(requestor, from, Instant.now(), null)) {
+                RasSearchCriteriaQueuedFrom fromCrit = new RasSearchCriteriaQueuedFrom(from);
+                RasSearchCriteriaQueuedTo toCrit = new RasSearchCriteriaQueuedTo(Instant.now());
+                IRasSearchCriteria[] criteria = {requestorCrit, fromCrit, toCrit};
+                for (IRunResult result : directoryService.getRuns(criteria)) {
                     if (runName.equals(result.getTestStructure().getTestName())) {
                         respJson.add(result.getTestStructure().getRunName());
                     }
@@ -122,10 +135,15 @@ public class AccessRas extends HttpServlet {
     }
 
     private void getRunStructure(HttpServletResponse resp, String runId) throws ResultArchiveStoreException, IOException {
-        JsonObject respJson = new JsonObject();
+        
+    	RasSearchCriteriaRunName runName = new RasSearchCriteriaRunName(runId);
+    	
+    	IRasSearchCriteria[] criteria = {runName};
+    	
+    	JsonObject respJson = new JsonObject();
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore()
                 .getDirectoryServices()) {
-            for (IRunResult result : directoryService.getRuns(runId)) {
+            for (IRunResult result : directoryService.getRuns(criteria)) {
                 respJson.add("teststructure", gson.toJsonTree(result.getTestStructure()));
                 JsonArray artifactFiles = new JsonArray();
                 Files.list(result.getArtifactsRoot()).forEach(new ConsumeDirectory(artifactFiles));
@@ -137,9 +155,13 @@ public class AccessRas extends HttpServlet {
     }
 
     private void getArtifactData(HttpServletResponse resp, String runId, String artifactId) throws ResultArchiveStoreException, IOException {
-        for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore()
+    	RasSearchCriteriaRunName runName = new RasSearchCriteriaRunName(runId);
+    	
+    	IRasSearchCriteria[] criteria = {runName};
+    	
+    	for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore()
                 .getDirectoryServices()) {
-            for (IRunResult result : directoryService.getRuns(runId)) {
+            for (IRunResult result : directoryService.getRuns(criteria)) {
                 StringBuilder content = new StringBuilder();
                 Files.list(result.getArtifactsRoot()).forEach(new ConsumeArtifact(content, artifactId));
                 resp.getWriter().write(content.toString());
@@ -151,9 +173,14 @@ public class AccessRas extends HttpServlet {
 
     
     private void getRunLog(HttpServletResponse resp, String runId) throws IOException, ResultArchiveStoreException {
-        String runlog = "";
+        
+    	RasSearchCriteriaRunName runName = new RasSearchCriteriaRunName(runId);
+    	
+    	IRasSearchCriteria[] criteria = {runName};
+    	
+    	String runlog = "";
         for(IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-            for(IRunResult result : directoryService.getRuns(runId)) {
+            for(IRunResult result : directoryService.getRuns(criteria)) {
                 runlog = result.getLog();
             }
         }
