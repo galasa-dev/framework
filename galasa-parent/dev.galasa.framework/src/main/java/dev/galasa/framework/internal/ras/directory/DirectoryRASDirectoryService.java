@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
@@ -36,6 +37,32 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 	protected DirectoryRASDirectoryService(@NotNull Path baseDirectory, Gson gson) {
 		this.baseDirectory = baseDirectory;
 		this.gson = gson;
+	}
+	
+	@Override
+	public @NotNull List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException{
+		
+		ArrayList<IRunResult> runs = new ArrayList<>();
+		
+		List<DirectoryRASRunResult> allRuns = getAllRuns();
+		
+		Boolean matched = Boolean.TRUE;
+		
+		if(allRuns != null && searchCriteria != null) {
+			for(DirectoryRASRunResult run : allRuns) {
+				for(IRasSearchCriteria criteria : searchCriteria) {
+					if(!criteria.criteriaMatched(run.getTestStructure())) {
+						matched = Boolean.FALSE;
+						break;
+					}
+				}
+				if(matched) {
+					runs.add(run);
+				}
+			}
+		}
+		
+		return runs;
 	}
 
 	@Override
@@ -145,7 +172,8 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		return new ArrayList<>(tests.values());
 	}
 
-	private @NotNull List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException {
+	 @NotNull
+	 protected List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException {
 		try {
 			ArrayList<DirectoryRASRunResult> runs = new ArrayList<>();
 

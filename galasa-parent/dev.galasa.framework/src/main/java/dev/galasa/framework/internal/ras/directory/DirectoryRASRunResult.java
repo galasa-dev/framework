@@ -34,6 +34,13 @@ public class DirectoryRASRunResult implements IRunResult {
 
         this.fileSystemProvider = new DirectoryRASFileSystemProvider(this.runDirectory);
     }
+    
+    //for testing purposes
+    protected DirectoryRASRunResult() {
+    	this.testStructure = null;
+    	this.runDirectory = null;
+    	this.fileSystemProvider = null;
+    }
 
     @Override
     public TestStructure getTestStructure() throws ResultArchiveStoreException {

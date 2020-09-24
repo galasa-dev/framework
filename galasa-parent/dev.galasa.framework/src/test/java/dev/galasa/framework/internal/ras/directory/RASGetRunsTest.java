@@ -1,0 +1,85 @@
+package dev.galasa.framework.internal.ras.directory;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.gson.Gson;
+
+import dev.galasa.framework.internal.ras.directory.DirectoryRASDirectoryService;
+import dev.galasa.framework.internal.ras.directory.DirectoryRASRunResult;
+import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
+import dev.galasa.framework.spi.teststructure.TestStructure;
+
+
+public class RASGetRunsTest{
+	
+	@Before
+	public void before() {
+		
+	}
+	
+	@Test
+	public void testToCheckGetRunsImplementation() throws ResultArchiveStoreException, IOException {
+
+		ArrayList<DirectoryRASRunResult> testArray = new ArrayList<>();
+		
+		Instant start = Instant.parse("2020-02-03T11:25:30.00Z");
+		Instant end = Instant.parse("2020-10-03T11:26:30.00Z");
+		
+		TestStructure struc = new TestStructure();
+		struc.setTestName("Test");
+		struc.setRequestor("Bob");
+		struc.setStartTime(start);
+		struc.setEndTime(end);
+		
+		Gson gson = new Gson();
+		
+		DirectoryRASRunResult res = new DirectoryRASRunResult() {
+			@Override
+			public TestStructure getTestStructure() {
+				return struc;
+			}
+		};
+		
+		testArray.add(res);
+		
+		DirectoryRASDirectoryService dummy = new DirectoryRASDirectoryService(null, null) {
+		
+			@Override
+			protected List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException{
+				return testArray;
+			};
+			
+		};
+		
+		RasSearchCriteriaQueuedFrom from = new RasSearchCriteriaQueuedFrom(start);
+		RasSearchCriteriaQueuedTo to = new RasSearchCriteriaQueuedTo(end);
+		RasSearchCriteriaRequestor requestor = new RasSearchCriteriaRequestor("Bob");
+		RasSearchCriteriaTestName testName = new RasSearchCriteriaTestName("Test");
+		
+		IRasSearchCriteria[] criteria = {from, to, requestor, testName};
+		
+		List<IRunResult> result = dummy.getRuns(criteria);
+	
+		
+		assertThat(result.get(0).getTestStructure().getTestName().equals(struc.getTestName()));
+		assertThat(result.get(0).getTestStructure().getRequestor().equals(struc.getRequestor()));
+		assertThat(result.get(0).getTestStructure().getStartTime().equals(struc.getStartTime()));
+		assertThat(result.get(0).getTestStructure().getEndTime().equals(struc.getEndTime()));
+	}
+	
+}
+
+
