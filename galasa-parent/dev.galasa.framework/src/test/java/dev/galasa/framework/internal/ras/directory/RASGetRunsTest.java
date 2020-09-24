@@ -44,7 +44,17 @@ public class RASGetRunsTest{
 		struc.setStartTime(start);
 		struc.setEndTime(end);
 		
-		Gson gson = new Gson();
+		TestStructure struc2 = new TestStructure();
+		struc2.setTestName("Test2");
+		struc2.setRequestor("Jim");
+		struc2.setStartTime(start);
+		struc2.setEndTime(end);
+		
+		TestStructure struc3 = new TestStructure();
+		struc3.setTestName("Test3");
+		struc3.setRequestor("Simon");
+		struc3.setStartTime(start);
+		struc3.setEndTime(end);
 		
 		DirectoryRASRunResult res = new DirectoryRASRunResult() {
 			@Override
@@ -53,7 +63,23 @@ public class RASGetRunsTest{
 			}
 		};
 		
+		DirectoryRASRunResult res2 = new DirectoryRASRunResult() {
+			@Override
+			public TestStructure getTestStructure() {
+				return struc2;
+			}
+		};
+		
+		DirectoryRASRunResult res3 = new DirectoryRASRunResult() {
+			@Override
+			public TestStructure getTestStructure() {
+				return struc3;
+			}
+		};
+		
 		testArray.add(res);
+		testArray.add(res2);
+		testArray.add(res3);
 		
 		DirectoryRASDirectoryService dummy = new DirectoryRASDirectoryService(null, null) {
 		
@@ -72,12 +98,13 @@ public class RASGetRunsTest{
 		IRasSearchCriteria[] criteria = {from, to, requestor, testName};
 		
 		List<IRunResult> result = dummy.getRuns(criteria);
-	
 		
 		assertThat(result.get(0).getTestStructure().getTestName().equals(struc.getTestName()));
 		assertThat(result.get(0).getTestStructure().getRequestor().equals(struc.getRequestor()));
 		assertThat(result.get(0).getTestStructure().getStartTime().equals(struc.getStartTime()));
 		assertThat(result.get(0).getTestStructure().getEndTime().equals(struc.getEndTime()));
+		
+		assertThat(result.size() == 1);
 	}
 	
 }

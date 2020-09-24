@@ -46,12 +46,12 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		
 		List<DirectoryRASRunResult> allRuns = getAllRuns();
 		
-		boolean matched = Boolean.TRUE;
+		boolean matched = true;
 	
 		for(DirectoryRASRunResult run : allRuns) {
 			for(IRasSearchCriteria criteria : searchCriteria) {
 				if(!criteria.criteriaMatched(run.getTestStructure())) {
-					matched = Boolean.FALSE;
+					matched = false;
 					break;
 				}
 			}
