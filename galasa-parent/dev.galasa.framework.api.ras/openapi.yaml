@@ -348,7 +348,7 @@ components:
     ResultNames:
       type: object
       properties:
-        results:
+        resultnames:
           type: array
           items:
             type: string
