@@ -435,6 +435,54 @@ public class FelixFramework {
         }
 
     }
+
+    /**
+     * Backup the CPS Properties
+     * 
+     * @param boostrapProperties  the bootstrap properties
+     * @param overridesProperties the override properties
+     * @throws LauncherException
+     */
+    public void runBackupCPS(Properties boostrapProperties, Properties overridesProperties) throws LauncherException {
+
+        // Get the framework bundle
+        Bundle frameWorkBundle = getBundle("dev.galasa.framework");
+
+        // Get the dev.galasa.framework.BackuCPS class service
+        String classString = "dev.galasa.framework.api.cps.backup.BackupCPS";
+        String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
+        ServiceReference<?>[] serviceReferences;
+        try {
+            serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
+        } catch (InvalidSyntaxException e) {
+            throw new LauncherException("Unable to get framework service reference", e);
+        }
+        if (serviceReferences == null || serviceReferences.length != 1) {
+            throw new LauncherException("Unable to get single reference to BackupCPS service: "
+                    + ((serviceReferences == null) ? 0 : serviceReferences.length) + " service(s) returned");
+        }
+        Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
+        if (service == null) {
+            throw new LauncherException("Unable to get BackupCPS service");
+        }
+
+        // Get the dev.galasa.framework.api.cps.backup.BackupCPS#backup() method
+        Method runBackupCPSMethod;
+        try {
+            runBackupCPSMethod = service.getClass().getMethod("backup", Properties.class, Properties.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new LauncherException("Unable to get Framework BackupCPS backup method", e);
+        }
+
+        // Invoke the runBackupCPSMethod method
+        logger.debug("Invoking BackupCPS backup()");
+        try {
+            runBackupCPSMethod.invoke(service, boostrapProperties, overridesProperties);
+        } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+            throw new LauncherException(e.getCause());
+        }
+
+    }
     
     
     

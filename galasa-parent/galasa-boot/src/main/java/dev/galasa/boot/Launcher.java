@@ -170,7 +170,7 @@ public class Launcher {
                 felixFramework.runWebApiServer(boostrapProperties, overridesProperties, bundles, metrics, health);
             }  else if (backupCPS) {
                 logger.debug("BackupCPS");
-                // Call felixFramework method 
+                felixFramework.runBackupCPS(boostrapProperties, overridesProperties);
             }
         } catch (LauncherException e) {
             logger.error("Unable to run test class", e);
