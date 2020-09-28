@@ -65,6 +65,8 @@ public class Launcher {
     private static final String     LOCALMAVEN_OPTION         = "localmaven";
     private static final String     REMOTEMAVEN_OPTION        = "remotemaven";
     private static final String     TRACE_OPTION              = "trace";
+    private static final String     BACKUPCPS_OPTION          = "backupcps";
+
 
     private static final String     USER_HOME                 = "user.home";
 
@@ -88,6 +90,7 @@ public class Launcher {
     private boolean                 dockerController;
     private boolean                 metricsServer;
     private boolean                 api;
+    private boolean                 backupCPS;
 
     private Integer                 metrics;
     private Integer                 health;
@@ -165,6 +168,9 @@ public class Launcher {
             } else if (api) {
                 logger.debug("Web API Server");
                 felixFramework.runWebApiServer(boostrapProperties, overridesProperties, bundles, metrics, health);
+            }  else if (backupCPS) {
+                logger.debug("BackupCPS");
+                // Call felixFramework method 
             }
         } catch (LauncherException e) {
             logger.error("Unable to run test class", e);
@@ -224,6 +230,7 @@ public class Launcher {
         options.addOption(null, LOCALMAVEN_OPTION, true, "The local maven repository, defaults to ~/.m2/repository");
         options.addOption(null, REMOTEMAVEN_OPTION, true, "The remote maven repositories, defaults to central");
         options.addOption(null, TRACE_OPTION, false, "Enable TRACE logging");
+        options.addOption(null, BACKUPCPS_OPTION, false, "Return CPS properties");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = null;
@@ -263,6 +270,7 @@ public class Launcher {
         dockerController = commandLine.hasOption(DOCKERCONTROLLER_OPTION);
         metricsServer = commandLine.hasOption(METRICSERVER_OPTION);
         api = commandLine.hasOption(API_OPTION);
+        backupCPS = commandLine.hasOption(BACKUPCPS_OPTION);
 
         if (testRun) {
             runName = commandLine.getOptionValue(RUN_OPTION);
@@ -307,6 +315,10 @@ public class Launcher {
         }
         
         if (api) {
+            return;
+        }
+
+        if (backupCPS) {
             return;
         }
 
