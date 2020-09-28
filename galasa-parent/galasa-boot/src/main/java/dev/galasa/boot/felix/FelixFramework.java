@@ -449,7 +449,7 @@ public class FelixFramework {
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
 
         // Get the dev.galasa.framework.BackuCPS class service
-        String classString = "dev.galasa.framework.api.cps.backup.BackupCPS";
+        String classString = "dev.galasa.framework.cps.backup.BackupCPS";
         String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
         ServiceReference<?>[] serviceReferences;
         try {
@@ -466,7 +466,7 @@ public class FelixFramework {
             throw new LauncherException("Unable to get BackupCPS service");
         }
 
-        // Get the dev.galasa.framework.api.cps.backup.BackupCPS#backup() method
+        // Get the dev.galasa.framework.cps.backup.BackupCPS#backup() method
         Method runBackupCPSMethod;
         try {
             runBackupCPSMethod = service.getClass().getMethod("backup", Properties.class, Properties.class);
