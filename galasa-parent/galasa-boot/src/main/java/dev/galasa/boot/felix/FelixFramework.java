@@ -448,7 +448,7 @@ public class FelixFramework {
         // Get the framework bundle
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
 
-        // Get the dev.galasa.framework.BackuCPS class service
+        // Get the dev.galasa.framework.BackupCPS class service
         String classString = "dev.galasa.framework.cps.backup.BackupCPS";
         String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
         ServiceReference<?>[] serviceReferences;

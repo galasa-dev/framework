@@ -84,6 +84,7 @@
 		<module>dev.galasa.framework.maven.repository</module>
 		<module>dev.galasa.framework.resource.management</module>
 		<module>dev.galasa.framework.metrics</module>
+		<module>dev.galasa.framework.cps.backup</module>
 		<module>dev.galasa.framework.k8s.controller</module>
 		<module>dev.galasa.framework.docker.controller</module>
 		<module>dev.galasa.framework.obr</module>
