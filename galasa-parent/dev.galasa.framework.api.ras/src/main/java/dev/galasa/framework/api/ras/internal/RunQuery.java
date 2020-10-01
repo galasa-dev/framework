@@ -4,9 +4,14 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import com.google.gson.JsonArray;
+import org.apache.commons.collections4.ListUtils;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import dev.galasa.JsonError;
+import dev.galasa.api.run.RunResult;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
@@ -17,8 +22,11 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,86 +48,218 @@ public class RunQuery extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		
+		Gson gson = new Gson();
+		int pageNum = -1;
 		
 		Map<String, String> paramMap = getParameterMap(req);
 		
+		List<IRasSearchCriteria> critList = new ArrayList<>();
+		
+		if(!paramMap.isEmpty()) {
+		
+			String requestor = paramMap.get("requestor");
+			String to = paramMap.get("to");
+			String from = paramMap.get("from");
+			String testName = paramMap.get("testName");
+			
+			Instant toCrit = null;
+			Instant fromCrit = null;
 		try {
-			
-		List<IRunResult> runs = getRuns(paramMap.get("requestor"), Instant.parse(paramMap.get("to")), 
-				Instant.parse(paramMap.get("from")), paramMap.get("testname"));
-		
-		int pageSize = Integer.parseInt(paramMap.get("pageSize").trim());
-		
-		int amountOfRuns = runs.size();
-		int startIndex = 0;
-		int endIndex = 0;
-		int pageNum = 1;
-		
-		int numPages = (int)Math.ceil(amountOfRuns / pageSize);
-		
-		while(pageSize > amountOfRuns) {
-			
-			List<IRunResult> newList = runs.subList(startIndex, (endIndex+pageSize)-1);
-		
-			JsonObject returnObj = new JsonObject();
-			returnObj.addProperty("pageSize", String.valueOf(pageSize));
-			returnObj.addProperty("pageNumber", String.valueOf(pageNum));
-			returnObj.addProperty("numPages", String.valueOf(numPages));
-			
-			JsonArray returnArray = new JsonArray();
-			
-			for(IRunResult run : newList) {
-				
-				JsonObject runObj = new JsonObject();
-
-				runObj.addProperty("runName", run.getTestStructure().getRunName());
-				runObj.addProperty("testName", run.getTestStructure().getTestName());
-				runObj.addProperty("testShortName", run.getTestStructure().getTestShortName());
-				runObj.addProperty("bundle", run.getTestStructure().getBundle());
-				runObj.addProperty("requestor", run.getTestStructure().getRequestor());
-				runObj.addProperty("result", run.getTestStructure().getResult());
-				runObj.addProperty("status", run.getTestStructure().getStatus());
-				runObj.addProperty("queued", run.getTestStructure().getQueued().toString());
-				runObj.addProperty("start", run.getTestStructure().getStartTime().toString());
-				runObj.addProperty("end", run.getTestStructure().getEndTime().toString());
-				
-				returnArray.add(runObj);
-				
+			if(to != null) {
+				toCrit = Instant.parse(to);
+				RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
+				critList.add(toCriteria);
 			}
+			if(from != null) {
+				fromCrit = Instant.parse(from);
+				RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit);
+				critList.add(fromCriteria);
+			}
+		}catch(Exception e) {
 			
-			pageNum++;
-			amountOfRuns -= pageSize;
-			startIndex += pageSize;
+			resp.setStatus(400);
+			PrintWriter out = resp.getWriter();
+			resp.setContentType( "Application/json");
+			resp.setHeader("Access-Control-Allow-Origin", "*");
+			
+			JsonError error = new JsonError("Error parsing Instant");
+			
+			String jsonError = gson.toJson(error);
+			
+			out.print(jsonError);
+			out.flush();
+			
+			throw new ServletException("Error parsing Instant, ", e);
+		}
+			if(requestor != null) {
+				RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
+				critList.add(requestorCriteria);
+			}
+			if(testName != null) {
+				RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
+				critList.add(testNameCriteria);
+			}
+
 			
 		}
 		
+		List<RunResult> runs = new ArrayList<>();
 		
-		}catch(Exception e) {
-			
+		try {
+			runs = getRuns(critList);
+		} catch (ResultArchiveStoreException e) {
 			e.printStackTrace();
 		}
 		
+		
+		runs.sort(Comparator.nullsLast(Comparator.comparing(RunResult::getEnd, Comparator.nullsLast(Comparator.naturalOrder()))));
+		
+		Map<String, String[]> query = req.getParameterMap();
+		
+		if(!query.isEmpty()){
+			if(!ExtractQuerySort.isAscending(query, "to")) {
+				runs.sort(Comparator.nullsLast(Comparator.comparing(RunResult::getEnd, Comparator.nullsLast(Comparator.naturalOrder()))).reversed());
+			}
+		}
+		
+		int pageSize = 100;
+		
+		if(paramMap.get("pageSize") != null) {
+			try{
+				pageSize = Integer.parseInt(paramMap.get("pageSize"));
+			}catch(Exception e) {
+				resp.setStatus(400);
+				
+				PrintWriter out = resp.getWriter();
+				resp.setContentType( "Application/json");
+				resp.setHeader("Access-Control-Allow-Origin", "*");
+				
+				JsonError error = new JsonError("Error parsing integer");
+				
+				String jsonError = gson.toJson(error);
+				
+				out.print(jsonError);
+				out.flush();
+				
+				throw new ServletException("Error parsing integer, ", e);
+			}
+		}
+		
+		List<JsonObject> returnArray = new ArrayList<>();
+	
+		List<List<RunResult>> runList = ListUtils.partition(runs, pageSize);
+		
+		int numPages = runList.size();
+		
+		int pageIndex = 1;
+		
+		if(runList != null) {
+			for(List<RunResult> list : runList) {
+				
+				JsonObject obj = new JsonObject();
+				obj.addProperty("pageNum", Integer.toString(pageIndex));
+				obj.addProperty("pageSize", Integer.toString(pageSize));
+				obj.addProperty("numPages", Integer.toString(numPages));
+		
+				JsonElement tree = gson.toJsonTree(list);
+				
+				obj.add("runs", tree);
+				
+				returnArray.add(obj);
+				
+				pageIndex++;
+			}
+		}
+		
+		if(paramMap.get("pageNum") != null) {
+			try {
+				pageNum = Integer.parseInt(paramMap.get("pageNum"));
+			}catch(Exception e) {
+				
+				resp.setStatus(400);
+				
+				PrintWriter out = resp.getWriter();
+				resp.setContentType( "Application/json");
+				resp.setHeader("Access-Control-Allow-Origin", "*");
+				
+				JsonError error = new JsonError("Error parsing integer");
+				
+				String jsonError = gson.toJson(error);
+				
+				out.print(jsonError);
+				out.flush();
+				
+				throw new ServletException("Error parsing integer, ", e);
+				
+			}
+		}
+		
+		String json = "";
+		
+		if(returnArray != null) {
+			try {
+			json = gson.toJson(returnArray.get(pageNum-1));
+			}catch(Exception e) {
+				
+				resp.setStatus(400);
+				
+				PrintWriter out = resp.getWriter();
+				resp.setContentType( "Application/json");
+				resp.setHeader("Access-Control-Allow-Origin", "*");
+				
+				JsonError error = new JsonError("Error retrieving page");
+				
+				String jsonError = gson.toJson(error);
+				
+				out.print(jsonError);
+				out.flush();
+				
+				throw new ServletException("Error retrieving page, ", e);
+				
+			}	
+		}
+			
+		
+		
+	try {
+		PrintWriter out = resp.getWriter();
+		resp.setContentType( "Application/json");
+		resp.setHeader("Access-Control-Allow-Origin", "*");
+		out.print(json);
+		out.flush();
+	
+	}catch(Exception e) {
+		
+		throw new ServletException("An error occurred whilst recieving runs", e);
 	}
 	
-	private List<IRunResult> getRuns(String requestor, Instant to, Instant from, String testName) throws ResultArchiveStoreException {
+}
+
+private List<RunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
+	
+	RunResultUtility util = new RunResultUtility();
+	
+	List<IRunResult> runs = new ArrayList<>();
+	
+	IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
+	
+	critList.toArray(criteria);
+	
+	for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+    		
+    		runs.addAll(directoryService.getRuns(criteria));
+    		
+    }
+	
+	List<RunResult> runResults = new ArrayList<>();
+	
+	for(IRunResult run : runs) {
+		runResults.add(util.toRunResult(run));
+	}
 		
-		List<IRunResult> runs = new ArrayList<>();
-		
-		RasSearchCriteriaRequestor requestorCrit = new RasSearchCriteriaRequestor(requestor);
-		RasSearchCriteriaQueuedTo toCrit = new RasSearchCriteriaQueuedTo(to);
-		RasSearchCriteriaQueuedFrom fromCrit = new RasSearchCriteriaQueuedFrom(to);
-		RasSearchCriteriaTestName testNameCrit = new RasSearchCriteriaTestName(testName);
-		
-		IRasSearchCriteria[] criteria = {requestorCrit, toCrit, fromCrit, testNameCrit};
-		
-		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-	    		
-	    		runs.addAll(directoryService.getRuns(criteria));
-	    		
-	    	}
-		
-		return runs;
+		return runResults;
 	}
 	
 	private Map<String, String> getParameterMap(HttpServletRequest request) {
