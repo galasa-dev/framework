@@ -126,7 +126,7 @@ public class RunQuery extends HttpServlet {
 		
 		int pageSize = 100;
 		
-		if(paramMap.get("pageSize") != null) {
+		if(paramMap.get("pageSize") != null && !paramMap.get("pageSize").equals("")) {
 			try{
 				pageSize = Integer.parseInt(paramMap.get("pageSize"));
 			}catch(Exception e) {
@@ -159,9 +159,12 @@ public class RunQuery extends HttpServlet {
 			for(List<RunResult> list : runList) {
 				
 				JsonObject obj = new JsonObject();
-				obj.addProperty("pageNum", Integer.toString(pageIndex));
-				obj.addProperty("pageSize", Integer.toString(pageSize));
-				obj.addProperty("numPages", Integer.toString(numPages));
+				
+				System.out.println("hi");
+				
+				obj.addProperty("pageNum", pageIndex);
+				obj.addProperty("pageSize", pageSize);
+				obj.addProperty("numPages", numPages);
 		
 				JsonElement tree = gson.toJsonTree(list);
 				
@@ -169,11 +172,11 @@ public class RunQuery extends HttpServlet {
 				
 				returnArray.add(obj);
 				
-				pageIndex++;
+				pageIndex+=1;
 			}
 		}
 		
-		if(paramMap.get("pageNum") != null) {
+		if(paramMap.get("pageNum") != null && !paramMap.get("pageNum").equals("")) {
 			try {
 				pageNum = Integer.parseInt(paramMap.get("pageNum"));
 			}catch(Exception e) {
@@ -198,7 +201,7 @@ public class RunQuery extends HttpServlet {
 		
 		String json = "";
 		
-		if(returnArray != null) {
+		if(returnArray.size() != 0) {
 			try {
 			json = gson.toJson(returnArray.get(pageNum-1));
 			}catch(Exception e) {

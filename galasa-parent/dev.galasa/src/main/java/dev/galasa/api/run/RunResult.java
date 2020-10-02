@@ -2,7 +2,6 @@ package dev.galasa.api.run;
 
 import java.time.Instant;
 
-import javax.validation.constraints.NotNull;
 
 public class RunResult {
 	
