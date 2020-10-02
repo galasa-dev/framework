@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2020.
  */
 package dev.galasa.boot;
 
@@ -169,7 +169,7 @@ public class Launcher {
                 logger.debug("Web API Server");
                 felixFramework.runWebApiServer(boostrapProperties, overridesProperties, bundles, metrics, health);
             }  else if (backupCPS) {
-                logger.debug("BackupCPS");
+                logger.debug("Back Up CPS Properties");
                 felixFramework.runBackupCPS(boostrapProperties, overridesProperties);
             }
         } catch (LauncherException e) {
@@ -230,7 +230,7 @@ public class Launcher {
         options.addOption(null, LOCALMAVEN_OPTION, true, "The local maven repository, defaults to ~/.m2/repository");
         options.addOption(null, REMOTEMAVEN_OPTION, true, "The remote maven repositories, defaults to central");
         options.addOption(null, TRACE_OPTION, false, "Enable TRACE logging");
-        options.addOption(null, BACKUPCPS_OPTION, false, "Return CPS properties");
+        options.addOption(null, BACKUPCPS_OPTION, false, "Back up CPS properties");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = null;

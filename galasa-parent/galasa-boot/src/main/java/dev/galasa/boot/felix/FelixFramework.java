@@ -451,6 +451,7 @@ public class FelixFramework {
         // Get the dev.galasa.framework.BackupCPS class service
         String classString = "dev.galasa.framework.BackupCPS";
         String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
+        
         ServiceReference<?>[] serviceReferences;
         try {
             serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
@@ -461,6 +462,7 @@ public class FelixFramework {
             throw new LauncherException("Unable to get single reference to BackupCPS service: "
                     + ((serviceReferences == null) ? 0 : serviceReferences.length) + " service(s) returned");
         }
+        
         Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
         if (service == null) {
             throw new LauncherException("Unable to get BackupCPS service");
