@@ -160,8 +160,6 @@ public class RunQuery extends HttpServlet {
 				
 				JsonObject obj = new JsonObject();
 				
-				System.out.println("hi");
-				
 				obj.addProperty("pageNum", pageIndex);
 				obj.addProperty("pageSize", pageSize);
 				obj.addProperty("numPages", numPages);
