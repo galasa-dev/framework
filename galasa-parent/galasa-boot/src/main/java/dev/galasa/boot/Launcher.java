@@ -81,7 +81,7 @@ public class Launcher {
     private String                  testClassName;
     private String                  runName;
     private String                  gherkinName;
-    private String					fileName;
+    private String					filePath;
 
     private FelixFramework          felixFramework;
 
@@ -174,7 +174,7 @@ public class Launcher {
                 felixFramework.runWebApiServer(boostrapProperties, overridesProperties, bundles, metrics, health);
             }  else if (backupCPS) {
                 logger.debug("Back Up CPS Properties");
-                felixFramework.runBackupCPS(boostrapProperties, overridesProperties);
+                felixFramework.runBackupCPS(boostrapProperties, overridesProperties, filePath);
             }
         } catch (LauncherException e) {
             logger.error("Unable to run test class", e);
@@ -324,9 +324,9 @@ public class Launcher {
         }
 
         if (backupCPS) {
-        	fileName = commandLine.getOptionValue(FILE_OPTION);
-        	if (fileName == null) {
-        		commandLineError("Error: Must specify an output file location (--file <file> or -f <file>) when using the --backupcps option");
+        	filePath = commandLine.getOptionValue(FILE_OPTION);
+        	if (filePath == null) {
+        		commandLineError("The option " + BACKUPCPS_OPTION + " requires an output file (specify with --" + FILE_OPTION_LONG + " <path> or -" + FILE_OPTION + " <path>)");
         	}
             return;
         }
