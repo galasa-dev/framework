@@ -66,6 +66,9 @@ public class Launcher {
     private static final String     REMOTEMAVEN_OPTION        = "remotemaven";
     private static final String     TRACE_OPTION              = "trace";
     private static final String     BACKUPCPS_OPTION          = "backupcps";
+    private static final String		FILE_OPTION				  = "f";
+    private static final String		FILE_OPTION_LONG		  = "file";
+    
 
 
     private static final String     USER_HOME                 = "user.home";
@@ -78,6 +81,7 @@ public class Launcher {
     private String                  testClassName;
     private String                  runName;
     private String                  gherkinName;
+    private String					fileName;
 
     private FelixFramework          felixFramework;
 
@@ -231,6 +235,7 @@ public class Launcher {
         options.addOption(null, REMOTEMAVEN_OPTION, true, "The remote maven repositories, defaults to central");
         options.addOption(null, TRACE_OPTION, false, "Enable TRACE logging");
         options.addOption(null, BACKUPCPS_OPTION, false, "Back up CPS properties");
+        options.addOption(FILE_OPTION, FILE_OPTION_LONG, true, "File for data input/output");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = null;
@@ -319,6 +324,10 @@ public class Launcher {
         }
 
         if (backupCPS) {
+        	fileName = commandLine.getOptionValue(FILE_OPTION);
+        	if (fileName == null) {
+        		commandLineError("Error: Must specify an output file location (--file <file> or -f <file>) when using the --backupcps option");
+        	}
             return;
         }
 
