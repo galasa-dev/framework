@@ -57,33 +57,32 @@ public class RunQuery extends HttpServlet {
 		
 		Map<String, String> paramMap = getParameterMap(req);
 		
-		if(paramMap.get("pageNum") != null && !paramMap.get("pageNum").equals("")) {
-			try {
-				pageNum = Integer.parseInt(paramMap.get("pageNum"));
-			}catch(Exception e) {
-				
-				sendError(resp, "Error parsing integer", 400);
-				
-				throw new ServletException("Error parsing integer, ", e);
-				
-			}
-		}
-		
-		if(paramMap.get("pageSize") != null && !paramMap.get("pageSize").equals("")) {
-			try{
-				pageSize = Integer.parseInt(paramMap.get("pageSize"));
-			}catch(Exception e) {
-				
-				sendError(resp, "Error parsing integer", 400);
-				
-				throw new ServletException("Error parsing integer, ", e);
-			}
-		}
-		
-		
 		List<IRasSearchCriteria> critList = new ArrayList<>();
 		
 		if(!paramMap.isEmpty()) {
+			
+			if(paramMap.get("pageNum") != null && !paramMap.get("pageNum").equals("")) {
+				try {
+					pageNum = Integer.parseInt(paramMap.get("pageNum"));
+				}catch(Exception e) {
+					
+					sendError(resp, "Error parsing integer", 400);
+					
+					throw new ServletException("Error parsing integer, ", e);
+					
+				}
+			}
+			
+			if(paramMap.get("pageSize") != null && !paramMap.get("pageSize").equals("")) {
+				try{
+					pageSize = Integer.parseInt(paramMap.get("pageSize"));
+				}catch(Exception e) {
+					
+					sendError(resp, "Error parsing integer", 400);
+					
+					throw new ServletException("Error parsing integer, ", e);
+				}
+			}
 		
 			String requestor = paramMap.get("requestor");
 			String to = paramMap.get("to");
@@ -184,8 +183,6 @@ public class RunQuery extends HttpServlet {
 				
 			}	
 		}
-			
-		
 		
 	try {
 		PrintWriter out = resp.getWriter();
