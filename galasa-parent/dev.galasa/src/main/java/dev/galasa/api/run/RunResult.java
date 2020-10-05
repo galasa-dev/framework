@@ -5,16 +5,16 @@ import java.time.Instant;
 
 public class RunResult {
 	
-	private final String runName;
-	private final String testName;
-	private final String testShortName;
-	private final String bundle;
-	private final String requestor;
-	private final String result;
-	private final String status;
-	private final Instant queued;
-	private final Instant start;
-	private final Instant end;
+	private String runName;
+	private String testName;
+	private String testShortName;
+	private String bundle;
+	private String requestor;
+	private String result;
+	private String status;
+	private Instant queued;
+	private Instant start;
+	private Instant end;
 	
 	public RunResult(String runName, String testName, String testShortName, String bundle,
 			String requestor, String result, String status, Instant queued, Instant start, Instant end) {
@@ -30,6 +30,46 @@ public class RunResult {
 		this.start = start;
 		this.end = end;
 		
+	}
+	
+	public void setRunName(String runName) {
+		this.runName = runName;
+	}
+	
+	public void setTestName(String testName) {
+		this.testName = testName;
+	}
+	
+	public void setTestShortName(String testShortName) {
+		this.testShortName = testShortName;
+	}
+	
+	public void setBundle(String bundle) {
+		this.bundle = bundle;
+	}
+	
+	public void setRequestor(String requestor) {
+		this.requestor = requestor;
+	}
+	
+	public void setResult(String result) {
+		this.result = result;
+	}
+	
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	public void setQueued(Instant queued) {
+		this.queued = queued;
+	}
+	
+	public void setStart(Instant start) {
+		this.start = start;
+	}
+	
+	public void setEnd(Instant end) {
+		this.end = end;
 	}
 	
 	public String getRunName() {

@@ -15,7 +15,7 @@ public class RunResultUtility {
 
 	}
 	
-	public @NotNull RunResult toRunResult(@NotNull IRunResult runResult) throws ResultArchiveStoreException {
+	public static @NotNull RunResult toRunResult(@NotNull IRunResult runResult) throws ResultArchiveStoreException {
 		
 		String runName = runResult.getTestStructure().getRunName();
 		String testName = runResult.getTestStructure().getTestName();

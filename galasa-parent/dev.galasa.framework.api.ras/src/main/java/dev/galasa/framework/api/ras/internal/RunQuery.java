@@ -51,9 +51,35 @@ public class RunQuery extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
 		Gson gson = new Gson();
+		
 		int pageNum = -1;
+		int pageSize = 100;
 		
 		Map<String, String> paramMap = getParameterMap(req);
+		
+		if(paramMap.get("pageNum") != null && !paramMap.get("pageNum").equals("")) {
+			try {
+				pageNum = Integer.parseInt(paramMap.get("pageNum"));
+			}catch(Exception e) {
+				
+				sendError(resp, "Error parsing integer", 400);
+				
+				throw new ServletException("Error parsing integer, ", e);
+				
+			}
+		}
+		
+		if(paramMap.get("pageSize") != null && !paramMap.get("pageSize").equals("")) {
+			try{
+				pageSize = Integer.parseInt(paramMap.get("pageSize"));
+			}catch(Exception e) {
+				
+				sendError(resp, "Error parsing integer", 400);
+				
+				throw new ServletException("Error parsing integer, ", e);
+			}
+		}
+		
 		
 		List<IRasSearchCriteria> critList = new ArrayList<>();
 		
@@ -79,17 +105,7 @@ public class RunQuery extends HttpServlet {
 			}
 		}catch(Exception e) {
 			
-			resp.setStatus(400);
-			PrintWriter out = resp.getWriter();
-			resp.setContentType( "Application/json");
-			resp.setHeader("Access-Control-Allow-Origin", "*");
-			
-			JsonError error = new JsonError("Error parsing Instant");
-			
-			String jsonError = gson.toJson(error);
-			
-			out.print(jsonError);
-			out.flush();
+			sendError(resp, "Error parsing Instant", 400);
 			
 			throw new ServletException("Error parsing Instant, ", e);
 		}
@@ -109,8 +125,11 @@ public class RunQuery extends HttpServlet {
 		
 		try {
 			runs = getRuns(critList);
-		} catch (ResultArchiveStoreException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			
+			sendError(resp, "Error retrieving runs", 400);
+			
+			throw new ServletException("Error retrieving runs, ", e);
 		}
 		
 		
@@ -124,28 +143,6 @@ public class RunQuery extends HttpServlet {
 			}
 		}
 		
-		int pageSize = 100;
-		
-		if(paramMap.get("pageSize") != null && !paramMap.get("pageSize").equals("")) {
-			try{
-				pageSize = Integer.parseInt(paramMap.get("pageSize"));
-			}catch(Exception e) {
-				resp.setStatus(400);
-				
-				PrintWriter out = resp.getWriter();
-				resp.setContentType( "Application/json");
-				resp.setHeader("Access-Control-Allow-Origin", "*");
-				
-				JsonError error = new JsonError("Error parsing integer");
-				
-				String jsonError = gson.toJson(error);
-				
-				out.print(jsonError);
-				out.flush();
-				
-				throw new ServletException("Error parsing integer, ", e);
-			}
-		}
 		
 		List<JsonObject> returnArray = new ArrayList<>();
 	
@@ -174,29 +171,6 @@ public class RunQuery extends HttpServlet {
 			}
 		}
 		
-		if(paramMap.get("pageNum") != null && !paramMap.get("pageNum").equals("")) {
-			try {
-				pageNum = Integer.parseInt(paramMap.get("pageNum"));
-			}catch(Exception e) {
-				
-				resp.setStatus(400);
-				
-				PrintWriter out = resp.getWriter();
-				resp.setContentType( "Application/json");
-				resp.setHeader("Access-Control-Allow-Origin", "*");
-				
-				JsonError error = new JsonError("Error parsing integer");
-				
-				String jsonError = gson.toJson(error);
-				
-				out.print(jsonError);
-				out.flush();
-				
-				throw new ServletException("Error parsing integer, ", e);
-				
-			}
-		}
-		
 		String json = "";
 		
 		if(returnArray.size() != 0) {
@@ -204,18 +178,7 @@ public class RunQuery extends HttpServlet {
 			json = gson.toJson(returnArray.get(pageNum-1));
 			}catch(Exception e) {
 				
-				resp.setStatus(400);
-				
-				PrintWriter out = resp.getWriter();
-				resp.setContentType( "Application/json");
-				resp.setHeader("Access-Control-Allow-Origin", "*");
-				
-				JsonError error = new JsonError("Error retrieving page");
-				
-				String jsonError = gson.toJson(error);
-				
-				out.print(jsonError);
-				out.flush();
+				sendError(resp, "Error retrieving page", 400);
 				
 				throw new ServletException("Error retrieving page, ", e);
 				
@@ -233,38 +196,38 @@ public class RunQuery extends HttpServlet {
 	
 	}catch(Exception e) {
 		
-		throw new ServletException("An error occurred whilst recieving runs", e);
+		sendError(resp, "Error retrieving runs", 400);
+		
+		throw new ServletException("An error occurred whilst retrieving runs", e);
 	}
 	
 }
 
-private List<RunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
-	
-	RunResultUtility util = new RunResultUtility();
-	
-	List<IRunResult> runs = new ArrayList<>();
-	
-	IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
-	
-	critList.toArray(criteria);
-	
-	for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-    		
-    		runs.addAll(directoryService.getRuns(criteria));
-    		
-    }
-	
-	List<RunResult> runResults = new ArrayList<>();
-	
-	for(IRunResult run : runs) {
-		runResults.add(util.toRunResult(run));
-	}
+	private List<RunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 		
-		return runResults;
-	}
-	
+		List<IRunResult> runs = new ArrayList<>();
+		
+		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
+		
+		critList.toArray(criteria);
+		
+		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+	    		
+	    		runs.addAll(directoryService.getRuns(criteria));
+	    		
+	    }
+		
+		List<RunResult> runResults = new ArrayList<>();
+		
+		for(IRunResult run : runs) {
+			runResults.add(RunResultUtility.toRunResult(run));
+		}
+			
+			return runResults;
+		}
+		
 	private Map<String, String> getParameterMap(HttpServletRequest request) {
-		
+			
 		  Map<String, String[]> ParameterMap = request.getParameterMap();
 		  Map<String, String> newParameterMap = new HashMap<>();
 		  for (String parameterName : ParameterMap.keySet()) {
@@ -278,5 +241,23 @@ private List<RunResult> getRuns(List<IRasSearchCriteria> critList) throws Result
 		  return newParameterMap;
 		}
 	
-	
+	private void sendError(HttpServletResponse response, String errorMsg, int statusCode) throws IOException{
+		
+		Gson gson = new Gson();
+		
+		response.setStatus(statusCode);
+		
+		PrintWriter out = response.getWriter();
+		response.setContentType( "Application/json");
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		
+		JsonError error = new JsonError(errorMsg);
+		
+		String jsonError = gson.toJson(error);
+		
+		out.print(jsonError);
+		out.flush();
+		
+	}
+		
 }
