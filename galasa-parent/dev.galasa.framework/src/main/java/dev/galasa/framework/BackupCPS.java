@@ -32,38 +32,38 @@ public class BackupCPS {
     
     private Log  logger  =  LogFactory.getLog(this.getClass());
     
-    private final boolean append = false;
-    private final boolean autoFlush = true;
+    private final boolean         FILE_APPEND     = false;
+    private final boolean         autoFlush         = true;
     
     String charset = "UTF-8";
     
-    private File file;
-    private FileOutputStream fos;
-    private OutputStreamWriter osw;
-    private BufferedWriter bw;
-    private PrintWriter pw;
+    private File                 file;
+    private FileOutputStream     fos;
+    private OutputStreamWriter     osw;
+    private BufferedWriter         bw;
+    private PrintWriter         pw;
     
     /**
      * <p>Retrieves CPS properties for all configured namespaces and sends them to standard output</p>
      * 
      * @param bootstrapProperties
      * @param overrideProperties
+     * @param filePath
      * @return
      * @throws FrameworkException
-     */    
+     */
     public void backup(Properties bootstrapProperties, Properties overrideProperties, String filePath) throws FrameworkException {
-    	
+        
         logger.info("Initialising CPS Backup Service");
         
         FrameworkInitialisation frameworkInitialisation = null;
         try {
             frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
         } catch (Exception e) {
-            throw new FrameworkException("Unable to initialise the Framework Services", e);
+            throw new FrameworkException("Unable to initialise the Framework Service", e);
         }
         
         IFramework framework = frameworkInitialisation.getFramework();
-        
         IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService("framework");
         
         List<String> namespaces = cps.getCPSNamespaces(); 
@@ -71,10 +71,10 @@ public class BackupCPS {
         logger.info("Backing-up to file: " + filePath);
         
         try {
-			initialisePrintWriter(filePath);
-		} catch (Exception e) {
-			throw new FrameworkException("Error Initialising Print Writer", e);
-		}
+            initialisePrintWriter(filePath);
+        } catch (Exception e) {
+            throw new FrameworkException("Error Initialising Print Writer", e);
+        }
         
         outputCPSProperties(namespaces, framework);
         
@@ -93,15 +93,15 @@ public class BackupCPS {
      * @throws FrameworkException
      */  
     private void outputCPSProperties(List<String> namespaces, IFramework framework) throws FrameworkException {
-    	logger.info("Backing Up Namespaces:");
-    	for (String namespace : namespaces) {
-    		if (isNamespaceBackupPermitted(namespace)) {
-    			logger.info("SUCCESS:\t" + namespace);
-    			outputNamespaceCPSProperties(namespace, framework);
-    		} else {
-    			logger.info("FORBIDDEN:\t" + namespace);
-    		}
-    	}
+        logger.info("Backing Up Namespaces:");
+        for (String namespace : namespaces) {
+            if (isNamespaceBackupPermitted(namespace)) {
+                logger.info("SUCCESS:\t" + namespace);
+                outputNamespaceCPSProperties(namespace, framework);
+            } else {
+                logger.info("FORBIDDEN:\t" + namespace);
+            }
+        }
     }
     
     /**
@@ -113,13 +113,13 @@ public class BackupCPS {
      * @throws FrameworkException
      */  
     private void outputNamespaceCPSProperties(String namespace, IFramework framework) throws FrameworkException {
-    	IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService(namespace);
-		Map<String, String> properties = cps.getAllProperties();
-		
-		for (Map.Entry<String, String> prop : properties.entrySet()) {
-			String output = prop.getKey() + "=" + prop.getValue();
-    		pw.println(output);
-		}
+        IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService(namespace);
+        Map<String, String> properties = cps.getAllProperties();
+        
+        for (Map.Entry<String, String> prop : properties.entrySet()) {
+            String output = prop.getKey() + "=" + prop.getValue();
+            pw.println(output);
+        }
     }
     
     /**
@@ -133,18 +133,18 @@ public class BackupCPS {
      * @return boolean
      */ 
     private boolean isNamespaceBackupPermitted(String namespace) {
-    	List<String> forbiddenNamespaces = new ArrayList<String>();
-    	forbiddenNamespaces.add("dss");
-    	forbiddenNamespaces.add("certificate");
-    	forbiddenNamespaces.add("secure");
-    	
-    	// TODO - Change checking to whole word
-    	for(String ns : forbiddenNamespaces) {
-    		if (namespace.equals(ns)) {
-    			return false;
-    		}
-    	}
-    	return true;
+        List<String> forbiddenNamespaces = new ArrayList<String>();
+        forbiddenNamespaces.add("dss");
+        forbiddenNamespaces.add("certificate");
+        forbiddenNamespaces.add("secure");
+        
+        // TODO - Change checking to whole word
+        for(String ns : forbiddenNamespaces) {
+            if (namespace.equals(ns)) {
+                return false;
+            }
+        }
+        return true;
     }
     
     /**
@@ -155,20 +155,20 @@ public class BackupCPS {
      * @throws IOException 
      */ 
     private void initialisePrintWriter(String filePath) throws IOException {
-    	
-    	file = new File(filePath);
-    	
-    	if(!file.exists()) {
-    		if(!file.getParentFile().exists()) {
-    			logger.info("Creating directory(s): " + filePath);
-    			file.getParentFile().mkdirs();
-    		}
-    	}
-    	
-    	fos = new FileOutputStream(file, append);
-    	osw = new OutputStreamWriter(fos, charset);
-    	bw = new BufferedWriter(osw);
-    	pw = new PrintWriter(bw, autoFlush);
+        
+        file = new File(filePath);
+        
+        if(!file.exists()) {
+            if(!file.getParentFile().exists()) {
+                logger.info("Creating directory(s): " + filePath);
+                file.getParentFile().mkdirs();
+            }
+        }
+        
+        fos = new FileOutputStream(file, FILE_APPEND);
+        osw = new OutputStreamWriter(fos, charset);
+        bw = new BufferedWriter(osw);
+        pw = new PrintWriter(bw, autoFlush);
     }
     
     /**
@@ -178,8 +178,10 @@ public class BackupCPS {
      * @return 
      */ 
     private void closePrintWriter() {
-    	if(pw != null) {
-    		pw.close();
-    	}
+        if(pw != null) {
+            pw.close();
+        } else {
+            logger.debug("Attempted to close PrintWriter, but no PrintWriter instance was found.");
+        }
     }
 }

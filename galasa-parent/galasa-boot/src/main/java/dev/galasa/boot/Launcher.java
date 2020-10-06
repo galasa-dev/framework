@@ -66,8 +66,8 @@ public class Launcher {
     private static final String     REMOTEMAVEN_OPTION        = "remotemaven";
     private static final String     TRACE_OPTION              = "trace";
     private static final String     BACKUPCPS_OPTION          = "backupcps";
-    private static final String		FILE_OPTION				  = "f";
-    private static final String		FILE_OPTION_LONG		  = "file";
+    private static final String     FILE_OPTION               = "f";
+    private static final String     FILE_OPTION_LONG          = "file";
     
 
 
@@ -81,7 +81,7 @@ public class Launcher {
     private String                  testClassName;
     private String                  runName;
     private String                  gherkinName;
-    private String					filePath;
+    private String                  filePath;
 
     private FelixFramework          felixFramework;
 
@@ -324,10 +324,10 @@ public class Launcher {
         }
 
         if (backupCPS) {
-        	filePath = commandLine.getOptionValue(FILE_OPTION);
-        	if (filePath == null) {
-        		commandLineError("The option " + BACKUPCPS_OPTION + " requires an output file (specify with --" + FILE_OPTION_LONG + " <path> or -" + FILE_OPTION + " <path>)");
-        	}
+            filePath = commandLine.getOptionValue(FILE_OPTION);
+            if (filePath == null) {
+                commandLineError("The option " + BACKUPCPS_OPTION + " requires an output file (specify with --" + FILE_OPTION_LONG + " <path> or -" + FILE_OPTION + " <path>)");
+            }
             return;
         }
 
