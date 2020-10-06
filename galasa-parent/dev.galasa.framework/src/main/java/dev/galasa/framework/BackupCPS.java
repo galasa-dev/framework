@@ -138,7 +138,6 @@ public class BackupCPS {
         forbiddenNamespaces.add("certificate");
         forbiddenNamespaces.add("secure");
         
-        // TODO - Change checking to whole word
         for(String ns : forbiddenNamespaces) {
             if (namespace.equals(ns)) {
                 return false;
