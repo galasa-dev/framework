@@ -32,16 +32,16 @@ public class BackupCPS {
     
     private Log  logger  =  LogFactory.getLog(this.getClass());
     
-    private final boolean         FILE_APPEND     = false;
+    private final boolean         file_append       = false;
     private final boolean         autoFlush         = true;
     
     String charset = "UTF-8";
     
-    private File                 file;
-    private FileOutputStream     fos;
-    private OutputStreamWriter     osw;
-    private BufferedWriter         bw;
-    private PrintWriter         pw;
+    private File                    file;
+    private FileOutputStream        fos;
+    private OutputStreamWriter      osw;
+    private BufferedWriter          bw;
+    private PrintWriter             pw;
     
     /**
      * <p>Retrieves CPS properties for all configured namespaces and sends them to standard output</p>
@@ -164,7 +164,7 @@ public class BackupCPS {
             }
         }
         
-        fos = new FileOutputStream(file, FILE_APPEND);
+        fos = new FileOutputStream(file, file_append);
         osw = new OutputStreamWriter(fos, charset);
         bw = new BufferedWriter(osw);
         pw = new PrintWriter(bw, autoFlush);
