@@ -24,6 +24,10 @@ public class RasSearchCriteriaQueuedFrom implements IRasSearchCriteria {
 			return Boolean.FALSE;
 		}
 		
+		if(from == null) {
+			return Boolean.FALSE;
+		}
+		
 		if(from.equals(structure.getStartTime()) || from.isBefore(structure.getStartTime())) {
 			return Boolean.TRUE;
 		}

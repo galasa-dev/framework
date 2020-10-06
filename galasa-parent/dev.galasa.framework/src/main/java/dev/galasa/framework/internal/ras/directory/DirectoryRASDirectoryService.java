@@ -49,6 +49,7 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		boolean matched = true;
 	
 		for(DirectoryRASRunResult run : allRuns) {
+			matched = true;
 			for(IRasSearchCriteria criteria : searchCriteria) {
 				if(!criteria.criteriaMatched(run.getTestStructure())) {
 					matched = false;
@@ -64,22 +65,6 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 	}
 
 	@Override
-	public @NotNull List<IRunResult> getRuns(@NotNull String runName) throws ResultArchiveStoreException {
-
-		ArrayList<IRunResult> runs = new ArrayList<>();
-
-		List<DirectoryRASRunResult> allRuns = getAllRuns();
-
-		for (DirectoryRASRunResult run : allRuns) {
-			if (run.getTestStructure().getRunName().equals(runName)) {
-				runs.add(run);
-			}
-		}
-
-		return runs;
-	}
-
-	@Override
 	public @NotNull String getName() {
 		return "Local " + this.baseDirectory.toString();
 	}
@@ -89,50 +74,7 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		return true;
 	}
 
-	@Override
-	public @NotNull List<IRunResult> getRuns(String requestor, Instant from, Instant to, String testName)
-			throws ResultArchiveStoreException {
-
-		ArrayList<IRunResult> runs = new ArrayList<>();
-
-		List<DirectoryRASRunResult> allRuns = getAllRuns();
-
-		for (DirectoryRASRunResult result : allRuns) {
-			TestStructure testStructure = result.getTestStructure();
-
-			if (requestor != null) {
-				if (!requestor.equals(testStructure.getRequestor())) {
-					continue;
-				}
-			}
-
-			if(testName != null) {
-				if(!testName.equals(testStructure.getTestName())) {
-					continue;
-				}
-			}
-
-
-			Instant queued = testStructure.getQueued();
-
-			if (from != null) {
-				if (from.compareTo(queued) > 0) {
-					continue;
-				}
-			}
-
-			if (to != null) {
-				if (to.compareTo(queued) <= 0) {
-					continue;
-				}
-			}
-
-			runs.add(result);
-		}
-
-		return runs;
-	}
-
+	
 	@Override
 	public @NotNull List<String> getRequestors() throws ResultArchiveStoreException {
 		HashSet<String> requestors = new HashSet<>();

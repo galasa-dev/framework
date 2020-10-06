@@ -25,6 +25,10 @@ public class RasSearchCriteriaQueuedTo implements IRasSearchCriteria {
 			return Boolean.FALSE;
 		}
 		
+		if(to == null) {
+			return Boolean.FALSE;
+		}
+		
 		if(to.equals(structure.getEndTime()) || to.isAfter(structure.getEndTime())) {
 			return Boolean.TRUE;
 		}

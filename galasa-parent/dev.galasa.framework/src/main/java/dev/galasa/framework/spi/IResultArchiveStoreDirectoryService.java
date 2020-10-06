@@ -24,9 +24,6 @@ public interface IResultArchiveStoreDirectoryService {
     String getName();
 
     boolean isLocal();
-
-    @NotNull
-    List<IRunResult> getRuns(@NotNull String runName) throws ResultArchiveStoreException;
     
     @NotNull
     List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
@@ -40,8 +37,6 @@ public interface IResultArchiveStoreDirectoryService {
      * @return Run result
      * @throws ResultArchiveStoreException if there are errors accessing the RAS
      */
-    @NotNull
-    List<IRunResult> getRuns(String requestor, Instant from, Instant to, String testName) throws ResultArchiveStoreException;
 
     @NotNull
     List<String> getRequestors() throws ResultArchiveStoreException;
