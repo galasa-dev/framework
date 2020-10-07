@@ -36,6 +36,8 @@ public class BackupCPS {
     private StringBuilder   sb;
     private Path            path;
     
+    IFramework framework;
+    
     /**
      * <p>Retrieves CPS properties for all configured namespaces and sends them to standard output</p>
      * 
@@ -56,7 +58,7 @@ public class BackupCPS {
             throw new FrameworkException("Unable to initialise the Framework Service", e);
         }
         
-        IFramework framework = frameworkInitialisation.getFramework();
+        framework = frameworkInitialisation.getFramework();
         IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService("framework");
         
         List<String> namespaces = cps.getCPSNamespaces(); 
@@ -65,7 +67,7 @@ public class BackupCPS {
         
         initialiseFileOutput(filePath);
         
-        outputCPSProperties(namespaces, framework);
+        outputCPSProperties(namespaces);
         
         logger.info("Ending CPS Backup Service");
         
@@ -79,7 +81,7 @@ public class BackupCPS {
      * @return
      * @throws FrameworkException
      */  
-    private void outputCPSProperties(List<String> namespaces, IFramework framework) throws FrameworkException {
+    private void outputCPSProperties(List<String> namespaces) throws FrameworkException {
         
         sb = new StringBuilder();
         
@@ -90,7 +92,7 @@ public class BackupCPS {
         for (String namespace : namespaces) {
             if (isNamespaceBackupPermitted(namespace)) {
                 logger.info("SUCCESS:\t" + namespace);
-                outputNamespaceCPSProperties(namespace, framework);
+                outputNamespaceCPSProperties(namespace);
             } else {
                 logger.info("FORBIDDEN:\t" + namespace);
             }
@@ -110,7 +112,7 @@ public class BackupCPS {
      * @return
      * @throws FrameworkException
      */  
-    private void outputNamespaceCPSProperties(String namespace, IFramework framework) throws FrameworkException {
+    private void outputNamespaceCPSProperties(String namespace) throws FrameworkException {
 
         IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService(namespace);
         Map<String, String> properties = new TreeMap<>(cps.getAllProperties());
