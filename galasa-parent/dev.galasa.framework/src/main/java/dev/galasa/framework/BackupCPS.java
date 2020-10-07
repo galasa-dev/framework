@@ -6,12 +6,17 @@
 
 package dev.galasa.framework;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
+//import java.io.BufferedWriter;
+//import java.io.File;
+//import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+//import java.io.OutputStreamWriter;
+//import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,18 +35,10 @@ import dev.galasa.framework.spi.IFramework;
 @Component(service = { BackupCPS.class })
 public class BackupCPS {
     
-    private Log  logger  =  LogFactory.getLog(this.getClass());
+    private Log             logger  =  LogFactory.getLog(this.getClass());
     
-    private final boolean         file_append       = false;
-    private final boolean         autoFlush         = true;
-    
-    String charset = "UTF-8";
-    
-    private File                    file;
-    private FileOutputStream        fos;
-    private OutputStreamWriter      osw;
-    private BufferedWriter          bw;
-    private PrintWriter             pw;
+    private StringBuilder   sb;
+    private Path            path;
     
     /**
      * <p>Retrieves CPS properties for all configured namespaces and sends them to standard output</p>
@@ -70,15 +67,9 @@ public class BackupCPS {
         
         logger.info("Backing-up to file: " + filePath);
         
-        try {
-            initialisePrintWriter(filePath);
-        } catch (Exception e) {
-            throw new FrameworkException("Error Initialising Print Writer", e);
-        }
+        initialiseFileOutput(filePath);
         
         outputCPSProperties(namespaces, framework);
-        
-        closePrintWriter();
         
         logger.info("Ending CPS Backup Service");
         
@@ -93,7 +84,11 @@ public class BackupCPS {
      * @throws FrameworkException
      */  
     private void outputCPSProperties(List<String> namespaces, IFramework framework) throws FrameworkException {
+        
+        sb = new StringBuilder();
+        
         logger.info("Backing Up Namespaces:");
+        
         for (String namespace : namespaces) {
             if (isNamespaceBackupPermitted(namespace)) {
                 logger.info("SUCCESS:\t" + namespace);
@@ -101,6 +96,11 @@ public class BackupCPS {
             } else {
                 logger.info("FORBIDDEN:\t" + namespace);
             }
+        }
+        try {
+            Files.write(path, sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            logger.error("Failed to save CPS properties: ", e);
         }
     }
     
@@ -113,13 +113,22 @@ public class BackupCPS {
      * @throws FrameworkException
      */  
     private void outputNamespaceCPSProperties(String namespace, IFramework framework) throws FrameworkException {
+
         IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService(namespace);
         Map<String, String> properties = cps.getAllProperties();
         
-        for (Map.Entry<String, String> prop : properties.entrySet()) {
-            String output = prop.getKey() + "=" + prop.getValue();
-            pw.println(output);
+        if(sb.length()>0) {
+            // Insert blank line between namespaces
+            sb.append(System.lineSeparator());
         }
+        
+        for (Map.Entry<String, String> prop : properties.entrySet()) {
+            sb.append(prop.getKey());
+            sb.append("=");
+            sb.append(prop.getValue());
+            sb.append(System.lineSeparator());
+        }
+        
     }
     
     /**
@@ -147,40 +156,23 @@ public class BackupCPS {
     }
     
     /**
-     * <p>Initialises a PrintWriter object for use in output of CPS properties</p>
-     * 
+     * <p>Initialises path and creates files/directories necessary for output.</p>
+     *
      * @param filePath
      * @return 
-     * @throws IOException 
      */ 
-    private void initialisePrintWriter(String filePath) throws IOException {
+    private void initialiseFileOutput(String filePath) {
         
-        file = new File(filePath);
-        
-        if(!file.exists()) {
-            if(!file.getParentFile().exists()) {
-                logger.info("Creating directory(s): " + filePath);
-                file.getParentFile().mkdirs();
+        path = Paths.get(filePath);
+        try {
+            if (!path.toFile().exists()) {
+                if (!path.getParent().toFile().exists()) {
+                    Files.createDirectories(path.getParent());
+                }
+                Files.createFile(path);
             }
-        }
-        
-        fos = new FileOutputStream(file, file_append);
-        osw = new OutputStreamWriter(fos, charset);
-        bw = new BufferedWriter(osw);
-        pw = new PrintWriter(bw, autoFlush);
-    }
-    
-    /**
-     * <p>Closes the PrintWriter object.</p>
-     * 
-     * @param filePath
-     * @return 
-     */ 
-    private void closePrintWriter() {
-        if(pw != null) {
-            pw.close();
-        } else {
-            logger.debug("Attempted to close PrintWriter, but no PrintWriter instance was found.");
+        } catch (IOException e) {
+            logger.error("Unable to create CPS backup file in location specified: " + path.toUri().toString(), e);
         }
     }
 }
