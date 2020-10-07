@@ -6,13 +6,8 @@
 
 package dev.galasa.framework;
 
-//import java.io.BufferedWriter;
-//import java.io.File;
-//import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-//import java.io.OutputStreamWriter;
-//import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,6 +85,8 @@ public class BackupCPS {
         
         logger.info("Backing Up Namespaces:");
         
+        java.util.Collections.sort(namespaces, java.text.Collator.getInstance());
+        
         for (String namespace : namespaces) {
             if (isNamespaceBackupPermitted(namespace)) {
                 logger.info("SUCCESS:\t" + namespace);
@@ -115,7 +113,7 @@ public class BackupCPS {
     private void outputNamespaceCPSProperties(String namespace, IFramework framework) throws FrameworkException {
 
         IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService(namespace);
-        Map<String, String> properties = cps.getAllProperties();
+        Map<String, String> properties = new TreeMap<>(cps.getAllProperties());
         
         if(sb.length()>0) {
             // Insert blank line between namespaces
