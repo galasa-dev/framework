@@ -26,7 +26,7 @@ pipeline {
                withFolderProperties { 
              //     withSonarQubeEnv('GalasaSonarQube') {
                      dir('galasa-parent') {
-                        sh "gradle --no-daemon -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG ${GRADLE_CACHE} ${GRADLE_TASKS}"
+                        sh "gradle -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG ${GRADLE_CACHE} ${GRADLE_TASKS}"
                      } 
                 //  }
                }
