@@ -98,8 +98,8 @@ subprojects {
          repositories {
              maven {
                  credentials {
-                     username System.getenv('MAVEN_USERNAME')
-                     password System.getenv('MAVEN_PASSWORD')
+                     username System.getenv('MAVENUSERNAME')
+                     password System.getenv('MAVENPASSWORD')
                  }
                  url = mavenrepo
              }
