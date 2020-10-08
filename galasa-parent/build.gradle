@@ -10,6 +10,13 @@ subprojects {
         withSourcesJar()
     }
 
+    repositories {
+        maven {
+            url System.getenv('MAVEN_REPO')
+        }
+        mavenCentral()
+    }
+
     publishing {
 	    publications {
             maven(MavenPublication) {
