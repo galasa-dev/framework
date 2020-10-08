@@ -103,8 +103,7 @@ subprojects {
 
     
     signing {
-
-    //   required { isReleaseVersion && gradle.taskGraph.hasTask("publish") }
+        required { isReleaseVersion && gradle.taskGraph.hasTask("publish") }
         useGpgCmd() 
         sign publishing.publications.maven 
     }
