@@ -12,6 +12,10 @@ subprojects {
  	   onlyIf { isReleaseVersion }
 	}
     
+	tasks.withType(PublishToMavenRepository) {
+        onlyIf { jar.didWork }
+    }
+
     java {
         withJavadocJar()
         withSourcesJar()
