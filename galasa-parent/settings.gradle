@@ -3,11 +3,10 @@ rootProject.name = "galasa-parent"
 include 'dev.galasa'
 
 boolean isCiServer = System.getenv().containsKey("JENKINS_HOME")
-string cache = System.getenv("GRADLE_CACHE")
 
 buildCache {
     remote(HttpBuildCache) {
-        url = cache
+        url = 'http://nexus.cics-ts.hur.hdclab.intranet.ibm.com:5071/cache/'
         push = isCiServer
         credentials {
             username = cacheUsername
