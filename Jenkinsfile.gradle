@@ -11,6 +11,13 @@ pipeline {
       def workspace = pwd()
    }
    stages {
+      stage('prep-workspace') { 
+         steps {
+            configFileProvider([configFile(fileId: 'galasa-init-gradle', targetLocation: '${workspace}/.gradle/init.gradle')]) {
+            }
+         }
+      }
+   
       stage('gradle') {
          steps {
             withCredentials([string(credentialsId: 'galasa-gpg', variable: 'GPG'),
