@@ -19,7 +19,7 @@ pipeline {
                withFolderProperties { 
              //     withSonarQubeEnv('GalasaSonarQube') {
                      dir('galasa-parent') {
-                        sh "BUILD_ID=dontKillMe gradle -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG -PmavenUsername=${MAVENUSERNAME} -PmavenPassword=${MAVENPASSWORD} -PcacheUsername=${CACHEUSERNAME} -PcachePassword=${CACHEPASSWORD} ${GRADLE_CACHE} ${GRADLE_TASKS}"
+                        sh "gradle --no-daemon -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG -PmavenUsername=${MAVENUSERNAME} -PmavenPassword=${MAVENPASSWORD} -PcacheUsername=${CACHEUSERNAME} -PcachePassword=${CACHEPASSWORD} ${GRADLE_CACHE} ${GRADLE_TASKS}"
                      } 
                 //  }
                }
