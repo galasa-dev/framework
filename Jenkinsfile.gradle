@@ -20,7 +20,7 @@ pipeline {
                      dir('galasa-parent') {
                         sh "gradle -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG -PmavenUsername=${MAVENUSERNAME} -PmavenPassword=${MAVENPASSWORD} ${GRADLE_TASKS}"
                      } 
-                  }
+                //  }
                }
             }
          }
