@@ -7,7 +7,7 @@ boolean isCiServer = System.getenv().containsKey("JENKINS_HOME")
 buildCache {
     remote(HttpBuildCache) {
         url = 'http://nexus.cics-ts.hur.hdclab.intranet.ibm.com:5071/'
-        push = isCiServer
+        push = true
         credentials {
             username = cacheUsername
             password = cachePassword
