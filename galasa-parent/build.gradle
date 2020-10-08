@@ -17,16 +17,6 @@ subprojects {
         mavenCentral()
     }
 
-    buildCache {
-        remote(HttpBuildCache) {
-            url = 'http://nexus.cics-ts.hur.hdclab.intranet.ibm.com:5071/'
-            credentials {
-                username = cacheUsername
-                password = cachePassword
-            }
-        }
-    }
-
     publishing {
 	    publications {
             maven(MavenPublication) {
