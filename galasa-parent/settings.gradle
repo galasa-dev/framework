@@ -3,10 +3,11 @@ rootProject.name = "galasa-parent"
 include 'dev.galasa'
 
 boolean isCiServer = System.getenv().containsKey("JENKINS_HOME")
+string cache = GRADLE_CACHE
 
 buildCache {
     remote(HttpBuildCache) {
-        url = System.getenv('GRADLE_CACHE')
+        url = cache
         push = isCiServer
         credentials {
             username = cacheUsername
