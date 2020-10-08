@@ -3,9 +3,14 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
+	version = "0.12.0-SNAPSHOT"
+
     ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
     def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-development"
     
+    tasks.withType(Sign) {
+ 	   onlyIf { isReleaseVersion }
+	}
     
     java {
         withJavadocJar()
@@ -100,12 +105,8 @@ subprojects {
              }
          }
     }
-    
-    
 
-    
     signing {
-        required { isReleaseVersion && gradle.taskGraph.hasTask("publish") }
         useGpgCmd() 
         sign publishing.publications.maven 
     }
