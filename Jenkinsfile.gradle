@@ -1,0 +1,29 @@
+pipeline {
+   agent {
+      label 'codesigning'
+   }
+   environment {
+//Configure Gradnel from the tools definition in Jenkins
+      def gradleHome = tool 'gradle'
+      PATH = "${gradleHome}/bin:${env.PATH}"
+      
+//Set some defaults
+      def workspace = pwd()
+   }
+   stages {
+      stage('gradle') {
+         steps {
+            withCredentials([string(credentialsId: 'galasa-gpg', variable: 'GPG'),
+                             string(credentialsId: 'galasa-nexus', usernameVariable: 'MAVENUSERNAME', passwordVariable: 'MAVENPASSWORD')]) {
+               withFolderProperties { 
+             //     withSonarQubeEnv('GalasaSonarQube') {
+                     dir('galasa-parent') {
+                        sh "gradle -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG -PmavenUsername=${MAVENUSERNAME} -PmavenPassword=${MAVENPASSWORD} ${GRADLE_TASKS}"
+                     } 
+                  }
+               }
+            }
+         }
+      }
+   }
+}

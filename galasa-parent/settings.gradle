@@ -1,0 +1,3 @@
+rootProject.name = "galasa-parent"
+
+include 'dev.galasa'
