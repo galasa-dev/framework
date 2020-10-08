@@ -20,6 +20,10 @@ subprojects {
         withJavadocJar()
         withSourcesJar()
     }
+    
+    tasks.withType(Javadoc) {
+        failOnError = false
+    }
 
     repositories {
         maven {
