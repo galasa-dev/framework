@@ -14,11 +14,12 @@ pipeline {
       stage('gradle') {
          steps {
             withCredentials([string(credentialsId: 'galasa-gpg', variable: 'GPG'),
-                             usernamePassword(credentialsId: 'galasa-nexus', usernameVariable: 'MAVENUSERNAME', passwordVariable: 'MAVENPASSWORD')]) {
+                             usernamePassword(credentialsId: 'galasa-nexus', usernameVariable: 'MAVENUSERNAME', passwordVariable: 'MAVENPASSWORD')],
+                             usernamePassword(credentialsId: 'gradle-cache', usernameVariable: 'CACHEUSERNAME', passwordVariable: 'CACHEPASSWORD')]) {
                withFolderProperties { 
              //     withSonarQubeEnv('GalasaSonarQube') {
                      dir('galasa-parent') {
-                        sh "gradle -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG -PmavenUsername=${MAVENUSERNAME} -PmavenPassword=${MAVENPASSWORD} ${GRADLE_TASKS}"
+                        sh "gradle -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG -PmavenUsername=${MAVENUSERNAME} -PmavenPassword=${MAVENPASSWORD} -PcacheUsername=${CACHEUSERNAME} -PcachePassword=${CACHEPASSWORD} ${GRADLE_CACHE} ${GRADLE_TASKS}"
                      } 
                 //  }
                }
