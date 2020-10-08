@@ -4,6 +4,8 @@ subprojects {
     apply plugin: 'signing'
 
     ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+    def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-development"
+    
     
     java {
         withJavadocJar()
@@ -12,7 +14,7 @@ subprojects {
 
     repositories {
         maven {
-            url System.getenv('MAVEN_REPO')
+            url mavenrepo
         }
         mavenCentral()
     }
@@ -91,10 +93,10 @@ subprojects {
          repositories {
              maven {
                  credentials {
-                     username mavenUsername
-                     password mavenPassword
+                     username System.getenv('MAVEN_USERNAME')
+                     password System.getenv('MAVEN_PASSWORD')
                  }
-                 url = System.getenv('MAVEN_REPO')
+                 url = mavenrepo
              }
          }
     }
