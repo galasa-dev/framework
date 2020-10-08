@@ -68,6 +68,7 @@ public class ResultNames extends HttpServlet {
 		resp.setHeader("Access-Control-Allow-Origin", "*");
 		PrintWriter out = resp.getWriter();
 		out.print(resultnames);
+		out.close();
 	}
 
 }
