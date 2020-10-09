@@ -36,7 +36,7 @@ public class BackupCPS {
     private StringBuilder   sb;
     private Path            path;
     
-    IFramework framework;
+    private IFramework framework;
     
     /**
      * <p>Retrieves CPS properties for all configured namespaces and sends them to standard output</p>
