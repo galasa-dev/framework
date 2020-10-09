@@ -75,6 +75,7 @@ public class TestClassesRas extends HttpServlet {
 		resp.setHeader("Access-Control-Allow-Origin", "*");
 		PrintWriter out = resp.getWriter();
 		out.print(testclasses);
+		out.close();
 
 	}
 

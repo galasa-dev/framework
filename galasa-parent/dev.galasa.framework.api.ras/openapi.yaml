@@ -380,20 +380,15 @@ components:
     RunResults:
       type: object
       properties:
-        runResults:
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        numPages:
+          type: integer
+        runs:
           type: array
           items:
-            type: object
-            properties:
-              pageNumber:
-                type: integer
-              pageSize:
-                type: integer
-              numPages:
-                type: integer
-              runs:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Run'
+            $ref: '#/components/schemas/Run'
         
           
