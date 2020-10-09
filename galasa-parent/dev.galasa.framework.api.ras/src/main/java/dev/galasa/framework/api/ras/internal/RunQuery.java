@@ -61,9 +61,9 @@ public class RunQuery extends HttpServlet {
 
       if(!paramMap.isEmpty()) {
 
-         if(paramMap.get("pageNum") != null && !paramMap.get("pageNum").equals("")) {
+         if(paramMap.get("page") != null && !paramMap.get("page").equals("")) {
             try {
-               pageNum = Integer.parseInt(paramMap.get("pageNum"));
+               pageNum = Integer.parseInt(paramMap.get("page"));
             }catch(Exception e) {
 
                throw new ServletException("Error parsing integer, ", e);
@@ -119,8 +119,6 @@ public class RunQuery extends HttpServlet {
       try {
          runs = getRuns(critList);
       } catch (Exception e) {
-
-
 
          throw new ServletException("Error retrieving runs, ", e);
       }
@@ -179,9 +177,9 @@ public class RunQuery extends HttpServlet {
       try {
          PrintWriter out = resp.getWriter();
          resp.setContentType( "Application/json");
-         resp.setHeader("Access-Control-Allow-Origin", "*");
+         resp.addHeader("Access-Control-Allow-Origin", "*");
          out.print(json);
-         out.flush();
+         out.close();
 
       }catch(Exception e) {
 
