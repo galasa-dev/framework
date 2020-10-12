@@ -30,9 +30,6 @@ public class DirectoryRASRunResult implements IRunResult {
 
         Path structureFile = this.runDirectory.resolve("structure.json");
         
-//        this.testStructure = gson.fromJson(new InputStreamReader(Files.newInputStream(structureFile)),
-//                TestStructure.class);
-        
         try (InputStreamReader in = new InputStreamReader(Files.newInputStream(structureFile))){
            this.testStructure = gson.fromJson(in, TestStructure.class);
         }

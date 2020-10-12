@@ -8,7 +8,6 @@ package dev.galasa.framework.api.ras.internal;
 import java.io.PrintWriter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
