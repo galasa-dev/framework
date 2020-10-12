@@ -7,7 +7,7 @@ package dev.galasa.framework.internal.ras.directory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -134,17 +134,21 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 	}
 
 	protected @NotNull List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException {
-		try {
-			ArrayList<DirectoryRASRunResult> runs = new ArrayList<>();
-
-			try (Stream<Path> stream = Files.list(baseDirectory)) {
-				stream.forEach(new ConsumeRuns(runs, gson));
-			}
-
-			return runs;
-		} catch (Throwable t) {
-			throw new ResultArchiveStoreException("Unable to obtain runs", t);
-		}
+	   
+      	   try {
+      		    
+      			ArrayList<DirectoryRASRunResult> runs = new ArrayList<>();
+      
+      			try (Stream<Path> stream = Files.list(Paths.get(baseDirectory.toUri()))) {
+      				stream.forEach(new ConsumeRuns(runs, gson));
+      			}
+      			
+      			return runs;
+      			
+      		} catch (Throwable t) {
+      			throw new ResultArchiveStoreException("Unable to obtain runs", t);
+      		}
+	  
 	}
 
 	private static class ConsumeRuns implements Consumer<Path> {
@@ -152,7 +156,7 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		private final List<DirectoryRASRunResult> results;
 		private final Gson                        gson;
 
-		private static final Log                  logger = LogFactory.getLog(ConsumeRuns.class);
+		private final Log                  logger = LogFactory.getLog(ConsumeRuns.class);
 
 		public ConsumeRuns(List<DirectoryRASRunResult> results, Gson gson) {
 			this.results = results;

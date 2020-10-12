@@ -10,7 +10,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.JsonError;
 import dev.galasa.api.run.RunResult;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
@@ -21,6 +20,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -50,7 +50,7 @@ public class RunQuery extends HttpServlet {
    @Override
    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-      Gson gson = new Gson();
+      Gson gson = GalasaGsonBuilder.build();
 
       int pageNum = -1;
       int pageSize = 100;
@@ -61,9 +61,9 @@ public class RunQuery extends HttpServlet {
 
       if(!paramMap.isEmpty()) {
 
-         if(paramMap.get("pageNum") != null && !paramMap.get("pageNum").equals("")) {
+         if(paramMap.get("page") != null && !paramMap.get("page").equals("")) {
             try {
-               pageNum = Integer.parseInt(paramMap.get("pageNum"));
+               pageNum = Integer.parseInt(paramMap.get("page"));
             }catch(Exception e) {
 
                throw new ServletException("Error parsing integer, ", e);
@@ -119,8 +119,6 @@ public class RunQuery extends HttpServlet {
       try {
          runs = getRuns(critList);
       } catch (Exception e) {
-
-
 
          throw new ServletException("Error retrieving runs, ", e);
       }
@@ -179,9 +177,9 @@ public class RunQuery extends HttpServlet {
       try {
          PrintWriter out = resp.getWriter();
          resp.setContentType( "Application/json");
-         resp.setHeader("Access-Control-Allow-Origin", "*");
+         resp.addHeader("Access-Control-Allow-Origin", "*");
          out.print(json);
-         out.flush();
+         out.close();
 
       }catch(Exception e) {
 
