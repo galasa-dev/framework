@@ -66,6 +66,7 @@ public class Launcher {
     private static final String     REMOTEMAVEN_OPTION        = "remotemaven";
     private static final String     TRACE_OPTION              = "trace";
     private static final String     BACKUPCPS_OPTION          = "backupcps";
+    private static final String     RESTORECPS_OPTION         = "restorecps";
     private static final String     FILE_OPTION               = "f";
     private static final String     FILE_OPTION_LONG          = "file";
     
@@ -95,6 +96,7 @@ public class Launcher {
     private boolean                 metricsServer;
     private boolean                 api;
     private boolean                 backupCPS;
+    private boolean                 restoreCPS;
 
     private Integer                 metrics;
     private Integer                 health;
@@ -157,6 +159,7 @@ public class Launcher {
                 }
 
                 felixFramework.runTest(boostrapProperties, overridesProperties);
+                
             } else if (resourceManagement) {
                 logger.debug("Resource Management");
                 felixFramework.runResourceManagement(boostrapProperties, overridesProperties, bundles, metrics, health);
@@ -172,10 +175,13 @@ public class Launcher {
             } else if (api) {
                 logger.debug("Web API Server");
                 felixFramework.runWebApiServer(boostrapProperties, overridesProperties, bundles, metrics, health);
-            }  else if (backupCPS) {
+            } else if (backupCPS) {
                 logger.debug("Back Up CPS Properties");
                 felixFramework.runBackupCPS(boostrapProperties, overridesProperties, filePath);
+            } else if (restoreCPS) {
+                felixFramework.runRestoreCPS(boostrapProperties, overridesProperties, filePath);
             }
+            
         } catch (LauncherException e) {
             logger.error("Unable to run test class", e);
             throw e;
@@ -234,7 +240,8 @@ public class Launcher {
         options.addOption(null, LOCALMAVEN_OPTION, true, "The local maven repository, defaults to ~/.m2/repository");
         options.addOption(null, REMOTEMAVEN_OPTION, true, "The remote maven repositories, defaults to central");
         options.addOption(null, TRACE_OPTION, false, "Enable TRACE logging");
-        options.addOption(null, BACKUPCPS_OPTION, false, "Back up CPS properties");
+        options.addOption(null, BACKUPCPS_OPTION, false, "Back up CPS properties to file");
+        options.addOption(null, RESTORECPS_OPTION, false, "Restore CPS properties from file");
         options.addOption(FILE_OPTION, FILE_OPTION_LONG, true, "File for data input/output");
 
         CommandLineParser parser = new DefaultParser();
@@ -276,6 +283,7 @@ public class Launcher {
         metricsServer = commandLine.hasOption(METRICSERVER_OPTION);
         api = commandLine.hasOption(API_OPTION);
         backupCPS = commandLine.hasOption(BACKUPCPS_OPTION);
+        restoreCPS = commandLine.hasOption(RESTORECPS_OPTION);
 
         if (testRun) {
             runName = commandLine.getOptionValue(RUN_OPTION);
@@ -323,16 +331,30 @@ public class Launcher {
             return;
         }
 
-        if (backupCPS) {
-            filePath = commandLine.getOptionValue(FILE_OPTION);
-            if (filePath == null) {
-                commandLineError("The option " + BACKUPCPS_OPTION + " requires an output file (specify with --" + FILE_OPTION_LONG + " <path> or -" + FILE_OPTION + " <path>)");
+        if (backupCPS || restoreCPS) {
+            if (backupCPS && restoreCPS) {
+                commandLineError("Cannot use options \"" + BACKUPCPS_OPTION + "\" and \"" + RESTORECPS_OPTION + "\" together.");
+            } else {
+                filePath = commandLine.getOptionValue(FILE_OPTION);
+                if (filePath == null) {
+                    if (backupCPS) { 
+                        filePathError(BACKUPCPS_OPTION);
+                    } else {
+                        filePathError(RESTORECPS_OPTION);
+                    }
+                }
             }
             return;
         }
 
         commandLineError(
                 "Error: Must select either --test, --run, --gherkin, --k8scontroller, --metricserver, --resourcemanagement or --webbundle");
+    }
+    
+    private void filePathError(String option) {
+        
+        commandLineError("The option \"" + option + "\" requires an output file (specify with --" + FILE_OPTION_LONG + " <path> or -" + FILE_OPTION + " <path>)");
+        
     }
 
     private void checkForRemoteMaven(CommandLine commandLine) {
