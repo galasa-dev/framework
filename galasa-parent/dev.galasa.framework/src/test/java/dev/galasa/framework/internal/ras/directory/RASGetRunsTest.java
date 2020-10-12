@@ -9,8 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.internal.ras.directory.DirectoryRASDirectoryService;
 import dev.galasa.framework.internal.ras.directory.DirectoryRASRunResult;
 import dev.galasa.framework.spi.IRunResult;

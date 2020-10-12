@@ -12,7 +12,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -42,9 +41,7 @@ public class ResultNames extends HttpServlet {
 
 		try {
 			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-				if(!directoryService.getResultNames().isEmpty()) {
-					resultsList.addAll(directoryService.getResultNames());
-				}
+				resultsList.addAll(directoryService.getResultNames());
 			}
 		}
 		catch(ResultArchiveStoreException e){
@@ -68,6 +65,7 @@ public class ResultNames extends HttpServlet {
 		resp.setHeader("Access-Control-Allow-Origin", "*");
 		PrintWriter out = resp.getWriter();
 		out.print(resultnames);
+		out.close();
 	}
 
 }

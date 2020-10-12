@@ -7,7 +7,7 @@ package dev.galasa.framework.internal.ras.directory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +49,7 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		boolean matched = true;
 	
 		for(DirectoryRASRunResult run : allRuns) {
+			matched = true;
 			for(IRasSearchCriteria criteria : searchCriteria) {
 				if(!criteria.criteriaMatched(run.getTestStructure())) {
 					matched = false;
@@ -64,22 +65,6 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 	}
 
 	@Override
-	public @NotNull List<IRunResult> getRuns(@NotNull String runName) throws ResultArchiveStoreException {
-
-		ArrayList<IRunResult> runs = new ArrayList<>();
-
-		List<DirectoryRASRunResult> allRuns = getAllRuns();
-
-		for (DirectoryRASRunResult run : allRuns) {
-			if (run.getTestStructure().getRunName().equals(runName)) {
-				runs.add(run);
-			}
-		}
-
-		return runs;
-	}
-
-	@Override
 	public @NotNull String getName() {
 		return "Local " + this.baseDirectory.toString();
 	}
@@ -89,50 +74,7 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		return true;
 	}
 
-	@Override
-	public @NotNull List<IRunResult> getRuns(String requestor, Instant from, Instant to, String testName)
-			throws ResultArchiveStoreException {
-
-		ArrayList<IRunResult> runs = new ArrayList<>();
-
-		List<DirectoryRASRunResult> allRuns = getAllRuns();
-
-		for (DirectoryRASRunResult result : allRuns) {
-			TestStructure testStructure = result.getTestStructure();
-
-			if (requestor != null) {
-				if (!requestor.equals(testStructure.getRequestor())) {
-					continue;
-				}
-			}
-
-			if(testName != null) {
-				if(!testName.equals(testStructure.getTestName())) {
-					continue;
-				}
-			}
-
-
-			Instant queued = testStructure.getQueued();
-
-			if (from != null) {
-				if (from.compareTo(queued) > 0) {
-					continue;
-				}
-			}
-
-			if (to != null) {
-				if (to.compareTo(queued) <= 0) {
-					continue;
-				}
-			}
-
-			runs.add(result);
-		}
-
-		return runs;
-	}
-
+	
 	@Override
 	public @NotNull List<String> getRequestors() throws ResultArchiveStoreException {
 		HashSet<String> requestors = new HashSet<>();
@@ -192,17 +134,21 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 	}
 
 	protected @NotNull List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException {
-		try {
-			ArrayList<DirectoryRASRunResult> runs = new ArrayList<>();
-
-			try (Stream<Path> stream = Files.list(baseDirectory)) {
-				stream.forEach(new ConsumeRuns(runs, gson));
-			}
-
-			return runs;
-		} catch (Throwable t) {
-			throw new ResultArchiveStoreException("Unable to obtain runs", t);
-		}
+	   
+      	   try {
+      		    
+      			ArrayList<DirectoryRASRunResult> runs = new ArrayList<>();
+      
+      			try (Stream<Path> stream = Files.list(Paths.get(baseDirectory.toUri()))) {
+      				stream.forEach(new ConsumeRuns(runs, gson));
+      			}
+      			
+      			return runs;
+      			
+      		} catch (Throwable t) {
+      			throw new ResultArchiveStoreException("Unable to obtain runs", t);
+      		}
+	  
 	}
 
 	private static class ConsumeRuns implements Consumer<Path> {
@@ -210,7 +156,7 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 		private final List<DirectoryRASRunResult> results;
 		private final Gson                        gson;
 
-		private static final Log                  logger = LogFactory.getLog(ConsumeRuns.class);
+		private final Log                  logger = LogFactory.getLog(ConsumeRuns.class);
 
 		public ConsumeRuns(List<DirectoryRASRunResult> results, Gson gson) {
 			this.results = results;

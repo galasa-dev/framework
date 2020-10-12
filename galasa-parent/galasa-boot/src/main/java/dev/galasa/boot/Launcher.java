@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019, 2020.
  */
 package dev.galasa.boot;
 
@@ -65,6 +65,11 @@ public class Launcher {
     private static final String     LOCALMAVEN_OPTION         = "localmaven";
     private static final String     REMOTEMAVEN_OPTION        = "remotemaven";
     private static final String     TRACE_OPTION              = "trace";
+    private static final String     BACKUPCPS_OPTION          = "backupcps";
+    private static final String     FILE_OPTION               = "f";
+    private static final String     FILE_OPTION_LONG          = "file";
+    
+
 
     private static final String     USER_HOME                 = "user.home";
 
@@ -76,6 +81,7 @@ public class Launcher {
     private String                  testClassName;
     private String                  runName;
     private String                  gherkinName;
+    private String                  filePath;
 
     private FelixFramework          felixFramework;
 
@@ -88,6 +94,7 @@ public class Launcher {
     private boolean                 dockerController;
     private boolean                 metricsServer;
     private boolean                 api;
+    private boolean                 backupCPS;
 
     private Integer                 metrics;
     private Integer                 health;
@@ -165,6 +172,9 @@ public class Launcher {
             } else if (api) {
                 logger.debug("Web API Server");
                 felixFramework.runWebApiServer(boostrapProperties, overridesProperties, bundles, metrics, health);
+            }  else if (backupCPS) {
+                logger.debug("Back Up CPS Properties");
+                felixFramework.runBackupCPS(boostrapProperties, overridesProperties, filePath);
             }
         } catch (LauncherException e) {
             logger.error("Unable to run test class", e);
@@ -224,6 +234,8 @@ public class Launcher {
         options.addOption(null, LOCALMAVEN_OPTION, true, "The local maven repository, defaults to ~/.m2/repository");
         options.addOption(null, REMOTEMAVEN_OPTION, true, "The remote maven repositories, defaults to central");
         options.addOption(null, TRACE_OPTION, false, "Enable TRACE logging");
+        options.addOption(null, BACKUPCPS_OPTION, false, "Back up CPS properties");
+        options.addOption(FILE_OPTION, FILE_OPTION_LONG, true, "File for data input/output");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = null;
@@ -263,6 +275,7 @@ public class Launcher {
         dockerController = commandLine.hasOption(DOCKERCONTROLLER_OPTION);
         metricsServer = commandLine.hasOption(METRICSERVER_OPTION);
         api = commandLine.hasOption(API_OPTION);
+        backupCPS = commandLine.hasOption(BACKUPCPS_OPTION);
 
         if (testRun) {
             runName = commandLine.getOptionValue(RUN_OPTION);
@@ -307,6 +320,14 @@ public class Launcher {
         }
         
         if (api) {
+            return;
+        }
+
+        if (backupCPS) {
+            filePath = commandLine.getOptionValue(FILE_OPTION);
+            if (filePath == null) {
+                commandLineError("The option " + BACKUPCPS_OPTION + " requires an output file (specify with --" + FILE_OPTION_LONG + " <path> or -" + FILE_OPTION + " <path>)");
+            }
             return;
         }
 
