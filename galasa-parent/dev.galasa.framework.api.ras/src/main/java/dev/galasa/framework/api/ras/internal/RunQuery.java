@@ -16,9 +16,11 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaBundle;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
@@ -46,6 +48,7 @@ public class RunQuery extends HttpServlet {
    IFramework framework;
 
    private static final long serialVersionUID = 1L;
+
 
    @Override
    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -84,6 +87,8 @@ public class RunQuery extends HttpServlet {
          String to = paramMap.get("to");
          String from = paramMap.get("from");
          String testName = paramMap.get("testname");
+         String bundle = paramMap.get("bundle");
+         String result = paramMap.get("result");
 
          Instant toCrit = null;
          Instant fromCrit = null;
@@ -109,6 +114,14 @@ public class RunQuery extends HttpServlet {
          if(testName != null) {
             RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
             critList.add(testNameCriteria);
+         }
+         if(bundle != null) {
+            RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
+            critList.add(bundleCriteria);
+         }
+         if(result != null) {
+            RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
+            critList.add(resultCriteria);
          }
 
 
