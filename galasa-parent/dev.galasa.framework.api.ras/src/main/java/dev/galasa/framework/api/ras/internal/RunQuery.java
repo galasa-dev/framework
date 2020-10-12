@@ -71,9 +71,9 @@ public class RunQuery extends HttpServlet {
             }
          }
 
-         if(paramMap.get("pageSize") != null && !paramMap.get("pageSize").equals("")) {
+         if(paramMap.get("size") != null && !paramMap.get("size").equals("")) {
             try{
-               pageSize = Integer.parseInt(paramMap.get("pageSize"));
+               pageSize = Integer.parseInt(paramMap.get("size"));
             }catch(Exception e) {
 
                throw new ServletException("Error parsing integer, ", e);
@@ -83,7 +83,7 @@ public class RunQuery extends HttpServlet {
          String requestor = paramMap.get("requestor");
          String to = paramMap.get("to");
          String from = paramMap.get("from");
-         String testName = paramMap.get("testName");
+         String testName = paramMap.get("testname");
 
          Instant toCrit = null;
          Instant fromCrit = null;

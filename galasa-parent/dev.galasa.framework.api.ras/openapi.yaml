@@ -135,6 +135,16 @@ paths:
           description: provides sorting, to:asc or to:desc
           schema: 
             type: string
+        - name: result
+            in: query
+            description: Result Name
+            schema:
+              type: string
+        - name: bundle
+          in: query
+          description: Bundle Name
+          schema:
+            type: string
         - name: requestor
           in: query
           description: Requestor Name
