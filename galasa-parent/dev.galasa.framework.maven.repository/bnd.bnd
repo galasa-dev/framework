@@ -1,0 +1,4 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa framework maven repository implementation
+Import-Package: dev.galasa*,org.apache.commons.logging,org.osgi.service.url
+Bundle-Classpath: .,maven-repository-metadata-3.3.9.jar,plexus-utils-3.0.22.jar
