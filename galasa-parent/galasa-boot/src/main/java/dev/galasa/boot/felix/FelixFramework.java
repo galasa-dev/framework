@@ -524,9 +524,9 @@ public class FelixFramework {
         }
 
         // Get the dev.galasa.framework.RestoreCPS#restore() method
-        Method runBackupCPSMethod;
+        Method runRestoreCPSMethod;
         try {
-            runBackupCPSMethod = service.getClass().getMethod(methodName, Properties.class, Properties.class, String.class);
+            runRestoreCPSMethod = service.getClass().getMethod(methodName, Properties.class, Properties.class, String.class);
         } catch (NoSuchMethodException | SecurityException e) {
             throw new LauncherException("Unable to get Framework " + className + " " + methodName + " method", e);
         }
@@ -534,7 +534,7 @@ public class FelixFramework {
         // Invoke the runBackupCPSMethod method
         logger.debug("Invoking " + className + " " + methodName + "()");
         try {
-            runBackupCPSMethod.invoke(service, boostrapProperties, overridesProperties, filePath);
+            runRestoreCPSMethod.invoke(service, boostrapProperties, overridesProperties, filePath);
         } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
             throw new LauncherException(e.getCause());
         }
