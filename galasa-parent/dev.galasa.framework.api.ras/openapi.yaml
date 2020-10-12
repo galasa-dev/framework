@@ -396,6 +396,8 @@ components:
           type: integer
         numPages:
           type: integer
+        amountOfRuns:
+          type: integer
         runs:
           type: array
           items:

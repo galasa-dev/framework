@@ -164,6 +164,7 @@ public class RunQuery extends HttpServlet {
             obj.addProperty("pageNum", pageIndex);
             obj.addProperty("pageSize", pageSize);
             obj.addProperty("numPages", numPages);
+            obj.addProperty("amountOfRuns", runs.size());
 
             JsonElement tree = gson.toJsonTree(list);
 
