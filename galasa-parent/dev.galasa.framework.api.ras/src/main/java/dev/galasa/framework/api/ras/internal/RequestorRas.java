@@ -8,7 +8,6 @@ package dev.galasa.framework.api.ras.internal;
 import java.io.PrintWriter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
@@ -99,9 +98,7 @@ public class RequestorRas extends HttpServlet {
 
 
 		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-			if(!directoryService.getRequestors().isEmpty()) {
-				requestorSet.addAll(directoryService.getRequestors());
-			}
+			requestorSet.addAll(directoryService.getRequestors());
 		}
 
 		//convert to list of strings
