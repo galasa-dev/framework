@@ -1,0 +1,6 @@
+rootProject.name = "galasa-parent"
+
+include 'dev.galasa'
+include 'dev.galasa.framework.maven.repository.spi'
+include 'dev.galasa.framework.maven.repository'
+include 'dev.galasa.framework'
