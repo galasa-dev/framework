@@ -42,9 +42,7 @@ public class ResultNames extends HttpServlet {
 
 		try {
 			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-				if(!directoryService.getResultNames().isEmpty()) {
-					resultsList.addAll(directoryService.getResultNames());
-				}
+				resultsList.addAll(directoryService.getResultNames());
 			}
 		}
 		catch(ResultArchiveStoreException e){

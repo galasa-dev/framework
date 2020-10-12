@@ -46,9 +46,7 @@ public class TestClassesRas extends HttpServlet {
 
 		try{
 			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-				if(!directoryService.getTests().isEmpty()) {
-					classArray.addAll(directoryService.getTests());
-				}
+				classArray.addAll(directoryService.getTests());
 			}
 		} catch (ResultArchiveStoreException e) {
 			throw new ServletException("Problem with retrieving tests", e);

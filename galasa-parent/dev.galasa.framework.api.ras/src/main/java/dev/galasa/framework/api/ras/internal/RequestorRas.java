@@ -99,9 +99,7 @@ public class RequestorRas extends HttpServlet {
 
 
 		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-			if(!directoryService.getRequestors().isEmpty()) {
-				requestorSet.addAll(directoryService.getRequestors());
-			}
+			requestorSet.addAll(directoryService.getRequestors());
 		}
 
 		//convert to list of strings
