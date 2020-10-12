@@ -25,11 +25,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sun.javadoc.ClassDoc;
+import javax.lang.model.element.TypeElement;
 import com.sun.javadoc.Doc;
+import javax.lang.model.element.Element;
 import com.sun.javadoc.MethodDoc;
+import javax.lang.model.element.ExecutableElement;
 import com.sun.javadoc.PackageDoc;
+import javax.lang.model.element.PackageElement;
 import com.sun.javadoc.RootDoc;
+import jdk.javadoc.doclet.DocletEnvironment;
 import com.sun.javadoc.Tag;
+import com.sun.source.doctree.Doctree;
 
 public class ManagerDoclet {
 
