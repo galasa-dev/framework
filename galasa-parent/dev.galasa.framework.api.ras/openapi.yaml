@@ -136,10 +136,10 @@ paths:
           schema: 
             type: string
         - name: result
-            in: query
-            description: Result Name
-            schema:
-              type: string
+          in: query
+          description: Result Name
+          schema:
+            type: string
         - name: bundle
           in: query
           description: Bundle Name
