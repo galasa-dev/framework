@@ -89,16 +89,17 @@ public class RunQuery extends HttpServlet {
          String testName = paramMap.get("testname");
          String bundle = paramMap.get("bundle");
          String result = paramMap.get("result");
-
+         
          Instant toCrit = null;
          Instant fromCrit = null;
+         
          try {
-            if(to != null) {
+            if(to != null && !to.isEmpty()) {
                toCrit = Instant.parse(to);
                RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
                critList.add(toCriteria);
             }
-            if(from != null) {
+            if(from != null && !from.isEmpty()) {
                fromCrit = Instant.parse(from);
                RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit);
                critList.add(fromCriteria);
@@ -107,19 +108,19 @@ public class RunQuery extends HttpServlet {
 
             throw new ServletException("Error parsing Instant, ", e);
          }
-         if(requestor != null) {
+         if(requestor != null && !requestor.isEmpty()) {
             RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
             critList.add(requestorCriteria);
          }
-         if(testName != null) {
+         if(testName != null && !testName.isEmpty()) {
             RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
             critList.add(testNameCriteria);
          }
-         if(bundle != null) {
+         if(bundle != null && !bundle.isEmpty()) {
             RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
             critList.add(bundleCriteria);
          }
-         if(result != null) {
+         if(result != null && !result.isEmpty()) {
             RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
             critList.add(resultCriteria);
          }
@@ -155,6 +156,7 @@ public class RunQuery extends HttpServlet {
       int numPages = runList.size();
 
       int pageIndex = 1;
+
 
       if(runList != null) {
          for(List<RunResult> list : runList) {
