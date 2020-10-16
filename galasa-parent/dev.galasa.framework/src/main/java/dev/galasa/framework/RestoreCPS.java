@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
 
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -57,23 +58,8 @@ public class RestoreCPS {
         framework = frameworkInitialisation.getFramework();
         
         Properties properties = getProperties(filePath);
+        outputCPS(properties);
         
-        Map<String, IConfigurationPropertyStoreService> namespaceCPS = new HashMap<String ,IConfigurationPropertyStoreService>();
-        
-        for (Entry<Object, Object> prop : properties.entrySet()) {
-            String key = prop.getKey().toString();
-            String value = prop.getValue().toString();
-            String[] kvp = key.split("\\.", 2);
-            String namespace = kvp[0];
-            String property = kvp[1];
-            
-            logger.debug("Namespace: " + namespace + " Property: " + property);
-            if (!namespaceCPS.containsKey(namespace)) {
-                logger.debug("Creating CPS from Namespace: " + namespace);
-                namespaceCPS.put(namespace, framework.getConfigurationPropertyService(namespace));
-            }
-            namespaceCPS.get(namespace).setProperty(property, value);
-        }
     }
     
     private Properties getProperties(String filePath) {
@@ -99,5 +85,25 @@ public class RestoreCPS {
         
         return propTest;
 
+    }
+    
+    private void outputCPS(Properties properties) throws ConfigurationPropertyStoreException {
+        
+        Map<String, IConfigurationPropertyStoreService> namespaceCPS = new HashMap<String ,IConfigurationPropertyStoreService>();
+        
+        for (Entry<Object, Object> prop : properties.entrySet()) {
+            String key = prop.getKey().toString();
+            String value = prop.getValue().toString();
+            String[] kvp = key.split("\\.", 2);
+            String namespace = kvp[0];
+            String property = kvp[1];
+            
+            logger.debug("Namespace: " + namespace + " Property: " + property);
+            if (!namespaceCPS.containsKey(namespace)) {
+                logger.debug("Creating CPS from Namespace: " + namespace);
+                namespaceCPS.put(namespace, framework.getConfigurationPropertyService(namespace));
+            }
+            namespaceCPS.get(namespace).setProperty(property, value);
+        }
     }
 }
