@@ -45,7 +45,7 @@ public class RestoreCPS {
      * @throws FrameworkException
      */
     public void restore(Properties bootstrapProperties, Properties overrideProperties, String filePath) throws FrameworkException {
-        logger.info("Initialising CPS Backup Service");
+        logger.info("Initialising CPS Restore Service");
         
         FrameworkInitialisation frameworkInitialisation = null;
         try {
@@ -56,27 +56,11 @@ public class RestoreCPS {
         
         framework = frameworkInitialisation.getFramework();
         
-        InputStream inputStream = null;
-        try {
-            inputStream = Files.newInputStream(path);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            logger.error("Error Creating InputStream Using File: " + path.toUri().toString(), e);
-        }
-        
-        Properties propTest = new Properties();
-        
-        if (inputStream != null) {
-            try {
-                propTest.load(inputStream);
-            } catch (IOException e) {
-                logger.error("Error Loading Properties From InputStream", e);
-            }
-        }
+        Properties properties = getProperties(filePath);
         
         Map<String, IConfigurationPropertyStoreService> namespaceCPS = new HashMap<String ,IConfigurationPropertyStoreService>();
         
-        for (Entry<Object, Object> prop : propTest.entrySet()) {
+        for (Entry<Object, Object> prop : properties.entrySet()) {
             String key = prop.getKey().toString();
             String value = prop.getValue().toString();
             String[] kvp = key.split("\\.", 2);
@@ -89,9 +73,31 @@ public class RestoreCPS {
                 namespaceCPS.put(namespace, framework.getConfigurationPropertyService(namespace));
             }
             namespaceCPS.get(namespace).setProperty(property, value);
-            
+        }
+    }
+    
+    public Properties getProperties(String filePath) {
+        
+        Properties propTest = new Properties();
+        
+        path = Paths.get(filePath);
+        InputStream inputStream = null;
+        try {
+            inputStream = Files.newInputStream(path);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            logger.error("Error Creating InputStream Using File: " + path.toUri().toString(), e);
         }
         
+        if (inputStream != null) {
+            try {
+                propTest.load(inputStream);
+            } catch (IOException e) {
+                logger.error("Error Loading Properties From InputStream", e);
+            }
+        }
+        
+        return propTest;
 
     }
 }
