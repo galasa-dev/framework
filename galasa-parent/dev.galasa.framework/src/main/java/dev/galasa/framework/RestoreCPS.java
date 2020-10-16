@@ -64,7 +64,7 @@ public class RestoreCPS {
     
     private Properties getProperties(String filePath) {
         
-        Properties propTest = new Properties();
+        Properties properties = new Properties();
         
         path = Paths.get(filePath);
         InputStream inputStream = null;
@@ -77,13 +77,13 @@ public class RestoreCPS {
         
         if (inputStream != null) {
             try {
-                propTest.load(inputStream);
+                properties.load(inputStream);
             } catch (IOException e) {
                 logger.error("Error Loading Properties From InputStream", e);
             }
         }
         
-        return propTest;
+        return properties;
 
     }
     
