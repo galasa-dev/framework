@@ -56,8 +56,6 @@ public class RestoreCPS {
         
         framework = frameworkInitialisation.getFramework();
         
-        List<String> lines = getLinesFromFile(filePath);
-        
         InputStream inputStream = null;
         try {
             inputStream = Files.newInputStream(path);
@@ -95,20 +93,5 @@ public class RestoreCPS {
         }
         
 
-    }
-    
-    public List<String> getLinesFromFile(String filePath){
-        List<String> lines = new ArrayList<String>();
-        path = Paths.get(filePath);
-        try {
-            if (!path.toFile().exists()) {
-                lines = Files.readAllLines(path);
-            }
-            
-        } catch (IOException e) {
-            logger.error("Unable to create CPS backup file in location specified: " + path.toUri().toString(), e);
-        }
-        
-        return lines;
     }
 }
