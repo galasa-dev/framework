@@ -76,7 +76,7 @@ public class RestoreCPS {
         }
     }
     
-    public Properties getProperties(String filePath) {
+    private Properties getProperties(String filePath) {
         
         Properties propTest = new Properties();
         
