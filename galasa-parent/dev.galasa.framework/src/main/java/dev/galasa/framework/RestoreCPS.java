@@ -11,10 +11,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -43,7 +40,7 @@ public class RestoreCPS {
                             = new HashMap<String ,IConfigurationPropertyStoreService>();
     
     /**
-     * <p>Restores CPS properties from a specified file</p>
+     * <p>Restores configuration properties from the specified file to the Configuration Property Store (CPS)</p>
      * 
      * @param bootstrapProperties
      * @param overrideProperties
@@ -71,6 +68,12 @@ public class RestoreCPS {
         }
     }
     
+    /**
+     * <p>Fetches configuration properties from a specified file</p>
+     * 
+     * @param filePath
+     * @return properties
+     */
     private Properties getProperties(String filePath) {
         
         Properties properties = new Properties();
@@ -80,7 +83,6 @@ public class RestoreCPS {
         try {
             inputStream = Files.newInputStream(path);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             logger.error("Error Creating InputStream Using File: " + path.toUri().toString(), e);
         }
         
@@ -96,8 +98,15 @@ public class RestoreCPS {
 
     }
     
+    /**
+     * <p>Iterates through the properties in the supplied object, restoring them one-by-one to the Configuration Property Store </p>
+     * 
+     * @param properties (instance of object: Properties)
+     * @return 
+     */
     private void restoreProperties(Properties properties) throws ConfigurationPropertyStoreException {
         
+        logger.info(String.format("|%-12s|%-17s|%-32s|%-17s|%-17s|", getDashes(12), getDashes(17), getDashes(32), getDashes(17), getDashes(17)));
         logger.info(String.format("| %-10s | %-15s | %-30s | %-15s | %-15s |", "STATUS", "NAMESPACE", "PROPERTY", "OLD VALUE", "NEW VALUE"));
         logger.info(String.format("|%-12s|%-17s|%-32s|%-17s|%-17s|", getDashes(12), getDashes(17), getDashes(32), getDashes(17), getDashes(17)));
         
@@ -121,17 +130,12 @@ public class RestoreCPS {
         
     }
     
-    
     /**
-     * <p>Splits a string into two parts: a prefix and a suffix.</p>
-     * <p>Prefix: Anything before the first dot "."</p>
-     * <p>Suffix: Anything after the first dot "."</p>
+     * <p><Retrieves Property Prefix (after first dot ".")</p>
      * 
-     * <p>Position specified as 0 or 1
-     * 
-     * @param str
-     * @param position
-     * @return dashes
+     * @param prop (Map<Object, Object>)
+     * @return
+     * @throws ConfigurationPropertyStoreException
      */
     private void restoreProperty(Entry<Object, Object> prop) throws ConfigurationPropertyStoreException {
         
@@ -166,16 +170,21 @@ public class RestoreCPS {
     }
     
     /**
-     * <p><Retrieves Property Prefix</p>
+     * <p><Retrieves Property Prefix (after first dot ".")</p>
      * 
      * @param propertyName
-     * @return dashes
+     * @return
      */
     private String getPropertyPrefix(String propertyName) throws ConfigurationPropertyStoreException {
         return propSplit(propertyName, 0);
     }
     
-    
+    /**
+     * <p><Retrieves Property Suffix (after first dot ".")</p>
+     * 
+     * @param propertyName
+     * @return
+     */
     private String getPropertySuffix(String propertyName) throws ConfigurationPropertyStoreException {
         return propSplit(propertyName, 1);
     }
@@ -207,6 +216,14 @@ public class RestoreCPS {
      * @return boolean
      */
     private boolean isValidProperty(String key) {
+        /* Regex matches (at least) three words (of one letter or more) separated by dots (".")
+        * Matches:
+        *     framework.foo.bar
+        *     test.bar.foo
+        * Non-matches:
+        *     
+        */
+        
         Pattern pattern = Pattern.compile("^([a-zA-Z0-9]+\\.){2,}[a-zA-Z0-9]+$");
         Matcher matcher = pattern.matcher(key);
         boolean matchFound = matcher.find();
@@ -224,7 +241,6 @@ public class RestoreCPS {
         String dashes = new String(new char [num]).replace("\0", "-");
         return dashes;
     }
-    
     
     /**
      * <p>Retrieves the current/existing value for a specified property.</p>
