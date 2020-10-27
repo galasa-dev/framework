@@ -131,7 +131,7 @@ public class RestoreCPS {
     }
     
     /**
-     * <p><Retrieves Property Prefix (after first dot ".")</p>
+     * <p>Restores invidividual property to CPS</p>
      * 
      * @param prop (Map<Object, Object>)
      * @return
@@ -194,7 +194,7 @@ public class RestoreCPS {
      * <p>Prefix: Anything before the first dot "."</p>
      * <p>Suffix: Anything after the first dot "."</p>
      * 
-     * <p>Position specified as 0 or 1
+     * <p>Position specified as 0 or 1</p>
      * 
      * @param str
      * @param position
@@ -216,13 +216,10 @@ public class RestoreCPS {
      * @return boolean
      */
     private boolean isValidProperty(String key) {
-        /* Regex matches (at least) three words (of one letter or more) separated by dots (".")
-        * Matches:
-        *     framework.foo.bar
-        *     test.bar.foo
-        * Non-matches:
-        *     
-        */
+        /**
+         *  Regex matches (at least) three words (of one letter or more) separated by dots (".")
+         *  e.g. framework.foo.bar or framework.foo.bar.fizz.buzz
+         */
         
         Pattern pattern = Pattern.compile("^([a-zA-Z0-9]+\\.){2,}[a-zA-Z0-9]+$");
         Matcher matcher = pattern.matcher(key);
