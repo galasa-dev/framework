@@ -11,7 +11,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -142,30 +144,39 @@ public class RestoreCPS {
         String namespace = getPropertyPrefix(prop.getKey().toString());
         String property = getPropertySuffix(prop.getKey().toString());
         
-        String newValue = prop.getValue().toString();
+        String newValue = "";
         String currentValue = "";
         
         String propertyRestoreStatus = "";
-        
-        if (!namespaceCPS.containsKey(namespace)) {
-            // Create CPS instance if it doesn't yet exist
-            namespaceCPS.put(namespace, framework.getConfigurationPropertyService(namespace));
-        }
-        
-        currentValue = getExistingValue(namespace, property);
-        namespaceCPS.get(namespace).setProperty(property, newValue);
-        
-        if (currentValue != null) {
-            if (currentValue.equals(newValue)) {
-                propertyRestoreStatus = "NO CHANGE";
+
+        if (isNamespaceRestorePermitted(namespace)){
+            if (!namespaceCPS.containsKey(namespace)) {
+                // Create CPS instance if it doesn't yet exist
+                namespaceCPS.put(namespace, framework.getConfigurationPropertyService(namespace));
+            }
+            
+            newValue = prop.getValue().toString();
+            currentValue = getExistingValue(namespace, property);
+
+            namespaceCPS.get(namespace).setProperty(property, newValue);
+            
+            if (currentValue != null) {
+                if (currentValue.equals(newValue)) {
+                    propertyRestoreStatus = "NO CHANGE";
+                } else {
+                    propertyRestoreStatus = "UPDATED";
+                }
             } else {
-                propertyRestoreStatus = "UPDATED";
+                propertyRestoreStatus = "CREATED";
             }
         } else {
-            propertyRestoreStatus = "CREATED";
+            currentValue = "N/A";
+            newValue = "N/A";
+            propertyRestoreStatus = "DENIED";
         }
-        
+
         logger.info(String.format("| %-10s | %-15s | %-30s | %-15s | %-15s |", propertyRestoreStatus, namespace, property, currentValue, newValue));
+        
         
     }
     
@@ -255,5 +266,29 @@ public class RestoreCPS {
                 
         return existingValue;
         
+    }
+
+    /**
+     * <p>Tests namespace for restoration permission.</p>
+     * <ul>
+     *     <li>Returns true for valid namespace (restore permitted).</li>
+     *     <li>Returns false for invalid namespace (restore not permitted).</li>
+     * </ul>
+     * 
+     * @param namespace
+     * @return boolean
+     */ 
+    private boolean isNamespaceRestorePermitted(String namespace) {
+        List<String> forbiddenNamespaces = new ArrayList<String>();
+        forbiddenNamespaces.add("dss");
+        forbiddenNamespaces.add("certificate");
+        forbiddenNamespaces.add("secure");
+        
+        for(String ns : forbiddenNamespaces) {
+            if (namespace.equals(ns)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
