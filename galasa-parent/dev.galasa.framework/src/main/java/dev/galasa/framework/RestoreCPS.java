@@ -181,7 +181,7 @@ public class RestoreCPS {
     }
     
     /**
-     * <p><Retrieves Property Prefix (after first dot ".")</p>
+     * <p>Retrieves Property Prefix (after first dot ".")</p>
      * 
      * @param propertyName
      * @return
@@ -191,7 +191,7 @@ public class RestoreCPS {
     }
     
     /**
-     * <p><Retrieves Property Suffix (after first dot ".")</p>
+     * <p>Retrieves Property Suffix (after first dot ".")</p>
      * 
      * @param propertyName
      * @return
