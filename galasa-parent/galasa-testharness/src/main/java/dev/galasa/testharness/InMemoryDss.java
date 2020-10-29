@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.IDssAction;
 import dev.galasa.framework.spi.IDynamicStatusStore;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher.Event;
@@ -195,6 +196,13 @@ public class InMemoryDss implements IDynamicStatusStore {
             
             this.watcher.propertyModified(changedKey, event, oldValue, newValue);
         }
+    }
+
+
+    @Override
+    public void performActions(IDssAction... actions) throws DynamicStatusStoreException {
+        throw new DynamicStatusStoreException("Need to add support for actions");
+        
     }
 
 

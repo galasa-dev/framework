@@ -17,6 +17,7 @@ import javax.validation.constraints.Null;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkPropertyFile;
 import dev.galasa.framework.spi.FrameworkPropertyFileException;
+import dev.galasa.framework.spi.IDssAction;
 import dev.galasa.framework.spi.IDynamicStatusStore;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 import dev.galasa.framework.spi.IFrameworkPropertyFileWatcher;
@@ -202,6 +203,13 @@ public class FpfDynamicStatusStore implements IDynamicStatusStore {
             throw new DynamicStatusStoreException("Unable to delete key/value pairs with given key prefix", e);
         }
     }
+    
+    @Override
+    public void performActions(IDssAction... actions) throws DynamicStatusStoreException {
+        throw new DynamicStatusStoreException("No actions are currently supported");
+    }
+
+
 
     @Override
     public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {

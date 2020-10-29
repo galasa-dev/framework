@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.IDssAction;
 import dev.galasa.framework.spi.IDynamicStatusStore;
 import dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
@@ -243,6 +244,11 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
             key = key.substring(this.offset);
             watcher.propertyModified(key, event, oldValue, newValue);
         }
+    }
+
+    @Override
+    public void performActions(IDssAction... actions) throws DynamicStatusStoreException {
+        throw new DynamicStatusStoreException("No actions are currently supported");
     }
 
 }
