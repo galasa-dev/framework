@@ -15,7 +15,7 @@ Other repositories are available via [GitHub](https://github.com/galasa-dev).
 
 ## Contributing
 
-If you are interested in the development of Galasa, take a look at the documentation and feel free to post a question on [Spectrum](https://spectrum.chat/galasa?tab=posts) or raise new ideas / features / bugs etc. as issues on [GitHub](https://github.com/galasa-dev/projectmanagement).
+If you are interested in the development of Galasa, take a look at the documentation and feel free to post a question on [Galasa Slack channel](https://galasa.slack.com) or raise new ideas / features / bugs etc. as issues on [GitHub](https://github.com/galasa-dev/projectmanagement).
 
 Take a look at the [contribution guidelines](https://github.com/galasa-dev/projectmanagement/blob/master/contributing.md).
 
