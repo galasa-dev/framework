@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.internal.cps;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
@@ -30,6 +34,7 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
     private Properties                  record;
     private Properties                  overrides;
     private IConfigurationPropertyStore cpsStore;
+    private Log logger = LogFactory.getLog(this.getClass());
 
     /**
      * <p>
@@ -82,6 +87,7 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
             infixes = new String[0];
         }
         String[] keys = createOrderedKeyList(prefix, suffix, infixes);
+        logger.trace("Looking for CPS property key(s): " + Arrays.toString(keys));
         String value = null;
         for (String key : keys) {
             value = getValueAndMakeAccessRecord(key);
