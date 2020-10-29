@@ -524,5 +524,11 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService 
 
         }
 
+        @Override
+        public void performActions(IDssAction... actions) throws DynamicStatusStoreException {
+            // TODO Auto-generated method stub
+            
+        }
+
     }
 }
