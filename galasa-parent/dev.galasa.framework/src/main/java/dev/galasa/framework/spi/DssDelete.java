@@ -27,5 +27,11 @@ public class DssDelete implements IDssAction {
     public String getOldValue() {
         return oldValue;
     }
+    
+    @Override
+    public IDssAction applyPrefix(String prefix) {
+        return new DssDelete(prefix + this.key, oldValue);
+    }
+
 
 }

@@ -28,4 +28,9 @@ public class DssAdd implements IDssAction {
         return value;
     }
 
+    @Override
+    public IDssAction applyPrefix(String prefix) {
+        return new DssAdd(prefix + this.key, value);
+    }
+
 }
