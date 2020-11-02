@@ -20,4 +20,10 @@ public class DssDeletePrefix implements IDssAction {
         return prefix;
     }
     
+    @Override
+    public IDssAction applyPrefix(String prefix) {
+        return new DssDeletePrefix(prefix + this.prefix);
+    }
+
+    
 }

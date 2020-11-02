@@ -26,5 +26,11 @@ public class DssUpdate implements IDssAction {
     public String getValue() {
         return value;
     }
+    
+    @Override
+    public IDssAction applyPrefix(String prefix) {
+        return new DssUpdate(prefix + this.key, value);
+    }
+
 
 }

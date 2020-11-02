@@ -32,5 +32,11 @@ public class DssSwap implements IDssAction {
     public String getNewValue() {
         return newValue;
     }
+    
+    @Override
+    public IDssAction applyPrefix(String prefix) {
+        return new DssSwap(prefix + this.key, oldValue, newValue);
+    }
+
 
 }
