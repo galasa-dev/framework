@@ -44,6 +44,7 @@ public class VersionUpdate extends AbstractMojo {
 
     private Path parentPath;
     private Pattern pomPattern;
+    private Pattern gradlePattern;
     private Pattern openapiPattern;
     private Pattern manifestPattern;
     private Pattern featurePattern;
@@ -81,6 +82,7 @@ public class VersionUpdate extends AbstractMojo {
         manifestPattern = Pattern.compile("^\\QBundle-Version: \\E(\\Q" + fromVersion + "\\E).qualifier", Pattern.MULTILINE);
         featurePattern = Pattern.compile("<(feature|plugin)\\s+\\Qid=\\E\\\"(\\Qdev.galasa\\E[a-z0-9-\\\\.]*)\\\"\\s+\\Qversion=\\E\\\"(\\Q" + fromVersion + "\\E)\\Q.qualifier\\E\\\"");
         categoryPattern = Pattern.compile("(\\Q" + fromVersion + "\\E)\\Q.qualifier\\E");
+        gradlePattern = Pattern.compile("\\Qversion = \"\\E(\\Q" + mavenFrom + "\\E)\\\"");
 
 
         try {
@@ -106,6 +108,11 @@ public class VersionUpdate extends AbstractMojo {
 
             if ("pom.xml".equals(file.getName())) {
                 processPomXml(file);
+                continue;
+            }
+
+            if ("build.gradle".equals(file.getName())) {
+                processGradle(file);
                 continue;
             }
 
@@ -168,6 +175,28 @@ public class VersionUpdate extends AbstractMojo {
 
         if (!dryRun) {
             IOUtils.write(pom.getBytes(StandardCharsets.UTF_8), new FileOutputStream(file));
+        }
+    }
+
+    private void processGradle(File file) throws IOException {
+        String gradle = IOUtils.toString(file.toURI(), StandardCharsets.UTF_8);
+
+        Matcher matcher = gradlePattern.matcher(gradle);
+        if (matcher.find()) {
+            String version = matcher.group(1);
+
+            int versionStart = matcher.start(1);
+            int versionEnd   = matcher.end(1);
+
+            gradle = gradle.substring(0, versionStart) + mavenTo + gradle.substring(versionEnd);
+            Path path = Paths.get(file.toURI());
+            Path relative = parentPath.relativize(path);
+            getLog().info("File " + relative.toString());
+            getLog().info("    Gradle version changed from " + version + " to " + mavenTo);
+        }
+
+        if (!dryRun) {
+            IOUtils.write(gradle.getBytes(StandardCharsets.UTF_8), new FileOutputStream(file));
         }
     }
 
