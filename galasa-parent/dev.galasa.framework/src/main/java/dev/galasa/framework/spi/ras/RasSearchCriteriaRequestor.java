@@ -29,4 +29,8 @@ public class RasSearchCriteriaRequestor implements IRasSearchCriteria{
 		
 		return Boolean.FALSE;
 	}
+
+    public String[] getRequestors() {
+        return requestors;
+    }
 }

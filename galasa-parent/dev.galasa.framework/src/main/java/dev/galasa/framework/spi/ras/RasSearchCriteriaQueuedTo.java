@@ -35,4 +35,8 @@ public class RasSearchCriteriaQueuedTo implements IRasSearchCriteria {
 		
 		return Boolean.FALSE;
 	}
+
+    public Instant getTo() {
+        return this.to;
+    }
 }

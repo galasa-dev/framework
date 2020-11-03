@@ -31,4 +31,8 @@ public class RasSearchCriteriaBundle implements IRasSearchCriteria {
       
    }
 
+   public String[] getBundles() {
+       return bundles;
+   }
+
 }
