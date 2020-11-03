@@ -3,7 +3,7 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
-	version = "0.12.0-SNAPSHOT"
+	version = "0.12.0"
 
     ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
     def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-development"
