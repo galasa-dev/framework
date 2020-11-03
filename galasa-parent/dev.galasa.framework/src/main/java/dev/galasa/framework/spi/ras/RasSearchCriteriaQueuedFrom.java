@@ -34,6 +34,10 @@ public class RasSearchCriteriaQueuedFrom implements IRasSearchCriteria {
 		
 		return Boolean.FALSE;
 	}
+
+    public Instant getFrom() {
+        return this.from;
+    }
 	
 }
 
