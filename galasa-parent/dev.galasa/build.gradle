@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "dev.galasa"
-version = "0.12.0"
+version = "0.13.0-SNAPSHOT"
 
 dependencies {
 	api 'javax.validation:validation-api:2.0.1.Final'	

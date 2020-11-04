@@ -6,7 +6,7 @@
 
 	<groupId>dev.galasa</groupId>
 	<artifactId>galasa-parent</artifactId>
-	<version>0.12.0</version>
+	<version>0.13.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Galasa Parent</name>
@@ -205,7 +205,7 @@
 				<plugin>
 					<groupId>dev.galasa</groupId>
 					<artifactId>galasa-maven-plugin</artifactId>
-					<version>0.12.0</version>
+					<version>0.13.0-SNAPSHOT</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.felix</groupId>
