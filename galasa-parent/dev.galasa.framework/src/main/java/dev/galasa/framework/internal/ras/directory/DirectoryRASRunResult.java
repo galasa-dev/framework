@@ -70,7 +70,12 @@ public class DirectoryRASRunResult implements IRunResult {
         return "";
     }
 
+    @Override
     public void discard() throws ResultArchiveStoreException {
-        //TODO
+        try {
+            this.fileSystemProvider.delete(this.runDirectory);
+        } catch (IOException e) {
+            throw new ResultArchiveStoreException("Failed to delete", e);
+        }
     }
 }
