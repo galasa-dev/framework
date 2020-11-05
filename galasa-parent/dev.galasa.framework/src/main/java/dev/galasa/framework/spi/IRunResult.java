@@ -17,4 +17,6 @@ public interface IRunResult {
 
     String getLog() throws ResultArchiveStoreException;
 
+    void discard() throws ResultArchiveStoreException;
+
 }

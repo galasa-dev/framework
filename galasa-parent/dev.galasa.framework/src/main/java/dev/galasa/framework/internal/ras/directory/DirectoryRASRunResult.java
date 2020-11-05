@@ -69,4 +69,8 @@ public class DirectoryRASRunResult implements IRunResult {
 
         return "";
     }
+
+    public void discard() throws ResultArchiveStoreException {
+        //TODO
+    }
 }
