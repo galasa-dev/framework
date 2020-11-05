@@ -33,4 +33,9 @@ public class RasSearchCriteriaResult implements IRasSearchCriteria {
    }
    
 
+   public String[] getResults() {
+       return this.results;
+   }
+   
+
 }

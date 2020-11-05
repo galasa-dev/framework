@@ -29,4 +29,9 @@ public class RasSearchCriteriaTestName implements IRasSearchCriteria {
 		
 		return Boolean.FALSE;
 	}
+	
+
+    public String[] getTestNames() {
+        return this.testNames;
+    }
 }

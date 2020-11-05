@@ -215,6 +215,41 @@ public class FrameworkPropertyFile implements FileAlterationListener {
             delete(deleteKeys);
         }
     }
+    
+    public synchronized void performActions(IDssAction... actions) throws FrameworkPropertyFileException {
+        synchronized (FrameworkPropertyFile.class) {
+            try (FileChannel fileChannel = getWriteChannel(false)) {
+                Properties oldProperties = (Properties) this.currentProperties.clone();
+
+                for(IDssAction action : actions) {
+                    if (action instanceof DssAdd) {
+                        performActionsAdd((DssAdd) action);
+                    } else {
+                        throw new FrameworkPropertyFileException("Unrecognised DSS Action - " + action.getClass().getName());
+                    }
+                }
+
+                write(fileChannel, this.currentProperties);
+                fileModified(this.currentProperties, oldProperties);
+            } catch (IOException e) {
+                fpfLog.error("Failed to update file with DSS actions", e);
+                throw new FrameworkPropertyFileException("Failed to update file with DSS actions", e);
+            }
+        }
+    }
+
+    private void performActionsAdd(DssAdd dssAdd) throws FrameworkPropertyFileException {
+        String key = dssAdd.getKey();
+        String value = dssAdd.getValue();
+        
+        String oldValue = this.currentProperties.getProperty(key);
+        if (oldValue != null) {
+            throw new FrameworkPropertyFileException("Attempt to add new property '" + key + "' but it already exists");
+        }
+        
+        this.currentProperties.put(key, value);
+    }
+
 
     /**
      * <p>

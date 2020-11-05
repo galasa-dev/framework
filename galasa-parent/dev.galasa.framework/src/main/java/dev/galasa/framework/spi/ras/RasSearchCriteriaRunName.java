@@ -29,5 +29,10 @@ private final String[] runNames;
 		
 		return Boolean.FALSE;
 	}
+	
+
+    public String[] getRunNames() {
+        return this.runNames;
+    }
 }
 	

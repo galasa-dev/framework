@@ -13,4 +13,6 @@ package dev.galasa.framework.spi;
  */
 public interface IDssAction {
     
+    IDssAction applyPrefix(String prefix);
+    
 }
