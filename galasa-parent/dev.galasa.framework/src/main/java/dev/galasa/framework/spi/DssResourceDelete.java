@@ -8,6 +8,8 @@ package dev.galasa.framework.spi;
 import javax.validation.constraints.NotNull;
 
 /**
+ * This action is for the framework status area of Manager.
+ * 
  * This DSS action request that a property is deleted.  If an old value
  * is provided,  then this will be checked before deleting and fail the transaction if the 
  * values are different
@@ -15,27 +17,15 @@ import javax.validation.constraints.NotNull;
  * @author Michael Baylis
  *
  */
-public class DssDelete implements IDssAction {
+public class DssResourceDelete extends DssDelete implements IDssResourceAction {
     
-    private final String key;
-    private final String oldValue;
+    public DssResourceDelete(@NotNull String key, String oldValue) {
+        super(key, oldValue);
+    }
 
-    public DssDelete(@NotNull String key, String oldValue) {
-        this.key = key;
-        this.oldValue = oldValue;
-    }
-    
-    public String getKey() {
-        return key;
-    }
-    
-    public String getOldValue() {
-        return oldValue;
-    }
-    
     @Override
     public IDssAction applyPrefix(String prefix) {
-        return new DssDelete(prefix + this.key, oldValue);
+        return new DssDelete(prefix + getKey(), getOldValue());
     }
 
 

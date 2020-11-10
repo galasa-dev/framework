@@ -8,6 +8,8 @@ package dev.galasa.framework.spi;
 import javax.validation.constraints.NotNull;
 
 /**
+ * This action is for the framework status area of Manager.
+ *
  * This DSS action request that a NEW property is added to the DSS.   If the 
  * property already exists, the transaction will fail.
  * If you want to add a property whether it exists or not, use DssUpdate
@@ -15,27 +17,15 @@ import javax.validation.constraints.NotNull;
  * @author Michael Baylis
  *
  */
-public class DssAdd implements IDssAction {
-    
-    private final String key;
-    private final String value;
+public class DssResourceAdd extends DssAdd implements IDssResourceAction {
 
-    public DssAdd(@NotNull String key, @NotNull String value) {
-        this.key = key;
-        this.value = value;
-    }
-    
-    public String getKey() {
-        return key;
-    }
-    
-    public String getValue() {
-        return value;
+    public DssResourceAdd(@NotNull String key, @NotNull String value) {
+        super(key, value);
     }
 
     @Override
     public IDssAction applyPrefix(String prefix) {
-        return new DssAdd(prefix + this.key, value);
+        return new DssAdd(prefix + getKey(), getValue());
     }
 
 }
