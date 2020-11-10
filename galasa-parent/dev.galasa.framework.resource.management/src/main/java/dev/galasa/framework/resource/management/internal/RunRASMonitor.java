@@ -42,7 +42,7 @@ public class RunRASMonitor implements Runnable {
         logger.info("Starting search for old Runs");
 
         try {
-            int amount = cps.getProperty("ras", "cleanup.days");
+            long amount = Long.parseLong(cps.getProperty("ras", "cleanup.days"));
 
             Instant now = Instant.now();
             Instant requestUpTo = now.minus(amount, ChronoUnit.DAYS);
