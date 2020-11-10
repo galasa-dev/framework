@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019, 2020.
  */
 package dev.galasa.framework.internal.dss;
 
@@ -29,7 +29,7 @@ public class FrameworkDynamicStatusStoreService extends FrameworkDynamicStoreKey
     private final String namespace;
 
     public FrameworkDynamicStatusStoreService(IFramework framework, IDynamicStatusStore dssStore, String namespace) {
-        super(dssStore, "dss." + namespace + ".");
+        super(dssStore, "dss." + namespace + ".", namespace);
         Objects.requireNonNull(namespace);
 
         this.namespace = namespace;
@@ -64,7 +64,7 @@ public class FrameworkDynamicStatusStoreService extends FrameworkDynamicStoreKey
     @Override
     public IDynamicResource getDynamicResource(String resourceKey) {
         String newPrefix = "dss.framework.resource." + this.namespace + "." + resourceKey + ".";
-        return new FrameworkDynamicResource(getDssStore(), newPrefix);
+        return new FrameworkDynamicResource(getDssStore(), newPrefix, this.namespace);
     }
 
     /**
