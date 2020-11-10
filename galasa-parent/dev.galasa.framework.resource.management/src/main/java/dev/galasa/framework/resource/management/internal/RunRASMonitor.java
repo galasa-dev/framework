@@ -2,6 +2,7 @@ package dev.galasa.framework.resource.management.internal;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,23 +42,10 @@ public class RunRASMonitor implements Runnable {
         logger.info("Starting search for old Runs");
 
         try {
-            long age = 0;
-            String units = cps.getProperty("ras", "cleanup.expire.unit");
-            long amount = Long.parseLong(cps.getProperty("ras", units, "cleanup"));
-            switch (units) {
-                case "SECONDS": age = (Duration.ofSeconds(amount).getSeconds());
-                break;
-                case "MINUTES": age = (Duration.ofMinutes(amount).getSeconds());
-                break;
-                case "HOURS": age  = (Duration.ofHours(amount).getSeconds());
-                break;
-                case "DAYS": age  = (Duration.ofDays(amount).getSeconds());
-                break;
-            default: age  = (Duration.ofDays(21).getSeconds());
-            }
-            long now = Instant.now().getEpochSecond();
-            
-            Instant requestUpTo = Instant.ofEpochSecond(Math.subtractExact(now, age));
+            int amount = cps.getProperty("ras", "cleanup.days");
+
+            Instant now = Instant.now();
+            Instant requestUpTo = now.minus(amount, ChronoUnit.DAYS);
 
             IResultArchiveStore ras = framework.getResultArchiveStore();
             for(IResultArchiveStoreDirectoryService service :  ras.getDirectoryServices()) {
