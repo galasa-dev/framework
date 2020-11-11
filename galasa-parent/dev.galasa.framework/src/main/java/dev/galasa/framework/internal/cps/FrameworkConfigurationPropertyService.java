@@ -87,14 +87,16 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
             infixes = new String[0];
         }
         String[] keys = createOrderedKeyList(prefix, suffix, infixes);
-        logger.trace("Looking for CPS property key(s): " + Arrays.toString(keys));
+        logger.debug("Looking for CPS property key(s): " + Arrays.toString(keys));
         String value = null;
         for (String key : keys) {
             value = getValueAndMakeAccessRecord(key);
             if (value != null) {
+                logger.debug("Returing CPS property: " + key + "=" + value);
                 return value;
             }
         }
+        logger.debug("Returning null value");
         return null;
     }
 
