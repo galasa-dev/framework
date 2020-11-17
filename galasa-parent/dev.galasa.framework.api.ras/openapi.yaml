@@ -276,8 +276,6 @@ components:
             type: string
     TestStructure:
       properties:
-        runId:
-          type: string
         runName:
           type: string
         bundle:
