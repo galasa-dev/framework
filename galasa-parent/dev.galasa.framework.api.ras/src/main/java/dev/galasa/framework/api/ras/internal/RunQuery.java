@@ -120,6 +120,7 @@ public class RunQuery extends HttpServlet {
             RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
             critList.add(bundleCriteria);
          }
+         
          if(result != null && !result.isEmpty()) {
             RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
             critList.add(resultCriteria);
