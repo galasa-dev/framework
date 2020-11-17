@@ -367,6 +367,8 @@ components:
     Run:
       type: object
       properties:
+        runId:
+            type: string
         runName:
           type: string
         testName:
