@@ -5,6 +5,7 @@ import java.time.Instant;
 
 public class RunResult {
 	
+    private String runId;
 	private String runName;
 	private String testName;
 	private String testShortName;
@@ -16,9 +17,10 @@ public class RunResult {
 	private Instant start;
 	private Instant end;
 	
-	public RunResult(String runName, String testName, String testShortName, String bundle,
+	public RunResult(String runId, String runName, String testName, String testShortName, String bundle,
 			String requestor, String result, String status, Instant queued, Instant start, Instant end) {
 		
+	    this.runId = runId;
 		this.runName = runName;
 		this.testName = testName;
 		this.testShortName = testShortName;
@@ -31,6 +33,7 @@ public class RunResult {
 		this.end = end;
 		
 	}
+	
 	
 	public void setRunName(String runName) {
 		this.runName = runName;
@@ -70,6 +73,10 @@ public class RunResult {
 	
 	public void setEnd(Instant end) {
 		this.end = end;
+	}
+	
+	public String getRunId() {
+	   return this.runId;
 	}
 	
 	public String getRunName() {
