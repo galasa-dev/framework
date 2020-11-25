@@ -15,6 +15,8 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -28,6 +30,8 @@ public class RunResultRas extends HttpServlet {
 
     @Reference
     IFramework framework;
+    
+    private final Gson gson = GalasaGsonBuilder.build();
 
     private static final long serialVersionUID = 1L;
 
@@ -35,20 +39,19 @@ public class RunResultRas extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
        
        
-        Gson gson = GalasaGsonBuilder.build();
-       
         String runId = "";
         String url = req.getRequestURI().toString();
-        String[] parts = url.split("/");
         
+        Pattern pattern = Pattern.compile("(?!.*\\/).+");
+        Matcher matcher = pattern.matcher(url);
         
         String json = "";
        
          try {
             
             //Check if there is an id
-            if (parts[3] != null) {
-               runId = parts[3];
+            if (matcher.find()) {
+               runId = matcher.group();
                
                RunResult run = getRun(runId);
                
@@ -80,8 +83,9 @@ public class RunResultRas extends HttpServlet {
        IRunResult run = null;
        
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-             
+           
            run = directoryService.getRunById(id);
+           break;
            
         }
         
@@ -89,7 +93,7 @@ public class RunResultRas extends HttpServlet {
            return null;
         }
         
-       return RunResultUtility.toRunResult(run);
+       return RunResultUtility.toRunResult(run, false);
     }
 
 }

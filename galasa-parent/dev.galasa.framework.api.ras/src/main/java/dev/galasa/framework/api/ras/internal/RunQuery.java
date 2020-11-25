@@ -139,13 +139,13 @@ public class RunQuery extends HttpServlet {
       }
 
 
-      runs.sort(Comparator.nullsLast(Comparator.comparing(RunResult::getEnd, Comparator.nullsLast(Comparator.naturalOrder()))));
+      runs.sort(Comparator.nullsLast(Comparator.comparing((RunResult run) -> run.getTestStructure().getEndTime(), Comparator.nullsLast(Comparator.naturalOrder()))));
 
       Map<String, String[]> query = req.getParameterMap();
 
       if(!query.isEmpty()){
          if(!ExtractQuerySort.isAscending(query, "to")) {
-            runs.sort(Comparator.nullsLast(Comparator.comparing(RunResult::getEnd, Comparator.nullsLast(Comparator.naturalOrder()))).reversed());
+            runs.sort(Comparator.nullsLast(Comparator.comparing(((RunResult run) -> run.getTestStructure().getEndTime()), Comparator.nullsLast(Comparator.naturalOrder()))).reversed());
          }
       }
 
@@ -220,9 +220,10 @@ public class RunQuery extends HttpServlet {
       }
 
       List<RunResult> runResults = new ArrayList<>();
+      
 
       for(IRunResult run : runs) {
-         runResults.add(RunResultUtility.toRunResult(run));
+         runResults.add(RunResultUtility.toRunResult(run, true));
       }
 
       return runResults;
