@@ -55,7 +55,7 @@ public class RunQuery extends HttpServlet {
 
       Gson gson = GalasaGsonBuilder.build();
 
-      int pageNum = -1;
+      int pageNum = 1;
       int pageSize = 100;
 
       Map<String, String> paramMap = getParameterMap(req);
@@ -120,6 +120,7 @@ public class RunQuery extends HttpServlet {
             RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
             critList.add(bundleCriteria);
          }
+         
          if(result != null && !result.isEmpty()) {
             RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
             critList.add(resultCriteria);

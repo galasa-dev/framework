@@ -1,14 +1,17 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2020.
  */
 package dev.galasa.framework.internal.ras.directory;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,156 +34,192 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class DirectoryRASDirectoryService implements IResultArchiveStoreDirectoryService {
 
-	private final Path baseDirectory;
-	private final Gson gson;
+    private final static String ID_PREFIX = "local-";
 
-	protected DirectoryRASDirectoryService(@NotNull Path baseDirectory, Gson gson) {
-		this.baseDirectory = baseDirectory;
-		this.gson = gson;
-	}
-	
-	@Override
-	public @NotNull List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException{
-		
-		ArrayList<IRunResult> runs = new ArrayList<>();
-		
-		List<DirectoryRASRunResult> allRuns = getAllRuns();
-		
-		boolean matched = true;
-	
-		for(DirectoryRASRunResult run : allRuns) {
-			matched = true;
-			for(IRasSearchCriteria criteria : searchCriteria) {
-				if(!criteria.criteriaMatched(run.getTestStructure())) {
-					matched = false;
-					break;
-				}
-			}
-			if(matched) {
-				runs.add(run);
-			}
-		}
-		
-		return runs;
-	}
+    private final Path baseDirectory;
+    private final Gson gson;
 
-	@Override
-	public @NotNull String getName() {
-		return "Local " + this.baseDirectory.toString();
-	}
+    protected DirectoryRASDirectoryService(@NotNull Path baseDirectory, Gson gson) {
+        this.baseDirectory = baseDirectory;
+        this.gson = gson;
+    }
 
-	@Override
-	public boolean isLocal() {
-		return true;
-	}
+    @Override
+    public @NotNull List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException{
 
-	
-	@Override
-	public @NotNull List<String> getRequestors() throws ResultArchiveStoreException {
-		HashSet<String> requestors = new HashSet<>();
+        ArrayList<IRunResult> runs = new ArrayList<>();
 
-		for (DirectoryRASRunResult result : getAllRuns()) {
-			if(result!=null) {
-				TestStructure testStructure = result.getTestStructure();
-				if(testStructure != null && testStructure.getTestName()!=null) {
-					requestors.add(testStructure.getRequestor());
-				}
+        List<DirectoryRASRunResult> allRuns = getAllRuns();
 
-			}
-		}
+        boolean matched = true;
 
-		return new ArrayList<>(requestors);
-	}
+        for(DirectoryRASRunResult run : allRuns) {
+            matched = true;
+            for(IRasSearchCriteria criteria : searchCriteria) {
+                if(!criteria.criteriaMatched(run.getTestStructure())) {
+                    matched = false;
+                    break;
+                }
+            }
+            if(matched) {
+                runs.add(run);
+            }
+        }
 
-	@Override
-	public @NotNull List<RasTestClass> getTests() throws ResultArchiveStoreException {
-		HashMap<String,RasTestClass> tests = new HashMap<>();
-		String key;
-		for (DirectoryRASRunResult result : getAllRuns()) {
-			if(result != null) {
+        return runs;
+    }
 
-				TestStructure testStructure = result.getTestStructure();
-				if(testStructure != null && testStructure.getTestName()!=null) {
-					key = testStructure.getBundle()+"/"+testStructure.getTestName();
-					if(!tests.containsKey(key)){
-						tests.put(key,new RasTestClass(testStructure.getTestName(), testStructure.getBundle()));
-					}
-				}
-			}
-		}
+    @Override
+    public @NotNull String getName() {
+        return "Local " + this.baseDirectory.toString();
+    }
 
-		return new ArrayList<>(tests.values());
-	}
-	
-	@Override
-	public @NotNull List<String> getResultNames() throws ResultArchiveStoreException {
-		HashSet<String> results = new HashSet<>();
+    @Override
+    public boolean isLocal() {
+        return true;
+    }
 
-		for (DirectoryRASRunResult result : getAllRuns()) {
-			if(result!=null) {
-				TestStructure testStructure = result.getTestStructure();
-				if(testStructure != null  ) {
-					if(testStructure.getResult()==null) {
-						results.add("UNKNOWN");
-					}else { 
-						results.add(testStructure.getResult());
-					}
-				}
 
-			}
-		}
+    @Override
+    public @NotNull List<String> getRequestors() throws ResultArchiveStoreException {
+        HashSet<String> requestors = new HashSet<>();
 
-		return new ArrayList<>(results);
-	}
+        for (DirectoryRASRunResult result : getAllRuns()) {
+            if(result!=null) {
+                TestStructure testStructure = result.getTestStructure();
+                if(testStructure != null && testStructure.getTestName()!=null) {
+                    requestors.add(testStructure.getRequestor());
+                }
 
-	protected @NotNull List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException {
-	   
-      	   try {
-      		    
-      			ArrayList<DirectoryRASRunResult> runs = new ArrayList<>();
-      
-      			try (Stream<Path> stream = Files.list(Paths.get(baseDirectory.toUri()))) {
-      				stream.forEach(new ConsumeRuns(runs, gson));
-      			}
-      			
-      			return runs;
-      			
-      		} catch (Throwable t) {
-      			throw new ResultArchiveStoreException("Unable to obtain runs", t);
-      		}
-	  
-	}
+            }
+        }
 
-	private static class ConsumeRuns implements Consumer<Path> {
+        return new ArrayList<>(requestors);
+    }
 
-		private final List<DirectoryRASRunResult> results;
-		private final Gson                        gson;
+    @Override
+    public @NotNull List<RasTestClass> getTests() throws ResultArchiveStoreException {
+        HashMap<String,RasTestClass> tests = new HashMap<>();
+        String key;
+        for (DirectoryRASRunResult result : getAllRuns()) {
+            if(result != null) {
 
-		private final Log                  logger = LogFactory.getLog(ConsumeRuns.class);
+                TestStructure testStructure = result.getTestStructure();
+                if(testStructure != null && testStructure.getTestName()!=null) {
+                    key = testStructure.getBundle()+"/"+testStructure.getTestName();
+                    if(!tests.containsKey(key)){
+                        tests.put(key,new RasTestClass(testStructure.getTestName(), testStructure.getBundle()));
+                    }
+                }
+            }
+        }
 
-		public ConsumeRuns(List<DirectoryRASRunResult> results, Gson gson) {
-			this.results = results;
-			this.gson = gson;
-		}
+        return new ArrayList<>(tests.values());
+    }
 
-		@Override
-		public void accept(Path path) {
-			if (!Files.isDirectory(path)) {
-				return;
-			}
+    @Override
+    public @NotNull List<String> getResultNames() throws ResultArchiveStoreException {
+        HashSet<String> results = new HashSet<>();
 
-			Path structureFile = path.resolve("structure.json");
-			if (Files.exists(structureFile)) {
-				try {
-					results.add(new DirectoryRASRunResult(path, gson));
-				} catch (Throwable t) {
-					logger.trace("Unable to create a run result from " + structureFile.toString());
-				}
-			}
+        for (DirectoryRASRunResult result : getAllRuns()) {
+            if(result!=null) {
+                TestStructure testStructure = result.getTestStructure();
+                if(testStructure != null  ) {
+                    if(testStructure.getResult()==null) {
+                        results.add("UNKNOWN");
+                    }else { 
+                        results.add(testStructure.getResult());
+                    }
+                }
 
-		}
+            }
+        }
 
-	}
+        return new ArrayList<>(results);
+    }
+
+    protected @NotNull List<DirectoryRASRunResult> getAllRuns() throws ResultArchiveStoreException {
+
+        try {
+            ArrayList<DirectoryRASRunResult> runs = new ArrayList<>();
+
+            try (Stream<Path> stream = Files.list(Paths.get(baseDirectory.toUri()))) {
+                stream.forEach(new ConsumeRuns(baseDirectory, runs, gson));
+            }
+
+            return runs;
+
+        } catch (Throwable t) {
+            throw new ResultArchiveStoreException("Unable to obtain runs", t);
+        }
+
+    }
+
+    private static class ConsumeRuns implements Consumer<Path> {
+
+        private final Path                        base;
+        private final List<DirectoryRASRunResult> results;
+        private final Gson                        gson;
+        private final Encoder                     encoder;
+
+        private final Log                  logger = LogFactory.getLog(ConsumeRuns.class);
+
+        public ConsumeRuns(Path base, List<DirectoryRASRunResult> results, Gson gson) {
+            this.base    = base;
+            this.results = results;
+            this.gson    = gson;
+            this.encoder = Base64.getEncoder();
+        }
+
+        @Override
+        public void accept(Path path) {
+            if (!Files.isDirectory(path)) {
+                return;
+            }
+
+            Path structureFile = path.resolve("structure.json");
+            if (Files.exists(structureFile)) {
+                try {
+                    Path relativePath = base.relativize(path);
+                    String id = ID_PREFIX + this.encoder.encodeToString(relativePath.toString().getBytes(StandardCharsets.UTF_8));
+
+                    results.add(new DirectoryRASRunResult(path, gson, id));
+                } catch (Throwable t) {
+                    logger.trace("Unable to create a run result from " + structureFile.toString());
+                }
+            }
+
+        }
+
+    }
+
+    @Override
+    public IRunResult getRunById(@NotNull String runId) throws ResultArchiveStoreException {
+        if (!runId.startsWith(ID_PREFIX)) {
+            return null;
+        }
+
+        runId = runId.substring(ID_PREFIX.length());
+
+        try {
+            String runSubPath = new String(Base64.getDecoder().decode(runId), StandardCharsets.UTF_8);
+
+            Path runPath = this.baseDirectory.resolve(runSubPath);
+
+            if (!Files.exists(runPath)) {
+                return null;
+            }
+
+            Path structureFile = runPath.resolve("structure.json");
+            if (!Files.exists(structureFile)) {
+                return null;
+            }
+
+            return new DirectoryRASRunResult(runPath, gson, runId);
+        } catch(Exception e) {
+            return null; // Ignore errors as this run id may not belong to this RAS  
+        }
+    }
 
 
 }

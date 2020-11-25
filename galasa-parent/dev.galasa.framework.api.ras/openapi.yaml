@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Galasa Web Requests
-  version: 0.12.0-SNAPSHOT
+  version: 0.13.0-SNAPSHOT
 
 servers:
   - url: 'http://{server}:{port}'
@@ -83,10 +83,8 @@ paths:
             application/json:
               schema:
                 properties:
-                  teststructure:
-                    $ref: '#/components/schemas/TestStructure'
-                  artifacts:
-                    $ref: '#/components/schemas/Artifact'
+                  run:
+                    $ref: '#/components/schemas/Run'
         '500':
           description: Error
           content:
@@ -275,6 +273,7 @@ components:
           items:
             type: string
     TestStructure:
+      type: object
       properties:
         runName:
           type: string
@@ -301,6 +300,7 @@ components:
           items:
             $ref: '#/components/schemas/TestMethod'
     TestMethod:
+      type: object
       properties:
         className:
           type: string
@@ -365,28 +365,14 @@ components:
     Run:
       type: object
       properties:
-        runName:
+        runId:
           type: string
-        testName:
-          type: string
-        bundle:
-          type: string
-        requestor:
-          type: string
-        result:  
-          type: string
-        status:
-          type: string
-        queued:
-          type: string
-        testShortName:
-          type: string
-        start:
-          type: string
-          format: date-time
-        end:
-          type: string
-          format: date-time
+        testStructure:
+          $ref: '#/components/schemas/TestStructure'
+        artifacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Artifact'
     RunResults:
       type: object
       properties:
@@ -403,4 +389,3 @@ components:
           items:
             $ref: '#/components/schemas/Run'
         
-          

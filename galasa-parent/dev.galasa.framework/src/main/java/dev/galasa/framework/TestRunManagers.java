@@ -236,8 +236,19 @@ public class TestRunManagers {
                 return managers;
             }
             for (final ServiceReference<?> managerReference : managerServiceReference) {
+                
                 final IManager managerService = (IManager) bundleContext.getService(managerReference);
-                managers.add(managerService);
+                
+                if (managerService != null) {
+                    managers.add(managerService);
+                } else {
+                    String componentName = (String) managerReference.getProperty("component.name");
+                    if (componentName != null) {
+                        throw new FrameworkException("Unable to instantiate Manager " + componentName);
+                    } else {
+                        throw new FrameworkException("Unable to instantiate Manager, the name of the manager is unknown");
+                    }
+                }
             }
         } catch (InvalidSyntaxException e) {
             throw new FrameworkException("Unable to locate Managers", e);

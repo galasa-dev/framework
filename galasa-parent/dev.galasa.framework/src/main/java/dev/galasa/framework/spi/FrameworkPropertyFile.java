@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2020.
  */
 package dev.galasa.framework.spi;
 
@@ -215,6 +215,109 @@ public class FrameworkPropertyFile implements FileAlterationListener {
             delete(deleteKeys);
         }
     }
+
+    public synchronized void performActions(IDssAction... actions) throws FrameworkPropertyFileException {
+        synchronized (FrameworkPropertyFile.class) {
+            try (FileChannel fileChannel = getWriteChannel(false)) {
+                Properties oldProperties = (Properties) this.currentProperties.clone();
+
+                for(IDssAction action : actions) {
+                    if (action instanceof DssAdd) {
+                        performActionsAdd((DssAdd) action);
+                    } else if (action instanceof DssDelete) {
+                        performActionsDelete((DssDelete) action);
+                    } else if (action instanceof DssDeletePrefix) {
+                        performActionsDeletePrefix((DssDeletePrefix) action);
+                    } else if (action instanceof DssUpdate) {
+                        performActionsUpdate((DssUpdate) action);
+                    } else if (action instanceof DssSwap) {
+                        performActionsSwap((DssSwap) action);
+                    } else {
+                        throw new FrameworkPropertyFileException("Unrecognised DSS Action - " + action.getClass().getName());
+                    }
+                }
+
+                write(fileChannel, this.currentProperties);
+                fileModified(this.currentProperties, oldProperties);
+            } catch (IOException e) {
+                fpfLog.error("Failed to update file with DSS actions", e);
+                throw new FrameworkPropertyFileException("Failed to update file with DSS actions", e);
+            }
+        }
+    }
+
+    private void performActionsAdd(DssAdd dssAdd) throws FrameworkPropertyFileException {
+        String key = dssAdd.getKey();
+        String value = dssAdd.getValue();
+
+        String currentValue = this.currentProperties.getProperty(key);
+        if (currentValue != null) {
+            throw new FrameworkPropertyFileException("Attempt to add new property '" + key + "' but it already exists");
+        }
+
+        this.currentProperties.put(key, value);
+    }
+
+
+    private void performActionsDelete(DssDelete dssDelete) throws FrameworkPropertyFileException {
+        String key = dssDelete.getKey();
+        String oldValue = dssDelete.getOldValue();
+
+        if (oldValue != null) {
+            String currentValue = this.currentProperties.getProperty(key);
+            if (!oldValue.equals(currentValue)) {
+                throw new FrameworkPropertyFileException("Attempt to delete property '" + key + "', but current value '" + currentValue + "' does not match required value '" +oldValue + "'");
+            }
+        }
+
+        this.currentProperties.remove(key);
+    }
+
+
+    private void performActionsDeletePrefix(DssDeletePrefix dssDeletePrefix) throws FrameworkPropertyFileException {
+        ArrayList<String> toBeDeleted = new ArrayList<>();
+        for (Object k : this.currentProperties.keySet()) {
+            String key = (String) k;
+            if (key.startsWith(dssDeletePrefix.getPrefix())) {
+                toBeDeleted.add(key);
+            }
+        }
+        
+        for(String key : toBeDeleted) {
+            this.currentProperties.remove(key);
+        }
+        
+    }
+
+
+    private void performActionsUpdate(DssUpdate dssUpdate) throws FrameworkPropertyFileException {
+        String key   = dssUpdate.getKey();
+        String value = dssUpdate.getValue();
+
+        this.currentProperties.put(key, value);
+    }
+
+
+    private void performActionsSwap(DssSwap dssSwap) throws FrameworkPropertyFileException {
+        String key      = dssSwap.getKey();
+        String newValue = dssSwap.getNewValue();
+        String oldValue = dssSwap.getOldValue();
+        
+        String currentValue = this.currentProperties.getProperty(key);
+
+        if (oldValue == null) {
+            if (currentValue != null) {
+                throw new FrameworkPropertyFileException("Attempt to swap property '" + key + "', but current value '" + currentValue + "' does not match required value '" +oldValue + "'");
+            }
+        } else {
+            if (!oldValue.equals(currentValue)) {
+                throw new FrameworkPropertyFileException("Attempt to swap property '" + key + "', but current value '" + currentValue + "' does not match required value '" +oldValue + "'");
+            }
+        }
+        
+        this.currentProperties.put(key, newValue);
+    }
+
 
     /**
      * <p>

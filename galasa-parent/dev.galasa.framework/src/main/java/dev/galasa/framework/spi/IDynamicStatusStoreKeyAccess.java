@@ -125,6 +125,16 @@ public interface IDynamicStatusStoreKeyAccess {
      * @throws DynamicStatusStoreException
      */
     void deletePrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException;
+    
+    
+    /**
+     * Will perform multiple actions on the DSS in an atomic fashion.  If any of the actions 
+     * fail, they all fail.
+     * 
+     * @param actions a list of actions to perform on the DSS.
+     * @throws DynamicStatusStoreException
+     */
+    void performActions(IDssAction... actions) throws DynamicStatusStoreException;   
 
     /**
      * <p>

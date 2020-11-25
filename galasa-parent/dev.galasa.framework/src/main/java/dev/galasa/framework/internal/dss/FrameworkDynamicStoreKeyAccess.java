@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2020.
  */
 package dev.galasa.framework.internal.dss;
 
@@ -17,6 +17,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.IDssAction;
+import dev.galasa.framework.spi.IDssResourceAction;
 import dev.galasa.framework.spi.IDynamicStatusStore;
 import dev.galasa.framework.spi.IDynamicStatusStoreKeyAccess;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
@@ -30,13 +32,16 @@ import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAccess {
     private final IDynamicStatusStore dssStore;
     private final String              prefix;
+    private final String              namespace;
 
-    public FrameworkDynamicStoreKeyAccess(IDynamicStatusStore dssStore, String prefix) {
+    public FrameworkDynamicStoreKeyAccess(IDynamicStatusStore dssStore, String prefix, String namespace) {
         Objects.requireNonNull(dssStore);
         Objects.requireNonNull(prefix);
+        Objects.requireNonNull(namespace);
 
         this.dssStore = dssStore;
         this.prefix = prefix;
+        this.namespace = namespace;
     }
 
     protected IDynamicStatusStore getDssStore() {
@@ -243,6 +248,21 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
             key = key.substring(this.offset);
             watcher.propertyModified(key, event, oldValue, newValue);
         }
+    }
+
+    @Override
+    public void performActions(IDssAction... actions) throws DynamicStatusStoreException {
+
+        IDssAction[] dssActions = new IDssAction[actions.length];
+        for(int i = 0; i < actions.length; i++) {
+            if (actions[i] instanceof IDssResourceAction) {
+                dssActions[i] = actions[i].applyPrefix("dss.framework.resource." + this.namespace + ".");
+            } else {
+                dssActions[i] = actions[i].applyPrefix(this.prefix);
+            }
+        }
+
+        this.dssStore.performActions(dssActions);
     }
 
 }

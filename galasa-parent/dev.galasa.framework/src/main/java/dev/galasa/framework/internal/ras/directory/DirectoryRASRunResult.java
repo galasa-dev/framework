@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2020.
  */
 package dev.galasa.framework.internal.ras.directory;
 
@@ -23,10 +23,12 @@ public class DirectoryRASRunResult implements IRunResult {
     private final Path                           runDirectory;
     private final TestStructure                  testStructure;
     private final DirectoryRASFileSystemProvider fileSystemProvider;
+    private final String                         id;
 
-    protected DirectoryRASRunResult(Path runDirectory, Gson gson)
+    protected DirectoryRASRunResult(Path runDirectory, Gson gson, String id)
             throws JsonSyntaxException, JsonIOException, IOException {
         this.runDirectory = runDirectory;
+        this.id           = id;
 
         Path structureFile = this.runDirectory.resolve("structure.json");
         
@@ -43,6 +45,7 @@ public class DirectoryRASRunResult implements IRunResult {
     	this.testStructure = null;
     	this.runDirectory = null;
     	this.fileSystemProvider = null;
+    	this.id                 = null;
     }
 
     @Override
@@ -68,5 +71,14 @@ public class DirectoryRASRunResult implements IRunResult {
         }
 
         return "";
+    }
+
+    public void discard() throws ResultArchiveStoreException {
+        //TODO
+    }
+
+    @Override
+    public String getRunId() {
+        return this.id;
     }
 }

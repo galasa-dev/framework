@@ -17,6 +17,7 @@ public class RunResultUtility {
 	
 	public static @NotNull RunResult toRunResult(@NotNull IRunResult runResult) throws ResultArchiveStoreException {
 		
+	    String runId = runResult.getRunId();
 		String runName = runResult.getTestStructure().getRunName();
 		String testName = runResult.getTestStructure().getTestName();
 		String testShortName = runResult.getTestStructure().getTestShortName();
@@ -28,7 +29,7 @@ public class RunResultUtility {
 		Instant start = runResult.getTestStructure().getStartTime();
 		Instant end = runResult.getTestStructure().getEndTime();
 		
-		RunResult newRunResult = new RunResult(runName, testName, testShortName, bundle, requestor,
+		RunResult newRunResult = new RunResult(runId, runName, testName, testShortName, bundle, requestor,
 													result, status, queued, start, end);
 		
 		return newRunResult;

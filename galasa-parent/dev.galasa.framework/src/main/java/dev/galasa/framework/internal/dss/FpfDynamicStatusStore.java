@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2020.
  */
 package dev.galasa.framework.internal.dss;
 
@@ -14,9 +14,11 @@ import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
+import dev.galasa.framework.spi.DssAdd;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkPropertyFile;
 import dev.galasa.framework.spi.FrameworkPropertyFileException;
+import dev.galasa.framework.spi.IDssAction;
 import dev.galasa.framework.spi.IDynamicStatusStore;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 import dev.galasa.framework.spi.IFrameworkPropertyFileWatcher;
@@ -200,6 +202,15 @@ public class FpfDynamicStatusStore implements IDynamicStatusStore {
             fpf.deletePrefix(keyPrefix);
         } catch (FrameworkPropertyFileException e) {
             throw new DynamicStatusStoreException("Unable to delete key/value pairs with given key prefix", e);
+        }
+    }
+    
+    @Override
+    public void performActions(IDssAction... actions) throws DynamicStatusStoreException {
+        try {
+            fpf.performActions(actions);
+        } catch (FrameworkPropertyFileException e) {
+            throw new DynamicStatusStoreException("Unable to perform DSS actions", e);
         }
     }
 
