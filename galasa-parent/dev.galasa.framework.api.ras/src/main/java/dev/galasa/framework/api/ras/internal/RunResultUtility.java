@@ -9,9 +9,9 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.api.run.RunResult;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.RunResult;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class RunResultUtility {

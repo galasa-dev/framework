@@ -6,11 +6,12 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import com.google.gson.Gson;
 
-import dev.galasa.api.run.RunResult;
+import dev.galasa.JsonError;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.RunResult;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import java.io.IOException;
@@ -34,6 +35,7 @@ public class RunResultRas extends HttpServlet {
     private final Gson gson = GalasaGsonBuilder.build();
 
     private static final long serialVersionUID = 1L;
+    private static final Pattern pattern = Pattern.compile("(?!.*\\/).+");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -41,8 +43,7 @@ public class RunResultRas extends HttpServlet {
        
         String runId = "";
         String url = req.getRequestURI().toString();
-        
-        Pattern pattern = Pattern.compile("(?!.*\\/).+");
+
         Matcher matcher = pattern.matcher(url);
         
         String json = "";
@@ -58,9 +59,19 @@ public class RunResultRas extends HttpServlet {
                //Check to see if a run came back with that id
                if(run != null) {
                  json = gson.toJson(getRun(runId));
+               }else {
+                  PrintWriter out = res.getWriter();
+                  res.setStatus(404);
+                  res.setContentType("Application/json");
+                  res.addHeader("Access-Control-Allow-Origin", "*");
+                  JsonError error = new JsonError("Could not find requested run");
+                  String jsonError = gson.toJson(error);
+                  out.print(jsonError);
+                  out.close();
+                  return;
                }
                
-           }    
+           }
             
          } catch (Exception e) {
             throw new ServletException("Error occured retrieving run", e);
@@ -85,7 +96,9 @@ public class RunResultRas extends HttpServlet {
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
            
            run = directoryService.getRunById(id);
-           break;
+           if(run != null) {
+              break;
+           }
            
         }
         

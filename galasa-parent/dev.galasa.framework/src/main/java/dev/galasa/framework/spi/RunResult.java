@@ -1,4 +1,4 @@
-package dev.galasa.api.run;
+package dev.galasa.framework.spi;
 
 import java.util.List;
 
