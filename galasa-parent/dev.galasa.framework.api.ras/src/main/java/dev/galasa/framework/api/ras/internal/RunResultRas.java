@@ -60,17 +60,13 @@ public class RunResultRas extends HttpServlet {
                if(run != null) {
                  json = gson.toJson(getRun(runId));
                }else {
-                  PrintWriter out = res.getWriter();
-                  res.setStatus(404);
-                  res.setContentType("Application/json");
-                  res.addHeader("Access-Control-Allow-Origin", "*");
-                  JsonError error = new JsonError("Could not find requested run");
-                  String jsonError = gson.toJson(error);
-                  out.print(jsonError);
-                  out.close();
+                  sendError("Could not find requested run", 404, res);
                   return;
                }
                
+           }else {
+              sendError("Could not find requested run", 404, res);
+              return;
            }
             
          } catch (Exception e) {
@@ -107,6 +103,17 @@ public class RunResultRas extends HttpServlet {
         }
         
        return RunResultUtility.toRunResult(run, false);
+    }
+    
+    private void sendError(String errorString, int errorCode, HttpServletResponse res) throws IOException {
+       PrintWriter out = res.getWriter();
+       res.setStatus(errorCode);
+       res.setContentType("Application/json");
+       res.addHeader("Access-Control-Allow-Origin", "*");
+       JsonError error = new JsonError("Could not find requested run");
+       String jsonError = gson.toJson(error);
+       out.print(jsonError);
+       out.close();
     }
 
 }
