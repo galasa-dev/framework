@@ -6,15 +6,18 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import com.google.gson.Gson;
 
-import dev.galasa.api.run.RunResult;
+import dev.galasa.JsonError;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.RunResult;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -28,36 +31,43 @@ public class RunResultRas extends HttpServlet {
 
     @Reference
     IFramework framework;
+    
+    private final Gson gson = GalasaGsonBuilder.build();
 
     private static final long serialVersionUID = 1L;
+    private static final Pattern pattern = Pattern.compile("(?!.*\\/).+");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
        
        
-        Gson gson = GalasaGsonBuilder.build();
-       
         String runId = "";
         String url = req.getRequestURI().toString();
-        String[] parts = url.split("/");
-        
+
+        Matcher matcher = pattern.matcher(url);
         
         String json = "";
        
          try {
             
             //Check if there is an id
-            if (parts[3] != null) {
-               runId = parts[3];
+            if (matcher.find()) {
+               runId = matcher.group();
                
                RunResult run = getRun(runId);
                
                //Check to see if a run came back with that id
                if(run != null) {
                  json = gson.toJson(getRun(runId));
+               }else {
+                  sendError("Could not find requested run", 404, res);
+                  return;
                }
                
-           }    
+           }else {
+              sendError("Could not find requested run", 404, res);
+              return;
+           }
             
          } catch (Exception e) {
             throw new ServletException("Error occured retrieving run", e);
@@ -80,8 +90,11 @@ public class RunResultRas extends HttpServlet {
        IRunResult run = null;
        
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-             
+           
            run = directoryService.getRunById(id);
+           if(run != null) {
+              break;
+           }
            
         }
         
@@ -89,7 +102,18 @@ public class RunResultRas extends HttpServlet {
            return null;
         }
         
-       return RunResultUtility.toRunResult(run);
+       return RunResultUtility.toRunResult(run, false);
+    }
+    
+    private void sendError(String errorString, int errorCode, HttpServletResponse res) throws IOException {
+       PrintWriter out = res.getWriter();
+       res.setStatus(errorCode);
+       res.setContentType("Application/json");
+       res.addHeader("Access-Control-Allow-Origin", "*");
+       JsonError error = new JsonError("Could not find requested run");
+       String jsonError = gson.toJson(error);
+       out.print(jsonError);
+       out.close();
     }
 
 }

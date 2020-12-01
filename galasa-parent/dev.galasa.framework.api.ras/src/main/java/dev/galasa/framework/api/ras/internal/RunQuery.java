@@ -10,11 +10,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.api.run.RunResult;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.RunResult;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaBundle;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -137,15 +138,14 @@ public class RunQuery extends HttpServlet {
 
          throw new ServletException("Error retrieving runs, ", e);
       }
-
-
-      runs.sort(Comparator.nullsLast(Comparator.comparing(RunResult::getEnd, Comparator.nullsLast(Comparator.naturalOrder()))));
+      
+      Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
       Map<String, String[]> query = req.getParameterMap();
 
       if(!query.isEmpty()){
          if(!ExtractQuerySort.isAscending(query, "to")) {
-            runs.sort(Comparator.nullsLast(Comparator.comparing(RunResult::getEnd, Comparator.nullsLast(Comparator.naturalOrder()))).reversed());
+            Collections.reverse(runs);
          }
       }
 
@@ -220,9 +220,10 @@ public class RunQuery extends HttpServlet {
       }
 
       List<RunResult> runResults = new ArrayList<>();
+      
 
       for(IRunResult run : runs) {
-         runResults.add(RunResultUtility.toRunResult(run));
+         runResults.add(RunResultUtility.toRunResult(run, true));
       }
 
       return runResults;
@@ -241,6 +242,29 @@ public class RunQuery extends HttpServlet {
          }
       }
       return newParameterMap;
+   }
+   
+   
+   class SortByEndTime implements Comparator<RunResult> {
+      
+      @Override
+      public int compare(RunResult a, RunResult b) {
+         Instant aEndTime = a.getTestStructure().getEndTime();
+         Instant bEndTime = b.getTestStructure().getEndTime();
+         
+         if(aEndTime == null) {
+            if(bEndTime == null) {
+               return 0;
+            }
+            return -1;
+         }
+         
+         if(bEndTime == null) {
+            return 1;
+         }
+         
+         return aEndTime.compareTo(bEndTime);
+      }
    }
 
 
