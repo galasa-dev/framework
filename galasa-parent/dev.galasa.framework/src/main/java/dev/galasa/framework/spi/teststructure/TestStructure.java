@@ -170,6 +170,10 @@ public class TestStructure {
         }
         return this.runName;
     }
+    
+    public boolean isValid() {
+        return this.runName != null;
+    }
 
     public Instant getStartTime() {
         return startTime;
