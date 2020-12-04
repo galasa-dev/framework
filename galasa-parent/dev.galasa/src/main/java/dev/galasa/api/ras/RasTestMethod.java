@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 
-public class TestMethod {
+public class RasTestMethod {
    private String className;
    private String methodName;
    private String type;
@@ -14,11 +14,11 @@ public class TestMethod {
    private Instant endTime;
    private int runLogStart;
    private int runLogEnd;
-   private List<TestMethod> befores;
-   private List<TestMethod> afters;
+   private List<RasTestMethod> befores;
+   private List<RasTestMethod> afters;
    
-   public TestMethod(String className, String methodName, String type, String status, String result, 
-         Instant startTime, Instant endTime, int runLogStart, int runLogEnd, List<TestMethod> befores, List<TestMethod> afters) {
+   public RasTestMethod(String className, String methodName, String type, String status, String result, 
+         Instant startTime, Instant endTime, int runLogStart, int runLogEnd, List<RasTestMethod> befores, List<RasTestMethod> afters) {
       this.className = className;
       this.methodName = methodName;
       this.type = type;
@@ -104,19 +104,19 @@ public class TestMethod {
       this.runLogEnd = runLogEnd;
    }
 
-   public List<TestMethod> getBefores() {
+   public List<RasTestMethod> getBefores() {
       return befores;
    }
 
-   public void setBefores(List<TestMethod> befores) {
+   public void setBefores(List<RasTestMethod> befores) {
       this.befores = befores;
    }
 
-   public List<TestMethod> getAfters() {
+   public List<RasTestMethod> getAfters() {
       return afters;
    }
 
-   public void setAfters(List<TestMethod> afters) {
+   public void setAfters(List<RasTestMethod> afters) {
       this.afters = afters;
    }
    

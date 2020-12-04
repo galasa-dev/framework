@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 
-public class TestStructure {
+public class RasTestStructure {
    
    private String runName;
    private String bundle;
@@ -16,10 +16,10 @@ public class TestStructure {
    private Instant queued;
    private Instant startTime;
    private Instant endTime;
-   private List<TestMethod> methods;
+   private List<RasTestMethod> methods;
    
-   public TestStructure(String runName, String bundle, String testName, String testShortName, String requestor,
-         String status, String result, Instant queued, Instant startTime, Instant endTime, List<TestMethod> methods) {
+   public RasTestStructure(String runName, String bundle, String testName, String testShortName, String requestor,
+         String status, String result, Instant queued, Instant startTime, Instant endTime, List<RasTestMethod> methods) {
       this.runName = runName;
       this.bundle = bundle;
       this.testName = testName;
@@ -113,11 +113,11 @@ public class TestStructure {
       this.endTime = endTime;
    }
 
-   public List<TestMethod> getMethods() {
+   public List<RasTestMethod> getMethods() {
       return methods;
    }
 
-   public void setMethods(List<TestMethod> methods) {
+   public void setMethods(List<RasTestMethod> methods) {
       this.methods = methods;
    }
    

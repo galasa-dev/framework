@@ -1,11 +1,11 @@
 package dev.galasa.api.ras;
 
-public class Artifact {
+public class RasArtifact {
    
    private String artifactPath;
    private String contentType;
    
-   public Artifact(String artifactPath, String contentType) {
+   public RasArtifact(String artifactPath, String contentType) {
       this.artifactPath = artifactPath;
       this.contentType = contentType;
    }

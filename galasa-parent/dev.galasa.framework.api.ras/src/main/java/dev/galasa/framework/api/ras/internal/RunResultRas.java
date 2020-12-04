@@ -7,11 +7,11 @@ import org.osgi.service.component.annotations.ServiceScope;
 import com.google.gson.Gson;
 
 import dev.galasa.JsonError;
+import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.RunResult;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class RunResultRas extends HttpServlet {
             if (matcher.find()) {
                runId = matcher.group();
                
-               RunResult run = getRun(runId);
+               RasRunResult run = getRun(runId);
                
                //Check to see if a run came back with that id
                if(run != null) {
@@ -85,7 +85,7 @@ public class RunResultRas extends HttpServlet {
       }
     }
 
-    private RunResult getRun(String id) throws ResultArchiveStoreException {
+    private RasRunResult getRun(String id) throws ResultArchiveStoreException {
        
        IRunResult run = null;
        

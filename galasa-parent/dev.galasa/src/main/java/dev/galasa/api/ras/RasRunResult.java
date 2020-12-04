@@ -2,13 +2,13 @@ package dev.galasa.api.ras;
 
 import java.util.List;
 
-public class RunResult {
+public class RasRunResult {
    
    private String runId;
-   private List<Artifact> artifacts;
-   private TestStructure testStructure;
+   private List<RasArtifact> artifacts;
+   private RasTestStructure testStructure;
    
-   public RunResult(String runId, List<Artifact> artifacts, TestStructure testStructure) {
+   public RasRunResult(String runId, List<RasArtifact> artifacts, RasTestStructure testStructure) {
       this.runId = runId;
       this.artifacts = artifacts;
       this.testStructure = testStructure;
@@ -22,19 +22,19 @@ public class RunResult {
       this.runId = runId;
    }
 
-   public List<Artifact> getArtifacts() {
+   public List<RasArtifact> getArtifacts() {
       return artifacts;
    }
 
-   public void setArtifacts(List<Artifact> artifacts) {
+   public void setArtifacts(List<RasArtifact> artifacts) {
       this.artifacts = artifacts;
    }
 
-   public TestStructure getTestStructure() {
+   public RasTestStructure getTestStructure() {
       return testStructure;
    }
 
-   public void setTestStructure(TestStructure testStructure) {
+   public void setTestStructure(RasTestStructure testStructure) {
       this.testStructure = testStructure;
    }
    
