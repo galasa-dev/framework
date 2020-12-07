@@ -10,11 +10,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.RunResult;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaBundle;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
@@ -130,7 +130,7 @@ public class RunQuery extends HttpServlet {
 
       }
 
-      List<RunResult> runs = new ArrayList<>();
+      List<RasRunResult> runs = new ArrayList<>();
 
       try {
          runs = getRuns(critList);
@@ -152,7 +152,7 @@ public class RunQuery extends HttpServlet {
 
       List<JsonObject> returnArray = new ArrayList<>();
 
-      List<List<RunResult>> runList = ListUtils.partition(runs, pageSize);
+      List<List<RasRunResult>> runList = ListUtils.partition(runs, pageSize);
 
       int numPages = runList.size();
 
@@ -160,7 +160,7 @@ public class RunQuery extends HttpServlet {
 
 
       if(runList != null) {
-         for(List<RunResult> list : runList) {
+         for(List<RasRunResult> list : runList) {
 
             JsonObject obj = new JsonObject();
 
@@ -205,7 +205,7 @@ public class RunQuery extends HttpServlet {
 
    }
 
-   private List<RunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
+   private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 
       List<IRunResult> runs = new ArrayList<>();
 
@@ -219,7 +219,7 @@ public class RunQuery extends HttpServlet {
 
       }
 
-      List<RunResult> runResults = new ArrayList<>();
+      List<RasRunResult> runResults = new ArrayList<>();
       
 
       for(IRunResult run : runs) {
@@ -245,10 +245,10 @@ public class RunQuery extends HttpServlet {
    }
    
    
-   class SortByEndTime implements Comparator<RunResult> {
+   class SortByEndTime implements Comparator<RasRunResult> {
       
       @Override
-      public int compare(RunResult a, RunResult b) {
+      public int compare(RasRunResult a, RasRunResult b) {
          Instant aEndTime = a.getTestStructure().getEndTime();
          Instant bEndTime = b.getTestStructure().getEndTime();
          
