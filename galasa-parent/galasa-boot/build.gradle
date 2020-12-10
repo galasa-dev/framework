@@ -1,0 +1,58 @@
+plugins {
+    id 'biz.aQute.bnd.builder' version '5.1.2'
+}
+
+description = 'Galasa Boot'
+
+configurations {
+    bundleDependency
+    bundleDependency.transitive = false
+
+    embedImplementation
+    embedImplementation.transitive = false
+
+    implementation.extendsFrom embedImplementation
+
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "dev.galasa.boot.Launcher"
+    }
+    into ('/bundle') {
+        from configurations.bundleDependency
+        // Strip version number
+        rename { name ->
+            def artifacts = configurations.bundleDependency.resolvedConfiguration.resolvedArtifacts
+            def artifact = artifacts.find { it.file.name == name }
+            "${artifact.name}.${artifact.extension}"
+        }
+    }
+    into ('/') {
+        from {
+            configurations.embedImplementation.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+    }
+
+}
+
+dependencies {
+
+    implementation project (':dev.galasa.framework.maven.repository')
+    embedImplementation project (':dev.galasa.framework.maven.repository.spi')
+
+    embedImplementation 'org.apache.felix:org.apache.felix.framework:6.0.2'
+    embedImplementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
+    implementation 'org.apache.felix:org.apache.felix.scr:2.1.14'
+
+    embedImplementation 'commons-cli:commons-cli:1.4'
+    embedImplementation 'commons-io:commons-io:2.6'
+
+    bundleDependency 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
+    bundleDependency 'org.apache.felix:org.apache.felix.scr:2.1.14'
+    bundleDependency 'commons-logging:commons-logging:1.2'
+    bundleDependency 'log4j:log4j:1.2.17'
+    bundleDependency project (':dev.galasa.framework.maven.repository')
+    bundleDependency project (':dev.galasa.framework.maven.repository.spi')
+    
+}
