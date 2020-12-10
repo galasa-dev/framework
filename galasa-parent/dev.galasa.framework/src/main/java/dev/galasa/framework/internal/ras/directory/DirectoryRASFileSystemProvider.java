@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.internal.ras.directory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -372,6 +373,22 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
     @Override
     public DirectoryStream<Path> newDirectoryStream(Path dir, Filter<? super Path> filter) throws IOException {
         return new DirectoryRASDirectoryStream(this.fileSystem, this.artifactDirectory, getRealPath(dir), filter);
+    }
+
+    @Override
+    public void delete(Path path) throws IOException {
+        deleteRecursively(path.toFile());
+    }
+
+    // Recursively delete contents of a directory before the directory itself
+    private boolean deleteRecursively(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file: files) {
+                deleteRecursively(file);
+            }
+        }
+        return dir.delete();
     }
 
 }

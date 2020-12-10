@@ -42,10 +42,19 @@ public class RunRASMonitor implements Runnable {
         logger.info("Starting search for old Runs");
 
         try {
-            long amount = Long.parseLong(cps.getProperty("ras", "cleanup.days"));
+            long age = 0;
+            String cleanupDays = cps.getProperty("ras.cleanup", "days");
+            if (cleanupDays == null) {
+                // Set default value
+                cleanupDays = "21";
+            }
+            
 
-            Instant now = Instant.now();
-            Instant requestUpTo = now.minus(amount, ChronoUnit.DAYS);
+            long amount = Long.parseLong(cleanupDays);
+            long cleanupAge = Duration.ofDays(amount).getSeconds();
+            long now = Instant.now().getEpochSecond();
+            
+            Instant requestUpTo = Instant.ofEpochSecond(Math.subtractExact(now, age));
 
             IResultArchiveStore ras = framework.getResultArchiveStore();
             for(IResultArchiveStoreDirectoryService service :  ras.getDirectoryServices()) {

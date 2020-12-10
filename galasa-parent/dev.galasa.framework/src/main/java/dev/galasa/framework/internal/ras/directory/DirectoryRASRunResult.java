@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.internal.ras.directory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
@@ -73,9 +74,12 @@ public class DirectoryRASRunResult implements IRunResult {
     @Override
     public void discard() throws ResultArchiveStoreException {
         try {
-            this.fileSystemProvider.delete(this.runDirectory);
+            if (this.fileSystemProvider.deleteIfExists(this.runDirectory)) {
+                return;
+            }
         } catch (IOException e) {
-            throw new ResultArchiveStoreException("Failed to delete", e);
+            throw new ResultArchiveStoreException("Failed to delete run: " + this.runDirectory.toString(), e); 
         }
+        throw new ResultArchiveStoreException("Failed to delete run directory: " + this.runDirectory.toString());     
     }
 }
