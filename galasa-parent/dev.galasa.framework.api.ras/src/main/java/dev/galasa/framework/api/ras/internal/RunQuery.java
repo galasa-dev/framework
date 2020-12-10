@@ -10,7 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.api.run.RunResult;
+import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -120,6 +121,7 @@ public class RunQuery extends HttpServlet {
             RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
             critList.add(bundleCriteria);
          }
+         
          if(result != null && !result.isEmpty()) {
             RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
             critList.add(resultCriteria);
@@ -128,7 +130,7 @@ public class RunQuery extends HttpServlet {
 
       }
 
-      List<RunResult> runs = new ArrayList<>();
+      List<RasRunResult> runs = new ArrayList<>();
 
       try {
          runs = getRuns(critList);
@@ -136,22 +138,21 @@ public class RunQuery extends HttpServlet {
 
          throw new ServletException("Error retrieving runs, ", e);
       }
-
-
-      runs.sort(Comparator.nullsLast(Comparator.comparing(RunResult::getEnd, Comparator.nullsLast(Comparator.naturalOrder()))));
+      
+      Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
       Map<String, String[]> query = req.getParameterMap();
 
       if(!query.isEmpty()){
          if(!ExtractQuerySort.isAscending(query, "to")) {
-            runs.sort(Comparator.nullsLast(Comparator.comparing(RunResult::getEnd, Comparator.nullsLast(Comparator.naturalOrder()))).reversed());
+            Collections.reverse(runs);
          }
       }
 
 
       List<JsonObject> returnArray = new ArrayList<>();
 
-      List<List<RunResult>> runList = ListUtils.partition(runs, pageSize);
+      List<List<RasRunResult>> runList = ListUtils.partition(runs, pageSize);
 
       int numPages = runList.size();
 
@@ -159,7 +160,7 @@ public class RunQuery extends HttpServlet {
 
 
       if(runList != null) {
-         for(List<RunResult> list : runList) {
+         for(List<RasRunResult> list : runList) {
 
             JsonObject obj = new JsonObject();
 
@@ -204,7 +205,7 @@ public class RunQuery extends HttpServlet {
 
    }
 
-   private List<RunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
+   private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 
       List<IRunResult> runs = new ArrayList<>();
 
@@ -218,10 +219,11 @@ public class RunQuery extends HttpServlet {
 
       }
 
-      List<RunResult> runResults = new ArrayList<>();
+      List<RasRunResult> runResults = new ArrayList<>();
+      
 
       for(IRunResult run : runs) {
-         runResults.add(RunResultUtility.toRunResult(run));
+         runResults.add(RunResultUtility.toRunResult(run, true));
       }
 
       return runResults;
@@ -240,6 +242,29 @@ public class RunQuery extends HttpServlet {
          }
       }
       return newParameterMap;
+   }
+   
+   
+   class SortByEndTime implements Comparator<RasRunResult> {
+      
+      @Override
+      public int compare(RasRunResult a, RasRunResult b) {
+         Instant aEndTime = a.getTestStructure().getEndTime();
+         Instant bEndTime = b.getTestStructure().getEndTime();
+         
+         if(aEndTime == null) {
+            if(bEndTime == null) {
+               return 0;
+            }
+            return -1;
+         }
+         
+         if(bEndTime == null) {
+            return 1;
+         }
+         
+         return aEndTime.compareTo(bEndTime);
+      }
    }
 
 

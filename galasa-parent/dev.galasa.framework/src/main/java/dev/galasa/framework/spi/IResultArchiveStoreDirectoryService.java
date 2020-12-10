@@ -1,11 +1,10 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2020.
  */
 package dev.galasa.framework.spi;
 
-import java.time.Instant;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -47,5 +46,6 @@ public interface IResultArchiveStoreDirectoryService {
     @NotNull
     List<String> getResultNames() throws ResultArchiveStoreException;
     
-
+    IRunResult getRunById(@NotNull String runId) throws ResultArchiveStoreException;
+    
 }
