@@ -16,6 +16,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,11 +55,13 @@ public class RunResultRas extends HttpServlet {
             if (matcher.find()) {
                runId = matcher.group();
                
-               RasRunResult run = getRun(runId);
+               String decoded = URLDecoder.decode(runId, "UTF-8");
+               
+               RasRunResult run = getRun(decoded);
                
                //Check to see if a run came back with that id
                if(run != null) {
-                 json = gson.toJson(getRun(runId));
+                 json = gson.toJson(run);
                }else {
                   sendError("Could not find requested run", 404, res);
                   return;
