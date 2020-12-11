@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResourceManagement;
 import dev.galasa.framework.spi.IResultArchiveStore;
@@ -49,22 +50,24 @@ public class RunRASMonitor implements Runnable {
                 cleanupDays = "21";
             }
             
-
             long amount = Long.parseLong(cleanupDays);
-            long cleanupAge = Duration.ofDays(amount).getSeconds();
-            long now = Instant.now().getEpochSecond();
+            Instant requestUpTo = Instant.now().minus(amount, ChronoUnit.DAYS);
             
-            Instant requestUpTo = Instant.ofEpochSecond(Math.subtractExact(now, age));
-
             IResultArchiveStore ras = framework.getResultArchiveStore();
             for(IResultArchiveStoreDirectoryService service :  ras.getDirectoryServices()) {
                 for (IRunResult run : service.getRuns(new RasSearchCriteriaQueuedTo(requestUpTo))) {
                     logger.info("Discarding old run: " + run.getTestStructure().getRunName());
-                    run.discard();
+                    try {
+                        run.discard();
+                    } catch (ResultArchiveStoreException e) {
+                        logger.error("Failed to discard the run: " + run.getRunId());
+                    }   
                 }
             }
+        } catch (NumberFormatException e) {
+            logger.error("The \"framework.ras.cleanup.days\" property could not be parsed as a long");
         } catch (Exception e) {
             logger.error("RAS cleanup check failed", e);
-        }        
+        }
     }
 }
