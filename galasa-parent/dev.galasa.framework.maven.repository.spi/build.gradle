@@ -1,13 +1,5 @@
 plugins {
-    id 'java-library' 
     id 'biz.aQute.bnd.builder' version '5.1.2'
-    id 'maven-publish'
-    id 'signing'
 }
 
-group = "dev.galasa"
-version = "0.14.0-SNAPSHOT"
-
-dependencies {
-}
-
+description = 'Galasa Maven Repository SPI'

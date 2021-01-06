@@ -1,4 +1,4 @@
 -snapshot ${tstamp}
 Bundle-Name Galasa Framework
-Export-Package !dev.galasa.framework.internal*,dev.galasa*
+Export-Package !dev.galasa.framework.internal*;!dev.galasa.framework.maven;dev.galasa.framework;dev.galasa.framework.*;
 Import-Package javax.validation*;resolution:=optional,org.apache.bcel.*;resolution:=optional,org.apache.felix.*;resolution:=optional,dev.galasa.framework.maven.repository.spi;resolution:=optional,*
