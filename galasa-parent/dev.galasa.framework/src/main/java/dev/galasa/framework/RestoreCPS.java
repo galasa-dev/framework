@@ -16,11 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.bundlerepository.Property;
 import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -104,15 +106,18 @@ public class RestoreCPS {
      * @return 
      */
     private void restoreProperties(Properties properties) throws ConfigurationPropertyStoreException {
-        
-        for (Entry<Object, Object> prop : properties.entrySet()) {
-            if (isValidProperty(prop.getKey().toString())) {
-                restoreProperty(prop.getKey().toString(), prop.getValue().toString());
+
+        List<String> keys = new ArrayList<>(properties.stringPropertyNames());
+
+        java.util.Collections.sort(keys, java.text.Collator.getInstance());
+
+        for(String key : keys){
+            if (isValidProperty(key)) {
+                restoreProperty(key, properties.getProperty(key).toString());
             } else {
                 logPropertyRestore("invalid", "n/a", "n/a", "n/a", "n/a");
             }
-        }
-                
+        }                
     }
     
     /**
