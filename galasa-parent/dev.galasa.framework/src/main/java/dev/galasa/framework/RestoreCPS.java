@@ -37,10 +37,9 @@ public class RestoreCPS {
     
     private IFramework      framework;
     
-    private Map<String, IConfigurationPropertyStoreService>     namespaceCPS 
-                            = new HashMap<String ,IConfigurationPropertyStoreService>();
+    private Map<String, IConfigurationPropertyStoreService>     namespaceCPS = new HashMap<>();
     
-    List<String> forbiddenNamespaces = new ArrayList<String>();
+    List<String> forbiddenNamespaces = new ArrayList<>();
     
     public RestoreCPS(){
     	forbiddenNamespaces.add("dss");
@@ -113,7 +112,7 @@ public class RestoreCPS {
 
         for(String key : keys){
             if (isValidProperty(key)) {
-                restoreProperty(key, properties.getProperty(key).toString());
+                restoreProperty(key, properties.getProperty(key));
             } else {
                 logPropertyRestore("invalid", "n/a", "n/a", "n/a", "n/a");
             }
@@ -141,7 +140,7 @@ public class RestoreCPS {
             
             namespaceCPS.get(namespace).setProperty(property, newValue);
 
-            logPropertyRestore(getStatusCRU(newValue, currentValue), namespace, property, newValue, currentValue);
+            logPropertyRestore(getStatusCRU(newValue, currentValue), namespace, property, currentValue, newValue);
 
         } else {
             logPropertyRestore("denied", namespace, property, "n/a", "n/a");
