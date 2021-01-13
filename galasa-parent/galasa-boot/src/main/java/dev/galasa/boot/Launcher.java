@@ -180,7 +180,7 @@ public class Launcher {
                 logger.debug("Back Up CPS Properties");
                 felixFramework.runBackupCPS(boostrapProperties, overridesProperties, filePath);
             } else if (restoreCPS) {
-                felixFramework.runRestoreCPS(boostrapProperties, overridesProperties, filePath);
+                felixFramework.runRestoreCPS(boostrapProperties, overridesProperties, filePath, dryRun);
             }
 
         } catch (LauncherException e) {
@@ -244,7 +244,7 @@ public class Launcher {
         options.addOption(null, BACKUPCPS_OPTION, false, "Back up CPS properties to file");
         options.addOption(null, RESTORECPS_OPTION, false, "Restore CPS properties from file");
         options.addOption(FILE_OPTION, FILE_OPTION_LONG, true, "File for data input/output");
-        options.addOption(null, DRY_RUN_OPTION, true, "Perform a dry-run of the specified actions. Can be combined with \"" + FILE_OPTION_LONG + "\"");
+        options.addOption(null, DRY_RUN_OPTION, false, "Perform a dry-run of the specified actions. Can be combined with \"" + FILE_OPTION_LONG + "\"");
         
 
         CommandLineParser parser = new DefaultParser();
