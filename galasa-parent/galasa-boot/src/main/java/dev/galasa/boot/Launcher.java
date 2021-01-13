@@ -358,7 +358,15 @@ public class Launcher {
         }
 
         commandLineError(
-                "Error: Must select either --test, --run, --gherkin, --k8scontroller, --metricserver, --resourcemanagement or --webbundle");
+                "Error: Must select either --" + TEST_OPTION
+                		+ ", --" + RUN_OPTION
+                		+ ", --" + GHERKIN_OPTION
+                		+ ", --" + K8SCONTROLLER_OPTION
+                		+ ", --" + METRICSERVER_OPTION
+                		+ ", --" + RESOURCEMANAGEMENT_OPTION
+                		+ ", --" + BUNDLE_OPTION
+                		+ ", --" + BACKUPCPS_OPTION
+                		+ ", or --" + RESTORECPS_OPTION);
     }
     
     private void filePathError(String option) {
