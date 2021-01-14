@@ -495,7 +495,7 @@ public class FelixFramework {
      * @param filePath 
      * @throws LauncherException
      */
-    public void runRestoreCPS(Properties boostrapProperties, Properties overridesProperties, String filePath) throws LauncherException {
+    public void runRestoreCPS(Properties boostrapProperties, Properties overridesProperties, String filePath, boolean dryRun) throws LauncherException {
 
         // Get the framework bundle
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
@@ -526,7 +526,7 @@ public class FelixFramework {
         // Get the dev.galasa.framework.RestoreCPS#restore() method
         Method runRestoreCPSMethod;
         try {
-            runRestoreCPSMethod = service.getClass().getMethod(methodName, Properties.class, Properties.class, String.class);
+            runRestoreCPSMethod = service.getClass().getMethod(methodName, Properties.class, Properties.class, String.class, boolean.class);
         } catch (NoSuchMethodException | SecurityException e) {
             throw new LauncherException("Unable to get Framework " + className + " " + methodName + " method", e);
         }
@@ -534,7 +534,7 @@ public class FelixFramework {
         // Invoke the runBackupCPSMethod method
         logger.debug("Invoking " + className + " " + methodName + "()");
         try {
-            runRestoreCPSMethod.invoke(service, boostrapProperties, overridesProperties, filePath);
+            runRestoreCPSMethod.invoke(service, boostrapProperties, overridesProperties, filePath, dryRun);
         } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
             throw new LauncherException(e.getCause());
         }

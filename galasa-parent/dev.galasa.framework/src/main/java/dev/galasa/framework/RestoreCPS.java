@@ -37,10 +37,11 @@ public class RestoreCPS {
     
     private IFramework      framework;
     
-    private Map<String, IConfigurationPropertyStoreService>     namespaceCPS 
-                            = new HashMap<String ,IConfigurationPropertyStoreService>();
+    private Map<String, IConfigurationPropertyStoreService>     namespaceCPS = new HashMap<>();
     
-    List<String> forbiddenNamespaces = new ArrayList<String>();
+    private boolean DRY_RUN = false;
+    
+    List<String> forbiddenNamespaces = new ArrayList<>();
     
     public RestoreCPS(){
     	forbiddenNamespaces.add("dss");
@@ -58,8 +59,10 @@ public class RestoreCPS {
      * @throws FrameworkException
      * @throws IOException 
      */
-    public void restore(Properties bootstrapProperties, Properties overrideProperties, String filePath) throws FrameworkException, IOException {
+    public void restore(Properties bootstrapProperties, Properties overrideProperties, String filePath, boolean dryRun) throws FrameworkException, IOException {
         logger.info("Initialising CPS Restore Service");
+        
+        DRY_RUN = dryRun;
         
         FrameworkInitialisation frameworkInitialisation = null;
         try {
@@ -113,7 +116,7 @@ public class RestoreCPS {
 
         for(String key : keys){
             if (isValidProperty(key)) {
-                restoreProperty(key, properties.getProperty(key).toString());
+                restoreProperty(key, properties.getProperty(key));
             } else {
                 logPropertyRestore("invalid", "n/a", "n/a", "n/a", "n/a");
             }
@@ -139,9 +142,11 @@ public class RestoreCPS {
             
             String currentValue = getExistingValue(namespace, property);
             
-            namespaceCPS.get(namespace).setProperty(property, newValue);
+            if(!DRY_RUN) { 
+            	namespaceCPS.get(namespace).setProperty(property, newValue);
+            	};
 
-            logPropertyRestore(getStatusCRU(newValue, currentValue), namespace, property, newValue, currentValue);
+            logPropertyRestore(getStatusCRU(newValue, currentValue), namespace, property, currentValue, newValue);
 
         } else {
             logPropertyRestore("denied", namespace, property, "n/a", "n/a");
@@ -273,7 +278,8 @@ public class RestoreCPS {
      * @param newValue
      */
     private void logPropertyRestore(String status, String namespace, String property, String currentValue, String newValue){
-        logger.info(String.format("STATUS: %-10s\tNAMESPACE: %s\tPROPERTY: %s\tOLDVALUE: %s\tNEWVALUE: %s", status, namespace, property, currentValue, newValue));
+    	String message = String.format("STATUS: %-10s\tNAMESPACE: %s\tPROPERTY: %s\tOLDVALUE: %s\tNEWVALUE: %s", status, namespace, property, currentValue, newValue);
+        logger.info((DRY_RUN == true ? "[[ DRY RUN ]]\t" : "") + message);
     }
 
 }
