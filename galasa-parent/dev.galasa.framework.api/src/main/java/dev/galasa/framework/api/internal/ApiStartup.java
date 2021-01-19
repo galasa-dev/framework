@@ -95,7 +95,7 @@ public class ApiStartup {
                             for (Capability capability : resource.getCapabilities()) {
                                 if ("service".equals(capability.getName())) {
                                     Map<String, Object> properties = capability.getPropertiesAsMap();
-                                    String services = (String) properties.get("objectClass:List<String>");
+                                    String services = (String) properties.get("objectClass");
                                     if (services != null) {
                                         String[] split = services.split(",");
 
