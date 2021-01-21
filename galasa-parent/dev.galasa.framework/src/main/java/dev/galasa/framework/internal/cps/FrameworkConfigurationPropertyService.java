@@ -118,7 +118,7 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
      */
     public void setProperty(@NotNull String name, @NotNull String value)
             throws ConfigurationPropertyStoreException {
-        cpsStore.setProperty(name, value);
+    	cpsStore.setProperty(namespace + "." + name, value);
     }
 
     /**

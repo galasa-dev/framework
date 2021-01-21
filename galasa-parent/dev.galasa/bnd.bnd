@@ -1,3 +1,3 @@
 -snapshot ${tstamp}
-Bundle-Name Galasa Testers Programmer Interface (TPI)
-Export-Package dev.galasa*
+Bundle-Name: Galasa Tester Programmer Interface (TPI)
+Export-Package: dev.galasa*
