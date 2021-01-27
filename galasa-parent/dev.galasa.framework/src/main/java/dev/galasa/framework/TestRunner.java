@@ -314,12 +314,7 @@ public class TestRunner {
             throw new TestRunException("Problem asking Managers for an ignore reason", e);
         }
 
-        TestClassWrapper testClassWrapper;
-        try { 
-            testClassWrapper = new TestClassWrapper(this, testBundleName, testClass, testStructure);
-        } catch(ConfigurationPropertyStoreException e) {
-            throw new TestRunException("Problem with the CPS",e);
-        }
+        TestClassWrapper testClassWrapper = new TestClassWrapper(this, testBundleName, testClass, testStructure);
 
         testClassWrapper.parseTestClass();
 
