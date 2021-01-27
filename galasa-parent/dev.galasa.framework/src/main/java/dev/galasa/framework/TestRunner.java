@@ -36,6 +36,7 @@ import dev.galasa.SharedEnvironment;
 import dev.galasa.Test;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
@@ -89,6 +90,8 @@ public class TestRunner {
     private boolean                            runOk = true;
     private boolean                            resourcesUnavailable = false;
 
+    private IFramework                          framework;
+
     /**
      * Run the supplied test class
      * 
@@ -111,7 +114,9 @@ public class TestRunner {
             throw new TestRunException("Unable to initialise the Framework Services", e);
         }
 
-        IRun run = frameworkInitialisation.getFramework().getTestRun();
+        this.framework = frameworkInitialisation.getFramework();
+
+        IRun run = this.framework.getTestRun();
         if (run == null) {
             throw new TestRunException("Unable to locate run properties");
         }
@@ -159,7 +164,7 @@ public class TestRunner {
             } catch (Exception e) {
                 logger.error("Unable to load stream " + stream + " settings", e);
                 updateStatus("finished", "finished");
-                this.ras.shutdown();
+                frameworkInitialisation.shutdownFramework();
                 return;
             }
         }
@@ -186,7 +191,7 @@ public class TestRunner {
             } catch (MalformedURLException e) {
                 logger.error("Unable to add remote maven repository " + testRepository, e);
                 updateStatus("finished", "finished");
-                this.ras.shutdown();
+                frameworkInitialisation.shutdownFramework();
                 return;
             }
         }
@@ -204,7 +209,7 @@ public class TestRunner {
             } catch (Exception e) {
                 logger.error("Unable to load specified OBR " + testOBR, e);
                 updateStatus("finished", "finished");
-                this.ras.shutdown();
+                frameworkInitialisation.shutdownFramework();
                 return;
             }
         }
@@ -214,7 +219,7 @@ public class TestRunner {
         } catch (Exception e) {
             logger.error("Unable to load the test bundle " + testBundleName, e);
             updateStatus("finished", "finished");
-            this.ras.shutdown();
+            frameworkInitialisation.shutdownFramework();
             return;
         }
 
@@ -238,7 +243,7 @@ public class TestRunner {
 
         if (sharedEnvironmentAnnotation != null) {
             try {
-                SharedEnvironmentRunType seType = frameworkInitialisation.getFramework().getSharedEnvironmentRunType();
+                SharedEnvironmentRunType seType = this.framework.getSharedEnvironmentRunType();
                 if (seType != null) {
                     switch(seType) {
                         case BUILD:
@@ -262,10 +267,10 @@ public class TestRunner {
 
         if (this.runType == RunType.Test) {
             try {
-                heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
+                heartbeat = new TestRunHeartbeat(this.framework);
                 heartbeat.start();
             } catch (DynamicStatusStoreException e1) {
-                this.ras.shutdown();
+                frameworkInitialisation.shutdownFramework();
                 throw new TestRunException("Unable to initialise the heartbeat");
             }
 
@@ -280,8 +285,8 @@ public class TestRunner {
             try {
                 this.dss.put("run." + this.run.getName() + ".shared.environment.expire", expire.toString());
             } catch (DynamicStatusStoreException e) {
-                deleteRunProperties(frameworkInitialisation.getFramework());
-                this.ras.shutdown();
+                deleteRunProperties(this.framework);
+                frameworkInitialisation.shutdownFramework();
                 throw new TestRunException("Unable to set the shared environment expire time",e);
             }
         }
@@ -292,9 +297,9 @@ public class TestRunner {
         // *** Initialise the Managers ready for the test run
         TestRunManagers managers = null;
         try {
-            managers = new TestRunManagers(frameworkInitialisation.getFramework(), new GalasaTest(testClass));
+            managers = new TestRunManagers(this.framework, new GalasaTest(testClass));
         } catch (FrameworkException e) {
-            this.ras.shutdown();
+            frameworkInitialisation.shutdownFramework();
             throw new TestRunException("Problem initialising the Managers for a test run", e);
         }
 
@@ -302,7 +307,7 @@ public class TestRunner {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
                 stopHeartbeat();
                 updateStatus("finished", "finished");
-                this.ras.shutdown();
+                frameworkInitialisation.shutdownFramework();
                 return; // TODO handle ignored classes
             }
         } catch (FrameworkException e) {
@@ -347,7 +352,7 @@ public class TestRunner {
             boolean markedWaiting = false;
 
             if (resourcesUnavailable && !run.isLocal()) {
-                markWaiting(frameworkInitialisation.getFramework());
+                markWaiting(this.framework);
                 logger.info("Placing queue on the waiting list");
                 markedWaiting = true;
             } else {
@@ -377,7 +382,7 @@ public class TestRunner {
             // result and RAS id before
             // *** deleting, default is to keep the automation run properties for 5 minutes
             if (!markedWaiting) {
-                deleteRunProperties(frameworkInitialisation.getFramework());
+                deleteRunProperties(this.framework);
             }
         } else if (this.runType == RunType.SharedEnvironmentBuild) {
             recordCPSProperties(frameworkInitialisation);
@@ -388,7 +393,8 @@ public class TestRunner {
 
         managers.shutdown();
 
-        this.ras.shutdown();
+        frameworkInitialisation.shutdownFramework();
+
         return;
     }
 
@@ -660,10 +666,17 @@ public class TestRunner {
         this.bundleContext = context;
     }
 
+    protected IFramework getFramework() {
+        return this.framework;
+    }
+
+    public IConfigurationPropertyStoreService getCPS() {
+        return this.cps;
+    }
 
     private void recordCPSProperties(FrameworkInitialisation frameworkInitialisation) {
         try {
-            Properties record = frameworkInitialisation.getFramework().getRecordProperties();
+            Properties record = this.framework.getRecordProperties();
 
             ArrayList<String> propertyNames = new ArrayList<>();
             propertyNames.addAll(record.stringPropertyNames());
@@ -690,7 +703,7 @@ public class TestRunner {
                 sb.append(record.getProperty(propertyName));
                 sb.append("\n");
             }
-            IResultArchiveStore ras = frameworkInitialisation.getFramework().getResultArchiveStore();
+            IResultArchiveStore ras = this.framework.getResultArchiveStore();
             Path rasRoot = ras.getStoredArtifactsRoot();
             Path rasProperties = rasRoot.resolve("framework").resolve("cps_record.properties");
             Files.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
@@ -699,5 +712,6 @@ public class TestRunner {
             logger.error("Failed to save the recorded properties", e);
         }
     }
+
 
 }

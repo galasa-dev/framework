@@ -71,6 +71,8 @@ public class BackupCPS {
         
         logger.info("Ending CPS Backup Service");
         
+        frameworkInitialisation.shutdownFramework();
+        
     }
     
     /**
