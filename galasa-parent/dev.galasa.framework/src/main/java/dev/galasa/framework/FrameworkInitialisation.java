@@ -260,7 +260,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             throw new FrameworkException("Failed to initialise a Result Archive Store, unable to continue");
         }
         this.logger
-                .trace("Selected RAS Service is " + this.framework.getResultArchiveStoreService().getClass().getName());
+        .trace("Selected RAS Service is " + this.framework.getResultArchiveStoreService().getClass().getName());
 
         // *** Work out the creds uri
         try {
@@ -294,7 +294,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             throw new FrameworkException("Failed to initialise a Credentials Store, unable to continue");
         }
         this.logger
-                .trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
+        .trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
 
         // *** Initialise the Confidential Test Service
         this.logger.trace("Searching for Confidential Text Service providers");
@@ -489,9 +489,13 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     public @NotNull IFramework getFramework() {
         return this.framework;
     }
-    
-    public void shutdownFramework() throws FrameworkException {
-        this.framework.shutdown(null);
+
+    public void shutdownFramework() {
+        try {
+            this.framework.shutdown(null);
+        } catch(Exception e) {
+            logger.fatal("Problem shutting down the Galasa framework",e);
+        }
     }
 
 }
