@@ -9,7 +9,6 @@ package dev.galasa.framework;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.osgi.service.component.annotations.Component;
 
-import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -146,7 +144,7 @@ public class BackupCPS {
      * @return boolean
      */ 
     private boolean isNamespaceBackupPermitted(String namespace) {
-        List<String> forbiddenNamespaces = new ArrayList<String>();
+        List<String> forbiddenNamespaces = new ArrayList<>();
         forbiddenNamespaces.add("dss");
         forbiddenNamespaces.add("certificate");
         forbiddenNamespaces.add("secure");
