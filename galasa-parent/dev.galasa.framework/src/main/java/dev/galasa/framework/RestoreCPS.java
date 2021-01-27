@@ -77,8 +77,11 @@ public class RestoreCPS {
         if (!properties.isEmpty()) {
             restoreProperties(properties);
         } else {
+            frameworkInitialisation.shutdownFramework();
             throw new FrameworkException("Cannot restore properties. The specified file is either empty or was not found.");
         }
+        
+        frameworkInitialisation.shutdownFramework();
     }
     
     /**

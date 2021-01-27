@@ -489,5 +489,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     public @NotNull IFramework getFramework() {
         return this.framework;
     }
+    
+    public void shutdownFramework() throws FrameworkException {
+        this.framework.shutdown(null);
+    }
 
 }
