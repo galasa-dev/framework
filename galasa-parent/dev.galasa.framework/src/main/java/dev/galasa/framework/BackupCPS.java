@@ -8,6 +8,8 @@ package dev.galasa.framework;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -162,19 +164,20 @@ public class BackupCPS {
      *
      * @param filePath
      * @return 
+     * @throws FrameworkException 
      */ 
-    private void initialiseFileOutput(String filePath) {
-        
-        path = Paths.get(filePath);
-        try {
-            if (!path.toFile().exists()) {
-                if (!path.getParent().toFile().exists()) {
-                    Files.createDirectories(path.getParent());
-                }
-                Files.createFile(path);
-            }
-        } catch (IOException e) {
-            logger.error("Unable to create CPS backup file in location specified: " + path.toUri().toString(), e);
-        }
+    private void initialiseFileOutput(String filePath) throws FrameworkException {
+    	
+    	path = Paths.get(filePath);
+    	
+    	try {
+			Files.createFile(path);
+			logger.info("File created: " + path.toUri().toString());
+		} catch (FileAlreadyExistsException  e) {
+			logger.info("Overwriting existing file: " + path.toUri().toString());
+		} catch (IOException e) {
+			throw new FrameworkException("Unable to create new file", e);
+		}
+
     }
 }
