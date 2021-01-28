@@ -104,7 +104,7 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
      * 
      * @return all properties from a given namespace
      */
-    public Map<String,String> getAllProperties() {
+    public Map<String,String> getAllProperties() throws ConfigurationPropertyStoreException {
         return cpsStore.getPropertiesFromNamespace(namespace);
     }
 

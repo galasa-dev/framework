@@ -85,7 +85,7 @@ public interface IConfigurationPropertyStore {
      * 
      * @return Map of names and values of all properties
      */
-    Map<String,String> getPropertiesFromNamespace(String namespace);
+    Map<String,String> getPropertiesFromNamespace(String namespace) throws ConfigurationPropertyStoreException;
 
     /**
      * <p>

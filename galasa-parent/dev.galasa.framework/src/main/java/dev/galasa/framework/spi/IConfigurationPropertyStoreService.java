@@ -131,7 +131,7 @@ public interface IConfigurationPropertyStoreService {
      * 
      * @return Map of names and values of all properties
      */
-    Map<String,String> getAllProperties();
+    Map<String,String> getAllProperties() throws ConfigurationPropertyStoreException;
 
     /**
      * <p>
