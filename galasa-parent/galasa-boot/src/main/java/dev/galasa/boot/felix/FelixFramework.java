@@ -729,7 +729,7 @@ public class FelixFramework {
         } catch (BundleException e) {
             throw new LauncherException("Unable to stop the Felix framework", e);
         }
-
+        
         framework.waitForStop(30000);
         logger.debug("Felix framework stopped");
     }
