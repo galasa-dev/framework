@@ -102,7 +102,7 @@ public class BackupCPS {
         try {
             Files.write(path, sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
-            logger.error("Failed to save CPS properties: ", e);
+            throw new FrameworkException("Failed to write to file: " + path.toString(), e);
         }
     }
     
