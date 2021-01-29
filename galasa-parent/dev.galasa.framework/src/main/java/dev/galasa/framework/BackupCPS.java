@@ -8,6 +8,7 @@ package dev.galasa.framework;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.osgi.service.component.annotations.Component;
 
-import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -32,9 +32,6 @@ import dev.galasa.framework.spi.IFramework;
 public class BackupCPS {
     
     private Log             logger  =  LogFactory.getLog(this.getClass());
-    
-    private StringBuilder   sb;
-    private Path            path;
     
     private IFramework framework;
     
@@ -65,9 +62,8 @@ public class BackupCPS {
         
         logger.info("Backing-up to file: " + filePath);
         
-        initialiseFileOutput(filePath);
-        
-        outputCPSProperties(namespaces);
+        String cpsProperties = getCPSProperties(namespaces);
+        outputToFile(filePath, cpsProperties);
         
         logger.info("Ending CPS Backup Service");
         
@@ -76,61 +72,73 @@ public class BackupCPS {
     }
     
     /**
-     * <p>Takes a list of namespaces and outputs CPS properties for each namespace.</p>
+     * <p>Takes a list of namespaces and returns CPS properties for each namespace.</p>
      * 
      * @param namespaces
      * @param framework
-     * @return
+     * @return String
      * @throws FrameworkException
      */  
-    private void outputCPSProperties(List<String> namespaces) throws FrameworkException {
-        
-        sb = new StringBuilder();
-        
+    private String getCPSProperties(List<String> namespaces) throws FrameworkException {
+                
         logger.info("Backing Up Namespaces:");
         
         java.util.Collections.sort(namespaces, java.text.Collator.getInstance());
         
+        StringBuilder sbAllNamespaceProps = new StringBuilder();
+        
         for (String namespace : namespaces) {
             if (isNamespaceBackupPermitted(namespace)) {
                 logger.info("SUCCESS:\t" + namespace);
-                outputNamespaceCPSProperties(namespace);
+                sbAllNamespaceProps.append(getNamespaceCPSProperties(namespace) + System.lineSeparator());
             } else {
                 logger.info("FORBIDDEN:\t" + namespace);
             }
         }
+        
+        return sbAllNamespaceProps.toString();
+        
+    }
+    
+    /**
+     * Outputs the specified message to the filePath specified.
+     * 
+     * @param filePath
+     * @param message
+     * @throws FrameworkException
+     */
+    private void outputToFile(String filePath, String message) throws FrameworkException {
+        Path path = Paths.get(filePath);
+        
         try {
-            Files.write(path, sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(path, message.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
         } catch (IOException e) {
-            logger.error("Failed to save CPS properties: ", e);
+            throw new FrameworkException("Failed to write to file: " + path.toString(), e);
         }
     }
     
     /**
-     * <p>Outputs CPS properties for a specified namespace.</p>
+     * <p>Returns CPS properties for a specified namespace.</p>
      * 
      * @param namespace
      * @param framework
-     * @return
+     * @return String
      * @throws FrameworkException
      */  
-    private void outputNamespaceCPSProperties(String namespace) throws FrameworkException {
+    private String getNamespaceCPSProperties(String namespace) throws FrameworkException {
 
         IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService(namespace);
         Map<String, String> properties = new TreeMap<>(cps.getAllProperties());
         
-        if(sb.length()>0) {
-            // Insert blank line between namespaces
-            sb.append(System.lineSeparator());
-        }
+        StringBuilder sbNamespaceProps = new StringBuilder();
         
         for (Map.Entry<String, String> prop : properties.entrySet()) {
-            sb.append(prop.getKey());
-            sb.append("=");
-            sb.append(prop.getValue());
-            sb.append(System.lineSeparator());
+            sbNamespaceProps.append(prop.getKey());
+            sbNamespaceProps.append("=");
+            sbNamespaceProps.append(prop.getValue());
+            sbNamespaceProps.append(System.lineSeparator());
         }
-        
+        return sbNamespaceProps.toString();
     }
     
     /**
@@ -144,7 +152,7 @@ public class BackupCPS {
      * @return boolean
      */ 
     private boolean isNamespaceBackupPermitted(String namespace) {
-        List<String> forbiddenNamespaces = new ArrayList<String>();
+        List<String> forbiddenNamespaces = new ArrayList<>();
         forbiddenNamespaces.add("dss");
         forbiddenNamespaces.add("certificate");
         forbiddenNamespaces.add("secure");
@@ -156,25 +164,5 @@ public class BackupCPS {
         }
         return true;
     }
-    
-    /**
-     * <p>Initialises path and creates files/directories necessary for output.</p>
-     *
-     * @param filePath
-     * @return 
-     */ 
-    private void initialiseFileOutput(String filePath) {
-        
-        path = Paths.get(filePath);
-        try {
-            if (!path.toFile().exists()) {
-                if (!path.getParent().toFile().exists()) {
-                    Files.createDirectories(path.getParent());
-                }
-                Files.createFile(path);
-            }
-        } catch (IOException e) {
-            logger.error("Unable to create CPS backup file in location specified: " + path.toUri().toString(), e);
-        }
-    }
+
 }
