@@ -110,10 +110,22 @@ public class BackupCPS {
     private void outputToFile(String filePath, String message) throws FrameworkException {
         Path path = Paths.get(filePath);
         
+        Path pathParent = path.getParent();
+        
+        try {
+            if (!Files.exists(pathParent)) {
+                Files.createDirectories(pathParent);
+                logger.info("Created directory: " + pathParent.toString());
+            }
+        } catch (IOException e) {
+            throw new FrameworkException("Failed to create directory: " + pathParent.toString(), e);
+        }
+        
         try {
             Files.write(path, message.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-        } catch (IOException e) {
-            throw new FrameworkException("Failed to write to file: " + path.toString(), e);
+            logger.info("Written backup to: " + path.toString());
+        } catch (IOException e1) {
+            throw new FrameworkException("Failed to write to file: " + path.toString(), e1);
         }
     }
     
