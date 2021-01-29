@@ -112,13 +112,15 @@ public class BackupCPS {
         
         Path pathParent = path.getParent();
         
-        try {
-            if (!Files.exists(pathParent)) {
-                Files.createDirectories(pathParent);
-                logger.info("Created directory: " + pathParent.toString());
+        if (pathParent != null) {
+            try {
+                if (!Files.exists(pathParent)) {
+                    Files.createDirectories(pathParent);
+                    logger.info("Created directory: " + pathParent.toString());
+                }
+            } catch (IOException e) {
+                throw new FrameworkException("Failed to create directory: " + pathParent.toString(), e);
             }
-        } catch (IOException e) {
-            throw new FrameworkException("Failed to create directory: " + pathParent.toString(), e);
         }
         
         try {
