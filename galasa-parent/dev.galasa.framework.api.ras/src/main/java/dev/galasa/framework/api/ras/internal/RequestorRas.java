@@ -31,13 +31,6 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 
-
-/**
- * CPS API
- * 
- * Allows for CPS properties to be retrieved and added
- * 
- */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
 "osgi.http.whiteboard.servlet.pattern=/ras/requestors" }, name = "Galasa Requestor microservice")
 public class RequestorRas extends HttpServlet {
