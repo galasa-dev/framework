@@ -1,31 +1,12 @@
 plugins {
-    id 'java-library' 
     id 'biz.aQute.bnd.builder' version '5.1.2'
-    id 'maven-publish'
-    id 'signing'
 }
 
-group = "dev.galasa"
-version = "0.14.0-SNAPSHOT"
-
-configurations {
-    embedImplementation
-    implementation.extendsFrom embedImplementation
-}
-
-jar{
-    from {
-	        	        configurations.embedImplementation {}
-	    }
-}
+description = 'Galasa Maven Repository '
 
 dependencies {
-	implementation project(':dev.galasa.framework.maven.repository.spi')
-	
-	implementation 'commons-logging:commons-logging:1.1.1'
-	
-	implementation 'org.osgi:org.osgi.core:6.0.0'
-	implementation 'org.osgi:org.osgi.service.component.annotations:1.3.0'
-	
-	embedImplementation 'org.apache.maven:maven-repository-metadata:3.3.9'	
+    compileOnly project(':dev.galasa.framework.maven.repository.spi')
+
+    implementation 'org.apache.maven:maven-repository-metadata:3.3.9'
+    implementation 'org.codehaus.plexus:plexus-utils:3.0.22'
 }
