@@ -19,8 +19,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.ContinueOnTestFailure;
 import dev.galasa.framework.GenericMethodWrapper.Type;
+import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.teststructure.TestMethod;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -42,7 +46,7 @@ public class TestClassWrapper {
     private ArrayList<GenericMethodWrapper> beforeClassMethods = new ArrayList<>();
     private ArrayList<TestMethodWrapper>    testMethods        = new ArrayList<>();
     private ArrayList<GenericMethodWrapper> afterClassMethods  = new ArrayList<>();
-    
+
     private static final String BEFORE_CLASS_ANNOTATION_TYPE = "L" + dev.galasa.BeforeClass.class.getName().replaceAll("\\.", "/") + ";";
     private static final String BEFORE_ANNOTATION_TYPE = "L" + dev.galasa.Before.class.getName().replaceAll("\\.", "/") + ";";
     private static final String TEST_ANNOTATION_TYPE = "L" + dev.galasa.Test.class.getName().replaceAll("\\.", "/") + ";";
@@ -57,7 +61,8 @@ public class TestClassWrapper {
 
     private final TestStructure testStructure;
 
-    @SuppressWarnings("unused")
+    private final boolean       continueOnTestFailure;
+
     private final TestRunner    testRunner;
 
     /**
@@ -66,12 +71,27 @@ public class TestClassWrapper {
      * @param testStructure
      * @param testRunner
      * @param testBundleName
+     * @throws ConfigurationPropertyStoreException 
      */
-    public TestClassWrapper(TestRunner testRunner, String testBundle, Class<?> testClass, TestStructure testStructure) {
+    public TestClassWrapper(TestRunner testRunner, String testBundle, Class<?> testClass, TestStructure testStructure) throws ConfigurationPropertyStoreException {
         this.testRunner = testRunner;
         this.testBundle = testBundle;
         this.testClass = testClass;
         this.testStructure = testStructure;
+
+
+        // Check that we are supposed to continue on test failure
+        IConfigurationPropertyStoreService cps = this.testRunner.getCPS();
+        String checkContinue = AbstractManager.nulled(cps.getProperty("continue.on.test", "failure"));
+        if (checkContinue != null) {
+            this.continueOnTestFailure = Boolean.parseBoolean(checkContinue);
+        } else {
+            if (this.testClass.isAnnotationPresent(ContinueOnTestFailure.class)) {
+                this.continueOnTestFailure = true;
+            } else {
+                this.continueOnTestFailure = false;
+            }
+        }
     }
 
     /**
@@ -107,7 +127,7 @@ public class TestClassWrapper {
         // *** Build the wrappers for the test methods
         for (Method method : temporaryTestMethods) {
             this.testMethods
-                    .add(new TestMethodWrapper(method, this.testClass, temporaryBeforeMethods, temporaryAfterMethods));
+            .add(new TestMethodWrapper(method, this.testClass, temporaryBeforeMethods, temporaryAfterMethods));
         }
 
         // *** Create the reporting Test Structure
@@ -179,7 +199,7 @@ public class TestClassWrapper {
             // Run test methods
             for (TestMethodWrapper testMethod : this.testMethods) {
                 // Run @Test method
-                testMethod.invoke(managers, this.testClassObject);
+                testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure);
                 if (testMethod.fullStop()) {
                     break;
                 }
@@ -220,7 +240,7 @@ public class TestClassWrapper {
 
         // Test result
         logger.info(LOG_ENDING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** " + this.result.getName()
-                + " - Test class " + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
+        + " - Test class " + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
 
         this.testStructure.setResult(this.result.getName());
 
@@ -250,7 +270,7 @@ public class TestClassWrapper {
      */
     private void parseMethods(Class<?> testClassXXX, List<GenericMethodWrapper> temporaryBeforeMethods,
             List<Method> temporaryTestMethods, List<GenericMethodWrapper> temporaryAfterMethods)
-            throws NoSuchMethodException, TestRunException {
+                    throws NoSuchMethodException, TestRunException {
         org.apache.bcel.classfile.JavaClass bcelJavaClass;
         try {
             bcelJavaClass = org.apache.bcel.Repository.lookupClass(testClassXXX);
@@ -282,11 +302,11 @@ public class TestClassWrapper {
             int testAnnotations = 0;
             for (AnnotationEntry annotationEntry : annotationEntries) {
                 if (annotationEntry.getAnnotationType().equals(BEFORE_CLASS_ANNOTATION_TYPE) ||
-                    annotationEntry.getAnnotationType().equals(BEFORE_ANNOTATION_TYPE) || 
-                    annotationEntry.getAnnotationType().equals(TEST_ANNOTATION_TYPE) || 
-                    annotationEntry.getAnnotationType().equals(AFTER_ANNOTATION_TYPE) || 
-                    annotationEntry.getAnnotationType().equals(AFTER_CLASS_ANNOTATION_TYPE)) {
-                    
+                        annotationEntry.getAnnotationType().equals(BEFORE_ANNOTATION_TYPE) || 
+                        annotationEntry.getAnnotationType().equals(TEST_ANNOTATION_TYPE) || 
+                        annotationEntry.getAnnotationType().equals(AFTER_ANNOTATION_TYPE) || 
+                        annotationEntry.getAnnotationType().equals(AFTER_CLASS_ANNOTATION_TYPE)) {
+
                     testAnnotations++;
                     if (!bcelMethod.isPublic()) {
                         throw new TestRunException("Method " + bcelMethod.getName() + " must be public");
@@ -331,11 +351,11 @@ public class TestClassWrapper {
             temporaryTestMethods.add(method);
         }
     }
-    
+
     protected void setResult(Result result) {
         this.result = result;
     }
-    
+
     protected Result getResult() {
         return this.result;
     }

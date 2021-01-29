@@ -150,7 +150,7 @@ public class GherkinTestRunner {
             } catch (Exception e) {
                 logger.error("Unable to load stream " + stream + " settings", e);
                 updateStatus("finished", "finished");
-                this.ras.shutdown();
+                frameworkInitialisation.shutdownFramework();
                 return;
             }
         }
@@ -177,7 +177,7 @@ public class GherkinTestRunner {
             } catch (MalformedURLException e) {
                 logger.error("Unable to add remote maven repository " + testRepository, e);
                 updateStatus("finished", "finished");
-                this.ras.shutdown();
+                frameworkInitialisation.shutdownFramework();
                 return;
             }
         }
@@ -195,7 +195,7 @@ public class GherkinTestRunner {
             } catch (Exception e) {
                 logger.error("Unable to load specified OBR " + testOBR, e);
                 updateStatus("finished", "finished");
-                this.ras.shutdown();
+                frameworkInitialisation.shutdownFramework();
                 return;
             }
         }
@@ -205,7 +205,7 @@ public class GherkinTestRunner {
         } catch (Exception e) {
             logger.error("Unable to load the managers obr", e);
             updateStatus("finished", "finished");
-            this.ras.shutdown();
+            frameworkInitialisation.shutdownFramework();
             return;
         }
 
@@ -219,7 +219,7 @@ public class GherkinTestRunner {
             heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
             heartbeat.start();
         } catch (DynamicStatusStoreException e1) {
-            this.ras.shutdown();
+            frameworkInitialisation.shutdownFramework();
             throw new TestRunException("Unable to initialise the heartbeat");
         }
 
@@ -236,7 +236,7 @@ public class GherkinTestRunner {
         try {
             managers = new TestRunManagers(frameworkInitialisation.getFramework(), new GalasaTest(gherkinTest));
         } catch (FrameworkException e) {
-            this.ras.shutdown();
+            frameworkInitialisation.shutdownFramework();
             throw new TestRunException("Problem initialising the Managers for a test run", e);
         }
 
@@ -258,7 +258,7 @@ public class GherkinTestRunner {
             
             stopHeartbeat();
             updateStatus("finished", "finished");
-            this.ras.shutdown();
+            frameworkInitialisation.shutdownFramework();
             throw new TestRunException("Not all methods in test are registered to a Manager");
         }
 
@@ -266,7 +266,7 @@ public class GherkinTestRunner {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
                 stopHeartbeat();
                 updateStatus("finished", "finished");
-                this.ras.shutdown();
+                frameworkInitialisation.shutdownFramework();
                 return; // TODO handle ignored classes
             }
         } catch (FrameworkException e) {
@@ -313,7 +313,8 @@ public class GherkinTestRunner {
 
         managers.shutdown();
 
-        this.ras.shutdown();
+        frameworkInitialisation.shutdownFramework();
+
         return;
     }
 
