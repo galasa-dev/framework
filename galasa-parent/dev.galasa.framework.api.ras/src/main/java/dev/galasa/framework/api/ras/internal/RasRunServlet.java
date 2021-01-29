@@ -49,12 +49,10 @@ public class RasRunServlet extends HttpServlet {
       
       
       String url = req.getPathInfo();
-      
+     
       Matcher matcher1 = pattern.matcher(url);
-      
-      Matcher matcher2 = pattern2.matcher(url);
-      
-      String json = "";
+  
+      String response = "";
       
       if(matcher1.matches()) {
          
@@ -63,7 +61,9 @@ public class RasRunServlet extends HttpServlet {
             RasRunResult run = runResultRas.getRun(url);
             
             if(run != null) {
-               json = gson.toJson(run);
+               response = gson.toJson(run);
+               ResponseUtility.sendJsonResponse(response, 200, res);
+               return;
             }else {
                ResponseUtility.sendError("Could not receive run", 404, res);
                return;
@@ -75,6 +75,8 @@ public class RasRunServlet extends HttpServlet {
          }
       
       }
+      
+      Matcher matcher2 = pattern2.matcher(url);
      
       if(matcher2.matches()) {
           
@@ -82,8 +84,10 @@ public class RasRunServlet extends HttpServlet {
             
             String runLog = runLogRas.getRunlog(url);
             
-            if(runLog != null) {
-               json = gson.toJson(runLog);
+            if(!runLog.isEmpty()) {
+               response = runLog;
+               ResponseUtility.sendTextResponse(response, 200, res);
+               return;
             }else {
                ResponseUtility.sendError("Could not receive run log", 404, res);
                return;
@@ -97,12 +101,8 @@ public class RasRunServlet extends HttpServlet {
          
       }
       
-      try {
-         ResponseUtility.sendResponse(json, 200, res);
-      }catch(Exception e) {
-         throw new ServletException("Error occured trying to receive run");
-      }
-      
+      ResponseUtility.sendError("Invalid path", 404, res);
+   
    }
    
    @Activate
