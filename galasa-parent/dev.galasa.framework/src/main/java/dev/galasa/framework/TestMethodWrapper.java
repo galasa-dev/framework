@@ -11,10 +11,15 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.teststructure.TestMethod;
 
 public class TestMethodWrapper {
+    
+    private Log                              logger        = LogFactory.getLog(TestMethodWrapper.class);
 
     private final List<GenericMethodWrapper> befores  = new ArrayList<>();
     private GenericMethodWrapper             testMethod;
@@ -41,7 +46,7 @@ public class TestMethodWrapper {
         return;
     }
 
-    public void invoke(@NotNull TestRunManagers managers, Object testClassObject) throws TestRunException {
+    public void invoke(@NotNull TestRunManagers managers, Object testClassObject, boolean continueOnTestFailure) throws TestRunException {
         // run all the @Befores before the test method
         for (GenericMethodWrapper before : this.befores) {
             before.invoke(managers, testClassObject, testMethod);
@@ -54,7 +59,14 @@ public class TestMethodWrapper {
 
         if (this.result == null) {
             testMethod.invoke(managers, testClassObject, null);
-            this.fullStop = this.testMethod.fullStop();
+            if (this.testMethod.fullStop()) {
+                if (continueOnTestFailure) {
+                    logger.warn("Test method failed, however, continue on test failure was requested, so carrying on");
+                } else {
+                    this.fullStop = this.testMethod.fullStop();
+                }
+            }
+            
             this.result = this.testMethod.getResult();
         }
 
