@@ -100,37 +100,19 @@ public class RestoreCPS {
         // Get all properties in both restoration and current properties
         Properties propsToUpdate = getIntersect(propsFromFile, propsFromCPS);
         
-        createProperties(propsToCreate);
-        updateProperties(propsToUpdate);
-        deleteProperties(propsToDelete);
+        if (!propsToCreate.isEmpty()) {
+            createProperties(propsToCreate);
+        }
+        if (!propsToUpdate.isEmpty()) {
+            updateProperties(propsToUpdate, propsFromCPS);
+        }
+        if (!propsToDelete.isEmpty()) {
+            deleteProperties(propsToDelete);
+        }
         
         logger.info("Finished restoring properties to CPS ");
         
         frameworkInitialisation.shutdownFramework();
-    }
-    
-    private void outputSectionStart(String message) {
-        logger.info("");
-        outputSectionMessage("CPS RESTORATION    " + getDryRunTitleText(), 
-                "", message, "", ">>> START <<<");
-        logger.info("");
-    }
-    
-    private void outputSectionStop() {
-        logger.info("");
-        outputSectionMessage(">>> STOP <<<");
-        logger.info("");
-    }
-    
-    private void outputSectionMessage(String... messages) {
-        String bannerStars = "********************************************************************";
-        logger.info(bannerStars);
-        
-        for(String message : messages) {
-            logger.info(String.format("*  %-62s *", message));
-        }
-        
-        logger.info(bannerStars);
     }
     
     /**
@@ -153,6 +135,11 @@ public class RestoreCPS {
         return properties;
     }
     
+    /**
+     * <p>Fetches all properties from the current CPS</p>
+     * @return Properties
+     * @throws ConfigurationPropertyStoreException
+     */
     private Properties getPropertiesFromCPS() throws ConfigurationPropertyStoreException {
         Properties properties = new Properties();
         
@@ -169,6 +156,12 @@ public class RestoreCPS {
         return properties;
     }
     
+    /**
+     * <p> Fetches all properties from the specified namespace</p>
+     * @param namespace
+     * @return Properties
+     * @throws ConfigurationPropertyStoreException
+     */
     private Properties getNamespaceProperties(String namespace) throws ConfigurationPropertyStoreException {
         Properties properties = new Properties();
         
@@ -181,6 +174,13 @@ public class RestoreCPS {
         return properties;
     }
     
+    /**
+     * <p>Returns the relative complement of propsA \ propsB</p>
+     * <p>(All entries that are in propsA but not probsB)
+     * @param propsA
+     * @param propsB
+     * @return Properties
+     */
     private Properties getComplement(Properties propsA, Properties propsB){
         // Get relative complement of propsA \ propsB
         Properties properties = new Properties();
@@ -197,6 +197,13 @@ public class RestoreCPS {
         return properties;
     }
     
+    /**
+     * <p>Returns the intersection of propsA /\ propsB</p>
+     * <p>(All entries that are in both propsA and propsB)</p>
+     * @param propsA
+     * @param propsB
+     * @return
+     */
     private Properties getIntersect(Properties propsA, Properties propsB){
         // Get intesection of propsA /\ propsB
         Properties properties = new Properties();
@@ -213,6 +220,11 @@ public class RestoreCPS {
         return properties;
     }
     
+    /**
+     * <p>Creates properties (all those specified within the props param) within the CPS</p>
+     * @param props
+     * @throws ConfigurationPropertyStoreException
+     */
     private void createProperties(Properties props) throws ConfigurationPropertyStoreException {
         
         outputSectionStart("CREATING PROPERTIES");
@@ -232,11 +244,10 @@ public class RestoreCPS {
             
             ensureCPSExists(namespace);
             
-            logger.info(property + " = " + value);
-            
-            // Create the property
+            logger.info(key + " = " + value);
             
             if(!DRY_RUN) { 
+                 // Create the property
                  namespaceCPS.get(namespace).setProperty(property, value);
             }
         }
@@ -244,7 +255,13 @@ public class RestoreCPS {
         outputSectionStop();
     }
     
-    private void updateProperties(Properties props) throws ConfigurationPropertyStoreException {
+    /**
+     * <p>Compares the values of two sets of properties (passed as parameters), updating those that have different values within the CPS.</p>
+     * @param props
+     * @param oldProps
+     * @throws ConfigurationPropertyStoreException
+     */
+    private void updateProperties(Properties props, Properties oldProps) throws ConfigurationPropertyStoreException {
         
         // Convert to list and then sort the list alphabetically        
         List<String> propsList = new ArrayList<>(props.stringPropertyNames());
@@ -262,10 +279,7 @@ public class RestoreCPS {
             String namespace = getPropertyPrefix(key);
             String property = getPropertySuffix(key);
             String value = props.getProperty(key);
-            
-            ensureCPSExists(namespace);
-            
-            String oldValue = namespaceCPS.get(namespace).getProperty(getPropertyPrefix(property), getPropertySuffix(property));
+            String oldValue = oldProps.getProperty(key);
             
             if(oldValue.equals(value)){
                 propsNotUpdated.add(key);
@@ -275,15 +289,14 @@ public class RestoreCPS {
                 logger.info("\tNEW VALUE: " + value);
                 
                 if(!DRY_RUN) { 
+                    ensureCPSExists(namespace);
                     namespaceCPS.get(namespace).setProperty(property, value);
                 }
             }
-            
-            
+        
         }
 
         outputSectionStop();
-        
         
         outputSectionStart("KEEPING PROPERTIES");
         
@@ -294,7 +307,12 @@ public class RestoreCPS {
         outputSectionStop();
         
     }
-
+    
+    /**
+     * <p>Deletes properties (all those specified within the props param) within the CPS</p>
+     * @param props
+     * @throws ConfigurationPropertyStoreException
+     */
     private void deleteProperties(Properties props) throws ConfigurationPropertyStoreException {
         
         outputSectionStart("DELETING PROPERTIES");
@@ -326,6 +344,10 @@ public class RestoreCPS {
         outputSectionStop();
     }
     
+    /**
+     * <p>Utility to return some text if a dry-run is taking place. Returns an empty string otherwise.</p>
+     * @return
+     */
     private String getDryRunTitleText() {
         String dryRunText = "DRY RUN";
         
@@ -335,6 +357,41 @@ public class RestoreCPS {
             output = "[ " + dryRunText + " ]";
         }
         return output;
+    }
+    
+    /**
+     * <p>Utility for outputting a section header before a series of properties.</p>
+     * @param message
+     */
+    private void outputSectionStart(String message) {
+        logger.info("");
+        outputSectionMessage("CPS RESTORATION    " + getDryRunTitleText(), 
+                "", message, "", ">>> START <<<");
+        logger.info("");
+    }
+    
+    /**
+     * <p>Utility for outputting a section footer after a series of properties.</p>
+     */
+    private void outputSectionStop() {
+        logger.info("");
+        outputSectionMessage(">>> STOP <<<");
+        logger.info("");
+    }
+    
+    /**
+     * <p>Utility for outputting a section header or footer (a message surrounded by asterisk '*').<p>
+     * @param messages
+     */
+    private void outputSectionMessage(String... messages) {
+        String bannerAsterisk = "*******************************************************************";
+        logger.info(bannerAsterisk);
+        
+        for(String message : messages) {
+            logger.info(String.format("*  %-62s *", message));
+        }
+        
+        logger.info(bannerAsterisk);
     }
     
     /**
@@ -358,6 +415,7 @@ public class RestoreCPS {
         return propSplit(propertyName, 0);
     }
     
+    
     /**
      * <p>Retrieves Property Suffix (after first dot ".")</p>
      * 
@@ -367,6 +425,7 @@ public class RestoreCPS {
     private String getPropertySuffix(String propertyName) {
         return propSplit(propertyName, 1);
     }
+    
     
     /**
      * <p>Splits a string into two parts: a prefix and a suffix.</p>
@@ -385,6 +444,7 @@ public class RestoreCPS {
 
         return kvp[position];
     }
+    
     
     /**
      * <p>Checks for property validity (whether there is a prefix and a suffix, separated by a dot ".").</p>
