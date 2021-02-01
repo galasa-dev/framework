@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>dev.galasa</groupId>
 		<artifactId>galasa-parent</artifactId>
-		<version>0.14.0-SNAPSHOT</version>
+		<version>0.14.0</version>
 	</parent>
 
 	<artifactId>galasa-testharness</artifactId>
@@ -15,12 +15,12 @@
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa</artifactId>
-			<version>0.14.0-SNAPSHOT</version>
+			<version>0.14.0</version>
 		</dependency>
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework</artifactId>
-			<version>0.14.0-SNAPSHOT</version>
+			<version>0.14.0</version>
 		</dependency>
 	</dependencies>
 
