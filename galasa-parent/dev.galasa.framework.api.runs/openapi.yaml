@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Galasa Runs Requests
-  version: 0.14.0
+  version: 0.15.0-SNAPSHOT
 
 servers:
   - url: 'http://{server}:{port}'
