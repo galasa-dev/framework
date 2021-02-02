@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019, 2021.
  */
 package dev.galasa.framework.spi;
 
@@ -32,6 +32,7 @@ import javax.validation.constraints.Null;
  * </p>
  * 
  * @author Michael Baylis
+ * @author Matthew Chivers
  *
  */
 public interface IConfigurationPropertyStoreService {
@@ -123,6 +124,31 @@ public interface IConfigurationPropertyStoreService {
      */
     @Null
     void setProperty(@NotNull String name, @NotNull String value) throws ConfigurationPropertyStoreException;
+    
+    /**
+     * <p>
+     * Removes a string property from the Configuration Property Store within the
+     * namespace for this object.
+     * </p>
+     * 
+     * <p>
+     * deleteProperty will delete the property from the standard Configuration Property Store.
+     * </p>
+     * 
+     * <p>
+     * As an example, if we called deleteProperty("image.PLEXMA.credentialid") within the zos
+     * namespace, then the following property will be deleted:-<br>
+     * zos.image.PLEXMA.credentialid=VALUE
+     * </p>
+     * 
+     * <p>
+     * If a property could not be deleted, a ConfigurationPropertyStoreException is thrown.
+     * </p>
+     * 
+     * @param name The property name within the namespace.
+     * @throws ConfigurationPropertyStoreException
+     */
+    void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException;
 
     /**
      * <p>

@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019, 2021.
  */
 package dev.galasa.framework.internal.cps;
 
@@ -28,6 +28,7 @@ import dev.galasa.framework.spi.IFramework;
  * </p>
  * 
  * @author James Davies
+ * @author Matthew Chivers
  */
 public class FrameworkConfigurationPropertyService implements IConfigurationPropertyStoreService {
     private String                      namespace;
@@ -119,6 +120,19 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
     public void setProperty(@NotNull String name, @NotNull String value)
             throws ConfigurationPropertyStoreException {
     	cpsStore.setProperty(namespace + "." + name, value);
+    }
+    
+    /**
+     * <p>
+     * This method deletes a cps propetty with a given name within the provided namespace
+     * </p>
+     * 
+     * @param name
+     */
+    public void deleteProperty(@NotNull String name) 
+            throws ConfigurationPropertyStoreException {
+        cpsStore.deleteProperty(namespace + "." + name);
+        
     }
 
     /**

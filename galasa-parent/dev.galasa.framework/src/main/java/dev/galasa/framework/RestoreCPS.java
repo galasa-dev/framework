@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2020.
+ * (c) Copyright IBM Corp. 2020, 2021.
  */
 
 package dev.galasa.framework;
@@ -39,11 +39,11 @@ public class RestoreCPS {
     
     private IFramework      framework;
     
-    private Map<String, IConfigurationPropertyStoreService>     namespaceCPS = new HashMap<>();
+    private Map<String, IConfigurationPropertyStoreService>         namespaceCPS = new HashMap<>();
     
-    private boolean DRY_RUN = false;
+    private boolean         DRY_RUN = false;
     
-    List<String> forbiddenNamespaces = new ArrayList<>();
+    List<String>            forbiddenNamespaces = new ArrayList<>();
     
     /**
      * Constructor - No params
@@ -242,13 +242,12 @@ public class RestoreCPS {
             String property = getPropertySuffix(key);
             String value = props.getProperty(key);
             
-            ensureCPSExists(namespace);
-            
             logger.info(key + " = " + value);
             
             if(!DRY_RUN) { 
-                 // Create the property
-                 namespaceCPS.get(namespace).setProperty(property, value);
+                // Create the property
+                ensureCPSExists(namespace);
+                namespaceCPS.get(namespace).setProperty(property, value);
             }
         }
         
@@ -330,14 +329,13 @@ public class RestoreCPS {
             String property = getPropertySuffix(key);
             String value = props.getProperty(key);
             
-            ensureCPSExists(namespace);
-            
             logger.info(property + " = " + value);
             
             // Delete the property
             
             if(!DRY_RUN) {
-                 // namespaceCPS.get(namespace).setProperty(property, value);
+                ensureCPSExists(namespace);
+                namespaceCPS.get(namespace).deleteProperty(property);
             }
         }
         
