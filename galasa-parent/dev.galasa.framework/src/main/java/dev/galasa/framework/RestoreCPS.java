@@ -329,7 +329,7 @@ public class RestoreCPS {
             String property = getPropertySuffix(key);
             String value = props.getProperty(key);
             
-            logger.info(property + " = " + value);
+            logger.info(key + " = " + value);
             
             // Delete the property
             
