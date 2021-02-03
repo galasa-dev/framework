@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019, 2021.
  */
 package dev.galasa.framework.spi;
 
@@ -26,6 +26,7 @@ import javax.validation.constraints.Null;
  * </p>
  * 
  * @author Michael Baylis
+ * @author Matthew Chivers
  *
  */
 public interface IConfigurationPropertyStore {
@@ -78,6 +79,21 @@ public interface IConfigurationPropertyStore {
     @Null
     void setProperty(@NotNull String key, @NotNull String value) throws ConfigurationPropertyStoreException;
 
+    /**
+     * <p>
+     * Delete the property from the underlying configuration property store.
+     * </p>
+     * 
+     * <p>
+     * The framework will prefix with the appropriate namespace and apply the
+     * infixes before calling this method
+     * </p>
+     * 
+     * @param key
+     * @throws ConfigurationPropertyStoreException
+     */
+    void deleteProperty(@NotNull String key) throws ConfigurationPropertyStoreException;
+    
     /**
      * <p>
      * Retrieves all possible different properties set from a given namespace

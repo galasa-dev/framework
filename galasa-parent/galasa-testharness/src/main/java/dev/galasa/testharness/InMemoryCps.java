@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2020.
+ * (c) Copyright IBM Corp. 2020, 2021.
  */
 package dev.galasa.testharness;
 
@@ -46,6 +46,11 @@ public class InMemoryCps implements IConfigurationPropertyStore {
     @Override
     public void setProperty(@NotNull String key, @NotNull String value) throws ConfigurationPropertyStoreException {
         this.properties.put(key, value);
+    }
+    
+    @Override
+    public void deleteProperty(@NotNull String key) throws ConfigurationPropertyStoreException {
+        this.properties.remove(key);
     }
 
     @Override

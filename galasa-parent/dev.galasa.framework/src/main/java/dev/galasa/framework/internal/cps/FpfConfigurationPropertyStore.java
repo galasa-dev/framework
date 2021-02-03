@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019, 2021.
  */
 package dev.galasa.framework.internal.cps;
 
@@ -25,6 +25,7 @@ import dev.galasa.framework.spi.IConfigurationPropertyStore;
  * </p>
  * 
  * @author James Davies
+ * @author Matthew Chivers
  */
 
 public class FpfConfigurationPropertyStore implements IConfigurationPropertyStore {
@@ -73,6 +74,15 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
     public void setProperty(@NotNull String key, @NotNull String value) throws ConfigurationPropertyStoreException {
         try {
             fpf.set(key, value);
+        } catch (FrameworkPropertyFileException e) {
+            throw new ConfigurationPropertyStoreException("Unable to set property value", e);
+        }
+    }
+    
+    @Override
+    public void deleteProperty(@NotNull String key) throws ConfigurationPropertyStoreException {
+        try {
+            fpf.delete(key);
         } catch (FrameworkPropertyFileException e) {
             throw new ConfigurationPropertyStoreException("Unable to set property value", e);
         }
