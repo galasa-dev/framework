@@ -98,17 +98,14 @@ public class RestoreCPS {
         Properties propsToCreate = getComplement(propsFromFile, propsFromCPS);
         
         // Get all properties in both restoration and current properties
-        Properties propsToUpdate = getIntersect(propsFromFile, propsFromCPS);
+        Properties propsShared = getIntersect(propsFromFile, propsFromCPS);
         
-        if (!propsToCreate.isEmpty()) {
-            createProperties(propsToCreate);
-        }
-        if (!propsToUpdate.isEmpty()) {
-            updateProperties(propsToUpdate, propsFromCPS);
-        }
-        if (!propsToDelete.isEmpty()) {
-            deleteProperties(propsToDelete);
-        }
+        // Get all properties that need to be updated - and output all properties staying the same.
+        Properties propsToUpdate = keepProperties(propsShared, propsFromCPS);
+        
+        createProperties(propsToCreate);
+        updateProperties(propsToUpdate, propsFromCPS);
+        deleteProperties(propsToDelete);
         
         logger.info("Finished restoring properties to CPS ");
         
@@ -227,11 +224,13 @@ public class RestoreCPS {
      */
     private void createProperties(Properties props) throws ConfigurationPropertyStoreException {
         
-        outputSectionStart("CREATING PROPERTIES");
+        outputSectionStart("CREATE [KEY AND VALUE]");
         
         // Convert to list and then sort the list alphabetically        
         List<String> propsList = new ArrayList<>(props.stringPropertyNames());
         java.util.Collections.sort(propsList, java.text.Collator.getInstance());
+        
+        boolean propsCreated = false;
         
         for (String key : propsList) {
             if (!isValidProperty(key)) {
@@ -244,6 +243,8 @@ public class RestoreCPS {
             
             logger.info(key + " = " + value);
             
+            propsCreated = true;
+            
             if(!DRY_RUN) { 
                 // Create the property
                 ensureCPSExists(namespace);
@@ -251,56 +252,91 @@ public class RestoreCPS {
             }
         }
         
+        if (!propsCreated) {
+            logger.info("NONE");
+        }
+        
         outputSectionStop();
     }
     
     /**
-     * <p>Compares the values of two sets of properties (passed as parameters), updating those that have different values within the CPS.</p>
-     * @param props
+     * <p>Returns all the properties that need to be updated in CPS. Additionally outputs to the log those properties which are staying the same.</p>
+     * @param newProps
      * @param oldProps
+     * @return
      * @throws ConfigurationPropertyStoreException
      */
-    private void updateProperties(Properties props, Properties oldProps) throws ConfigurationPropertyStoreException {
-        
+    private Properties keepProperties(Properties newProps, Properties oldProps) throws ConfigurationPropertyStoreException {
         // Convert to list and then sort the list alphabetically        
-        List<String> propsList = new ArrayList<>(props.stringPropertyNames());
+        List<String> propsList = new ArrayList<>(newProps.stringPropertyNames());
         java.util.Collections.sort(propsList, java.text.Collator.getInstance());
         
-        List<String> propsNotUpdated = new ArrayList<>();
+        Properties propsToUpdate = new Properties();
         
-        outputSectionStart("UPDATING PROPERTIES");
+        outputSectionStart("NONE [VALUE STAYING THE SAME]");
         
+        boolean propsKept = false;
+
         for (String key : propsList) {
             if (!isValidProperty(key)) {
                 logger.warn("Invalid Property: " + key);
                 continue;
             }
-            String namespace = getPropertyPrefix(key);
-            String property = getPropertySuffix(key);
-            String value = props.getProperty(key);
-            String oldValue = oldProps.getProperty(key);
-            
-            if(oldValue.equals(value)){
-                propsNotUpdated.add(key);
-            } else {
-                logger.info(key);
-                logger.info("\tOLD VALUE: " + oldValue);
-                logger.info("\tNEW VALUE: " + value);
-                
-                if(!DRY_RUN) { 
-                    ensureCPSExists(namespace);
-                    namespaceCPS.get(namespace).setProperty(property, value);
-                }
-            }
-        
-        }
 
+            if(oldProps.getProperty(key).equals(newProps.getProperty(key))){
+                logger.info(key + " = " + oldProps.getProperty(key));
+                propsKept = true;
+            } else {
+                propsToUpdate.put(key, newProps.get(key));
+            }
+        }
+        
+        if (!propsKept) {
+            logger.info("NONE");
+        }
+        
         outputSectionStop();
         
-        outputSectionStart("KEEPING PROPERTIES");
+        return propsToUpdate;
+    }
+    
+    /**
+     * <p>Compares the values of two sets of properties (passed as parameters), updating those that have different values within the CPS.</p>
+     * @param newProps
+     * @param oldProps
+     * @throws ConfigurationPropertyStoreException
+     */
+    private void updateProperties(Properties newProps, Properties oldProps) throws ConfigurationPropertyStoreException {
         
-        for (String key : propsNotUpdated) {
-            logger.info(key + " = " + props.getProperty(key));
+        // Convert to list and then sort the list alphabetically        
+        List<String> propsList = new ArrayList<>(newProps.stringPropertyNames());
+        java.util.Collections.sort(propsList, java.text.Collator.getInstance());
+        
+        outputSectionStart("UPDATE [VALUE]");
+        
+        boolean propsUpdated = false;
+        
+        // Update Properties
+        for (String key : propsList) {
+            String namespace = getPropertyPrefix(key);
+            String property = getPropertySuffix(key);
+            
+            String oldVal = oldProps.getProperty(key);
+            String newVal = newProps.getProperty(key);
+            
+            logger.info(key);
+            logger.info("\tOLD VALUE: " + oldVal);
+            logger.info("\tNEW VALUE: " + newVal);
+            propsUpdated = true;
+            
+            if(!DRY_RUN) { 
+                ensureCPSExists(namespace);
+                namespaceCPS.get(namespace).setProperty(property, newVal);
+            }
+        }
+        
+        if (!propsUpdated) {
+            logger.info("NONE");
         }
         
         outputSectionStop();
@@ -314,11 +350,13 @@ public class RestoreCPS {
      */
     private void deleteProperties(Properties props) throws ConfigurationPropertyStoreException {
         
-        outputSectionStart("DELETING PROPERTIES");
+        outputSectionStart("DELETE [KEY AND VALUE]");
         
         // Convert to list and then sort the list alphabetically
         List<String> propsList = new ArrayList<>(props.stringPropertyNames());
         java.util.Collections.sort(propsList, java.text.Collator.getInstance());
+        
+        boolean propsDeleted = false;
         
         for (String key : propsList) {
             if (!isValidProperty(key)) {
@@ -331,12 +369,18 @@ public class RestoreCPS {
             
             logger.info(key + " = " + value);
             
+            propsDeleted = true;
+            
             // Delete the property
             
             if(!DRY_RUN) {
                 ensureCPSExists(namespace);
                 namespaceCPS.get(namespace).deleteProperty(property);
             }
+        }
+        
+        if(!propsDeleted) { 
+            logger.info("NONE");
         }
         
         outputSectionStop();
@@ -364,7 +408,7 @@ public class RestoreCPS {
     private void outputSectionStart(String message) {
         logger.info("");
         outputSectionMessage("CPS RESTORATION    " + getDryRunTitleText(), 
-                "", message, "", ">>> START <<<");
+                "", "ACTION: " + message, "", ">>> START <<<");
         logger.info("");
     }
     
