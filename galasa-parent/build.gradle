@@ -21,7 +21,7 @@ subprojects {
 
     ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
-    def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-development"
+    def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-gradle"
 
     tasks.withType(Sign) {
         onlyIf { isReleaseVersion }
@@ -115,8 +115,8 @@ subprojects {
                          system = 'GitHub'
                          url = 'https://github.com/galasa-dev/projectmanagement/issues'
                      }
-                 }
-             }
+                }
+            }
          }
          repositories {
              maven {
