@@ -41,7 +41,6 @@ subprojects {
     }
 
     repositories {
-        mavenLocal()
         maven {
             url mavenrepo
         }
