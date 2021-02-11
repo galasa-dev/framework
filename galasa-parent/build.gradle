@@ -21,7 +21,7 @@ subprojects {
 
     ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
-    def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-grade"
+    def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-development"
 
     tasks.withType(Sign) {
         onlyIf { isReleaseVersion }
