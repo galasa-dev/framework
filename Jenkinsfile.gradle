@@ -16,6 +16,8 @@ pipeline {
    stages {
       stage('prep-workspace') { 
          steps {
+            configFileProvider([configFile(fileId: '86dde059-684b-4300-b595-64e83c2dd217', targetLocation: 'settings.xml')]) {
+            }
             configFileProvider([configFile(fileId: 'galasa-init-gradle', targetLocation: '.gradle/init.gradle')]) {
             }
          }
