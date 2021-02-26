@@ -49,7 +49,7 @@ pipeline {
                      sh "gradle -s -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG ${GRADLE_CACHE} ${GRADLE_CLEAN} ${GRADLE_TASKS}"
                   }
                   dir('galasa-parent/dev.galasa.framework.obr') {
-                     sh "gradle -s -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG ${GRADLE_CACHE} ${GRADLE_TASKS}"
+                     sh "gradle -s -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG ${GRADLE_CACHE} genobr ${GRADLE_TASKS} --rerun-tasks --refresh-dependencies"
                   }
                }
             }
