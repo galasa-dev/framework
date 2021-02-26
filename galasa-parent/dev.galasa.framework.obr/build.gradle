@@ -9,6 +9,44 @@ def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/reposit
 
 dependencies {
     bundle ('dev.galasa:dev.galasa:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.k8s.controller:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.docker.controller:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.maven.repository.spi:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.resource.management:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.metrics:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.api:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.api.authentication:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.api.bootstrap:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.api.health:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.api.runs:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.api.cps:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.api.ras:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('dev.galasa:dev.galasa.framework.api.testcatalog:0.15.0-SNAPSHOT') { changing = true }
+    bundle ('org.apache.felix:org.apache.felix.gogo.shell:1.1.2') { changing = true }
+    bundle ('org.apache.felix:org.apache.felix.gogo.runtime:1.1.2') { changing = true }
+    bundle ('org.apache.felix:org.apache.felix.gogo.command:1.1.0') { changing = true }
+    bundle ('org.apache.felix:org.apache.felix.http.servlet-api:1.1.2') { changing = true }
+    bundle ('org.apache.felix:org.apache.felix.http.jetty:4.0.14') { changing = true }
+    bundle ('org.apache.felix:org.apache.felix.configadmin:1.9.16') { changing = true }
+    bundle ('org.apache.felix:org.apache.felix.fileinstall:3.6.4') { changing = true }
+    bundle ('commons-io:commons-io:2.6') { changing = true }
+    bundle ('commons-codec:commons-codec:1.11') { changing = true }
+    bundle ('org.apache.commons:commons-lang3:3.8.1') { changing = true }
+    bundle ('org.apache.httpcomponents:httpclient-osgi:4.5.8') { changing = true }
+    bundle ('org.apache.httpcomponents:httpcore-osgi:4.4.11') { changing = true }
+    bundle ('javax.validation:validation-api:2.0.1.Final') { changing = true }
+    bundle ('org.apache.bcel:bcel:6.3') { changing = true }
+    bundle ('commons-logging:commons-logging:1.2') { changing = true }
+    bundle ('com.google.code.gson:gson:2.8.5') { changing = true }
+    bundle ('io.prometheus:simpleclient:0.6.0') { changing = true }
+    bundle ('io.prometheus:simpleclient_httpserver:0.6.0') { changing = true }
+    bundle ('io.prometheus:simpleclient_common:0.6.0') { changing = true }
+    bundle ('io.prometheus:simpleclient_hotspot:0.6.0') { changing = true }
+    bundle ('org.apache.commons:commons-collections4:4.4') { changing = true }
+    bundle ('commons-collections:commons-collections:3.2.2') { changing = true }
+    bundle ('commons-lang:commons-lang:2.6') { changing = true }
+    bundle ('org.assertj:assertj-core:3.11.1') { changing = true }
 }
 
 repositories {
