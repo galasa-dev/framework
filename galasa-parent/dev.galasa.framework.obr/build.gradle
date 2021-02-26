@@ -8,7 +8,7 @@ description = 'Galasa Framework OBR'
 def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-development"
 
 dependencies {
-    bundle project (':dev.galasa') { changing = true }
+    bundle ('dev.galasa:dev.galasa:0.15.0-SNAPSHOT') { changing = true }
 }
 
 repositories {
