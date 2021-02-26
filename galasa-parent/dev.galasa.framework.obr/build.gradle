@@ -20,11 +20,11 @@ repositories {
     
 publishing {
    publications {
-     mavenObr(MavenPublication) {
-       group = 'dev.galasa'
-        version = '0.15.0-SNAPSHOT'
-        from components.galasaobr
-       }
+        mavenObr(MavenPublication) {
+            group = 'dev.galasa'
+            version = '0.15.0-SNAPSHOT'
+            from components.galasaobr
+        }
     }
     repositories {
         maven {
