@@ -1,0 +1,9 @@
+plugins {
+    id 'dev.galasa.obr' version '0.1.0-SNAPSHOT'
+}
+
+description = 'Galasa Framework OBR'
+
+dependencies {
+    bundle project {':dev.galasa'}
+}
