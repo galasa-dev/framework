@@ -1,9 +1,39 @@
 plugins {
-    id 'dev.galasa.obr' version '0.1.0-SNAPSHOT'
+    id 'maven-publish'
+    id 'dev.galasa.obr'         version '0.1.0-SNAPSHOT'
 }
 
 description = 'Galasa Framework OBR'
 
+def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-development"
+
 dependencies {
-    bundle project (':dev.galasa')
+    bundle project (':dev.galasa') { changing = true }
+}
+
+repositories {
+    maven {
+        url mavenrepo
+    }
+    mavenCentral()
+}
+    
+publishing {
+   publications {
+     mavenObr(MavenPublication) {
+       group = 'dev.galasa'
+        version = '0.15.0-SNAPSHOT'
+        from components.galasaobr
+       }
+    }
+    repositories {
+        maven {
+            name = 'distRepo'
+            url  = mavenrepo
+            credentials {
+                username System.getenv('MAVENUSERNAME')
+                password System.getenv('MAVENPASSWORD')
+            }
+        }
+    }
 }
