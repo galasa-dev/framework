@@ -69,7 +69,7 @@ pipeline {
             dir('galasa-parent') {
                sh "gradle -s -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG ${GRADLE_CACHE} :dev.galasa.framework.api.ras:openApiGenerate"
                
-               dir('target/openapi') {
+               dir('dev.galasa.framework.api.ras/target/openapi') {
                   sh "npm --ignore-scripts install"
                   sh "npm --ignore-scripts update"
                   sh "npm run-script build"
