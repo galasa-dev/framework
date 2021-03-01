@@ -67,7 +67,7 @@ pipeline {
       stage('npm') {
          steps {
             dir('galasa-parent') {
-               sh "gradle -s -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG ${GRADLE_CACHE} :dev.galasa.framework.api.ras:openApiGenerate"
+               sh "gradle -s -Dgradle.user.home=${workspace}/.gradle ${GRADLE_CACHE} :dev.galasa.framework.api.ras:openApiGenerate"
                
                dir('dev.galasa.framework.api.ras/target/openapi') {
                   sh "npm --ignore-scripts install"
