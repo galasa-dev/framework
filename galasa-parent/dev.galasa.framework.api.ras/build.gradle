@@ -19,7 +19,7 @@ dependencies {
 openApiGenerate {
     generatorName = "typescript-rxjs"
     inputSpec = "$projectDir/openapi.yaml".toString()
-    outputDir = "$buildDir/build/openapi/".toString()
+    outputDir = "$buildDir/openapi/".toString()
     additionalProperties = [
         npmName: "galasa-ras-api-ts-rxjs",
         npmRepository: System.getenv('NPM_REPO'),
