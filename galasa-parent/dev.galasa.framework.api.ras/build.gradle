@@ -25,7 +25,7 @@ openApiGenerate {
         npmRepository: System.getenv('NPM_REPO'),
         npmVersion: System.getenv('NPM_VERSION'),
         snapshot: System.getenv('NPM_SNAPSHOT'),
-        supportsES6: false
+        supportsES6: "false"
     ]
     
 }
