@@ -70,7 +70,7 @@ pipeline {
                dir('galasa-parent') {
                   sh "gradle -s -Dgradle.user.home=${workspace}/.gradle ${GRADLE_CACHE} :dev.galasa.framework.api.ras:openApiGenerate"
                   
-                  dir('dev.galasa.framework.api.ras/target/openapi') {
+                  dir('dev.galasa.framework.api.ras/build/openapi') {
                      sh "npm --ignore-scripts install"
                      sh "npm --ignore-scripts update"
                      sh "npm run-script build"
