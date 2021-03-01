@@ -1,5 +1,6 @@
 plugins {
     id 'biz.aQute.bnd.builder' version '5.1.2'
+    id 'org.openapi.generator' version '5.0.1'
 }
 
 description = 'Galasa Runs API'
@@ -11,4 +12,18 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'io.prometheus:simpleclient:0.6.0'
     
+}
+
+openApiGenerate {
+    generatorName = "typescript-rxjs"
+    inputSpec = "$projectDir/openapi.yaml".toString()
+    outputDir = "$buildDir/openapi/".toString()
+    additionalProperties = [
+        npmName: "galasa-runs-api-ts-rxjs",
+        npmRepository: System.getenv('NPM_REPO'),
+        npmVersion: System.getenv('NPM_VERSION'),
+        snapshot: System.getenv('NPM_SNAPSHOT'),
+        supportsES6: "false",
+        modelPropertyNaming: "original"
+    ]
 }
