@@ -21,11 +21,11 @@ openApiGenerate {
     inputSpec = "$projectDir/openapi.yaml".toString()
     outputDir = "$buildDir/build/openapi/".toString()
     additionalProperties = [
-        npmName="galasa-ras-api-ts-rxjs",
-        npmRepository=System.getenv('NPM_REPO'),
-        npmVersion=System.getenv('NPM_VERSION'),
-        snapshot=System.getenv('NPM_SNAPSHOT'),
-        supportsES6=false
+        "npmName"="galasa-ras-api-ts-rxjs",
+        "npmRepository"=System.getenv('NPM_REPO'),
+        "npmVersion"=System.getenv('NPM_VERSION'),
+        "snapshot"=System.getenv('NPM_SNAPSHOT'),
+        "supportsES6"=false
     ]
     
 }
