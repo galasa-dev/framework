@@ -27,5 +27,4 @@ openApiGenerate {
         snapshot: System.getenv('NPM_SNAPSHOT'),
         supportsES6: "false"
     ]
-    
 }
