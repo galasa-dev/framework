@@ -23,6 +23,15 @@ pipeline {
          }
       }
 
+      stage('prep-npm') {
+         environment {
+            CREDS = credentials('galasa-nexus')
+         }
+         steps {
+            sh "npm set _auth \$(echo -n '$CREDS_USR:$CREDS_PSW' | openssl base64)"
+         }
+      }
+
       stage('maven') {
          // Unavoidable until all other projects are no longer dependent on using galasa-parent pom.xml as a parent.
          steps {
@@ -52,6 +61,29 @@ pipeline {
                      sh "gradle -s -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG ${GRADLE_CACHE} genobr ${GRADLE_TASKS} --rerun-tasks --refresh-dependencies"
                   }
                }
+            }
+         }
+      }
+      stage('npm') {
+         dir('galasa-parent') {
+            sh "gradle -s -Dgradle.user.home=${workspace}/.gradle -Psigning.gnupg.keyName=8534E695 -Psigning.gnupg.passphrase=$GPG ${GRADLE_CACHE} :dev.galasa.framework.api.ras:openApiGenerate"
+            
+            dir('target/openapi') {
+               sh "npm --ignore-scripts install"
+               sh "npm --ignore-scripts update"
+               sh "npm run-script build"
+               script {
+                  sh "cp package.json dist/"
+                  sh "cp README.md dist/" 
+                  dir('dist') {
+                     if (env.PULL_REQ == 'true') {
+                        echo 'Skipping npm publish'
+                        sh "npm --ignore-scripts publish --dry-run"
+                     } else {
+                        sh "npm --ignore-scripts publish"
+                     }
+                  }
+               }                      
             }
          }
       }
