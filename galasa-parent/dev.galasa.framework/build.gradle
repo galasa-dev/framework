@@ -7,7 +7,7 @@ description = 'Galasa Framework'
 dependencies {
 
     api project (':dev.galasa')
-    api project (':dev.galasa.framework.maven.repository.spi')
+    implementation project (':dev.galasa.framework.maven.repository.spi')
 
     implementation 'log4j:log4j:1.2.17'
     implementation 'org.apache.commons:commons-lang3:3.1'
