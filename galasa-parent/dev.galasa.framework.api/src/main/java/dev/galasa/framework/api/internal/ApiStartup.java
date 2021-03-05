@@ -28,48 +28,49 @@ import dev.galasa.framework.spi.FrameworkException;
 
 @Component(service = { ApiStartup.class })
 public class ApiStartup {
-    
+
     private final Log logger = LogFactory.getLog(getClass());
 
     private BundleContext bundleContext;
-    
+
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    private RepositoryAdmin                    repositoryAdmin;
-    
-    private boolean                                      shutdown                           = false;
-    private boolean                                      shutdownComplete                   = false;
+    private RepositoryAdmin repositoryAdmin;
 
+    private boolean shutdown = false;
+    private boolean shutdownComplete = false;
 
-    public void run(Properties bootstrapProperties, Properties overrideProperties, List<String> extraBundles) throws FrameworkException {
+    public void run(Properties bootstrapProperties, Properties overrideProperties, List<String> extraBundles)
+            throws FrameworkException {
         logger.info("API server is initialising");
 
         // *** Add shutdown hook to allow for orderly shutdown
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());
-        
+
         try {
-            //*** setup the bootstrap configuration
-            
-            ServiceReference<?> configurationAdminReference = bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
+            // *** setup the bootstrap configuration
+
+            ServiceReference<?> configurationAdminReference = bundleContext
+                    .getServiceReference(ConfigurationAdmin.class.getName());
             if (configurationAdminReference == null) {
                 throw new FrameworkException("Unable to initialise, can't find configuration admin reference");
             }
 
             if (bootstrapProperties != null) {
-                ConfigurationAdmin confAdmin = (ConfigurationAdmin) bundleContext.getService(configurationAdminReference);
+                ConfigurationAdmin confAdmin = (ConfigurationAdmin) bundleContext
+                        .getService(configurationAdminReference);
 
                 Configuration configuration = confAdmin.createFactoryConfiguration("dev.galasa.bootstrap", null);
                 Hashtable<String, Object> dictionary = new Hashtable<>();
-                for(Entry<Object, Object> entry : bootstrapProperties.entrySet()) {
-                    dictionary.put((String)entry.getKey(), entry.getValue());
+                for (Entry<Object, Object> entry : bootstrapProperties.entrySet()) {
+                    dictionary.put((String) entry.getKey(), entry.getValue());
                 }
                 configuration.update(dictionary);
             }
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             throw new FrameworkException("Unable to initialise the API server", t);
         }
-        
-        
-        //*** Initialise the framework
+
+        // *** Initialise the framework
         FrameworkInitialisation frameworkInitialisation = null;
         try {
             frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
@@ -77,32 +78,36 @@ public class ApiStartup {
             throw new FrameworkException("Unable to initialise the Framework Services", e);
         }
         frameworkInitialisation.getFramework();
-        
-        //*** Load all the requested api bundles
+
+        // *** Load all the requested api bundles
         if (extraBundles != null && !extraBundles.isEmpty()) {
-            for(String bundle : extraBundles) {
+            for (String bundle : extraBundles) {
                 BundleManagement.loadBundle(repositoryAdmin, bundleContext, bundle);
             }
         } else {
             try {
-            // *** Load all bundles that have IResourceManagementProvider service
-            HashSet<String> bundlesToLoad = new HashSet<>();
+                // *** Load all bundles that have IResourceManagementProvider service
+                HashSet<String> bundlesToLoad = new HashSet<>();
 
-            for (Repository repository : repositoryAdmin.listRepositories()) {
-                if (repository.getResources() != null) {
-                    resourceSearch: for (Resource resource : repository.getResources()) {
-                        if (resource.getCapabilities() != null) {
-                            for (Capability capability : resource.getCapabilities()) {
-                                if ("service".equals(capability.getName())) {
-                                    Map<String, Object> properties = capability.getPropertiesAsMap();
-                                    String services = (String) properties.get("objectClass");
-                                    if (services != null) {
-                                        String[] split = services.split(",");
+                for (Repository repository : repositoryAdmin.listRepositories()) {
+                    if (repository.getResources() != null) {
+                        resourceSearch: for (Resource resource : repository.getResources()) {
+                            if (resource.getCapabilities() != null) {
+                                for (Capability capability : resource.getCapabilities()) {
+                                    if ("service".equals(capability.getName())) {
+                                        Map<String, Object> properties = capability.getPropertiesAsMap();
+                                        String services = (String) properties.get("objectClass");
+                                        if (services == null) {
+                                            services = (String) properties.get("objectClass:List<String>");
+                                        }
+                                        if (services != null) {
+                                            String[] split = services.split(",");
 
-                                        for (String service : split) {
-                                            if ("javax.servlet.Servlet".equals(service)) {
-                                                bundlesToLoad.add(resource.getSymbolicName());
-                                                continue resourceSearch;
+                                            for (String service : split) {
+                                                if ("javax.servlet.Servlet".equals(service)) {
+                                                    bundlesToLoad.add(resource.getSymbolicName());
+                                                    continue resourceSearch;
+                                                }
                                             }
                                         }
                                     }
@@ -111,25 +116,24 @@ public class ApiStartup {
                         }
                     }
                 }
-            }
 
-            for (String bundle : bundlesToLoad) {
-                if (!BundleManagement.isBundleActive(bundleContext, bundle)) {
-                    BundleManagement.loadBundle(repositoryAdmin, bundleContext, bundle);
+                for (String bundle : bundlesToLoad) {
+                    if (!BundleManagement.isBundleActive(bundleContext, bundle)) {
+                        BundleManagement.loadBundle(repositoryAdmin, bundleContext, bundle);
+                    }
                 }
-            }
-            } catch(Throwable t) {
+            } catch (Throwable t) {
                 throw new FrameworkException("Problem loading API bundles", t);
             }
         }
-        
+
         logger.info("API server has started");
-        
+
         // *** Loop until we are asked to shutdown
         long heartbeatExpire = 0;
         while (!shutdown) {
             if (System.currentTimeMillis() >= heartbeatExpire) {
-//                updateHeartbeat(dss);
+                // updateHeartbeat(dss);
                 heartbeatExpire = System.currentTimeMillis() + 20000;
             }
 
@@ -141,7 +145,7 @@ public class ApiStartup {
         }
 
         logger.info("API server shutdown is complete");
-        
+
     }
 
     @Activate
@@ -149,7 +153,6 @@ public class ApiStartup {
         this.bundleContext = context;
     }
 
-    
     private class ShutdownHook extends Thread {
         @Override
         public void run() {
