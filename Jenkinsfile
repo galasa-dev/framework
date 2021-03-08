@@ -104,9 +104,9 @@ pipeline {
                      }
 
                      dir('dev.galasa.framework.api.runs') {
-                     	dir('generated-openapi') {
-                     	   deleteDir()
-                     	}
+                         dir('generated-openapi') {
+                            deleteDir()
+                         }
                      
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
 
@@ -140,7 +140,7 @@ pipeline {
                      dir('dev.galasa.framework.api.ras') {
                         sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -Dnpm.repo=${NPM_REPO} -Dnpm.version=${NPM_VERSION} -Dnpm.snapshot=${NPM_SNAPSHOT} -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
 
-						      dir('target/openapi') {
+                           dir('target/openapi') {
                            sh "npm --ignore-scripts install"
                            sh "npm --ignore-scripts update"
                            sh "npm run-script build"
