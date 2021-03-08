@@ -42,14 +42,13 @@ import dev.galasa.boot.LauncherException;
  */
 public class FelixFramework {
 
-    private BootLogger      logger      = new BootLogger();
+    private BootLogger logger = new BootLogger();
 
-    private boolean         loadConsole = Boolean
-            .parseBoolean(System.getProperty("dev.galasa.core.load.console", "false"));
+    private boolean loadConsole = Boolean.parseBoolean(System.getProperty("dev.galasa.core.load.console", "false"));
 
-    private Framework       framework;
+    private Framework framework;
 
-    private Bundle          obrBundle;
+    private Bundle obrBundle;
 
     private RepositoryAdmin repositoryAdmin;
 
@@ -186,7 +185,7 @@ public class FelixFramework {
 
         // Get the dev.galasa.framework.TestRunner class service
         String classString = "dev.galasa.framework.TestRunner";
-        if(overridesProperties.containsKey("framework.run.gherkintest")) {
+        if (overridesProperties.containsKey("framework.run.gherkintest")) {
             classString = "dev.galasa.framework.GherkinTestRunner";
         }
         String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
@@ -260,6 +259,9 @@ public class FelixFramework {
                                 if ("service".equals(capability.getName())) {
                                     Map<String, Object> properties = capability.getPropertiesAsMap();
                                     String services = (String) properties.get("objectClass");
+                                    if (services == null) {
+                                        services = (String) properties.get("objectClass:List<String>");
+                                    }
                                     if (services != null) {
                                         String[] split = services.split(",");
 
@@ -367,6 +369,9 @@ public class FelixFramework {
                                 if ("service".equals(capability.getName())) {
                                     Map<String, Object> properties = capability.getPropertiesAsMap();
                                     String services = (String) properties.get("objectClass");
+                                    if (services == null) {
+                                        services = (String) properties.get("objectClass:List<String>");
+                                    }
                                     if (services != null) {
                                         String[] split = services.split(",");
 
@@ -441,10 +446,11 @@ public class FelixFramework {
      * 
      * @param boostrapProperties  the bootstrap properties
      * @param overridesProperties the override properties
-     * @param filePath 
+     * @param filePath
      * @throws LauncherException
      */
-    public void runBackupCPS(Properties boostrapProperties, Properties overridesProperties, String filePath) throws LauncherException {
+    public void runBackupCPS(Properties boostrapProperties, Properties overridesProperties, String filePath)
+            throws LauncherException {
 
         // Get the framework bundle
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
@@ -452,7 +458,7 @@ public class FelixFramework {
         // Get the dev.galasa.framework.BackupCPS class service
         String classString = "dev.galasa.framework.BackupCPS";
         String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
-        
+
         ServiceReference<?>[] serviceReferences;
         try {
             serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
@@ -463,7 +469,7 @@ public class FelixFramework {
             throw new LauncherException("Unable to get single reference to BackupCPS service: "
                     + ((serviceReferences == null) ? 0 : serviceReferences.length) + " service(s) returned");
         }
-        
+
         Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
         if (service == null) {
             throw new LauncherException("Unable to get BackupCPS service");
@@ -472,7 +478,8 @@ public class FelixFramework {
         // Get the dev.galasa.framework.BackupCPS#backup() method
         Method runBackupCPSMethod;
         try {
-            runBackupCPSMethod = service.getClass().getMethod("backup", Properties.class, Properties.class, String.class);
+            runBackupCPSMethod = service.getClass().getMethod("backup", Properties.class, Properties.class,
+                    String.class);
         } catch (NoSuchMethodException | SecurityException e) {
             throw new LauncherException("Unable to get Framework BackupCPS backup method", e);
         }
@@ -486,16 +493,17 @@ public class FelixFramework {
         }
 
     }
-    
+
     /**
      * Restore the CPS Properties
      * 
      * @param boostrapProperties  the bootstrap properties
      * @param overridesProperties the override properties
-     * @param filePath 
+     * @param filePath
      * @throws LauncherException
      */
-    public void runRestoreCPS(Properties boostrapProperties, Properties overridesProperties, String filePath, boolean dryRun) throws LauncherException {
+    public void runRestoreCPS(Properties boostrapProperties, Properties overridesProperties, String filePath,
+            boolean dryRun) throws LauncherException {
 
         // Get the framework bundle
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
@@ -526,7 +534,8 @@ public class FelixFramework {
         // Get the dev.galasa.framework.RestoreCPS#restore() method
         Method runRestoreCPSMethod;
         try {
-            runRestoreCPSMethod = service.getClass().getMethod(methodName, Properties.class, Properties.class, String.class, boolean.class);
+            runRestoreCPSMethod = service.getClass().getMethod(methodName, Properties.class, Properties.class,
+                    String.class, boolean.class);
         } catch (NoSuchMethodException | SecurityException e) {
             throw new LauncherException("Unable to get Framework " + className + " " + methodName + " method", e);
         }
@@ -540,15 +549,15 @@ public class FelixFramework {
         }
 
     }
-    
+
     public void runWebApiServer(Properties boostrapProperties, Properties overridesProperties, List<String> bundles,
-            Integer metrics, Integer health) throws LauncherException  {
-        
+            Integer metrics, Integer health) throws LauncherException {
+
         // Get the Jetty server running
         loadBundle("org.apache.felix.http.servlet-api");
         loadBundle("org.apache.felix.http.jetty");
         loadBundle("org.apache.felix.fileinstall");
-        
+
         // Get the framework bundle
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
         // Get the framework bundle
@@ -588,8 +597,6 @@ public class FelixFramework {
             throw new LauncherException(e.getCause());
         }
     }
-
-
 
     /**
      * Run the Kubernetes Controller Server
@@ -729,7 +736,7 @@ public class FelixFramework {
         } catch (BundleException e) {
             throw new LauncherException("Unable to stop the Felix framework", e);
         }
-        
+
         framework.waitForStop(30000);
         logger.debug("Felix framework stopped");
     }

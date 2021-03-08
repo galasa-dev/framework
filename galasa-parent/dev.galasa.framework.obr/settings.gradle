@@ -1,0 +1,10 @@
+pluginManagement {
+    repositories {
+        maven {
+            url "https://nexus.galasa.dev/repository/maven-gradle"
+        }
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'dev.galasa.framework.obr'

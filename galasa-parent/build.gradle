@@ -1,8 +1,17 @@
+plugins {
+    id 'dev.galasa.githash' version '0.1.0-SNAPSHOT' apply false
+}
+
 subprojects {
 
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
+    apply plugin: 'dev.galasa.githash'
+
+    hashes {
+        gitHash = System.getenv('GIT_COMMIT')
+    }
 
     group = galasaGroup
 

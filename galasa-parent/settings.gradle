@@ -1,3 +1,12 @@
+pluginManagement {
+    repositories {
+        maven {
+            url "https://nexus.galasa.dev/repository/maven-gradle"
+        }
+        gradlePluginPortal()
+    }
+}
+
 rootProject.name = "galasa-parent"
 
 include 'dev.galasa'
