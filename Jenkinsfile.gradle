@@ -20,6 +20,12 @@ pipeline {
             }
             configFileProvider([configFile(fileId: 'galasa-init-gradle', targetLocation: '.gradle/init.gradle')]) {
             }
+            dir('repository/dev.galasa') {
+               deleteDir()
+            }
+            dir('repository/dev/galasa') {
+               deleteDir()
+            }
          }
       }
 
