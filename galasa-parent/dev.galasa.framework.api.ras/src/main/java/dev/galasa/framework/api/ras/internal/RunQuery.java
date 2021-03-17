@@ -27,6 +27,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,9 +63,24 @@ public class RunQuery extends HttpServlet {
       Map<String, String> paramMap = getParameterMap(req);
 
       List<IRasSearchCriteria> critList = new ArrayList<>();
-
-      if(!paramMap.isEmpty()) {
-
+      
+      String from = "";
+      String to = "";
+      
+	  from = getDefaultStartTime();
+	  to = getDefaultEndTime();
+	  
+      Instant toCrit = null;
+      Instant fromCrit = null;
+      
+      toCrit = Instant.parse(to);
+      RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
+      fromCrit = Instant.parse(from);
+      RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit);  
+      
+      
+      if (!paramMap.isEmpty()) {
+    	  
          if(paramMap.get("page") != null && !paramMap.get("page").equals("")) {
             try {
                pageNum = Integer.parseInt(paramMap.get("page"));
@@ -83,32 +99,28 @@ public class RunQuery extends HttpServlet {
                throw new ServletException("Error parsing integer, ", e);
             }
          }
-
+         
          String requestor = paramMap.get("requestor");
-         String to = paramMap.get("to");
-         String from = paramMap.get("from");
          String testName = paramMap.get("testname");
          String bundle = paramMap.get("bundle");
          String result = paramMap.get("result");
          
-         Instant toCrit = null;
-         Instant fromCrit = null;
-         
          try {
-            if(to != null && !to.isEmpty()) {
-               toCrit = Instant.parse(to);
-               RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
-               critList.add(toCriteria);
-            }
-            if(from != null && !from.isEmpty()) {
-               fromCrit = Instant.parse(from);
-               RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit);
-               critList.add(fromCriteria);
-            }
-         }catch(Exception e) {
+        	 if (paramMap.get("to") != null && !paramMap.get("to").isEmpty()) {
+        		 to = paramMap.get("to");
+        		 toCrit = Instant.parse(to);
+        		 toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
+        	 }
+        	 if (paramMap.get("from") != null && !paramMap.get("from").isEmpty()) {
+            	from = paramMap.get("from");
+            	fromCrit = Instant.parse(from);
+            	fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit);
+        	 } 
+         } catch (Exception e) {
 
             throw new ServletException("Error parsing Instant, ", e);
          }
+         
          if(requestor != null && !requestor.isEmpty()) {
             RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
             critList.add(requestorCriteria);
@@ -126,10 +138,13 @@ public class RunQuery extends HttpServlet {
             RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
             critList.add(resultCriteria);
          }
-
-
+        
       }
-
+      
+      critList.add(fromCriteria);
+      critList.add(toCriteria);
+      
+     
       List<RasRunResult> runs = new ArrayList<>();
 
       try {
@@ -138,6 +153,7 @@ public class RunQuery extends HttpServlet {
 
          throw new ServletException("Error retrieving runs, ", e);
       }
+      
       
       Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
@@ -204,6 +220,7 @@ public class RunQuery extends HttpServlet {
       }
 
    }
+  
 
    private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 
@@ -241,7 +258,23 @@ public class RunQuery extends HttpServlet {
             newParameterMap.put(parameterName, null);
          }
       }
+   
       return newParameterMap;
+   }
+   
+   private String getDefaultStartTime() {
+	   LocalDateTime now = LocalDateTime.now();
+	   LocalDateTime start = now.minusHours(24);
+	   String from = start.toString().concat("Z");
+	   
+	   return from;
+   }
+   
+   private String getDefaultEndTime() {
+	   LocalDateTime end = LocalDateTime.now();
+	   String to = end.toString().concat("Z");
+	   
+	   return to;
    }
    
    
