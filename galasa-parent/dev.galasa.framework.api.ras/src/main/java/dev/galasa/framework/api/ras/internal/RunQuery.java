@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -87,7 +88,7 @@ public class RunQuery extends HttpServlet {
          String result = paramMap.get("result");
          
          String to = paramMap.get("to");
-         String from = "";
+         String from = paramMap.get("from");
          
          try {
         	 if (to != null && !to.isEmpty()) {
@@ -96,12 +97,13 @@ public class RunQuery extends HttpServlet {
         	     critList.add(toCriteria);
         	 }
         	 
-        	 if (paramMap.get("from") != null && !paramMap.get("from").isEmpty()) {
-        		 from = paramMap.get("from");
+        	 Instant fromCrit = null;
+        	 if (from != null && !from.isEmpty()) {
+        		 fromCrit = Instant.parse(from);
         	 } else {
-        		 from = getDefaultStartTime(); 
+        		 fromCrit = Instant.now();
+        		 fromCrit = fromCrit.minus(24, ChronoUnit.HOURS);
         	 }
-        	 Instant fromCrit = Instant.parse(from);
              RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit); 
              critList.add(fromCriteria);
              
@@ -245,15 +247,7 @@ public class RunQuery extends HttpServlet {
    
       return newParameterMap;
    }
-   
-   private String getDefaultStartTime() {
-	   LocalDateTime now = LocalDateTime.now();
-	   LocalDateTime start = now.minusHours(24);
-	   String from = start.toString().concat("Z");
-	   
-	   return from;
-   }
-   
+  
    
    class SortByEndTime implements Comparator<RasRunResult> {
       
