@@ -64,38 +64,19 @@ public class RunQuery extends HttpServlet {
 
       List<IRasSearchCriteria> critList = new ArrayList<>();
       
-      String from = "";
-      String to = "";
-      
-	  from = getDefaultStartTime();
-	  to = getDefaultEndTime();
-	  
-      Instant toCrit = null;
-      Instant fromCrit = null;
-      
-      toCrit = Instant.parse(to);
-      RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
-      fromCrit = Instant.parse(from);
-      RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit);  
-      
-      
-      if (!paramMap.isEmpty()) {
     	  
-         if(paramMap.get("page") != null && !paramMap.get("page").equals("")) {
+         if (paramMap.get("page") != null && !paramMap.get("page").equals("")) {
             try {
                pageNum = Integer.parseInt(paramMap.get("page"));
-            }catch(Exception e) {
-
+            } catch (Exception e) {
                throw new ServletException("Error parsing integer, ", e);
-
             }
          }
 
-         if(paramMap.get("size") != null && !paramMap.get("size").equals("")) {
-            try{
+         if (paramMap.get("size") != null && !paramMap.get("size").equals("")) {
+            try {
                pageSize = Integer.parseInt(paramMap.get("size"));
-            }catch(Exception e) {
-
+            } catch (Exception e) {
                throw new ServletException("Error parsing integer, ", e);
             }
          }
@@ -105,44 +86,47 @@ public class RunQuery extends HttpServlet {
          String bundle = paramMap.get("bundle");
          String result = paramMap.get("result");
          
+         String to = paramMap.get("to");
+         String from = "";
+         
          try {
-        	 if (paramMap.get("to") != null && !paramMap.get("to").isEmpty()) {
-        		 to = paramMap.get("to");
-        		 toCrit = Instant.parse(to);
-        		 toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
+        	 if (to != null && !to.isEmpty()) {
+        		 Instant toCrit = Instant.parse(to);
+        		 RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
+        	     critList.add(toCriteria);
         	 }
+        	 
         	 if (paramMap.get("from") != null && !paramMap.get("from").isEmpty()) {
-            	from = paramMap.get("from");
-            	fromCrit = Instant.parse(from);
-            	fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit);
-        	 } 
+        		 from = paramMap.get("from");
+        	 } else {
+        		 from = getDefaultStartTime(); 
+        	 }
+        	 Instant fromCrit = Instant.parse(from);
+             RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit); 
+             critList.add(fromCriteria);
+             
          } catch (Exception e) {
 
             throw new ServletException("Error parsing Instant, ", e);
          }
          
-         if(requestor != null && !requestor.isEmpty()) {
+         if (requestor != null && !requestor.isEmpty()) {
             RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
             critList.add(requestorCriteria);
          }
-         if(testName != null && !testName.isEmpty()) {
+         if (testName != null && !testName.isEmpty()) {
             RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
             critList.add(testNameCriteria);
          }
-         if(bundle != null && !bundle.isEmpty()) {
+         if (bundle != null && !bundle.isEmpty()) {
             RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
             critList.add(bundleCriteria);
          }
          
-         if(result != null && !result.isEmpty()) {
+         if (result != null && !result.isEmpty()) {
             RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
             critList.add(resultCriteria);
          }
-        
-      }
-      
-      critList.add(fromCriteria);
-      critList.add(toCriteria);
       
      
       List<RasRunResult> runs = new ArrayList<>();
@@ -268,13 +252,6 @@ public class RunQuery extends HttpServlet {
 	   String from = start.toString().concat("Z");
 	   
 	   return from;
-   }
-   
-   private String getDefaultEndTime() {
-	   LocalDateTime end = LocalDateTime.now();
-	   String to = end.toString().concat("Z");
-	   
-	   return to;
    }
    
    
