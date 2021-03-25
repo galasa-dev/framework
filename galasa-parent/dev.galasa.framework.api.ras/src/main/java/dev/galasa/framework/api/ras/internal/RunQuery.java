@@ -148,26 +148,21 @@ public class RunQuery extends HttpServlet {
 
       //Checking ascending or descending for sorting
       
+      boolean testClassSort = ExtractQuerySort.isAscending(query,"testclass");
+      boolean resultSort = ExtractQuerySort.isAscending(query, "result");
+      
       if(!query.isEmpty()){
          
          if(!ExtractQuerySort.isAscending(query, "to")) {
             Collections.reverse(runs);
-         }
-         
-         boolean testClassSort = ExtractQuerySort.isAscending(query,"testclass");
-         
-         if(testClassSort) {
+         }else if(paramMap.get("sort").equals("testclass:asc") && testClassSort) {
             Collections.sort(runs, new SortByTestClass());
-         }else if(!testClassSort) {
+         }else if(!testClassSort){
             Collections.sort(runs, new SortByTestClass());
-            Collections.reverse(runs);
-         }
-         
-         boolean resultSort = ExtractQuerySort.isAscending(query, "result");
-         
-         if(resultSort) {
+            Collections.reverse(runs);   
+         }else if(paramMap.get("sort").equals("result:asc") && resultSort) {
             Collections.sort(runs, new SortByResult());
-         } else if(!testClassSort) {
+         }else if(!resultSort){
             Collections.sort(runs, new SortByResult());
             Collections.reverse(runs);
          }
