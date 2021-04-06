@@ -27,7 +27,6 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -90,6 +89,8 @@ public class RunQuery extends HttpServlet {
          String to = paramMap.get("to");
          String from = paramMap.get("from");
          
+         //Checking all parameters to apply to the search criteria
+         
          try {
         	 if (to != null && !to.isEmpty()) {
         		 Instant toCrit = Instant.parse(to);
@@ -145,21 +146,41 @@ public class RunQuery extends HttpServlet {
 
       Map<String, String[]> query = req.getParameterMap();
 
+      //Checking ascending or descending for sorting
+      
+      boolean testClassSort = ExtractQuerySort.isAscending(query,"testclass");
+      boolean resultSort = ExtractQuerySort.isAscending(query, "result");
+      
       if(!query.isEmpty()){
+         
          if(!ExtractQuerySort.isAscending(query, "to")) {
             Collections.reverse(runs);
+         }else if(paramMap.get("sort").equals("testclass:asc") && testClassSort) {
+            Collections.sort(runs, new SortByTestClass());
+         }else if(!testClassSort){
+            Collections.sort(runs, new SortByTestClass());
+            Collections.reverse(runs);   
+         }else if(paramMap.get("sort").equals("result:asc") && resultSort) {
+            Collections.sort(runs, new SortByResult());
+         }else if(!resultSort){
+            Collections.sort(runs, new SortByResult());
+            Collections.reverse(runs);
          }
+         
       }
 
 
       List<JsonObject> returnArray = new ArrayList<>();
 
+      //Splits up the pages based on the page size
+      
       List<List<RasRunResult>> runList = ListUtils.partition(runs, pageSize);
 
       int numPages = runList.size();
 
       int pageIndex = 1;
 
+      //Building the object to be returned by the API and splitting
 
       if(runList != null) {
          for(List<RasRunResult> list : runList) {
@@ -270,6 +291,50 @@ public class RunQuery extends HttpServlet {
          return aEndTime.compareTo(bEndTime);
       }
    }
+   
+   class SortByTestClass implements Comparator<RasRunResult>{
+     
+      @Override
+      public int compare(RasRunResult a, RasRunResult b) {
+        String aTestClass = a.getTestStructure().getTestShortName();
+        String bTestClass = b.getTestStructure().getTestShortName();
+        
+        if(aTestClass == null) {
+           if(bTestClass == null) {
+              return 0;
+        }
+           return -1;
+      }
+       if(bTestClass == null) {
+          return 1;
+       }
+       
+       return aTestClass.compareTo(bTestClass);
+   }
+      
+ }
+ 
+  class SortByResult implements Comparator<RasRunResult>{
+     
+     @Override
+     public int compare(RasRunResult a, RasRunResult b) {
+        String aResult = a.getTestStructure().getResult();
+        String bResult = b.getTestStructure().getResult();
+        
+        if(aResult == null) {
+           if(bResult == null) {
+              return 0;
+        }
+           return -1;
+      }
+       if(bResult == null) {
+          return 1;
+       }
+       
+       return aResult.compareTo(bResult);
+        
+     }
+  }
 
 
 }
