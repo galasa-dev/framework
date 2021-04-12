@@ -37,10 +37,12 @@ public class TestClassesRas extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Reference
-	public IFramework framework; // NOSONAR
+	public IFramework framework; 
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	   
+	   
 		Map<String, String[]> query = req.getParameterMap();
 		List<RasTestClass> classArray = new ArrayList<>();
 

@@ -292,6 +292,15 @@ public class TestRunner {
         }
 
         updateStatus("started", "started");
+        
+        // *** Try to load the Core Manager bundle, even if the test doesn't use it, and if not already active
+        if (!BundleManagement.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
+            try {
+                BundleManagement.loadBundle(repositoryAdmin, bundleContext, "dev.galasa.core.manager");
+            } catch (FrameworkException e) {
+                logger.warn("Tried to load the Core Manager bundle, but failed, test can continue without it",e);
+            }
+        }
 
 
         // *** Initialise the Managers ready for the test run

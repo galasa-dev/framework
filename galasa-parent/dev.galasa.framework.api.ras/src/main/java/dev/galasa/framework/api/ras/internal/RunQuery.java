@@ -27,6 +27,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,74 +63,75 @@ public class RunQuery extends HttpServlet {
       Map<String, String> paramMap = getParameterMap(req);
 
       List<IRasSearchCriteria> critList = new ArrayList<>();
-
-      if(!paramMap.isEmpty()) {
-
-         if(paramMap.get("page") != null && !paramMap.get("page").equals("")) {
+      
+    	  
+         if (paramMap.get("page") != null && !paramMap.get("page").equals("")) {
             try {
                pageNum = Integer.parseInt(paramMap.get("page"));
-            }catch(Exception e) {
-
+            } catch (Exception e) {
                throw new ServletException("Error parsing integer, ", e);
-
             }
          }
 
-         if(paramMap.get("size") != null && !paramMap.get("size").equals("")) {
-            try{
+         if (paramMap.get("size") != null && !paramMap.get("size").equals("")) {
+            try {
                pageSize = Integer.parseInt(paramMap.get("size"));
-            }catch(Exception e) {
-
+            } catch (Exception e) {
                throw new ServletException("Error parsing integer, ", e);
             }
          }
-
+         
          String requestor = paramMap.get("requestor");
-         String to = paramMap.get("to");
-         String from = paramMap.get("from");
          String testName = paramMap.get("testname");
          String bundle = paramMap.get("bundle");
          String result = paramMap.get("result");
          
-         Instant toCrit = null;
-         Instant fromCrit = null;
+         String to = paramMap.get("to");
+         String from = paramMap.get("from");
+         
+         //Checking all parameters to apply to the search criteria
          
          try {
-            if(to != null && !to.isEmpty()) {
-               toCrit = Instant.parse(to);
-               RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
-               critList.add(toCriteria);
-            }
-            if(from != null && !from.isEmpty()) {
-               fromCrit = Instant.parse(from);
-               RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit);
-               critList.add(fromCriteria);
-            }
-         }catch(Exception e) {
+        	 if (to != null && !to.isEmpty()) {
+        		 Instant toCrit = Instant.parse(to);
+        		 RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
+        	     critList.add(toCriteria);
+        	 }
+        	 
+        	 Instant fromCrit = null;
+        	 if (from != null && !from.isEmpty()) {
+        		 fromCrit = Instant.parse(from);
+        	 } else {
+        		 fromCrit = Instant.now();
+        		 fromCrit = fromCrit.minus(24, ChronoUnit.HOURS);
+        	 }
+             RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit); 
+             critList.add(fromCriteria);
+             
+         } catch (Exception e) {
 
             throw new ServletException("Error parsing Instant, ", e);
          }
-         if(requestor != null && !requestor.isEmpty()) {
+         
+         if (requestor != null && !requestor.isEmpty()) {
             RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
             critList.add(requestorCriteria);
          }
-         if(testName != null && !testName.isEmpty()) {
+         if (testName != null && !testName.isEmpty()) {
             RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
             critList.add(testNameCriteria);
          }
-         if(bundle != null && !bundle.isEmpty()) {
+         if (bundle != null && !bundle.isEmpty()) {
             RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
             critList.add(bundleCriteria);
          }
          
-         if(result != null && !result.isEmpty()) {
+         if (result != null && !result.isEmpty()) {
             RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
             critList.add(resultCriteria);
          }
-
-
-      }
-
+      
+     
       List<RasRunResult> runs = new ArrayList<>();
 
       try {
@@ -139,25 +141,46 @@ public class RunQuery extends HttpServlet {
          throw new ServletException("Error retrieving runs, ", e);
       }
       
+      
       Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
       Map<String, String[]> query = req.getParameterMap();
 
+      //Checking ascending or descending for sorting
+      
+      boolean testClassSort = ExtractQuerySort.isAscending(query,"testclass");
+      boolean resultSort = ExtractQuerySort.isAscending(query, "result");
+      
       if(!query.isEmpty()){
+         
          if(!ExtractQuerySort.isAscending(query, "to")) {
             Collections.reverse(runs);
+         }else if(paramMap.get("sort").equals("testclass:asc") && testClassSort) {
+            Collections.sort(runs, new SortByTestClass());
+         }else if(!testClassSort){
+            Collections.sort(runs, new SortByTestClass());
+            Collections.reverse(runs);   
+         }else if(paramMap.get("sort").equals("result:asc") && resultSort) {
+            Collections.sort(runs, new SortByResult());
+         }else if(!resultSort){
+            Collections.sort(runs, new SortByResult());
+            Collections.reverse(runs);
          }
+         
       }
 
 
       List<JsonObject> returnArray = new ArrayList<>();
 
+      //Splits up the pages based on the page size
+      
       List<List<RasRunResult>> runList = ListUtils.partition(runs, pageSize);
 
       int numPages = runList.size();
 
       int pageIndex = 1;
 
+      //Building the object to be returned by the API and splitting
 
       if(runList != null) {
          for(List<RasRunResult> list : runList) {
@@ -204,6 +227,7 @@ public class RunQuery extends HttpServlet {
       }
 
    }
+  
 
    private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 
@@ -241,9 +265,10 @@ public class RunQuery extends HttpServlet {
             newParameterMap.put(parameterName, null);
          }
       }
+   
       return newParameterMap;
    }
-   
+  
    
    class SortByEndTime implements Comparator<RasRunResult> {
       
@@ -266,6 +291,50 @@ public class RunQuery extends HttpServlet {
          return aEndTime.compareTo(bEndTime);
       }
    }
+   
+   class SortByTestClass implements Comparator<RasRunResult>{
+     
+      @Override
+      public int compare(RasRunResult a, RasRunResult b) {
+        String aTestClass = a.getTestStructure().getTestShortName();
+        String bTestClass = b.getTestStructure().getTestShortName();
+        
+        if(aTestClass == null) {
+           if(bTestClass == null) {
+              return 0;
+        }
+           return -1;
+      }
+       if(bTestClass == null) {
+          return 1;
+       }
+       
+       return aTestClass.compareTo(bTestClass);
+   }
+      
+ }
+ 
+  class SortByResult implements Comparator<RasRunResult>{
+     
+     @Override
+     public int compare(RasRunResult a, RasRunResult b) {
+        String aResult = a.getTestStructure().getResult();
+        String bResult = b.getTestStructure().getResult();
+        
+        if(aResult == null) {
+           if(bResult == null) {
+              return 0;
+        }
+           return -1;
+      }
+       if(bResult == null) {
+          return 1;
+       }
+       
+       return aResult.compareTo(bResult);
+        
+     }
+  }
 
 
 }

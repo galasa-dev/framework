@@ -75,6 +75,29 @@ public class ConfidentialTextServiceTest {
     }
 
     /**
+     * This test method ensures that any regitered words or phrases are removed from
+     * a text.
+     * 
+     * @throws ConfidentialTextException
+     * @throws IOException
+     */
+    @Test
+    public void testRemoveConfidentialTextWithDollarSymbol() throws ConfidentialTextException, IOException {
+        FrameworkConfidentialTextService ctsService = new FrameworkConfidentialTextService();
+
+        ctsService.registerText("test1", "This is a test comment");
+        ctsService.registerText("te$t2", "This is a test comment");
+        ctsService.registerText("test3", "This is a test comment");
+
+        String testSentence = "The current password is test1, the old password is test3, and the new password is te$t2";
+        String expected = "The current password is **1**, the old password is **3**, and the new password is **2**";
+
+        String result = ctsService.removeConfidentialText(testSentence);
+        System.out.println(result + "\n" + expected);
+        assertEquals("Did not remove confidential imfomation ", expected, result);
+    }
+
+    /**
      * This is a stubbed framework intialisation class to test the registering of
      * the service.
      */
