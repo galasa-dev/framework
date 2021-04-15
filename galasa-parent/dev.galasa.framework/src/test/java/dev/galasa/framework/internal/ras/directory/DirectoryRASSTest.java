@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.internal.ras.directory;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,11 +24,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.Answer1;
 
 import com.google.gson.Gson;
 
-import dev.galasa.framework.internal.ras.directory.DirectoryResultArchiveStoreRegistration;
-import dev.galasa.framework.internal.ras.directory.DirectoryResultArchiveStoreService;
+import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -43,9 +47,10 @@ import dev.galasa.ResultArchiveStoreFileAttributeView;
  */
 public class DirectoryRASSTest {
 
-    private Path                rasDirectory;
+    private Path                     rasDirectory;
 
-    private IFramework          framework;
+    private IFramework               framework;
+    private IConfidentialTextService cts;
 
     private static final String runname = "BOB1";
 
@@ -54,7 +59,16 @@ public class DirectoryRASSTest {
         this.rasDirectory = Files.createTempDirectory("galasa_junit_ras_");
 
         this.framework = mock(IFramework.class);
+        this.cts = mock(IConfidentialTextService.class);
+
         when(this.framework.getTestRunName()).thenReturn(runname);
+        when(this.framework.getConfidentialTextService()).thenReturn(cts);
+
+        when(cts.removeConfidentialText(anyString())).thenAnswer(new Answer<String>(){
+                public String answer(InvocationOnMock arg) {
+                    return arg.getArgument(0);
+                }
+        });
 
     }
 
