@@ -8,5 +8,5 @@ dependencies {
     compileOnly project(':dev.galasa.framework.maven.repository.spi')
 
     implementation 'org.apache.maven:maven-repository-metadata:3.3.9'
-    implementation 'org.codehaus.plexus:plexus-utils:3.0.22'
+    implementation 'org.codehaus.plexus:plexus-utils:3.0.24'
 }
