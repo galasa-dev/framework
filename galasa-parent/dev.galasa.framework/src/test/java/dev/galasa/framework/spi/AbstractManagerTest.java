@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2021.
  */
 package dev.galasa.framework.spi;
 
@@ -128,7 +128,7 @@ public class AbstractManagerTest {
         testManager.extraBundles(null);
         testManager.getFramework();
         testManager.getTestClass();
-        testManager.youAreRequired(null, null);
+        testManager.youAreRequired(null, null, null);
         testManager.areYouProvisionalDependentOn(null);
         testManager.anyReasonTestClassShouldBeIgnored();
         testManager.provisionGenerate();
