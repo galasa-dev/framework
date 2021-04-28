@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2021.
  */
 package dev.galasa.framework.spi;
 
@@ -112,8 +112,9 @@ public interface IManager {
      * @param allManagers    All Managers found in OSGi
      * @param activeManagers The Manager should add itself to this list if it is to
      *                       be activated. Do not add other managers.
+     * @param testClass      The Test class the framework will be running
      */
-    void youAreRequired(@NotNull List<IManager> allManagers, @NotNull List<IManager> activeManagers)
+    void youAreRequired(@NotNull List<IManager> allManagers, @NotNull List<IManager> activeManagers, @NotNull GalasaTest galasaTest)
             throws ManagerException;
 
     /**
