@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2021.
  */
 package dev.galasa.framework.spi;
 
@@ -281,7 +281,7 @@ public abstract class AbstractManager implements IManager {
      * java.util.List)
      */
     @Override
-    public void youAreRequired(@NotNull List<IManager> allManagers, @NotNull List<IManager> activeManagers)
+    public void youAreRequired(@NotNull List<IManager> allManagers, @NotNull List<IManager> activeManagers, @NotNull GalasaTest galasaTest)
             throws ManagerException {
     }
 
@@ -474,10 +474,10 @@ public abstract class AbstractManager implements IManager {
      *                          list
      */
     protected <T extends Object> T addDependentManager(@NotNull List<IManager> allManagers,
-            @NotNull List<IManager> activeManagers, @NotNull Class<T> dependentInterface) throws ManagerException {
+            @NotNull List<IManager> activeManagers, @NotNull GalasaTest galasaTest, @NotNull Class<T> dependentInterface) throws ManagerException {
         for (IManager manager : allManagers) {
             if (dependentInterface.isAssignableFrom(manager.getClass())) {
-                manager.youAreRequired(allManagers, activeManagers);
+                manager.youAreRequired(allManagers, activeManagers, galasaTest);
                 return dependentInterface.cast(manager);
             }
         }
