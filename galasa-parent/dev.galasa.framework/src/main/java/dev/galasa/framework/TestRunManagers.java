@@ -301,7 +301,7 @@ public class TestRunManagers {
         logger.trace("Resouce: " + resource);
 
         if (isBundleActive(bundleSymbolicName)) {
-            logger.trace(resource + "already active");
+            logger.trace(resource + " already active");
             return;
         }
 
