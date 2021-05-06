@@ -130,7 +130,7 @@
 
 		<gpg.skip>true</gpg.skip>
 		<gpg.executable>/usr/bin/gpg2</gpg.executable>
-		<gpg.keyname>5712920B2E4880520B3A40CC85A934078534E695</gpg.keyname>
+		<gpg.keyname>C43F690BFADF88D8378721CEA00445C65AB3E02B</gpg.keyname>
 
 		<excludePackageNames>*.internal</excludePackageNames>
 	</properties>
