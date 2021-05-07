@@ -1,0 +1,118 @@
+openapi: 3.0.0
+info:
+  title: Galasa Web UI Requests
+  version: 0.15.0-SNAPSHOT
+
+servers:
+  - url: 'http://{server}:{port}'
+    variables:
+      server:
+        default: localhost
+      port:
+        default: "8080"
+
+paths:
+  /webui/worklist:
+    get:
+      tags: 
+        - Worklist
+      summary: Get the full Worklist
+      parameters:
+        - name: sort
+          in: query
+          description: provides sorting, to:asc or to:desc
+          schema: 
+            type: string
+      responses:
+        '200':
+          description: Array of Worklist objects
+          content:
+            application/json:
+              schema:
+                $ref: '?'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+
+  /webui/worklist/{id}:
+    put:
+      tags:
+        - WorklistAdd
+      summary: Add run to Worklist
+      parameters:
+        - name: id
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run added to Worklist
+          content: 
+            application/json:
+              schema:
+                properties:
+                  run:
+                    $ref: '?'
+        '404':
+          description: Run not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+
+    delete:
+      tags:
+        - WorklistDelete
+      summary: Remove run from Worklist
+      parameters:
+        - name: id
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run removed from Worklist
+          content: 
+            application/json:
+              schema:
+                properties:
+                  run:
+                    $ref: '?'
+        '404':
+          description: Run not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+
+components:
+  schemas:
+    Worklist:
+      type: object
+      properties:
+        worklistItems:
+          type: array
+          items: 
+            $ref: '#/components/schemas/WorklistItem'
+    WorklistItem:
+      type: object
+      properties:
+        id:
+          type: string
+        runName:
+          type: string
+        shortName:
+          type: string
+        result:
+          type: string
+    JsonError:
+      properties:
+        error:
+          type: string

@@ -137,6 +137,27 @@ pipeline {
                         }
                      }                      
                   }
+
+                  // dev.galasa.framework.api.webui
+                  sh "gradle -s -Dgradle.user.home=${workspace}/.gradle ${GRADLE_CACHE} :dev.galasa.framework.api.webui:openApiGenerate"
+
+                  dir('dev.galasa.framework.api.webui/build/openapi') {
+                     sh "npm --ignore-scripts install"
+                     sh "npm --ignore-scripts update"
+                     sh "npm run-script build"
+                     script {
+                        sh "cp package.json dist/"
+                        sh "cp README.md dist/" 
+                        dir('dist') {
+                           if (env.PULL_REQ == 'true') {
+                              echo 'Skipping npm publish'
+                              sh "npm --ignore-scripts publish --dry-run"
+                           } else {
+                              sh "npm --ignore-scripts publish"
+                           }
+                        }
+                     }                      
+                  }
                }
             }
          }
