@@ -91,6 +91,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         } catch (final IOException e) {
             throw new ResultArchiveStoreException("Unable to create the RAS Provider", e);
         }
+
     }
 
     /**
@@ -143,6 +144,12 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         if (!message.endsWith("\n")) {
             message = message + "\n";
         }
+
+        //If the framework is shutting down we will have lost the CTS - by which point 
+        //there should be no confidential text to obscure anyway
+        if(framework.getConfidentialTextService() != null)
+            message = framework.getConfidentialTextService().removeConfidentialText(message);
+
         try {
             Files.write(this.runLog, message.getBytes(UTF8), StandardOpenOption.APPEND);
         } catch (final Exception e) {
@@ -158,18 +165,12 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     @Override
     public void writeLog(@NotNull List<String> messages) throws ResultArchiveStoreException {
         Objects.requireNonNull(messages);
-
-        final StringBuilder sb = new StringBuilder();
         for (final String message : messages) {
-            sb.append(message);
-            if (!message.endsWith("\n")) {
-                sb.append("\n");
+            try{
+                this.writeLog(message);
+            } catch(final Exception e){
+                throw new ResultArchiveStoreException("Unable to write messages to run log", e);
             }
-        }
-        try {
-            Files.write(this.runLog, sb.toString().getBytes(UTF8), StandardOpenOption.APPEND);
-        } catch (final Exception e) {
-            throw new ResultArchiveStoreException("Unable to write messages to run log", e);
         }
     }
 

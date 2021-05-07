@@ -67,7 +67,7 @@ public class DeployArtifacts extends AbstractMojo {
 
         HashMap<String, Artifact> artifacts = new HashMap<>();
         //*** process all artifacts with scope compile and built a list of all dependencies
-        for (Artifact artifact : this.project.getArtifacts()) {
+        for (Artifact artifact : this.project.getDependencyArtifacts()) {
             if (!"dev.galasa".equals(artifact.getGroupId())) { //*** Only interested in galasa artifacts
                 continue;
             }

@@ -434,7 +434,7 @@ public class Framework implements IFramework {
         // *** Shutdown the Configuration Property Store
         if (this.cpsStore != null) {
             try {
-                shutdownLogger.trace("Shutting down the Configuratopm Properties Store");
+                shutdownLogger.trace("Shutting down the Configuration Properties Store");
                 this.cpsStore.shutdown();
                 this.cpsStore = null;
             } catch (Throwable t) {

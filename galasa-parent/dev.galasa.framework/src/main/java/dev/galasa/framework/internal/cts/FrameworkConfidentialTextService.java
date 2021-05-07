@@ -7,6 +7,7 @@ package dev.galasa.framework.internal.cts;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,7 +64,7 @@ public class FrameworkConfidentialTextService implements IConfidentialTextServic
     public String removeConfidentialText(String text) {
 
         for (ConfidentialText confidentials : confidentialTexts) {
-            text = text.replaceAll(confidentials.getText(), confidentials.getTag());
+            text = text.replaceAll(Matcher.quoteReplacement(confidentials.getText()), confidentials.getTag());
         }
 
         return text;
