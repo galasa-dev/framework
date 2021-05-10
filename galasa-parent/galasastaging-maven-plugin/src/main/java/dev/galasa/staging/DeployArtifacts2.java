@@ -45,10 +45,10 @@ public class DeployArtifacts2 extends AbstractMojo {
 
     @Component
     private RepositorySystem        repoSystem;
-    
+
     @Parameter(defaultValue = "${repositorySystemSession}", readonly = true, required = true)
     private RepositorySystemSession repoSession;
-    
+
     @Parameter(defaultValue = "${project.remoteProjectRepositories}", readonly = true, required = true)
     private List<RemoteRepository> projectRepos;
 
@@ -61,9 +61,6 @@ public class DeployArtifacts2 extends AbstractMojo {
     @Parameter(defaultValue = "${galasa.target.repo.id}", property = "targetRepoId", required = false)
     private String            targetRepoId;
 
-    @Parameter(defaultValue = "${galasa.settings.file}", property = "settingsFile", required = false)
-    private String            settingsFile;
-
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         HashMap<String, Artifact> artifacts = new HashMap<>();
@@ -72,7 +69,7 @@ public class DeployArtifacts2 extends AbstractMojo {
             if (!"compile".equals(artifact.getScope())) {
                 continue;
             }
-            
+
             String fullId = artifact.toString();
 
             if (!artifacts.containsKey(fullId)) {
@@ -85,26 +82,29 @@ public class DeployArtifacts2 extends AbstractMojo {
         Collections.sort(sortedArtifacts);
 
         ArrayList<org.eclipse.aether.artifact.Artifact> deployArtifacts = new ArrayList<>();
-        
+
         for(Artifact artifact : sortedArtifacts) {
             System.out.println(artifact);   
-            
+
             if ("pom".equals(artifact.getType())) {
                 // Simply add poms to the deploy list
+                deployArtifacts.add(convertArtifact(artifact));
+            } else if ("obr".equals(artifact.getType())) {
+                // Simply add obrs to the deploy list
                 deployArtifacts.add(convertArtifact(artifact));
             } else if ("jar".equals(artifact.getType())) {
                 processJar(artifact, deployArtifacts);
             }
         }
-        
+
         // Now deploy them all
         Builder builder = new RemoteRepository.Builder(null, "default", targetRepo.toString());
         RemoteRepository distRepository = builder.build();
-        
+
         DeployRequest deployRequest = new DeployRequest();
         deployRequest.setArtifacts(deployArtifacts);
         deployRequest.setRepository(distRepository);
-        
+
         try {
             this.repoSystem.deploy(repoSession, deployRequest);
         } catch (DeploymentException e) {
@@ -115,13 +115,13 @@ public class DeployArtifacts2 extends AbstractMojo {
     private void processJar(Artifact jarArtifact, ArrayList<org.eclipse.aether.artifact.Artifact> deployArtifacts) {
         // First add the JAR to the deployable artifacts
         deployArtifacts.add(convertArtifact(jarArtifact));
-        
+
         // Get a hold of the POM
         org.eclipse.aether.artifact.Artifact pomArtifact = resolveArtifact(jarArtifact, null, "pom");
         if (pomArtifact != null) {
             deployArtifacts.add(convertArtifact(pomArtifact));
         }
-        
+
         // Get a hold of the MODULE
         org.eclipse.aether.artifact.Artifact moduleArtifact = resolveArtifact(jarArtifact, null, "module");
         if (moduleArtifact != null) {
@@ -143,7 +143,7 @@ public class DeployArtifacts2 extends AbstractMojo {
     }
 
     private org.eclipse.aether.artifact.Artifact resolveArtifact(Artifact artifact, String classifier, String extension) {
-        
+
         DefaultArtifact extractArtifact = new DefaultArtifact(artifact.getGroupId(),
                 artifact.getArtifactId(), classifier, extension, artifact.getBaseVersion());
 
@@ -158,11 +158,11 @@ public class DeployArtifacts2 extends AbstractMojo {
             getLog().warn(e.getMessage());
             return null;
         }
-        
+
         return result.getArtifact();
     }
-    
-    
+
+
     private org.eclipse.aether.artifact.Artifact convertArtifact(org.eclipse.aether.artifact.Artifact artifact) {
         DefaultArtifact defaultArtifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getClassifier(), artifact.getExtension(), artifact.getBaseVersion());
         org.eclipse.aether.artifact.Artifact newArtifact = defaultArtifact.setFile(artifact.getFile());
