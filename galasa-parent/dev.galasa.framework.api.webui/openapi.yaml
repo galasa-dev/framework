@@ -1,6 +1,7 @@
 openapi: 3.0.0
 info:
   title: Galasa Web UI Requests
+  description: Description of RESTful calls to be made as part of the API calls to Galasa's Web UI Worklist
   version: 0.15.0-SNAPSHOT
 
 servers:
@@ -29,7 +30,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '?'
+                $ref: '#/components/schemas/Worklist'
         '500':
           description: Error
           content:
@@ -57,7 +58,7 @@ paths:
               schema:
                 properties:
                   run:
-                    $ref: '?'
+                    $ref: '#/components/schemas/Worklist'
         '404':
           description: Run not found
           content:
@@ -84,7 +85,7 @@ paths:
               schema:
                 properties:
                   run:
-                    $ref: '?'
+                    $ref: '#/components/schemas/Worklist'
         '404':
           description: Run not found
           content:
