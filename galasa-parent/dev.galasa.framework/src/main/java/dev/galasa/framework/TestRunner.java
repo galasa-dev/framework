@@ -427,7 +427,9 @@ public class TestRunner {
                 this.resourcesUnavailable = true;
             }
             testClassWrapper.setResult(Result.envfail(e));
-            managers.testClassResult(testClassWrapper.getResult(), e);
+            if (!resourcesUnavailable) {
+                managers.testClassResult(testClassWrapper.getResult(), e);
+            }
             testStructure.setResult(testClassWrapper.getResult().getName());
             runOk = false;
             return;
