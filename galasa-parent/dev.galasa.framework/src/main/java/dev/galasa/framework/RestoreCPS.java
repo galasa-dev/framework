@@ -500,7 +500,7 @@ public class RestoreCPS {
          *  e.g. framework.foo.bar or framework.foo.bar.fizz.buzz
          */
         
-        Pattern pattern = Pattern.compile("^([a-zA-Z0-9]+\\.){2,}[a-zA-Z0-9]+$");
+        Pattern pattern = Pattern.compile("^([a-zA-Z0-9\\-\\_]+\\.){2,}[a-zA-Z0-9\\-\\_]+$");
         Matcher matcher = pattern.matcher(key);
         return matcher.find();
     }
