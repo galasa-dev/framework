@@ -113,6 +113,12 @@ subprojects {
                             organization = 'IBM'
                             organizationUrl = 'https://www.ibm.com'
                         }
+                        developer {
+                            name = 'Jade Carino'
+                            email = 'jade.carino@ibm.com'
+                            organization = 'IBM'
+                            organizationUrl = 'https://www.ibm.com'
+                        }
                     }
                     scm {
                         connection = 'scm:git:git:://github.com/galasa-dev/framework'
