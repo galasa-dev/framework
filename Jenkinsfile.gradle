@@ -46,6 +46,9 @@ pipeline {
                   dir('galasa-parent') {
                      sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
                   }
+                  dir('galasa-parent/galasastaging-maven-plugin') {
+                     sh "mvn --settings ${workspace}/settings.xml -Dmaven.repo.local=${workspace}/repository -Dgpg.skip=${GPG_SKIP} -Dgpg.passphrase=$GPG -P ${MAVEN_PROFILE} -B -e -fae --non-recursive ${MAVEN_GOAL}"
+                  }
                }
                }
             }
@@ -121,6 +124,27 @@ pipeline {
                   sh "gradle -s -Dgradle.user.home=${workspace}/.gradle ${GRADLE_CACHE} :dev.galasa.framework.api.runs:openApiGenerate"
                   
                   dir('dev.galasa.framework.api.runs/build/openapi') {
+                     sh "npm --ignore-scripts install"
+                     sh "npm --ignore-scripts update"
+                     sh "npm run-script build"
+                     script {
+                        sh "cp package.json dist/"
+                        sh "cp README.md dist/" 
+                        dir('dist') {
+                           if (env.PULL_REQ == 'true') {
+                              echo 'Skipping npm publish'
+                              sh "npm --ignore-scripts publish --dry-run"
+                           } else {
+                              sh "npm --ignore-scripts publish"
+                           }
+                        }
+                     }                      
+                  }
+
+                  // dev.galasa.framework.api.webui
+                  sh "gradle -s -Dgradle.user.home=${workspace}/.gradle ${GRADLE_CACHE} :dev.galasa.framework.api.webui:openApiGenerate"
+
+                  dir('dev.galasa.framework.api.webui/build/openapi') {
                      sh "npm --ignore-scripts install"
                      sh "npm --ignore-scripts update"
                      sh "npm run-script build"

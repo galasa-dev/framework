@@ -47,7 +47,7 @@ public class GherkinTest {
 
     private String testName;
     private List<String> comments;
-    
+
     // Logger statics
     public static final String  LOG_STARTING   = "Starting";
     public static final String  LOG_ENDING     = "Ending";
@@ -98,7 +98,7 @@ public class GherkinTest {
                     methods.add(currentMethod);
                 }
                 this.testStructure.setTestShortName(this.testName);
-                
+
                 List<TestGherkinMethod> structureMethods = new ArrayList<TestGherkinMethod>(this.methods.size());
                 for(GherkinMethod method : this.methods) {
                     structureMethods.add(method.getStructure());
@@ -194,15 +194,11 @@ public class GherkinTest {
 
         // Test result
         logger.info(LOG_ENDING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** " + this.result.getName()
-                + " - Test class " + this.testName +  LOG_START_LINE + LOG_ASTERS);
+        + " - Test class " + this.testName +  LOG_START_LINE + LOG_ASTERS);
 
         this.testStructure.setResult(this.result.getName());
 
-        try {
-            managers.testClassResult(this.result, null);
-        } catch (FrameworkException e) {
-            throw new TestRunException("Problem with test class result", e);
-        }
+        managers.testClassResult(this.result, null);
 
         String postReport = this.testStructure.gherkinReport(LOG_START_LINE);
         logger.trace("Finishing Test Class structure:-" + postReport);

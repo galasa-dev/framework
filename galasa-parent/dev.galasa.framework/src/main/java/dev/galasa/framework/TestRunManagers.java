@@ -594,12 +594,12 @@ public class TestRunManagers {
         return newResult;
     }
 
-    public void testClassResult(@NotNull Result finalResult, Throwable finalException) throws FrameworkException {
+    public void testClassResult(@NotNull Result finalResult, Throwable finalException) {
         for (IManager manager : activeManagers) {
             try {
                 manager.testClassResult(finalResult.getName(), finalException);
             } catch (ManagerException e) {
-                throw new FrameworkException("Problem in test class result for manager " + manager.getClass().getName(), e);
+                logger.warn("Problem in test class result for manager " + manager.getClass().getName(), e);
             }
         }
     }

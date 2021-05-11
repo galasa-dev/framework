@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2021.
  */
 package dev.galasa.framework;
 
@@ -292,7 +292,7 @@ public class TestRunner {
         }
 
         updateStatus("started", "started");
-        
+
         // *** Try to load the Core Manager bundle, even if the test doesn't use it, and if not already active
         if (!BundleManagement.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
             try {
@@ -427,6 +427,9 @@ public class TestRunner {
                 this.resourcesUnavailable = true;
             }
             testClassWrapper.setResult(Result.envfail(e));
+            if (!resourcesUnavailable) {
+                managers.testClassResult(testClassWrapper.getResult(), e);
+            }
             testStructure.setResult(testClassWrapper.getResult().getName());
             runOk = false;
             return;
@@ -454,6 +457,9 @@ public class TestRunner {
                         this.resourcesUnavailable = true;
                     }
                     testClassWrapper.setResult(Result.envfail(e));
+                    if (!this.resourcesUnavailable) {
+                        managers.testClassResult(testClassWrapper.getResult(), e);
+                    }
                     testStructure.setResult(testClassWrapper.getResult().getName());
                     return;
                 }
