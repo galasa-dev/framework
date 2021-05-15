@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2021.
  */
 package dev.galasa.framework.k8s.controller;
 
@@ -23,6 +23,7 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.apis.CoreV1Api;
+import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.models.V1Affinity;
 import io.kubernetes.client.models.V1ConfigMapKeySelector;
 import io.kubernetes.client.models.V1Container;
@@ -219,15 +220,15 @@ public class RunPoll implements Runnable {
             V1ResourceRequirements resources = new V1ResourceRequirements();
             container.setResources(resources);
 
-            // TODO reinstate
-            // System.out.println("requests=" +
-            // Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi");
-            // System.out.println("limit=" +
-            // Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi");
-            // resources.putRequestsItem("memory", new
-            // Quantity(Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi"));
-            // resources.putLimitsItem("memory", new
-            // Quantity(Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi"));
+            // TODO dont know why this was commented out
+            System.out.println("requests=" +
+            Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi");
+            System.out.println("limit=" +
+            Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi");
+            resources.putRequestsItem("memory", new
+            Quantity(Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi"));
+            resources.putLimitsItem("memory", new
+            Quantity(Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi"));
 
             ArrayList<V1EnvVar> envs = new ArrayList<>();
             container.setEnv(envs);
