@@ -256,6 +256,8 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         logger.debug("Attempting to download " + urlRemoteFile);
 
         URLConnection connection = urlRemoteFile.openConnection();
+        connection.setConnectTimeout(300000);
+        connection.setReadTimeout(300000);
         connection.setDoOutput(false);
         connection.connect();
 
@@ -279,6 +281,8 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
           logger.debug("Attempting to download " + urlRemoteFile);
 
           URLConnection connection = urlRemoteFile.openConnection();
+          connection.setConnectTimeout(300000);
+          connection.setReadTimeout(300000);
           connection.setDoOutput(false);
           connection.connect();
           Files.copy(connection.getInputStream(), tempMetadata, StandardCopyOption.REPLACE_EXISTING);
@@ -315,6 +319,8 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         logger.debug("Attempting to download " + urlRemoteFile);
         URLConnection connection = urlRemoteFile.openConnection();
         connection.setDoOutput(false);
+        connection.setConnectTimeout(300000);
+        connection.setReadTimeout(300000);
         connection.connect();
 
         try {
