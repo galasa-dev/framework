@@ -5,6 +5,8 @@
  */
 package dev.galasa.framework.k8s.controller;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -139,8 +141,12 @@ public class RunPoll implements Runnable {
 
         try {
             // *** First attempt to allocate the run to this controller
+            Instant now = Instant.now();
+            Instant expire = now.plus(15, ChronoUnit.MINUTES);
             HashMap<String, String> props = new HashMap<>();
             props.put("run." + runName + ".controller", settings.getPodName());
+            props.put("run." + runName + ".allocated", now.toString());
+            props.put("run." + runName + ".allocate.timeout", expire.toString());
             if (!this.dss.putSwap("run." + runName + ".status", "queued", "allocated", props)) {
                 logger.info("run allocated by another controller");
                 return;
