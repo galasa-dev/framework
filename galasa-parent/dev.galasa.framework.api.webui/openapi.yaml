@@ -99,11 +99,13 @@ components:
     WorklistItem:
       type: object
       properties:
-        id:
+        runId:
           type: string
         runName:
           type: string
         shortName:
+          type: string
+        testClass:
           type: string
         result:
           type: string
