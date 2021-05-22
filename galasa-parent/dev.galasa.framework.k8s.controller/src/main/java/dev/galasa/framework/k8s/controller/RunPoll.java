@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019,2021.
  */
 package dev.galasa.framework.k8s.controller;
 
@@ -276,13 +276,18 @@ public class RunPoll implements Runnable {
                     break;
                 } catch (ApiException e) {
                     String response = e.getResponseBody();
-                    if (response.contains("AlreadyExists")) {
-                        retry++;
-                        String newEngineName = engineName + "-" + retry;
-                        newPod.getMetadata().setName(newEngineName);
-                        logger.info("Engine Pod " + engineName + " already exists, trying with " + newEngineName);
+                    if (response != null) {
+                        if (response.contains("AlreadyExists")) {
+                            retry++;
+                            String newEngineName = engineName + "-" + retry;
+                            newPod.getMetadata().setName(newEngineName);
+                            logger.info("Engine Pod " + engineName + " already exists, trying with " + newEngineName);
+                            continue;
+                        } else {
+                            logger.error("Failed to create engine pod :-\n" + e.getResponseBody(), e);
+                        }
                     } else {
-                        logger.error("Failed to create engine pod :-\n" + e.getResponseBody(), e);
+                        logger.error("k8s api exception received without response body, will retry later",e);
                     }
                 } catch (Exception e) {
                     logger.error("Failed to create engine pod", e);
