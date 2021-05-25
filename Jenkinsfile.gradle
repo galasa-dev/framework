@@ -59,7 +59,8 @@ pipeline {
          steps {
             withCredentials([
                usernamePassword(credentialsId: 'galasa-nexus', usernameVariable: 'MAVENUSERNAME', passwordVariable: 'MAVENPASSWORD'),
-               usernamePassword(credentialsId: 'gradle-cache', usernameVariable: 'CACHEUSERNAME', passwordVariable: 'CACHEPASSWORD')
+               usernamePassword(credentialsId: 'gradle-cache', usernameVariable: 'CACHEUSERNAME', passwordVariable: 'CACHEPASSWORD'),
+               string(credentialsId: 'galasa-gpg', variable: 'GPG')
             ]) {
                withFolderProperties { 
                   dir('galasa-parent') {
