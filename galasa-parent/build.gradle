@@ -65,6 +65,7 @@ subprojects {
                 from components.java
                 
                 pom {
+                    name = 'A Galasa project'
                     description = 'A Galasa project'
                     url = 'https://galasa.dev'
                     licenses {
