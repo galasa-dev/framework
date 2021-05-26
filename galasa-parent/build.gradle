@@ -65,7 +65,7 @@ subprojects {
                 from components.java
                 
                 pom {
-                    name = 'Galasa Testers Programmer Interface (TPI)'
+                    description = 'A Galasa project'
                     url = 'https://galasa.dev'
                     licenses {
                         license {
