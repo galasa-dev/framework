@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>dev.galasa.framework.obr</artifactId>
-	<version>0.15.0</version>
+	<version>0.16.0</version>
 	<!-- If updating version, reflect change in dev.galasa.uber.obr -->
 	<packaging>galasa-obr</packaging>
 
