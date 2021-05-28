@@ -52,10 +52,10 @@ subprojects {
 
     repositories {
         maven {
-            url $sourceMaven
+            url "$sourceMaven"
         }
         maven {
-            url $centralMaven
+            url "$centralMaven"
         }
     }
 
