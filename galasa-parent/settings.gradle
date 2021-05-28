@@ -1,7 +1,7 @@
 pluginManagement {
     repositories {
         maven {
-            url = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-development"
+            url = $sourceMaven
         }
         gradlePluginPortal()
     }
