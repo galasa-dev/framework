@@ -38,7 +38,7 @@ public class RunImpl implements IRun {
 
     public RunImpl(String name, IDynamicStatusStoreService dss) throws DynamicStatusStoreException {
         this.name = name;
-error
+
         String prefix = "run." + name + ".";
 
         Map<String, String> runProperties = dss.getPrefix("run." + this.name);
