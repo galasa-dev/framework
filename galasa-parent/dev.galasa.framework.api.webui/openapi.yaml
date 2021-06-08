@@ -31,28 +31,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
-
-  /webui/worklist/{id}:
+    
     put:
       tags:
         - WorklistAdd
       summary: Add run to Worklist
-      parameters:
-        - name: id
-          in: path
-          description: Run Id
+      parameters: 
+        - name: runId
+          in: query
+          description: Run ID
           required: true
           schema:
             type: string
-      responses:
+      responses: 
         '200':
-          description: Run added to Worklist
+          description: Run added to Worklist and updated Worklist returned
           content: 
             application/json:
               schema:
-                properties:
-                  run:
-                    $ref: '#/components/schemas/Worklist'
+                $ref: '#/components/schemas/Worklist'
         '404':
           description: Run not found
           content:
@@ -65,21 +62,19 @@ paths:
         - WorklistDelete
       summary: Remove run from Worklist
       parameters:
-        - name: id
-          in: path
+        - name: runId
+          in: query
           description: Run Id
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Run removed from Worklist
+          description: Run removed from Worklist and updated Worklist returned
           content: 
             application/json:
               schema:
-                properties:
-                  run:
-                    $ref: '#/components/schemas/Worklist'
+                $ref: '#/components/schemas/Worklist'
         '404':
           description: Run not found
           content:
