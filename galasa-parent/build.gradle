@@ -1,5 +1,5 @@
 plugins {
-    id 'dev.galasa.githash' version '0.1.0-SNAPSHOT' apply false
+    id 'dev.galasa.githash' version '0.15.0' apply false
 }
 
 subprojects {
@@ -28,13 +28,16 @@ subprojects {
     sourceCompatibility = galasaSourceCompatibility
     targetCompatibility = galasaTargetCompatibility
 
-    ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
-
     def mavenrepo = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-development"
 
-    tasks.withType(Sign) {
-        onlyIf { isReleaseVersion }
+    signing {
+        sign publishing.publications
     }
+
+    tasks.withType(Sign) {
+        onlyIf { isRelease.toBoolean() }
+    }
+
     
     tasks.withType(PublishToMavenRepository) {
         onlyIf { jar.didWork }
@@ -62,7 +65,8 @@ subprojects {
                 from components.java
                 
                 pom {
-                    name = 'Galasa Testers Programmer Interface (TPI)'
+                    name = 'A Galasa project'
+                    description = 'A Galasa project'
                     url = 'https://galasa.dev'
                     licenses {
                         license {
@@ -141,11 +145,6 @@ subprojects {
                 url = mavenrepo
             }
         }
-    }
-
-    signing {
-        useGpgCmd() 
-        sign publishing.publications.maven 
     }
 
     dependencies {
