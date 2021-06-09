@@ -4,9 +4,13 @@ plugins {
 
 description = 'Docker Controller'
 
+version '0.16.0'
+
 dependencies {
     implementation project(':dev.galasa')
     implementation project(':dev.galasa.framework')
+
+    implementation 'commons-codec:commons-codec:1.15'
 
     implementation 'io.prometheus:simpleclient:0.6.0'
     implementation 'io.prometheus:simpleclient_httpserver:0.6.0'
