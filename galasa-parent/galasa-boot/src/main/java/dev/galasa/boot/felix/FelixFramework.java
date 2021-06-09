@@ -80,7 +80,7 @@ public class FelixFramework {
             frameworkProperties.put(Constants.FRAMEWORK_STORAGE, felixCache.getAbsolutePath());
             frameworkProperties.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
             frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
-                    "org.apache.felix.bundlerepository; version=2.1, dev.galasa.framework, sun.misc, com.sun.net.httpserver, com.sun.management, org.xml.sax");
+                    "org.apache.felix.bundlerepository; version=2.1, dev.galasa.framework, sun.misc, com.sun.net.httpserver, com.sun.management, org.xml.sax, sun.nio.ch");
             framework = frameworkFactory.newFramework(frameworkProperties);
             logger.debug("Initializing Felix Framework");
             framework.init();
