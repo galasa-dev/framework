@@ -4,6 +4,8 @@ plugins {
 
 description = 'Galasa Framework'
 
+version = "0.16.0"
+
 dependencies {
 
     api project (':dev.galasa')
