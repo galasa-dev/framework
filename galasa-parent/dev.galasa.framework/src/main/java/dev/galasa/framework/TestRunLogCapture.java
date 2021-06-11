@@ -1,20 +1,22 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.Layout;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.spi.ErrorHandler;
-import org.apache.log4j.spi.Filter;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.ErrorHandler;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -26,43 +28,47 @@ public class TestRunLogCapture implements Appender {
     private IResultArchiveStore     ras;
 
     private final ArrayList<String> startupCache = new ArrayList<>();
-    private Layout                  layout       = new PatternLayout("%d{HH:mm:ss} %p [%t] %c - %m%n");
+    private PatternLayout           layout       = PatternLayout.newBuilder().withPattern("%d{HH:mm:ss} %p [%t] %c - %m%n").build();
     private Level                   minimumLevel = Level.ALL;
 
     private boolean                 shutdown     = false;
 
+    private State                   state        = State.STOPPED;
+
     public TestRunLogCapture(Framework framework) {
         this.framework = framework;
 
-        Logger rootLogger = Logger.getRootLogger();
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(true);
+        Configuration config = ctx.getConfiguration();
 
-        Appender stdout = rootLogger.getAppender("stdout");
+        Appender stdout = config.getAppender("stdout");
         if (stdout != null) {
-            this.layout = stdout.getLayout();
+            this.layout = (PatternLayout) stdout.getLayout();
         }
 
-        rootLogger.addAppender(this);
+        config.addAppender(this);
     }
 
     public void shutdown() {
         this.shutdown = true;
     }
 
+
     @Override
-    public void doAppend(LoggingEvent event) {
+    public void append(LogEvent event) {
         if (this.shutdown) {
             return;
         }
 
-        if (!event.getLevel().isGreaterOrEqual(minimumLevel)) {
+        if (!event.getLevel().isMoreSpecificThan(minimumLevel)) {
             return;
         }
 
-        String message = layout.format(event);
-        String[] throwable = new String[0];
+        String message = this.layout.toSerializable(event);
+        String throwable = null;
 
-        if (event.getThrowableInformation() != null) {
-            throwable = event.getThrowableStrRep();
+        if (event.getThrownProxy() != null) {
+            throwable = event.getThrownProxy().getExtendedStackTraceAsString();
         }
 
         if (ras == null) {
@@ -71,9 +77,7 @@ public class TestRunLogCapture implements Appender {
             } else {
                 startupCache.add(message);
                 if (throwable != null) {
-                    for (String t : throwable) {
-                        startupCache.add(t);
-                    }
+                    startupCache.add(throwable);
                 }
                 return;
             }
@@ -93,9 +97,7 @@ public class TestRunLogCapture implements Appender {
         try {
             this.ras.writeLog(message);
             if (throwable != null) {
-                for (String t : throwable) {
-                    this.ras.writeLog(t);
-                }
+                this.ras.writeLog(throwable);
             }
         } catch (ResultArchiveStoreException e) {
             e.printStackTrace(); // *** Do not use logger, will cause a loop //NOSONAR
@@ -104,69 +106,59 @@ public class TestRunLogCapture implements Appender {
     }
 
     @Override
-    public void addFilter(Filter newFilter) {
-        // TODO Auto-generated method stub
-
+    public State getState() {
+        return this.state;
     }
 
     @Override
-    public Filter getFilter() {
-        // TODO Auto-generated method stub
+    public void initialize() {
+        this.state = State.INITIALIZED;
+    }
+
+    @Override
+    public boolean isStarted() {
+        return this.state == State.STARTED;
+    }
+
+    @Override
+    public boolean isStopped() {
+        return this.state == State.STOPPED;
+    }
+
+    @Override
+    public void start() {
+        this.state = State.STARTED;
+    }
+
+    @Override
+    public void stop() {
+        this.state = State.STOPPED;
+    }
+
+
+    @Override
+    public ErrorHandler getHandler() {
         return null;
     }
 
     @Override
-    public void clearFilters() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void close() {
-        // TODO Auto-generated method stub
-
+    public Layout<? extends Serializable> getLayout() {
+        return null;
     }
 
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
-        return null;
+        return "galasa-appender";
     }
 
     @Override
-    public void setErrorHandler(ErrorHandler errorHandler) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public ErrorHandler getErrorHandler() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void setLayout(Layout layout) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public Layout getLayout() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void setName(String name) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public boolean requiresLayout() {
-        // TODO Auto-generated method stub
+    public boolean ignoreExceptions() {
         return false;
     }
+
+    @Override
+    public void setHandler(ErrorHandler handler) {
+    }
+
 
 }

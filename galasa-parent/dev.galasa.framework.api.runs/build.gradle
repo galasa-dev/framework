@@ -8,6 +8,7 @@ description = 'Galasa Runs API'
 dependencies {
     implementation project(':dev.galasa.framework')
     
+    implementation 'commons-logging:commons-logging:1.2'
     implementation 'javax.servlet:javax.servlet-api:3.1.0'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'io.prometheus:simpleclient:0.6.0'
