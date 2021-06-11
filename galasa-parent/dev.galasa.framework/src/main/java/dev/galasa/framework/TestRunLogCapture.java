@@ -8,6 +8,8 @@ package dev.galasa.framework;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
@@ -16,6 +18,7 @@ import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import dev.galasa.framework.spi.IResultArchiveStore;
@@ -38,7 +41,7 @@ public class TestRunLogCapture implements Appender {
     public TestRunLogCapture(Framework framework) {
         this.framework = framework;
 
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(true);
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
 
         Appender stdout = config.getAppender("stdout");
@@ -46,7 +49,15 @@ public class TestRunLogCapture implements Appender {
             this.layout = (PatternLayout) stdout.getLayout();
         }
 
+        start();
+        
         config.addAppender(this);
+        config.getRootLogger().addAppender(this, null, null);
+        for (final LoggerConfig loggerConfig : config.getLoggers().values()) {
+            loggerConfig.addAppender(this, null, null);
+        }
+        ctx.updateLoggers(config);
+
     }
 
     public void shutdown() {
