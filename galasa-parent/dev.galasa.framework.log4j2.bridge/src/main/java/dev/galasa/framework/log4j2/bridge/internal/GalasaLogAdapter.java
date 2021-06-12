@@ -6,10 +6,9 @@
 package dev.galasa.framework.log4j2.bridge.internal;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.spi.AbstractLoggerAdapter;
 import org.apache.logging.log4j.spi.LoggerContext;
-import org.apache.logging.log4j.util.StackLocatorUtil;
 
 public class GalasaLogAdapter extends AbstractLoggerAdapter<Log> {
 
@@ -20,7 +19,7 @@ public class GalasaLogAdapter extends AbstractLoggerAdapter<Log> {
 
     @Override
     protected LoggerContext getContext() {
-        return getContext(StackLocatorUtil.getCallerClass(LogFactory.class));
+        return LogManager.getContext();
     }
 
 }
