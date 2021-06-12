@@ -8,4 +8,10 @@ Import-Package !javax.validation*,\
                org.apache.bcel.*;resolution:=optional,\
                org.apache.felix.*;resolution:=optional,\
                dev.galasa.framework.maven.repository.spi;resolution:=optional,\
+               org.apache.logging.log4j;resolution:=optional,\
+               org.apache.logging.log4j.core;resolution:=optional,\
+               org.apache.logging.log4j.core.config;resolution:=optional,\
+               org.apache.logging.log4j.core.impl;resolution:=optional,\
+               org.apache.logging.log4j.core.layout;resolution:=optional,\
+               org.apache.logging.log4j.spi;resolution:=optional,\
                *
