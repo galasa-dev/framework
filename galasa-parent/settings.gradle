@@ -3,6 +3,9 @@ pluginManagement {
         maven {
             url = "$sourceMaven"
         }
+        maven {
+            url "$centralMaven"
+        }
         gradlePluginPortal()
     }
 }
