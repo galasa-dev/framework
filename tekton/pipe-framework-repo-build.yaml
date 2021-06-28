@@ -1,0 +1,59 @@
+#
+# Licensed Materials - Property of IBM
+# 
+# (c) Copyright IBM Corp. 2021.
+#
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: framework-repo-build
+  namespace: galasa-tekton
+spec:
+  resources:
+  - name: git-framework
+    type: git
+  params:
+  - name: distBranch
+    type: string
+  - name: noPush
+    type: string
+    default: ""
+  - name: jacocoEnabled
+    type: string
+    default: "false"
+  - name: isRelease
+    type: string
+    default: "false"
+  tasks:
+  - name: framework
+    taskRef:
+      name: framework-repo-build
+    params:
+    - name: distBranch
+      value: $(params.distBranch)
+    - name: mavenSourceRepo
+      value: http://cicscit.hursley.ibm.com/galasadev/$(params.distBranch)/maven/maven
+    - name: noPush
+      value: $(params.noPush)
+    - name: jacocoEnabled
+      value: $(params.jacocoEnabled)
+    - name: isRelease
+      value: $(params.isRelease)
+    resources:
+      inputs:
+      - name: git-framework
+        resource: git-framework
+  - name: recycle-deployment
+    taskRef:
+      name: recycle-deployment
+    runAfter:
+    - framework
+    when:
+    - input: "$(params.noPush)"
+      operator: notin
+      values: ["--no-push"]
+    params:
+    - name: namespace
+      value: galasa-development
+    - name: deployment
+      value: maven-$(params.distBranch)-framework
