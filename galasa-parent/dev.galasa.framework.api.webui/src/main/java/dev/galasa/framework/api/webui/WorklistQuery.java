@@ -3,9 +3,9 @@ package dev.galasa.framework.api.webui;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -36,27 +36,27 @@ public class WorklistQuery extends HttpServlet {
 	@Reference
 	IFramework framework;
 	
-	Gson gson = GalasaGsonBuilder.build();
-	   
-	static List<String> runIdsInWorklist = new ArrayList<String>();
-	   
-    static List<String> runIdsNotFound = new ArrayList<String>();
+	final static Gson gson = GalasaGsonBuilder.build();
     
     private WorklistUtils worklistUtils;
-	  
 
 	
 	@Override 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
-		returnWorklist(resp);
+		String principalUsername = worklistUtils.getPrincipalUsername(req);
+		
+		returnWorklist(principalUsername, resp, 200);
 
 	}
+	
 	
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
-		Map<String, String> paramMap = worklistUtils.getParameterMap(req);
+		String principalUsername = worklistUtils.getPrincipalUsername(req);
+		
+		Map<String, String> paramMap = getParameterMap(req);
 	
 		String runId = "";
 		if (paramMap.get("runId") != null && !paramMap.get("runId").equals("")) {
@@ -65,19 +65,27 @@ public class WorklistQuery extends HttpServlet {
 		
 
 		try {
-			worklistUtils.addRunIdToDss(runId);
+			worklistUtils.addRunIdToDss(principalUsername, runId);
 		} catch (Exception e) {
 			throw new ServletException("Error while updating the DSS", e);
 		}
 		
-		returnWorklist(resp);
+		int statusCode = 200;
+		if (worklistUtils.newResourceCreated == true) {
+			statusCode = 201;
+		}
+		
+		returnWorklist(principalUsername, resp, statusCode);
  
 	}
+	
 	
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
-		Map<String, String> paramMap = worklistUtils.getParameterMap(req);
+		String principalUsername = worklistUtils.getPrincipalUsername(req);
+		
+		Map<String, String> paramMap = getParameterMap(req);
 		
 		String runId = "";
 		if (paramMap.get("runId") != null && !paramMap.get("runId").equals("")) {
@@ -86,29 +94,28 @@ public class WorklistQuery extends HttpServlet {
 		
 
 		try {
-			worklistUtils.removeRunIdFromDss(runId);
+			worklistUtils.removeRunIdFromDss(principalUsername, runId);
 		} catch (Exception e) {
 			throw new ServletException("Error while updating the DSS", e);
 		}
 		
-		returnWorklist(resp);
+		returnWorklist(principalUsername, resp, 200);
  
 	}
 	
-	protected void returnWorklist(HttpServletResponse resp) throws ServletException {
+	
+	protected void returnWorklist(String principalUsername, HttpServletResponse resp, int statusCode) throws ServletException {
+		
+		List<String> runIdsInWorklist = new ArrayList<String>();
 		
 		try {
-			 runIdsInWorklist = worklistUtils.getRunIdsFromDss();
+			 runIdsInWorklist = worklistUtils.getRunIdsFromDss(principalUsername);
 		} catch (DynamicStatusStoreException e) {
 			throw new ServletException("Error while retrieving Worklist property from the DSS", e);
 		}
 		
-		
-		List<WorklistItem> runs = worklistUtils.getWorklistItems();
-		
-		if (runIdsInWorklist != null) {
-			runIdsInWorklist.removeAll(runIdsNotFound);
-		}
+
+		List<WorklistItem> runs = worklistUtils.getWorklistItems(principalUsername, runIdsInWorklist);
 		
 		
 		JsonObject worklist = new JsonObject();
@@ -130,13 +137,33 @@ public class WorklistQuery extends HttpServlet {
 	         PrintWriter out = resp.getWriter();
 	         resp.setContentType( "Application/json");
 	         resp.addHeader("Access-Control-Allow-Origin", "*");
+	         resp.setStatus(statusCode);
 	         out.print(json);
 	         out.close();
 	      } catch (Exception e) {
 	         throw new ServletException("An error occurred whilst retrieving the Worklist", e);
 	      }
+		 
 		
 	}
+
+	
+	private Map<String, String> getParameterMap(HttpServletRequest request) {
+
+	      Map<String, String[]> ParameterMap = request.getParameterMap();
+	      Map<String, String> newParameterMap = new HashMap<>();
+	      for (String parameterName : ParameterMap.keySet()) {
+	         String[] values = ParameterMap.get(parameterName);
+	         if (values != null && values.length > 0) {
+	            newParameterMap.put(parameterName, values[0]);
+	         } else {
+	            newParameterMap.put(parameterName, null);
+	         }
+	      }
+	   
+	      return newParameterMap;
+	}
+	
 	
 	@Activate
 	public void activate() {
