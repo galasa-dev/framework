@@ -21,4 +21,4 @@ Embed-Dependency: *;scope=compile
     jackson-core-2.10.3.jar; lib:=true,\
     bcprov-jdk15on-1.60.jar; lib:=true,\
     httpcore5-5.0.jar; lib:=true,\
-    commons-codec-1.13.jar; lib:=true
+    commons-codec-1.15.jar; lib:=true

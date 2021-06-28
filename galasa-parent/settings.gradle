@@ -1,7 +1,10 @@
 pluginManagement {
     repositories {
         maven {
-            url = System.getenv('MAVEN_REPO') ?: "https://nexus.galasa.dev/repository/maven-development"
+            url = "$sourceMaven"
+        }
+        maven {
+            url "$centralMaven"
         }
         gradlePluginPortal()
     }
@@ -10,6 +13,7 @@ pluginManagement {
 rootProject.name = "galasa-parent"
 
 include 'dev.galasa'
+include 'dev.galasa.framework.log4j2.bridge'
 include 'dev.galasa.framework.maven.repository.spi'
 include 'dev.galasa.framework.maven.repository'
 include 'dev.galasa.framework'

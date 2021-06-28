@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019, 2020.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.boot.felix;
 
@@ -80,7 +80,7 @@ public class FelixFramework {
             frameworkProperties.put(Constants.FRAMEWORK_STORAGE, felixCache.getAbsolutePath());
             frameworkProperties.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
             frameworkProperties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
-                    "org.apache.felix.bundlerepository; version=2.1, dev.galasa.framework, sun.misc, com.sun.net.httpserver, com.sun.management, org.xml.sax");
+                    "org.apache.felix.bundlerepository; version=2.1, dev.galasa.framework, sun.misc, com.sun.net.httpserver, com.sun.management, org.xml.sax, sun.nio.ch");
             framework = frameworkFactory.newFramework(frameworkProperties);
             logger.debug("Initializing Felix Framework");
             framework.init();
@@ -91,8 +91,9 @@ public class FelixFramework {
             logger.debug("Installing required OSGi bundles");
             // *** Load dependencies for the maven repo url handler
             installBundle("org.apache.felix.scr.jar", true);
-            installBundle("log4j.jar", true);
-            installBundle("commons-logging.jar", true);
+            installBundle("dev.galasa.framework.log4j2.bridge.jar", false);
+            installBundle("log4j-api.jar", true);
+            installBundle("log4j-core.jar", true);
 
             installBundle("dev.galasa.framework.maven.repository.spi.jar", true);
             installBundle("dev.galasa.framework.maven.repository.jar", true);

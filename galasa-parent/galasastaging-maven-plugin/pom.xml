@@ -1,12 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>dev.galasa</groupId>
-		<artifactId>galasa-parent</artifactId>
-		<version>0.15.0</version>
-	</parent>
-
 	<groupId>dev.galasa</groupId>
 	<artifactId>galasastaging-maven-plugin</artifactId>
 	<version>0.15.0</version>
@@ -14,8 +8,17 @@
 
 	<name>galasastaging-maven-plugin Maven Plugin</name>
 
-	<!-- FIXME change it to the project's website -->
-	<url>http://maven.apache.org</url>
+    <distributionManagement>
+        <repository>
+            <id>galasa.release.repo</id>
+            <url>${galasa.release.repo}</url>
+        </repository>
+        <snapshotRepository>
+            <id>galasa.snapshot.repo</id>
+            <url>${galasa.snapshot.repo}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -91,6 +94,26 @@
 				<artifactId>maven-plugin-plugin</artifactId>
 				<version>3.6.0</version>
 			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>

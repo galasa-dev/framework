@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019, 2020.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.boot;
 
@@ -261,7 +261,7 @@ public class Launcher {
 
         if (commandLine.hasOption(TRACE_OPTION)) {
             logger.setLevel(Level.TRACE);
-            System.setProperty("log4j.configuration", "trace-log4j.properties");
+            System.setProperty("log4j2.configurationFile", "trace-log4j2.properties");
         }
 
         // *** Add any OBRs if coded

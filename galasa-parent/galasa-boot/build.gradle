@@ -11,6 +11,8 @@ configurations {
 
 }
 
+version = "0.16.0"
+
 jar {
     manifest {
         attributes "Main-Class": "dev.galasa.boot.Launcher"
@@ -42,12 +44,13 @@ dependencies {
     implementation 'org.apache.felix:org.apache.felix.scr:2.1.14'
 
     embedImplementation 'commons-cli:commons-cli:1.4'
-    embedImplementation 'commons-io:commons-io:2.6'
+    embedImplementation 'commons-io:commons-io:2.9.0'
 
     bundleDependency 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
     bundleDependency 'org.apache.felix:org.apache.felix.scr:2.1.14'
-    bundleDependency 'commons-logging:commons-logging:1.2'
-    bundleDependency 'log4j:log4j:1.2.17'
+    bundleDependency 'org.apache.logging.log4j:log4j-api:2.14.1'
+    bundleDependency 'org.apache.logging.log4j:log4j-core:2.14.1'
+    bundleDependency project (':dev.galasa.framework.log4j2.bridge')
     bundleDependency project (':dev.galasa.framework.maven.repository')
     bundleDependency project (':dev.galasa.framework.maven.repository.spi')
     
