@@ -1,0 +1,140 @@
+#
+# Licensed Materials - Property of IBM
+# 
+# (c) Copyright IBM Corp. 2021.
+#
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: framework-repo-build
+  namespace: galasa-tekton
+spec:
+  resources:
+    inputs:
+      - name: git-framework
+        type: git
+  params:
+  - name: distBranch
+    type: string
+  - name: mavenCentralRepo
+    type: string
+    default: https://nexus.cics-ts.hur.hdclab.intranet.ibm.com/repository/proxy/
+  - name: mavenSourceRepo
+    type: string
+    default: https://repo.maven.apache.org/maven2/
+  - name: dockerRepo
+    type: string
+    default: nexus.cics-ts.hur.hdclab.intranet.ibm.com:8080
+  - name: noPush
+    type: string
+    default: ""
+  - name: jacocoEnabled
+    type: string
+    default: "false"
+  - name: isRelease
+    type: string
+    default: "false"
+  steps:
+  - name: gpgdirectory
+    workingDir: /workspace
+    image: $(params.dockerRepo)/galasa/galasa-build
+    command:
+    - mkdir
+    - /workspace/gpg
+  - name: import-gpg
+    workingDir: /workspace
+    image: $(params.dockerRepo)/galasa/galasa-build
+    command:
+    - gpg
+    - --homedir
+    - /workspace/gpg
+    - --pinentry-mode
+    - loopback
+    - --passphrase-file
+    - /root/mavengpg/galasa.passphrase
+    - --import
+    - /root/mavengpg/galasa.gpg
+    volumeMounts:
+    - name: mavengpg
+      mountPath: /root/mavengpg
+  - name: copy-settings
+    workingDir: /workspace
+    image: $(params.dockerRepo)/galasa/galasa-build
+    command:
+    - cp
+    - /root/mavengpg/settings.xml
+    - /workspace/gpg/settings.xml
+    volumeMounts:
+    - name: mavengpg
+      mountPath: /root/mavengpg
+  - name: gradle-build
+    workingDir: /workspace/git-framework/galasa-parent
+    image: $(params.dockerRepo)/galasa/galasa-build
+    command:
+    - gradle
+    - --no-daemon
+    - --console 
+    - plain
+    - -PsourceMaven=$(params.mavenSourceRepo)
+    - -PcentralMaven=$(params.mavenCentralRepo)
+    - -PtargetMaven=/workspace/git-framework/docker/repo
+    - -PjacocoEnabled=$(params.jacocoEnabled)
+    - -PisRelease=$(params.isRelease)
+    - publish
+    volumeMounts:
+    - name: gpgkey
+      mountPath: /opt/gradle/gradle-6.8.2/galasa.gpg
+      subPath: galasa.gpg
+    - name: gpggradle
+      mountPath: /opt/gradle/gradle-6.8.2/gradle.properties
+      subPath: gradle.properties
+  - name: maven-staging-plugin
+    workingDir: /workspace/git-framework/galasa-parent/galasastaging-maven-plugin
+    image: $(params.dockerRepo)/galasa/galasa-build
+    command:
+    - mvn
+    - -Dgalasa.source.repo=$(params.mavenSourceRepo)
+    - -Dgalasa.central.repo=$(params.mavenCentralRepo)
+    - -Dgalasa.release.repo=file:/workspace/git-framework/docker/repo
+    - -Dgalasa.jacocoEnabled=$(params.jacocoEnabled)
+    - -Dgalasa.isRelease=$(params.isRelease)
+    - --settings
+    - /workspace/gpg/settings.xml
+    - -B
+    - -e
+    - -fae
+    - deploy
+  - name: delete-plugin-metadata
+    workingDir: /workspace/git-framework/docker/repo/dev/galasa
+    image: $(params.dockerRepo)/galasa/galasa-build
+    script: |
+      #!/bin/sh
+      rm maven-metadata*
+  - name: get-commit
+    workingDir: /workspace/git-framework
+    image: $(params.dockerRepo)/galasa/galasa-build
+    script: |
+      #!/bin/sh
+      set +e
+      COMMIT="$(git log --format="%H" -n 1)"
+      echo $COMMIT > /workspace/git-framework/docker/framework.githash
+      echo commit is $COMMIT
+  - name: docker-build
+    workingDir: /workspace/git-framework/docker
+    image: $(params.dockerRepo)/library/kaniko-executor:latest
+    env:
+    - name: DOCKER_CONFIG
+      value: /tekton/home/.docker
+    command:
+    - /kaniko/executor
+    - --dockerfile=./Dockerfile
+    - --context=/workspace/git-framework/docker
+    - --destination=$(params.dockerRepo)/galasadev/galasa-maven-framework:$(params.distBranch)
+    - $(params.noPush)
+    - --oci-layout-path=/workspace/git-framework/docker/image-digest
+    - --skip-tls-verify
+    - --skip-tls-verify-pull
+    - --single-snapshot
+    - --verbosity=info
+    - --build-arg=dockerRepository=$(params.dockerRepo)
+    - --build-arg=branch=$(params.distBranch)
