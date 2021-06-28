@@ -1,7 +1,6 @@
-ARG mavenVersion
 ARG dockerRepository
 ARG branch
-FROM ${dockerRepository}/galasadev/galasa-maven-maven:${mavenVersion}-${branch}
+FROM ${dockerRepository}/galasadev/galasa-maven-maven:${branch}
 
 RUN sed -i 's/\/maven"/\/framework"/' /usr/local/apache2/conf/httpd.conf
 
