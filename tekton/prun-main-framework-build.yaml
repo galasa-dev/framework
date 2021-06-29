@@ -1,0 +1,35 @@
+#
+# Licensed Materials - Property of IBM
+# 
+# (c) Copyright IBM Corp. 2021.
+#
+kind: PipelineRun
+apiVersion: tekton.dev/v1beta1
+metadata:
+  generateName: main-framework-build-
+  namespace: galasa-tekton
+spec:
+  params:
+  - name: distBranch
+    value: main
+  pipelineRef:
+    name: framework-repo-build
+  serviceAccountName: build-bot
+  resources:
+  - name: git-framework
+    resourceRef:
+      name: git-framework-main
+  podTemplate:
+    nodeSelector:
+      beta.kubernetes.io/arch: amd64
+      platform: hdc
+    volumes:
+    - name: gpggradle
+      secret:
+        secretName: gpggradle
+    - name: gpgkey
+      secret:
+        secretName: gpgkey
+    - name: mavengpg
+      secret:
+        secretName: mavengpg
