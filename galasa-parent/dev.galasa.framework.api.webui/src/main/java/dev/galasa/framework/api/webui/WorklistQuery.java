@@ -71,6 +71,7 @@ public class WorklistQuery extends HttpServlet {
 			runId = paramMap.get("runId");
 		} else {
 			sendJsonError(resp);
+			return;
 		}
 		
 		boolean newResourceCreated = false;
@@ -102,6 +103,7 @@ public class WorklistQuery extends HttpServlet {
 			runId = paramMap.get("runId");
 		} else {
 			sendJsonError(resp);
+			return;
 		}
 
 		try {
@@ -293,7 +295,7 @@ public class WorklistQuery extends HttpServlet {
 		
 		IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("webui");
 		
-		boolean exceptionThrown = false;
+		int count = 0;
 		
 		do {
 			
@@ -316,25 +318,19 @@ public class WorklistQuery extends HttpServlet {
 				String newValue = jsonObject.toString();
 				
 				
-				int count = 0;
-				
-
 				try {
 					dss.performActions(
 							new DssSwap("user." + principalUsername + ".worklist", oldValue, newValue));
-					exceptionThrown = false;
+					return false;
 				} catch (DynamicStatusStoreException e) {
-					exceptionThrown = true;
+					System.out.println("Exception caught");
 					oldValue = dss.get("user." + principalUsername + ".worklist");
 					count++;
 					
 					if (count > 1000) {
-						throw new ServletException("Error while updating the DSS, maximum attempts reached");
+						throw new ServletException("Error while updating the DSS, maximum attempts reached", e);
 					}
-				}
-					
-				return false;
-			
+				}			
 				
 			} else {
 				
@@ -343,7 +339,7 @@ public class WorklistQuery extends HttpServlet {
 				return true;
 			}
 			
-		} while (exceptionThrown);
+		} while (true);
 			
 	}
 	
@@ -352,10 +348,10 @@ public class WorklistQuery extends HttpServlet {
 		
 		IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("webui");
 		
-		boolean exceptionThrown = false;
+		int count = 0;
 		
 		do {
-		
+			
 			String oldValue = dss.get("user." + principalUsername + ".worklist");
 			
 			if (oldValue != null) {
@@ -370,6 +366,7 @@ public class WorklistQuery extends HttpServlet {
 					if (it.next().getAsString().equals(runId)){
 						it.remove();
 						found = true;
+						break;
 					}
 				}
 				
@@ -378,26 +375,24 @@ public class WorklistQuery extends HttpServlet {
 				}
 			
 				String newValue = jsonObject.toString();
-			
-				int count = 0;
+				
 				
 				try {
 					dss.performActions(
 							new DssSwap("user." + principalUsername + ".worklist", oldValue, newValue));
-					exceptionThrown = false;
+					return;
 				} catch (DynamicStatusStoreException e) {
-					exceptionThrown = true;
 					oldValue = dss.get("user." + principalUsername + ".worklist");
 					count++;
 					
 					if (count > 1000) {
-						throw new ServletException("Error while updating the DSS, maximum attempts reached");
+						throw new ServletException("Error while updating the DSS, maximum attempts reached", e);
 					}
 				}
 					
 			} 
 		
-		} while (exceptionThrown);
+		} while (true);
 				
 	}
 
