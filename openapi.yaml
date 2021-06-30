@@ -1,0 +1,751 @@
+#
+# Licensed Materials - Property of IBM
+# 
+# (c) Copyright IBM Corp. 2021.
+#
+openapi: 3.0.3
+info:
+  title: Galasa Ecosystem API
+  version: 0.17.0
+
+servers:
+  - url: '/'
+  - url: 'http://{server}:{port}'
+    variables:
+      server:
+        default: localhost
+      port:
+        default: "8080"
+
+paths:
+##################################################################################
+# CPS API
+##################################################################################
+  /cps/namespace:
+    get:
+      operationId: getCpsNamespaces
+      summary: Get CPS Namespaces
+      tags: 
+      - Configuration Property Store API
+      responses:
+        '200':
+          description: Array of CPS Namespaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /cps/namespace/{namespace}:
+    get:
+      operationId: getCpsNamespaceProperties
+      summary: Get all properties for a namepace
+      tags: 
+      - Configuration Property Store API
+      parameters:
+        - name: namespace
+          in: path
+          description: Property Namespace
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of CPS Properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CpsProperty'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
+    get:
+      operationId: getCpsNamespaceCascadeProperty
+      summary: Get cascade CPS property
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: Property Namespace
+        required: true
+        schema:
+          type: string
+      - name: prefix
+        in: path
+        description: Property Prefix
+        required: true
+        schema:
+          type: string
+      - name: suffix
+        in: path
+        description: Property Suffix
+        required: true
+        schema:
+          type: string
+      - name: infixes
+        in: query
+        description: Property Infixes
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CpsProperty'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /cps/namespace/{namespace}/property/{property}:
+    put:
+      operationId: putCpsNamespaceProperty
+      summary: Put new CPS Property
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: Property Namespace
+        required: true
+        schema:
+          type: string
+      - name: property
+        in: path
+        description: Property Name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CpsProperty'
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CpsProperty'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+##################################################################################
+# RAS API
+##################################################################################
+  /ras/requestors:
+    get:
+      operationId: getRasRequestors
+      summary: Get all known requestors
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: sort
+          in: query
+          description: provides sorting, requestor:asc or requestor:desc
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Requestors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Requestors'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /ras/runname/{runname}:
+    get:
+      operationId: getRasRunIDsByName
+      summary: Get all Run Ids from a Run Name
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: runname
+          in: path
+          description: Run Name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of Run Ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /ras/run/{runid}:
+    get:
+      operationId: getRasRunById
+      summary: Get Run by ID
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Data
+          content:
+            application/json:
+              schema:
+                properties:
+                  run:
+                    $ref: '#/components/schemas/Run'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /ras/run/{runid}/artifact/{artifactid}:
+    get:
+      operationId: getRasRunArtifactById
+      summary: Get Run Artifact by IDs
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+        - name: artifactid
+          in: path
+          description: Run Artifact Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Artifact Content
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /ras/run:
+    get:
+      operationId: getRasSearchRuns
+      summary: Get Runs from Query
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: sort
+          in: query
+          description: provides sorting, to:asc or to:desc
+          schema: 
+            type: string
+        - name: result
+          in: query
+          description: Result Name
+          schema:
+            type: string
+        - name: bundle
+          in: query
+          description: Bundle Name
+          schema:
+            type: string
+        - name: requestor
+          in: query
+          description: Requestor Name
+          schema:
+            type: string
+        - name: from
+          in: query
+          description: Date Number From
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          description: Date Number To
+          schema:
+            type: string
+            format: date-time
+        - name: testname
+          in: query
+          description: Test Class Name
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page Number
+          schema:
+            type: number
+        - name: size
+          in: query
+          description: Request Size
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Array of Run Objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResults'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /ras/run/{runid}/runlog:
+    get:
+      operationId: getRasRunLog
+      summary: Get Run Log
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Data
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /ras/testclasses:
+    get:
+      operationId: getRasTestclasses
+      summary: Get all the known test classes
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: sort
+          in: query
+          description: Provide Sorting 
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: TestClasses
+          content:
+            application/json:  
+             schema:
+                $ref: '#/components/schemas/TestClasses'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /ras/resultnames:
+    get:
+      operationId: getRasResultNames
+      summary: Get all the known result names
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: sort
+          in: query
+          description: provides sorting, results:asc or results:desc
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ResultNames
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultNames'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+##################################################################################
+# Runs API
+##################################################################################
+  /runs/{groupId}:
+    get:
+      summary: Get group runs
+      operationId: getRunsGroup
+      tags: 
+      - Runs API
+      parameters:
+        - name: groupId
+          in: path
+          description: Run Group ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRuns'
+    post:
+      summary: Sumbit test runs
+      operationId: postSubmitTestRuns
+      tags: 
+      - Runs API
+      parameters:
+        - name: groupId
+          in: path
+          description: Run Group ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRunRequest'
+      responses:
+        '200':
+          description: Test Submitted
+##################################################################################
+# WebUI API
+##################################################################################
+  /webui/worklist:
+    get:
+      operationId: getWebuiWorklist
+      summary: Get the users Worklist
+      tags: 
+        - WebUI Worklist API
+      responses:
+        '200':
+          description: Array of Worklist objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Worklist'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+
+  /webui/worklist/{runId}:
+    put:
+      operationId: addWebuiWorklistRunId
+      summary: Add RAS runId to Worklist
+      tags: 
+        - WebUI Worklist API
+      parameters:
+        - name: runId
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: RunId added to Worklist
+          content: 
+            application/json:
+              schema:
+                properties:
+                  run:
+                    $ref: '#/components/schemas/Worklist'
+        '404':
+          description: RunId not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+
+    delete:
+      operationId: deleteWebuiWorklistRunId
+      summary: Remove RAS runId from Worklist
+      tags: 
+        - WebUI Worklist API
+      parameters:
+        - name: runId
+          in: path
+          description: RAS Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: RunId removed from Worklist
+          content: 
+            application/json:
+              schema:
+                properties:
+                  run:
+                    $ref: '#/components/schemas/Worklist'
+        '404':
+          description: RunId not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+##################################################################################
+# Components
+##################################################################################
+components:
+  schemas:
+    CpsProperty:
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    JsonError:
+      properties:
+        error:
+          type: string
+    TestRuns:
+      properties:
+        complete:
+          type: boolean
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestRun'
+    TestRun:
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        group:
+          type: string
+        test:
+          type: string
+        bundleName:
+          type: string
+        testName:
+          type: string
+        status:
+          type: string
+        queued:
+          type: string
+        requestor:
+          type: string
+        stream:
+          type: string
+        repo:
+          type: string
+        obr:
+          type: string
+        local:
+          type: boolean
+        trace:
+          type: boolean
+    TestRunRequest:
+      properties:
+        classNames:
+          type: array
+          items:
+            type: object
+        requestorType:
+          type: string
+        requestor:
+          type: string
+        testStream:
+          type: string
+        obr:
+          type: string
+        mavenRepository:
+          type: string
+        sharedEnvironmentPhase:
+          type: string
+        sharedEnvironmentRunName:
+          type: string
+        overrides:
+          type: object
+        trace:
+          type: boolean
+    Requestors:
+      type: object
+      properties:
+        requestors:
+          type: array
+          items:
+            type: string
+    TestStructure:
+      type: object
+      properties:
+        runName:
+          type: string
+        bundle:
+          type: string
+        testName:
+          type: string
+        testShortName:
+          type: string
+        requestor:
+          type: string
+        status:
+          type: string
+        result:
+          type: string
+        queued:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestMethod'
+    TestMethod:
+      type: object
+      properties:
+        className:
+          type: string
+        methodName:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+        result:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        runLogStart:
+          type: integer
+        runLogEnd:
+          type: integer
+        befores:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestMethod'
+        afters:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestMethod'
+    Artifact:
+      properties:
+        artifactPath:
+          type: string
+        contentType:
+          type: string
+    TestClasses:
+      type : object
+      properties:
+        testclasses:
+          type: array
+          items: 
+            $ref: '#/components/schemas/TestClass'
+    TestClass:
+      type: object
+      properties:
+        testclass: 
+           type: string
+        bundle:
+           type: string
+    ResultNames:
+      type: object
+      properties:
+        resultnames:
+          type: array
+          items:
+            type: string
+    Run:
+      type: object
+      properties:
+        runId:
+          type: string
+        testStructure:
+          $ref: '#/components/schemas/TestStructure'
+        artifacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Artifact'
+    RunResults:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        numPages:
+          type: integer
+        amountOfRuns:
+          type: integer
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Run'
+    Worklist:
+      type: object
+      properties:
+        worklistItems:
+          type: array
+          items: 
+            $ref: '#/components/schemas/WorklistItem'
+    WorklistItem:
+      type: object
+      properties:
+        id:
+          type: string
+        runName:
+          type: string
+        shortName:
+          type: string
+        result:
+          type: string
