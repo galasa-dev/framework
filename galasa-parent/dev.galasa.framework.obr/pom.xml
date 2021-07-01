@@ -104,6 +104,12 @@
 		</dependency>
 		<dependency>
 			<groupId>dev.galasa</groupId>
+			<artifactId>dev.galasa.framework.api.webui</artifactId>
+			<version>0.17.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.framework.api.testcatalog</artifactId>
 			<version>0.15.0</version>
 			<scope>compile</scope>
