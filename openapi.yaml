@@ -595,7 +595,7 @@ components:
         classNames:
           type: array
           items:
-            type: object
+            type: string
         requestorType:
           type: string
         requestor:
