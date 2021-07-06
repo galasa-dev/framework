@@ -459,6 +459,10 @@ paths:
       responses:
         '200':
           description: Test Submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRuns'
 ##################################################################################
 # WebUI API
 ##################################################################################
@@ -482,30 +486,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonError'
 
-  /webui/worklist/{runId}:
     put:
       operationId: addWebuiWorklistRunId
       summary: Add RAS runId to Worklist
       tags: 
         - WebUI Worklist API
-      parameters:
+      parameters: 
         - name: runId
-          in: path
-          description: Run Id
+          in: query
+          description: Run ID
           required: true
           schema:
             type: string
-      responses:
+      responses: 
         '200':
-          description: RunId added to Worklist
+          description: Run added to Worklist and updated Worklist returned
           content: 
             application/json:
               schema:
-                properties:
-                  run:
-                    $ref: '#/components/schemas/Worklist'
+                $ref: '#/components/schemas/Worklist'
         '404':
-          description: RunId not found
+          description: Run not found
           content:
             application/json:
               schema:
@@ -513,27 +514,25 @@ paths:
 
     delete:
       operationId: deleteWebuiWorklistRunId
-      summary: Remove RAS runId from Worklist
       tags: 
         - WebUI Worklist API
+      summary: Remove RAS runId from Worklist
       parameters:
         - name: runId
-          in: path
-          description: RAS Run Id
+          in: query
+          description: Run Id
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: RunId removed from Worklist
+          description: Run removed from Worklist and updated Worklist returned
           content: 
             application/json:
               schema:
-                properties:
-                  run:
-                    $ref: '#/components/schemas/Worklist'
+                $ref: '#/components/schemas/Worklist'
         '404':
-          description: RunId not found
+          description: Run not found
           content:
             application/json:
               schema:
@@ -596,7 +595,7 @@ components:
         classNames:
           type: array
           items:
-            type: object
+            type: string
         requestorType:
           type: string
         requestor:
@@ -741,11 +740,13 @@ components:
     WorklistItem:
       type: object
       properties:
-        id:
+        runId:
           type: string
         runName:
           type: string
         shortName:
+          type: string
+        testClass:
           type: string
         result:
           type: string

@@ -98,10 +98,13 @@ public class ScheduleTests extends HttpServlet {
             request = (ScheduleRequest) gson.fromJson(new InputStreamReader(req.getInputStream()),
                     ScheduleRequest.class);
         } catch (Exception e) {
-            logger.warn("Error understanding / receiving run test request",e );
-            resp.setStatus(500);
-            return;
+            throw new ServletException("Problem translating the json payload", e);
         }
+        
+        
+        ScheduleStatus status = new ScheduleStatus();
+        status.setComplete(false);
+        
         for (String className : request.getClassNames()) {
             String bundle = className.split("/")[0];
             String testClass = className.split("/")[1];
@@ -116,12 +119,14 @@ public class ScheduleTests extends HttpServlet {
             }
 
             try {
-                framework.getFrameworkRuns().submitRun(request.getRequestorType(), null, bundle, testClass,
+                IRun newRun = framework.getFrameworkRuns().submitRun(request.getRequestorType(), null, bundle, testClass,
                         groupName, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
                         request.isTrace(), request.getOverrides(), 
                         senvPhase, 
                         request.getSharedEnvironmentRunName(),
                         "java");
+                
+                status.getRuns().add(newRun.getSerializedRun());
             } catch (FrameworkException fe) {
                 logger.error(
                         "Failure when submitting run: " + className, fe);
@@ -130,10 +135,17 @@ public class ScheduleTests extends HttpServlet {
             }
 
         }
+        resp.setHeader("Content-Type", "Application/json");
         if (!submissionFailures) {
             resp.setStatus(200);
         } else {
             resp.setStatus(500);
+        }
+        
+        try {
+            resp.getWriter().write(gson.toJson(status));
+        } catch (IOException ioe) {
+            throw new ServletException("Unable to respond to requester", ioe);
         }
     }
 
