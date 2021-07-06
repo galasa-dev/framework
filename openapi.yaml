@@ -459,6 +459,10 @@ paths:
       responses:
         '200':
           description: Test Submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRuns'
 ##################################################################################
 # WebUI API
 ##################################################################################
