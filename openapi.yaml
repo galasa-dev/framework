@@ -576,6 +576,8 @@ components:
           type: string
         status:
           type: string
+        result:
+          type: string
         queued:
           type: string
         requestor:
@@ -585,6 +587,10 @@ components:
         repo:
           type: string
         obr:
+          type: string
+        rerun:
+          type: boolean
+        rerunReason:
           type: string
         local:
           type: boolean
