@@ -34,7 +34,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class DirectoryRASDirectoryService implements IResultArchiveStoreDirectoryService {
 
-    private final static String ID_PREFIX = "local-";
+    public final static String ID_PREFIX = "local-";
 
     private final Path baseDirectory;
     private final Gson gson;
