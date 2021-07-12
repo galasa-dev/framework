@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019,2020.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework.internal.ras.directory;
 
@@ -34,7 +34,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class DirectoryRASDirectoryService implements IResultArchiveStoreDirectoryService {
 
-    private final static String ID_PREFIX = "local-";
+    public final static String ID_PREFIX = "local-";
 
     private final Path baseDirectory;
     private final Gson gson;

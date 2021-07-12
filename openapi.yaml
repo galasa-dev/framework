@@ -596,6 +596,8 @@ components:
           type: boolean
         trace:
           type: boolean
+        rasRunId:
+          type: string
     TestRunRequest:
       properties:
         classNames:

@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.api.run;
 
@@ -26,12 +26,13 @@ public class Run {
     private String  obr;
     private Boolean local;
     private Boolean trace;
+    private String  rasRunId;
     
     public Run() {};
 
     public Run(String name, Instant heartbeat, String type, String group, String test, String bundleName,
             String testName, String status, String result, Instant queued, Instant finished, Instant waitUntil,
-            String requestor, String stream, String repo, String obr, Boolean local, Boolean trace) {
+            String requestor, String stream, String repo, String obr, Boolean local, Boolean trace, String rasRunId) {
         this.name = name;
         this.heartbeat = heartbeat;
         this.type = type;
@@ -122,6 +123,10 @@ public class Run {
 
     public String getResult() {
         return result;
+    }
+    
+    public String getRasRunId() {
+        return rasRunId;
     }
 
 }

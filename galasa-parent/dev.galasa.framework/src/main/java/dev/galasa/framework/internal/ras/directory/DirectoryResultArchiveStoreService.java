@@ -1,18 +1,20 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework.internal.ras.directory;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
@@ -220,6 +222,18 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         ArrayList<IResultArchiveStoreDirectoryService> dirs = new ArrayList<>(1);
         dirs.add(new DirectoryRASDirectoryService(this.baseDirectory, gson));
         return dirs;
+    }
+
+    @Override
+    public String calculateRasRunId() {
+        final String runName = this.framework.getTestRunName();
+        if (runName == null) {
+            return null;
+        }
+        
+        String id = DirectoryRASDirectoryService.ID_PREFIX + Base64.getEncoder().encodeToString(this.runDirectory.toString().getBytes(StandardCharsets.UTF_8));
+        
+        return id;
     }
 
 
