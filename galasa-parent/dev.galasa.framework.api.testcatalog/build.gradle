@@ -1,5 +1,6 @@
 plugins {
-    id 'biz.aQute.bnd.builder' version '5.3.0'
+    id 'biz.aQute.bnd.builder'
+    id 'galasa.api.server'
 }
 
 description = 'Galasa API Test Catalog'
@@ -9,10 +10,5 @@ version = "0.16.0"
 dependencies {
     implementation project(':dev.galasa.framework')
     
-    implementation 'commons-logging:commons-logging:1.2'
-    implementation 'javax.servlet:javax.servlet-api:3.1.0'
     implementation 'commons-io:commons-io:2.9.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'io.prometheus:simpleclient:0.6.0'
-
 }

@@ -1,0 +1,122 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group = 'dev.galasa'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+    
+tasks.withType(Javadoc) {
+    failOnError = false
+    enabled = true
+}
+
+repositories {
+    maven {
+        url "$sourceMaven"
+    }
+    maven {
+        url "$centralMaven"
+    }
+}
+
+signing {
+    sign publishing.publications
+}
+
+tasks.withType(Sign) {
+    onlyIf { isRelease.toBoolean() }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            pom {
+                url = 'https://galasa.dev'
+                name = 'A Galasa project'
+                description = 'A Galasa project'
+                licenses {
+                    license {
+                        name = 'Eclipse Public License - v 2.0'
+                        url = 'https://www.eclipse.org/legal/epl-2.0/t'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Michael Baylis'
+                        email = 'Michael.Baylis@uk.ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'William Yates'
+                        email = 'wyates@uk.ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'David Roberts'
+                        email = 'david.roberts@uk.ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'James Davies'
+                        email = 'james.davies@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'Matthew Chivers'
+                        email = 'matthew.chivers@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'Charlie Meek'
+                        email = 'charlie.meek@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'Diana Slepikaite'
+                        email = 'diana.slepikaite@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:://github.com/galasa-dev/framework'
+                    developerConnection = 'scm:git:git:://github.com/galasa-dev/framework'
+                    url = 'https://github.com/galasa-dev/framework'
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/galasa-dev/projectmanagement/issues'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url  = "$targetMaven"
+            
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv('MAVENUSERNAME')
+                    password System.getenv('MAVENPASSWORD')
+                }
+            }
+        }
+    }
+}

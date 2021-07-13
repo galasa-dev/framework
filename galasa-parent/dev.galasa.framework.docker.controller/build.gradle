@@ -1,5 +1,6 @@
 plugins {
-    id 'biz.aQute.bnd.builder' version '5.3.0'
+    id 'biz.aQute.bnd.builder'
+    id 'galasa.framework'
 }
 
 description = 'Docker Controller'
@@ -10,7 +11,6 @@ dependencies {
     implementation project(':dev.galasa')
     implementation project(':dev.galasa.framework')
 
-    implementation 'commons-logging:commons-logging:1.2'
     implementation 'commons-codec:commons-codec:1.15'
 
     implementation 'io.prometheus:simpleclient:0.6.0'

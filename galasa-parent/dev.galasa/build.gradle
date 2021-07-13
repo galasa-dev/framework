@@ -1,5 +1,6 @@
 plugins {
-    id 'biz.aQute.bnd.builder' version '5.3.0'
+    id 'biz.aQute.bnd.builder'
+    id 'galasa.framework'
 }
 
 description = 'Galasa Testers Programmer Interface (TPI)'
