@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019,2021.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework;
 
@@ -146,6 +146,13 @@ public class TestRunner {
         this.testStructure.setStartTime(Instant.now());
         this.testStructure.setRequestor(AbstractManager.defaultString(run.getRequestor(), "unknown"));
         writeTestStructure();
+        
+        String rasRunId = this.ras.calculateRasRunId();
+        try {
+            this.dss.put("run." + run.getName() + ".rasrunid", rasRunId);
+        } catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Failed to update rasrunid", e);
+        }
 
         if (stream != null) {
             logger.debug("Loading test stream " + stream);

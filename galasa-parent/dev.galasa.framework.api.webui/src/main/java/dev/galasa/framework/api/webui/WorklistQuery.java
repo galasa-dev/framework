@@ -49,6 +49,19 @@ public class WorklistQuery extends HttpServlet {
 	final static Gson gson = GalasaGsonBuilder.build();
 
 	
+	@Override
+	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		super.doOptions(req, resp);
+		setCORS(resp);
+	}
+	
+	private void setCORS(HttpServletResponse resp) {
+		resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "*");
+        resp.setHeader("Access-Control-Allow-Headers", "accept, content-type");
+	}
+	
+	
 	@Override 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		

@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework;
 
@@ -35,6 +35,7 @@ public class RunImpl implements IRun {
     private final Boolean local;
     private final Boolean trace;
     private final boolean sharedEnvironment;
+    private final String  rasRunId;
 
     public RunImpl(String name, IDynamicStatusStoreService dss) throws DynamicStatusStoreException {
         this.name = name;
@@ -59,6 +60,7 @@ public class RunImpl implements IRun {
         repo = runProperties.get(prefix + "repository");
         obr = runProperties.get(prefix + "obr");
         group = runProperties.get(prefix + "group");
+        rasRunId = runProperties.get(prefix + "rasrunid");
         local = Boolean.parseBoolean(runProperties.get(prefix + "local"));
         trace = Boolean.parseBoolean(runProperties.get(prefix + "trace"));
         sharedEnvironment = Boolean.parseBoolean(runProperties.get(prefix + "shared.environment"));
@@ -192,7 +194,7 @@ public class RunImpl implements IRun {
     @Override
     public Run getSerializedRun() {
         return new Run(name, heartbeat, type, group, test, bundleName, testName, status, result, queued,
-                finished, waitUntil, requestor, stream, repo, obr, local, trace);
+                finished, waitUntil, requestor, stream, repo, obr, local, trace, rasRunId);
     }
 
     @Override
@@ -208,6 +210,10 @@ public class RunImpl implements IRun {
     @Override
     public String getGherkin() {
         return this.gherkin;
+    }
+    
+    public String getRasRunId() {
+        return this.rasRunId;
     }
 
 }
