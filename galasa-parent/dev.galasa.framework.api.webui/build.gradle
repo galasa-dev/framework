@@ -1,6 +1,7 @@
 plugins {
-    id 'biz.aQute.bnd.builder' version '5.3.0'
+    id 'biz.aQute.bnd.builder'
     id 'org.openapi.generator' version "5.0.1"
+    id 'galasa.api.server'
 }
 
 description = 'Galasa Web UI API'
@@ -10,9 +11,6 @@ version '0.17.0'
 dependencies {
 
     implementation project(':dev.galasa.framework')
-    implementation 'javax.servlet:javax.servlet-api:3.1.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
-
 }
 
 openApiGenerate {

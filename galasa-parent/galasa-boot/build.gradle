@@ -1,3 +1,7 @@
+plugins {
+    id 'galasa.framework'
+}
+
 description = 'Galasa Boot'
 
 configurations {

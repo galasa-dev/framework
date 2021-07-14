@@ -1,18 +1,13 @@
 plugins {
-    id 'biz.aQute.bnd.builder' version '5.3.0'
+    id 'biz.aQute.bnd.builder'
     id 'org.openapi.generator' version "5.0.1"
+    id 'galasa.api.server'
 }
 
 description = 'Galasa API - CPS'
 
 dependencies {
-    implementation project(':dev.galasa.framework')
-    
-    implementation 'commons-logging:commons-logging:1.2'
-    implementation 'javax.servlet:javax.servlet-api:3.1.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'io.prometheus:simpleclient:0.6.0'
-    
+    implementation project(':dev.galasa.framework')   
 }
 
 openApiGenerate {

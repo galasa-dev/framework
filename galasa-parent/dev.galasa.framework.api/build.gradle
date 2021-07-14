@@ -1,5 +1,6 @@
 plugins {
-    id 'biz.aQute.bnd.builder' version '5.3.0'
+    id 'biz.aQute.bnd.builder'
+    id 'galasa.api.server'
 }
 
 description = 'Framework API'
@@ -10,6 +11,5 @@ dependencies {
 
     implementation 'org.osgi:org.osgi.service.cm:1.6.0'
     implementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
-    implementation 'commons-logging:commons-logging:1.2'
 
 }
