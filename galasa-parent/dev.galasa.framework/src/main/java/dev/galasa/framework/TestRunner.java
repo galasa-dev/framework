@@ -147,9 +147,7 @@ public class TestRunner {
         this.testStructure.setRequestor(AbstractManager.defaultString(run.getRequestor(), "unknown"));
         writeTestStructure();
         
-        logger.error("DIAG: pre calculateRasRunId()");
         String rasRunId = this.ras.calculateRasRunId();
-        logger.error("DIAG: post calculateRasRunId() " + rasRunId);
         try {
             this.dss.put("run." + run.getName() + ".rasrunid", rasRunId);
         } catch (DynamicStatusStoreException e) {
