@@ -56,6 +56,8 @@ public class RunQuery extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		
+		System.out.println("In doGet");
 
 		int pageNum = 1;
 		int pageSize = 100;
@@ -81,18 +83,25 @@ public class RunQuery extends HttpServlet {
 		List<RasRunResult> runs = new ArrayList<>();
 
 		/* Get list of Run Ids from the URL -
-		If a Run ID parameterlist is present in the URL then only return that run / those runs
+		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
 
 		String runIdsParam = "";
 		if (paramMap.get("runId") != null && !paramMap.get("runId").isEmpty()) {
 			runIdsParam = paramMap.get("runId");
 			
-			String [] runIds = runIdsParam.split("[,]");
+			String [] runIds = runIdsParam.split(",");
+			IRunResult run = null;
 			for (String runId : runIds) {
 				try {
-					IRunResult run = getRunByRunId(runId);
-					runs.add(RunResultUtility.toRunResult(run, true));
+					run = getRunByRunId(runId);
+					
+					if (run != null) {
+						System.out.println("not null");
+						runs.add(RunResultUtility.toRunResult(run, true));
+					} else {
+						System.out.println("null");
+					}
 				} catch (ResultArchiveStoreException e) {
 					throw new ServletException("Error retrieving run " + runId, e);
 				}

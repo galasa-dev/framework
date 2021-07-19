@@ -199,10 +199,10 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
             return null;
         }
 
-        runId = runId.substring(ID_PREFIX.length());
+        // runId = runId.substring(ID_PREFIX.length());
 
         try {
-            String runSubPath = new String(Base64.getDecoder().decode(runId), StandardCharsets.UTF_8);
+            String runSubPath = new String(Base64.getDecoder().decode(runId.substring(ID_PREFIX.length())), StandardCharsets.UTF_8);
 
             Path runPath = this.baseDirectory.resolve(runSubPath);
 
