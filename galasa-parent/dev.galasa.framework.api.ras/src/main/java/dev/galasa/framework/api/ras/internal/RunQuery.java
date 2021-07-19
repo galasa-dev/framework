@@ -56,8 +56,6 @@ public class RunQuery extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
-		System.out.println("In doGet");
 
 		int pageNum = 1;
 		int pageSize = 100;
@@ -94,13 +92,11 @@ public class RunQuery extends HttpServlet {
 			IRunResult run = null;
 			for (String runId : runIds) {
 				try {
-					run = getRunByRunId(runId);
+					run = getRunByRunId(runId.trim());
 					
 					if (run != null) {
-						System.out.println("not null");
 						runs.add(RunResultUtility.toRunResult(run, true));
 					} else {
-						System.out.println("null");
 					}
 				} catch (ResultArchiveStoreException e) {
 					throw new ServletException("Error retrieving run " + runId, e);
