@@ -96,7 +96,6 @@ public class RunQuery extends HttpServlet {
 					
 					if (run != null) {
 						runs.add(RunResultUtility.toRunResult(run, true));
-					} else {
 					}
 				} catch (ResultArchiveStoreException e) {
 					throw new ServletException("Error retrieving run " + runId, e);
