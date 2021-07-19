@@ -51,6 +51,7 @@ public class Run {
         this.obr = obr;
         this.local = local;
         this.trace = trace;
+        this.rasRunId = rasRunId;
     }
 
     public String getName() {
