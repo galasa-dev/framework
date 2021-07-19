@@ -229,9 +229,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  run:
-                    $ref: '#/components/schemas/Run'
+                $ref: '#/components/schemas/Run'
         '500':
           description: Error
           content:
