@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.api.runs;
 
@@ -14,6 +14,7 @@ public class ScheduleRequest implements Serializable {
 
     private List<String>            classNames;
     private String                  requestorType;
+    private String                  requestor;
     private String                  testStream;
     private String                  obr;
     private String                  mavenRepository;
@@ -35,6 +36,10 @@ public class ScheduleRequest implements Serializable {
         return requestorType;
     }
 
+    public String getRequestor() {
+        return requestor;
+    }
+
     public String getTestStream() {
         return testStream;
     }
@@ -53,6 +58,10 @@ public class ScheduleRequest implements Serializable {
 
     public void setRequestorType(String requestorType) {
         this.requestorType = requestorType;
+    }
+
+    public void setRequestor(String requestor) {
+        this.requestor = requestor;
     }
 
     public void setTestStream(String testStream) {

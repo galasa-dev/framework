@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework.api.runs.internal;
 
@@ -119,7 +119,7 @@ public class ScheduleTests extends HttpServlet {
             }
 
             try {
-                IRun newRun = framework.getFrameworkRuns().submitRun(request.getRequestorType(), null, bundle, testClass,
+                IRun newRun = framework.getFrameworkRuns().submitRun(request.getRequestorType(), request.getRequestor(), bundle, testClass,
                         groupName, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
                         request.isTrace(), request.getOverrides(), 
                         senvPhase, 
