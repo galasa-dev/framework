@@ -229,8 +229,16 @@ public class TestRunner {
             frameworkInitialisation.shutdownFramework();
             return;
         }
-
-        Class<?> testClass = getTestClass(testBundleName, testClassName);
+        
+        Class<?> testClass;
+        try {
+            testClass = getTestClass(testBundleName, testClassName);
+        } catch(Throwable t) {
+            logger.error("Problem locating test " + testBundleName + "/" + testClassName, t);
+            updateStatus("finished", "finished");
+            frameworkInitialisation.shutdownFramework();
+            return;
+        }
         Test testAnnotation = testClass.getAnnotation(Test.class);
         SharedEnvironment sharedEnvironmentAnnotation = testClass.getAnnotation(SharedEnvironment.class);
 
