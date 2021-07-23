@@ -183,12 +183,13 @@ public abstract class AbstractManager implements IManager {
                                     if (e.getTargetException() instanceof ResourceUnavailableException) {
                                         throw (ResourceUnavailableException)e.getTargetException();
                                     }
+                                    throw e;
                                 }
                             }
                         }
                     }
                 }
-            } catch (final Exception e) {
+            } catch (final Throwable e) {
                 throw new ManagerException("Problem generating Test Class fields", e);
             }
         }
