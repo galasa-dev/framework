@@ -1,12 +1,13 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019,2021.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework.spi;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ManagerException;
-import dev.galasa.framework.spi.language.GalasaLanguage;
 import dev.galasa.framework.spi.language.GalasaMethod;
 import dev.galasa.framework.spi.language.GalasaTest;
 
@@ -137,7 +137,7 @@ public abstract class AbstractManager implements IManager {
      *                          interested in
      * @throws ManagerException
      */
-    protected void generateAnnotatedFields(Class<? extends Annotation> managerAnnotation) throws ManagerException {
+    protected void generateAnnotatedFields(Class<? extends Annotation> managerAnnotation) throws ResourceUnavailableException, ManagerException {
         final List<AnnotatedField> foundAnnotatedFields = findAnnotatedFields(managerAnnotation);
         if (foundAnnotatedFields.isEmpty()) { // *** No point doing anything
             return;
@@ -174,9 +174,15 @@ public abstract class AbstractManager implements IManager {
                                     && (parameterTypes[0] == Field.class) && (parameterTypes[1] == List.class)
                                     && (method.getReturnType() == field.getType())) {
                                 // *** Call it and save the value for fillAnnotatedFields
-                                final Object response = method.invoke(this, field, annotations);
-                                if (response != null) {
-                                    this.annotatedFields.put(field, response);
+                                try {
+                                    final Object response = method.invoke(this, field, annotations);
+                                    if (response != null) {
+                                        this.annotatedFields.put(field, response);
+                                    }
+                                } catch(InvocationTargetException e) {
+                                    if (e.getTargetException() instanceof ResourceUnavailableException) {
+                                        throw (ResourceUnavailableException)e.getTargetException();
+                                    }
                                 }
                             }
                         }
