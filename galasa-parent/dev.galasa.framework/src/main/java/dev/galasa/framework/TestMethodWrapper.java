@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework;
 
@@ -94,6 +94,10 @@ public class TestMethodWrapper {
         return this.result;
     }
 
+    public String getName() {
+        return this.testMethod.getName();
+    }
+    
     public TestMethod getStructure() {
         TestMethod methodStructure = testMethod.getStructure();
         ArrayList<TestMethod> structureBefores = new ArrayList<>();

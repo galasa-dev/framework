@@ -548,7 +548,7 @@ public class TestRunner {
         updateStatus("running", null);
         try {
             logger.info("Running the test class");
-            testClassWrapper.runTestMethods(managers);
+            testClassWrapper.runTestMethods(managers, this.dss, this.run.getName());
         } finally {
             updateStatus("rundone", null);
         }
