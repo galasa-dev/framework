@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework;
 
@@ -23,8 +23,10 @@ import dev.galasa.ContinueOnTestFailure;
 import dev.galasa.framework.GenericMethodWrapper.Type;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
+import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.teststructure.TestMethod;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -172,10 +174,12 @@ public class TestClassWrapper {
      * with @BeforeClass, @Before, @After and @AfterClass
      * 
      * @param managers
+     * @param dss 
+     * @param runName 
      * 
      * @throws TestRunException
      */
-    public void runTestMethods(@NotNull TestRunManagers managers) throws TestRunException {
+    public void runTestMethods(@NotNull TestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
 
         logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of test class "
                 + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
@@ -197,25 +201,40 @@ public class TestClassWrapper {
 
         if (result == null) {
             // Run test methods
-            for (TestMethodWrapper testMethod : this.testMethods) {
-                // Run @Test method
-                testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure);
-                if (testMethod.fullStop()) {
-                    break;
-                }
-            }
 
-            for (TestMethodWrapper testMethod : this.testMethods) {
-                Result testMethodResult = testMethod.getResult();
-                if (testMethodResult != null && testMethodResult.isFailed()) {
-                    this.result = Result.failed("A Test failed");
-                    break;
-                }
-            }
+            try {
+                dss.put("run." + runName + ".method.total", Integer.toString(this.testMethods.size()));
 
-            if (this.result == null) {
-                this.result = Result.passed();
-            }
+                int actualMethod = 0;
+                for (TestMethodWrapper testMethod : this.testMethods) {
+                    actualMethod++;
+                    dss.put("run." + runName + ".method.current", Integer.toString(actualMethod));
+                    dss.put("run." + runName + ".method.name", testMethod.getName());
+                    // Run @Test method
+                    testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure);
+                    if (testMethod.fullStop()) {
+                        break;
+                    }
+                }
+
+                for (TestMethodWrapper testMethod : this.testMethods) {
+                    Result testMethodResult = testMethod.getResult();
+                    if (testMethodResult != null && testMethodResult.isFailed()) {
+                        this.result = Result.failed("A Test failed");
+                        break;
+                    }
+                }
+
+                if (this.result == null) {
+                    this.result = Result.passed();
+                }
+                
+                dss.delete("run." + runName + ".method.name");
+                dss.delete("run." + runName + ".method.total");
+                dss.delete("run." + runName + ".method.current");
+            } catch (DynamicStatusStoreException e) {
+                throw new TestRunException("Failed to update the run status", e);
+            }     
         }
 
         // Run @AfterClass methods

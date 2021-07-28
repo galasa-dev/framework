@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework;
 
@@ -147,6 +147,10 @@ public class GenericMethodWrapper {
         this.testStructureMethod.setType(this.type.toString());
 
         return this.testStructureMethod;
+    }
+    
+    public String getName() {
+        return this.excecutionMethod.getName();
     }
 
 }
