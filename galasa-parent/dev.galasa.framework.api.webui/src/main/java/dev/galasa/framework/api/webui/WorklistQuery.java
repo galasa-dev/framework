@@ -1,3 +1,8 @@
+/*
+ * Licensed Materials - Property of IBM
+ * 
+ * (c) Copyright IBM Corp. 2021.
+ */
 package dev.galasa.framework.api.webui;
 
 import java.io.IOException;
@@ -47,18 +52,25 @@ public class WorklistQuery extends HttpServlet {
 	IFramework framework;
 	
 	final static Gson gson = GalasaGsonBuilder.build();
-
 	
+
 	@Override
 	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		super.doOptions(req, resp);
-		setCORS(resp);
+		setCORS(resp, req);
 	}
 	
-	private void setCORS(HttpServletResponse resp) {
-		resp.setHeader("Access-Control-Allow-Origin", "*");
+	private void setCORS(HttpServletResponse resp, HttpServletRequest req) {
+		
+		String origin = req.getHeader("Origin");
+	
+		resp.setHeader("Access-Control-Allow-Origin", origin);
         resp.setHeader("Access-Control-Allow-Methods", "*");
-        resp.setHeader("Access-Control-Allow-Headers", "accept, content-type");
+        resp.setHeader("Access-Control-Allow-Headers", "Accept, Content-Type");
+        resp.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS, DELETE");
+        resp.setContentType("application/json");
+        resp.setHeader("Vary", origin);
+        resp.setHeader("Origin", origin);
 	}
 	
 	
@@ -66,6 +78,9 @@ public class WorklistQuery extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
 		String principalUsername = getPrincipalUsername(req);
+		
+		super.doOptions(req, resp);
+		setCORS(resp, req);
 		
 		returnWorklist(principalUsername, resp, 200);
 
@@ -99,6 +114,9 @@ public class WorklistQuery extends HttpServlet {
 			statusCode = 201;
 		}
 		
+		super.doOptions(req, resp);
+		setCORS(resp, req);
+		
 		returnWorklist(principalUsername, resp, statusCode);
  
 	}
@@ -124,6 +142,9 @@ public class WorklistQuery extends HttpServlet {
 		} catch (Exception e) {
 			throw new ServletException("Error while updating the DSS", e);
 		}
+		
+		super.doOptions(req, resp);
+		setCORS(resp, req);
 		
 		returnWorklist(principalUsername, resp, 200);
  
@@ -157,10 +178,8 @@ public class WorklistQuery extends HttpServlet {
 			throw new ServletException("An error occurred whilst retrieving the Worklist", e);
 		}
 		
-		try {
+		try {	 		 
 	         PrintWriter out = resp.getWriter();
-	         resp.setContentType( "Application/json");
-	         resp.addHeader("Access-Control-Allow-Origin", "*");
 	         resp.setStatus(statusCode);
 	         out.print(json);
 	         out.close();
@@ -336,7 +355,6 @@ public class WorklistQuery extends HttpServlet {
 							new DssSwap("user." + principalUsername + ".worklist", oldValue, newValue));
 					return false;
 				} catch (DynamicStatusStoreException e) {
-					System.out.println("Exception caught");
 					oldValue = dss.get("user." + principalUsername + ".worklist");
 					count++;
 					
