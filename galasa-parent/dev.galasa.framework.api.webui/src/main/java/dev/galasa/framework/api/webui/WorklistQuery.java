@@ -69,8 +69,7 @@ public class WorklistQuery extends HttpServlet {
         resp.setHeader("Access-Control-Allow-Headers", "Accept, Content-Type");
         resp.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS, DELETE");
         resp.setContentType("application/json");
-        resp.setHeader("Vary", origin);
-        resp.setHeader("Origin", origin);
+        resp.setHeader("Vary", "Origin");
 	}
 	
 	
