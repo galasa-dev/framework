@@ -7,9 +7,11 @@ package dev.galasa.boot.felix;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,6 +21,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Reason;
 import org.apache.felix.bundlerepository.Repository;
@@ -991,11 +994,22 @@ public class FelixFramework {
         messageBuffer.append("Bundle status:");
 
         for (Bundle bundle : bundles) {
+            String gitHash = "";
+            try {
+                URL githashUrl = bundle.getEntry("/META-INF/git.hash");
+                if (githashUrl != null) {
+                    try (InputStream is = githashUrl.openStream()) {
+                        gitHash = "-" + IOUtils.toString(is, StandardCharsets.UTF_8);
+                    }
+                }
+            } catch(Exception e) {}
+            
             String bundleId = String.valueOf(bundle.getBundleId());
             messageBuffer.append("\n").append(String.format("%5s", bundleId)).append("|")
                     .append(String.format("%-11s", getBundleStateLabel(bundle))).append("|     |")
-                    .append(bundle.getSymbolicName()).append(" (").append(bundle.getVersion()).append(")");
-        }
+                    .append(bundle.getSymbolicName()).append(" (")
+                    .append(bundle.getVersion()).append(gitHash).append(")");
+       }
 
         logger.trace(messageBuffer.toString());
     }

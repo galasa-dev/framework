@@ -1,10 +1,13 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -12,6 +15,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.bundlerepository.Reason;
@@ -31,7 +35,6 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.framework.spi.Result;
-import dev.galasa.framework.spi.language.gherkin.GherkinTest;
 import dev.galasa.framework.spi.language.GalasaMethod;
 import dev.galasa.framework.spi.language.GalasaTest;
 
@@ -58,12 +61,12 @@ public class TestRunManagers {
         buildActiveManagers(allManagers, galasaTest);
 
         logger.debug("The following Managers are active:-");
-        reportManagers();
+        reportManagers(true);
 
         calculateProvisioningDependencies();
 
         logger.debug("The following Managers are sorted in provisioning order:-");
-        reportManagers();
+        reportManagers(false);
 
     }
 
@@ -143,7 +146,7 @@ public class TestRunManagers {
         Collections.reverse(activeManagersReversed);
     }
 
-    private void reportManagers() {
+    private void reportManagers(boolean printVersions) {
         for (IManager manager : activeManagers) {
             logger.debug("   " + manager.getClass().getName());
         }
@@ -405,10 +408,22 @@ public class TestRunManagers {
         messageBuffer.append("Bundle status:");
 
         for (Bundle bundle : bundles) {
+            
+            String gitHash = "";
+            try {
+                URL githashUrl = bundle.getEntry("/META-INF/git.hash");
+                if (githashUrl != null) {
+                    try (InputStream is = githashUrl.openStream()) {
+                        gitHash = "-" + IOUtils.toString(is, StandardCharsets.UTF_8);
+                    }
+                }
+            } catch(Exception e) {}
+            
             String bundleId = String.valueOf(bundle.getBundleId());
             messageBuffer.append("\n").append(String.format("%5s", bundleId)).append("|")
                     .append(String.format("%-11s", getBundleStateLabel(bundle))).append("|     |")
-                    .append(bundle.getSymbolicName()).append(" (").append(bundle.getVersion()).append(")");
+                    .append(bundle.getSymbolicName()).append(" (")
+                    .append(bundle.getVersion()).append(gitHash).append(")");
         }
 
         logger.trace(messageBuffer.toString());
