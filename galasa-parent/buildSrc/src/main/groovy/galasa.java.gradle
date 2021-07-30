@@ -36,6 +36,35 @@ tasks.withType(Sign) {
     onlyIf { isRelease.toBoolean() }
 }
 
+task gitHash(dependsOn : 'classes') {
+    def dir    = file("${buildDir}/githash")
+    def meta   = file("${buildDir}/githash/META-INF")
+    def result = file("${buildDir}/githash/META-INF/git.hash")
+    
+    outputs.dir meta
+    tasks.jar.dependsOn('gitHash')
+    tasks.jar.from(dir)
+    
+    doLast {
+        if(!meta.exists()) {
+            meta.mkdirs()
+        }
+        
+        def hash = "unknown"
+        
+        try {
+            new ByteArrayOutputStream().withStream { os ->
+                def r = exec {
+                    commandLine 'git', 'log',  '--pretty=format:%H', '-1', '.'
+                    standardOutput = os
+                }
+            hash = os.toString()
+            }
+        } catch(Exception e) {}
+        result.write(hash)
+    }
+}
+
 publishing {
     publications {
         maven(MavenPublication) {

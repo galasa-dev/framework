@@ -1,6 +1,5 @@
 plugins {
     id 'galasa.java'
-    id 'dev.galasa.githash'
     id 'biz.aQute.bnd.builder'
 }
 
@@ -17,8 +16,4 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:3.1.0'
     testImplementation 'org.awaitility:awaitility:3.0.0'
     testImplementation 'org.assertj:assertj-core:3.16.1'
-}
-
-hashes {
-    gitHash = System.getenv('GIT_COMMIT')
 }
