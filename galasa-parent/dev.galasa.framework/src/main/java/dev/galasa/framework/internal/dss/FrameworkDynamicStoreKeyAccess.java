@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019,2020.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework.internal.dss;
 
@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.DynamicStatusStoreMatchException;
 import dev.galasa.framework.spi.IDssAction;
 import dev.galasa.framework.spi.IDssResourceAction;
 import dev.galasa.framework.spi.IDynamicStatusStore;
@@ -251,7 +252,7 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
     }
 
     @Override
-    public void performActions(IDssAction... actions) throws DynamicStatusStoreException {
+    public void performActions(IDssAction... actions) throws DynamicStatusStoreException, DynamicStatusStoreMatchException {
 
         IDssAction[] dssActions = new IDssAction[actions.length];
         for(int i = 0; i < actions.length; i++) {

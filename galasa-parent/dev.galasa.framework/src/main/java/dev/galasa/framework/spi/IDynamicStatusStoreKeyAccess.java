@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework.spi;
 
@@ -133,8 +133,9 @@ public interface IDynamicStatusStoreKeyAccess {
      * 
      * @param actions a list of actions to perform on the DSS.
      * @throws DynamicStatusStoreException
+     * @throws DynamicStatusStoreMatchException - if preconditions fail
      */
-    void performActions(IDssAction... actions) throws DynamicStatusStoreException;   
+    void performActions(IDssAction... actions) throws DynamicStatusStoreException, DynamicStatusStoreMatchException;   
 
     /**
      * <p>

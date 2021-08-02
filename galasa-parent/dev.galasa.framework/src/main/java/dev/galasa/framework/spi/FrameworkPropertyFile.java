@@ -1,7 +1,7 @@
 /*
  * Licensed Materials - Property of IBM
  * 
- * (c) Copyright IBM Corp. 2019,2020.
+ * (c) Copyright IBM Corp. 2019-2021.
  */
 package dev.galasa.framework.spi;
 
@@ -216,7 +216,7 @@ public class FrameworkPropertyFile implements FileAlterationListener {
         }
     }
 
-    public synchronized void performActions(IDssAction... actions) throws FrameworkPropertyFileException {
+    public synchronized void performActions(IDssAction... actions) throws DynamicStatusStoreException, DynamicStatusStoreMatchException {
         synchronized (FrameworkPropertyFile.class) {
             try (FileChannel fileChannel = getWriteChannel(false)) {
                 Properties oldProperties = (Properties) this.currentProperties.clone();
@@ -233,7 +233,7 @@ public class FrameworkPropertyFile implements FileAlterationListener {
                     } else if (action instanceof DssSwap) {
                         performActionsSwap((DssSwap) action);
                     } else {
-                        throw new FrameworkPropertyFileException("Unrecognised DSS Action - " + action.getClass().getName());
+                        throw new DynamicStatusStoreException("Unrecognised DSS Action - " + action.getClass().getName());
                     }
                 }
 
@@ -241,32 +241,32 @@ public class FrameworkPropertyFile implements FileAlterationListener {
                 fileModified(this.currentProperties, oldProperties);
             } catch (IOException e) {
                 fpfLog.error("Failed to update file with DSS actions", e);
-                throw new FrameworkPropertyFileException("Failed to update file with DSS actions", e);
+                throw new DynamicStatusStoreException("Failed to update file with DSS actions", e);
             }
         }
     }
 
-    private void performActionsAdd(DssAdd dssAdd) throws FrameworkPropertyFileException {
+    private void performActionsAdd(DssAdd dssAdd) throws DynamicStatusStoreMatchException {
         String key = dssAdd.getKey();
         String value = dssAdd.getValue();
 
         String currentValue = this.currentProperties.getProperty(key);
         if (currentValue != null) {
-            throw new FrameworkPropertyFileException("Attempt to add new property '" + key + "' but it already exists");
+            throw new DynamicStatusStoreMatchException("Attempt to add new property '" + key + "' but it already exists");
         }
 
         this.currentProperties.put(key, value);
     }
 
 
-    private void performActionsDelete(DssDelete dssDelete) throws FrameworkPropertyFileException {
+    private void performActionsDelete(DssDelete dssDelete) throws DynamicStatusStoreMatchException {
         String key = dssDelete.getKey();
         String oldValue = dssDelete.getOldValue();
 
         if (oldValue != null) {
             String currentValue = this.currentProperties.getProperty(key);
             if (!oldValue.equals(currentValue)) {
-                throw new FrameworkPropertyFileException("Attempt to delete property '" + key + "', but current value '" + currentValue + "' does not match required value '" +oldValue + "'");
+                throw new DynamicStatusStoreMatchException("Attempt to delete property '" + key + "', but current value '" + currentValue + "' does not match required value '" +oldValue + "'");
             }
         }
 
@@ -274,7 +274,7 @@ public class FrameworkPropertyFile implements FileAlterationListener {
     }
 
 
-    private void performActionsDeletePrefix(DssDeletePrefix dssDeletePrefix) throws FrameworkPropertyFileException {
+    private void performActionsDeletePrefix(DssDeletePrefix dssDeletePrefix) {
         ArrayList<String> toBeDeleted = new ArrayList<>();
         for (Object k : this.currentProperties.keySet()) {
             String key = (String) k;
@@ -290,7 +290,7 @@ public class FrameworkPropertyFile implements FileAlterationListener {
     }
 
 
-    private void performActionsUpdate(DssUpdate dssUpdate) throws FrameworkPropertyFileException {
+    private void performActionsUpdate(DssUpdate dssUpdate) {
         String key   = dssUpdate.getKey();
         String value = dssUpdate.getValue();
 
@@ -298,7 +298,7 @@ public class FrameworkPropertyFile implements FileAlterationListener {
     }
 
 
-    private void performActionsSwap(DssSwap dssSwap) throws FrameworkPropertyFileException {
+    private void performActionsSwap(DssSwap dssSwap) throws DynamicStatusStoreMatchException {
         String key      = dssSwap.getKey();
         String newValue = dssSwap.getNewValue();
         String oldValue = dssSwap.getOldValue();
@@ -307,11 +307,11 @@ public class FrameworkPropertyFile implements FileAlterationListener {
 
         if (oldValue == null) {
             if (currentValue != null) {
-                throw new FrameworkPropertyFileException("Attempt to swap property '" + key + "', but current value '" + currentValue + "' does not match required value '" +oldValue + "'");
+                throw new DynamicStatusStoreMatchException("Attempt to swap property '" + key + "', but current value '" + currentValue + "' does not match required value '" +oldValue + "'");
             }
         } else {
             if (!oldValue.equals(currentValue)) {
-                throw new FrameworkPropertyFileException("Attempt to swap property '" + key + "', but current value '" + currentValue + "' does not match required value '" +oldValue + "'");
+                throw new DynamicStatusStoreMatchException("Attempt to swap property '" + key + "', but current value '" + currentValue + "' does not match required value '" +oldValue + "'");
             }
         }
         
