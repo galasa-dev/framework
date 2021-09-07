@@ -1,7 +1,5 @@
 #
-# Licensed Materials - Property of IBM
-# 
-# (c) Copyright IBM Corp. 2021.
+# Copyright contributors to the Galasa project 
 #
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -9,11 +7,13 @@ metadata:
   name: framework-repo-build
   namespace: galasa-tekton
 spec:
-  resources:
-  - name: git-framework
-    type: git
+  workspaces:
+  - name: git-workspace
+    optional: false
   params:
   - name: distBranch
+    type: string
+  - name: refspec
     type: string
   - name: noPush
     type: string
@@ -25,9 +25,28 @@ spec:
     type: string
     default: "false"
   tasks:
+  - name: clone-framework
+    taskRef: 
+      name: git-clone
+    params:
+    - name: url
+      value: https://github.com/galasa-dev/framework
+    - name: revision
+      value: $(params.distBranch)
+    - name: refspec
+      value: $(params.refspec)
+    - name: depth
+      value: "99999999"
+    - name: subdirectory
+      value: framework
+    workspaces:
+     - name: output
+       workspace: git-workspace
   - name: framework
     taskRef:
       name: framework-repo-build
+    runAfter:
+    - clone-framework
     params:
     - name: distBranch
       value: $(params.distBranch)
@@ -39,10 +58,9 @@ spec:
       value: $(params.jacocoEnabled)
     - name: isRelease
       value: $(params.isRelease)
-    resources:
-      inputs:
-      - name: git-framework
-        resource: git-framework
+    workspaces:
+     - name: git-workspace
+       workspace: git-workspace
   - name: recycle-deployment
     taskRef:
       name: recycle-deployment

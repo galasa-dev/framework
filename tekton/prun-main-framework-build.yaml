@@ -1,7 +1,5 @@
 #
-# Licensed Materials - Property of IBM
-# 
-# (c) Copyright IBM Corp. 2021.
+# Copyright contributors to the Galasa project 
 #
 kind: PipelineRun
 apiVersion: tekton.dev/v1beta1
@@ -12,13 +10,11 @@ spec:
   params:
   - name: distBranch
     value: main
+  - name: refspec
+    value: +refs/heads/main:refs/heads/main
   pipelineRef:
     name: framework-repo-build
   serviceAccountName: build-bot
-  resources:
-  - name: git-framework
-    resourceRef:
-      name: git-framework-main
   podTemplate:
     nodeSelector:
       beta.kubernetes.io/arch: amd64
@@ -33,3 +29,13 @@ spec:
     - name: mavengpg
       secret:
         secretName: mavengpg
+  workspaces:
+  - name: git-workspace
+    volumeClaimTemplate:
+      spec:
+        storageClassName: rbd
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

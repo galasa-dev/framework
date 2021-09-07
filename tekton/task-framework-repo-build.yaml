@@ -1,7 +1,5 @@
 #
-# Licensed Materials - Property of IBM
-# 
-# (c) Copyright IBM Corp. 2021.
+# Copyright contributors to the Galasa project 
 #
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -9,10 +7,10 @@ metadata:
   name: framework-repo-build
   namespace: galasa-tekton
 spec:
-  resources:
-    inputs:
-      - name: git-framework
-        type: git
+  workspaces:
+  - name: git-workspace
+    optional: false
+    mountpath: /workspace/git
   params:
   - name: distBranch
     type: string
@@ -68,7 +66,7 @@ spec:
     - name: mavengpg
       mountPath: /root/mavengpg
   - name: gradle-build
-    workingDir: /workspace/git-framework/galasa-parent
+    workingDir: /workspace/git/framework/galasa-parent
     image: $(params.dockerRepo)/galasa/galasa-build
     command:
     - gradle
@@ -77,7 +75,7 @@ spec:
     - plain
     - -PsourceMaven=$(params.mavenSourceRepo)
     - -PcentralMaven=$(params.mavenCentralRepo)
-    - -PtargetMaven=/workspace/git-framework/docker/repo
+    - -PtargetMaven=/workspace/git/framework/docker/repo
     - -PjacocoEnabled=$(params.jacocoEnabled)
     - -PisRelease=$(params.isRelease)
     - publish
@@ -89,13 +87,13 @@ spec:
       mountPath: /opt/gradle/gradle-6.8.2/gradle.properties
       subPath: gradle.properties
   - name: maven-staging-plugin
-    workingDir: /workspace/git-framework/galasa-parent/galasastaging-maven-plugin
+    workingDir: /workspace/git/framework/galasa-parent/galasastaging-maven-plugin
     image: $(params.dockerRepo)/galasa/galasa-build
     command:
     - mvn
     - -Dgalasa.source.repo=$(params.mavenSourceRepo)
     - -Dgalasa.central.repo=$(params.mavenCentralRepo)
-    - -Dgalasa.release.repo=file:/workspace/git-framework/docker/repo
+    - -Dgalasa.release.repo=file:/workspace/git/framework/docker/repo
     - -Dgalasa.jacocoEnabled=$(params.jacocoEnabled)
     - -Dgalasa.isRelease=$(params.isRelease)
     - --settings
@@ -105,22 +103,22 @@ spec:
     - -fae
     - deploy
   - name: delete-plugin-metadata
-    workingDir: /workspace/git-framework/docker/repo/dev/galasa
+    workingDir: /workspace/git/framework/docker/repo/dev/galasa
     image: $(params.dockerRepo)/galasa/galasa-build
     script: |
       #!/bin/sh
       rm maven-metadata*
   - name: get-commit
-    workingDir: /workspace/git-framework
+    workingDir: /workspace/git/framework
     image: $(params.dockerRepo)/galasa/galasa-build
     script: |
       #!/bin/sh
       set +e
       COMMIT="$(git log --format="%H" -n 1)"
-      echo $COMMIT > /workspace/git-framework/docker/framework.githash
+      echo $COMMIT > /workspace/git/framework/docker/framework.githash
       echo commit is $COMMIT
   - name: docker-build
-    workingDir: /workspace/git-framework/docker
+    workingDir: /workspace/git/framework/docker
     image: $(params.dockerRepo)/library/kaniko-executor:latest
     env:
     - name: DOCKER_CONFIG
@@ -128,10 +126,10 @@ spec:
     command:
     - /kaniko/executor
     - --dockerfile=./Dockerfile
-    - --context=/workspace/git-framework/docker
+    - --context=/workspace/git/framework/docker
     - --destination=$(params.dockerRepo)/galasadev/galasa-maven-framework:$(params.distBranch)
     - $(params.noPush)
-    - --oci-layout-path=/workspace/git-framework/docker/image-digest
+    - --oci-layout-path=/workspace/git/framework/docker/image-digest
     - --skip-tls-verify
     - --skip-tls-verify-pull
     - --single-snapshot
