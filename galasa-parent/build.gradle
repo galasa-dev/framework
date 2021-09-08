@@ -3,8 +3,6 @@ plugins {
     id 'dev.galasa.githash' version '0.15.0' apply false
 }
 
-version = '0.15.0'
-
 task clean {
    // make sure the build directory is gone 
    doFirst {
