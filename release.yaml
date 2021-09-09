@@ -17,7 +17,7 @@ framework:
     javadoc: true
     
   - artifact: dev.galasa.framework
-    version: 0.18.0
+    version: 0.19.0
     obr: true
     bom: true
     mvp: true
