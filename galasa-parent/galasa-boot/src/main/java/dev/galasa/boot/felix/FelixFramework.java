@@ -73,18 +73,15 @@ public class FelixFramework {
             List<URL> remoteMavenRepos) throws LauncherException, ClassNotFoundException {
         logger.debug("Building Felix Framework...");
 
-        String felixCacheDirectory = System.getProperty("java.io.tmpdir");
-        File galasaCacheDirectory = new File(felixCacheDirectory, "galasa");
-             
-        String cacheDirectory = "felix-cache-";
+        String felixCacheDirectory = System.getProperty("user.home");
+        File galasaDirectory = new File(felixCacheDirectory, ".galasa");
+        String cacheDirectory = "felix-cache";
         
-        for(int i = 0; i < 10; i++) {
-            cacheDirectory = cacheDirectory + Integer.toString(this.random.nextInt(10));
-        }
-        
-        this.felixCache = new File(galasaCacheDirectory, cacheDirectory);
+        this.felixCache = new File(galasaDirectory, cacheDirectory);
         try {
             FileUtils.deleteDirectory(felixCache);
+            
+            this.felixCache.mkdirs();
 
             FrameworkFactory frameworkFactory = new FrameworkFactory();
 
