@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019-2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.boot.felix;
 
@@ -12,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +53,10 @@ public class FelixFramework {
     private Bundle obrBundle;
 
     private RepositoryAdmin repositoryAdmin;
+    
+    private final SecureRandom random = new SecureRandom();
+    
+    private File felixCache;
 
     /**
      * Initialise and start the Felix framework. Install required bundles and the
@@ -71,7 +74,15 @@ public class FelixFramework {
         logger.debug("Building Felix Framework...");
 
         String felixCacheDirectory = System.getProperty("java.io.tmpdir");
-        File felixCache = new File(felixCacheDirectory, "felix-cache");
+        File galasaCacheDirectory = new File(felixCacheDirectory, "galasa");
+             
+        String cacheDirectory = "felix-cache-";
+        
+        for(int i = 0; i < 10; i++) {
+            cacheDirectory = cacheDirectory + Integer.toString(this.random.nextInt(10));
+        }
+        
+        this.felixCache = new File(galasaCacheDirectory, cacheDirectory);
         try {
             FileUtils.deleteDirectory(felixCache);
 
@@ -742,7 +753,13 @@ public class FelixFramework {
         }
 
         framework.waitForStop(30000);
+        
         logger.debug("Felix framework stopped");
+        
+        try {
+            FileUtils.deleteDirectory(felixCache);
+        } catch (IOException e) {
+        }
     }
 
     /**
