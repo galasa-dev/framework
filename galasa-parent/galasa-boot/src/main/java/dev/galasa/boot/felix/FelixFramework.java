@@ -46,7 +46,9 @@ public class FelixFramework {
 
     private BootLogger logger = new BootLogger();
 
-    private boolean loadConsole = Boolean.parseBoolean(System.getProperty("dev.galasa.core.load.console", "false"));
+    private boolean loadConsole = false;
+    
+    private String bootJarLoacation = null;
 
     private Framework framework;
 
@@ -100,6 +102,8 @@ public class FelixFramework {
             logger.debug("Felix Framework started");
 
             logger.debug("Installing required OSGi bundles");
+            // Only required when running the Launcher class outside of the galasa-boot.jar, e.g. from Eclipse
+            bootJarLoacation = boostrapProperties.getProperty("dev.galasa.boot.jar.location");
             // *** Load dependencies for the maven repo url handler
             installBundle("org.apache.felix.scr.jar", true);
             installBundle("dev.galasa.framework.log4j2.bridge.jar", false);
@@ -117,6 +121,7 @@ public class FelixFramework {
             loadBundleRepositories(bundleRepositories);
 
             // Install and start the Felix OSGi console if required
+            loadConsole = Boolean.parseBoolean(boostrapProperties.getProperty("dev.galasa.core.load.console", "false"));
             if (loadConsole) {
                 loadBundle("org.apache.felix.gogo.runtime");
                 loadBundle("org.apache.felix.gogo.command");
@@ -946,7 +951,7 @@ public class FelixFramework {
         if (isJar()) {
             bundleLocation = this.getClass().getClassLoader().getResource("bundle/" + bundleJar).toExternalForm();
         } else {
-            bundleLocation = this.getClass().getClassLoader().getResource("").toString() + "../bundle/" + bundleJar;
+            bundleLocation = "jar:file:/" + bootJarLoacation + "!/bundle/" + bundleJar;
         }
         logger.trace("bundleLocation: " + bundleLocation);
         Bundle bundle = framework.getBundleContext().installBundle(bundleLocation);
