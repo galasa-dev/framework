@@ -51,7 +51,7 @@ spec:
     - name: distBranch
       value: $(params.distBranch)
     - name: mavenSourceRepo
-      value: http://cicscit.hursley.ibm.com/galasadev/$(params.distBranch)/maven/maven
+      value: http://galasadev-cicsk8s.hursley.ibm.com/$(params.distBranch)/maven/maven
     - name: noPush
       value: $(params.noPush)
     - name: jacocoEnabled

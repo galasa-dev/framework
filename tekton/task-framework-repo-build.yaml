@@ -22,7 +22,7 @@ spec:
     default: https://repo.maven.apache.org/maven2/
   - name: dockerRepo
     type: string
-    default: nexus.cics-ts.hur.hdclab.intranet.ibm.com:8080
+    default: harbor-cicsk8s.hursley.ibm.com
   - name: noPush
     type: string
     default: ""
@@ -35,13 +35,13 @@ spec:
   steps:
   - name: gpgdirectory
     workingDir: /workspace
-    image: $(params.dockerRepo)/galasa/galasa-build
+    image: $(params.dockerRepo)/galasadev/galasa-build
     command:
     - mkdir
     - /workspace/gpg
   - name: import-gpg
     workingDir: /workspace
-    image: $(params.dockerRepo)/galasa/galasa-build
+    image: $(params.dockerRepo)/galasadev/galasa-build
     command:
     - gpg
     - --homedir
@@ -57,7 +57,7 @@ spec:
       mountPath: /root/mavengpg
   - name: copy-settings
     workingDir: /workspace
-    image: $(params.dockerRepo)/galasa/galasa-build
+    image: $(params.dockerRepo)/galasadev/galasa-build
     command:
     - cp
     - /root/mavengpg/settings.xml
@@ -67,7 +67,7 @@ spec:
       mountPath: /root/mavengpg
   - name: gradle-build
     workingDir: /workspace/git/framework/galasa-parent
-    image: $(params.dockerRepo)/galasa/galasa-build
+    image: $(params.dockerRepo)/galasadev/galasa-build
     command:
     - gradle
     - --no-daemon
@@ -88,7 +88,7 @@ spec:
       subPath: gradle.properties
   - name: maven-staging-plugin
     workingDir: /workspace/git/framework/galasa-parent/galasastaging-maven-plugin
-    image: $(params.dockerRepo)/galasa/galasa-build
+    image: $(params.dockerRepo)/galasadev/galasa-build
     command:
     - mvn
     - -Dgalasa.source.repo=$(params.mavenSourceRepo)
@@ -104,13 +104,13 @@ spec:
     - deploy
   - name: delete-plugin-metadata
     workingDir: /workspace/git/framework/docker/repo/dev/galasa
-    image: $(params.dockerRepo)/galasa/galasa-build
+    image: $(params.dockerRepo)/galasadev/galasa-build
     script: |
       #!/bin/sh
       rm maven-metadata*
   - name: get-commit
     workingDir: /workspace/git/framework
-    image: $(params.dockerRepo)/galasa/galasa-build
+    image: $(params.dockerRepo)/galasadev/galasa-build
     script: |
       #!/bin/sh
       set +e
@@ -119,7 +119,7 @@ spec:
       echo commit is $COMMIT
   - name: docker-build
     workingDir: /workspace/git/framework/docker
-    image: $(params.dockerRepo)/library/kaniko-executor:latest
+    image: $(params.dockerRepo)/common/kaniko-project/executor:latest
     env:
     - name: DOCKER_CONFIG
       value: /tekton/home/.docker
