@@ -18,14 +18,14 @@ framework:
     codecoverage: true
     
   - artifact: dev.galasa.framework
-    version: 0.19.0
+    version: 0.19.1
     obr: true
     bom: true
     mvp: true
     codecoverage: true
     
   - artifact: galasa-boot
-    version: 0.19.0
+    version: 0.19.1
     mvp: true
     codecoverage: true
 
