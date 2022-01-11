@@ -45,13 +45,13 @@ import dev.galasa.staging.json.ComponentResponse;
 import dev.galasa.staging.json.Item;
 
 /**
- * Build the whitelist files
+ * Build the allowlist files
  * 
  * @author mikebyls
  *
  */
-@Mojo(name = "whitelists", requiresProject = false)
-public class WhiteLists extends AbstractMojo {
+@Mojo(name = "allowlists", requiresProject = false)
+public class AllowLists extends AbstractMojo {
 
     @Parameter( defaultValue = "${settings}", readonly = true )
     private Settings settings;
@@ -124,7 +124,7 @@ public class WhiteLists extends AbstractMojo {
                 }
             }
         } catch(Exception e) {
-            throw new MojoExecutionException("Unable to create raw maven whitelist file", e);
+            throw new MojoExecutionException("Unable to create raw maven allowlist file", e);
         }
     }
 
@@ -145,7 +145,7 @@ public class WhiteLists extends AbstractMojo {
                 }
             }
         } catch(Exception e) {
-            throw new MojoExecutionException("Unable to create raw nexus routing whitelist file", e);
+            throw new MojoExecutionException("Unable to create raw nexus routing allowlist file", e);
         }
     }
 
@@ -186,7 +186,7 @@ public class WhiteLists extends AbstractMojo {
                 }
             }
         } catch(Exception e) {
-            throw new MojoExecutionException("Unable to create condensed nexus routing whitelist file", e);
+            throw new MojoExecutionException("Unable to create condensed nexus routing allowlist file", e);
         }
     }
     
