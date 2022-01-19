@@ -72,6 +72,6 @@ spec:
       values: ["--no-push"]
     params:
     - name: namespace
-      value: galasa-development
+      value: galasa-branch-$(params.distBranch)
     - name: deployment
       value: maven-$(params.distBranch)-framework

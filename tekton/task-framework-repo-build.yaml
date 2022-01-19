@@ -16,7 +16,7 @@ spec:
     type: string
   - name: mavenCentralRepo
     type: string
-    default: https://nexus.cics-ts.hur.hdclab.intranet.ibm.com/repository/proxy/
+    default: https://artifactory-cicsk8s.hursley.ibm.com/artifactory/maven-proxy/
   - name: mavenSourceRepo
     type: string
     default: https://repo.maven.apache.org/maven2/
@@ -86,28 +86,6 @@ spec:
     - name: gpggradle
       mountPath: /opt/gradle/gradle-6.8.2/gradle.properties
       subPath: gradle.properties
-  - name: maven-staging-plugin
-    workingDir: /workspace/git/framework/galasa-parent/galasastaging-maven-plugin
-    image: $(params.dockerRepo)/galasadev/galasa-build
-    command:
-    - mvn
-    - -Dgalasa.source.repo=$(params.mavenSourceRepo)
-    - -Dgalasa.central.repo=$(params.mavenCentralRepo)
-    - -Dgalasa.release.repo=file:/workspace/git/framework/docker/repo
-    - -Dgalasa.jacocoEnabled=$(params.jacocoEnabled)
-    - -Dgalasa.isRelease=$(params.isRelease)
-    - --settings
-    - /workspace/gpg/settings.xml
-    - -B
-    - -e
-    - -fae
-    - deploy
-  - name: delete-plugin-metadata
-    workingDir: /workspace/git/framework/docker/repo/dev/galasa
-    image: $(params.dockerRepo)/galasadev/galasa-build
-    script: |
-      #!/bin/sh
-      rm maven-metadata*
   - name: get-commit
     workingDir: /workspace/git/framework
     image: $(params.dockerRepo)/galasadev/galasa-build
@@ -122,7 +100,7 @@ spec:
     image: $(params.dockerRepo)/common/kaniko-project/executor:latest
     env:
     - name: DOCKER_CONFIG
-      value: /tekton/home/.docker
+      value: /tekton/creds/.docker
     command:
     - /kaniko/executor
     - --dockerfile=./Dockerfile

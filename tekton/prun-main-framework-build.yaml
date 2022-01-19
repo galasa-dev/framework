@@ -33,6 +33,7 @@ spec:
   - name: git-workspace
     volumeClaimTemplate:
       spec:
+        storageClassName: longhorn-temp
         accessModes:
           - ReadWriteOnce
         resources:
