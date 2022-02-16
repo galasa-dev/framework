@@ -106,20 +106,14 @@ publishing {
                         organizationUrl = 'https://www.ibm.com'
                     }
                     developer {
-                        name = 'Matthew Chivers'
-                        email = 'matthew.chivers@ibm.com'
+                        name = 'Kees Jansen'
+                        email = 'kees.jansen@ibm.com'
                         organization = 'IBM'
                         organizationUrl = 'https://www.ibm.com'
                     }
                     developer {
-                        name = 'Charlie Meek'
-                        email = 'charlie.meek@ibm.com'
-                        organization = 'IBM'
-                        organizationUrl = 'https://www.ibm.com'
-                    }
-                    developer {
-                        name = 'Diana Slepikaite'
-                        email = 'diana.slepikaite@ibm.com'
+                        name = 'Jade Carino'
+                        email = 'jade.carino@ibm.com'
                         organization = 'IBM'
                         organizationUrl = 'https://www.ibm.com'
                     }
