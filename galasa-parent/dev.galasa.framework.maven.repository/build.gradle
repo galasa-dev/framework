@@ -5,7 +5,7 @@ plugins {
 
 description = 'Galasa Maven Repository '
 
-version = '0.18.0'
+version = '0.21.0'
 
 dependencies {
     compileOnly project(':dev.galasa.framework.maven.repository.spi')
