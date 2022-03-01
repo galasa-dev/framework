@@ -12,6 +12,11 @@ dependencies {
     implementation project(':dev.galasa.framework')
 
     implementation 'commons-codec:commons-codec:1.15'
+    implementation ('org.apache.commons:commons-compress') {
+        version {
+            strictly '1.21'
+        }
+    }
 
     implementation 'io.prometheus:simpleclient:0.6.0'
     implementation 'io.prometheus:simpleclient_httpserver:0.6.0'

@@ -1,7 +1,15 @@
 -snapshot ${tstamp}
 Bundle-Name: dev.galasa.framework.docker.controller
 Export-Package: dev.galasa.framework.docker.controller*
-Import-Package: dev.galasa.framework,dev.galasa.framework.spi,dev.galasa.framework.docker.controller,org.apache.commons.logging,io.prometheus.client,io.prometheus.client.exporter,com.sun.net.httpserver,javax.net.ssl
+Import-Package: dev.galasa.framework,\
+                dev.galasa.framework.spi,\
+                dev.galasa.framework.docker.controller,\
+                org.apache.commons.logging,\
+                org.apache.commons.compress*,\
+                io.prometheus.client,\
+                io.prometheus.client.exporter,\
+                com.sun.net.httpserver,\
+                javax.net.ssl
 Embed-Transitive: true
 Embed-Dependency: *;scope=compile
 -includeresource: docker-java-core-3.2.5.jar; lib:=true,\
@@ -11,7 +19,6 @@ Embed-Dependency: *;scope=compile
     httpclient5-5.0.jar; lib:=true,\
     slf4j-api-1.7.30.jar; lib:=true,\
     commons-io-2.6.jar; lib:=true,\
-    commons-compress-1.20.jar; lib:=true,\
     commons-lang-2.6.jar; lib:=true,\
     jackson-databind-2.10.3.jar; lib:=true,\
     guava-19.0.jar; lib:=true,\
