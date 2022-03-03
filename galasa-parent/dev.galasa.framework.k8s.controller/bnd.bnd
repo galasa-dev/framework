@@ -1,7 +1,23 @@
 -snapshot ${tstamp}
 Bundle-Name: dev.galasa.framework.k8s.controller
 Export-Package: dev.galasa.framework.k8s.controller*
-Import-Package: dev.galasa.framework,dev.galasa.framework.spi,dev.galasa.framework.k8s.controller,org.apache.commons.logging,io.prometheus.client,io.prometheus.client.exporter,com.sun.net.httpserver,org.xml.sax,org.xml.sax.helpers,javax.xml.parsers,javax.naming,javax.net.ssl,javax.net,com.google.gson,com.google.gson.reflect,com.google.gson.stream
+Import-Package: dev.galasa.framework,\
+                dev.galasa.framework.spi,\
+                dev.galasa.framework.k8s.controller,\
+                org.apache.commons.logging,\
+                io.prometheus.client,\
+                io.prometheus.client.exporter,\
+                com.sun.net.httpserver,\
+                org.yaml.snakeyaml*,\
+                org.xml.sax,\
+                org.xml.sax.helpers,\
+                javax.xml.parsers,\
+                javax.naming,\
+                javax.net.ssl,\
+                javax.net,\
+                com.google.gson,\
+                com.google.gson.reflect,\
+                com.google.gson.stream
 Embed-Transitive: true
 Embed-Dependency: *;scope=compile
 -includeresource: client-java-1.0.0.jar; lib:=true,\
@@ -15,7 +31,6 @@ Embed-Dependency: *;scope=compile
     animal-sniffer-annotations-1.14.jar; lib:=true,\
     client-java-api-1.0.0.jar; lib:=true,\
     client-java-proto-1.0.0.jar; lib:=true,\
-    snakeyaml-1.19.jar; lib:=true,\
     commons-codec-1.15.jar; lib:=true,\
     commons-lang3-3.7.jar; lib:=true,\
     okhttp-ws-2.7.5.jar; lib:=true,\

@@ -31,5 +31,10 @@ dependencies {
             strictly '1.60'
         }
     }
+    implementation ('org.yaml:snakeyaml'){
+        version {
+            strictly '1.30'
+        }
+    }
 
 }
