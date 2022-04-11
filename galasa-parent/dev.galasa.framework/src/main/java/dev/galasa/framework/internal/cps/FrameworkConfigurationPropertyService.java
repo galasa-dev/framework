@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019, 2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.internal.cps;
 
@@ -92,7 +90,7 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
         for (String key : keys) {
             value = getValueAndMakeAccessRecord(key);
             if (value != null) {
-                return value;
+                return value.trim();
             }
         }
         return null;
