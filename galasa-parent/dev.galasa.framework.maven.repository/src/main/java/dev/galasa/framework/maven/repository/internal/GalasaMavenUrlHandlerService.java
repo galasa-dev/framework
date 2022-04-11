@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.maven.repository.internal;
 
@@ -321,9 +319,9 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         connection.setDoOutput(false);
         connection.setConnectTimeout(300000);
         connection.setReadTimeout(300000);
-        connection.connect();
 
         try {
+            connection.connect();
             Files.copy(connection.getInputStream(), localArtifact, StandardCopyOption.REPLACE_EXISTING);
         } catch (FileNotFoundException e) {
             return false;

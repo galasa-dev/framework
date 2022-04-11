@@ -43,7 +43,7 @@ framework:
     codecoverage: true
     
   - artifact: dev.galasa.framework.maven.repository
-    version: 0.21.0
+    version: 0.22.0
     obr: true
     mvp: true
     isolated: true
