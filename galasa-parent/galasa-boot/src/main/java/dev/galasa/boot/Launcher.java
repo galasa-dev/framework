@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019-2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.boot;
 
@@ -12,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -476,9 +475,14 @@ public class Launcher {
             }
         }
 
-        try (InputStream is = bootstrapUri.toURL().openStream()) {
-            boostrapProperties = new Properties();
-            boostrapProperties.load(is);
+        try {
+            URLConnection bootstrapConnection = bootstrapUri.toURL().openConnection();
+            bootstrapConnection.setConnectTimeout(30000);
+            bootstrapConnection.setReadTimeout(30000);
+            try (InputStream is = bootstrapConnection.getInputStream()) {
+                boostrapProperties = new Properties();
+                boostrapProperties.load(is);
+            }
         } catch (IOException e) {
             logger.error("Unable to load bootstrap properties", e);
             commandLineError(null);
