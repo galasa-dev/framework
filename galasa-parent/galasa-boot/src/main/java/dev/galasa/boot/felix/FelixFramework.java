@@ -567,6 +567,106 @@ public class FelixFramework {
 
     }
 
+    /**
+     * Setup the Ecosystem
+     * 
+     * @param boostrapProperties  the bootstrap properties
+     * @param overridesProperties the override properties
+     * @throws LauncherException
+     */
+    public void runSetupEcosystem(Properties boostrapProperties, Properties overridesProperties) throws LauncherException {
+
+        // Get the framework bundle
+        Bundle frameWorkBundle = getBundle("dev.galasa.framework");
+
+        // Get the dev.galasa.framework.BackupCPS class service
+        String classString = "dev.galasa.framework.SetupEcosystem";
+        String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
+
+        ServiceReference<?>[] serviceReferences;
+        try {
+            serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
+        } catch (InvalidSyntaxException e) {
+            throw new LauncherException("Unable to get framework service reference", e);
+        }
+        if (serviceReferences == null || serviceReferences.length != 1) {
+            throw new LauncherException("Unable to get single reference to SetupEcosystem service: "
+                    + ((serviceReferences == null) ? 0 : serviceReferences.length) + " service(s) returned");
+        }
+
+        Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
+        if (service == null) {
+            throw new LauncherException("Unable to get SetupEcosystem service");
+        }
+
+        // Get the dev.galasa.framework.SetupEcosystem#setup() method
+        Method runSetupMethod;
+        try {
+            runSetupMethod = service.getClass().getMethod("setup", Properties.class, Properties.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new LauncherException("Unable to get Framework SetupEcosystem setup method", e);
+        }
+
+        // Invoke the setup method
+        logger.debug("Invoking SetupEcosystem setup()");
+        try {
+            runSetupMethod.invoke(service, boostrapProperties, overridesProperties);
+        } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+            throw new LauncherException(e.getCause());
+        }
+
+    }
+
+    /**
+     * Validate the Ecosystem
+     * 
+     * @param boostrapProperties  the bootstrap properties
+     * @param overridesProperties the override properties
+     * @throws LauncherException
+     */
+    public void runValidateEcosystem(Properties boostrapProperties, Properties overridesProperties) throws LauncherException {
+
+        // Get the framework bundle
+        Bundle frameWorkBundle = getBundle("dev.galasa.framework");
+
+        // Get the dev.galasa.framework.BackupCPS class service
+        String classString = "dev.galasa.framework.SetupEcosystem";
+        String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
+
+        ServiceReference<?>[] serviceReferences;
+        try {
+            serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
+        } catch (InvalidSyntaxException e) {
+            throw new LauncherException("Unable to get framework service reference", e);
+        }
+        if (serviceReferences == null || serviceReferences.length != 1) {
+            throw new LauncherException("Unable to get single reference to SetupEcosystem service: "
+                    + ((serviceReferences == null) ? 0 : serviceReferences.length) + " service(s) returned");
+        }
+
+        Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
+        if (service == null) {
+            throw new LauncherException("Unable to get SetupEcosystem service");
+        }
+
+        // Get the dev.galasa.framework.SetupEcosystem#setup() method
+        Method runSetupMethod;
+        try {
+            runSetupMethod = service.getClass().getMethod("setup", Properties.class, Properties.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new LauncherException("Unable to get Framework SetupEcosystem setup method", e);
+        }
+
+        // Invoke the setup method
+        logger.debug("Invoking SetupEcosystem setup()");
+        try {
+            runSetupMethod.invoke(service, boostrapProperties, overridesProperties);
+        } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+            throw new LauncherException(e.getCause());
+        }
+
+    }
+
     public void runWebApiServer(Properties boostrapProperties, Properties overridesProperties, List<String> bundles,
             Integer metrics, Integer health) throws LauncherException {
 

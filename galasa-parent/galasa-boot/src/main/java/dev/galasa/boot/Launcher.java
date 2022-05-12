@@ -68,7 +68,9 @@ public class Launcher {
     private static final String     RESTORECPS_OPTION         = "restorecps";
     private static final String     FILE_OPTION               = "f";
     private static final String     FILE_OPTION_LONG          = "file";
-    private static final String     DRY_RUN_OPTION    		  = "dryrun";
+    private static final String     DRY_RUN_OPTION            = "dryrun";
+    private static final String     SETUPECO_OPTION           = "setupeco";
+    private static final String     VALIDATEECO_OPTION        = "validateeco";
     
 
 
@@ -97,7 +99,9 @@ public class Launcher {
     private boolean                 api;
     private boolean                 backupCPS;
     private boolean                 restoreCPS;
-    private boolean 				dryRun;
+    private boolean                 dryRun;
+    private boolean                 setupEco;
+    private boolean                 validateEco;
 
     private Integer                 metrics;
     private Integer                 health;
@@ -180,6 +184,10 @@ public class Launcher {
                 felixFramework.runBackupCPS(boostrapProperties, overridesProperties, filePath);
             } else if (restoreCPS) {
                 felixFramework.runRestoreCPS(boostrapProperties, overridesProperties, filePath, dryRun);
+            } else if (setupEco) {
+                felixFramework.runSetupEcosystem(boostrapProperties, overridesProperties);
+            } else if (validateEco) {
+                felixFramework.runValidateEcosystem(boostrapProperties, overridesProperties);
             }
 
         } catch (LauncherException e) {
@@ -244,6 +252,8 @@ public class Launcher {
         options.addOption(null, RESTORECPS_OPTION, false, "Restore CPS properties from file");
         options.addOption(FILE_OPTION, FILE_OPTION_LONG, true, "File for data input/output");
         options.addOption(null, DRY_RUN_OPTION, false, "Perform a dry-run of the specified actions. Can be combined with \"" + FILE_OPTION_LONG + "\"");
+        options.addOption(null, SETUPECO_OPTION, false, "Setup the Galasa Ecosystem");
+        options.addOption(null, VALIDATEECO_OPTION, false, "Validate the Galasa Ecosystem");
         
 
         CommandLineParser parser = new DefaultParser();
@@ -350,6 +360,14 @@ public class Launcher {
             return;
         }
         
+        if (setupEco) {
+            return;
+        }
+
+        if (validateEco) {
+            return;
+        }
+
         if (dryRun) {
         	commandLineError(
         			"Must be combined with \"" + RESTORECPS_OPTION + "\"");
@@ -364,7 +382,9 @@ public class Launcher {
                 		+ ", --" + METRICSERVER_OPTION
                 		+ ", --" + RESOURCEMANAGEMENT_OPTION
                 		+ ", --" + BUNDLE_OPTION
-                		+ ", --" + BACKUPCPS_OPTION
+                        + ", --" + BACKUPCPS_OPTION
+                        + ", --" + SETUPECO_OPTION
+                        + ", --" + VALIDATEECO_OPTION
                 		+ ", or --" + RESTORECPS_OPTION);
     }
     
