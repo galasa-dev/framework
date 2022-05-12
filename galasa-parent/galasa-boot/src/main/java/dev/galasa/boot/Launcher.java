@@ -297,6 +297,8 @@ public class Launcher {
         backupCPS = commandLine.hasOption(BACKUPCPS_OPTION);
         restoreCPS = commandLine.hasOption(RESTORECPS_OPTION);
         dryRun = commandLine.hasOption(DRY_RUN_OPTION);
+        setupEco = commandLine.hasOption(SETUPECO_OPTION);
+        validateEco = commandLine.hasOption(VALIDATEECO_OPTION);
 
         if (testRun) {
             runName = commandLine.getOptionValue(RUN_OPTION);
