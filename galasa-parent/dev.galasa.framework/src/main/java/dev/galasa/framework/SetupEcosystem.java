@@ -63,7 +63,7 @@ public class SetupEcosystem {
         if (ras != null && !ras.trim().isEmpty()) {
             ras = ras.trim();
             
-            cps.setProperty("resultarchive.store", dss);
+            cps.setProperty("resultarchive.store", ras);
             
             logger.info("framework.resultarchive.store has been set to : " + ras);
         } else {
