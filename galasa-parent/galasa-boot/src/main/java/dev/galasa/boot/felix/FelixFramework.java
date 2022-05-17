@@ -630,7 +630,7 @@ public class FelixFramework {
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
 
         // Get the dev.galasa.framework.BackupCPS class service
-        String classString = "dev.galasa.framework.SetupEcosystem";
+        String classString = "dev.galasa.framework.ValidateEcosystem";
         String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
 
         ServiceReference<?>[] serviceReferences;
