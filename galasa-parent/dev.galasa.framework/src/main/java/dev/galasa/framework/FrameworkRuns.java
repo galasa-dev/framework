@@ -154,6 +154,9 @@ public class FrameworkRuns implements IFrameworkRuns {
             throw new FrameworkException("Missing test name");
         }
         String bundleTest = null;
+        if (language == null) {
+            language = "java";
+        }
         if(language.equals("java")) {
             if(bundleName == null) {
                 throw new FrameworkException("Missing bundle name");
