@@ -56,8 +56,8 @@ public class ValidateEcosystem {
         } else {
             IFrameworkRuns frameworkRuns = framework.getFrameworkRuns();
             
-            IRun testRun = frameworkRuns.submitRun("VALIDATE", 
-                    "helm", 
+            IRun testRun = frameworkRuns.submitRun(null, 
+                    "validateeco", 
                     "dev.galasa.core.manager.ivt", 
                     "dev.galasa.core.manager.ivt.CoreManagerIVT", 
                     null, 
