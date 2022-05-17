@@ -101,11 +101,15 @@ public class ValidateEcosystem {
             if (!status.equals("finished")) {
                 logger.error("Test CoreManagerIVT (" + pollRun.getName() + ") did not finish in time, actual status = " + status);
                 throw new FrameworkException("Validation failed");
+            } else {
+                logger.info("Test CoreManagerIVT (" + pollRun.getName() + ") has finished");
             }
             String result = pollRun.getResult();
             if (!result.equals("Passed")) {
                 logger.error("Test CoreManagerIVT (" + pollRun.getName() + ") did not pass, actual result = " + result);
                 throw new FrameworkException("Validation failed");
+            } else {
+                logger.info("Test CoreManagerIVT (" + pollRun.getName() + ") has passed");
             }
         }
                 
