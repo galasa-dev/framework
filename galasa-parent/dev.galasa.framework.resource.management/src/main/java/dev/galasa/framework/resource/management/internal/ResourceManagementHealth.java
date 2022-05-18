@@ -6,6 +6,7 @@ package dev.galasa.framework.resource.management.internal;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.time.Instant;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,11 +53,13 @@ public class ResourceManagementHealth implements HttpHandler {
         
         logger.trace("Health check request received");
 
-        long successfulRuns = this.resourceManagement.getSuccessfulRunsSinceLastHealthCheck();
+        Instant lastSuccessfulRun = this.resourceManagement.getLastSuccessfulRun();
+        
+        Instant deadline = Instant.now().minusSeconds(60); // Must have run in the last minute
 
-        String response = "successfulruns=" + Long.toString(successfulRuns);
+        String response = "lastsuccessfulrun=" + lastSuccessfulRun.toString();
         int responseCode = 200;
-        if (successfulRuns == 0) {
+        if (lastSuccessfulRun.isBefore(deadline)) {
             logger.error("Health check failed, there were no successful runs since last health check");
             responseCode = 500;
         }

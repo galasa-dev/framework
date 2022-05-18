@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.resource.management.internal;
 
@@ -53,7 +51,7 @@ public class ResourceManagement implements IResourceManagement {
     private boolean                                      shutdown                           = false;
     private boolean                                      shutdownComplete                   = false;
 
-    private long                                         successfulRunsSinceLastHealthCheck = 0;
+    private Instant                                      lastSuccessfulRun                  = Instant.now();
 
     private HTTPServer                                   metricsServer;
     private Counter                                      successfulRunsCounter;
@@ -284,19 +282,13 @@ public class ResourceManagement implements IResourceManagement {
 
     @Override
     public synchronized void resourceManagementRunSuccessful() {
-        if (this.successfulRunsSinceLastHealthCheck == Long.MAX_VALUE) {
-            this.successfulRunsSinceLastHealthCheck = 0;
-        }
-        this.successfulRunsSinceLastHealthCheck++;
+        this.lastSuccessfulRun = Instant.now();
 
         this.successfulRunsCounter.inc();
     }
 
-    protected synchronized long getSuccessfulRunsSinceLastHealthCheck() {
-        long lastCount = this.successfulRunsSinceLastHealthCheck;
-        this.successfulRunsSinceLastHealthCheck = 0;
-
-        return lastCount;
+    protected synchronized Instant getLastSuccessfulRun() {
+        return this.lastSuccessfulRun;
     }
 
     private class ShutdownHook extends Thread {
