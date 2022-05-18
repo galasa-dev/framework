@@ -1,13 +1,14 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.resource.management.internal;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.FrameworkException;
 
@@ -17,6 +18,8 @@ import com.sun.net.httpserver.HttpServer;
 
 @SuppressWarnings("restriction")
 public class ResourceManagementHealth implements HttpHandler {
+    
+    private Log                      logger = LogFactory.getLog(this.getClass());
 
     private final ResourceManagement resourceManagement;
 
@@ -46,12 +49,15 @@ public class ResourceManagementHealth implements HttpHandler {
             exchange.getResponseBody().close();
             return;
         }
+        
+        logger.trace("Health check request received");
 
         long successfulRuns = this.resourceManagement.getSuccessfulRunsSinceLastHealthCheck();
 
         String response = "successfulruns=" + Long.toString(successfulRuns);
         int responseCode = 200;
         if (successfulRuns == 0) {
+            logger.error("Health check failed, there were no successful runs since last health check");
             responseCode = 500;
         }
 
