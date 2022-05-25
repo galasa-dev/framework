@@ -1,3 +1,6 @@
+/*
+ * Copyright contributors to the Galasa project
+ */
 package dev.galasa.framework.spi;
 
 public class CertificateStoreException extends FrameworkException {
