@@ -28,11 +28,13 @@ import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
 import dev.galasa.framework.internal.ras.FrameworkMultipleResultArchiveStore;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.Api;
+import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourcePoolingService;
+import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -498,5 +500,11 @@ public class Framework implements IFramework {
                 return null;
         }
     }
+
+	@Override
+	public @NotNull ICertificateStoreService getCertifacteStoreService() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

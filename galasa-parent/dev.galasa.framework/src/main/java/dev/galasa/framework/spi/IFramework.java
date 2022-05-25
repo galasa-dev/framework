@@ -99,6 +99,16 @@ public interface IFramework {
     @NotNull
     IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
             throws DynamicStatusStoreException;
+    
+    /**
+     * <p>
+     * Retrieve the Certificate Store Service which can be used to retrieve 
+     * keystores of certificates or individual certificates from the store.
+     * </p>
+     * @return A {@link ICertificateStoreService}, cannot be null
+     */
+    @NotNull
+    ICertificateStoreService getCertifacteStoreService();
 
     /**
      * <p>

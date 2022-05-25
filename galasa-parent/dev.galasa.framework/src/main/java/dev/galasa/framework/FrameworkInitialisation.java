@@ -25,10 +25,12 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfidentialTextServiceRegistration;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
@@ -506,5 +508,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             logger.fatal("Problem shutting down the Galasa framework",e);
         }
     }
+
+	@Override
+	public void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
+			throws CertificateStoreException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

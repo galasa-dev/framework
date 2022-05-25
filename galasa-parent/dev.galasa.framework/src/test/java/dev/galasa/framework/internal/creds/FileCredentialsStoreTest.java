@@ -27,9 +27,11 @@ import dev.galasa.framework.internal.cps.FpfConfigurationPropertyStore;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FileCredentialsStore;
 import dev.galasa.framework.spi.Api;
+import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -269,6 +271,11 @@ public class FileCredentialsStoreTest {
         @Override
         public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
             return null;
-        }    }
+        }
+
+		@Override
+		public @NotNull ICertificateStoreService getCertifacteStoreService() {
+			return null;
+		}    }
 
 }

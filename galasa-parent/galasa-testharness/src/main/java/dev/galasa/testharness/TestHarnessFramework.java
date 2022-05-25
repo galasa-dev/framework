@@ -16,10 +16,12 @@ import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.cts.FrameworkConfidentialTextService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
 import dev.galasa.framework.spi.Api;
+import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourcePoolingService;
+import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -130,7 +132,12 @@ public class TestHarnessFramework implements IFramework {
 
     @Override
     public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
-        throw new Unavailable();// To be written when someone needs it
+    	throw new Unavailable();// To be written when someone needs it
     }
+
+	@Override
+	public @NotNull ICertificateStoreService getCertifacteStoreService() {
+		throw new Unavailable();// To be written when someone needs it
+	}
 
 }

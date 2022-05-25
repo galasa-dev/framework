@@ -22,9 +22,11 @@ import javax.validation.constraints.NotNull;
 import org.junit.Test;
 
 import dev.galasa.framework.internal.cps.FpfConfigurationPropertyStore;
+import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
 import dev.galasa.framework.spi.IDynamicStatusStore;
@@ -192,6 +194,11 @@ public class FpfConfigurationPropertyStoreTest {
         @Override
         public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         }
+
+		@Override
+		public void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
+				throws CertificateStoreException {
+		}
     }
 
 }
