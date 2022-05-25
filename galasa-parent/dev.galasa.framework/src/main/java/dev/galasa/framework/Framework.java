@@ -500,7 +500,7 @@ public class Framework implements IFramework {
     }
 
 	@Override
-	public @NotNull ICertificateStoreService getCertifacteStoreService() {
+	public @NotNull ICertificateStoreService getCertificateStoreService() {
 		// TODO Auto-generated method stub
 		return null;
 	}
