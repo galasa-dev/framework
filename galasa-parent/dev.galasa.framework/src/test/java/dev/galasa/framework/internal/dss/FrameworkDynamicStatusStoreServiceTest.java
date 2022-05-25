@@ -315,7 +315,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
         }
 
 		@Override
-		public @NotNull ICertificateStoreService getCertifacteStoreService() {
+		public @NotNull ICertificateStoreService getCertificateStoreService() {
 			return null;
 		}
     }

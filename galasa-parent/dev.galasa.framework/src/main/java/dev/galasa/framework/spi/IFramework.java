@@ -106,7 +106,7 @@ public interface IFramework {
      * @return A {@link ICertificateStoreService}, cannot be null
      */
     @NotNull
-    ICertificateStoreService getCertifacteStoreService();
+    ICertificateStoreService getCertificateStoreService();
 
     /**
      * <p>

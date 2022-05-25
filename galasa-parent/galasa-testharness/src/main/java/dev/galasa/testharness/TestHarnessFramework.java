@@ -134,7 +134,7 @@ public class TestHarnessFramework implements IFramework {
     }
 
 	@Override
-	public @NotNull ICertificateStoreService getCertifacteStoreService() {
+	public @NotNull ICertificateStoreService getCertificateStoreService() {
 		throw new Unavailable();// To be written when someone needs it
 	}
 
