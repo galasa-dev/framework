@@ -3,6 +3,9 @@
  */
 package dev.galasa.framework.spi;
 
+import java.io.InputStream;
+import java.security.KeyStore;
+
 /**
  * A class to represent a Java Keystore and allow for easy appending and generation
  * 
@@ -11,6 +14,13 @@ package dev.galasa.framework.spi;
  */
 public interface IKeyStore {
 	/**
+	 * Returns the Java keystore
+	 * 
+	 * @return KeyStore
+	 */
+	public KeyStore getKeyStore();
+	
+	/**
 	 * <p>
 	 * Allows a Base64 encoded PEM cert to be appended to the Keystore
 	 * </p>
@@ -18,7 +28,17 @@ public interface IKeyStore {
 	 * @param cert
 	 * @throws CertificateStoreException
 	 */
-	public void appendPem(String cert) throws CertificateStoreException;
+	public void appendPemAsString(String aliasId, String cert) throws CertificateStoreException;
+	
+	/**
+	 * <p>
+	 * Allows a PEM cert file to be appended to the Keystore
+	 * </p>
+	 * 
+	 * @param cert
+	 * @throws CertificateStoreException
+	 */
+	public void appendPem(String aliasId, InputStream certFile) throws CertificateStoreException;
 	
 	/**
 	 * <p>
@@ -28,7 +48,7 @@ public interface IKeyStore {
 	 * @param cert
 	 * @throws CertificateStoreException
 	 */
-	public void appendDer(String cert) throws CertificateStoreException;
+	public void appendDer(String aliasId, InputStream certFile) throws CertificateStoreException;
 	
 	/**
 	 * <p>
@@ -39,6 +59,6 @@ public interface IKeyStore {
 	 * @param CertificateId
 	 * @throws CertificateStoreException
 	 */
-	public void appendCertficate(String certificateId) throws CertificateStoreException;
+	public void appendCertficateById(String aliasId, String certificateId) throws CertificateStoreException;
 
 }

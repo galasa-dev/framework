@@ -3,6 +3,9 @@
  */
 package dev.galasa.framework.spi;
 
+import java.security.cert.X509Certificate;
+
+import javax.validation.constraints.NotNull;
 
 public interface ICertificateStoreService {
 	
@@ -15,18 +18,7 @@ public interface ICertificateStoreService {
 	 * @return String certificate
 	 * @throws CertificateStoreException if no certificate found
 	 */
-	public String getPem(String id) throws CertificateStoreException;
-	
-	/**
-	 * <p>
-	 * Retrieves the DER certificate as a string.
-	 * </p>
-	 * 
-	 * @param id
-	 * @return String certificate
-	 * @throws CertificateStoreException if no certificate found
-	 */
-	public String getDer(String id) throws CertificateStoreException;
+	public X509Certificate getX509Certificate(@NotNull String id) throws CertificateStoreException;
 	
 	/**
 	 * <p>
@@ -38,7 +30,7 @@ public interface ICertificateStoreService {
 	 * @return
 	 * @throws CertificateStoreException
 	 */
-	public IKeyStore getKeystore() throws CertificateStoreException;
+	public IKeyStore getDefaultKeystore() throws CertificateStoreException;
 	
 	/**
 	 * <p>
@@ -51,7 +43,7 @@ public interface ICertificateStoreService {
 	 * @return
 	 * @throws CertificateStoreException
 	 */
-	public IKeyStore getKeystore(String id) throws CertificateStoreException;
+	public IKeyStore getKeystore(@NotNull String id) throws CertificateStoreException;
 	
 	/**
 	 * <p>
@@ -67,7 +59,23 @@ public interface ICertificateStoreService {
 	 * @return
 	 * @throws CertificateStoreException
 	 */
-	public IKeyStore generateKeyStore(String... certifitcateId) throws CertificateStoreException;
+	public IKeyStore getKeyStore(@NotNull String... certificateId) throws CertificateStoreException;
+	
+	/**
+	 * <p>
+	 * Generate a Keystore populated with the list of certificates from the certificate 
+	 * store using thier property ID
+	 * </p>
+	 * 
+	 * <p>
+	 * If no id's are passed then an empty Keystore is generated and passed back, with 
+	 * the assumption the tester has the desired certificates in a test resource.
+	 * </p>
+	 * @param certifitcateId
+	 * @return
+	 * @throws CertificateStoreException
+	 */
+	public IKeyStore getDefaultKeyStoreWithExtraCertificates(@NotNull String... certificateId) throws CertificateStoreException;
 
 
 }
