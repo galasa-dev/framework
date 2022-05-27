@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
@@ -75,6 +73,19 @@ public interface IFrameworkInitialisation {
      */
     void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService)
             throws ResultArchiveStoreException;
+    
+    /**
+     * <p>
+     * Register a Certificate Store Service. 
+     * </p>
+     * 
+     * @param certificateStoreService - the certificate store service to be
+     *                                  registered
+     * @throws CertificateStoreException If there is a problem registering the
+     *                                     service
+     */
+    void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
+            throws CertificateStoreException;
 
     void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
             throws ConfidentialTextException;

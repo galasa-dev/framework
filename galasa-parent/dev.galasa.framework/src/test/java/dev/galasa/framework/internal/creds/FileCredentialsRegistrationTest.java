@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.internal.creds;
 
@@ -25,10 +23,12 @@ import dev.galasa.framework.internal.cps.FpfConfigurationPropertyStore;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FileCredentialsRegistration;
 import dev.galasa.framework.spi.Api;
+import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -155,6 +155,11 @@ public class FileCredentialsRegistrationTest {
         @Override
         public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         }
+
+		@Override
+		public void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
+				throws CertificateStoreException {
+		}
     }
 
     /**
@@ -251,5 +256,10 @@ public class FileCredentialsRegistrationTest {
         @Override
         public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
             return null;
-        }    }
+        }
+
+		@Override
+		public @NotNull ICertificateStoreService getCertificateStoreService() {
+			return null;
+		}    }
 }

@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
@@ -99,6 +97,16 @@ public interface IFramework {
     @NotNull
     IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
             throws DynamicStatusStoreException;
+    
+    /**
+     * <p>
+     * Retrieve the Certificate Store Service which can be used to retrieve 
+     * keystores of certificates or individual certificates from the store.
+     * </p>
+     * @return A {@link ICertificateStoreService}, cannot be null
+     */
+    @NotNull
+    ICertificateStoreService getCertificateStoreService();
 
     /**
      * <p>

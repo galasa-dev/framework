@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package test.cts;
 
@@ -17,9 +15,11 @@ import javax.validation.constraints.NotNull;
 import org.junit.Test;
 
 import dev.galasa.framework.internal.cts.FrameworkConfidentialTextServiceRegistration;
+import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
 import dev.galasa.framework.spi.IDynamicStatusStore;
@@ -111,5 +111,10 @@ public class ConfidentialTextServiceRegistrationTest {
         @Override
         public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         }
+
+		@Override
+		public void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
+				throws CertificateStoreException {
+		}
     }
 }
