@@ -3,18 +3,31 @@
  */
 package dev.galasa.framework;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
@@ -30,7 +43,9 @@ import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.ICertificateStore;
 import dev.galasa.framework.spi.ICertificateStoreService;
+import dev.galasa.framework.spi.ICertificateStoreServiceRegistration;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfidentialTextServiceRegistration;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
@@ -42,6 +57,7 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.IFrameworkRuns;
+import dev.galasa.framework.spi.IKeyStore;
 import dev.galasa.framework.spi.IResultArchiveStoreRegistration;
 import dev.galasa.framework.spi.IResultArchiveStoreService;
 import dev.galasa.framework.spi.IRun;
@@ -111,6 +127,108 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         if (testrun) {
             framework.installLogCapture();
         }
+         
+        // Get boot id list
+        KeyStore bootKs;
+        SSLContext bootSSLContext;
+        
+        // If we need any certs to access the cert stores, they will be in here
+        String bootCertList = overrideProperties.getProperty("certificates.boot.ids");
+        if (bootCertList != null) {
+        	String[] bootCertIds = bootCertList.split(",");
+        	// Create keyStore from this boot list and SSLConext
+	        try {
+	        	bootSSLContext = SSLContext.getInstance("TLS");
+	        	TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+	            CertificateFactory fact = CertificateFactory.getInstance("X.509");
+	            
+				bootKs = KeyStore.getInstance("JKS");
+				bootKs.load(null, null);
+				
+//				This uses the cert in the overrides
+//				for (String id : bootCertIds) {
+//					String cert = overrideProperties.getProperty("certificates.X509."+id+".pem");
+//					if (cert == null) {
+//						cert = overrideProperties.getProperty("certificates.X509."+id+".der");
+//					}
+//					if (cert == null) {
+//						throw new FrameworkException("No certifcate found in with pem or dem format: "+ id);
+//					}
+//					
+//					Certificate bootCert = (X509Certificate) fact.generateCertificate(new ByteArrayInputStream(cert.getBytes()));
+//					bootKs.setCertificateEntry(id, bootCert);
+//				}
+				
+//				Now assuming the overrides pass a uri to get the cert
+				for (String id : bootCertIds) {
+					File certFile = new File(overrideProperties.getProperty("certificates.X509."+id+".path"));
+					if (!certFile.exists()) {
+						throw new FrameworkException("Could not find certifcate with id " + id + "from path: " + certFile.getAbsolutePath());
+					}
+					Certificate bootCert = (X509Certificate) fact.generateCertificate(new FileInputStream((certFile)));
+					bootKs.setCertificateEntry(id, bootCert);
+				}
+							
+				tmf.init(bootKs);
+				bootSSLContext.init(null, tmf.getTrustManagers(), null);
+				
+				// This will be overidden once the certStore is active.
+				framework.setSSLContext(bootSSLContext);
+			} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | KeyManagementException e) {
+				throw new FrameworkException("Create and use boot SSL context", e);
+			}
+        } else {
+        	try {
+				framework.setSSLContext(SSLContext.getDefault());
+			} catch (NoSuchAlgorithmException e) {
+				throw new FrameworkException("Failed to find default SSLContext", e);
+			}
+        }
+        // Now that SSLContext is setup from boot, we can register the certStore
+        
+        // Find Cert store URI from env or bootstrap or overrides. If not found look for certificates.default.ids
+        
+        // Create the certStore service. This could just be using overrides
+        
+        String certsUri = System.getenv("GALASA_CERTS_STORE");
+        if ((certsUri == null) || certsUri.isEmpty()) {
+        	certsUri = overrideProperties.getProperty("framework.certificate.store");
+        }
+        if ((certsUri == null) || certsUri.isEmpty()) {
+           logger.info("No certificate store found, using default SSL context");
+        } else {
+        	final ServiceReference<?>[] certStoreReference = bundleContext.getAllServiceReferences(ICertificateStoreServiceRegistration.class.getName(), null);
+            if ((certStoreReference == null) || (certStoreReference.length == 0)) {
+            	throw new FrameworkException("No Certificate Store Services have been found");
+            } else {
+            	for (final ServiceReference<?> certReference : certStoreReference) {
+            		final ICertificateStoreServiceRegistration certStoreRegistration = (ICertificateStoreServiceRegistration) bundleContext
+                            .getService(certReference);
+                    this.logger.trace("Found Cert Store Provider " + certStoreRegistration.getClass().getName());
+                    certStoreRegistration.initialise(this);
+            	}
+            }
+            this.logger.debug("Certificate Property Store is " + certsUri);
+            if (this.framework.getCertificateStore() == null) {
+            	throw new FrameworkException("Failed to initialise certificate store. Unable to continue");
+            }
+            // Now create the proper SSL context
+            try {
+            	SSLContext sslContext = SSLContext.getInstance("TLS");
+            	TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                CertificateFactory fact = CertificateFactory.getInstance("X.509");
+                ICertificateStoreService certStore = this.framework.getCertificateStoreService();
+                IKeyStore ks = certStore.getDefaultKeystore();
+                
+                tmf.init(ks.getKeyStore());
+                sslContext.init(null, tmf.getTrustManagers(), null);
+    			framework.setSSLContext(sslContext);
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | KeyManagementException e) {
+            	throw new FrameworkException("Failed to create and set the SSL context from the cert store.", e);
+            }
+        }
+        
+       // The default keystore is available from the certService, and the framework has the default SSLContext
 
         String propUri = System.getenv("GALASA_CONFIG_STORE");
         if ((propUri == null) || propUri.isEmpty()) {
@@ -439,6 +557,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     public List<URI> getResultArchiveStoreUris() {
         return this.uriResultArchiveStores;
     }
+    
+//	@Override
+//	public URI getCertificateStoreUri() {
+//		return this.uriCertificateStore;
+//	}
 
     /*
      * (non-Javadoc)
@@ -510,9 +633,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
 	@Override
-	public void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
+	public void registerCertificateStore(@NotNull ICertificateStore certificateStore)
 			throws CertificateStoreException {
-		// TODO Auto-generated method stub
+		this.framework.setCertifateStore(certificateStore);
 		
 	}
 

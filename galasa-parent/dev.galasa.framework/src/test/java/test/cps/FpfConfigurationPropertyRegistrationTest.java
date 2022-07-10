@@ -20,6 +20,7 @@ import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.ICertificateStore;
 import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
@@ -108,8 +109,10 @@ public class FpfConfigurationPropertyRegistrationTest {
         }
 
 		@Override
-		public void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
+		public void registerCertificateStore(@NotNull ICertificateStore certificateStore)
 				throws CertificateStoreException {
+			// TODO Auto-generated method stub
+			
 		}
     }
 }

@@ -34,6 +34,8 @@ public interface IFrameworkInitialisation {
 
     URI getCredentialsStoreUri();
 
+//    URI getCertificateStoreUri();
+
     /**
      * Retrieves a list of Result Archive URIs that need to be initialised
      * 
@@ -84,7 +86,7 @@ public interface IFrameworkInitialisation {
      * @throws CertificateStoreException If there is a problem registering the
      *                                     service
      */
-    void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
+    void registerCertificateStore(@NotNull ICertificateStore certificateStore)
             throws CertificateStoreException;
 
     void registerConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)

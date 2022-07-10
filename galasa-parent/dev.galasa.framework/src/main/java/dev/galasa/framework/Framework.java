@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.SSLContext;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
@@ -20,6 +21,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import dev.galasa.framework.internal.certs.FrameworkCertificateService;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
@@ -32,6 +34,7 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourcePoolingService;
+import dev.galasa.framework.spi.ICertificateStore;
 import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
@@ -65,10 +68,12 @@ public class Framework implements IFramework {
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;
+    private ICertificateStore                  certStore;
 
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
     private ICredentialsService                credsFramework;
+    private SSLContext						   sslContext;
 
     private String                             runName;
 
@@ -215,6 +220,16 @@ public class Framework implements IFramework {
     public @NotNull IConfidentialTextService getConfidentialTextService() {
         return this.ctsService;
     }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see dev.galasa.framework.spi.IFramework#getCertificateStoreService()
+     */
+	@Override
+	public @NotNull ICertificateStoreService getCertificateStoreService() {
+		return new FrameworkCertificateService(this.certStore);
+	}
 
     @Override
     public @NotNull ICredentialsService getCredentialsService() throws CredentialsException {
@@ -291,6 +306,17 @@ public class Framework implements IFramework {
         }
         this.credsStore = credsStore;
     }
+    
+    public void setCertifateStore(@NotNull ICertificateStore certStore) throws CertificateStoreException {
+    	if (this.certStore != null) {
+    		throw new CertificateStoreException("Invalid 2nd registration of the Certificate Store Service detected");
+    	}
+    	this.certStore = certStore;
+    }
+    
+    public void setSSLContext(SSLContext sslContext) {
+    	this.sslContext = sslContext;
+    }
 
     /**
      * Retrieve the active CPS Service
@@ -313,6 +339,10 @@ public class Framework implements IFramework {
     protected ICredentialsStore getCredentialsStore() {
         return this.credsStore;
     }
+    protected ICertificateStore getCertificateStore() {
+        return this.certStore;
+    }
+    
 
     @Override
     public Random getRandom() {
@@ -498,11 +528,5 @@ public class Framework implements IFramework {
                 return null;
         }
     }
-
-	@Override
-	public @NotNull ICertificateStoreService getCertificateStoreService() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }
