@@ -32,23 +32,13 @@ public interface IKeyStore {
 	
 	/**
 	 * <p>
-	 * Allows a PEM cert file to be appended to the Keystore
+	 * Allows a Base64 encoded DER-encoded cert to be appended to the Keystore
 	 * </p>
 	 * 
 	 * @param cert
 	 * @throws CertificateStoreException
 	 */
-	public void appendPem(String aliasId, InputStream certFile) throws CertificateStoreException;
-	
-	/**
-	 * <p>
-	 * Allows a Base64 encoded DER cert to be appended to the Keystore
-	 * </p>
-	 * 
-	 * @param cert
-	 * @throws CertificateStoreException
-	 */
-	public void appendDer(String aliasId, InputStream certFile) throws CertificateStoreException;
+	public void appendCertificate(String aliasId, InputStream certFile) throws CertificateStoreException;
 	
 	/**
 	 * <p>
