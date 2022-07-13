@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
@@ -252,7 +250,7 @@ public interface IManager {
      * @return Override the test result, or null if ok
      * @throws ManagerException If something went wrong
      */
-    String endOfTestMethod(@NotNull GalasaMethod galasaMethod, @NotNull String currentResult, Throwable currentException)
+    Result endOfTestMethod(@NotNull GalasaMethod galasaMethod, @NotNull Result currentResult, Throwable currentException)
             throws ManagerException;
 
     /**
@@ -283,7 +281,7 @@ public interface IManager {
      * @return Override the test result, or null if ok
      * @throws ManagerException If something went wrong
      */
-    String endOfTestClass(@NotNull String currentResult, Throwable currentException) throws ManagerException;
+    Result endOfTestClass(@NotNull Result currentResult, Throwable currentException) throws ManagerException;
 
     /**
      * <p>

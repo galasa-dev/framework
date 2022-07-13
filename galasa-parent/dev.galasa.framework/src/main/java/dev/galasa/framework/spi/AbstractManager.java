@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019-2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
@@ -399,7 +397,7 @@ public abstract class AbstractManager implements IManager {
      * java.lang.Throwable)
      */
     @Override
-    public String endOfTestMethod(@NotNull GalasaMethod galasaMethod, @NotNull String currentResult, Throwable currentException)
+    public Result endOfTestMethod(@NotNull GalasaMethod galasaMethod, @NotNull Result currentResult, Throwable currentException)
             throws ManagerException {
         return null;
     }
@@ -421,7 +419,7 @@ public abstract class AbstractManager implements IManager {
      * java.lang.Throwable)
      */
     @Override
-    public String endOfTestClass(@NotNull String currentResult, Throwable currentException) throws ManagerException {
+    public Result endOfTestClass(@NotNull Result currentResult, Throwable currentException) throws ManagerException {
         return null;
     }
 

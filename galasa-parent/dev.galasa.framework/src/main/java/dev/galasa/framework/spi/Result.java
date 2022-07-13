@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
@@ -86,13 +84,26 @@ public class Result {
         return result;
     }
 
-    public static Result custom(String managerResult) { // TODO create proper custom result from managers
+    public static Result custom(String name, 
+            boolean passed, 
+            boolean failed, 
+            boolean defects, 
+            boolean ignored, 
+            boolean environment, 
+            boolean resources, 
+            boolean fullStop, 
+            String reason) {
         Result result = new Result();
-        result.name = FAILED;
-        result.failed = true;
-        result.fullStop = true;
-        result.iconUri = "internalicon:failed";
-        result.reason = managerResult;
+        result.name        = name;
+        result.passed      = passed;
+        result.failed      = failed;
+        result.defects     = defects;
+        result.ignored     = ignored;
+        result.environment = environment;
+        result.resources   = resources;
+        result.fullStop    = fullStop;
+        result.iconUri     = "internalicon:custom";
+        result.reason      = reason;
 
         return result;
     }
@@ -109,12 +120,24 @@ public class Result {
         return this.failed;
     }
 
+    public boolean isDefects() {
+        return this.defects;
+    }
+
     public boolean isEnvFail() {
         return this.environment;
     }
 
     public boolean isFullStop() {
         return this.fullStop;
+    }
+
+    public boolean isIgnored() {
+        return this.ignored;
+    }
+
+    public boolean isResources() {
+        return this.resources;
     }
 
     public Throwable getThrowable() {

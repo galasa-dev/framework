@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019-2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework;
 
@@ -571,15 +569,9 @@ public class TestRunManagers {
 
         for (IManager manager : activeManagers) {
             try {
-                String managerResult = manager.endOfTestMethod(galasaMethod, currentResult.getName(), currentException); // TODO
-                                                                                                                       // change
-                                                                                                                       // managers
-                                                                                                                       // to
-                                                                                                                       // pass
-                                                                                                                       // actual
-                                                                                                                       // result
+                Result managerResult = manager.endOfTestMethod(galasaMethod, currentResult, currentException);
                 if (managerResult != null && newResult == null) {
-                    newResult = Result.custom(managerResult);
+                    newResult = managerResult;
                 }
             } catch (ManagerException e) {
                 throw new FrameworkException(
@@ -595,9 +587,9 @@ public class TestRunManagers {
 
         for (IManager manager : activeManagers) {
             try {
-                String managerResult = manager.endOfTestClass(result.getName(), currentException);
+                Result managerResult = manager.endOfTestClass(result, currentException);
                 if (managerResult != null && newResult == null) {
-                    newResult = Result.custom(managerResult);
+                    newResult = managerResult;
                 }
             } catch (ManagerException e) {
                 throw new FrameworkException("Problem in end of test class for manager " + manager.getClass().getName(),
