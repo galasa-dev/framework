@@ -250,7 +250,7 @@ public class TestClassWrapper {
         try {
             Result newResult = managers.endOfTestClass(this.result, null); // TODO pass the class level exception
             if (newResult != null) {
-                logger.info("Result of test run overridden to " + newResult);
+                logger.info("Result of test run overridden to " + newResult.getName());
                 this.result = newResult;
             }
         } catch (FrameworkException e) {
