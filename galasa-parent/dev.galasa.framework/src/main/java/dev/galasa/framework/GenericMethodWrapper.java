@@ -66,6 +66,7 @@ public class GenericMethodWrapper {
             Result ignored = managers.anyReasonTestMethodShouldBeIgnored(new GalasaMethod(this.excecutionMethod, null));
             if (ignored != null) {
                 this.result = ignored;
+                this.testStructureMethod.setResult(this.result.getName());
                 return;
             }
             managers.fillAnnotatedFields(testClassObject);
