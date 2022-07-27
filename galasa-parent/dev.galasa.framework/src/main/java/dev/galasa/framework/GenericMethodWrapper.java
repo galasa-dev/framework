@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019-2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework;
 
@@ -66,6 +64,7 @@ public class GenericMethodWrapper {
             Result ignored = managers.anyReasonTestMethodShouldBeIgnored(new GalasaMethod(this.excecutionMethod, null));
             if (ignored != null) {
                 this.result = ignored;
+                this.testStructureMethod.setResult(this.result.getName());
                 return;
             }
             managers.fillAnnotatedFields(testClassObject);
