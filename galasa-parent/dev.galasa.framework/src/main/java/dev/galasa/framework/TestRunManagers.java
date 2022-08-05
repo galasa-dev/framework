@@ -531,7 +531,6 @@ public class TestRunManagers {
             try {
                 String reason = manager.anyReasonTestMethodShouldBeIgnored(galasaMethod);
                 if (reason != null) {
-                    logger.info("Ignoring method due to " + reason);
                     return Result.ignore(reason + " from " + manager.getClass().getName());
                 }
             } catch (ManagerException e) {

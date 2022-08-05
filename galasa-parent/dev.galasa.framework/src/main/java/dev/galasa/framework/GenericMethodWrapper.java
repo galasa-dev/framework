@@ -63,6 +63,11 @@ public class GenericMethodWrapper {
             String methodType = ",type=" + type.toString();
             Result ignored = managers.anyReasonTestMethodShouldBeIgnored(new GalasaMethod(this.excecutionMethod, null));
             if (ignored != null) {
+            	logger.info(TestClassWrapper.LOG_STARTING + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS
+                        + TestClassWrapper.LOG_START_LINE + "*** Ignoring test method " + testClass.getName() + "#"
+                        + excecutionMethod.getName() + methodType + TestClassWrapper.LOG_START_LINE
+                        + TestClassWrapper.LOG_ASTERS);
+                logger.info("Ignoring " + excecutionMethod.getName() + " due to "+ ignored.getReason());
                 this.result = ignored;
                 this.testStructureMethod.setResult(this.result.getName());
                 return;

@@ -111,6 +111,10 @@ public class Result {
     public @NotNull String getName() {
         return this.name;
     }
+    
+    public String getReason() {
+        return this.reason;
+    }
 
     public boolean isPassed() {
         return this.passed;
