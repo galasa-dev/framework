@@ -14,9 +14,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import dev.galasa.ManagerException;
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.language.GalasaMethod;
 import dev.galasa.framework.spi.teststructure.TestMethod;
