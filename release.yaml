@@ -10,7 +10,7 @@ metadata:
 framework:
   bundles:
   - artifact: dev.galasa
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     bom: true
     mvp: true
