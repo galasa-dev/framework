@@ -78,7 +78,7 @@ api:
     codecoverage: true
     
   - artifact: dev.galasa.framework.api.authentication
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     isolated: true
     codecoverage: true
