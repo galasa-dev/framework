@@ -5,10 +5,10 @@ plugins {
 
 description = 'Galasa Authentication API'
 
-version = '0.21.0'
+version = '0.25.0'
 
 dependencies {
     implementation project(':dev.galasa.framework')
     
-    implementation 'com.auth0:java-jwt:3.8.1'
+    implementation 'com.auth0:java-jwt:3.19.1'
 }

@@ -72,55 +72,55 @@ framework:
 api:
   bundles:
   - artifact: dev.galasa.framework.api
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     isolated: true
     codecoverage: true
     
   - artifact: dev.galasa.framework.api.authentication
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     isolated: true
     codecoverage: true
     
   - artifact: dev.galasa.framework.api.bootstrap
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     isolated: true
     codecoverage: true
     
   - artifact: dev.galasa.framework.api.cps
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     isolated: true
     codecoverage: true
     
   - artifact: dev.galasa.framework.api.health
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     isolated: true
     codecoverage: true
     
   - artifact: dev.galasa.framework.api.ras
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     isolated: true
     codecoverage: true
     
   - artifact: dev.galasa.framework.api.runs
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     isolated: true
     codecoverage: true
     
   - artifact: dev.galasa.framework.api.testcatalog
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     isolated: true
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.webui
-    version: 0.21.0
+    version: 0.25.0
     obr: true
     isolated: true
     codecoverage: true
