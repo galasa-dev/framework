@@ -120,7 +120,7 @@ public class Launcher {
         Launcher launcher = new Launcher();
         try {
             launcher.launch(args);
-        } catch(LauncherException e) {
+        } catch(Exception e) {
             logger.error("Exiting launcher due to exception",e);
             System.exit(16);
         }
