@@ -29,7 +29,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
  * 
  * <p>
  * An {@link IResultArchiveStore} can be obtained from
- * {@link IFramework#getResultArchiveStore(String)}.
+ * {@link IFramework#getResultArchiveStore()}.
  * </p>
  * 
  * @author Michael Baylis

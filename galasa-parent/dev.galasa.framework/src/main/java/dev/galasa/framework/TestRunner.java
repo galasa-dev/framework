@@ -95,9 +95,8 @@ public class TestRunner {
     /**
      * Run the supplied test class
      * 
-     * @param testBundleName
-     * @param testClassName
-     * @return
+     * @param bootstrapProperties
+     * @param overrideProperties
      * @throws TestRunException
      */
     public void runTest(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {

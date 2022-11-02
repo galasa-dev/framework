@@ -79,7 +79,7 @@ public interface IManager {
      * @param allManagers    All Managers found in OSGi
      * @param activeManagers The Manager should add itself to this list if it is to
      *                       be activated. Do not add other managers.
-     * @param testClass      The Test class the framework will be running
+     * @param galasaTest     The Test class the framework will be running
      * @throws ManagerException If there is a problem initialising the Manager
      */
     void initialise(@NotNull IFramework framework, @NotNull List<IManager> allManagers,
@@ -110,7 +110,7 @@ public interface IManager {
      * @param allManagers    All Managers found in OSGi
      * @param activeManagers The Manager should add itself to this list if it is to
      *                       be activated. Do not add other managers.
-     * @param testClass      The Test class the framework will be running
+     * @param galasaTest     The Test class the framework will be running
      */
     void youAreRequired(@NotNull List<IManager> allManagers, @NotNull List<IManager> activeManagers, @NotNull GalasaTest galasaTest)
             throws ManagerException;
@@ -226,8 +226,7 @@ public interface IManager {
     /**
      * Called when we are about to start the Test Method.
      * 
-     * @param excecutionMethod The current executing method 
-     * @param testMethod The current test method if excecutionMethod is {@code @Before} or {@code @After} method
+     * @param galasaMethod The current executing method 
      *
      * @throws ManagerException On the off chance something when wrong
      */
@@ -243,7 +242,7 @@ public interface IManager {
      * wishes to be used for the record
      * </p>
      * 
-     * @param testMethod       The current test method
+     * @param galasaMethod       The current test method
      * @param currentResult    What the current result is, will not include what the
      *                         other Managers wish it to be.
      * @param currentException What the current Exception is
@@ -318,8 +317,6 @@ public interface IManager {
      * quick so that it doesn't slow the throughput of Tests through the automation
      * system and can be executed under the Testers credentials if running locally.
      * </p>
-     *
-     * @throws ManagerException - If something goes wrong.
      */
     void provisionDiscard();
 
@@ -335,12 +332,8 @@ public interface IManager {
      * <p>
      * About to shutdown everything
      * </p>
-     *
-     * @throws ManagerException
      */
     void endOfTestRun();
-    
-    
     
     /**
      * Gives the Managers the opportunity to close everything down like http clients etc.   Managers must not call 

@@ -65,6 +65,7 @@ public class FelixFramework {
      * OBRs. Install the Galasa framework bundle
      * 
      * @param bundleRepositories the supplied OBRs
+     * @param boostrapProperties
      * @param localMavenRepo
      * @param remoteMavenRepos
      * @throws LauncherException      if there is a problem initialising the

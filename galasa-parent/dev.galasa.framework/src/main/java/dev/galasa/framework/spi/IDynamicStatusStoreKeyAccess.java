@@ -28,7 +28,7 @@ import javax.validation.constraints.Null;
  * 
  * <p>
  * An {@link IDynamicStatusStoreKeyAccess} can be obtained from
- * {@link IFramework#getDynamicStatusStore(String)}.
+ * {@link IFramework#getDynamicStatusStoreService(String)}.
  * </p>
  * 
  * @author Michael Baylis
@@ -96,7 +96,7 @@ public interface IDynamicStatusStoreKeyAccess {
      * Retrieve all values with this key prefix
      * 
      * @param keyPrefix - the prefix of all the keys to use.
-     * @return
+     * @return A map. The keys start with the specified prefix. The value is a string.
      * @throws DynamicStatusStoreException
      */
     @NotNull
@@ -167,7 +167,7 @@ public interface IDynamicStatusStoreKeyAccess {
      * </p>
      * 
      * @param watcher   - an interface for the watchers inplementation.
-     * @param keyprefix - the string prefix to a key set to watch
+     * @param keyPrefix - the string prefix to a key set to watch
      * @return - returns a UUID which is used to identify a watcher service.
      * @throws DynamicStatusStoreException
      */

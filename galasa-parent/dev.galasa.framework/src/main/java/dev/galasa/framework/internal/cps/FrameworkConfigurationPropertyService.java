@@ -21,9 +21,8 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 
 /**
- * p>This class is used to drive the registered CPS service, and retireve values
+ * This class is used to drive the registered CPS service, and retireve values
  * from the CPS Store, impletmenting the IConfiguration interface.
- * </p>
  * 
  * @author James Davies
  * @author Matthew Chivers
@@ -42,14 +41,12 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
      * of the manager which is using this class is also registered at this point.
      * </p>
      * 
-     * @author James Davies
-     * 
      * @param framework  - not currently used.
      * @param cpsService - the registered service for the CPS
      * @param overrides  - property values to be selected as preference from these
      *                   properties
      * @param record     - a properties object for recording the keys accessed and
-     *                   where from <Location>=<KeyAccessed>
+     *                   where from <pre>'<Location>=<KeyAccessed>'</pre>
      * @param namespace  - The name space for keys for a specfic manager
      */
     public FrameworkConfigurationPropertyService(IFramework framework, IConfigurationPropertyStore cpsStore,

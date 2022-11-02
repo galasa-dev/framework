@@ -28,7 +28,7 @@ public class FpfDynamicStatusStoreRegistration implements IDynamicStatusStoreReg
      * This method registers this as the only DSS Store.
      * </p>
      * 
-     * @param IFrameworkInitialisation
+     * @param frameworkInitialisation
      * @throws DynamicStatusStoreException
      */
     @Override

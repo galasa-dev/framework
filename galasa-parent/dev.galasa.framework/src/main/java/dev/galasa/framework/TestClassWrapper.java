@@ -70,7 +70,6 @@ public class TestClassWrapper {
      * 
      * @param testStructure
      * @param testRunner
-     * @param testBundleName
      * @throws ConfigurationPropertyStoreException 
      */
     public TestClassWrapper(TestRunner testRunner, String testBundle, Class<?> testClass, TestStructure testStructure) throws ConfigurationPropertyStoreException {

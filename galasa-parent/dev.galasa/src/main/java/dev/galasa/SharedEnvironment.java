@@ -22,6 +22,7 @@ public @interface SharedEnvironment {
     /**
      * How many hours after the Shared Environment was built should the Run be discarded, should only
      * matter if the discard was run properly after all the testing has been completed
+     * @return The number of hours to keep the Run
      */
     int expireAfterHours() default 8;
 

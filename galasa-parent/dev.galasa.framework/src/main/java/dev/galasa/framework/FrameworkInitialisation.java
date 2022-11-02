@@ -355,8 +355,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * Create a new run as this run was submitted from the command line, maybe
      * 
      * @param runBundleClass
-     * @param runName
-     * @return
+     * @param language
+     * @return The name of the run created.
+     * @throws FrameworkException
      */
     protected String createRunName(String runBundleClass, String language) throws FrameworkException {
         IRun run = null;

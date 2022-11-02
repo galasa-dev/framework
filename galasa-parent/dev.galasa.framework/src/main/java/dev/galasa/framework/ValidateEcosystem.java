@@ -27,7 +27,6 @@ public class ValidateEcosystem {
      * 
      * @param bootstrapProperties
      * @param overrideProperties
-     * @return
      * @throws FrameworkException
      */
     public void setup(Properties bootstrapProperties, Properties overrideProperties) throws FrameworkException {

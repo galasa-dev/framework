@@ -46,7 +46,7 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
      * null if empty.
      * </p>
      * 
-     * @param String key
+     * @param key
      * @throws ConfigurationPropertyStoreException
      */
     @Override
@@ -94,7 +94,7 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
      * file class.
      * </p>
      * 
-     * @param String namespace
+     * @param namespace
      * @return properties
      */
     @Override

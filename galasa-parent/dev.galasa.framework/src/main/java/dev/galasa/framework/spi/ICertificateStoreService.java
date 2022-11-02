@@ -33,12 +33,15 @@ public interface ICertificateStoreService {
 	public IKeyStore getDefaultKeystore() throws CertificateStoreException;
 	
 	/**
-	 * <p>
-	 * Returns a defined group of certificates inside a keystore. This will be populated by any certificates defined:
-	 * certificates.<GroupId>.ids=XXXX,YYYY,etc
-	 * certificates.x509.XXXX.pem=...
-	 * certificates.x509.YYYY.der=...
-	 * </p>
+	 * Returns a defined group of certificates inside a keystore. 
+	 * 
+	 * This will be populated by any certificates defined:
+	 * <pre>
+	   certificates.<GroupId>.ids=XXXX,YYYY,etc
+	   certificates.x509.XXXX.pem=...
+	   certificates.x509.YYYY.der=...
+	   </pre>
+	 * 
 	 * @param id
 	 * @return
 	 * @throws CertificateStoreException
@@ -71,7 +74,7 @@ public interface ICertificateStoreService {
 	 * If no id's are passed then an empty Keystore is generated and passed back, with 
 	 * the assumption the tester has the desired certificates in a test resource.
 	 * </p>
-	 * @param certifitcateId
+	 * @param certificateId
 	 * @return
 	 * @throws CertificateStoreException
 	 */

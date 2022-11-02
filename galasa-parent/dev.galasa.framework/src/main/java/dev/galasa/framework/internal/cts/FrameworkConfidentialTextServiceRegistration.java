@@ -20,7 +20,7 @@ public class FrameworkConfidentialTextServiceRegistration implements IConfidenti
      * This method intialises the service with the framework, managers can then
      * access this service.
      * 
-     * @param IFrameworkInitialisation - the framework setup.
+     * @param frameworkInitialisation - the framework setup.
      * @throws ConfidentialTextException
      */
     public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws ConfidentialTextException {

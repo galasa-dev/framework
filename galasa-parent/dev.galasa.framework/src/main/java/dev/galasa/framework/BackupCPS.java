@@ -41,7 +41,6 @@ public class BackupCPS {
      * @param bootstrapProperties
      * @param overrideProperties
      * @param filePath
-     * @return
      * @throws FrameworkException
      */
     public void backup(Properties bootstrapProperties, Properties overrideProperties, String filePath) throws FrameworkException {

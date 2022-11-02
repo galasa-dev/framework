@@ -31,7 +31,8 @@ public class BundleManagement {
 
     /**
      * Load a bundle from the OSGi Bundle Repository
-     * 
+     * @param repositoryAdmin
+     * @param bundleContext
      * @param bundleSymbolicName
      * @throws LauncherException
      */
@@ -181,9 +182,9 @@ public class BundleManagement {
 
     /**
      * Is the supplied active in the OSGi framework
-     * 
+     * @param bundleContext
      * @param bundleSymbolicName
-     * @return true or false
+     * @return true if it is ib the or false
      */
     public static boolean isBundleActive(BundleContext bundleContext, String bundleSymbolicName) {
         Bundle[] bundles = bundleContext.getBundles();

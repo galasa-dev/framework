@@ -28,7 +28,7 @@ import javax.validation.constraints.Null;
  * 
  * <p>
  * An {@link IConfigurationPropertyStore} can be obtained from
- * {@link IFramework#getConfigurationPropertyStore(String)}.
+ * {@link IFramework#getCertificateStoreService()}.
  * </p>
  * 
  * @author Michael Baylis

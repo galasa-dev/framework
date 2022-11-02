@@ -90,9 +90,8 @@ public interface IFramework {
      * 
      * @param namespace - The string used to identify the manager/service to the
      *                  dynamic status store
-     * @return A {@link IDynamicStatusStore}, cannot be null
-     * @throws ConfigurationPropertyStoreException - If an invalid namespace is
-     *                                             given
+     * @return The dynamic status store service for the specified namespace
+     * @throws DynamicStatusStoreException
      */
     @NotNull
     IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
@@ -133,8 +132,7 @@ public interface IFramework {
      * Provide access to the Confidential Text Service
      * </p>
      * 
-     * @return {@link dev.galasa.IConfidentialTextService} The Confidential Text
-     *         Service
+     * @return The Confidential Text Service
      */
     @NotNull
     IConfidentialTextService getConfidentialTextService();

@@ -28,8 +28,8 @@ public class FileCredentialsRegistration implements ICredentialsStoreRegistratio
      * This method registers this as the only Creds file.
      * </p>
      * 
-     * @param IFrameworkInitialisation
-     * @throws CredentialsStoreException
+     * @param frameworkInitialisation
+     * @throws CredentialsException
      */
     @Override
     public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws CredentialsException {

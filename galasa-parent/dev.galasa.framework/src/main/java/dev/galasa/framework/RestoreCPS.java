@@ -60,7 +60,7 @@ public class RestoreCPS {
      * @param bootstrapProperties
      * @param overrideProperties
      * @param filePath
-     * @return
+     * @param dryRun
      * @throws FrameworkException
      * @throws IOException 
      */

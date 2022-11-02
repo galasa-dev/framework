@@ -111,7 +111,7 @@ public class FrameworkPropertyFile implements FileAlterationListener {
      * 
      * @param keyPrefix - a common key prefix to a number of keys in the property
      *                  store.
-     * @return - Map<String, String> of any size or null.
+     * @return A map of any size or null. The key is a string which starts with the specified prefix.
      */
     public synchronized Map<String, String> getPrefix(String keyPrefix) {
         Map<String, String> values = new HashMap<>();
@@ -170,9 +170,8 @@ public class FrameworkPropertyFile implements FileAlterationListener {
     }
 
     /**
-     * <p>
      * This method does the same as the regular delete for a single k-v pair, but
-     * for a set of key values. Again the fileModified is invoked.</>p
+     * for a set of key values. Again the fileModified is invoked.
      * 
      * @param keys - a set of string keys to remove from properties
      * @throws FrameworkPropertyFileException
@@ -196,8 +195,7 @@ public class FrameworkPropertyFile implements FileAlterationListener {
     }
 
     /**
-     * <p>
-     * This method deletes the set of key values with a certain prefix.</>p
+     * This method deletes the set of key values with a certain prefix.
      * 
      * @param prefix - a prefix of keys to remove from properties
      * @throws FrameworkPropertyFileException
@@ -457,9 +455,9 @@ public class FrameworkPropertyFile implements FileAlterationListener {
      * a common prefix in there key.
      * </p>
      * 
-     * @param watcher   - an interface for the watchers inplementation.
-     * @param keyprefix - the string prefix to a key set to watch
-     * @return - returns a UUID which is used to identify a watcher service.
+     * @param watcher   an interface for the watchers inplementation.
+     * @param keyPrefix the string prefix to a key set to watch
+     * @return returns a UUID which is used to identify a watcher service.
      * @throws FrameworkPropertyFileException
      */
     public synchronized UUID watchPrefix(IFrameworkPropertyFileWatcher watcher, String keyPrefix)
@@ -496,10 +494,10 @@ public class FrameworkPropertyFile implements FileAlterationListener {
      * is no key of that string.
      * </p>
      * 
-     * @param key      - the key that is to be changed.
-     * @param oldValue - the expected current value.
-     * @param newValue - the value to change to if the expected value is true.
-     * @return - returns a boolean which informs if the set took place.
+     * @param key      the key that is to be changed.
+     * @param oldValue the expected current value.
+     * @param newValue the value to change to if the expected value is true.
+     * @return returns a boolean which informs if the set took place.
      * @throws FrameworkPropertyFileException
      */
     public synchronized boolean setAtomic(String key, String oldValue, String newValue)

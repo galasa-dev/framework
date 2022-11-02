@@ -41,7 +41,7 @@ public class FrameworkCredentialsService implements ICredentialsService {
      * 
      * @param framework  - The framework object
      * @param credsStore - the registered store the the Credentials
-     * @throws FrameworkException
+     * @throws CredentialsException
      */
     public FrameworkCredentialsService(IFramework framework, ICredentialsStore credsStore) throws CredentialsException {
         this.credsStore = credsStore;
@@ -64,8 +64,7 @@ public class FrameworkCredentialsService implements ICredentialsService {
      * 
      * @param credsId - id used to access the credentials
      * @return - object containing appropriate credentials
-     * @throws CredentialsStoreException
-     * @throws IllegalBlockSizeException
+     * @throws CredentialsException
      */
     @Override
     public ICredentials getCredentials(@NotNull String credsId) throws CredentialsException {

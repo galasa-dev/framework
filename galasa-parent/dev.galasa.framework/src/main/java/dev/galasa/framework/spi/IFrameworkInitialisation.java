@@ -50,7 +50,7 @@ public interface IFrameworkInitialisation {
      * itself, {@link ConfigurationPropertyStoreException} will be thrown.
      * </p>
      * 
-     * @param configurationPropertyStoreService - the configuration property store
+     * @param configurationPropertyStore - the configuration property store
      *                                          service chosen to be active
      * @throws ConfigurationPropertyStoreException - Only if a 2nd attempt to
      *                                             register a CPS was performed

@@ -30,7 +30,7 @@ public class FpfConfigurationPropertyRegistration implements IConfigurationPrope
      * file as the ONLY CPS.
      * </p>
      * 
-     * @param IFrameworkInitialisation
+     * @param frameworkInitialisation
      * @throws ConfigurationPropertyStoreException
      */
     @Override
