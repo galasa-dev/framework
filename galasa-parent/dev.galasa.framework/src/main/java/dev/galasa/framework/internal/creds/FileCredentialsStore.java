@@ -60,8 +60,8 @@ public class FileCredentialsStore implements ICredentialsStore {
      * This method is used to retrieve credentials as an appropriate object
      * </p>
      * 
-     * @param String credentialsId
-     * @throws CredentialsStoreException
+     * @param credentialsId
+     * @throws CredentialsException
      */
     @Override
     public ICredentials getCredentials(String credentialsId) throws CredentialsException {

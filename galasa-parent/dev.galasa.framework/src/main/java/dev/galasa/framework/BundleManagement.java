@@ -34,7 +34,7 @@ public class BundleManagement {
      * @param repositoryAdmin
      * @param bundleContext
      * @param bundleSymbolicName
-     * @throws LauncherException
+     * @throws FrameworkException
      */
     public static void loadBundle(RepositoryAdmin repositoryAdmin, BundleContext bundleContext, String bundleSymbolicName) throws FrameworkException {
 

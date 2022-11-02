@@ -42,11 +42,11 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
      * </p>
      * 
      * @param framework  - not currently used.
-     * @param cpsService - the registered service for the CPS
+     * @param cpsStore - the registered service for the CPS
      * @param overrides  - property values to be selected as preference from these
      *                   properties
      * @param record     - a properties object for recording the keys accessed and
-     *                   where from <pre>'<Location>=<KeyAccessed>'</pre>
+     *                   where from '&lt;Location&gt;=&lt;KeyAccessed&gt;'
      * @param namespace  - The name space for keys for a specfic manager
      */
     public FrameworkConfigurationPropertyService(IFramework framework, IConfigurationPropertyStore cpsStore,

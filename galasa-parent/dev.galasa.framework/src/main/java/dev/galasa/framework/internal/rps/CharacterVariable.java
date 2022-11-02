@@ -36,7 +36,7 @@ public class CharacterVariable implements ICharacter {
      * variable character. The called method generates the acceptable chars that
      * satisfy the defintion an store them in the chars arrayList.
      * 
-     * @param condition - a node containing the chacacter defintion.
+     * @param child - a node containing the chacacter defintion.
      */
     public CharacterVariable(SimpleNode child) {
         generateAcceptableChars((ASTVariable) child);

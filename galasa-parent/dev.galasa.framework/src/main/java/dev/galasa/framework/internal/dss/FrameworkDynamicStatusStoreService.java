@@ -59,7 +59,6 @@ public class FrameworkDynamicStatusStoreService extends FrameworkDynamicStoreKey
      * 
      * @param resourceKey - The resource key to prefix the keys along with the namespace
      * @return A tailored IDynamicResource
-     * @throws DynamicStatusStoreException
      */
     @Override
     public IDynamicResource getDynamicResource(String resourceKey) {

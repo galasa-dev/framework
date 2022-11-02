@@ -37,7 +37,7 @@ public interface ICertificateStoreService {
 	 * 
 	 * This will be populated by any certificates defined:
 	 * <pre>
-	   certificates.<GroupId>.ids=XXXX,YYYY,etc
+	   certificates.&lt;GroupId&gt;.ids=XXXX,YYYY,etc
 	   certificates.x509.XXXX.pem=...
 	   certificates.x509.YYYY.der=...
 	   </pre>
@@ -58,7 +58,7 @@ public interface ICertificateStoreService {
 	 * If no id's are passed then an empty Keystore is generated and passed back, with 
 	 * the assumption the tester has the desired certificates in a test resource.
 	 * </p>
-	 * @param certifitcateId
+	 * @param certificateId
 	 * @return
 	 * @throws CertificateStoreException
 	 */

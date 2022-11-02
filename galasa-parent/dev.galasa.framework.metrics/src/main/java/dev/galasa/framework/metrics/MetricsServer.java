@@ -62,8 +62,9 @@ public class MetricsServer implements IMetricsServer {
     /**
      * Run Metrics Server
      * 
-     * @return
-     * @throws TestRunException
+     * @param bootstrapProperties
+     * @param overrideProperties
+     * @throws FrameworkException
      */
     public void run(Properties bootstrapProperties, Properties overrideProperties) throws FrameworkException {
 

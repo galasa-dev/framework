@@ -66,8 +66,8 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
      * file class.
      * </p>
      * 
-     * @param String key
-     * @param String value
+     * @param key
+     * @param value
      * @throws ConfigurationPropertyStoreException
      */
     @Override
