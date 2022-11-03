@@ -60,6 +60,46 @@ bold() { printf "${bold}%s${reset}\n" "$@"
 }
 note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@"
 }
+#-----------------------------------------------------------------------------------------                   
+# Functions
+#-----------------------------------------------------------------------------------------                   
+function usage {
+    info "Syntax: build-locally.sh [OPTIONS]"
+    cat << EOF
+Options are:
+-c | --clean : Do a clean build. One of the --clean or --delta flags are mandatory.
+-d | --delta : Do a delta build. One of the --clean or --delta flags are mandatory.
+EOF
+}
+
+
+#-----------------------------------------------------------------------------------------                   
+# Process parameters
+#-----------------------------------------------------------------------------------------                   
+build_type=""
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -c | --clean )          build_type="clean"
+                                ;;
+        -d | --delta )          build_type="delta"
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     error "Unexpected argument $1"
+                                usage
+                                exit 1
+    esac
+    shift
+done
+
+if [[ "${build_type}" == "" ]]; then
+    error "Need to use either the --clean or --delta parameter."
+    usage
+    exit 1  
+fi
+
 
 #-----------------------------------------------------------------------------------------                   
 # Main logic.
@@ -69,6 +109,7 @@ source_dir="galasa-parent"
 
 project=$(basename ${BASEDIR})
 h1 "Building ${project}"
+info "Build type is --'${build_type}'"
 
 # Debug or not debug ? Override using the DEBUG flag.
 if [[ -z ${DEBUG} ]]; then
@@ -115,12 +156,42 @@ CONSOLE_FLAG=--console=plain
 log_file=${LOGS_DIR}/${project}.txt
 info "Log will be placed at ${log_file}"
 
-gradle --no-daemon \
+if [[ "${build_type}" == "delta" ]]; then
+    info "Skipping clean phase because this is a delta build."
+else
+    h2 "Cleaning..."
+    gradle --no-daemon \
+    ${CONSOLE_FLAG} \
+    --warning-mode=all --debug \
+    -Dorg.gradle.java.home=${JAVA_HOME} \
+    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+    clean \
+    2>&1 >> ${log_file}
+    rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project}" ; exit 1 ; fi
+    success "Cleaned OK"
+fi
+
+h2 "Building..."
+gradle --build-cache \
 ${CONSOLE_FLAG} \
+--warning-mode=all --debug \
 -Dorg.gradle.java.home=${JAVA_HOME} \
 -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-clean build publishToMavenLocal \
-2>&1 > ${log_file}
+build \
+2>&1 >> ${log_file}
+rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project}" ; exit 1 ; fi
+success "Built OK"
+
+h2 "Publishing to local maven repo..."
+gradle --build-cache \
+${CONSOLE_FLAG} \
+--warning-mode=all --debug \
+-Dorg.gradle.java.home=${JAVA_HOME} \
+-PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+publishToMavenLocal \
+2>&1 >> ${log_file}
+rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to publish ${project}" ; exit 1 ; fi
+success "Published OK"
 
 rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to build ${project}" ; exit 1 ; fi
 success "Project ${project} built - OK - log is at ${log_file}"
