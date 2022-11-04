@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
@@ -55,8 +53,8 @@ public interface IDynamicStatusStoreService extends IDynamicStatusStoreKeyAccess
      * 'dss.framework.resource'
      * </p>
      * 
-     * @param key
-     * @return
+     * @param resourceKey
+     * @return The dynamic resource found, or null.
      */
     IDynamicResource getDynamicResource(String resourceKey);
 
@@ -72,7 +70,7 @@ public interface IDynamicStatusStoreService extends IDynamicStatusStoreKeyAccess
      * test is running on.
      * </p>
      * 
-     * @return
+     * @return The dynamic run resource found, or null.
      * @throws DynamicStatusStoreException
      */
     IDynamicRun getDynamicRun() throws DynamicStatusStoreException;

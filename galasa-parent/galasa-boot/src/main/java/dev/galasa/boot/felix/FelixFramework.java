@@ -65,6 +65,7 @@ public class FelixFramework {
      * OBRs. Install the Galasa framework bundle
      * 
      * @param bundleRepositories the supplied OBRs
+     * @param boostrapProperties
      * @param localMavenRepo
      * @param remoteMavenRepos
      * @throws LauncherException      if there is a problem initialising the
@@ -189,8 +190,6 @@ public class FelixFramework {
     /**
      * Run the supplied test
      * 
-     * @param testBundleName      the test bundle name
-     * @param testClassName       the test class name
      * @param boostrapProperties  the bootstrap properties
      * @param overridesProperties the override properties
      * @throws LauncherException
@@ -517,6 +516,7 @@ public class FelixFramework {
      * @param boostrapProperties  the bootstrap properties
      * @param overridesProperties the override properties
      * @param filePath
+     * @param dryRun
      * @throws LauncherException
      */
     public void runRestoreCPS(Properties boostrapProperties, Properties overridesProperties, String filePath,

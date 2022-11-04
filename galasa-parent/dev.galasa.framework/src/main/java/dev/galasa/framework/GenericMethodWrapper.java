@@ -56,7 +56,7 @@ public class GenericMethodWrapper {
      * @param managers the managers used in this test
      * @param testClassObject the test class
      * @param testMethod the test method if the execution method is @Before or @After 
-     * @throws TestRunException
+     * @throws TestRunException The failure thrown by the test run
      */
     public void invoke(@NotNull TestRunManagers managers, Object testClassObject, GenericMethodWrapper testMethod) throws TestRunException {
         try {

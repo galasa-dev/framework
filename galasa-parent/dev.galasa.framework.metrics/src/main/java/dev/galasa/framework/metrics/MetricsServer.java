@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.metrics;
 
@@ -62,8 +60,9 @@ public class MetricsServer implements IMetricsServer {
     /**
      * Run Metrics Server
      * 
-     * @return
-     * @throws TestRunException
+     * @param bootstrapProperties
+     * @param overrideProperties
+     * @throws FrameworkException
      */
     public void run(Properties bootstrapProperties, Properties overrideProperties) throws FrameworkException {
 

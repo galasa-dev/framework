@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019, 2020.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.internal.dss;
 
@@ -57,9 +55,8 @@ public class FrameworkDynamicStatusStoreService extends FrameworkDynamicStoreKey
      * 'dss.framework.resource'
      * </p>
      * 
-     * @param key - The resource key to prefix the keys along with the namespace
+     * @param resourceKey - The resource key to prefix the keys along with the namespace
      * @return A tailored IDynamicResource
-     * @throws DynamicStatusStoreException
      */
     @Override
     public IDynamicResource getDynamicResource(String resourceKey) {

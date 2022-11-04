@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.internal.dss;
 
@@ -28,7 +26,7 @@ public class FpfDynamicStatusStoreRegistration implements IDynamicStatusStoreReg
      * This method registers this as the only DSS Store.
      * </p>
      * 
-     * @param IFrameworkInitialisation
+     * @param frameworkInitialisation
      * @throws DynamicStatusStoreException
      */
     @Override

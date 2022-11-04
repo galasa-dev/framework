@@ -228,7 +228,7 @@ public class Framework implements IFramework {
     /**
      * Set the new Configuration Property Store Service
      *
-     * @param cpsService - The new CPS
+     * @param cpsStore - The new CPS
      * @throws ConfigurationPropertyStoreException - If a CPS has already be
      *                                             registered
      */
@@ -333,7 +333,7 @@ public class Framework implements IFramework {
      * Set the run name if it is a test run
      * 
      * @param runName The run name
-     * @throws DynamicStatusStoreException
+     * @throws FrameworkException
      */
     public void setTestRunName(String runName) throws FrameworkException {
         this.runName = runName;

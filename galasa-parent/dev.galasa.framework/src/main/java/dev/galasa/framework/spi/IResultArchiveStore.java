@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019-2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
@@ -29,7 +27,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
  * 
  * <p>
  * An {@link IResultArchiveStore} can be obtained from
- * {@link IFramework#getResultArchiveStore(String)}.
+ * {@link IFramework#getResultArchiveStore()}.
  * </p>
  * 
  * @author Michael Baylis

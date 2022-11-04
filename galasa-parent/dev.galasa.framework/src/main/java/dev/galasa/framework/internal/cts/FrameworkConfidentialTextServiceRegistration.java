@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.internal.cts;
 
@@ -20,7 +18,7 @@ public class FrameworkConfidentialTextServiceRegistration implements IConfidenti
      * This method intialises the service with the framework, managers can then
      * access this service.
      * 
-     * @param IFrameworkInitialisation - the framework setup.
+     * @param frameworkInitialisation - the framework setup.
      * @throws ConfidentialTextException
      */
     public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws ConfidentialTextException {

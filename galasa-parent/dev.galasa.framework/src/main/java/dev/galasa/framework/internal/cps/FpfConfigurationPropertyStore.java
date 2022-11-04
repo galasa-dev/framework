@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019, 2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.internal.cps;
 
@@ -46,7 +44,7 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
      * null if empty.
      * </p>
      * 
-     * @param String key
+     * @param key
      * @throws ConfigurationPropertyStoreException
      */
     @Override
@@ -66,8 +64,8 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
      * file class.
      * </p>
      * 
-     * @param String key
-     * @param String value
+     * @param key
+     * @param value
      * @throws ConfigurationPropertyStoreException
      */
     @Override
@@ -94,7 +92,7 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
      * file class.
      * </p>
      * 
-     * @param String namespace
+     * @param namespace
      * @return properties
      */
     @Override

@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.internal.creds;
 
@@ -60,8 +58,8 @@ public class FileCredentialsStore implements ICredentialsStore {
      * This method is used to retrieve credentials as an appropriate object
      * </p>
      * 
-     * @param String credentialsId
-     * @throws CredentialsStoreException
+     * @param credentialsId
+     * @throws CredentialsException
      */
     @Override
     public ICredentials getCredentials(String credentialsId) throws CredentialsException {

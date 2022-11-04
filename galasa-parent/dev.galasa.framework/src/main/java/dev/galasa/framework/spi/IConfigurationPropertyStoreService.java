@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019, 2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
@@ -28,7 +26,7 @@ import javax.validation.constraints.Null;
  * 
  * <p>
  * An {@link IConfigurationPropertyStore} can be obtained from
- * {@link IFramework#getConfigurationPropertyStore(String)}.
+ * {@link IFramework#getCertificateStoreService()}.
  * </p>
  * 
  * @author Michael Baylis

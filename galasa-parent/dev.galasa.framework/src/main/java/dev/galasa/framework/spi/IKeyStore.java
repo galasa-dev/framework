@@ -34,8 +34,8 @@ public interface IKeyStore {
 	 * <p>
 	 * Allows a PEM cert file to be appended to the Keystore
 	 * </p>
-	 * 
-	 * @param cert
+	 * @param aliasId
+	 * @param certFile
 	 * @throws CertificateStoreException
 	 */
 	public void appendPem(String aliasId, InputStream certFile) throws CertificateStoreException;
@@ -44,8 +44,8 @@ public interface IKeyStore {
 	 * <p>
 	 * Allows a Base64 encoded DER cert to be appended to the Keystore
 	 * </p>
-	 * 
-	 * @param cert
+	 * @param aliasId
+	 * @param certFile
 	 * @throws CertificateStoreException
 	 */
 	public void appendDer(String aliasId, InputStream certFile) throws CertificateStoreException;
@@ -56,7 +56,7 @@ public interface IKeyStore {
 	 * ID tag and added to this keystore.
 	 * </p>
 	 * 
-	 * @param CertificateId
+	 * @param certificateId
 	 * @throws CertificateStoreException
 	 */
 	public void appendCertficateById(String aliasId, String certificateId) throws CertificateStoreException;

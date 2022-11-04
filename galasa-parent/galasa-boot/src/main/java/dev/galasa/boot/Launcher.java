@@ -113,12 +113,14 @@ public class Launcher {
 
     /**
      * Launcher main method
+     * 
+     * @param args Arguments from the command line
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Launcher launcher = new Launcher();
         try {
             launcher.launch(args);
-        } catch(LauncherException e) {
+        } catch(Exception e) {
             logger.error("Exiting launcher due to exception",e);
             System.exit(16);
         }

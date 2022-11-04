@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019-2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework;
 
@@ -31,9 +29,10 @@ public class BundleManagement {
 
     /**
      * Load a bundle from the OSGi Bundle Repository
-     * 
+     * @param repositoryAdmin
+     * @param bundleContext
      * @param bundleSymbolicName
-     * @throws LauncherException
+     * @throws FrameworkException
      */
     public static void loadBundle(RepositoryAdmin repositoryAdmin, BundleContext bundleContext, String bundleSymbolicName) throws FrameworkException {
 
@@ -181,9 +180,9 @@ public class BundleManagement {
 
     /**
      * Is the supplied active in the OSGi framework
-     * 
+     * @param bundleContext
      * @param bundleSymbolicName
-     * @return true or false
+     * @return true if it is ib the or false
      */
     public static boolean isBundleActive(BundleContext bundleContext, String bundleSymbolicName) {
         Bundle[] bundles = bundleContext.getBundles();

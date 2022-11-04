@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework;
 
@@ -83,9 +81,8 @@ public class GherkinTestRunner {
     /**
      * Run the supplied test class
      * 
-     * @param testBundleName
-     * @param testClassName
-     * @return
+     * @param bootstrapProperties
+     * @param overrideProperties
      * @throws TestRunException
      */
     public void runTest(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {

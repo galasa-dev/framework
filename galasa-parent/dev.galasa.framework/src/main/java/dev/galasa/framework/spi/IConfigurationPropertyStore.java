@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019, 2021.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
@@ -98,7 +96,7 @@ public interface IConfigurationPropertyStore {
      * <p>
      * Retrieves all possible different properties set from a given namespace
      * </p>
-     * 
+     * @param namespace The namespace for which properties will be gathered.
      * @return Map of names and values of all properties
      */
     Map<String,String> getPropertiesFromNamespace(String namespace);

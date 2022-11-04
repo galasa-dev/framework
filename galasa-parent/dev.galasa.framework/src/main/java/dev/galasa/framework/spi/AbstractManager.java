@@ -53,7 +53,7 @@ public abstract class AbstractManager implements IManager {
     /**
      * Retrieve the generated object for an annotated field
      * 
-     * @param annotated field to retrieve
+     * @param field field to retrieve
      * @return the generated object or null if it has not been generated yet
      */
     protected Object getAnnotatedField(Field field) {
@@ -121,15 +121,13 @@ public abstract class AbstractManager implements IManager {
     /**
      * Will call {@link GenerateAnnotatedField} methods in the parent class to
      * generate instances for each of the Test Class fields
-     * <p>
      * 
      * The annotated methods in the parent class must:
-     * <p>
      * <ul>
      * <li>be public
      * <li>return the interface of the field annotation
-     * <li>have 2 parameters of {@link java.lang.reflect.Field} and
-     * {@link java.util.List}
+     * <li>have 2 parameters of {@link java.lang.reflect.Field} and {@link java.util.List}
+     * </ul>
      *
      * @param managerAnnotation The Annotation for those annotated fields we are
      *                          interested in
@@ -203,7 +201,7 @@ public abstract class AbstractManager implements IManager {
      * image the test wants.  For example CICSRegion(imageTag="a") will cause the zOS Manager to provision an image for tag "a" without the ZosImage(imageTag="a")
      * 
      * @param managerAnnotation the dependency annotation
-     * @param the name of the attribute on the annotation that returns a String only
+     * @param attributeName the name of the attribute on the annotation that returns a String only
      * @return the tags found from the dependency annotations and the attribute, uppercased
      */
     @NotNull

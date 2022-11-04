@@ -9,3 +9,15 @@ task clean {
       delete "${buildDir}"
    }
 }
+
+gradle.taskGraph.beforeTask { Task task ->
+   task.ext.setProperty("startTime", new java.util.Date())
+}
+
+gradle.taskGraph.afterTask { Task task, TaskState state ->
+    int secs = ( new java.util.Date().getTime() - task.ext.startTime.getTime() ) / 1000
+    int mins = secs / 60
+
+    int sec = secs - mins * 60
+    println " -> took " + mins + ( ( 1 == mins ) ? " min " : " mins " ) + sec + ( ( 1 == sec ) ? " sec" : " secs" )
+}

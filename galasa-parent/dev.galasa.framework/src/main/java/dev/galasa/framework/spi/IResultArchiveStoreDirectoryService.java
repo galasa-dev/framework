@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019,2020.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
@@ -28,12 +26,9 @@ public interface IResultArchiveStoreDirectoryService {
     List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
 
     /**
-     * Get runs within the parameters specified
+     * Get requestors
      * 
-     * @param requestor who requested the run
-     * @param from      UTC inclusive
-     * @param to        UTC excluise
-     * @return Run result
+     * @return 
      * @throws ResultArchiveStoreException if there are errors accessing the RAS
      */
 

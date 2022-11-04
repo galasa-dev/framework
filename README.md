@@ -17,7 +17,11 @@ Other repositories are available via [GitHub](https://github.com/galasa-dev).
 
 If you are interested in the development of Galasa, take a look at the documentation and feel free to post a question on [Galasa Slack channel](https://galasa.slack.com) or raise new ideas / features / bugs etc. as issues on [GitHub](https://github.com/galasa-dev/projectmanagement).
 
-Take a look at the [contribution guidelines](https://github.com/galasa-dev/projectmanagement/blob/main/contributing.md).
+Take a look at the [contribution guidelines](https://github.com/galasa-dev/projectmanagement/blob/main/contributing.md)
+
+## Build locally
+Use the `build-locally.sh` script. 
+See the comments at the top of the script for options you can use and a list of environment variables you can override.
 
 ## License
 

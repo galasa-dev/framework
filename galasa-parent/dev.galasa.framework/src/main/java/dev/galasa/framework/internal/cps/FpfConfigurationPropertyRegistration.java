@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.internal.cps;
 
@@ -30,7 +28,7 @@ public class FpfConfigurationPropertyRegistration implements IConfigurationPrope
      * file as the ONLY CPS.
      * </p>
      * 
-     * @param IFrameworkInitialisation
+     * @param frameworkInitialisation
      * @throws ConfigurationPropertyStoreException
      */
     @Override

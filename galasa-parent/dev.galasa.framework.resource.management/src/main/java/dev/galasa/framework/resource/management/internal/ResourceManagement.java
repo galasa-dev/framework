@@ -62,10 +62,10 @@ public class ResourceManagement implements IResourceManagement {
     private String                                       hostname;
 
     /**
-     * Run Resource Management
-     * 
-     * @return
-     * @throws TestRunException
+     * Run Resource Management    
+     * @param bootstrapProperties
+     * @param overrideProperties
+     * @throws FrameworkException
      */
     public void run(Properties bootstrapProperties, Properties overrideProperties) throws FrameworkException {
 
