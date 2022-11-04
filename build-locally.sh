@@ -60,6 +60,7 @@ bold() { printf "${bold}%s${reset}\n" "$@"
 }
 note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@"
 }
+
 #-----------------------------------------------------------------------------------------                   
 # Functions
 #-----------------------------------------------------------------------------------------                   
@@ -172,20 +173,36 @@ else
 fi
 
 h2 "Building..."
-gradle --build-cache \
+cat << EOF
+
+Using this command:
+
+gradle --build-cache --profile \
 ${CONSOLE_FLAG} \
---warning-mode=all --debug \
+--warning-mode=all \
 -Dorg.gradle.java.home=${JAVA_HOME} \
 -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
 build \
 2>&1 >> ${log_file}
-rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project}" ; exit 1 ; fi
+
+EOF
+
+gradle --build-cache --profile \
+${CONSOLE_FLAG} \
+--warning-mode=all \
+-Dorg.gradle.java.home=${JAVA_HOME} \
+-PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+build \
+2>&1 >> ${log_file}
+rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to build ${project}" ; exit 1 ; fi
 success "Built OK"
+
+
 
 h2 "Publishing to local maven repo..."
 gradle --build-cache \
 ${CONSOLE_FLAG} \
---warning-mode=all --debug \
+--warning-mode=all --debug  \
 -Dorg.gradle.java.home=${JAVA_HOME} \
 -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
 publishToMavenLocal \
@@ -193,5 +210,4 @@ publishToMavenLocal \
 rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to publish ${project}" ; exit 1 ; fi
 success "Published OK"
 
-rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to build ${project}" ; exit 1 ; fi
 success "Project ${project} built - OK - log is at ${log_file}"
