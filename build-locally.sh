@@ -172,27 +172,34 @@ else
     success "Cleaned OK"
 fi
 
+h2 "Removing .m2 artifacts"
+rm -fr ~/.m2/repository/dev/galasa/dev.galasa.framework*
+rm -fr ~/.m2/repository/dev/galasa/dev.galasa
+rm -fr ~/.m2/repository/dev/galasa/galasa-boot
+rm -fr ~/.m2/repository/dev/galasa/galasa-testharness
+success "OK"
+
 h2 "Building..."
 cat << EOF
 
 Using this command:
 
-gradle --build-cache --profile \
+gradle --build-cache  \
 ${CONSOLE_FLAG} \
 --warning-mode=all \
 -Dorg.gradle.java.home=${JAVA_HOME} \
 -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-build \
+build check \
 2>&1 >> ${log_file}
 
 EOF
 
-gradle --build-cache --profile \
+gradle --build-cache --parallel \
 ${CONSOLE_FLAG} \
 --warning-mode=all \
 -Dorg.gradle.java.home=${JAVA_HOME} \
 -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-build \
+build check \
 2>&1 >> ${log_file}
 rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to build ${project}" ; exit 1 ; fi
 success "Built OK"
@@ -200,7 +207,7 @@ success "Built OK"
 
 
 h2 "Publishing to local maven repo..."
-gradle --build-cache \
+gradle --build-cache --parallel \
 ${CONSOLE_FLAG} \
 --warning-mode=all --debug  \
 -Dorg.gradle.java.home=${JAVA_HOME} \
