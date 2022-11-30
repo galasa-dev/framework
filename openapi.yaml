@@ -37,7 +37,7 @@ paths:
                 items:
                   type: string
         '500':
-          description: Error
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -64,8 +64,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CpsProperty'
+        '400':
+          description: The namespace/prefix/suffix uses invalid characters or is badly formed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
         '500':
-          description: Error
+          description: Internal Server Error
           content:
             application/json:
               schema:
