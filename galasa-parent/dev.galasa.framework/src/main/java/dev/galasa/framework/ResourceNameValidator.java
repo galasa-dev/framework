@@ -1,3 +1,6 @@
+/*
+ * Copyright contributors to the Galasa project
+ */
 package dev.galasa.framework;
 
 import dev.galasa.framework.spi.FrameworkErrorCode;
