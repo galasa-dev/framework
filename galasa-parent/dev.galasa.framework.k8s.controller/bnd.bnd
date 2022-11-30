@@ -20,28 +20,5 @@ Import-Package: dev.galasa.framework,\
                 com.google.gson.stream
 Embed-Transitive: true
 Embed-Dependency: *;scope=compile
--includeresource: client-java-1.0.0.jar; lib:=true,\
-    guava-24.1.1-jre.jar; lib:=true,\
-    bcpkix-jdk15on-1.60.jar; lib:=true,\
-    bcprov-jdk15on-1.60.jar; lib:=true,\
-    jsr305-1.3.9.jar; lib:=true,\
-    checker-compat-qual-2.0.0.jar; lib:=true,\
-    error_prone_annotations-2.1.3.jar; lib:=true,\
-    j2objc-annotations-1.1.jar; lib:=true,\
-    animal-sniffer-annotations-1.14.jar; lib:=true,\
-    client-java-api-1.0.0.jar; lib:=true,\
-    client-java-proto-1.0.0.jar; lib:=true,\
-    commons-codec-1.15.jar; lib:=true,\
-    commons-lang3-3.7.jar; lib:=true,\
-    okhttp-ws-2.7.5.jar; lib:=true,\
-    logback-classic-1.2.3.jar; lib:=true,\
-    slf4j-api-1.7.25.jar; lib:=true,\
-    bcprov-ext-jdk15on-1.59.jar; lib:=true,\
-    protobuf-java-3.4.0.jar; lib:=true,\
-    swagger-annotations-1.5.12.jar; lib:=true,\
-    logging-interceptor-2.7.5.jar; lib:=true,\
-    okhttp-2.7.5.jar; lib:=true,\
-    gson-2.6.2.jar; lib:=true,\
-    joda-time-2.9.3.jar; lib:=true,\
-    logback-core-1.2.3.jar; lib:=true,\
-    okio-1.6.0.jar; lib:=true
+-includeresource: client-java-16.0.2.jar; lib:=true,\
+    commons-codec-1.15.jar; lib:=true
