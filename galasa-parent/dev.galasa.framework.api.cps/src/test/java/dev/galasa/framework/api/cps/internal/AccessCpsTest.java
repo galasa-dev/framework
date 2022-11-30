@@ -510,17 +510,26 @@ public class AccessCpsTest {
         assertThat(properties.get("c")).isEqualTo("********"); // The redacted value.
     }
 
-/*
     @Test
-    public void testCanGetPropertiesUsingPrefixAndSuffixOk(String prefix, String suffix) {
+    public void testCanGetPropertiesUsingPrefixAndSuffixOk() throws Exception {
 
         // Given...
+        String prefix = "abc";
+        String suffix = "xyz";
 
         // A property store which can serve-up some test properties 'a' and 'c'
         IConfigurationPropertyStoreService mockPropsStoreService = new MockConfigurationPropertyStoreService() {
             @Override
             public Map<String, String> getAllProperties() {
-                return new HashMap<>() {{ put("a","aValue"); put("c","cValue"); }};
+                return new HashMap<>() {{
+                    put("oknamespace.abc.a.xyz","abcValue");
+                    put("oknamespace.abc.b.xyz","cValue");
+                }};
+            }
+            @Override
+            public String getProperty(String prefix, String suffix, String... infixes
+                ) throws ConfigurationPropertyStoreException {
+                return "abcValue";
             }
         };
 
@@ -537,7 +546,8 @@ public class AccessCpsTest {
         servlet.framework = mockFramework ;
 
         String path = MessageFormat.format( "/namespace/oknamespace/prefix/{0}/suffix/{1}",prefix,suffix);
-        HttpServletRequest request = new MockHttpRequest(path);
+        String query = "infix=a";
+        HttpServletRequest request = new MockHttpRequest(path,query);
 
         MockHttpResponse response = new MockHttpResponse();
 
@@ -548,62 +558,12 @@ public class AccessCpsTest {
         assertThat(response.getHeader("Content-Type")).isEqualTo("application/json");
         assertThat(response.getStatus()).isEqualTo(200); // OK
 
-        // The result should be an array of namespaces
+        // The result should be a single object with a name, value pair
         JsonReader jReader = response.getPayloadAsJsonReader();
-        NameValuePair[] propertiesArray = gson.fromJson(jReader , NameValuePair[].class);
-
-        // Transfer values into a java map.
-        Map<String,String> properties = new HashMap<>();
-        for ( NameValuePair pair : propertiesArray ) {
-            properties.put(pair.name, pair.value);
-        }
-
-        assertThat(properties)
-                .containsKey("a")
-                .containsKey("c");
-        assertThat(properties.get("a")).isEqualTo("********"); // The redacted value.
-        assertThat(properties.get("c")).isEqualTo("********"); // The redacted value.
+        NameValuePair property = gson.fromJson(jReader , NameValuePair.class);
+        assertThat(property).isNotNull();
+        assertThat(property.name).isNotNull().isEqualTo("oknamespace.abc.a.xyz");
+        assertThat(property.value).isNotNull().isEqualTo("abcValue");
     }
 
-    @Test
-    public void testCanGetPropertiesUsingPrefixAndSuffixAndInfixOk() {
-        fail("Not implemented yet");
-    }
-
-    @Ignore
-    @Test
-    public void testCanGetPropertiesUsingPrefixButNoSuffixFailsBadUrl() {
-        fail("Not implemented yet");
-    }
-
-    @Ignore
-    @Test
-    public void testCanGetPropertiesUsingPrefixButNoSuffixPlusExtraPartToUrlFailsBadUrl() {
-        fail("Not implemented yet");
-    }
-
-    @Ignore
-    @Test
-    public void testGetPropertiesUsingPrefixAndSuffixButPrefixSpeltBadlyFailsInvalidUrl() {
-        fail("Not implemented yet");
-    }
-
-    @Ignore
-    @Test
-    public void testGetPropertiesUsingPrefixAndSuffixButSuffixSpeltBadlyFailsInvalidUrl() {
-        fail("Not implemented yet");
-    }
-
-    @Ignore
-    @Test
-    public void testGetPropertiesUsingPrefixAndSuffixButSuffixPropertyIsInvalidFailsBadUrl() {
-        fail("Not implemented yet");
-    }
-
-    @Ignore
-    @Test
-    public void testGetPropertiesUsingPrefixAndSuffixButPrefixPropertyIsInvalidFailsBadUrl() {
-        fail("Not implemented yet");
-    }
-*/
 }

@@ -97,15 +97,6 @@ public class AccessCps extends HttpServlet {
         try {
             resp.setHeader("Content-Type", "application/json");
 
-            Enumeration<String> headerNames = req.getHeaderNames();
-            if (headerNames != null ) {
-                while (headerNames.hasMoreElements()) {
-                    String headerName = headerNames.nextElement();
-                    String headerValue = req.getHeader(headerName);
-                    logger.debug("@@Request has this header: " + headerName + " = " + headerValue);
-                }
-            }
-
             Matcher matcher1 = pattern1.matcher(req.getPathInfo());
             if (matcher1.matches()) {
                 getNamespaces(resp);
@@ -197,11 +188,10 @@ public class AccessCps extends HttpServlet {
     }
 
     private void getNamespaces(HttpServletResponse resp) throws IOException, ConfigurationPropertyStoreException {
-        logger.debug("@@getting the list of namespaces");
+        logger.debug("Getting the list of namespaces");
         JsonArray namespaceArray = new JsonArray();
         List<String> namespaces = framework.getConfigurationPropertyService("framework").getCPSNamespaces();
         for (String name : namespaces) {
-            logger.debug("@@looking at namespace "+name);
             if ( ! hiddenNameSpaces.contains(name) ) {
                 namespaceArray.add(name);
             }
@@ -280,7 +270,7 @@ public class AccessCps extends HttpServlet {
                 String[] keyValue = pair.split("=");
                 if (!keyValue[0].equals("infix")) {
                     logger.error("Invalid Infix in URL");
-                    resp.setStatus(500);
+                    resp.setStatus(400);
                     return;
                 }
                 infixes.add(keyValue[1]);
@@ -289,8 +279,17 @@ public class AccessCps extends HttpServlet {
         }
         JsonObject respJson = new JsonObject();
 
-        String propValue = framework.getConfigurationPropertyService(namespace).getProperty(prefix, suffix, infixArray);
-        Map<String, String> pairs = framework.getConfigurationPropertyService(namespace).getAllProperties();
+        IConfigurationPropertyStoreService cpsService = framework.getConfigurationPropertyService(namespace);
+
+        // Get the value of the property from a search of the property namespace...
+        String propValue = cpsService.getProperty(prefix, suffix, infixArray);
+
+        // Try to work out which key was used to find that value.
+        // Note: This is buggy. We have no guarantee that the value we find above won't exist
+        // as a value for multiple property keys. So the following logic may well pick the wrong key
+        // to go with the right value.
+        // Defect raised to sort this out somehow... https://github.com/galasa-dev/projectmanagement/issues/1289
+        Map<String, String> pairs = cpsService.getAllProperties();
         for (String key : pairs.keySet()) {
             if (pairs.get(key).equals(propValue) && key.startsWith(namespace + "." + prefix) && key.endsWith(suffix)) {
                 respJson.addProperty("name", key);

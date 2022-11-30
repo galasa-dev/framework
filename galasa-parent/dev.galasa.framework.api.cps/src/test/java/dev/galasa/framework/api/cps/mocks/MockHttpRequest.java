@@ -17,10 +17,17 @@ import java.util.Map;
 public class MockHttpRequest implements HttpServletRequest {
 
     private String path ;
+    private String query ;
 
     public MockHttpRequest(String path) {
-        this.path = path ;
+        this(path,null);
     }
+
+    public MockHttpRequest(String path , String query ) {
+        this.path = path;
+        this.query = query;
+    }
+
     @Override
     public String getAuthType() {
         throw new MockMethodNotImplementedException();
@@ -78,7 +85,7 @@ public class MockHttpRequest implements HttpServletRequest {
 
     @Override
     public String getQueryString() {
-        throw new MockMethodNotImplementedException();
+        return this.query;
     }
 
     @Override
