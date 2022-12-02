@@ -133,6 +133,13 @@ paths:
     put:
       operationId: putCpsNamespaceProperty
       summary: Put new CPS Property
+      description: |
+        Searches multiple places in the property store for the first property matching the namespace, 
+        prefix and suffix, and as many of the leading infix strings as possible.
+        This results in a value which is the most specific, given a sparsely populated hierarchical 
+        structure of property names.
+        Over-rides of values (if present) are returned in preference to the normal stored value 
+        of a property.
       tags: 
       - Configuration Property Store API
       parameters:
@@ -568,6 +575,7 @@ components:
       properties:
         name:
           type: string
+          description: The fully-qualified property name, including the 'namespace'.
         value:
           type: string
     JsonError:
