@@ -21,3 +21,9 @@ gradle.taskGraph.afterTask { Task task, TaskState state ->
     int sec = secs - mins * 60
     println " -> took " + mins + ( ( 1 == mins ) ? " min " : " mins " ) + sec + ( ( 1 == sec ) ? " sec" : " secs" )
 }
+
+allprojects {
+   tasks.withType(Javadoc) {
+      options.addStringOption('Xdoclint:none', '-quiet')
+   }
+}
