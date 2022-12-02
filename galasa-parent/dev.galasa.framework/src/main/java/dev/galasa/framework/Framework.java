@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
+import dev.galasa.framework.spi.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -24,28 +25,6 @@ import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
 import dev.galasa.framework.internal.ras.FrameworkMultipleResultArchiveStore;
-import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.Api;
-import dev.galasa.framework.spi.CertificateStoreException;
-import dev.galasa.framework.spi.ConfidentialTextException;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.DynamicStatusStoreException;
-import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.FrameworkResourcePoolingService;
-import dev.galasa.framework.spi.ICertificateStoreService;
-import dev.galasa.framework.spi.IConfidentialTextService;
-import dev.galasa.framework.spi.IConfigurationPropertyStore;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IDynamicStatusStore;
-import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IFrameworkRuns;
-import dev.galasa.framework.spi.IResourcePoolingService;
-import dev.galasa.framework.spi.IResultArchiveStore;
-import dev.galasa.framework.spi.IResultArchiveStoreService;
-import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
@@ -56,6 +35,8 @@ public class Framework implements IFramework {
     private final static Log                   logger           = LogFactory.getLog(Framework.class);
 
     private static final Pattern               namespacePattern = Pattern.compile("[a-z0-9]+");
+    private static final String                ERROR_MESSAGE_TEMPLATE_NAMESPACE_INVALID_CHARACTERS =
+        "Invalid namespace '%s'. Valid namespaces are 1 or more characters of 'a'-'z' and '0'-'9'.";
 
     private Properties                         overrideProperties;
     private final Properties                   recordProperties = new Properties();
@@ -173,12 +154,14 @@ public class Framework implements IFramework {
      */
     private void validateNamespace(String namespace) throws FrameworkException {
         if (namespace == null) {
-            throw new FrameworkException("Namespace has not been provided");
+            throw new FrameworkException(FrameworkErrorCode.INVALID_NAMESPACE, "Namespace has not been provided");
         }
 
         final Matcher matcher = namespacePattern.matcher(namespace);
         if (!matcher.matches()) {
-            throw new FrameworkException("Invalid namespace");
+            throw new FrameworkException(FrameworkErrorCode.INVALID_NAMESPACE,
+                                         String.format(ERROR_MESSAGE_TEMPLATE_NAMESPACE_INVALID_CHARACTERS,namespace));
+
         }
     }
 

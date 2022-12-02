@@ -1,7 +1,5 @@
 #
-# Licensed Materials - Property of IBM
-# 
-# (c) Copyright IBM Corp. 2021.
+# Copyright contributors to the Galasa project
 #
 openapi: 3.0.3
 info:
@@ -37,7 +35,7 @@ paths:
                 items:
                   type: string
         '500':
-          description: Error
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -51,7 +49,9 @@ paths:
       parameters:
         - name: namespace
           in: path
-          description: Property Namespace
+          description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
           required: true
           schema:
             type: string
@@ -64,8 +64,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CpsProperty'
+        '400':
+          description: The namespace/prefix/suffix uses invalid characters or is badly formed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
         '500':
-          description: Error
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -79,25 +85,33 @@ paths:
       parameters:
       - name: namespace
         in: path
-        description: Property Namespace
+        description: |
+            Property Namespace. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
         required: true
         schema:
           type: string
       - name: prefix
         in: path
-        description: Property Prefix
+        description: |
+          Property Prefix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
         schema:
           type: string
       - name: suffix
         in: path
-        description: Property Suffix
+        description: |
+          Property suffix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
         schema:
           type: string
       - name: infixes
         in: query
-        description: Property Infixes
+        description: |
+          Property infixes. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         schema:
           type: array
           items:
@@ -119,18 +133,30 @@ paths:
     put:
       operationId: putCpsNamespaceProperty
       summary: Put new CPS Property
+      description: |
+        Searches multiple places in the property store for the first property matching the namespace, 
+        prefix and suffix, and as many of the leading infix strings as possible.
+        This results in a value which is the most specific, given a sparsely populated hierarchical 
+        structure of property names.
+        Over-rides of values (if present) are returned in preference to the normal stored value 
+        of a property.
       tags: 
       - Configuration Property Store API
       parameters:
       - name: namespace
         in: path
-        description: Property Namespace
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
         required: true
         schema:
           type: string
       - name: property
         in: path
-        description: Property Name
+        description: |
+          Property Name. 
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
         schema:
           type: string
@@ -549,6 +575,7 @@ components:
       properties:
         name:
           type: string
+          description: The fully-qualified property name, including the 'namespace'.
         value:
           type: string
     JsonError:
