@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019,2021.
+ * Copyright contributors to the Galasa project 
  */
 package dev.galasa.framework.k8s.controller;
 
@@ -23,25 +21,25 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.apis.CoreV1Api;
-import io.kubernetes.client.models.V1Affinity;
-import io.kubernetes.client.models.V1ConfigMapKeySelector;
-import io.kubernetes.client.models.V1Container;
-import io.kubernetes.client.models.V1EnvVar;
-import io.kubernetes.client.models.V1EnvVarSource;
-import io.kubernetes.client.models.V1NodeAffinity;
-import io.kubernetes.client.models.V1NodeSelectorRequirement;
-import io.kubernetes.client.models.V1NodeSelectorTerm;
-import io.kubernetes.client.models.V1ObjectFieldSelector;
-import io.kubernetes.client.models.V1ObjectMeta;
-import io.kubernetes.client.models.V1Pod;
-import io.kubernetes.client.models.V1PodList;
-import io.kubernetes.client.models.V1PodSpec;
-import io.kubernetes.client.models.V1PodStatus;
-import io.kubernetes.client.models.V1PreferredSchedulingTerm;
-import io.kubernetes.client.models.V1ResourceRequirements;
-import io.kubernetes.client.models.V1SecretKeySelector;
+import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.apis.CoreV1Api;
+import io.kubernetes.client.openapi.models.V1Affinity;
+import io.kubernetes.client.openapi.models.V1ConfigMapKeySelector;
+import io.kubernetes.client.openapi.models.V1Container;
+import io.kubernetes.client.openapi.models.V1EnvVar;
+import io.kubernetes.client.openapi.models.V1EnvVarSource;
+import io.kubernetes.client.openapi.models.V1NodeAffinity;
+import io.kubernetes.client.openapi.models.V1NodeSelectorRequirement;
+import io.kubernetes.client.openapi.models.V1NodeSelectorTerm;
+import io.kubernetes.client.openapi.models.V1ObjectFieldSelector;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1PodList;
+import io.kubernetes.client.openapi.models.V1PodSpec;
+import io.kubernetes.client.openapi.models.V1PodStatus;
+import io.kubernetes.client.openapi.models.V1PreferredSchedulingTerm;
+import io.kubernetes.client.openapi.models.V1ResourceRequirements;
+import io.kubernetes.client.openapi.models.V1SecretKeySelector;
 import io.prometheus.client.Counter;
 
 public class RunPoll implements Runnable {
@@ -268,7 +266,7 @@ public class RunPoll implements Runnable {
             while (!successful) {
                 try {
                     // System.out.println(newPod.toString());
-                    api.createNamespacedPod(namespace, newPod, "true");
+                    api.createNamespacedPod(namespace, newPod, "true", null, null, null);
 
                     logger.info("Engine Pod " + newPod.getMetadata().getName() + " started");
                     successful = true;
@@ -328,8 +326,8 @@ public class RunPoll implements Runnable {
         LinkedList<V1Pod> pods = new LinkedList<>();
 
         try {
-            V1PodList list = api.listNamespacedPod(settings.getNamespace(), null, null, null, true,
-                    "galasa-engine-controller=" + settings.getEngineLabel(), null, null, null, null);
+            V1PodList list = api.listNamespacedPod(settings.getNamespace(), null, null, null, null,
+                    "galasa-engine-controller=" + settings.getEngineLabel(), null, null, null, null, null);
             for (V1Pod pod : list.getItems()) {
                 pods.add(pod);
             }

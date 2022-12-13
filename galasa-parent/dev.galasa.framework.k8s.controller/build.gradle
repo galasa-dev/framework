@@ -14,23 +14,16 @@ dependencies {
     
     implementation 'commons-codec:commons-codec:1.15'
 
-    implementation 'io.prometheus:simpleclient:0.6.0'
-    implementation 'io.prometheus:simpleclient_httpserver:0.6.0'
-    implementation 'io.prometheus:simpleclient_hotspot:0.6.0'
+    implementation 'io.prometheus:simpleclient:0.15.0'
+    implementation 'io.prometheus:simpleclient_httpserver:0.15.0'
+    implementation 'io.prometheus:simpleclient_hotspot:0.15.0'
 
-    implementation 'com.google.guava:guava:24.1.1-jre'
-    implementation 'io.kubernetes:client-java:1.0.0'
-
-    implementation ('org.bouncycastle:bcpkix-jdk15on') {
-        version {
-            strictly '1.60'
-        }
-    }
-    implementation ('org.bouncycastle:bcprov-jdk15on') {
-        version {
-            strictly '1.60'
-        }
-    }
+    implementation 'com.squareup.okhttp3:okhttp:4.9.2'
+    implementation 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.okio:2.8.0_1'
+    implementation 'org.jetbrains.kotlin:kotlin-osgi-bundle:1.4.0'
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.71'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.71'
+    implementation 'io.kubernetes:client-java:16.0.2'
     implementation ('org.yaml:snakeyaml'){
         version {
             strictly '1.30'

@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project 
  */
 package dev.galasa.framework.k8s.controller;
 
@@ -21,10 +19,10 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.Configuration;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.ProtoClient;
-import io.kubernetes.client.apis.CoreV1Api;
+import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.util.Config;
 import io.prometheus.client.exporter.HTTPServer;
 
