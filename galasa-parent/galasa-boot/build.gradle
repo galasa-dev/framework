@@ -15,7 +15,7 @@ configurations {
 
 }
 
-version = "0.24.0"
+version = "0.26.0"
 
 jar {
     manifest {
