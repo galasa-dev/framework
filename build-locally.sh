@@ -115,7 +115,7 @@ info "Build type is --'${build_type}'"
 # Debug or not debug ? Override using the DEBUG flag.
 if [[ -z ${DEBUG} ]]; then
     export DEBUG=0
-    # export DEBUG=1
+    #export DEBUG=1
     info "DEBUG defaulting to ${DEBUG}."
     info "Over-ride this variable if you wish. Valid values are 0 and 1."
 else
@@ -201,7 +201,7 @@ ${CONSOLE_FLAG} \
 -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
 build check \
 2>&1 >> ${log_file}
-rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to build ${project}" ; exit 1 ; fi
+rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
 success "Built OK"
 
 
@@ -214,7 +214,7 @@ ${CONSOLE_FLAG} \
 -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
 publishToMavenLocal \
 2>&1 >> ${log_file}
-rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to publish ${project}" ; exit 1 ; fi
+rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
 success "Published OK"
 
 success "Project ${project} built - OK - log is at ${log_file}"

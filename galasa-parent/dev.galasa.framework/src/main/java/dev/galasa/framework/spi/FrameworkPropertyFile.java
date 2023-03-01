@@ -154,6 +154,14 @@ public class FrameworkPropertyFile implements FileAlterationListener {
      * @throws FrameworkPropertyFileException
      */
     public synchronized void delete(String key) throws FrameworkPropertyFileException {
+        // Make the current properties as close to the values in the file as 
+        // we can. So when we write they are up-to-date.
+        if (observer!=null) {
+            observer.checkAndNotify();
+        }
+
+        // There is a small window here when another JVM may write to the file,
+        // which will get lost when we over-write it.
         synchronized (FrameworkPropertyFile.class) {
             try (FileChannel fileChannel = getWriteChannel(false)) {
                 Properties oldProperties = (Properties) this.currentProperties.clone();
@@ -175,6 +183,13 @@ public class FrameworkPropertyFile implements FileAlterationListener {
      * @throws FrameworkPropertyFileException
      */
     public synchronized void delete(Set<String> keys) throws FrameworkPropertyFileException {
+        // Make the current properties as close to the values in the file as 
+        // we can. So when we write they are up-to-date.
+        if (observer!=null) {
+            observer.checkAndNotify();
+        }
+        // There is a small window here when another JVM may write to the file,
+        // which will get lost when we over-write it.
         synchronized (FrameworkPropertyFile.class) {
             try (FileChannel fileChannel = getWriteChannel(false)) {
                 Properties oldProperties = (Properties) this.currentProperties.clone();
@@ -200,15 +215,48 @@ public class FrameworkPropertyFile implements FileAlterationListener {
      */
     public synchronized void deletePrefix(String prefix) throws FrameworkPropertyFileException {
         Set<String> deleteKeys = new HashSet<>();
-        synchronized (FrameworkPropertyFile.class) {
+
+        // refresh our cache of properties from the file contents.
+        // Note that we can't do this while holding a write lock as the check
+        // attempts to get a read lock which fails, as the write lock is held.
+        if (observer!=null) {
             observer.checkAndNotify();
-            for (Object k : currentProperties.keySet()) {
-                String key = (String) k;
-                if (key.startsWith(prefix)) {
-                    deleteKeys.add(key);
+        }
+        // There is a small timing window here where another JVM will enter and write a
+        // new set of properties to the file. We have no lock protecting it, so are 
+        // likely to over-write the file with our property cache values...
+        // Meaning this code is not able to protect itself from other JVMs interfering, and 
+        // vice-versa.
+
+        synchronized (FrameworkPropertyFile.class) {
+            try {
+                // Block other JVMs from writing to the property file while we delete things.
+                try (FileChannel fileChannel = getWriteChannel(false)) {
+
+                    // Gather the list of keys to be deleted.
+                    for (Object k : currentProperties.keySet()) {
+                        String key = (String) k;
+                        if (key.startsWith(prefix)) {
+                            deleteKeys.add(key);
+                        }
+                    }
+
+                    // Make a note of the current property values, so we retain a before... and after...
+                    // set to be used later notifying any observers of property changes.
+                    Properties oldProperties = (Properties) this.currentProperties.clone();
+
+                    // Now delete the keys
+                    for (String key : deleteKeys) {
+                        this.currentProperties.remove(key);
+                    }
+
+                    write(fileChannel, this.currentProperties);
+                    fileModified(this.currentProperties, oldProperties);
                 }
+            } catch (IOException e) {
+                fpfLog.error("Failed to update file with DSS actions", e);
+                throw new FrameworkPropertyFileException("Unable to delete key prefix: " + prefix, e);
             }
-            delete(deleteKeys);
         }
     }
 
@@ -344,6 +392,11 @@ public class FrameworkPropertyFile implements FileAlterationListener {
      * @throws FrameworkPropertyFileException
      */
     public synchronized void set(String key, String value) throws FrameworkPropertyFileException {
+
+        if (observer!=null) {
+            observer.checkAndNotify();
+        }
+
         synchronized (FrameworkPropertyFile.class) {
             try (FileChannel fileChannel = getWriteChannel(false)) {
                 Properties oldProperties = (Properties) this.currentProperties.clone();
@@ -371,6 +424,9 @@ public class FrameworkPropertyFile implements FileAlterationListener {
      * @throws IOException
      */
     public synchronized void set(Map<String, String> values) throws FrameworkPropertyFileException, IOException {
+        if (observer!=null) {
+            observer.checkAndNotify();
+        }
         synchronized (FrameworkPropertyFile.class) {
             try (FileChannel fileChannel = getWriteChannel(false)) {
                 Properties oldProperties = (Properties) this.currentProperties.clone();
@@ -501,6 +557,10 @@ public class FrameworkPropertyFile implements FileAlterationListener {
     public synchronized boolean setAtomic(String key, String oldValue, String newValue)
             throws FrameworkPropertyFileException {
 
+        if (observer!=null) {
+            observer.checkAndNotify();
+        }
+
         synchronized (FrameworkPropertyFile.class) {
             try (FileChannel fileChannel = getWriteChannel(false)) {
                 Properties oldProperties = (Properties) this.currentProperties.clone();
@@ -551,6 +611,10 @@ public class FrameworkPropertyFile implements FileAlterationListener {
      */
     public synchronized boolean setAtomic(String key, String oldValue, String newValue, Map<String, String> otherValues)
             throws FrameworkPropertyFileException {
+
+        if (observer!=null) {
+            observer.checkAndNotify();
+        }
 
         synchronized (FrameworkPropertyFile.class) {
             try (FileChannel fileChannel = getWriteChannel(false)) {
