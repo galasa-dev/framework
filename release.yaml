@@ -25,7 +25,7 @@ framework:
     codecoverage: true
     
   - artifact: galasa-boot
-    version: 0.24.0
+    version: 0.26.0
     mvp: true
     codecoverage: true
 
