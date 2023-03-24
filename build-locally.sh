@@ -8,6 +8,7 @@
 # LOGS_DIR - Optional. Where logs are placed. Defaults to creating a temporary directory.
 # SOURCE_MAVEN - Optional. Where a maven repository is from which the build will draw artifacts.
 # DEBUG - Optional. Defaults to 0 (off)
+# OPENAPI_GENERATOR_CLI_JAR - Optional. Where the openapi-generator-cli.jar file is located.
 # 
 #-----------------------------------------------------------------------------------------                   
 
@@ -216,5 +217,22 @@ publishToMavenLocal \
 2>&1 >> ${log_file}
 rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
 success "Published OK"
+
+if [[ -z ${OPENAPI_GENERATOR_CLI_JAR} ]]; then
+    info "Skipping REST API documentation generation because the OPENAPI_GENERATOR_CLI_JAR environment variable is not set."
+    info "Download the openapi-generator-cli jar and set the OPENAPI_GENERATOR_CLI_JAR environment variable to point to its location."
+else
+    h2 "Generating REST API documentation..."
+    OPENAPI_YAML_FILE="${BASEDIR}/openapi.yaml"
+    OUTPUT_DIR="${BASEDIR}/docs/galasaapi"
+    java -jar ${OPENAPI_GENERATOR_CLI_JAR} generate \
+    -i ${OPENAPI_YAML_FILE} \
+    -g html2 \
+    -o ${OUTPUT_DIR} \
+    2>&1>> ${log_file}
+
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate documentation from the openapi.yaml file. rc=${rc}" ; exit 1 ; fi
+    success "Generated REST API documentation at ${OUTPUT_DIR}/index.html"
+fi
 
 success "Project ${project} built - OK - log is at ${log_file}"
