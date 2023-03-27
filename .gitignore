@@ -28,4 +28,4 @@ build/
 .gradle/
 **/.idea/
 **/heapdump*
-docs/
+docs/generated/
