@@ -8,6 +8,7 @@
 # LOGS_DIR - Optional. Where logs are placed. Defaults to creating a temporary directory.
 # SOURCE_MAVEN - Optional. Where a maven repository is from which the build will draw artifacts.
 # DEBUG - Optional. Defaults to 0 (off)
+# OPENAPI_GENERATOR_CLI_JAR - Optional. Where the openapi-generator-cli.jar file is located.
 # 
 #-----------------------------------------------------------------------------------------                   
 
@@ -73,6 +74,62 @@ Options are:
 EOF
 }
 
+function download_dependencies {
+    if [[ "${build_type}" == "clean" ]]; then
+        h2 "Cleaning the dependencies out..."
+        rm -rf build/dependencies
+        success "OK"
+    fi
+
+    # Download the dependencies we define in gradle into a local folder
+    h2 "Downloading dependencies"
+    gradle \
+    --warning-mode=all \
+    -Dorg.gradle.java.home=${JAVA_HOME} \
+    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+    downloadDependencies \
+    2>&1 >> ${log_file}
+
+    rc=$? ; if [[ "${rc}" != "0" ]]; then  error "Failed to run the gradle task to download our dependencies. rc=${rc}" ; exit 1 ; fi
+    success "OK"
+}
+
+function generate_rest_docs {
+    OPENAPI_YAML_FILE="${BASEDIR}/openapi.yaml"
+    OUTPUT_DIR="${BASEDIR}/docs/generated/galasaapi"
+    
+    if [[ "${build_type}" == "clean" ]]; then
+        h2 "Cleaning the generated documentation..."
+        rm -rf ${OUTPUT_DIR}
+        success "OK"
+    fi
+
+    h2 "Generate the REST API documentation..."
+    
+    # Pick up and use the openapi generator we just downloaded.
+    # We don't know which version it is (dictated by the gradle build), but as there
+    # is only one we can just pick the filename up..
+    # Should end up being something like: ${BASEDIR}/galasa-parent/build/dependencies/openapi-generator-cli-6.2.0.jar
+    if [[ -z ${OPENAPI_GENERATOR_CLI_JAR} ]]; then
+        export OPENAPI_GENERATOR_CLI_JAR=$(ls ${BASEDIR}/galasa-parent/build/dependencies/openapi-generator-cli*)
+        info "OPENAPI_GENERATOR_CLI_JAR environment variable is not set, setting to ${OPENAPI_GENERATOR_CLI_JAR}."
+    fi
+
+    if [[ ! -e ${OPENAPI_GENERATOR_CLI_JAR} ]]; then
+        echo "The OpenAPI Generator cannot be found at ${OPENAPI_GENERATOR_CLI_JAR}."
+        echo "Download it and set the OPENAPI_GENERATOR_CLI_JAR environment variable to point to it."
+        exit 1
+    fi
+
+    java -jar ${OPENAPI_GENERATOR_CLI_JAR} generate \
+    -i ${OPENAPI_YAML_FILE} \
+    -g html2 \
+    -o ${OUTPUT_DIR} \
+    2>&1>> ${log_file}
+
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate documentation from the openapi.yaml file. rc=${rc}" ; exit 1 ; fi
+    success "Generated REST API documentation at ${OUTPUT_DIR}/index.html"
+}
 
 #-----------------------------------------------------------------------------------------                   
 # Process parameters
@@ -216,5 +273,10 @@ publishToMavenLocal \
 2>&1 >> ${log_file}
 rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
 success "Published OK"
+
+if [[ -z ${OPENAPI_GENERATOR_CLI_JAR} ]]; then
+    download_dependencies
+fi
+generate_rest_docs
 
 success "Project ${project} built - OK - log is at ${log_file}"
