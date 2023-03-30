@@ -16,7 +16,7 @@ repositories {
 dependencies {
     // We need the openapi generator to generate API documentation from the openapi.yaml file
     // https://mvnrepository.com/artifact/org.openapitools/openapi-generator
-    compileClasspath group: 'org.openapitools', name: 'openapi-generator-cli', version: '6.0.1'
+    compileClasspath group: 'org.openapitools', name: 'openapi-generator-cli', version: '6.1.0'
 }
 
 task downloadDependencies(type: Copy) {
