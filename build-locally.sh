@@ -116,7 +116,7 @@ function generate_rest_docs {
     fi
 
     if [[ ! -e ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
-        echo "The OpenAPI Generator cannot be found at ${SWAGGER_CODEGEN_CLI_JAR}."
+        echo "The Swagger Generator cannot be found at ${SWAGGER_CODEGEN_CLI_JAR}."
         echo "Download it and set the SWAGGER_CODEGEN_CLI_JAR environment variable to point to it."
         exit 1
     fi
