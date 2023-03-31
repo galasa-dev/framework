@@ -8,7 +8,7 @@
 # LOGS_DIR - Optional. Where logs are placed. Defaults to creating a temporary directory.
 # SOURCE_MAVEN - Optional. Where a maven repository is from which the build will draw artifacts.
 # DEBUG - Optional. Defaults to 0 (off)
-# OPENAPI_GENERATOR_CLI_JAR - Optional. Where the openapi-generator-cli.jar file is located.
+# SWAGGER_CODEGEN_CLI_JAR - Optional. Where the swagger-codegen-cli.jar file is located.
 # 
 #-----------------------------------------------------------------------------------------                   
 
@@ -106,24 +106,24 @@ function generate_rest_docs {
 
     h2 "Generate the REST API documentation..."
     
-    # Pick up and use the openapi generator we just downloaded.
+    # Pick up and use the swagger generator we just downloaded.
     # We don't know which version it is (dictated by the gradle build), but as there
     # is only one we can just pick the filename up..
-    # Should end up being something like: ${BASEDIR}/galasa-parent/build/dependencies/openapi-generator-cli-6.2.0.jar
-    if [[ -z ${OPENAPI_GENERATOR_CLI_JAR} ]]; then
-        export OPENAPI_GENERATOR_CLI_JAR=$(ls ${BASEDIR}/galasa-parent/build/dependencies/openapi-generator-cli*)
-        info "OPENAPI_GENERATOR_CLI_JAR environment variable is not set, setting to ${OPENAPI_GENERATOR_CLI_JAR}."
+    # Should end up being something like: ${BASEDIR}/galasa-parent/build/dependencies/swagger-codegen-cli-3.0.41.jar
+    if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
+        export SWAGGER_CODEGEN_CLI_JAR=$(ls ${BASEDIR}/galasa-parent/build/dependencies/swagger-codegen-cli*)
+        info "SWAGGER_CODEGEN_CLI_JAR environment variable is not set, setting to ${SWAGGER_CODEGEN_CLI_JAR}."
     fi
 
-    if [[ ! -e ${OPENAPI_GENERATOR_CLI_JAR} ]]; then
-        echo "The OpenAPI Generator cannot be found at ${OPENAPI_GENERATOR_CLI_JAR}."
-        echo "Download it and set the OPENAPI_GENERATOR_CLI_JAR environment variable to point to it."
+    if [[ ! -e ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
+        echo "The OpenAPI Generator cannot be found at ${SWAGGER_CODEGEN_CLI_JAR}."
+        echo "Download it and set the SWAGGER_CODEGEN_CLI_JAR environment variable to point to it."
         exit 1
     fi
 
-    java -jar ${OPENAPI_GENERATOR_CLI_JAR} generate \
+    java -jar ${SWAGGER_CODEGEN_CLI_JAR} generate \
     -i ${OPENAPI_YAML_FILE} \
-    -g html2 \
+    -l html2 \
     -o ${OUTPUT_DIR} \
     2>&1>> ${log_file}
 
@@ -274,7 +274,7 @@ publishToMavenLocal \
 rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
 success "Published OK"
 
-if [[ -z ${OPENAPI_GENERATOR_CLI_JAR} ]]; then
+if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
     download_dependencies
 fi
 generate_rest_docs
