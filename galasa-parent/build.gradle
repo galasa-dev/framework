@@ -14,9 +14,9 @@ repositories {
 }
 
 dependencies {
-    // We need the openapi generator to generate API documentation from the openapi.yaml file
-    // https://mvnrepository.com/artifact/org.openapitools/openapi-generator
-    compileClasspath group: 'org.openapitools', name: 'openapi-generator-cli', version: '6.1.0'
+    // We need the swagger generator to generate API documentation from the openapi.yaml file
+    // https://mvnrepository.com/artifact/io.swagger.codegen.v3/swagger-codegen-cli
+    implementation 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
 }
 
 task downloadDependencies(type: Copy) {
