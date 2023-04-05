@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.mocks;
 
 import dev.galasa.framework.spi.Api;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;

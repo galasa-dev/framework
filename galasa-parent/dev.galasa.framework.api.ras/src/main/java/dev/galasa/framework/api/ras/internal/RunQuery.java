@@ -176,34 +176,27 @@ public class RunQuery extends HttpServlet {
 		List<JsonObject> returnArray = new ArrayList<>();
 
 		//Splits up the pages based on the page size
+		List<List<RasRunResult>> paginatedResults = ListUtils.partition(runs, pageSize);
 
-		List<List<RasRunResult>> runList = ListUtils.partition(runs, pageSize);
-
-		int numPages = runList.size();
+		int numPages = paginatedResults.size();
 
 		int pageIndex = 1;
 
 		//Building the object to be returned by the API and splitting
 
-		if (runList != null) {
-			for(List<RasRunResult> list : runList) {
-
-				JsonObject obj = new JsonObject();
-
-				obj.addProperty("pageNum", pageIndex);
-				obj.addProperty("pageSize", pageSize);
-				obj.addProperty("numPages", numPages);
-				obj.addProperty("amountOfRuns", runs.size());
-
-				JsonElement tree = gson.toJsonTree(list);
-
-				obj.add("runs", tree);
-
+		if (!paginatedResults.isEmpty()) {
+			for(List<RasRunResult> thisPageResults : paginatedResults) {
+				JsonObject obj = pageToJson(thisPageResults,runs.size(),pageIndex,pageSize,numPages);
 				returnArray.add(obj);
-
 				pageIndex+=1;
 			}
+		}else{
+			// No results at all, so return one page saying that.
+			JsonObject obj = pageToJson(runs,runs.size(),pageIndex,pageSize,1);
+			returnArray.add(obj);
 		}
+	
+	 
 
 		String json = ""; 
 
@@ -227,6 +220,20 @@ public class RunQuery extends HttpServlet {
 		} catch (Exception e) {
 			throw new ServletException("An error occurred whilst retrieving runs", e);
 		}
+	}
+
+	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageIndex, int pageSize, int numPages) {
+		JsonObject obj = new JsonObject();
+
+		obj.addProperty("pageNum", pageIndex);
+		obj.addProperty("pageSize", pageSize);
+		obj.addProperty("numPages", numPages);
+		obj.addProperty("amountOfRuns", totalRuns);
+
+		JsonElement tree = gson.toJsonTree(resultsInPage);
+
+		obj.add("runs", tree);
+		return obj;
 	}
 	
 

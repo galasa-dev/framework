@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.mocks;
 
 import java.io.BufferedReader;
 import java.io.IOException;
