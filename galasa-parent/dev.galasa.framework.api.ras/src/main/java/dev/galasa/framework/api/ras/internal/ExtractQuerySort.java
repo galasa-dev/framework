@@ -1,3 +1,6 @@
+/*
+ * Copyright contributors to the Galasa project 
+ */
 package dev.galasa.framework.api.ras.internal;
 
 import java.util.Arrays;
@@ -7,8 +10,13 @@ import java.util.Map;
 
 public class ExtractQuerySort {
 	
-
-	
+	/**
+	 * Given a map of parameters from the HTTP query, look up all the 
+	 * ?sort=xxx and ?sort=xxx:asc ?sort=yyy:desc ?sort=xxx:asc,yyy:desc
+	 * 
+	 * Create a map which contains simplified information of:
+	 * { "xxx" : TRUE, "yyy" : FALSE }
+	 */
 	public static Map<String, Boolean> extractParameters(Map<String, String[]> query){
 		
 		Map<String, Boolean> paramMap = new HashMap<>();

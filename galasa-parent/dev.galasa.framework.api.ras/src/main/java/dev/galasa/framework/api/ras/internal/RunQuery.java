@@ -1,3 +1,6 @@
+/*
+ * Copyright contributors to the Galasa project 
+ */
 package dev.galasa.framework.api.ras.internal;
 
 import org.osgi.service.component.annotations.Component;
@@ -21,6 +24,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
@@ -112,6 +116,7 @@ public class RunQuery extends HttpServlet {
 			String result = paramMap.get("result");
 			String to = paramMap.get("to");
 			String from = paramMap.get("from");
+			String runName = paramMap.get("runname");
 			
 			// Checking all parameters to apply to the search criteria
 
@@ -152,7 +157,10 @@ public class RunQuery extends HttpServlet {
 				RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
 				critList.add(resultCriteria);
 			}
-
+			if (runName != null && !runName.isEmpty()) {
+				RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
+				critList.add(runNameCriteria);
+			}
 
 			try {
 				runs = getRuns(critList);
@@ -162,30 +170,7 @@ public class RunQuery extends HttpServlet {
 		}
 
 
-		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
-
-		Map<String, String[]> query = req.getParameterMap();
-
-		// Checking ascending or descending for sorting
-
-		boolean testClassSort = ExtractQuerySort.isAscending(query,"testclass");
-		boolean resultSort = ExtractQuerySort.isAscending(query, "result");
-
-		if (!query.isEmpty()) {
-			if (!ExtractQuerySort.isAscending(query, "to")) {
-				Collections.reverse(runs);
-			} else if (paramMap.get("sort").equals("testclass:asc") && testClassSort) {
-				Collections.sort(runs, new SortByTestClass());
-			} else if (!testClassSort) {
-				Collections.sort(runs, new SortByTestClass());
-				Collections.reverse(runs);   
-			} else if (paramMap.get("sort").equals("result:asc") && resultSort) {
-				Collections.sort(runs, new SortByResult());
-			} else if (!resultSort) {
-				Collections.sort(runs, new SortByResult());
-				Collections.reverse(runs);
-			}
-		}
+		runs = sortResults(runs, paramMap , req.getParameterMap());
 
 
 		List<JsonObject> returnArray = new ArrayList<>();
@@ -220,9 +205,12 @@ public class RunQuery extends HttpServlet {
 			}
 		}
 
-		String json = "";
+		String json = ""; 
 
-		if (returnArray.size() != 0) {
+		if (returnArray.isEmpty()) {
+			// No items to return, so json list will be empty.
+			json = "[]";
+		} else {
 			try {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
@@ -354,5 +342,42 @@ public class RunQuery extends HttpServlet {
 			}
 			return aResult.compareTo(bResult);
 		}
+	}
+
+
+	private List<RasRunResult> sortResults(
+		List<RasRunResult> unsortedRuns,
+		Map<String,String> paramMap,
+		Map<String,String[]> query
+	) {
+
+		// shallow-clone the input list so we don't change it.
+		List<RasRunResult> runs = new ArrayList<RasRunResult>();
+		runs.addAll(unsortedRuns);
+		
+		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
+
+		// Checking ascending or descending for sorting
+
+		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
+		boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
+
+		String sortValue = paramMap.get("sort");
+		if (sortValue != null) {
+			if (!ExtractQuerySort.isAscending(query, "to")) {
+				Collections.reverse(runs);
+			} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
+				Collections.sort(runs, new SortByTestClass());
+			} else if (!isTestClassSortAscending) {
+				Collections.sort(runs, new SortByTestClass());
+				Collections.reverse(runs);   
+			} else if (sortValue.equals("result:asc") && isResultSortAscending) {
+				Collections.sort(runs, new SortByResult());
+			} else if (!isResultSortAscending) {
+				Collections.sort(runs, new SortByResult());
+				Collections.reverse(runs);
+			}
+		}
+		return runs;
 	}
 }
