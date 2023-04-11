@@ -4,55 +4,20 @@
 package dev.galasa.framework;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.net.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-
+import java.nio.file.*;
 import javax.validation.constraints.NotNull;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-
-import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.CertificateStoreException;
-import dev.galasa.framework.spi.ConfidentialTextException;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.DynamicStatusStoreException;
-import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.ICertificateStoreService;
-import dev.galasa.framework.spi.IConfidentialTextService;
-import dev.galasa.framework.spi.IConfidentialTextServiceRegistration;
-import dev.galasa.framework.spi.IConfigurationPropertyStore;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreRegistration;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IDynamicStatusStore;
-import dev.galasa.framework.spi.IDynamicStatusStoreRegistration;
-import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IFrameworkInitialisation;
-import dev.galasa.framework.spi.IFrameworkRuns;
-import dev.galasa.framework.spi.IResultArchiveStoreRegistration;
-import dev.galasa.framework.spi.IResultArchiveStoreService;
-import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.creds.CredentialsException;
-import dev.galasa.framework.spi.creds.ICredentialsStore;
-import dev.galasa.framework.spi.creds.ICredentialsStoreRegistration;
+import org.apache.commons.logging.*;
+import org.osgi.framework.*;
+import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.creds.*;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     private static final String                      USER_HOME = "user.home";
+    private static final String                      GALASA_HOME = "GALASA_HOME";
 
     private Framework                                framework;
 
@@ -68,20 +33,45 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     // private final ICredentialsStoreService credsFramework;
 
     private Log logger;
+    private IFileSystem fileSystem ;
 
-    public FrameworkInitialisation(Properties bootstrapProperties, Properties overrideProperties)
-            throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, false, null);
+    
+    public FrameworkInitialisation(
+        Properties bootstrapProperties, 
+        Properties overrideProperties
+    ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+        this(bootstrapProperties, overrideProperties, false, null, 
+        new SystemEnvironment() , getBundleContext() , new FileSystem() );
     }
 
-    public FrameworkInitialisation(Properties bootstrapProperties, Properties overrideProperties, boolean testrun)
-            throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, testrun, null);
+
+    public FrameworkInitialisation(
+        Properties bootstrapProperties, 
+        Properties overrideProperties, 
+        boolean testrun
+    ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+        this(bootstrapProperties, overrideProperties, testrun, null, 
+        new SystemEnvironment() , getBundleContext() , new FileSystem());
     }
 
-    public FrameworkInitialisation(Properties bootstrapProperties, Properties overrideProperties, boolean testrun,
-            Log initLogger) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+
+    private static BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(FrameworkInitialisation.class).getBundleContext();
+    }
+
+
+    public FrameworkInitialisation(
+        Properties bootstrapProperties, 
+        Properties overrideProperties, 
+        boolean testrun,
+        Log initLogger, 
+        Environment env , 
+        BundleContext bundleContext , 
+        IFileSystem fileSystem
+    ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+
         this.bootstrapProperties = bootstrapProperties;
+        this.fileSystem = fileSystem;
 
         // *** Copy the the bootstrap properties to the override properties so that they
         // are available to the managers
@@ -93,243 +83,49 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             logger = initLogger;
         }
 
-        this.logger.info("Initialising the Galasa Framework");
+        logger.info("Initialising the Galasa Framework");
 
-        // *** Locate the framework
-        final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
-        ServiceReference<IFramework> frameworkService = bundleContext.getServiceReference(IFramework.class);
-        if (frameworkService == null) {
-            throw new FrameworkException("The framework service is missing");
-        }
-        this.framework = (Framework) bundleContext.getService(frameworkService);
-        if (this.framework.isInitialised()) {
-            throw new FrameworkException("The framework has already been initialised");
-        }
+        this.framework = locateFramework(bundleContext);
+        assertFrameworkNotAlreadyInitialised(this.framework);
+
         this.framework.setFrameworkProperties(overrideProperties);
 
         // *** If this is a test run, then we need to install the log4j capture routine
         if (testrun) {
-            framework.installLogCapture();
+            this.framework.installLogCapture();
         }
 
-        String propUri = System.getenv("GALASA_CONFIG_STORE");
-        if ((propUri == null) || propUri.isEmpty()) {
-            propUri = this.bootstrapProperties.getProperty("framework.config.store");
-        }
-        if ((propUri == null) || propUri.isEmpty()) {
-            this.uriConfigurationPropertyStore = Paths.get(System.getProperty(USER_HOME), ".galasa", "cps.properties")
-                    .toUri();
-            createIfMissing(this.uriConfigurationPropertyStore);
-        } else {
-            this.uriConfigurationPropertyStore = new URI(propUri);
-        }
-        this.logger.debug("Configuration Property Store is " + this.uriConfigurationPropertyStore.toString());
+        this.uriConfigurationPropertyStore = locatePropertyStore(
+            this.logger, env,this.bootstrapProperties, this.fileSystem);
+        this.cpsFramework = initialiseConfigurationPropertyStore(logger,bundleContext);
 
-        // *** Initialise the Configuration Property Store
-        this.logger.trace("Searching for CPS providers");
-        final ServiceReference<?>[] cpsServiceReference = bundleContext
-                .getAllServiceReferences(IConfigurationPropertyStoreRegistration.class.getName(), null);
-        if ((cpsServiceReference == null) || (cpsServiceReference.length == 0)) {
-            throw new FrameworkException("No Configuration Property Store Services have been found");
-        }
-        for (final ServiceReference<?> cpsReference : cpsServiceReference) {
-            final IConfigurationPropertyStoreRegistration cpsStoreRegistration = (IConfigurationPropertyStoreRegistration) bundleContext
-                    .getService(cpsReference);
-            this.logger.trace("Found CPS Provider " + cpsStoreRegistration.getClass().getName());
-            cpsStoreRegistration.initialise(this);
-        }
-        if (this.framework.getConfigurationPropertyStore() == null) {
-            throw new FrameworkException("Failed to initialise a Configuration Property Store, unable to continue");
-        }
-        this.logger.debug(
-                "Selected CPS Service is " + this.framework.getConfigurationPropertyStore().getClass().getName());
+        this.uriDynamicStatusStore = locateDynamicStatusStore(
+            this.logger,env,this.cpsFramework, this.fileSystem);
+        this.dssFramework = initialiseDynamicStatusStore(logger,bundleContext);
 
-        // *** Set up a CPS store for framework
-        this.cpsFramework = this.framework.getConfigurationPropertyService("framework");
-
-        // *** Work out the dss uri
-        try {
-            String dssProperty = System.getenv("GALASA_DYNAMICSTATUS_STORE");
-            if ((dssProperty == null) || dssProperty.isEmpty()) {
-                dssProperty = this.cpsFramework.getProperty("dynamicstatus", "store");
-            }
-            if ((dssProperty == null) || dssProperty.isEmpty()) {
-                this.uriDynamicStatusStore = Paths.get(System.getProperty(USER_HOME), ".galasa", "dss.properties")
-                        .toUri();
-                createIfMissing(this.uriDynamicStatusStore);
-            } else {
-                this.uriDynamicStatusStore = new URI(dssProperty);
-            }
-        } catch (final Exception e) {
-            throw new FrameworkException("Unable to resolve the Dynamic Status Store URI", e);
-        }
-        this.logger.debug("Dynamic Status Store is " + this.uriDynamicStatusStore.toString());
-
-        // *** Initialise the Dynamic Status Store
-        this.logger.trace("Searching for DSS providers");
-        final ServiceReference<?>[] dssServiceReference = bundleContext
-                .getAllServiceReferences(IDynamicStatusStoreRegistration.class.getName(), null);
-        if ((dssServiceReference == null) || (dssServiceReference.length == 0)) {
-            throw new FrameworkException("No Dynamic Status Store Services have been found");
-        }
-        for (final ServiceReference<?> dssReference : dssServiceReference) {
-            final IDynamicStatusStoreRegistration dssStoreRegistration = (IDynamicStatusStoreRegistration) bundleContext
-                    .getService(dssReference);
-            this.logger.trace("Found DSS Provider " + dssStoreRegistration.getClass().getName());
-            dssStoreRegistration.initialise(this);
-        }
-        if (this.framework.getDynamicStatusStore() == null) {
-            throw new FrameworkException("Failed to initialise a Dynamic Status Store, unable to continue");
-        }
-        logger.trace("Selected DSS Service is " + this.framework.getDynamicStatusStore().getClass().getName());
-        // *** Set up the DSS for the framework
-        this.dssFramework = this.framework.getDynamicStatusStoreService("framework");
-
-        // *** Is this a test run,
-        // *** Then we need to make sure we have a runname for the RAS. If there isnt
-        // one, we need to allocate one
-        // *** Need the DSS for this as the latest run number number is stored in there
         if (testrun) {
-            //*** Ensure the shared environment = true is set for Shenv runs
-            String runName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "name"));
-            if (runName == null) {
-                String testName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "testbundleclass"));
-                String testLanguage  = "java";
-                if (testName == null) {
-                    testName = AbstractManager.nulled(this.cpsFramework.getProperty("run", "gherkintest"));
-                    testLanguage = "gherkin";
-                }
-                runName = createRunName(testName, testLanguage);
-                framework.setTestRunName(runName);
-            } else {
-                framework.setTestRunName(runName);
-            }
+            // *** Is this a test run,
+            // *** Then we need to make sure we have a runname for the RAS. If there isnt
+            // one, we need to allocate one
+            // *** Need the DSS for this as the latest run number number is stored in there
+            String runName = locateRunName(this.cpsFramework);
+            this.framework.setTestRunName(runName);
         }
 
-        // *** Work out the ras uris
-        Path localRas = Paths.get(System.getProperty(USER_HOME), ".galasa", "ras");
-        try {
-            String rasProperty = System.getenv("GALASA_RESULTARCHIVE_STORE");
-            if ((rasProperty == null) || rasProperty.isEmpty()) {
-                rasProperty = this.cpsFramework.getProperty("resultarchive", "store");
-            }
-            this.uriResultArchiveStores = new ArrayList<>(1);
-            if ((rasProperty == null) || rasProperty.isEmpty()) {
-                this.uriResultArchiveStores.add(localRas.toUri());
-            } else {
-                final String[] rass = rasProperty.split(",");
-                for (final String ras : rass) {
-                    if (!ras.trim().isEmpty()) {
-                        this.uriResultArchiveStores.add(new URI(ras));
-                    }
-                }
-                if (this.uriResultArchiveStores.isEmpty()) {
-                    throw new FrameworkException("No Result Archive Store URIs were provided");
-                }
-            }
-        } catch (final FrameworkException e) {
-            throw e;
-        } catch (final Exception e) {
-            throw new FrameworkException("Unable to resolve the Result Archive Store URIs", e);
-        }
+        this.uriResultArchiveStores = createUriResultArchiveStores(env,this.cpsFramework);
+        logger.debug("Result Archive Stores are " + this.uriResultArchiveStores.toString());
+        initialiseResultsArchiveStore(logger,bundleContext);
 
-        Boolean includeLocal = Boolean
-                .parseBoolean(this.cpsFramework.getProperty("resultarchive.store", "include.default.local"));
-        if (includeLocal) {
-            boolean alreadyThere = false;
-            for (URI ras : this.uriResultArchiveStores) {
-                if (ras.equals(localRas.toUri())) {
-                    alreadyThere = true;
-                    break;
-                }
-            }
+        this.uriCredentialsStore = locateCredentialsStore(
+            this.logger,env,this.cpsFramework,this.fileSystem);
+        initialiseCredentialsStore(logger,bundleContext);
 
-            if (!alreadyThere) {
-                this.uriResultArchiveStores.add(localRas.toUri());
-            }
-        }
-
-        this.logger.debug("Result Archive Stores are " + this.uriResultArchiveStores.toString());
-
-        // *** Initialise the Result Archive Store
-        this.logger.trace("Searching for RAS providers");
-        final ServiceReference<?>[] rasServiceReference = bundleContext
-                .getAllServiceReferences(IResultArchiveStoreRegistration.class.getName(), null);
-        if ((rasServiceReference == null) || (rasServiceReference.length == 0)) {
-            throw new FrameworkException("No Result Archive Store Services have been found");
-        }
-        for (final ServiceReference<?> rasReference : rasServiceReference) {
-            final IResultArchiveStoreRegistration rasRegistration = (IResultArchiveStoreRegistration) bundleContext
-                    .getService(rasReference);
-            this.logger.trace("Found RAS Provider " + rasRegistration.getClass().getName());
-            rasRegistration.initialise(this);
-        }
-        if (this.framework.getResultArchiveStoreService() == null) {
-            throw new FrameworkException("Failed to initialise a Result Archive Store, unable to continue");
-        }
-        this.logger
-        .trace("Selected RAS Service is " + this.framework.getResultArchiveStoreService().getClass().getName());
-
-        // *** Work out the creds uri
-        try {
-            String credsProperty = System.getenv("GALASA_CREDENTIALS_STORE");
-            if ((credsProperty == null) || credsProperty.isEmpty()) {
-                credsProperty = this.cpsFramework.getProperty("credentials", "store");
-            }
-            if ((credsProperty == null) || credsProperty.isEmpty()) {
-                this.uriCredentialsStore = Paths.get(System.getProperty(USER_HOME), ".galasa", "credentials.properties")
-                        .toUri();
-                createIfMissing(this.uriCredentialsStore);
-            } else {
-                this.uriCredentialsStore = new URI(credsProperty);
-            }
-        } catch (final Exception e) {
-            throw new FrameworkException("Unable to resolve the Credentials Store URI", e);
-        }
-        this.logger.debug("Credentials Store is " + this.uriCredentialsStore.toString());
-
-        // *** Initialise the Credentials Store
-        this.logger.trace("Searching for Creds providers");
-        final ServiceReference<?>[] credsServiceReference = bundleContext
-                .getAllServiceReferences(ICredentialsStoreRegistration.class.getName(), null);
-        if ((credsServiceReference == null) || (credsServiceReference.length == 0)) {
-            throw new FrameworkException("No Credentials Services have been found");
-        }
-        for (final ServiceReference<?> credsReference : credsServiceReference) {
-            final ICredentialsStoreRegistration credsRegistration = (ICredentialsStoreRegistration) bundleContext
-                    .getService(credsReference);
-            this.logger.trace("Found Creds Provider " + credsRegistration.getClass().getName());
-            credsRegistration.initialise(this);
-        }
-        if (this.framework.getCredentialsStore() == null) {
-            throw new FrameworkException("Failed to initialise a Credentials Store, unable to continue");
-        }
-        this.logger
-        .trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
-
-        // *** Initialise the Confidential Test Service
-        this.logger.trace("Searching for Confidential Text Service providers");
-        final ServiceReference<?>[] confidentialServiceReference = bundleContext
-                .getAllServiceReferences(IConfidentialTextServiceRegistration.class.getName(), null);
-        if ((confidentialServiceReference == null) || (confidentialServiceReference.length == 0)) {
-            throw new FrameworkException("No Confidential Text Services have been found");
-        }
-        for (final ServiceReference<?> confidentialReference : confidentialServiceReference) {
-            final IConfidentialTextServiceRegistration credsRegistration = (IConfidentialTextServiceRegistration) bundleContext
-                    .getService(confidentialReference);
-            this.logger.trace("Found Confidential Text Services Provider " + credsRegistration.getClass().getName());
-            credsRegistration.initialise(this);
-        }
-        if (this.framework.getConfidentialTextService() == null) {
-            throw new FrameworkException("Failed to initialise a Confidential Text Services, unable to continue");
-        }
-        this.logger.trace("Selected Confidential Text Service is "
-                + this.framework.getConfidentialTextService().getClass().getName());
-
+        initialiseConfidentialTextService(logger,bundleContext);
+                
         if (framework.isInitialised()) {
-            this.logger.info("Framework initialised");
+            logger.info("Framework initialised");
         } else {
-            this.logger.info("The Framework does not think it is initialised, but we didn't get any errors");
+            logger.info("The Framework does not think it is initialised, but we didn't get any errors");
         }
 
         // *** If this is a test run, add the overrides from the run dss properties to
@@ -352,14 +148,14 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     /**
-     * Create a new run as this run was submitted from the command line, maybe
+     * Submit the run and return the run name.
      * 
      * @param runBundleClass
      * @param language
      * @return The name of the run created.
      * @throws FrameworkException
      */
-    protected String createRunName(String runBundleClass, String language) throws FrameworkException {
+    protected String submitRun(String runBundleClass, String language) throws FrameworkException {
         IRun run = null;
         IFrameworkRuns frameworkRuns = this.framework.getFrameworkRuns();
 
@@ -388,19 +184,29 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * @param propertyFile
      * @throws IOException
      */
-    private void createIfMissing(URI propertyFile) {
+    private void createIfMissing(URI propertyFile, IFileSystem fileSystem) {
 
         Path path = Paths.get(propertyFile);
         try {
-            if (!path.toFile().exists()) {
-                if (!path.getParent().toFile().exists()) {
-                    Files.createDirectories(path.getParent());
+            if (!fileSystem.exists(path)) {
+                // Create the parent folders if they don't exist.
+                if (! fileSystem.exists(path.getParent()) ) {
+                    fileSystem.createDirectories(path.getParent());
                 }
-                Files.createFile(path);
+                // Create an empty file.
+                fileSystem.createFile(path);
             }
         } catch (IOException e) {
             logger.error("Unable to create empty default property file " + path.toUri().toString(), e);
         }
+    }
+
+    private Framework locateFramework(BundleContext bundleContext) throws FrameworkException {
+        ServiceReference<IFramework> frameworkService = bundleContext.getServiceReference(IFramework.class);
+        if (frameworkService == null) {
+            throw new FrameworkException("The framework service is missing");
+        }
+        return (Framework) bundleContext.getService(frameworkService);
     }
 
     /*
@@ -517,4 +323,321 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 		
 	}
 
+    private void assertFrameworkNotAlreadyInitialised(Framework framework) throws FrameworkException {
+        if (this.framework.isInitialised()) {
+            throw new FrameworkException("The framework has already been initialised");
+        }
+    }
+
+    /**
+     * Find where the property store is located, or create a new one if it's not
+     * @param logger
+     * @param env
+     * @param bootstrapProperties
+     * @return
+     * @throws URISyntaxException
+     */
+    private URI locatePropertyStore(
+        Log logger , 
+        Environment env, 
+        Properties bootstrapProperties,
+        IFileSystem fileSystem
+    ) throws URISyntaxException {
+
+        URI storeUri ;
+        String propUri = env.getenv("GALASA_CONFIG_STORE");
+        if ((propUri == null) || propUri.isEmpty()) {
+            propUri = bootstrapProperties.getProperty("framework.config.store");
+        }
+        if ((propUri == null) || propUri.isEmpty()) {
+            String userHome = getUserHome(env);
+            Path path = Paths.get(userHome , ".galasa", "cps.properties");
+            storeUri = path.toUri();
+            createIfMissing(storeUri,fileSystem);
+        } else {
+            storeUri = new URI(propUri);
+        }
+        logger.debug("Configuration Property Store is " + storeUri.toString());
+        return storeUri ;
+    }
+
+
+    // Find where the DSS should be, creating a new blank one if it's not already there.
+    // Note: Not private so we can easily unit test it.
+    URI locateDynamicStatusStore(
+        Log logger, 
+        Environment env, 
+        IConfigurationPropertyStoreService cpsFramework,
+        IFileSystem fileSystem
+    ) throws FrameworkException {
+
+        URI uriDynamicStatusStore = null;
+        try {
+            String dssProperty = env.getenv("GALASA_DYNAMICSTATUS_STORE");
+            if ((dssProperty == null) || dssProperty.isEmpty()) {
+                dssProperty = cpsFramework.getProperty("dynamicstatus", "store");
+            }
+            if ((dssProperty == null) || dssProperty.isEmpty()) {
+                String userHome = getUserHome(env);
+                uriDynamicStatusStore = Paths.get(userHome, ".galasa", "dss.properties")
+                        .toUri();
+                createIfMissing(uriDynamicStatusStore,fileSystem);
+            } else {
+                uriDynamicStatusStore = new URI(dssProperty);
+            }
+        } catch (final Exception e) {
+            throw new FrameworkException("Unable to resolve the Dynamic Status Store URI", e);
+        }
+        logger.debug("Dynamic Status Store is " + uriDynamicStatusStore.toString());
+        return uriDynamicStatusStore;
+    }
+
+    
+    private String getUserHome(Environment env) {
+        
+        // If GALASA_HOME is set as a system property then use that,
+        // otherwise we use the calling users' home folder.
+        String home = env.getProperty(GALASA_HOME);
+        if( (home == null) || (home.trim().isEmpty())) {
+            home = env.getProperty(USER_HOME);
+        }
+
+        return home;
+    }
+
+
+    // Find the run name of the test run, if it's not a set property 
+    // ("framework.run.name")
+    // then create a run name by submitting the run, based on language, properties.
+    private String locateRunName(IConfigurationPropertyStoreService cpsFramework) throws FrameworkException {
+        //*** Ensure the shared environment = true is set for Shenv runs
+        String runName = AbstractManager.nulled(cpsFramework.getProperty("run", "name"));
+        if (runName == null) {
+            String testName = AbstractManager.nulled(cpsFramework.getProperty("run", "testbundleclass"));
+            String testLanguage  = "java";
+            if (testName == null) {
+                testName = AbstractManager.nulled(cpsFramework.getProperty("run", "gherkintest"));
+                testLanguage = "gherkin";
+            }
+            runName = submitRun(testName, testLanguage);
+        }
+        return runName;
+    }
+
+
+    private List<URI> createUriResultArchiveStores(
+        Environment env , 
+        IConfigurationPropertyStoreService cpsFramework
+    ) throws FrameworkException {
+
+        ArrayList<URI> uriResultArchiveStores ;
+
+        String userHome = getUserHome(env);
+        Path localRasPath = Paths.get(userHome, ".galasa", "ras");
+        URI localRasUri = localRasPath.toUri();
+        try {
+            String rasProperty = env.getenv("GALASA_RESULTARCHIVE_STORE");
+            if ((rasProperty == null) || rasProperty.isEmpty()) {
+                rasProperty = cpsFramework.getProperty("resultarchive", "store");
+            }
+            uriResultArchiveStores = new ArrayList<>(1);
+            if ((rasProperty == null) || rasProperty.isEmpty()) {
+                uriResultArchiveStores.add(localRasUri);
+            } else {
+                // Allow for comma-separated list of RAS paths.
+                final String[] rasPaths = rasProperty.split(",");
+                for (final String rasPath : rasPaths) {
+                    if (!rasPath.trim().isEmpty()) {
+                        uriResultArchiveStores.add(new URI(rasPath));
+                    }
+                }
+                if (uriResultArchiveStores.isEmpty()) {
+                    throw new FrameworkException("No Result Archive Store URIs were provided");
+                }
+            }
+        } catch (final FrameworkException e) {
+            throw e;
+        } catch (final Exception e) {
+            throw new FrameworkException("Unable to resolve the Result Archive Store URIs", e);
+        }
+
+
+        // If resultarchive.store.include.default.local is set to TRUE (case insensitive)
+        // then make sure the local RAS store is included in the list of RAS stores.
+        boolean includeLocal = Boolean.parseBoolean(
+            cpsFramework.getProperty("resultarchive.store", "include.default.local"));
+        if (includeLocal) {
+            if (! uriResultArchiveStores.contains(localRasUri)) {
+                this.uriResultArchiveStores.add(localRasUri);
+            }
+        }
+
+        return uriResultArchiveStores;
+    }
+
+
+    private URI locateCredentialsStore(
+        Log logger, 
+        Environment env , 
+        IConfigurationPropertyStoreService cpsFramework,
+        IFileSystem fileSystem
+    ) throws FrameworkException {
+        URI uriCredentialsStore ;
+        // *** Work out the creds uri
+        try {
+            String credsProperty = env.getenv("GALASA_CREDENTIALS_STORE");
+            if ((credsProperty == null) || credsProperty.isEmpty()) {
+                credsProperty = cpsFramework.getProperty("credentials", "store");
+            }
+            if ((credsProperty == null) || credsProperty.isEmpty()) {
+                String userHome = getUserHome(env);
+                uriCredentialsStore = Paths.get(
+                    userHome, ".galasa", "credentials.properties")
+                        .toUri();
+                createIfMissing(uriCredentialsStore,fileSystem);
+            } else {
+                uriCredentialsStore = new URI(credsProperty);
+            }
+        } catch (final Exception e) {
+            throw new FrameworkException("Unable to resolve the Credentials Store URI", e);
+        }
+        logger.debug("Credentials Store is " + uriCredentialsStore.toString());
+        return uriCredentialsStore;
+    }
+
+
+    IConfigurationPropertyStoreService initialiseConfigurationPropertyStore(
+        Log logger, BundleContext bundleContext ) throws FrameworkException,InvalidSyntaxException {
+
+        logger.trace("Searching for CPS providers");
+        final ServiceReference<?>[] cpsServiceReference = bundleContext
+                .getAllServiceReferences(IConfigurationPropertyStoreRegistration.class.getName(), null);
+        if ((cpsServiceReference == null) || (cpsServiceReference.length == 0)) {
+            throw new FrameworkException("No Configuration Property Store Services have been found");
+        }
+        for (final ServiceReference<?> cpsReference : cpsServiceReference) {
+            final IConfigurationPropertyStoreRegistration cpsStoreRegistration = (IConfigurationPropertyStoreRegistration) bundleContext
+                    .getService(cpsReference);
+            logger.trace("Found CPS Provider " + cpsStoreRegistration.getClass().getName());
+            // Call out to the cpsStoreRegistration. 
+            // We expect it to call back on the IFrameworkInitialisation.registerConfigurationPropertyStore call
+            // to set the CPS object into the this.framework, so it can be retrieved by the 
+            // this.framework.getConfigurationPropertyStore() call in a bit...
+            cpsStoreRegistration.initialise(this);
+        }
+        if (this.framework.getConfigurationPropertyStore() == null) {
+            throw new FrameworkException("Failed to initialise a Configuration Property Store, unable to continue");
+        }
+        logger.debug(
+                "Selected CPS Service is " + this.framework.getConfigurationPropertyStore().getClass().getName());
+
+        return this.framework.getConfigurationPropertyService("framework");
+    }
+
+
+    IDynamicStatusStoreService initialiseDynamicStatusStore(Log logger, BundleContext bundleContext ) throws InvalidSyntaxException, FrameworkException {
+
+        logger.trace("Searching for DSS providers");
+        final ServiceReference<?>[] dssServiceReference = bundleContext
+                .getAllServiceReferences(IDynamicStatusStoreRegistration.class.getName(), null);
+        if ((dssServiceReference == null) || (dssServiceReference.length == 0)) {
+            throw new FrameworkException("No Dynamic Status Store Services have been found");
+        }
+        for (final ServiceReference<?> dssReference : dssServiceReference) {
+            final IDynamicStatusStoreRegistration dssStoreRegistration = (IDynamicStatusStoreRegistration) bundleContext
+                    .getService(dssReference);
+            logger.trace("Found DSS Provider " + dssStoreRegistration.getClass().getName());
+            // Some magic here: The dssStoreRegistration calls us back into the register the dss store,
+            // which gets put into the Framework object, so when we call framework.getDynamicStatusStoreService()
+            // it isn't null !
+            dssStoreRegistration.initialise(this);
+        }
+        if (this.framework.getDynamicStatusStore() == null) {
+            throw new FrameworkException("Failed to initialise a Dynamic Status Store, unable to continue");
+        }
+        logger.trace("Selected DSS Service is " + this.framework.getDynamicStatusStore().getClass().getName());
+        
+        return this.framework.getDynamicStatusStoreService("framework");
+    }  
+
+
+    void initialiseResultsArchiveStore(Log logger, BundleContext bundleContext) throws FrameworkException, InvalidSyntaxException {
+        this.logger.trace("Searching for RAS providers");
+        final ServiceReference<?>[] rasServiceReference = bundleContext
+                .getAllServiceReferences(IResultArchiveStoreRegistration.class.getName(), null);
+        if ((rasServiceReference == null) || (rasServiceReference.length == 0)) {
+            throw new FrameworkException("No Result Archive Store Services have been found");
+        }
+        for (final ServiceReference<?> rasReference : rasServiceReference) {
+            final IResultArchiveStoreRegistration rasRegistration = (IResultArchiveStoreRegistration) bundleContext
+                    .getService(rasReference);
+            logger.trace("Found RAS Provider " + rasRegistration.getClass().getName());
+            // Magic here: The ras Registration calls back to this.registerResultArchiveStoreService()
+            // which in turn sets the value into the framework, so that 
+            // ramework.getResultArchiveStoreService() returns non-null.
+            rasRegistration.initialise(this);
+        }
+        if (this.framework.getResultArchiveStoreService() == null) {
+            throw new FrameworkException("Failed to initialise a Result Archive Store, unable to continue");
+        }
+        logger.trace("Selected RAS Service is " + this.framework.getResultArchiveStoreService().getClass().getName());
+    }
+
+
+    void initialiseCredentialsStore(
+        Log logger, 
+        BundleContext bundleContext 
+    ) throws FrameworkException, InvalidSyntaxException {
+
+        // *** Initialise the Credentials Store
+        logger.trace("Searching for Creds providers");
+        final ServiceReference<?>[] credsServiceReference = bundleContext
+                .getAllServiceReferences(ICredentialsStoreRegistration.class.getName(), null);
+        if ((credsServiceReference == null) || (credsServiceReference.length == 0)) {
+            throw new FrameworkException("No Credentials Services have been found");
+        }
+        for (final ServiceReference<?> credsReference : credsServiceReference) {
+            final ICredentialsStoreRegistration credsRegistration = (ICredentialsStoreRegistration) bundleContext
+                    .getService(credsReference);
+            logger.trace("Found Creds Provider " + credsRegistration.getClass().getName());
+            // Magic happens here; The registration code calls back here to registerCredentialsStore()
+            // which in turn pushes that to the framework, so later on, 
+            // framework.getCredentialsStore() returns non-null.
+            credsRegistration.initialise(this);
+        }
+        if (this.framework.getCredentialsStore() == null) {
+            throw new FrameworkException("Failed to initialise a Credentials Store, unable to continue");
+        }
+        logger.trace("Selected Credentials Service is " + this.framework.getCredentialsStore().getClass().getName());
+    }
+
+
+    void initialiseConfidentialTextService(
+        Log logger, 
+        BundleContext bundleContext 
+    ) throws FrameworkException, InvalidSyntaxException {
+
+        // *** Initialise the Confidential Text Service
+        logger.trace("Searching for Confidential Text Service providers");
+        final ServiceReference<?>[] confidentialServiceReference = bundleContext
+                .getAllServiceReferences(IConfidentialTextServiceRegistration.class.getName(), null);
+        if ((confidentialServiceReference == null) || (confidentialServiceReference.length == 0)) {
+            throw new FrameworkException("No Confidential Text Services have been found");
+        }
+        for (final ServiceReference<?> confidentialReference : confidentialServiceReference) {
+            final IConfidentialTextServiceRegistration credsRegistration = (IConfidentialTextServiceRegistration) bundleContext
+                    .getService(confidentialReference);
+            logger.trace("Found Confidential Text Services Provider " + credsRegistration.getClass().getName());
+            // Magic happens here; The registration code calls back here to registerConfidentialTextstore()
+            // which in turn pushes that to the framework, so later on, 
+            // framework.getConfidentialTextService returns non-null.
+            credsRegistration.initialise(this);
+        }
+        if (this.framework.getConfidentialTextService() == null) {
+            throw new FrameworkException("Failed to initialise a Confidential Text Services, unable to continue");
+        }
+        logger.trace("Selected Confidential Text Service is "
+                + this.framework.getConfidentialTextService().getClass().getName());
+
+    }
 }

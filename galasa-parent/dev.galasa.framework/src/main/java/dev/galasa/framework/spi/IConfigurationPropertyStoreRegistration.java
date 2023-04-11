@@ -30,8 +30,9 @@ public interface IConfigurationPropertyStoreRegistration {
      *                                various initialisation methods
      * @throws ConfigurationPropertyStoreException - If there is a problem
      *                                             initialising the underlying store
+     * @throws ResultArchiveStoreException
      */
     void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
-            throws ConfigurationPropertyStoreException;
+            throws ConfigurationPropertyStoreException, ResultArchiveStoreException;
 
 }

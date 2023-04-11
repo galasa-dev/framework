@@ -43,7 +43,7 @@ public class FpfConfigurationPropertyRegistration implements IConfigurationPrope
         File file = new File(cps);
 
         if ((!file.exists())) {
-            throw new ConfigurationPropertyStoreException("CPS file does not exsist");
+            throw new ConfigurationPropertyStoreException("CPS file does not exist");
         }
         if (isFileUri(cps)) {
             frameworkInitialisation.registerConfigurationPropertyStore(new FpfConfigurationPropertyStore(cps));
