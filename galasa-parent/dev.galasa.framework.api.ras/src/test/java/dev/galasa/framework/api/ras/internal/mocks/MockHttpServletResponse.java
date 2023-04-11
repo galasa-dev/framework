@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 public class MockHttpServletResponse implements HttpServletResponse {
 
     private PrintWriter writer ;
+    private int status;
     private String contentType ;
     private Map<String,String> headers ;
 
@@ -32,7 +33,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
         return this.contentType;
     }
 
-    @Override
+    
     public ServletOutputStream getOutputStream() throws IOException {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getOutputStream'");
@@ -205,8 +206,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     @Override
     public void setStatus(int sc) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setStatus'");
+        this.status = sc;
     }
 
     @Override
@@ -217,8 +217,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     @Override
     public int getStatus() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getStatus'");
+        return this.status;
     }
 
     @Override

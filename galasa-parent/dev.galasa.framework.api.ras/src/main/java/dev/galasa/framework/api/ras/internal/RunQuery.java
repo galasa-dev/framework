@@ -8,6 +8,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -57,6 +59,9 @@ public class RunQuery extends HttpServlet {
 
 	final static Gson gson = GalasaGsonBuilder.build();
 
+	private Log  logger  =  LogFactory.getLog(this.getClass());
+
+	Map<String,String> paramMap ;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -64,29 +69,18 @@ public class RunQuery extends HttpServlet {
 		int pageNum = 1;
 		int pageSize = 100;
 
-		Map<String,String> paramMap = getParameterMap(req);
+		paramMap= getParameterMap(req);
 
-		if (paramMap.get("page") != null && !paramMap.get("page").equals("")) {
-			try {
-				pageNum = Integer.parseInt(paramMap.get("page"));
-			} catch (Exception e) {
-				throw new ServletException("Error parsing integer, ",e);
-			}
-		}
-
-		if (paramMap.get("size") != null && !paramMap.get("size").equals("")) {
-			try {
-				pageSize = Integer.parseInt(paramMap.get("size"));
-			} catch (Exception e) {
-				throw new ServletException("Error parsing integer, ", e);
-			}
-		}
+		pageNum = setPageProperty(resp, "page", pageNum);
+		pageSize = setPageProperty(resp, "size", pageSize);
 
 		List<RasRunResult> runs = new ArrayList<>();
 
 		/* Get list of Run Ids from the URL -
 		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
+
+		//private List<RasRunResult> (){}
 
 		String runIdsParam = "";
 		if (paramMap.get("runId") != null && !paramMap.get("runId").isEmpty()) {
@@ -102,7 +96,8 @@ public class RunQuery extends HttpServlet {
 						runs.add(RunResultUtility.toRunResult(run, true));
 					}
 				} catch (ResultArchiveStoreException e) {
-					throw new ServletException("Error retrieving run " + runId, e);
+					sendResponse(resp, "{\"error\":\"Error retrieving run "+runId+"\"}", 500);
+					logger.error("Error retrieving run"+runId,e);
 				}
 			}
 
@@ -138,7 +133,8 @@ public class RunQuery extends HttpServlet {
 				critList.add(fromCriteria);
  
 			} catch (Exception e) {
-				throw new ServletException("Error parsing Instant, ", e);
+				sendResponse(resp, "{\"error\":\"Error parsing Instant\"}", 500);
+				logger.error("Error parsing Instant",e);
 			}
 
 			if (requestor != null && !requestor.isEmpty()) {
@@ -165,7 +161,8 @@ public class RunQuery extends HttpServlet {
 			try {
 				runs = getRuns(critList);
 			} catch (Exception e) {
-				throw new ServletException("Error retrieving runs, ", e);
+				sendResponse(resp, "{\"error\":\"Error retrieving runs\"}", 500);
+				logger.error("Error retrieving runs",e);
 			}
 		}
 
@@ -207,21 +204,42 @@ public class RunQuery extends HttpServlet {
 			try {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
-				throw new ServletException("Error retrieving page, ", e);
+				sendResponse(resp, "{\"error\":\"Error retrieving page\"}", 500);
+				logger.error("Error retrieving page",e);
 			}	
 		}
 
-		try {
-			PrintWriter out = resp.getWriter();
-			resp.setContentType( "Application/json");
-			resp.addHeader("Access-Control-Allow-Origin", "*");
-			out.print(json);
-			out.close();
-		} catch (Exception e) {
-			throw new ServletException("An error occurred whilst retrieving runs", e);
-		}
+		sendResponse(resp, json,200);
 	}
 
+	private int setPageProperty(HttpServletResponse resp, String pageKey, int pageValue){
+		if (paramMap.get(pageKey) != null && !paramMap.get(pageKey).equals("")) {
+			try {
+				pageValue = Integer.parseInt(paramMap.get(pageKey));
+				return pageValue;
+			} catch (Exception e) {
+				sendResponse(resp, "{\"error\":\"Error retrieving page\"}", 500);
+				logger.error("Error retrieving page",e);
+			}
+		}
+		return pageValue;
+		
+	}	
+
+	public void sendResponse(HttpServletResponse resp , String json , int status){
+		//Set headers for HTTP Response
+		resp.setStatus(status);
+		resp.setContentType( "Application/json");
+		resp.addHeader("Access-Control-Allow-Origin", "*");
+		try{
+			PrintWriter out = resp.getWriter();
+			out.print(json);
+			out.close();
+		}catch(Exception e){
+			logger.error("Error trying to set output buffer",e);
+		}
+
+	}
 	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageIndex, int pageSize, int numPages) {
 		JsonObject obj = new JsonObject();
 
@@ -352,7 +370,7 @@ public class RunQuery extends HttpServlet {
 	}
 
 
-	private List<RasRunResult> sortResults(
+	public List<RasRunResult> sortResults(
 		List<RasRunResult> unsortedRuns,
 		Map<String,String> paramMap,
 		Map<String,String[]> query
@@ -370,7 +388,7 @@ public class RunQuery extends HttpServlet {
 		boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
 
 		String sortValue = paramMap.get("sort");
-		if (sortValue != null) {
+		//if (sortValue != null) {
 			if (!ExtractQuerySort.isAscending(query, "to")) {
 				Collections.reverse(runs);
 			} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
@@ -384,7 +402,7 @@ public class RunQuery extends HttpServlet {
 				Collections.sort(runs, new SortByResult());
 				Collections.reverse(runs);
 			}
-		}
+		//}
 		return runs;
 	}
 }

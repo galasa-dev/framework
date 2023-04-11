@@ -211,34 +211,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
-  /ras/runname/{runname}:
-    get:
-      operationId: getRasRunIDsByName
-      summary: Get all Run Ids from a Run Name
-      tags: 
-      - Result Archive Store API
-      parameters:
-        - name: runname
-          in: path
-          description: Run Name
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Array of Run Ids
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
   /ras/run/{runid}:
     get:
       operationId: getRasRunById
@@ -301,61 +273,79 @@ paths:
     get:
       operationId: getRasSearchRuns
       summary: Get Runs from Query
+      description: |
+        API endpoint to query the Result Archive Store (RAS) for a list of runs based on the given search criteria.
+
+        If no search criteria is provided then the first page of resutls will be returned. 
+
+        If no timeframe is specified in the query then the results will update as new tests are run which may result in duplicate and/or missing test runs.
+        
       tags: 
       - Result Archive Store API
       parameters:
         - name: sort
           in: query
-          description: provides sorting, to:asc or to:desc
+          description: Sorts the returned runs based on the sort field, to:asc or to:desc
+          required: true
           schema: 
             type: string
+          example: requestor:asc
         - name: result
           in: query
-          description: Result Name
+          description: Result Status for the run
           schema:
             type: string
+          example: Passed
         - name: bundle
           in: query
-          description: Bundle Name
+          description: The name of the Bundle bundle that this test run is part of 
           schema:
             type: string
+          example: dev.galasa.inttests
         - name: requestor
           in: query
-          description: Requestor Name
+          description: Name of the test Requestor / submitter
           schema:
             type: string
+          example: galasa  
         - name: from
           in: query
-          description: Date Number From
+          description: Retrieve runs from the given date and time
           schema:
             type: string
             format: date-time
+          example: '2023-04-11T09:42:06.589180Z' 
         - name: to
           in: query
-          description: Date Number To
+          description: Retrieve runs up to the given date and time
           schema:
             type: string
             format: date-time
+          example: '2023-04-11T09:43:27.324075Z"'
         - name: testname
           in: query
-          description: Test Class Name
+          description: The full test name (package + short test name)
           schema:
             type: string
+          example: dev.galasa.inttests.simbank.local.mvp.SimBankLocalJava11UbuntuMvp   
         - name: page
           in: query
-          description: Page Number
+          description: The desired output page number
           schema:
             type: number
+          example: 2  
         - name: size
           in: query
-          description: Request Size
+          description: The number of test results outputted per page 
           schema:
             type: number
+          example: 20
         - name: runId
           in: query
-          description: Run ID
+          description: Run ID for a specific test run as seen by the RAS
           schema:
             type: string
+          example : cdb-a4ddb7fd1dab8d6025e4f3894010d20d
       responses:
         '200':
           description: Array of Run Objects
@@ -369,6 +359,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+              examples:
+                runerror: 
+                  value: 
+                    error: "Error Retrieving Runs"
+                  summary: An error occured when trying to retireve the runs
+                pageerror:
+                  value: 
+                    error: "Error retrieving page"
+                  summary: An error occured when trying to return a results page
+                instanterror:
+                  value:
+                    error: "Error parsing Instant"
+                  summary: An error occurred trying to interpret the date-time parameters in to and from fields
+                runiderror:
+                  value:
+                    error: "Error retrieving run cdb-a4ddb7fd1dab8d6025e4f3894010d20d"
+                  summary: An error occured when trying to retrieve a specific run  using a runId
   /ras/run/{runid}/runlog:
     get:
       operationId: getRasRunLog

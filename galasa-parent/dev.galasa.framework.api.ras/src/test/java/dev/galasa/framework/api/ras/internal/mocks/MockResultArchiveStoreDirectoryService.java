@@ -64,8 +64,14 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 	@Override
 	public IRunResult getRunById(@NotNull String runId) throws ResultArchiveStoreException {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getRunById'");
+		List <IRunResult> runResults = this.getRunsResults;
+		for (int c =0; c < runResults.size(); c++){
+			IRunResult match = runResults.get(c);
+			if ( match.getRunId().equals(runId)){
+				return  match;
+			}
+		}
+		return null;
 	}
     
 }
