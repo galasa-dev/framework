@@ -1,15 +1,11 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * 
- * @author James Davies
  *
  */
 public interface IConfigurationPropertyStoreRegistration {
@@ -30,9 +26,8 @@ public interface IConfigurationPropertyStoreRegistration {
      *                                various initialisation methods
      * @throws ConfigurationPropertyStoreException - If there is a problem
      *                                             initialising the underlying store
-     * @throws ResultArchiveStoreException
      */
     void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation)
-            throws ConfigurationPropertyStoreException, ResultArchiveStoreException;
+            throws ConfigurationPropertyStoreException;
 
 }
