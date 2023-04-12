@@ -71,8 +71,8 @@ public class RunQuery extends HttpServlet {
 
 		paramMap= getParameterMap(req);
 
-		pageNum = setPageProperty(resp, "page", pageNum);
-		pageSize = setPageProperty(resp, "size", pageSize);
+		pageNum = extractPageProperty(resp, "page", pageNum);
+		pageSize = extractPageProperty(resp, "size", pageSize);
 
 		List<RasRunResult> runs = new ArrayList<>();
 
@@ -212,7 +212,7 @@ public class RunQuery extends HttpServlet {
 		sendResponse(resp, json,200);
 	}
 
-	private int setPageProperty(HttpServletResponse resp, String pageKey, int pageValue){
+	private int extractPageProperty(HttpServletResponse resp, String pageKey, int pageValue){
 		if (paramMap.get(pageKey) != null && !paramMap.get(pageKey).equals("")) {
 			try {
 				pageValue = Integer.parseInt(paramMap.get(pageKey));
