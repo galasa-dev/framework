@@ -11,6 +11,8 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -96,7 +98,8 @@ public class RunQuery extends HttpServlet {
 						runs.add(RunResultUtility.toRunResult(run, true));
 					}
 				} catch (ResultArchiveStoreException e) {
-					sendResponse(resp, "{\"error\":\"Error retrieving run "+runId+"\"}", 500);
+					// @@@@@@@@@@
+					sendResponse(resp, new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"runId").toString(), 500);
 					logger.error("Error retrieving run"+runId,e);
 				}
 			}
