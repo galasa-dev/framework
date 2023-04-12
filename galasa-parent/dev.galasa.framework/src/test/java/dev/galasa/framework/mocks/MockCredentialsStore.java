@@ -27,7 +27,6 @@ public class MockCredentialsStore implements ICredentialsStore {
 
     @Override
     public void shutdown() throws CredentialsException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
     }
 

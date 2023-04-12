@@ -17,19 +17,16 @@ public class MockConfidentialTextStore implements IConfidentialTextService {
 
     @Override
     public void registerText(String confidentialString, String comment) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'registerText'");
     }
 
     @Override
     public String removeConfidentialText(String text) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'removeConfidentialText'");
     }
 
     @Override
     public void shutdown() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
     }
 

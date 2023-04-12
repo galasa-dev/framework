@@ -30,13 +30,11 @@ public class MockDSSStore implements IDynamicStatusStore {
 
     @Override
     public void put(@NotNull String key, @NotNull String value) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'put'");
     }
 
     @Override
     public void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'put'");
     }
 
@@ -77,50 +75,42 @@ public class MockDSSStore implements IDynamicStatusStore {
 
     @Override
     public void delete(@NotNull String key) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
 
     @Override
     public void delete(@NotNull Set<String> keys) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
 
     @Override
     public void deletePrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deletePrefix'");
     }
 
     @Override
     public void performActions(IDssAction... actions)
             throws DynamicStatusStoreException, DynamicStatusStoreMatchException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'performActions'");
     }
 
     @Override
     public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'watch'");
     }
 
     @Override
     public UUID watchPrefix(IDynamicStatusStoreWatcher watcher, String keyPrefix) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'watchPrefix'");
     }
 
     @Override
     public void unwatch(UUID watchId) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'unwatch'");
     }
 
     @Override
     public void shutdown() throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
     }
     

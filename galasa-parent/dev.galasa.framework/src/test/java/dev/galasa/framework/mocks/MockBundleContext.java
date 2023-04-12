@@ -22,13 +22,10 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceObjects;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.apache.commons.logging.*;
 
 public class MockBundleContext implements BundleContext{
 
     private Map<String,MockServiceReference<?>> services ;
-    private final static Log logger = LogFactory.getLog(MockBundleContext.class);
-
 
     /**
      * @param services A map. The key is the interface/class name. 
@@ -152,7 +149,7 @@ public class MockBundleContext implements BundleContext{
 
     @Override
     public ServiceReference<?> getServiceReference(String clazz) {
-        logger.info("getServiceReference(String clazz="+clazz+")");
+        // logger.info("getServiceReference(String clazz="+clazz+")");
         ServiceReference<?> ref = this.services.get(clazz);
         return ref;
     }
@@ -160,7 +157,7 @@ public class MockBundleContext implements BundleContext{
     @SuppressWarnings("unchecked")
     @Override
     public <S> ServiceReference<S> getServiceReference(Class<S> clazz) {
-        logger.info("getServiceReference(Class<S> clazz="+clazz.getName()+")");
+        // logger.info("getServiceReference(Class<S> clazz="+clazz.getName()+")");
         String className = clazz.getName();
         ServiceReference<S> result ;
         
@@ -178,7 +175,7 @@ public class MockBundleContext implements BundleContext{
 
     @Override
     public <S> S getService(ServiceReference<S> reference) {
-        logger.info("getService(ServiceReference<S> reference="+reference.getClass().getName()+")");
+        // logger.info("getService(ServiceReference<S> reference="+reference.getClass().getName()+")");
 
         S result = ((MockServiceReference<S>)reference).getService();
         return result;

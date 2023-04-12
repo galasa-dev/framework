@@ -95,7 +95,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             this.framework.installLogCapture();
         }
 
-        this.uriConfigurationPropertyStore = locatePropertyStore(
+        this.uriConfigurationPropertyStore = locateConfigurationPropertyStore(
             this.logger, env,this.bootstrapProperties, this.fileSystem);
         this.cpsFramework = initialiseConfigurationPropertyStore(logger,bundleContext);
 
@@ -331,13 +331,15 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     /**
      * Find where the property store is located, or create a new one if it's not
+     * 
+     * Note: package level scope so we can unit test it.
      * @param logger
      * @param env
      * @param bootstrapProperties
      * @return
      * @throws URISyntaxException
      */
-    private URI locatePropertyStore(
+    URI locateConfigurationPropertyStore(
         Log logger , 
         Environment env, 
         Properties bootstrapProperties,
@@ -350,8 +352,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             propUri = bootstrapProperties.getProperty("framework.config.store");
         }
         if ((propUri == null) || propUri.isEmpty()) {
-            String userHome = getUserHome(env);
-            Path path = Paths.get(userHome , ".galasa", "cps.properties");
+            String galasaHome = getGalasaHome(env);
+            Path path = Paths.get(galasaHome , "cps.properties");
             storeUri = path.toUri();
             createIfMissing(storeUri,fileSystem);
         } else {
@@ -378,8 +380,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                 dssProperty = cpsFramework.getProperty("dynamicstatus", "store");
             }
             if ((dssProperty == null) || dssProperty.isEmpty()) {
-                String userHome = getUserHome(env);
-                uriDynamicStatusStore = Paths.get(userHome, ".galasa", "dss.properties")
+                String galasaHome = getGalasaHome(env);
+                uriDynamicStatusStore = Paths.get(galasaHome, "dss.properties")
                         .toUri();
                 createIfMissing(uriDynamicStatusStore,fileSystem);
             } else {
@@ -393,13 +395,17 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     
-    private String getUserHome(Environment env) {
+    private String getGalasaHome(Environment env) {
         
-        // If GALASA_HOME is set as a system property then use that,
-        // otherwise we use the calling users' home folder.
+        // 1st: If GALASA_HOME is set as a system property then use that,
+        // 2nd: If GALASA_HOME is set as a system environment variable, then use that.
+        // 3rd: otherwise we use the calling users' home folder.
         String home = env.getProperty(GALASA_HOME);
         if( (home == null) || (home.trim().isEmpty())) {
-            home = env.getProperty(USER_HOME);
+            home = env.getenv(GALASA_HOME);
+            if( (home == null) || (home.trim().isEmpty())) {
+                home = env.getProperty(USER_HOME)+"/.galasa";
+            }
         }
 
         return home;
@@ -425,25 +431,41 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
 
-    private List<URI> createUriResultArchiveStores(
+    /**
+     * Creates a list of URIs which refer to Result Archive Stores.
+     * 
+     * @param env
+     * @param cpsFramework
+     * @return
+     * @throws FrameworkException
+     */
+    List<URI> createUriResultArchiveStores(
         Environment env , 
         IConfigurationPropertyStoreService cpsFramework
     ) throws FrameworkException {
 
         ArrayList<URI> uriResultArchiveStores ;
 
-        String userHome = getUserHome(env);
-        Path localRasPath = Paths.get(userHome, ".galasa", "ras");
+        String galasaHome = getGalasaHome(env);
+        Path localRasPath = Paths.get(galasaHome, "ras");
         URI localRasUri = localRasPath.toUri();
         try {
+            // Use the GALASA_RESULTARCHIVE_STORE in preference to anything else.
             String rasProperty = env.getenv("GALASA_RESULTARCHIVE_STORE");
             if ((rasProperty == null) || rasProperty.isEmpty()) {
+                // Fall back on cps property "framework.resultarchive.store"
                 rasProperty = cpsFramework.getProperty("resultarchive", "store");
             }
+
+            // Create the empty list.
             uriResultArchiveStores = new ArrayList<>(1);
+
             if ((rasProperty == null) || rasProperty.isEmpty()) {
+                // Neither environment nor cps have set the RAS location.
+                // Default to a local RAS
                 uriResultArchiveStores.add(localRasUri);
             } else {
+
                 // Allow for comma-separated list of RAS paths.
                 final String[] rasPaths = rasProperty.split(",");
                 for (final String rasPath : rasPaths) {
@@ -476,7 +498,16 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
 
-    private URI locateCredentialsStore(
+    /**
+     * Find the credentials store, creating it if it doesn't already exist.
+     * @param logger
+     * @param env
+     * @param cpsFramework
+     * @param fileSystem
+     * @return
+     * @throws FrameworkException
+     */
+    URI locateCredentialsStore(
         Log logger, 
         Environment env , 
         IConfigurationPropertyStoreService cpsFramework,
@@ -490,9 +521,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                 credsProperty = cpsFramework.getProperty("credentials", "store");
             }
             if ((credsProperty == null) || credsProperty.isEmpty()) {
-                String userHome = getUserHome(env);
+                String galasaHome = getGalasaHome(env);
                 uriCredentialsStore = Paths.get(
-                    userHome, ".galasa", "credentials.properties")
+                    galasaHome, "credentials.properties")
                         .toUri();
                 createIfMissing(uriCredentialsStore,fileSystem);
             } else {
