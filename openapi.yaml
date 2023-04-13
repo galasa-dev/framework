@@ -280,6 +280,19 @@ paths:
 
         If no timeframe is specified in the query then the results will update as new tests are run which may result in duplicate and/or missing test runs.
         
+        |Parameter|Repeatable|Comments                            |
+        |---------|----------|------------------------------------|
+        |sort     |Yes       |Only works with result and testclass|
+        |result   |No        |                                    |
+        |rundle   |No        |                                    |
+        |requestor|No        |                                    |
+        |from     |No        |                                    |
+        |to       |No        |                                    |
+        |testname |No        |                                    |
+        |page     |No        |                                    |
+        |size     |No        |                                    |
+        |runid    |No        |                                    |
+
       tags: 
       - Result Archive Store API
       parameters:
@@ -289,7 +302,11 @@ paths:
           required: true
           schema: 
             type: string
-          example: requestor:asc
+          examples:
+            single:
+              value: result:asc
+            multiple:
+              value: results:asc,testclass:desc  
         - name: result
           in: query
           description: Result Status for the run
