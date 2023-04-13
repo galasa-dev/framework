@@ -194,6 +194,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                     fileSystem.createDirectories(path.getParent());
                 }
                 // Create an empty file.
+                logger.info("File "+path.toString()+" does not exist, so creating it.");
                 fileSystem.createFile(path);
             }
         } catch (IOException e) {
@@ -350,11 +351,17 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         String propUri = env.getenv("GALASA_CONFIG_STORE");
         if ((propUri == null) || propUri.isEmpty()) {
             propUri = bootstrapProperties.getProperty("framework.config.store");
+            if ((propUri != null) && (!propUri.isEmpty())) {
+                logger.debug("bootstrap property framework.config.store used to determine CPS location.");
+            }
+        } else {
+            logger.debug("GALASA_CONFIG_STORE used to determine CPS location.");
         }
         if ((propUri == null) || propUri.isEmpty()) {
             String galasaHome = getGalasaHome(env);
             Path path = Paths.get(galasaHome , "cps.properties");
             storeUri = path.toUri();
+            logger.debug("galasa home used to determine CPS location.");
             createIfMissing(storeUri,fileSystem);
         } else {
             storeUri = new URI(propUri);
@@ -396,7 +403,6 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     
     private String getGalasaHome(Environment env) {
-        
         // 1st: If GALASA_HOME is set as a system property then use that,
         // 2nd: If GALASA_HOME is set as a system environment variable, then use that.
         // 3rd: otherwise we use the calling users' home folder.
@@ -405,12 +411,17 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             home = env.getenv(GALASA_HOME);
             if( (home == null) || (home.trim().isEmpty())) {
                 home = env.getProperty(USER_HOME)+"/.galasa";
+                logger.info("System property "+USER_HOME+" used to set value of home location.");
+            } else {
+                logger.info("Environment variable GALASA_HOME used to set value of home location.");
             }
+        } else {
+            logger.info("System property GALASA_HOME used to set value of home location.");
         }
+        logger.info("Galasa home location is "+home);
 
         return home;
     }
-
 
     // Find the run name of the test run, if it's not a set property 
     // ("framework.run.name")
@@ -425,8 +436,10 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                 testName = AbstractManager.nulled(cpsFramework.getProperty("run", "gherkintest"));
                 testLanguage = "gherkin";
             }
+            logger.info("Submitting test "+testName);
             runName = submitRun(testName, testLanguage);
         }
+        logger.info("Run name is "+runName);
         return runName;
     }
 
