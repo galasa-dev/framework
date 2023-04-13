@@ -99,8 +99,8 @@ public class RunQuery extends HttpServlet {
 					}
 				} catch (ResultArchiveStoreException e) {
 					// @@@@@@@@@@
-					sendResponse(resp, new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"runId").toString(), 500);
-					logger.error("Error retrieving run"+runId,e);
+					sendResponse(resp, new ServletError(GAL5002_INVALID_RUN_ID,runId).toString(), 500);
+					logger.error(new ServletError(GAL5002_INVALID_RUN_ID,runId).toString(),e);
 				}
 			}
 
@@ -124,7 +124,11 @@ public class RunQuery extends HttpServlet {
 					RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
 					critList.add(toCriteria);
 				}
-
+				} catch (Exception e) {
+				sendResponse(resp, new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to"+to ).toString(), 500);
+				logger.error(new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to"+to).toString(),e);
+			}
+			try{
 				Instant fromCrit = null;
 				if (from != null && !from.isEmpty()) {
 					fromCrit = Instant.parse(from);
@@ -136,8 +140,8 @@ public class RunQuery extends HttpServlet {
 				critList.add(fromCriteria);
  
 			} catch (Exception e) {
-				sendResponse(resp, "{\"error\":\"Error parsing Instant\"}", 500);
-				logger.error("Error parsing Instant",e);
+				sendResponse(resp, new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from"+from ).toString(), 500);
+				logger.error(new ServletError(GAL5001_INVALID_DATE_TIME_FIELD, "from"+from).toString(),e);
 			}
 
 			if (requestor != null && !requestor.isEmpty()) {
@@ -164,8 +168,8 @@ public class RunQuery extends HttpServlet {
 			try {
 				runs = getRuns(critList);
 			} catch (Exception e) {
-				sendResponse(resp, "{\"error\":\"Error retrieving runs\"}", 500);
-				logger.error("Error retrieving runs",e);
+				sendResponse(resp, new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString(), 500);
+				logger.error(new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString(),e);
 			}
 		}
 
@@ -207,8 +211,8 @@ public class RunQuery extends HttpServlet {
 			try {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
-				sendResponse(resp, "{\"error\":\"Error retrieving page\"}", 500);
-				logger.error("Error retrieving page",e);
+				sendResponse(resp, new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString(), 500);
+				logger.error(new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString(),e);
 			}	
 		}
 
@@ -221,8 +225,8 @@ public class RunQuery extends HttpServlet {
 				pageValue = Integer.parseInt(paramMap.get(pageKey));
 				return pageValue;
 			} catch (Exception e) {
-				sendResponse(resp, "{\"error\":\"Error retrieving page\"}", 500);
-				logger.error("Error retrieving page",e);
+				sendResponse(resp, new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString(), 500);
+				logger.error(new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString(),e);
 			}
 		}
 		return pageValue;
