@@ -577,7 +577,7 @@ public class TestRunQuery {
 
 		//Then...
 		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5001,\"error_message\":\"GAL5001E: Error parsing the date-time field from erroneousValue\"}");
+		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5001,\"error_message\":\"GAL5001E: Error parsing the date-time field from "+fromtime[0]+"\"}");
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -595,7 +595,7 @@ public class TestRunQuery {
 		String[] totime = {"erroneousValue"};
 		parameterMap.put("requestor", requestorValues );
 		parameterMap.put("sort", sortValues );
-		parameterMap.put("from", totime);
+		parameterMap.put("to", totime);
 
 		TestParameters testParameters = new TestParameters(mockInputRunResults,parameterMap);
 
@@ -609,7 +609,7 @@ public class TestRunQuery {
 
 		//Then...
 		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5001,\"error_message\":\"GAL5001E: Error parsing the date-time field from erroneousValue\"}");
+		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5001,\"error_message\":\"GAL5001E: Error parsing the date-time field to "+totime[0]+"\"}");
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
