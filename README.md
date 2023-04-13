@@ -23,6 +23,22 @@ Take a look at the [contribution guidelines](https://github.com/galasa-dev/proje
 Use the `build-locally.sh` script. 
 See the comments at the top of the script for options you can use and a list of environment variables you can override.
 
+## Configuration of the framework component
+When the framework runs, it requires some level of configuration to run.
+
+### Environment Variables
+Environment variables are set in several ways. In unix systems use `export X=Y`. In Windows use `set X=Y` or use the user interface to set values. 
+Here are the environment variables used by the framework component:
+- `GALASA_HOME` - holds the path which should be used in preference to the `${HOME}/.galasa` location. Optional. This setting is overridden by the system property of the same name. Defaults to `${HOME}/.galasa` if not specified. For example: /mygalasahome
+
+### System Properties
+System properties are passed to the framework when the JVM is invoked using the `-D{NAME}={VALUE}` syntax. 
+Here are the system properties which the framework understands:
+
+- `GALASA_HOME` - holds the path which should be used in preference to the `${HOME}/.galasa` location. Optional. This setting overrides 
+the environment variable of the same name, which in turn overrides the default of `${HOME}/.galasa` if not specified. 
+
+
 ## License
 
 This code is under the [Eclipse Public License 2.0](https://github.com/galasa-dev/maven/blob/main/LICENSE).
