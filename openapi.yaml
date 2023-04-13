@@ -353,29 +353,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RunResults'
-        '500':
-          description: Error
+        '400':
+          description: Bad request Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JsonError'
+                $ref: '#/components/schemas/APIError'
               examples:
+                fromerror:
+                  value:
+                    error_code: 5001
+                    error_message: "GAL5001E: Error parsing the date-time field from 202E-04-12T13:08:10.295971Z"
+                  summary: An error occured parsing the from date-time field
+                toerror:
+                  value:
+                    error_code: 5001
+                    error_message:  "GAL5001E: Error parsing the date-time field to 2023-0F-12T13:08:10.295971Z"
+                  summary: An error occured parsing the to date-time field
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runiderror:
+                  value:
+                    error_code: 5002
+                    error_message:  "GAL5002E: Error retrieving run cdb-a4ddb7fd1dab8d6025e4f3894010d20d"
+                  summary: An error occured when trying to retrieve a specific run  using a runId
                 runerror: 
                   value: 
-                    error: "Error Retrieving Runs"
+                    error_code: 5003
+                    error_message: "GAL5003E: Error Retrieving Runs"
                   summary: An error occured when trying to retireve the runs
                 pageerror:
                   value: 
-                    error: "Error retrieving page"
+                    error_code: 5004
+                    error_message: "GAL5004E: Error retrieving page"
                   summary: An error occured when trying to return a results page
-                instanterror:
-                  value:
-                    error: "Error parsing Instant"
-                  summary: An error occurred trying to interpret the date-time parameters in to and from fields
-                runiderror:
-                  value:
-                    error: "Error retrieving run cdb-a4ddb7fd1dab8d6025e4f3894010d20d"
-                  summary: An error occured when trying to retrieve a specific run  using a runId
   /ras/run/{runid}/runlog:
     get:
       operationId: getRasRunLog
@@ -591,6 +607,12 @@ components:
     JsonError:
       properties:
         error:
+          type: string
+    APIError:
+      properties:
+        error_code:
+          type: integer
+        error_message:
           type: string
     TestRuns:
       properties:
