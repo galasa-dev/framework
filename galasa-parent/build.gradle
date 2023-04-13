@@ -1,13 +1,29 @@
 plugins {
+    id 'java'
     id 'biz.aQute.bnd.builder' version '5.3.0' apply false
     id 'dev.galasa.githash' version '0.15.0' apply false
 }
 
-task clean {
-   // make sure the build directory is gone 
-   doFirst {
-      delete "${buildDir}"
-   }
+repositories {
+    gradlePluginPortal()
+    mavenCentral()
+    maven {
+        url "https://development.galasa.dev/main/maven-repo/obr/"
+    }
+    mavenLocal()
+}
+
+dependencies {
+    // We need the swagger generator to generate API documentation from the openapi.yaml file
+    // https://mvnrepository.com/artifact/io.swagger.codegen.v3/swagger-codegen-cli
+    implementation 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
+}
+
+task downloadDependencies(type: Copy) {
+    // Download the dependencies onto the local disk.
+    from configurations.compileClasspath
+    into 'build/dependencies'
+    dependsOn configurations.compileClasspath
 }
 
 gradle.taskGraph.beforeTask { Task task ->

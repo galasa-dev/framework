@@ -4,7 +4,10 @@
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
-  version: 0.17.0
+  version: 0.26.0
+  description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
+  contact:
+    url: https://galasa.dev/support
 
 servers:
   - url: '/'
@@ -710,11 +713,11 @@ components:
         befores:
           type: array
           items:
-            $ref: '#/components/schemas/TestMethod'
+            type: object
         afters:
           type: array
           items:
-            $ref: '#/components/schemas/TestMethod'
+            type: object
     Artifact:
       properties:
         artifactPath:

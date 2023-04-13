@@ -25,7 +25,7 @@ framework:
     codecoverage: true
     
   - artifact: galasa-boot
-    version: 0.26.0
+    version: 0.27.0
     mvp: true
     codecoverage: true
 
@@ -37,7 +37,7 @@ framework:
     codecoverage: true
     
   - artifact: dev.galasa.framework.k8s.controller
-    version: 0.25.0
+    version: 0.27.0
     obr: true
     isolated: true
     codecoverage: true
@@ -84,7 +84,7 @@ api:
     codecoverage: true
     
   - artifact: dev.galasa.framework.api.bootstrap
-    version: 0.25.0
+    version: 0.27.0
     obr: true
     isolated: true
     codecoverage: true
