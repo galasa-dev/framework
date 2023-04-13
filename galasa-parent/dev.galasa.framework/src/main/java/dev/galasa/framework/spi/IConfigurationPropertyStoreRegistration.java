@@ -1,15 +1,11 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.spi;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * 
- * @author James Davies
  *
  */
 public interface IConfigurationPropertyStoreRegistration {
