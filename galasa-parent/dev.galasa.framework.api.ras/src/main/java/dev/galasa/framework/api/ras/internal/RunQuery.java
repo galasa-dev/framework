@@ -125,8 +125,8 @@ public class RunQuery extends HttpServlet {
 					critList.add(toCriteria);
 				}
 				} catch (Exception e) {
-				sendResponse(resp, new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to"+to ).toString(), 500);
-				logger.error(new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to"+to).toString(),e);
+				sendResponse(resp, new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to "+to ).toString(), 500);
+				logger.error(new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to "+to).toString(),e);
 			}
 			try{
 				Instant fromCrit = null;
@@ -140,8 +140,8 @@ public class RunQuery extends HttpServlet {
 				critList.add(fromCriteria);
  
 			} catch (Exception e) {
-				sendResponse(resp, new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from"+from ).toString(), 500);
-				logger.error(new ServletError(GAL5001_INVALID_DATE_TIME_FIELD, "from"+from).toString(),e);
+				sendResponse(resp, new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from "+from ).toString(), 500);
+				logger.error(new ServletError(GAL5001_INVALID_DATE_TIME_FIELD, "from "+from).toString(),e);
 			}
 
 			if (requestor != null && !requestor.isEmpty()) {

@@ -189,7 +189,7 @@ public class TestRunQuery {
 		// Then...
 		// We expect an error back, because the API server couldn't find any RAS database to query
 		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).isEqualTo("{\"error\":\"Error retrieving runs\"}");
+		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5003,\"error_message\":\"GAL5003E: Error retrieving runs\"}");
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -545,7 +545,7 @@ public class TestRunQuery {
 
 		//Then...
 		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).isEqualTo("{\"error\":\"Error retrieving page\"}");
+		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5004,\"error_message\":\"GAL5004E: Error retrieving page\"}");
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -577,7 +577,7 @@ public class TestRunQuery {
 
 		//Then...
 		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).isEqualTo("{\"error\":\"Error parsing Instant\"}");
+		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5001,\"error_message\":\"GAL5001E: Error parsing the date-time field from erroneousValue\"}");
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -609,7 +609,7 @@ public class TestRunQuery {
 
 		//Then...
 		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).isEqualTo("{\"error\":\"Error parsing Instant\"}");
+		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5001,\"error_message\":\"GAL5001E: Error parsing the date-time field from erroneousValue\"}");
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -649,7 +649,7 @@ public class TestRunQuery {
 
 		//Then...
 		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).isEqualTo("{\"error\":\"Error retrieving run "+runId[0]+"\"}");
+		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5002,\"error_message\":\"GAL5002E: Error retrieving ras run from RunID "+runId[0]+"\"}");
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
