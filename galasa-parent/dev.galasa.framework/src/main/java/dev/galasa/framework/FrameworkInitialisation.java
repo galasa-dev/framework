@@ -417,10 +417,32 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             }
         } else {
             logger.info("System property GALASA_HOME used to set value of home location.");
+            // The system property value may be surrounded by " characters. 
+            // If so, strip them off.
+            // We allow this because a path with strings in would be split
+            // into separate system properties otherwise.
+            home = stripLeadingAndTrailingQuotes(home);
         }
         logger.info("Galasa home location is "+home);
 
         return home;
+    }
+
+    /**
+     * String the first double-quote and the last double-quote off
+     * the begining and end of a string.
+     * @param input
+     * @return The stripped (or unaltered) string.
+     */
+    String stripLeadingAndTrailingQuotes(String input ) {
+        String output = input ;
+        if (output.startsWith("\"")) {
+            output = output.replaceFirst("\"", "");
+        }
+        if (output.endsWith("\"")) {
+            output = output.substring(0,output.length()-1);
+        }
+        return output;
     }
 
     // Find the run name of the test run, if it's not a set property 

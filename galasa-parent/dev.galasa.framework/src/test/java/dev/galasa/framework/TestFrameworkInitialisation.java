@@ -450,37 +450,7 @@ public class TestFrameworkInitialisation {
         assertThat(fs.exists(Path.of("/myoverriddenhome/cps.properties"))).isTrue();
     }
 
-    @Test
-    public void testLocateBootstrapUsesGALASA_HOMEsystemProInPreferenceToGALASA_HOMEenvVar() throws Exception {
-
-        // As all the logic is inside a constructor ! (bad)
-        // we can't call any methods on the class until we have constructed it
-        // using a good passing test...
-        FrameworkInitialisation frameworkInit = createFrameworkInit();
-
-        Log logger = new MockLog();
-        
-        // A fresh file system...
-        MockFileSystem fs = new MockFileSystem();
-        MockEnvironment mockEnv = new MockEnvironment();
-        // The user home... which should be ignored if GALASA_HOME is set.
-        mockEnv.setProperty("user.home","/myuser2/home");
-
-        // GALASA_HOME is set... we expect it to be used.
-        mockEnv.setProperty("GALASA_HOME","/myoverriddenhome");
-
-        // Set the system env... we don't expect this one to over-ride the 
-        // system property.
-        mockEnv.setenv("GALASA_HOME","/myoverriddenhome2");
-
-        Properties bootstrapProperties = new Properties();
-
-        URI bootstrapUri = frameworkInit.locateConfigurationPropertyStore(logger,mockEnv,bootstrapProperties,fs);
-
-        assertThat(bootstrapUri.getPath().toString()).isEqualTo("/myoverriddenhome/cps.properties");
-        assertThat(fs.exists(Path.of("/myoverriddenhome/cps.properties"))).isTrue();
-    }
-
+   
     @Test
     public void testLocateBootstrapUsesGALASA_HOMEenvVar() throws Exception {
 
@@ -503,6 +473,40 @@ public class TestFrameworkInitialisation {
         // Set the system env... we still expect this one to over-ride the 
         // user home.
         mockEnv.setenv("GALASA_HOME","/myoverriddenhome");
+
+        Properties bootstrapProperties = new Properties();
+
+        URI bootstrapUri = frameworkInit.locateConfigurationPropertyStore(logger,mockEnv,bootstrapProperties,fs);
+
+        assertThat(bootstrapUri.getPath().toString()).isEqualTo("/myoverriddenhome/cps.properties");
+        assertThat(fs.exists(Path.of("/myoverriddenhome/cps.properties"))).isTrue();
+    }
+
+
+    @Test
+    public void testLocateBootstrapStripsQuotesOffGALASA_HOMEsystemProp() throws Exception {
+
+        // As all the logic is inside a constructor ! (bad)
+        // we can't call any methods on the class until we have constructed it
+        // using a good passing test...
+        FrameworkInitialisation frameworkInit = createFrameworkInit();
+
+        Log logger = new MockLog();
+        
+        // A fresh file system...
+        MockFileSystem fs = new MockFileSystem();
+        MockEnvironment mockEnv = new MockEnvironment();
+        // The user home... which should be ignored if GALASA_HOME is set.
+        mockEnv.setProperty("user.home","/myuser2/home");
+
+        // GALASA_HOME is set... we expect it to be used.
+        // Note: The system property value is quoted. So that a 
+        // string can contain spaces.
+        mockEnv.setProperty("GALASA_HOME","\"/myoverriddenhome\"");
+
+        // Set the system env... we don't expect this one to over-ride the 
+        // system property.
+        mockEnv.setenv("GALASA_HOME","/myoverriddenhome2");
 
         Properties bootstrapProperties = new Properties();
 
