@@ -98,9 +98,9 @@ public class RunQuery extends HttpServlet {
 						runs.add(RunResultUtility.toRunResult(run, true));
 					}
 				} catch (ResultArchiveStoreException e) {
-					// @@@@@@@@@@
-					sendResponse(resp, new ServletError(GAL5002_INVALID_RUN_ID,runId).toString(), 500);
-					logger.error(new ServletError(GAL5002_INVALID_RUN_ID,runId).toString(),e);
+					String msg = new ServletError(GAL5002_INVALID_RUN_ID,runId).toString();
+					sendResponse(resp, msg, 500);
+					logger.error(msg,e);
 				}
 			}
 
@@ -125,8 +125,9 @@ public class RunQuery extends HttpServlet {
 					critList.add(toCriteria);
 				}
 				} catch (Exception e) {
-				sendResponse(resp, new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to "+to ).toString(), 400);
-				logger.error(new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to "+to).toString(),e);
+				String msg = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to",to ).toString();
+				sendResponse(resp,msg , 400);
+				logger.error(msg,e);
 			}
 			try{
 				Instant fromCrit = null;
@@ -140,8 +141,9 @@ public class RunQuery extends HttpServlet {
 				critList.add(fromCriteria);
  
 			} catch (Exception e) {
-				sendResponse(resp, new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from "+from ).toString(), 400);
-				logger.error(new ServletError(GAL5001_INVALID_DATE_TIME_FIELD, "from "+from).toString(),e);
+				ServletError msg  = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from",from ).toString();
+				sendResponse(resp, msg, 400);
+				logger.error(msg,e);
 			}
 
 			if (requestor != null && !requestor.isEmpty()) {
@@ -168,8 +170,9 @@ public class RunQuery extends HttpServlet {
 			try {
 				runs = getRuns(critList);
 			} catch (Exception e) {
-				sendResponse(resp, new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString(), 500);
-				logger.error(new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString(),e);
+				ServletError msg = new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString();
+				sendResponse(resp, msg, 500);
+				logger.error(msg,e);
 			}
 		}
 
@@ -211,8 +214,9 @@ public class RunQuery extends HttpServlet {
 			try {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
-				sendResponse(resp, new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString(), 500);
-				logger.error(new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString(),e);
+				ServletError msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
+				sendResponse(resp, msg, 500);
+				logger.error(msg,e);
 			}	
 		}
 
@@ -225,8 +229,9 @@ public class RunQuery extends HttpServlet {
 				pageValue = Integer.parseInt(paramMap.get(pageKey));
 				return pageValue;
 			} catch (Exception e) {
-				sendResponse(resp, new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString(), 500);
-				logger.error(new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString(),e);
+				String msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
+				sendResponse(resp, msg, 500);
+				logger.error(msg,e);
 			}
 		}
 		return pageValue;
