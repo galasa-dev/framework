@@ -99,7 +99,7 @@ public class RunQuery extends HttpServlet {
 					}
 				} catch (ResultArchiveStoreException e) {
 					String msg = new ServletError(GAL5002_INVALID_RUN_ID,runId).toString();
-					sendResponse(resp, msg, 500);
+					sendResponse(resp, msg, HttpServletResponse.SC_NOT_FOUND);
 					logger.error(msg,e);
 				}
 			}
@@ -126,7 +126,7 @@ public class RunQuery extends HttpServlet {
 				}
 				} catch (Exception e) {
 				String msg = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to",to ).toString();
-				sendResponse(resp,msg , 400);
+				sendResponse(resp,msg , HttpServletResponse.SC_BAD_REQUEST);
 				logger.error(msg,e);
 			}
 			try{
@@ -142,7 +142,7 @@ public class RunQuery extends HttpServlet {
  
 			} catch (Exception e) {
 				String msg  = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from",from ).toString();
-				sendResponse(resp, msg, 400);
+				sendResponse(resp, msg, HttpServletResponse.SC_BAD_REQUEST);
 				logger.error(msg,e);
 			}
 
@@ -171,7 +171,7 @@ public class RunQuery extends HttpServlet {
 				runs = getRuns(critList);
 			} catch (Exception e) {
 				String msg = new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString();
-				sendResponse(resp, msg, 500);
+				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				logger.error(msg,e);
 			}
 		}
@@ -215,7 +215,7 @@ public class RunQuery extends HttpServlet {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
 				String msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
-				sendResponse(resp, msg, 500);
+				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				logger.error(msg,e);
 			}	
 		}
@@ -230,7 +230,7 @@ public class RunQuery extends HttpServlet {
 				return pageValue;
 			} catch (Exception e) {
 				String msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
-				sendResponse(resp, msg, 500);
+				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				logger.error(msg,e);
 			}
 		}
@@ -251,7 +251,7 @@ public class RunQuery extends HttpServlet {
 			logger.error("Error trying to set output buffer. Ignoring.",e);
 		}
 	}
-	
+
 	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageIndex, int pageSize, int numPages) {
 		JsonObject obj = new JsonObject();
 
