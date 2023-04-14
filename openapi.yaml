@@ -391,7 +391,7 @@ paths:
           description: Not Found
           content:
             application/json:
-              schemas:
+              schema:
                 $ref: '#/components/schemas/APIError'
               examples:
                 runiderror:
