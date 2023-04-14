@@ -1,3 +1,6 @@
+/*
+ * Copyright contributors to the Galasa project 
+ */
 package dev.galasa.framework.api.ras.internal;
 
 import org.osgi.service.component.annotations.Component;
@@ -5,6 +8,10 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -21,6 +28,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
@@ -53,6 +61,9 @@ public class RunQuery extends HttpServlet {
 
 	final static Gson gson = GalasaGsonBuilder.build();
 
+	private Log  logger  =  LogFactory.getLog(this.getClass());
+
+	Map<String,String> paramMap ;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -60,29 +71,18 @@ public class RunQuery extends HttpServlet {
 		int pageNum = 1;
 		int pageSize = 100;
 
-		Map<String,String> paramMap = getParameterMap(req);
+		paramMap= getParameterMap(req);
 
-		if (paramMap.get("page") != null && !paramMap.get("page").equals("")) {
-			try {
-				pageNum = Integer.parseInt(paramMap.get("page"));
-			} catch (Exception e) {
-				throw new ServletException("Error parsing integer, ",e);
-			}
-		}
-
-		if (paramMap.get("size") != null && !paramMap.get("size").equals("")) {
-			try {
-				pageSize = Integer.parseInt(paramMap.get("size"));
-			} catch (Exception e) {
-				throw new ServletException("Error parsing integer, ", e);
-			}
-		}
+		pageNum = extractPageProperty(resp, "page", pageNum);
+		pageSize = extractPageProperty(resp, "size", pageSize);
 
 		List<RasRunResult> runs = new ArrayList<>();
 
 		/* Get list of Run Ids from the URL -
 		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
+
+		//private List<RasRunResult> (){}
 
 		String runIdsParam = "";
 		if (paramMap.get("runId") != null && !paramMap.get("runId").isEmpty()) {
@@ -98,7 +98,9 @@ public class RunQuery extends HttpServlet {
 						runs.add(RunResultUtility.toRunResult(run, true));
 					}
 				} catch (ResultArchiveStoreException e) {
-					throw new ServletException("Error retrieving run " + runId, e);
+					String msg = new ServletError(GAL5002_INVALID_RUN_ID,runId).toString();
+					sendResponse(resp, msg, HttpServletResponse.SC_NOT_FOUND);
+					logger.error(msg,e);
 				}
 			}
 
@@ -112,6 +114,7 @@ public class RunQuery extends HttpServlet {
 			String result = paramMap.get("result");
 			String to = paramMap.get("to");
 			String from = paramMap.get("from");
+			String runName = paramMap.get("runname");
 			
 			// Checking all parameters to apply to the search criteria
 
@@ -121,7 +124,12 @@ public class RunQuery extends HttpServlet {
 					RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
 					critList.add(toCriteria);
 				}
-
+				} catch (Exception e) {
+				String msg = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to",to ).toString();
+				sendResponse(resp,msg , HttpServletResponse.SC_BAD_REQUEST);
+				logger.error(msg,e);
+			}
+			try{
 				Instant fromCrit = null;
 				if (from != null && !from.isEmpty()) {
 					fromCrit = Instant.parse(from);
@@ -133,7 +141,9 @@ public class RunQuery extends HttpServlet {
 				critList.add(fromCriteria);
  
 			} catch (Exception e) {
-				throw new ServletException("Error parsing Instant, ", e);
+				String msg  = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from",from ).toString();
+				sendResponse(resp, msg, HttpServletResponse.SC_BAD_REQUEST);
+				logger.error(msg,e);
 			}
 
 			if (requestor != null && !requestor.isEmpty()) {
@@ -152,93 +162,108 @@ public class RunQuery extends HttpServlet {
 				RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
 				critList.add(resultCriteria);
 			}
-
+			if (runName != null && !runName.isEmpty()) {
+				RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
+				critList.add(runNameCriteria);
+			}
 
 			try {
 				runs = getRuns(critList);
 			} catch (Exception e) {
-				throw new ServletException("Error retrieving runs, ", e);
+				String msg = new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString();
+				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				logger.error(msg,e);
 			}
 		}
 
 
-		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
-
-		Map<String, String[]> query = req.getParameterMap();
-
-		// Checking ascending or descending for sorting
-
-		boolean testClassSort = ExtractQuerySort.isAscending(query,"testclass");
-		boolean resultSort = ExtractQuerySort.isAscending(query, "result");
-
-		if (!query.isEmpty()) {
-			if (!ExtractQuerySort.isAscending(query, "to")) {
-				Collections.reverse(runs);
-			} else if (paramMap.get("sort").equals("testclass:asc") && testClassSort) {
-				Collections.sort(runs, new SortByTestClass());
-			} else if (!testClassSort) {
-				Collections.sort(runs, new SortByTestClass());
-				Collections.reverse(runs);   
-			} else if (paramMap.get("sort").equals("result:asc") && resultSort) {
-				Collections.sort(runs, new SortByResult());
-			} else if (!resultSort) {
-				Collections.sort(runs, new SortByResult());
-				Collections.reverse(runs);
-			}
-		}
+		runs = sortResults(runs, paramMap , req.getParameterMap());
 
 
 		List<JsonObject> returnArray = new ArrayList<>();
 
 		//Splits up the pages based on the page size
+		List<List<RasRunResult>> paginatedResults = ListUtils.partition(runs, pageSize);
 
-		List<List<RasRunResult>> runList = ListUtils.partition(runs, pageSize);
-
-		int numPages = runList.size();
+		int numPages = paginatedResults.size();
 
 		int pageIndex = 1;
 
 		//Building the object to be returned by the API and splitting
 
-		if (runList != null) {
-			for(List<RasRunResult> list : runList) {
-
-				JsonObject obj = new JsonObject();
-
-				obj.addProperty("pageNum", pageIndex);
-				obj.addProperty("pageSize", pageSize);
-				obj.addProperty("numPages", numPages);
-				obj.addProperty("amountOfRuns", runs.size());
-
-				JsonElement tree = gson.toJsonTree(list);
-
-				obj.add("runs", tree);
-
+		if (!paginatedResults.isEmpty()) {
+			for(List<RasRunResult> thisPageResults : paginatedResults) {
+				JsonObject obj = pageToJson(thisPageResults,runs.size(),pageIndex,pageSize,numPages);
 				returnArray.add(obj);
-
 				pageIndex+=1;
 			}
+		}else{
+			// No results at all, so return one page saying that.
+			JsonObject obj = pageToJson(runs,runs.size(),pageIndex,pageSize,1);
+			returnArray.add(obj);
 		}
+	
+	 
 
-		String json = "";
+		String json = ""; 
 
-		if (returnArray.size() != 0) {
+		if (returnArray.isEmpty()) {
+			// No items to return, so json list will be empty.
+			json = "[]";
+		} else {
 			try {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
-				throw new ServletException("Error retrieving page, ", e);
+				String msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
+				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				logger.error(msg,e);
 			}	
 		}
 
-		try {
+		sendResponse(resp, json,200);
+	}
+
+	private int extractPageProperty(HttpServletResponse resp, String pageKey, int pageValue){
+		if (paramMap.get(pageKey) != null && !paramMap.get(pageKey).equals("")) {
+			try {
+				pageValue = Integer.parseInt(paramMap.get(pageKey));
+				return pageValue;
+			} catch (Exception e) {
+				String msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
+				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				logger.error(msg,e);
+			}
+		}
+		return pageValue;
+		
+	}	
+
+	public void sendResponse(HttpServletResponse resp , String json , int status){
+		//Set headers for HTTP Response
+		resp.setStatus(status);
+		resp.setContentType( "Application/json");
+		resp.addHeader("Access-Control-Allow-Origin", "*");
+		try{
 			PrintWriter out = resp.getWriter();
-			resp.setContentType( "Application/json");
-			resp.addHeader("Access-Control-Allow-Origin", "*");
 			out.print(json);
 			out.close();
-		} catch (Exception e) {
-			throw new ServletException("An error occurred whilst retrieving runs", e);
+		}catch(Exception e){
+			logger.error("Error trying to set output buffer. Ignoring.",e);
 		}
+	}
+
+	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageIndex, int pageSize, int numPages) {
+		JsonObject obj = new JsonObject();
+
+		obj.addProperty("pageNum", pageIndex);
+		obj.addProperty("pageSize", pageSize);
+		obj.addProperty("numPages", numPages);
+		obj.addProperty("amountOfRuns", totalRuns);
+
+		JsonElement tree = gson.toJsonTree(resultsInPage);
+
+		obj.add("runs", tree);
+		return obj;
 	}
 	
 
@@ -354,5 +379,42 @@ public class RunQuery extends HttpServlet {
 			}
 			return aResult.compareTo(bResult);
 		}
+	}
+
+
+	public List<RasRunResult> sortResults(
+		List<RasRunResult> unsortedRuns,
+		Map<String,String> paramMap,
+		Map<String,String[]> query
+	) {
+
+		// shallow-clone the input list so we don't change it.
+		List<RasRunResult> runs = new ArrayList<RasRunResult>();
+		runs.addAll(unsortedRuns);
+		
+		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
+
+		// Checking ascending or descending for sorting
+
+		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
+		boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
+
+		String sortValue = paramMap.get("sort");
+		//if (sortValue != null) {
+			if (!ExtractQuerySort.isAscending(query, "to")) {
+				Collections.reverse(runs);
+			} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
+				Collections.sort(runs, new SortByTestClass());
+			} else if (!isTestClassSortAscending) {
+				Collections.sort(runs, new SortByTestClass());
+				Collections.reverse(runs);   
+			} else if (sortValue.equals("result:asc") && isResultSortAscending) {
+				Collections.sort(runs, new SortByResult());
+			} else if (!isResultSortAscending) {
+				Collections.sort(runs, new SortByResult());
+				Collections.reverse(runs);
+			}
+		//}
+		return runs;
 	}
 }
