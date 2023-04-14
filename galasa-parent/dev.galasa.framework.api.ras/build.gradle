@@ -12,6 +12,8 @@ dependencies {
     implementation project(':dev.galasa.framework')
 
     implementation 'org.apache.commons:commons-collections4:4.4'
+    
+    testCompile 'org.apache.commons:commons-lang3:3.12.0'
 }
 
 openApiGenerate {
