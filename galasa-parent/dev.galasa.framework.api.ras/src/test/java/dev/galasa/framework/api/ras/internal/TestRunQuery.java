@@ -560,10 +560,10 @@ public class TestRunQuery {
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
 		String[] requestorValues = {requestor};
 		String[] sortValues = {"result:asc"};
-		String[] fromtime = {"erroneousValue"};
+		String[] fromTime = {"erroneousValue"};
 		parameterMap.put("requestor", requestorValues );
 		parameterMap.put("sort", sortValues );
-		parameterMap.put("from", fromtime);
+		parameterMap.put("from", fromTime);
 
 		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
 
@@ -577,8 +577,11 @@ public class TestRunQuery {
 
 		//Then...
 		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5001,\"error_message\":\"GAL5001E: Error parsing the date-time field from "+fromtime[0]+"\"}");
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( outStream.toString() )
+			.contains("{\"error_code\":5001,\"error_message\":\"GAL5001E:")
+			.contains("Error parsing the date-time field")
+			.contains(fromTime[0])
+			.contains("'from'");		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -609,7 +612,11 @@ public class TestRunQuery {
 
 		//Then...
 		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5001,\"error_message\":\"GAL5001E: Error parsing the date-time field to "+totime[0]+"\"}");
+		assertThat( outStream.toString() )
+			.contains("{\"error_code\":5001,\"error_message\":\"GAL5001E:")
+			.contains("Error parsing the date-time field")
+			.contains(totime[0])
+			.contains("'to'");
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -649,7 +656,8 @@ public class TestRunQuery {
 
 		//Then...
 		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).isEqualTo("{\"error_code\":5002,\"error_message\":\"GAL5002E: Error retrieving ras run from RunID "+runId[0]+"\"}");
+		assertThat( outStream.toString() ).isEqualTo(
+			"{\"error_code\":5002,\"error_message\":\"GAL5002E: Error retrieving ras run from RunID '"+runId[0]+"'\"}");
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}

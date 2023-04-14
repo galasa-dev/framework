@@ -141,7 +141,7 @@ public class RunQuery extends HttpServlet {
 				critList.add(fromCriteria);
  
 			} catch (Exception e) {
-				ServletError msg  = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from",from ).toString();
+				String msg  = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from",from ).toString();
 				sendResponse(resp, msg, 400);
 				logger.error(msg,e);
 			}
@@ -170,7 +170,7 @@ public class RunQuery extends HttpServlet {
 			try {
 				runs = getRuns(critList);
 			} catch (Exception e) {
-				ServletError msg = new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString();
+				String msg = new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString();
 				sendResponse(resp, msg, 500);
 				logger.error(msg,e);
 			}
@@ -214,7 +214,7 @@ public class RunQuery extends HttpServlet {
 			try {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
-				ServletError msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
+				String msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
 				sendResponse(resp, msg, 500);
 				logger.error(msg,e);
 			}	
@@ -248,10 +248,10 @@ public class RunQuery extends HttpServlet {
 			out.print(json);
 			out.close();
 		}catch(Exception e){
-			logger.error("Error trying to set output buffer",e);
+			logger.error("Error trying to set output buffer. Ignoring.",e);
 		}
-
 	}
+	
 	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageIndex, int pageSize, int numPages) {
 		JsonObject obj = new JsonObject();
 
