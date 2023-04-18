@@ -274,32 +274,33 @@ paths:
       operationId: getRasSearchRuns
       summary: Get Runs from Query
       description: |
-        API endpoint to query the Result Archive Store (RAS) for a list of runs based on the given search criteria.
+        API endpoint to query the Result Archive Store (RAS) for a (possibly sorted) 
+        list of runs based on the given search criteria.
 
-        If no search criteria is provided then the first page of resutls will be returned. 
+        The results returned are paginated, in that the number of desired records per page can be 
+        set, and if there are more test run records to retrieve, requests can be made for 
+        successive pages of results using the same query parameters, but varying the 'page' value.
 
-        If no timeframe is specified in the query then the results will update as new tests are run which may result in duplicate and/or missing test runs.
-        
-        |Parameter|Repeatable|Comments                            |
-        |---------|----------|------------------------------------|
-        |sort     |Yes       |Only works with result and testclass|
-        |result   |No        |                                    |
-        |rundle   |No        |                                    |
-        |requestor|No        |                                    |
-        |from     |No        |                                    |
-        |to       |No        |                                    |
-        |testname |No        |                                    |
-        |page     |No        |                                    |
-        |size     |No        |                                    |
-        |runid    |No        |                                    |
-        |runname  |No        |                                    |
+        Note: When querying multiple pages of results, tests may complete, or be started between 
+        successive calls to this endpoint. When the 'to' field is not used, no timeframe 
+        limit is specified in the query, so results retrieved in later pages may contain 
+        test runs which were already retrieved in previous pages of the same query critera.
 
       tags: 
       - Result Archive Store API
       parameters:
         - name: sort
           in: query
-          description: Sorts the returned runs based on the sort field, to:asc or to:desc
+          description: |
+            Sorts the returned runs based on the sort field. 
+            Supports sorting fields 'to','result' and 'testclass'.
+
+            Use '{FIELD-NAME}:asc' to sort in ascending order.
+            Use '{FIELD-NAME}:desc' to sort in descending order.
+
+            You can use multiple instances of this query parameter, or specify
+            multiple sort orders using one query parameter, and a comma-separated 
+            list of sort orders.
           required: true
           schema: 
             type: string
@@ -307,35 +308,42 @@ paths:
             single:
               value: result:asc
             multiple:
-              value: results:asc,testclass:desc  
+              value: result:asc,testclass:desc  
         - name: result
           in: query
-          description: Result Status for the run
+          description: |
+            Result Status for the run. Commonly queried values: 'EnvFail','Passed','Failed'
           schema:
             type: string
           example: Passed
         - name: bundle
           in: query
-          description: The name of the Bundle bundle that this test run is part of 
+          description: |
+            The name of the OSGi bundle that the desired test run(s) were loaded with.
           schema:
             type: string
           example: dev.galasa.inttests
         - name: requestor
           in: query
-          description: Name of the test Requestor / submitter
+          description: Name of the test requestor / submitter
           schema:
             type: string
-          example: galasa  
+          example: MyAutomationJobName
         - name: from
           in: query
-          description: Retrieve runs from the given date and time
+          description: |
+            Retrieve runs that started at a time after this date and time.
+            If you do not specify this parameter, then a default of 'now' minus 24 hours is assumed. 
           schema:
             type: string
             format: date-time
           example: '2023-04-11T09:42:06.589180Z' 
         - name: to
           in: query
-          description: Retrieve runs up to the given date and time
+          description: |
+            Retrieve runs that ended at a date and time prior to this date and time value.
+            If you specify this parameter, only test runs which have completed will be returned. 
+            Tests currently in-flight will not be visible.
           schema:
             type: string
             format: date-time
@@ -348,25 +356,34 @@ paths:
           example: dev.galasa.inttests.simbank.local.mvp.SimBankLocalJava11UbuntuMvp   
         - name: page
           in: query
-          description: The desired output page number
+          description: |
+            Causes a specific page in the available results to be returned. 
+            The first page is page 1.
+            If omitted, then page 1 is returned.
           schema:
             type: integer
           example: 2  
         - name: size
           in: query
-          description: The number of test results outputted per page 
+          description: The number of test results returned within each page
           schema:
             type: integer
           example: 20
         - name: runId
           in: query
-          description: Run ID for a specific test run as seen by the RAS
+          description: |
+            The ID for a specific test run as seen by the RAS. 
+            This number is unique across the system, so using this field you can expect
+            one or zero test runs in the first page.
           schema:
             type: string
           example : cdb-a4ddb7fd1dab8d6025e4f3894010d20d
         - name: runname
           in: query
-          description: The name of the test run for which details will be returned
+          description: |
+            The name of the test run for which details will be returned.
+            It will normally be unique, but this is not guaranteed, so you may see
+            multiple results for the same runname under some rare circumstances.
           schema:
             type: string
           example: U1578
