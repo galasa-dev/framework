@@ -286,6 +286,7 @@ paths:
         limit is specified in the query, so results retrieved in later pages may contain 
         test runs which were already retrieved in previous pages of the same query critera.
 
+        Invalid query parameters are ignored. For example: a 'cache-buster' parameter.
       tags: 
       - Result Archive Store API
       parameters:
@@ -365,7 +366,9 @@ paths:
           example: 2  
         - name: size
           in: query
-          description: The number of test results returned within each page
+          description: |
+            The number of test results returned within each page.
+            If omitted, the default value is 100.
           schema:
             type: integer
           example: 20
