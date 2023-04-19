@@ -2,6 +2,9 @@ plugins {
     id 'biz.aQute.bnd.builder'
     id 'org.openapi.generator' version "5.0.1"
     id 'galasa.api.server'
+
+    // testCompile requires Java plugin.
+    id 'java'
 }
 
 description = 'Galasa API - RAS'
