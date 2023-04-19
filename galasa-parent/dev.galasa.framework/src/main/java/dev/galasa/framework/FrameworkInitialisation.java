@@ -55,6 +55,17 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
 
+    public FrameworkInitialisation(
+        Properties bootstrapProperties, 
+        Properties overrideProperties,
+        boolean testrun,
+        Log initLogger
+    ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+        this(bootstrapProperties, overrideProperties, testrun, initLogger, 
+        new SystemEnvironment(), getBundleContext(), new FileSystem());
+    }
+
+
     private static BundleContext getBundleContext() {
         return FrameworkUtil.getBundle(FrameworkInitialisation.class).getBundleContext();
     }
