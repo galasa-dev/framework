@@ -536,7 +536,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             cpsFramework.getProperty("resultarchive.store", "include.default.local"));
         if (includeLocal) {
             if (! uriResultArchiveStores.contains(localRasUri)) {
-                this.uriResultArchiveStores.add(localRasUri);
+                uriResultArchiveStores.add(localRasUri);
             }
         }
 
