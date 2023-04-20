@@ -11,8 +11,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 import org.junit.Test;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
 import java.io.PrintWriter;
 
@@ -173,9 +172,16 @@ public class TestRunQuery {
 
 	void checkErrorStructure(String jsonString , int expectedErrorCode , String... expectedErrorMessageParts ) throws Exception {
 
-		JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
+		JsonElement jsonElement = JsonParser.parseString(jsonString);
+		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
+
+		JsonObject jsonObject = jsonElement.getAsJsonObject();
+		assertThat(jsonObject).isNotNull().as("Json parsed is not a json object.");
 
 		// Check the error code
+		JsonElement errorCodeField = jsonObject.get("error_code");
+		assertThat(errorCodeField).isNotNull().as("Returned structure didn't contain the error_code field!");
+
 		int actualErrorCode = jsonObject.get("error_code").getAsInt();
 		assertThat(actualErrorCode).isEqualTo(expectedErrorCode);
 
@@ -739,7 +745,7 @@ public class TestRunQuery {
 		String[] pageSize = {"NonIntegerErroneousValue"}; // << This is what should cause the failure.
 		parameterMap.put("size", pageSize);
 
-		testQueryParameterNonIntegerReturnsError(parameterMap ,5005, "GAL5005E:","'size'","Invalid","NonIntegerErroneousValue");
+		testQueryParametersReturnsError(parameterMap ,5005, "GAL5005E:","'size'","Invalid","NonIntegerErroneousValue");
 	}
 
 	@Test
@@ -751,10 +757,76 @@ public class TestRunQuery {
 		String[] pageNumber = {"NonIntegerErroneousValue"}; // << This is what should cause the failure.
 		parameterMap.put("page", pageNumber);
 
-		testQueryParameterNonIntegerReturnsError(parameterMap ,5005, "GAL5005E:","'page'","Invalid","NonIntegerErroneousValue");
+		testQueryParametersReturnsError(parameterMap ,5005, "GAL5005E:","'page'","Invalid","NonIntegerErroneousValue");
 	}
 
-	private void testQueryParameterNonIntegerReturnsError(
+	@Test
+	public void testQueryWithMultipleRequestorsReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		// Two requestors ! should be invalid !
+		String[] requestors = new String[] {"homer","bart"};
+		parameterMap.put("requestor",  requestors);
+
+		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'requestor'","Duplicate");
+	}
+
+	@Test
+	public void testQueryWithMultipleTestNamesReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		// Two requestors ! should be invalid !
+		String[] testNames = new String[] {"testA","testB"};
+		parameterMap.put("testname",  testNames);
+
+		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'testname'","Duplicate");
+	}
+
+
+		@Test
+	public void testQueryWithMultipleBundlesReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		// Two requestors ! should be invalid !
+		String[] bundles = new String[] {"bundleA","bundleB"};
+		parameterMap.put("bundle",  bundles);
+
+		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'bundle'","Duplicate");
+	}
+
+	@Test
+	public void testQueryWithMultipleResultsReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		// Two requestors ! should be invalid !
+		String[] results = new String[] {"resultA","resultB"};
+		parameterMap.put("result",  results);
+
+		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'result'","Duplicate");
+	}
+
+	@Test
+	public void testQueryWithMultipleRunNamesReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		// Two requestors ! should be invalid !
+		String[] runNames = new String[] {"runnameA","runnameB"};
+		parameterMap.put("runname",  runNames);
+
+		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'runname'","Duplicate");
+	}
+
+	private void testQueryParametersReturnsError(
 		Map<String, String[]> parameterMap , 
 		int expectedErrorCode, 
 		String... expectedErrorMsgSubStrings
@@ -762,10 +834,10 @@ public class TestRunQuery {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestData(20,10);
 		
-		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
-		String[] requestorValues = {requestor};
-		parameterMap.put("requestor", requestorValues );
-
+		// String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
+		// String[] requestorValues = {requestor};
+		// parameterMap.put("requestor", requestorValues );
+ 
 		String[] sortValues = {"result:asc"};
 		parameterMap.put("sort", sortValues );
 		

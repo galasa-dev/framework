@@ -130,7 +130,7 @@ public class RunQuery extends HttpServlet {
 
 		} else {
 	
-			List<IRasSearchCriteria> critList = getCriteria(paramMap);
+			List<IRasSearchCriteria> critList = getCriteria(paramMap , rawParamMap);
 
 			try {
 				runs = getRuns(critList);
@@ -147,19 +147,19 @@ public class RunQuery extends HttpServlet {
 		return responseBodyJson;
 	}
 
-	private List<IRasSearchCriteria> getCriteria( Map<String,String> paramMap ) throws InternalServletException {
+	private List<IRasSearchCriteria> getCriteria( Map<String,String> paramMap , Map<String,String[]> rawParamMap ) throws InternalServletException {
 
-		String requestor = extractStringProperty(paramMap,"requestor",null);
-		String testName = extractStringProperty(paramMap,"testname",null);
-		String bundle = extractStringProperty(paramMap,"bundle",null);
-		String result = extractStringProperty(paramMap, "result", null);
+		String requestor = extractSingleStringProperty(rawParamMap,"requestor",null);
+		String testName = extractSingleStringProperty(rawParamMap,"testname",null);
+		String bundle = extractSingleStringProperty(rawParamMap,"bundle",null);
+		String result = extractSingleStringProperty(rawParamMap, "result", null);
+		String runName = extractSingleStringProperty(rawParamMap, "runname", null);
+
 		Instant to = extractDateTimeProperty(paramMap, "to", null);
 
 		Instant fromDefault = Instant.now();
 		fromDefault = fromDefault.minus(24, ChronoUnit.HOURS);
 		Instant from = extractDateTimeProperty(paramMap, "from", fromDefault);
-
-		String runName = extractStringProperty(paramMap, "runname", null);
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,to, from, runName);
 		return criteria ;
@@ -255,16 +255,44 @@ public class RunQuery extends HttpServlet {
 		
 
 	/** 
-	 * Exgtract a string property from the 
+	 * Extract a string property from the list, throwing an error if there are >1 instances of the property.
 	 */
-	private String extractStringProperty(Map<String, String> paramMap, String key, String defaultValue ) {
+	private String extractSingleStringProperty(Map<String, String[]> paramMap, String key, String defaultValue ) throws InternalServletException {
 		String returnedValue = defaultValue ;
-		String paramValue = paramMap.get(key);
-		if (paramValue != null && !paramValue.equals("")) {
-			returnedValue = paramValue;
+		String[] paramValues = paramMap.get(key);
+		if (paramValues != null && paramValues.length >0) {
+
+			if (paramValues.length >1) {
+				ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			}
+
+			String firstOccurrance = paramValues[0];
+			if( firstOccurrance != null ) {
+				String trimmedFirstOccurrance = firstOccurrance.trim();
+				if ( !(trimmedFirstOccurrance.isEmpty())) {
+					returnedValue = trimmedFirstOccurrance;
+				}
+			}
 		}
 		return returnedValue;
 	}	
+
+	// private Instant extractSingleDateTimeProperty(Map<String, String[]> paramMap, String key, Instant defaultValue ) throws InternalServletException {
+	// 	String[] values = paramMap.get(key);
+	// 	Instant dateTime ;
+	// 	if (values== null || values.isEmpty()) {
+	// 		dateTime = defaultValue ;
+	// 	} else {
+	// 		try {
+	// 			dateTime = Instant.parse(value);
+	// 		} catch (Exception e) {
+	// 			ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
+	// 			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+	// 		}
+	// 	}
+	// 	return dateTime;
+	// }
 
 	private Instant extractDateTimeProperty(Map<String, String> paramMap, String key, Instant defaultValue ) throws InternalServletException {
 		String value = paramMap.get(key);

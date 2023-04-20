@@ -11,6 +11,7 @@ public enum ServletErrorMessage {
     GAL5003_ERROR_RETRIEVEING_RUNS                  (5003,"E: Error retrieving runs. Report the problem to your Galasa server owner."),
     GAL5004_ERROR_RETRIEVING_PAGE                   (5004,"E: Error retrieving page. Report the problem to your Galasa server owner."),
     GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER         (5005,"E: Error parsing the query parameter ''{0}'' in the request URL. Invalid value ''{1}''. Expecting an integer."),
+    GAL5006_INVALID_QUERY_PARAM_DUPLICATES          (5006,"E: Error parsing the query parameters. Duplicate instances of query parameter ''{0}'' found in the request URL. Expecting only one."),
 
     ;
 
