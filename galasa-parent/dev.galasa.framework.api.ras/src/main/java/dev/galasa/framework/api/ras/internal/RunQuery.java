@@ -36,12 +36,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -163,7 +158,9 @@ public class RunQuery extends HttpServlet {
 				critList.add(resultCriteria);
 			}
 			if (runName != null && !runName.isEmpty()) {
-				RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
+				Set<String> runNames = new HashSet<String>();
+				runNames.add(runName);
+				RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runNames);
 				critList.add(runNameCriteria);
 			}
 
