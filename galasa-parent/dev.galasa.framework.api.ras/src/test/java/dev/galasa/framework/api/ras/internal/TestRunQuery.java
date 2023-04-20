@@ -729,4 +729,69 @@ public class TestRunQuery {
 		);	
 			
 	}
+
+	@Test
+	public void testQueryWithNonIntegerPageSizeReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		String[] pageSize = {"NonIntegerErroneousValue"}; // << This is what should cause the failure.
+		parameterMap.put("size", pageSize);
+
+		testQueryParameterNonIntegerReturnsError(parameterMap ,5005, "GAL5005E:","'size'","Invalid","NonIntegerErroneousValue");
+	}
+
+	@Test
+	public void testQueryWithNonIntegerPageNumberReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		String[] pageNumber = {"NonIntegerErroneousValue"}; // << This is what should cause the failure.
+		parameterMap.put("page", pageNumber);
+
+		testQueryParameterNonIntegerReturnsError(parameterMap ,5005, "GAL5005E:","'page'","Invalid","NonIntegerErroneousValue");
+	}
+
+	private void testQueryParameterNonIntegerReturnsError(
+		Map<String, String[]> parameterMap , 
+		int expectedErrorCode, 
+		String... expectedErrorMsgSubStrings
+	) throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(20,10);
+		
+		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
+		String[] requestorValues = {requestor};
+		parameterMap.put("requestor", requestorValues );
+
+		String[] sortValues = {"result:asc"};
+		parameterMap.put("sort", sortValues );
+		
+
+		TestParameters testParameters = new TestParameters(mockInputRunResults,parameterMap);
+
+		RunQuery servlet = testParameters.getServlet();
+		HttpServletRequest req = testParameters.getRequest();
+		HttpServletResponse resp = testParameters.getResponse();
+		ByteArrayOutputStream outStream = testParameters.getOutStream();
+		
+		//When...
+		servlet.doGet(req,resp);
+
+		//Then...
+		assertThat(resp.getStatus()==400);
+
+		checkErrorStructure(
+			outStream.toString(), 
+			expectedErrorCode, 
+			expectedErrorMsgSubStrings
+		);	
+
+		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
 }
+

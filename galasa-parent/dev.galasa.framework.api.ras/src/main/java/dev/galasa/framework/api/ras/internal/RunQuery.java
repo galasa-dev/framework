@@ -17,6 +17,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.text.*;
+
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
@@ -35,10 +37,12 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,27 +68,44 @@ public class RunQuery extends HttpServlet {
 
 	private Log  logger  =  LogFactory.getLog(this.getClass());
 
-	Map<String,String> paramMap ;
+	
+
+	public static final int DEFAULT_PAGE_NUMBER = 1;
+	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try{
-			retrieveResults(req, resp);
-		}catch (Exception e){
-			String msg = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
-					sendResponse(resp, msg, HttpServletResponse.SC_NOT_FOUND);
-					logger.error(msg,e);
-		}
+			Map<String,String[]> rawParamMap = req.getParameterMap();
+			Map<String,String> paramMap = getParameterMap(rawParamMap);
+			
+			String responseBodyJson = retrieveResults(paramMap, rawParamMap);
+			sendResponse(resp, responseBodyJson, HttpServletResponse.SC_OK);
+
+		} catch (InternalServletException ex ) {
+			// the message is a curated servlet message, we intentionally threw up to this level.
+			String responseBody = ex.getError().toString();
+			int httpFailureCode = ex.getHttpFailureCode();
+			sendResponse(resp, responseBody, httpFailureCode);
+			logger.error(responseBody,ex);
+
+		} catch (Throwable t){
+			// We didn't expect this failure to arrive. So deliver a generic error message.
+			String responseBody = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
+			int httpFailureCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+			sendResponse(resp, responseBody, httpFailureCode);
+			logger.error(responseBody,t);
+		}				
 	};
 
-	protected void retrieveResults(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		int pageNum = 1;
-		int pageSize = 100;
 
-		paramMap= getParameterMap(req);
-
-		pageNum = extractPageProperty(resp, "page", pageNum);
-		pageSize = extractPageProperty(resp, "size", pageSize);
+	protected String retrieveResults( 
+		Map<String,String> paramMap, 
+		Map<String,String[]> rawParamMap
+	) throws InternalServletException {
+		
+		int pageNum = extractIntProperty(paramMap, "page", DEFAULT_PAGE_NUMBER, GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER);
+		int pageSize = extractIntProperty(paramMap, "size", DEFAULT_NUMBER_RECORDS_PER_PAGE, GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER);
 
 		List<RasRunResult> runs = new ArrayList<>();
 
@@ -108,87 +129,49 @@ public class RunQuery extends HttpServlet {
 						runs.add(RunResultUtility.toRunResult(run, true));
 					}
 				} catch (ResultArchiveStoreException e) {
-					String msg = new ServletError(GAL5002_INVALID_RUN_ID,runId).toString();
-					sendResponse(resp, msg, HttpServletResponse.SC_NOT_FOUND);
-					logger.error(msg,e);
+					ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
+					throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
 				}
 			}
 
 		} else {
-
-			List<IRasSearchCriteria> critList = new ArrayList<>();       
-
-			String requestor = paramMap.get("requestor");
-			String testName = paramMap.get("testname");
-			String bundle = paramMap.get("bundle");
-			String result = paramMap.get("result");
-			String to = paramMap.get("to");
-			String from = paramMap.get("from");
-			String runName = paramMap.get("runname");
-			
-			// Checking all parameters to apply to the search criteria
-
-			try {
-				if (to != null && !to.isEmpty()) {
-					Instant toCrit = Instant.parse(to);
-					RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
-					critList.add(toCriteria);
-				}
-				} catch (Exception e) {
-				String msg = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to",to ).toString();
-				sendResponse(resp,msg , HttpServletResponse.SC_BAD_REQUEST);
-				logger.error(msg,e);
-			}
-			try{
-				Instant fromCrit = null;
-				if (from != null && !from.isEmpty()) {
-					fromCrit = Instant.parse(from);
-				} else {
-					fromCrit = Instant.now();
-					fromCrit = fromCrit.minus(24, ChronoUnit.HOURS);
-				}
-				RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit); 
-				critList.add(fromCriteria);
- 
-			} catch (Exception e) {
-				String msg  = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from",from ).toString();
-				sendResponse(resp, msg, HttpServletResponse.SC_BAD_REQUEST);
-				logger.error(msg,e);
-			}
-
-			if (requestor != null && !requestor.isEmpty()) {
-				RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
-				critList.add(requestorCriteria);
-			}
-			if (testName != null && !testName.isEmpty()) {
-				RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
-				critList.add(testNameCriteria);
-			}
-			if (bundle != null && !bundle.isEmpty()) {
-				RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
-				critList.add(bundleCriteria);
-			}
-			if (result != null && !result.isEmpty()) {
-				RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
-				critList.add(resultCriteria);
-			}
-			if (runName != null && !runName.isEmpty()) {
-				RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
-				critList.add(runNameCriteria);
-			}
+	
+			List<IRasSearchCriteria> critList = getCriteria(paramMap);
 
 			try {
 				runs = getRuns(critList);
 			} catch (Exception e) {
-				String msg = new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString();
-				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				logger.error(msg,e);
+				ServletError error = new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS);
+				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 		}
 
+		runs = sortResults(runs, paramMap , rawParamMap, extractSortValue(paramMap));
 
-		runs = sortResults(runs, paramMap , req.getParameterMap(), extractSortValue(paramMap));
+		String responseBodyJson = buildResponseBody(runs,pageNum,pageSize);
 
+		return responseBodyJson;
+	}
+
+	private List<IRasSearchCriteria> getCriteria( Map<String,String> paramMap ) throws InternalServletException {
+
+		String requestor = extractStringProperty(paramMap,"requestor",null);
+		String testName = extractStringProperty(paramMap,"testname",null);
+		String bundle = extractStringProperty(paramMap,"bundle",null);
+		String result = extractStringProperty(paramMap, "result", null);
+		Instant to = extractDateTimeProperty(paramMap, "to", null);
+
+		Instant fromDefault = Instant.now();
+		fromDefault = fromDefault.minus(24, ChronoUnit.HOURS);
+		Instant from = extractDateTimeProperty(paramMap, "from", fromDefault);
+
+		String runName = extractStringProperty(paramMap, "runname", null);
+
+		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,to, from, runName);
+		return criteria ;
+	}
+
+	private String buildResponseBody(List<RasRunResult> runs, int pageNum, int pageSize) throws InternalServletException {
 
 		List<JsonObject> returnArray = new ArrayList<>();
 
@@ -213,8 +196,6 @@ public class RunQuery extends HttpServlet {
 			returnArray.add(obj);
 		}
 	
-	 
-
 		String json = ""; 
 
 		if (returnArray.isEmpty()) {
@@ -224,28 +205,105 @@ public class RunQuery extends HttpServlet {
 			try {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
-				String msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
-				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				logger.error(msg,e);
+				ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
+				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}	
 		}
-
-		sendResponse(resp, json,200);
+		return json;
 	}
 
-	private int extractPageProperty(HttpServletResponse resp, String pageKey, int pageValue){
-		if (paramMap.get(pageKey) != null && !paramMap.get(pageKey).equals("")) {
+	private List<IRasSearchCriteria> getCriteria(
+		String requestor,
+		String testName,
+		String bundle,
+		String result,
+		Instant to, 
+		@NotNull Instant from, 
+		String runName
+	) throws InternalServletException {
+
+		List<IRasSearchCriteria> critList = new ArrayList<>();   
+
+		// The default for 'from' is now-24 hours. So will never be null.
+		RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(from); 
+		critList.add(fromCriteria);    
+		
+		// Checking all parameters to apply to the search criteria		
+		// The default for 'to' is null.
+		if (to != null) {	
+			RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(to);
+			critList.add(toCriteria);
+		}
+		if (requestor != null && !requestor.isEmpty()) {
+			RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
+			critList.add(requestorCriteria);
+		}
+		if (testName != null && !testName.isEmpty()) {
+			RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
+			critList.add(testNameCriteria);
+		}
+		if (bundle != null && !bundle.isEmpty()) {
+			RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
+			critList.add(bundleCriteria);
+		}
+		if (result != null && !result.isEmpty()) {
+			RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
+			critList.add(resultCriteria);
+		}
+		if (runName != null && !runName.isEmpty()) {
+			RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
+			critList.add(runNameCriteria);
+		}
+		return critList;
+	}
+		
+
+	/** 
+	 * Exgtract a string property from the 
+	 */
+	private String extractStringProperty(Map<String, String> paramMap, String key, String defaultValue ) {
+		String returnedValue = defaultValue ;
+		String paramValue = paramMap.get(key);
+		if (paramValue != null && !paramValue.equals("")) {
+			returnedValue = paramValue;
+		}
+		return returnedValue;
+	}	
+
+	private Instant extractDateTimeProperty(Map<String, String> paramMap, String key, Instant defaultValue ) throws InternalServletException {
+		String value = paramMap.get(key);
+		Instant dateTime ;
+		if (value== null || value.isEmpty()) {
+			dateTime = defaultValue ;
+		} else {
 			try {
-				pageValue = Integer.parseInt(paramMap.get(pageKey));
-				return pageValue;
+				dateTime = Instant.parse(value);
 			} catch (Exception e) {
-				String msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
-				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				logger.error(msg,e);
+				ServletError error = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,key,value);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 			}
 		}
-		return pageValue;
+		return dateTime;
+	}
+
+	private int extractIntProperty( 
+		Map<String, String> paramMap, 
+		String key, 
+		int defaultValue , 
+		ServletErrorMessage errorMessageIfNotAnInt 
+	) throws InternalServletException {
 		
+		int returnedValue = defaultValue ;
+		String paramValueStr = paramMap.get(key);
+		if (paramValueStr != null && !paramValueStr.trim().equals("")) {
+			try {
+				returnedValue = Integer.parseInt(paramValueStr.trim());
+			} catch (NumberFormatException e) {
+				ServletError error = new ServletError(errorMessageIfNotAnInt,key,paramValueStr);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			}
+		}
+		return returnedValue;
 	}	
 
 	public void sendResponse(HttpServletResponse resp , String json , int status){
@@ -278,8 +336,6 @@ public class RunQuery extends HttpServlet {
 	
 
 	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
-
-		
 
 		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
 
@@ -315,12 +371,13 @@ public class RunQuery extends HttpServlet {
 		return null;
 	}
 
-	private Map<String, String> getParameterMap(HttpServletRequest request) {
+	private Map<String, String> getParameterMap(Map<String, String[]> rawParameterMap) {
 
-		Map<String, String[]> ParameterMap = request.getParameterMap();
 		Map<String, String> newParameterMap = new HashMap<>();
-		for (String parameterName : ParameterMap.keySet()) {
-			String[] values = ParameterMap.get(parameterName);
+		for (String parameterName : rawParameterMap.keySet()) {
+
+			String[] values = rawParameterMap.get(parameterName);
+
 			if (values != null && values.length > 0) {
 				newParameterMap.put(parameterName, values[0]);
 			} else {
@@ -415,22 +472,22 @@ public class RunQuery extends HttpServlet {
 
 	public List<RasRunResult> sortingData(List<RasRunResult> runs, Map<String,String[]> query, @NotNull String sortValue){
 
-			boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
-			boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
-	
-			if (!ExtractQuerySort.isAscending(query, "to")) {
-				Collections.reverse(runs);
-			} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
-				Collections.sort(runs, new SortByTestClass());
-			} else if (!isTestClassSortAscending) {
-				Collections.sort(runs, new SortByTestClass());
-				Collections.reverse(runs);   
-			} else if (sortValue.equals("result:asc") && isResultSortAscending) {
-				Collections.sort(runs, new SortByResult());
-			} else if (!isResultSortAscending) {
-				Collections.sort(runs, new SortByResult());
-				Collections.reverse(runs);
-			}
+		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
+		boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
+
+		if (!ExtractQuerySort.isAscending(query, "to")) {
+			Collections.reverse(runs);
+		} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
+			Collections.sort(runs, new SortByTestClass());
+		} else if (!isTestClassSortAscending) {
+			Collections.sort(runs, new SortByTestClass());
+			Collections.reverse(runs);   
+		} else if (sortValue.equals("result:asc") && isResultSortAscending) {
+			Collections.sort(runs, new SortByResult());
+		} else if (!isResultSortAscending) {
+			Collections.sort(runs, new SortByResult());
+			Collections.reverse(runs);
+		}
 		return runs;
 	}
 

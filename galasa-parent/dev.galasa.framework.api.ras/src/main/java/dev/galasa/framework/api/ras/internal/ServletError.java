@@ -7,7 +7,7 @@ import java.text.MessageFormat;
 
 import com.google.gson.*;
 
-public class ServletError {
+public class ServletError extends Exception {
 
     String [] params ;
     ServletErrorMessage template ;

@@ -10,7 +10,10 @@ public enum ServletErrorMessage {
     GAL5002_INVALID_RUN_ID                          (5002,"E: Error retrieving ras run from RunID ''{0}''."),
     GAL5003_ERROR_RETRIEVEING_RUNS                  (5003,"E: Error retrieving runs. Report the problem to your Galasa server owner."),
     GAL5004_ERROR_RETRIEVING_PAGE                   (5004,"E: Error retrieving page. Report the problem to your Galasa server owner."),
+    GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER         (5005,"E: Error parsing the query parameter ''{0}'' in the request URL. Invalid value ''{1}''. Expecting an integer."),
+
     ;
+
 
     private String template ;
     private int templateNumber;
