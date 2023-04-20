@@ -433,6 +433,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa server owner."
+                  summary: An error occured when trying access the endpoint
                 runerror: 
                   value: 
                     error_code: 5003

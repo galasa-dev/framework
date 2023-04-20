@@ -171,6 +171,21 @@ public class TestRunQuery {
 		return jsonResult;
 	}
 
+	void checkErrorStructure(String jsonString , int expectedErrorCode , String... expectedErrorMessageParts ) throws Exception {
+
+		JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
+
+		// Check the error code
+		int actualErrorCode = jsonObject.get("error_code").getAsInt();
+		assertThat(actualErrorCode).isEqualTo(expectedErrorCode);
+
+		// Check the error message...
+		String msg = jsonObject.get("error_message").toString();
+		for ( String expectedMessagePart : expectedErrorMessageParts ) {
+			assertThat(msg).contains(expectedMessagePart);
+		}
+	}
+
 	@Test
 	public void testQueryWithRequestorNotSortedButNoDBServiceReturnsError() throws Exception {
 		// Given...
@@ -205,6 +220,34 @@ public class TestRunQuery {
 		);	
 	}
 
+	@Test
+	public void testNoQueryNotSortedWithDBServiceReturnsOK() throws Exception {
+		// Given...
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		String[] pageSize = {"100"};
+		String[] pageNo = {"1"};
+		
+		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
+
+		TestParameters testParameters = new TestParameters(mockInputRunResults,parameterMap);
+
+		RunQuery servlet = testParameters.getServlet();
+		HttpServletRequest req = testParameters.getRequest();
+		HttpServletResponse resp = testParameters.getResponse();
+		ByteArrayOutputStream outStream = testParameters.getOutStream();
+		
+		// When...
+		servlet.doGet(req,resp);
+
+		// Then...
+		// We expect an empty page back, because the API server couldn't find any results
+		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
+		assertThat(resp.getStatus()==200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+	
 	@Test
 	public void testQueryWithRequestorNotSortedWithEmptyDBServiceReturnsOK() throws Exception {
 		// Given...
@@ -561,21 +604,6 @@ public class TestRunQuery {
 
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-	}
-
-	void checkErrorStructure(String jsonString , int expectedErrorCode , String... expectedErrorMessageParts ) throws Exception {
-
-		JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
-
-		// Check the error code
-		int actualErrorCode = jsonObject.get("error_code").getAsInt();
-		assertThat(actualErrorCode).isEqualTo(expectedErrorCode);
-
-		// Check the error message...
-		String msg = jsonObject.get("error_message").toString();
-		for ( String expectedMessagePart : expectedErrorMessageParts ) {
-			assertThat(msg).contains(expectedMessagePart);
-		}
 	}
 
 	@Test

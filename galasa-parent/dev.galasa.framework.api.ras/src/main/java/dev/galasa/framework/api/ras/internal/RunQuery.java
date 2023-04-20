@@ -48,6 +48,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
@@ -67,7 +68,16 @@ public class RunQuery extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try{
+			retrieveResults(req, resp);
+		}catch (Exception e){
+			String msg = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
+					sendResponse(resp, msg, HttpServletResponse.SC_NOT_FOUND);
+					logger.error(msg,e);
+		}
+	};
 
+	protected void retrieveResults(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		int pageNum = 1;
 		int pageSize = 100;
 
@@ -177,7 +187,7 @@ public class RunQuery extends HttpServlet {
 		}
 
 
-		runs = sortResults(runs, paramMap , req.getParameterMap());
+		runs = sortResults(runs, paramMap , req.getParameterMap(), extractSortValue(paramMap));
 
 
 		List<JsonObject> returnArray = new ArrayList<>();
@@ -269,20 +279,20 @@ public class RunQuery extends HttpServlet {
 
 	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 
-		List<IRunResult> runs = new ArrayList<>();
+		
 
 		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
 
 		critList.toArray(criteria);
 
+		// Collect all the runs from all the RAS stores into a single list
+		List<IRunResult> runs = new ArrayList<>();
 		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-
 			runs.addAll(directoryService.getRuns(criteria));
-
 		}
 
+		// Convert each result to the required format and 
 		List<RasRunResult> runResults = new ArrayList<>();
-
 		for(IRunResult run : runs) {
 			runResults.add(RunResultUtility.toRunResult(run, true));
 		}
@@ -385,7 +395,8 @@ public class RunQuery extends HttpServlet {
 	public List<RasRunResult> sortResults(
 		List<RasRunResult> unsortedRuns,
 		Map<String,String> paramMap,
-		Map<String,String[]> query
+		Map<String,String[]> query,
+		String sortValue
 	) {
 
 		// shallow-clone the input list so we don't change it.
@@ -396,11 +407,17 @@ public class RunQuery extends HttpServlet {
 
 		// Checking ascending or descending for sorting
 
-		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
-		boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
+		
 
-		String sortValue = paramMap.get("sort");
-		//if (sortValue != null) {
+		return sortingData(runs, query, sortValue);
+		
+	}
+
+	public List<RasRunResult> sortingData(List<RasRunResult> runs, Map<String,String[]> query, @NotNull String sortValue){
+
+			boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
+			boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
+	
 			if (!ExtractQuerySort.isAscending(query, "to")) {
 				Collections.reverse(runs);
 			} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
@@ -414,7 +431,14 @@ public class RunQuery extends HttpServlet {
 				Collections.sort(runs, new SortByResult());
 				Collections.reverse(runs);
 			}
-		//}
 		return runs;
+	}
+
+	public String extractSortValue (Map<String,String> paramMap){
+		String sortValue = paramMap.get("sort");
+		if (sortValue == null){
+			sortValue = "to:desc";
+		}
+		return sortValue;
 	}
 }
