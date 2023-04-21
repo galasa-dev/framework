@@ -371,7 +371,7 @@ public class RunQuery extends HttpServlet {
 			runs.addAll(directoryService.getRuns(criteria));
 		}
 
-		// Convert each result to the required format and 
+		// Convert each result to the required format
 		List<RasRunResult> runResults = new ArrayList<>();
 		for(IRunResult run : runs) {
 			runResults.add(RunResultUtility.toRunResult(run, true));
