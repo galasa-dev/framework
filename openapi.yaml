@@ -237,7 +237,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
-  /ras/run/{runid}/artifact/{artifactid}:
+
+
+  #--------------------------------------
+  # List the artifacts available.
+  #--------------------------------------
+  /ras/run/{runid}/artifacts:
+    get:
+      operationId: getRasRunArtifactList
+      summary: Get the available Run artifacts whcih can be downloaded.
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The list of artifacts was returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactIndex'
+        '500':
+          description: Internal Server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa EcoSystem owner."
+                  summary: An error occured when trying access the endpoint
+
+
+  #--------------------------------------
+  # Download a specific artifact
+  #--------------------------------------
+  /ras/run/{runid}/artifacts/{artifactid}:
     get:
       operationId: getRasRunArtifactById
       summary: Get Run Artifact by IDs
@@ -257,18 +299,31 @@ paths:
           schema:
             type: string
       responses:
+      responses:
         '200':
-          description: Artifact Content
-          content:
-            text/plain:
-              schema:
-                type: string
-        '500':
-          description: Error
+          description: The list of artifacts was returned.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JsonError'
+                $ref: '#/components/schemas/ArtifactIndex'
+        '500':
+          description: Internal Server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa EcoSystem owner."
+                  summary: An error occured when trying access the endpoint
+
+
+
+
+
+
   /ras/run:
     get:
       operationId: getRasSearchRuns
@@ -876,3 +931,24 @@ components:
           type: string
         result:
           type: string
+    
+    # Structures used by the listing of the available artifacts endpoint. 
+    ArtifactIndex:
+      type: array
+      items: 
+        $ref: '#/components/schemas/ArtifactIndexEntry'
+      uniqueItems: true
+
+    ArtifactIndexEntry:
+      type: object
+      properties:
+        runId:
+          type: string
+          readOnly: true
+        path:
+          type: string
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true

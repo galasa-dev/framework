@@ -71,7 +71,7 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 				return  match;
 			}
 		}
-		return null;
+		throw new ResultArchiveStoreException("Run id not found in mock getRunById().");
 	}
     
 }

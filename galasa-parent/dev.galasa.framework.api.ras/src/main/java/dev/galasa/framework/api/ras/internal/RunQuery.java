@@ -4,7 +4,6 @@
 package dev.galasa.framework.api.ras.internal;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import org.apache.commons.collections4.ListUtils;
@@ -20,7 +19,6 @@ import com.google.gson.JsonObject;
 import java.text.*;
 
 import dev.galasa.api.ras.RasRunResult;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -51,10 +49,9 @@ import javax.validation.constraints.NotNull;
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
 "osgi.http.whiteboard.servlet.pattern=/ras/run" }, name = "Galasa Runs microservice")
-public class RunQuery extends HttpServlet {
+public class RunQuery extends BaseServlet {
 
-	@Reference
-	IFramework framework;
+
 
 	private static final long serialVersionUID = 1L;
 
@@ -67,36 +64,13 @@ public class RunQuery extends HttpServlet {
 	public static final int DEFAULT_PAGE_NUMBER = 1;
 	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
 
+
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		try{
-			Map<String,String[]> rawParamMap = req.getParameterMap();
-			Map<String,String> paramMap = getParameterMap(rawParamMap);
-			
-			String responseBodyJson = retrieveResults(paramMap, rawParamMap);
-			sendResponse(resp, responseBodyJson, HttpServletResponse.SC_OK);
-
-		} catch (InternalServletException ex ) {
-			// the message is a curated servlet message, we intentionally threw up to this level.
-			String responseBody = ex.getError().toString();
-			int httpFailureCode = ex.getHttpFailureCode();
-			sendResponse(resp, responseBody, httpFailureCode);
-			logger.error(responseBody,ex);
-
-		} catch (Throwable t){
-			// We didn't expect this failure to arrive. So deliver a generic error message.
-			String responseBody = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
-			int httpFailureCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-			sendResponse(resp, responseBody, httpFailureCode);
-			logger.error(responseBody,t);
-		}				
-	};
-
-
 	protected String retrieveResults( 
-		Map<String,String> paramMap, 
 		Map<String,String[]> rawParamMap
 	) throws InternalServletException {
+
+		Map<String,String> paramMap = getParameterMap(rawParamMap);
 		
 		int pageNum = extractIntProperty(paramMap, "page", DEFAULT_PAGE_NUMBER, GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER);
 		int pageSize = extractIntProperty(paramMap, "size", DEFAULT_NUMBER_RECORDS_PER_PAGE, GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER);
@@ -252,31 +226,6 @@ public class RunQuery extends HttpServlet {
 		}
 		return critList;
 	}
-		
-
-	/** 
-	 * Extract a string property from the list, throwing an error if there are >1 instances of the property.
-	 */
-	private String extractSingleStringProperty(Map<String, String[]> paramMap, String key, String defaultValue ) throws InternalServletException {
-		String returnedValue = defaultValue ;
-		String[] paramValues = paramMap.get(key);
-		if (paramValues != null && paramValues.length >0) {
-
-			if (paramValues.length >1) {
-				ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
-				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-			}
-
-			String firstOccurrance = paramValues[0];
-			if( firstOccurrance != null ) {
-				String trimmedFirstOccurrance = firstOccurrance.trim();
-				if ( !(trimmedFirstOccurrance.isEmpty())) {
-					returnedValue = trimmedFirstOccurrance;
-				}
-			}
-		}
-		return returnedValue;
-	}	
 
 	// private Instant extractSingleDateTimeProperty(Map<String, String[]> paramMap, String key, Instant defaultValue ) throws InternalServletException {
 	// 	String[] values = paramMap.get(key);
