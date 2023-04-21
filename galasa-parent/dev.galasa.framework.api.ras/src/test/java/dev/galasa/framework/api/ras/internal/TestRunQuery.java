@@ -825,6 +825,59 @@ public class TestRunQuery {
 
 		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'runname'","Duplicate");
 	}
+	
+
+	@Test
+	public void testQueryWithMultipleToTimesReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		// Two requestors ! should be invalid !
+		String[] toTimes = new String[] {"2023-04-11T09:42:06.589180Z","2023-04-21T06:00:54.597509Z"};
+		parameterMap.put("to",  toTimes);
+
+		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'to'","Duplicate");
+	}
+
+	@Test
+	public void testQueryWithMultipleFromTimesReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		// Two requestors ! should be invalid !
+		String[] fromTimes = new String[] {"2023-04-11T09:42:06.589180Z","2023-04-21T06:00:54.597509Z"};
+		parameterMap.put("from",  fromTimes);
+
+		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'from'","Duplicate");
+	}
+
+	@Test
+	public void testQueryWithMultiplePageSizesReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		// Two requestors ! should be invalid !
+		String[] pageSizes = new String[] {"5","10"};
+		parameterMap.put("size",  pageSizes);
+
+		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'size'","Duplicate");
+	}
+
+	@Test
+	public void testQueryWithMultiplePageNumReturnsError () throws Exception {
+
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		// Two requestors ! should be invalid !
+		String[] pageNums = new String[] {"5","10"};
+		parameterMap.put("page",  pageNums);
+
+		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'page'","Duplicate");
+	}
 
 	private void testQueryParametersReturnsError(
 		Map<String, String[]> parameterMap , 
