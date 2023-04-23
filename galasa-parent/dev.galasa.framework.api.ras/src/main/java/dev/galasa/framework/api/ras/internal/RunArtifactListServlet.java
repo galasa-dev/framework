@@ -25,8 +25,6 @@ import java.nio.file.Path;
 import java.util.*;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
@@ -40,34 +38,7 @@ public class RunArtifactListServlet extends BaseServlet {
 
 	final static Gson gson = GalasaGsonBuilder.build();
 
-	private Log  logger  =  LogFactory.getLog(this.getClass());
-
-
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		try{
-			Map<String,String[]> paramMap = req.getParameterMap();
-			
-			String responseBodyJson = retrieveResults(paramMap);
-
-			sendResponse(resp, responseBodyJson, HttpServletResponse.SC_OK);
-
-		} catch (InternalServletException ex ) {
-			// the message is a curated servlet message, we intentionally threw up to this level.
-			String responseBody = ex.getError().toString();
-			int httpFailureCode = ex.getHttpFailureCode();
-			sendResponse(resp, responseBody, httpFailureCode);
-			logger.error(responseBody,ex);
-
-		} catch (Throwable t){
-			// We didn't expect this failure to arrive. So deliver a generic error message.
-			String responseBody = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
-			int httpFailureCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-			sendResponse(resp, responseBody, httpFailureCode);
-			logger.error(responseBody,t);
-		}				
-	};
-
+	// private Log  logger  =  LogFactory.getLog(this.getClass());
 
 	protected String retrieveResults( 
 		Map<String,String[]> paramMap

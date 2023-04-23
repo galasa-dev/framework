@@ -32,4 +32,5 @@ public class ServletError extends Exception {
 
         return renderedJsonMessage ;
     }
+    
 }

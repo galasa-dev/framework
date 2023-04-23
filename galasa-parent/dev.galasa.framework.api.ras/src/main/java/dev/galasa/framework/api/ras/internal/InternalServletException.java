@@ -21,4 +21,8 @@ public class InternalServletException extends Exception {
         return this.httpFailureCode;
     }
     
+    @Override
+    public String getMessage() {
+        return servletError.toString();
+    }
 }
