@@ -65,22 +65,18 @@ public class RunQuery extends BaseServlet {
 
 		Map<String,String> paramMap = getParameterMap(rawParamMap);
 		
-		int pageNum = extractIntProperty(paramMap, "page", DEFAULT_PAGE_NUMBER, GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER);
-		int pageSize = extractIntProperty(paramMap, "size", DEFAULT_NUMBER_RECORDS_PER_PAGE, GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER);
+		int pageNum = extractSingleIntProperty(rawParamMap, "page", DEFAULT_PAGE_NUMBER);
+		int pageSize = extractSingleIntProperty(rawParamMap, "size", DEFAULT_NUMBER_RECORDS_PER_PAGE);
 
 		List<RasRunResult> runs = new ArrayList<>();
 
 		/* Get list of Run Ids from the URL -
 		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
-
-		//private List<RasRunResult> (){}
-
-		String runIdsParam = "";
-		if (paramMap.get("runId") != null && !paramMap.get("runId").isEmpty()) {
-			runIdsParam = paramMap.get("runId");
+		
+		if (rawParamMap.get("runId") != null && (rawParamMap.get("runId").length >0) ){
+			String[] runIds = rawParamMap.get("runId");
 			
-			String [] runIds = runIdsParam.split(",");
 			IRunResult run = null;
 			for (String runId : runIds) {
 				try {
@@ -97,7 +93,7 @@ public class RunQuery extends BaseServlet {
 
 		} else {
 	
-			List<IRasSearchCriteria> critList = getCriteria(paramMap , rawParamMap);
+			List<IRasSearchCriteria> critList = getCriteria(rawParamMap);
 
 			try {
 				runs = getRuns(critList);
@@ -107,14 +103,14 @@ public class RunQuery extends BaseServlet {
 			}
 		}
 
-		runs = sortResults(runs, paramMap , rawParamMap, extractSortValue(paramMap));
+		runs = sortResults(runs, rawParamMap, extractSortValue(paramMap));
 
 		String responseBodyJson = buildResponseBody(runs,pageNum,pageSize);
 
 		return responseBodyJson;
 	}
 
-	private List<IRasSearchCriteria> getCriteria( Map<String,String> paramMap , Map<String,String[]> rawParamMap ) throws InternalServletException {
+	private List<IRasSearchCriteria> getCriteria( Map<String,String[]> rawParamMap ) throws InternalServletException {
 
 		String requestor = extractSingleStringProperty(rawParamMap,"requestor",null);
 		String testName = extractSingleStringProperty(rawParamMap,"testname",null);
@@ -122,11 +118,11 @@ public class RunQuery extends BaseServlet {
 		String result = extractSingleStringProperty(rawParamMap, "result", null);
 		String runName = extractSingleStringProperty(rawParamMap, "runname", null);
 
-		Instant to = extractDateTimeProperty(paramMap, "to", null);
+		Instant to = extractSingleDateTimeProperty(rawParamMap, "to", null);
 
 		Instant fromDefault = Instant.now();
 		fromDefault = fromDefault.minus(24, ChronoUnit.HOURS);
-		Instant from = extractDateTimeProperty(paramMap, "from", fromDefault);
+		Instant from = extractSingleDateTimeProperty(rawParamMap, "from", fromDefault);
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,to, from, runName);
 		return criteria ;
@@ -212,65 +208,62 @@ public class RunQuery extends BaseServlet {
 			critList.add(resultCriteria);
 		}
 		if (runName != null && !runName.isEmpty()) {
-			Set<String> runNames = new HashSet<String>();
-			runNames.add(runName);
-			RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runNames);
+			RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
 			critList.add(runNameCriteria);
 		}
 		return critList;
 	}
 
-	// private Instant extractSingleDateTimeProperty(Map<String, String[]> paramMap, String key, Instant defaultValue ) throws InternalServletException {
-	// 	String[] values = paramMap.get(key);
-	// 	Instant dateTime ;
-	// 	if (values== null || values.isEmpty()) {
-	// 		dateTime = defaultValue ;
-	// 	} else {
-	// 		try {
-	// 			dateTime = Instant.parse(value);
-	// 		} catch (Exception e) {
-	// 			ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
-	// 			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-	// 		}
-	// 	}
-	// 	return dateTime;
-	// }
-
-	private Instant extractDateTimeProperty(Map<String, String> paramMap, String key, Instant defaultValue ) throws InternalServletException {
-		String value = paramMap.get(key);
+	private Instant extractSingleDateTimeProperty(Map<String, String[]> paramMap, String key, Instant defaultValue ) throws InternalServletException {
+		String[] values = paramMap.get(key);
 		Instant dateTime ;
-		if (value== null || value.isEmpty()) {
+		if (values== null || values.length == 0) {
 			dateTime = defaultValue ;
 		} else {
+			if (values.length > 1){
+				ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			}
+			String firstOccurrance = values[0];
 			try {
-				dateTime = Instant.parse(value);
+				dateTime = Instant.parse(firstOccurrance);
 			} catch (Exception e) {
-				ServletError error = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,key,value);
+				ServletError error = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,key,firstOccurrance);
 				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 			}
 		}
 		return dateTime;
 	}
 
-	private int extractIntProperty( 
-		Map<String, String> paramMap, 
+	private int extractSingleIntProperty( 
+		Map<String, String[]> paramMap, 
 		String key, 
-		int defaultValue , 
-		ServletErrorMessage errorMessageIfNotAnInt 
+		int defaultValue 
 	) throws InternalServletException {
 		
 		int returnedValue = defaultValue ;
-		String paramValueStr = paramMap.get(key);
-		if (paramValueStr != null && !paramValueStr.trim().equals("")) {
-			try {
-				returnedValue = Integer.parseInt(paramValueStr.trim());
-			} catch (NumberFormatException e) {
-				ServletError error = new ServletError(errorMessageIfNotAnInt,key,paramValueStr);
+		String[] paramValuesStr = paramMap.get(key);
+		if (paramValuesStr != null &&  paramValuesStr.length > 0){
+			if (paramValuesStr.length > 1){
+				ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
 				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 			}
-		}
+
+			String firstOccurrance = paramValuesStr[0];
+			String trimmedFirstOccurrance = firstOccurrance.trim();
+			if (!trimmedFirstOccurrance.equals("")){
+				try {
+					returnedValue = Integer.parseInt(trimmedFirstOccurrance);
+				} catch (NumberFormatException e) {
+					ServletError error = new ServletError(GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER,key,trimmedFirstOccurrance);
+					throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+				}
+			}
+
+		}   
 		return returnedValue;
 	}	
+
 
 	public void sendResponse(HttpServletResponse resp , String json , int status){
 		//Set headers for HTTP Response
@@ -414,11 +407,10 @@ public class RunQuery extends BaseServlet {
 		}
 	}
 
-
 	public List<RasRunResult> sortResults(
 		List<RasRunResult> unsortedRuns,
-		Map<String,String> paramMap,
-		Map<String,String[]> query,
+		
+		Map<String,String[]> rawParamMap,
 		String sortValue
 	) {
 
@@ -429,15 +421,12 @@ public class RunQuery extends BaseServlet {
 		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
 		// Checking ascending or descending for sorting
-
-		
-
-		return sortingData(runs, query, sortValue);
+		return sortingData(runs, rawParamMap, sortValue);
 		
 	}
 
 	public List<RasRunResult> sortingData(List<RasRunResult> runs, Map<String,String[]> query, @NotNull String sortValue){
-
+		
 		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
 		boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
 

@@ -491,17 +491,17 @@ paths:
                 genericerror:
                   value:
                     error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa EcoSystem owner."
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying access the endpoint
                 runerror: 
                   value: 
                     error_code: 5003
-                    error_message: "GAL5003E: Error retrieving runs. Report the problem to your Galasa EcoSystem owner."
+                    error_message: "GAL5003E: Error retrieving runs. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to retireve the runs
                 pageerror:
                   value: 
                     error_code: 5004
-                    error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa EcoSystem owner."
+                    error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to return a results page
   /ras/run/{runid}/runlog:
     get:
