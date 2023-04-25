@@ -109,11 +109,11 @@ public class RunQuery extends HttpServlet {
 
 		//private List<RasRunResult> (){}
 
-		String runIdsParam = "";
-		if (paramMap.get("runId") != null && !paramMap.get("runId").isEmpty()) {
-			runIdsParam = paramMap.get("runId");
+		
+		if (rawParamMap.get("runId") != null && (rawParamMap.get("runId").length >0) ){
+			String[] runIds = rawParamMap.get("runId");
 			
-			String [] runIds = runIdsParam.split(",");
+			//String [] runIds = runIdsParam.split(",");
 			IRunResult run = null;
 			for (String runId : runIds) {
 				try {
@@ -130,7 +130,7 @@ public class RunQuery extends HttpServlet {
 
 		} else {
 	
-			List<IRasSearchCriteria> critList = getCriteria(paramMap , rawParamMap);
+			List<IRasSearchCriteria> critList = getCriteria(rawParamMap);
 
 			try {
 				runs = getRuns(critList);
@@ -140,14 +140,14 @@ public class RunQuery extends HttpServlet {
 			}
 		}
 
-		runs = sortResults(runs, paramMap , rawParamMap, extractSortValue(paramMap));
+		runs = sortResults(runs, rawParamMap, extractSortValue(paramMap));
 
 		String responseBodyJson = buildResponseBody(runs,pageNum,pageSize);
 
 		return responseBodyJson;
 	}
 
-	private List<IRasSearchCriteria> getCriteria( Map<String,String> paramMap , Map<String,String[]> rawParamMap ) throws InternalServletException {
+	private List<IRasSearchCriteria> getCriteria( Map<String,String[]> rawParamMap ) throws InternalServletException {
 
 		String requestor = extractSingleStringProperty(rawParamMap,"requestor",null);
 		String testName = extractSingleStringProperty(rawParamMap,"testname",null);
@@ -253,6 +253,17 @@ public class RunQuery extends HttpServlet {
 		return critList;
 	}
 		
+
+	// private String[] extractManyStringProperties(Map<String, String[]> paramMap, String key, String[] defaultValue) throws InternalServletException {
+	// 	String[] returnedValue = defaultValue ;
+	// 	//paramValues = ["result:asc,testclass:asc"]
+	// 	String[] paramValues = paramMap.get(key);
+	// 	if (paramValues != null && paramValues.length >0) {
+	// 		returnedValue = paramValues[0].split(",");
+	// 	}
+	// 	return returnedValue;
+	// 	// ["result:asc", "testclass:asc"]
+	// }	
 
 	/** 
 	 * Extract a string property from the list, throwing an error if there are >1 instances of the property.
@@ -472,11 +483,10 @@ public class RunQuery extends HttpServlet {
 		}
 	}
 
-
 	public List<RasRunResult> sortResults(
 		List<RasRunResult> unsortedRuns,
-		Map<String,String> paramMap,
-		Map<String,String[]> query,
+		
+		Map<String,String[]> rawParamMap,
 		String sortValue
 	) {
 
@@ -488,16 +498,35 @@ public class RunQuery extends HttpServlet {
 
 		// Checking ascending or descending for sorting
 
-		
+		// Comparator<RasRunResult> compareByResult = new SortByResult();
+		// Comparator<RasRunResult> compareByTestClass = new SortByTestClass();
+		// Comparator<RasRunResult> compareByResultThenTestClass = compareByResult.thenComparing(compareByTestClass);		
 
-		return sortingData(runs, query, sortValue);
+		return sortingData(runs, rawParamMap, sortValue);
 		
 	}
+	// sortValue = "asc"
+	//sortValue = "result:asc,testclass:asc"
+
+	//a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the second.
+
+	//Comparator c = (Computer c1, Computer c2) -> c1.getAge().compareTo(c2.getAge());
+	//Comparator c = Comparator.comparing(Computer::getAge);
 
 	public List<RasRunResult> sortingData(List<RasRunResult> runs, Map<String,String[]> query, @NotNull String sortValue){
-
+		
 		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
 		boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
+
+
+		// Comparator<RasRunResult> finalComparator = new SortByResult();
+		// for (String sortValue : sortValues ) {
+		// 	if (sortValue.equals("testclass:asc")) {
+		// 		finalComparator = finalComparator.thenComparing(new SortByTestClass());
+		// 	} else if (sortValue.equals("testclass:desc")) {
+		// 		finalComparator = finalComparator.thenComparing(new SortByTestClass());
+		// 	}
+		// }
 
 		if (!ExtractQuerySort.isAscending(query, "to")) {
 			Collections.reverse(runs);

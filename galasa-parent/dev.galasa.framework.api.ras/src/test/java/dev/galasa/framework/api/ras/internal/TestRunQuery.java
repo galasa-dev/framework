@@ -97,17 +97,39 @@ public class TestRunQuery {
 
 	}
 
+	public IRunResult createRunResult (
+		String runName,
+		String requestor,
+		String runId,
+		String testShortName,
+		String result
+		){
+		
+		TestStructure testStructure = new TestStructure();
+		testStructure.setRunName(runName);
+		testStructure.setRequestor(requestor);
+		testStructure.setTestShortName(testShortName);
+		testStructure.setResult(result);
+		Path artifactRoot = Paths.get(RandomStringUtils.randomAlphanumeric(12));
+		String log = RandomStringUtils.randomAlphanumeric(6);
+
+		IRunResult mockRunResult = new MockRunResult( runId, testStructure, artifactRoot , log);
+		return mockRunResult;
+	}
+
 	public List<IRunResult> generateTestData (int resSize, int passTests){
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
 		int passCount = 0;
 		// Build the results the DB will return.
 		for(int c =0 ; c < resSize; c++){
 			String runName = RandomStringUtils.randomAlphanumeric(5);
+			String testShortName = RandomStringUtils.randomAlphanumeric(5);
 			String requestor = RandomStringUtils.randomAlphanumeric(8);
 			String runId = RandomStringUtils.randomAlphanumeric(16);
 			TestStructure testStructure = new TestStructure();
 			testStructure.setRunName(runName);
 			testStructure.setRequestor(requestor);
+			testStructure.setTestShortName(testShortName);
 			if (passCount < passTests){
 				testStructure.setResult("Passed");
 				passCount ++;
@@ -154,6 +176,7 @@ public class TestRunQuery {
 						   "      \"runId\": \""+mockInputRunResults.get(c+pagedResult).getRunId()+"\",\n"+
 						   "      \"testStructure\": {\n"+
 						   "        \"runName\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getRunName()+"\",\n"+
+						   "        \"testShortName\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getTestShortName()+"\",\n"+
 						   "        \"requestor\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getRequestor()+"\",\n"+
 						   "        \"result\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getResult()+"\"\n"+
 						   "      }\n"+
@@ -223,6 +246,41 @@ public class TestRunQuery {
 			5003, 
 			"GAL5003E: ", 
 			"Error retrieving runs"
+		);	
+	}
+
+	@Test
+	public void testQueryWithFailedRequestReturnsGenericError() throws Exception {
+		// Given...
+		// Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		// String[] requestorValues = {"mickey"};
+		// String[] sortValues = {"asc"};
+		// parameterMap.put("requestor", requestorValues );
+		// parameterMap.put("sort", sortValues );
+
+		TestParameters testParameters = new TestParameters(null,null);
+
+		// Oh no ! There are no directory services which represent a RAS store !
+		RunQuery servlet = testParameters.getServlet();
+		HttpServletRequest req = testParameters.getRequest();
+		HttpServletResponse resp = testParameters.getResponse();
+		ByteArrayOutputStream outStream = testParameters.getOutStream();
+				
+		// When...
+		servlet.doGet(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server couldn't find any RAS database to query
+		assertThat(resp.getStatus()==500);
+		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(), 
+			5000, 
+			"GAL5000E: ",
+			"access",
+			"endpoint"
 		);	
 	}
 
@@ -767,6 +825,7 @@ public class TestRunQuery {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
 		// Two requestors ! should be invalid !
+		
 		String[] requestors = new String[] {"homer","bart"};
 		parameterMap.put("requestor",  requestors);
 
@@ -878,6 +937,82 @@ public class TestRunQuery {
 
 		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'page'","Duplicate");
 	}
+
+	// @Test
+	// public void testQueryWithMultipleSortReturnsError () throws Exception {
+
+	// 	//Build Http query parameters
+	// 	Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+	// 	// Two requestors ! should be invalid !
+	// 	String[] sortValues = new String[] {"result:asc", "testclass:desc"};
+	// 	parameterMap.put("sort",  sortValues);
+		
+
+
+	// 	//Given..
+	// 	List<IRunResult> mockInputRunResults = new ArrayList<>();
+		
+	// 	IRunResult mockResultTestA = createRunResult("C0001", "galasa", "abc-123", "testA", "Failed");
+	// 	IRunResult mockResultTestB = createRunResult("C0002", "galasa", "abc-345", "testB", "Failed");
+	// 	IRunResult mockResultTestC = createRunResult("C0003", "galasa", "abc-567", "testC", "Passed");
+	// 	IRunResult mockResultTestD = createRunResult("C0004", "galasa", "abc-789", "testD", "Passed");
+	// 	mockInputRunResults.add(mockResultTestA);
+	// 	mockInputRunResults.add(mockResultTestB);
+	// 	mockInputRunResults.add(mockResultTestC);
+	// 	mockInputRunResults.add(mockResultTestD);
+		
+	// 	String[] pageSize = {"100"};
+	// 	String[] pageNo = {"1"};
+		
+	// 	TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
+
+	// 	RunQuery servlet = testParameters.getServlet();
+	// 	HttpServletRequest req = testParameters.getRequest();
+	// 	HttpServletResponse resp = testParameters.getResponse();
+	// 	ByteArrayOutputStream outStream = testParameters.getOutStream();
+
+
+	// 	//When...
+	// 	servlet.doGet(req,resp);
+
+	// 	//Then...
+	// 	// Expecting:
+	// 	//  {
+	// 	//   "pageNum": 1,
+	// 	//   "pageSize": 100,
+	// 	//   "numPages": 1,
+	// 	//   "amountOfRuns": 10,
+	// 	//   "runs": [
+	// 	//     {
+	// 	//       "runId": "xxx-yyy-zzz-012345",
+	// 	//       "testStructure": {
+	// 	//         "runName": "A1234",
+	// 	//         "requestor": "mickey"
+	// 	//       }
+	// 	//     ....
+	// 	//     {
+	// 	//       "runId": "xxx-yyy-zzz-012345",
+	// 	//       "testStructure": {
+	// 	//         "runName": "A1244",
+	// 	//         "requestor": "mickey"
+	// 	//       }
+	// 	// 	   }
+	// 	// 	]
+	// 	// }
+	// 	List<IRunResult> mockOrderedInputRunResults = new ArrayList<>();
+	// 	mockOrderedInputRunResults.add(mockResultTestB);
+	// 	mockOrderedInputRunResults.add(mockResultTestA);
+	// 	mockOrderedInputRunResults.add(mockResultTestD);
+	// 	mockOrderedInputRunResults.add(mockResultTestC);
+	// 	String expectedJson = generateExpectedJson(mockOrderedInputRunResults, pageSize, pageNo);;
+	// 	assertThat(resp.getStatus()==200);
+	// 	assertThat( outStream.toString() ).isEqualTo(expectedJson);
+	// 	assertThat( resp.getContentType()).isEqualTo("Application/json");
+	// 	assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		
+	// }
 
 	private void testQueryParametersReturnsError(
 		Map<String, String[]> parameterMap , 
