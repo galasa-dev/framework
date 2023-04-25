@@ -1,5 +1,5 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal;
 
@@ -31,10 +31,10 @@ import javax.validation.constraints.NotNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-public class TestRunQuery {	
+public class TestRunQuery {
 
 	public class TestParameters {
-		
+
 
 		MockFramework mockFramework;
 		MockArchiveStore archiveStore;
@@ -45,14 +45,14 @@ public class TestRunQuery {
 		List<IRunResult> mockInputRunResults;
 		ByteArrayOutputStream outStream;
 		PrintWriter writer;
-			
+
 		HttpServletResponse resp;
 
-		public TestParameters(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap){ 
+		public TestParameters(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap){
 			this(mockInpResults, parameterMap, new MockResultArchiveStoreDirectoryService(mockInpResults));
 		}
 
-		public TestParameters(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap, MockResultArchiveStoreDirectoryService rasStore ){ 
+		public TestParameters(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap, MockResultArchiveStoreDirectoryService rasStore ){
 			this.setMockInputs(mockInpResults);
 			this.directoryServices = getDirectoryService(rasStore);
 			this.setArchiveStore(new MockArchiveStore(this.directoryServices));
@@ -104,7 +104,7 @@ public class TestRunQuery {
 		String testShortName,
 		String result
 		){
-		
+
 		TestStructure testStructure = new TestStructure();
 		testStructure.setRunName(runName);
 		testStructure.setRequestor(requestor);
@@ -156,7 +156,7 @@ public class TestRunQuery {
 							"  \"numPages\": "+(int)numPages+",\n"+
 							"  \"amountOfRuns\": "+mockInputRunResults.size()+",\n"+
 							"  \"runs\": [";
-		if (mockInputRunResults.size()>0){	
+		if (mockInputRunResults.size()>0){
 			int iter;
 			if (resSize < mockInputRunResults.size() ){
 				iter = resSize;
@@ -172,7 +172,7 @@ public class TestRunQuery {
 					runData ="\n";
 				}
 				try {
-					runData = runData+ "    {\n"+  
+					runData = runData+ "    {\n"+
 						   "      \"runId\": \""+mockInputRunResults.get(c+pagedResult).getRunId()+"\",\n"+
 						   "      \"testStructure\": {\n"+
 						   "        \"runName\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getRunName()+"\",\n"+
@@ -231,7 +231,7 @@ public class TestRunQuery {
 		HttpServletRequest req = testParameters.getRequest();
 		HttpServletResponse resp = testParameters.getResponse();
 		ByteArrayOutputStream outStream = testParameters.getOutStream();
-				
+
 		// When...
 		servlet.doGet(req,resp);
 
@@ -242,30 +242,23 @@ public class TestRunQuery {
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
-			outStream.toString(), 
-			5003, 
-			"GAL5003E: ", 
+			outStream.toString(),
+			5003,
+			"GAL5003E: ",
 			"Error retrieving runs"
-		);	
+		);
 	}
 
 	@Test
 	public void testQueryWithFailedRequestReturnsGenericError() throws Exception {
 		// Given...
-		// Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		// String[] requestorValues = {"mickey"};
-		// String[] sortValues = {"asc"};
-		// parameterMap.put("requestor", requestorValues );
-		// parameterMap.put("sort", sortValues );
-
 		TestParameters testParameters = new TestParameters(null,null);
 
-		// Oh no ! There are no directory services which represent a RAS store !
 		RunQuery servlet = testParameters.getServlet();
 		HttpServletRequest req = testParameters.getRequest();
 		HttpServletResponse resp = testParameters.getResponse();
 		ByteArrayOutputStream outStream = testParameters.getOutStream();
-				
+
 		// When...
 		servlet.doGet(req,resp);
 
@@ -276,12 +269,12 @@ public class TestRunQuery {
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
-			outStream.toString(), 
-			5000, 
+			outStream.toString(),
+			5000,
 			"GAL5000E: ",
 			"access",
 			"endpoint"
-		);	
+		);
 	}
 
 	@Test
@@ -290,7 +283,7 @@ public class TestRunQuery {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		String[] pageSize = {"100"};
 		String[] pageNo = {"1"};
-		
+
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
 
 		TestParameters testParameters = new TestParameters(mockInputRunResults,parameterMap);
@@ -299,7 +292,7 @@ public class TestRunQuery {
 		HttpServletRequest req = testParameters.getRequest();
 		HttpServletResponse resp = testParameters.getResponse();
 		ByteArrayOutputStream outStream = testParameters.getOutStream();
-		
+
 		// When...
 		servlet.doGet(req,resp);
 
@@ -311,7 +304,7 @@ public class TestRunQuery {
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
-	
+
 	@Test
 	public void testQueryWithRequestorNotSortedWithEmptyDBServiceReturnsOK() throws Exception {
 		// Given...
@@ -321,9 +314,9 @@ public class TestRunQuery {
 		parameterMap.put("requestor", requestorValues );
 		parameterMap.put("sort", sortValues );
 
-		
+
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
-		
+
 		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
 
 		RunQuery servlet = testParameters.getServlet();
@@ -401,7 +394,7 @@ public class TestRunQuery {
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
-	
+
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
@@ -691,19 +684,19 @@ public class TestRunQuery {
 		HttpServletRequest req = testParameters.getRequest();
 		HttpServletResponse resp = testParameters.getResponse();
 		ByteArrayOutputStream outStream = testParameters.getOutStream();
-		
+
 		//When...
 		servlet.doGet(req,resp);
 
 		//Then...
 		assertThat(resp.getStatus()==500);
-		
+
 		checkErrorStructure(
-			outStream.toString(), 
-			5001, 
+			outStream.toString(),
+			5001,
 			"GAL5001E:","Error parsing the date-time field","'from'",fromTime[0]
-		);	
-			
+		);
+
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -729,7 +722,7 @@ public class TestRunQuery {
 		HttpServletRequest req = testParameters.getRequest();
 		HttpServletResponse resp = testParameters.getResponse();
 		ByteArrayOutputStream outStream = testParameters.getOutStream();
-		
+
 		//When...
 		servlet.doGet(req,resp);
 
@@ -737,10 +730,10 @@ public class TestRunQuery {
 		assertThat(resp.getStatus()==500);
 
 		checkErrorStructure(
-			outStream.toString(), 
-			5001, 
+			outStream.toString(),
+			5001,
 			"GAL5001E:","Error parsing the date-time field","'to'",toTime[0]
-		);	
+		);
 
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
@@ -775,7 +768,7 @@ public class TestRunQuery {
 		HttpServletRequest req = testParameters.getRequest();
 		HttpServletResponse resp = testParameters.getResponse();
 		ByteArrayOutputStream outStream = testParameters.getOutStream();
-		
+
 		//When...
 		servlet.doGet(req,resp);
 
@@ -785,13 +778,13 @@ public class TestRunQuery {
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
-			outStream.toString(), 
-			5002, 
+			outStream.toString(),
+			5002,
 			"GAL5002E:",
 			"Error retrieving ras run from RunID",
 			runId[0]
-		);	
-			
+		);
+
 	}
 
 	@Test
@@ -825,7 +818,6 @@ public class TestRunQuery {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
 		// Two requestors ! should be invalid !
-		
 		String[] requestors = new String[] {"homer","bart"};
 		parameterMap.put("requestor",  requestors);
 
@@ -838,7 +830,7 @@ public class TestRunQuery {
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
-		// Two requestors ! should be invalid !
+		// Two test names ! should be invalid !
 		String[] testNames = new String[] {"testA","testB"};
 		parameterMap.put("testname",  testNames);
 
@@ -852,7 +844,7 @@ public class TestRunQuery {
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
-		// Two requestors ! should be invalid !
+		// Two bundles ! should be invalid !
 		String[] bundles = new String[] {"bundleA","bundleB"};
 		parameterMap.put("bundle",  bundles);
 
@@ -865,7 +857,7 @@ public class TestRunQuery {
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
-		// Two requestors ! should be invalid !
+		// Two results ! should be invalid !
 		String[] results = new String[] {"resultA","resultB"};
 		parameterMap.put("result",  results);
 
@@ -878,13 +870,13 @@ public class TestRunQuery {
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
-		// Two requestors ! should be invalid !
+		// Two runnames ! should be invalid !
 		String[] runNames = new String[] {"runnameA","runnameB"};
 		parameterMap.put("runname",  runNames);
 
 		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'runname'","Duplicate");
 	}
-	
+
 
 	@Test
 	public void testQueryWithMultipleToTimesReturnsError () throws Exception {
@@ -892,7 +884,7 @@ public class TestRunQuery {
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
-		// Two requestors ! should be invalid !
+		// Two 'to' times ! should be invalid !
 		String[] toTimes = new String[] {"2023-04-11T09:42:06.589180Z","2023-04-21T06:00:54.597509Z"};
 		parameterMap.put("to",  toTimes);
 
@@ -905,7 +897,7 @@ public class TestRunQuery {
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
-		// Two requestors ! should be invalid !
+		// Two 'from' times ! should be invalid !
 		String[] fromTimes = new String[] {"2023-04-11T09:42:06.589180Z","2023-04-21T06:00:54.597509Z"};
 		parameterMap.put("from",  fromTimes);
 
@@ -918,7 +910,7 @@ public class TestRunQuery {
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
-		// Two requestors ! should be invalid !
+		// Two page sizes ! should be invalid !
 		String[] pageSizes = new String[] {"5","10"};
 		parameterMap.put("size",  pageSizes);
 
@@ -931,104 +923,24 @@ public class TestRunQuery {
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
-		// Two requestors ! should be invalid !
+		// Two page numbers ! should be invalid !
 		String[] pageNums = new String[] {"5","10"};
 		parameterMap.put("page",  pageNums);
 
 		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'page'","Duplicate");
 	}
 
-	// @Test
-	// public void testQueryWithMultipleSortReturnsError () throws Exception {
-
-	// 	//Build Http query parameters
-	// 	Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-
-	// 	// Two requestors ! should be invalid !
-	// 	String[] sortValues = new String[] {"result:asc", "testclass:desc"};
-	// 	parameterMap.put("sort",  sortValues);
-		
-
-
-	// 	//Given..
-	// 	List<IRunResult> mockInputRunResults = new ArrayList<>();
-		
-	// 	IRunResult mockResultTestA = createRunResult("C0001", "galasa", "abc-123", "testA", "Failed");
-	// 	IRunResult mockResultTestB = createRunResult("C0002", "galasa", "abc-345", "testB", "Failed");
-	// 	IRunResult mockResultTestC = createRunResult("C0003", "galasa", "abc-567", "testC", "Passed");
-	// 	IRunResult mockResultTestD = createRunResult("C0004", "galasa", "abc-789", "testD", "Passed");
-	// 	mockInputRunResults.add(mockResultTestA);
-	// 	mockInputRunResults.add(mockResultTestB);
-	// 	mockInputRunResults.add(mockResultTestC);
-	// 	mockInputRunResults.add(mockResultTestD);
-		
-	// 	String[] pageSize = {"100"};
-	// 	String[] pageNo = {"1"};
-		
-	// 	TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
-
-	// 	RunQuery servlet = testParameters.getServlet();
-	// 	HttpServletRequest req = testParameters.getRequest();
-	// 	HttpServletResponse resp = testParameters.getResponse();
-	// 	ByteArrayOutputStream outStream = testParameters.getOutStream();
-
-
-	// 	//When...
-	// 	servlet.doGet(req,resp);
-
-	// 	//Then...
-	// 	// Expecting:
-	// 	//  {
-	// 	//   "pageNum": 1,
-	// 	//   "pageSize": 100,
-	// 	//   "numPages": 1,
-	// 	//   "amountOfRuns": 10,
-	// 	//   "runs": [
-	// 	//     {
-	// 	//       "runId": "xxx-yyy-zzz-012345",
-	// 	//       "testStructure": {
-	// 	//         "runName": "A1234",
-	// 	//         "requestor": "mickey"
-	// 	//       }
-	// 	//     ....
-	// 	//     {
-	// 	//       "runId": "xxx-yyy-zzz-012345",
-	// 	//       "testStructure": {
-	// 	//         "runName": "A1244",
-	// 	//         "requestor": "mickey"
-	// 	//       }
-	// 	// 	   }
-	// 	// 	]
-	// 	// }
-	// 	List<IRunResult> mockOrderedInputRunResults = new ArrayList<>();
-	// 	mockOrderedInputRunResults.add(mockResultTestB);
-	// 	mockOrderedInputRunResults.add(mockResultTestA);
-	// 	mockOrderedInputRunResults.add(mockResultTestD);
-	// 	mockOrderedInputRunResults.add(mockResultTestC);
-	// 	String expectedJson = generateExpectedJson(mockOrderedInputRunResults, pageSize, pageNo);;
-	// 	assertThat(resp.getStatus()==200);
-	// 	assertThat( outStream.toString() ).isEqualTo(expectedJson);
-	// 	assertThat( resp.getContentType()).isEqualTo("Application/json");
-	// 	assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-
-		
-	// }
-
 	private void testQueryParametersReturnsError(
-		Map<String, String[]> parameterMap , 
-		int expectedErrorCode, 
+		Map<String, String[]> parameterMap ,
+		int expectedErrorCode,
 		String... expectedErrorMsgSubStrings
 	) throws Exception {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestData(20,10);
-		
-		// String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
-		// String[] requestorValues = {requestor};
-		// parameterMap.put("requestor", requestorValues );
- 
+
 		String[] sortValues = {"result:asc"};
 		parameterMap.put("sort", sortValues );
-		
+
 
 		TestParameters testParameters = new TestParameters(mockInputRunResults,parameterMap);
 
@@ -1036,7 +948,7 @@ public class TestRunQuery {
 		HttpServletRequest req = testParameters.getRequest();
 		HttpServletResponse resp = testParameters.getResponse();
 		ByteArrayOutputStream outStream = testParameters.getOutStream();
-		
+
 		//When...
 		servlet.doGet(req,resp);
 
@@ -1044,10 +956,10 @@ public class TestRunQuery {
 		assertThat(resp.getStatus()==400);
 
 		checkErrorStructure(
-			outStream.toString(), 
-			expectedErrorCode, 
+			outStream.toString(),
+			expectedErrorCode,
 			expectedErrorMsgSubStrings
-		);	
+		);
 
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");

@@ -17,8 +17,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.text.*;
-
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
@@ -37,7 +35,6 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -106,14 +103,10 @@ public class RunQuery extends HttpServlet {
 		/* Get list of Run Ids from the URL -
 		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
-
-		//private List<RasRunResult> (){}
-
 		
 		if (rawParamMap.get("runId") != null && (rawParamMap.get("runId").length >0) ){
 			String[] runIds = rawParamMap.get("runId");
 			
-			//String [] runIds = runIdsParam.split(",");
 			IRunResult run = null;
 			for (String runId : runIds) {
 				try {
@@ -252,18 +245,6 @@ public class RunQuery extends HttpServlet {
 		}
 		return critList;
 	}
-		
-
-	// private String[] extractManyStringProperties(Map<String, String[]> paramMap, String key, String[] defaultValue) throws InternalServletException {
-	// 	String[] returnedValue = defaultValue ;
-	// 	//paramValues = ["result:asc,testclass:asc"]
-	// 	String[] paramValues = paramMap.get(key);
-	// 	if (paramValues != null && paramValues.length >0) {
-	// 		returnedValue = paramValues[0].split(",");
-	// 	}
-	// 	return returnedValue;
-	// 	// ["result:asc", "testclass:asc"]
-	// }	
 
 	/** 
 	 * Extract a string property from the list, throwing an error if there are >1 instances of the property.
@@ -314,7 +295,6 @@ public class RunQuery extends HttpServlet {
 		Map<String, String[]> paramMap, 
 		String key, 
 		int defaultValue 
-		//ServletErrorMessage errorMessageIfNotAnInt 
 	) throws InternalServletException {
 		
 		int returnedValue = defaultValue ;
@@ -497,36 +477,14 @@ public class RunQuery extends HttpServlet {
 		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
 		// Checking ascending or descending for sorting
-
-		// Comparator<RasRunResult> compareByResult = new SortByResult();
-		// Comparator<RasRunResult> compareByTestClass = new SortByTestClass();
-		// Comparator<RasRunResult> compareByResultThenTestClass = compareByResult.thenComparing(compareByTestClass);		
-
 		return sortingData(runs, rawParamMap, sortValue);
 		
 	}
-	// sortValue = "asc"
-	//sortValue = "result:asc,testclass:asc"
-
-	//a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the second.
-
-	//Comparator c = (Computer c1, Computer c2) -> c1.getAge().compareTo(c2.getAge());
-	//Comparator c = Comparator.comparing(Computer::getAge);
 
 	public List<RasRunResult> sortingData(List<RasRunResult> runs, Map<String,String[]> query, @NotNull String sortValue){
 		
 		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
 		boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
-
-
-		// Comparator<RasRunResult> finalComparator = new SortByResult();
-		// for (String sortValue : sortValues ) {
-		// 	if (sortValue.equals("testclass:asc")) {
-		// 		finalComparator = finalComparator.thenComparing(new SortByTestClass());
-		// 	} else if (sortValue.equals("testclass:desc")) {
-		// 		finalComparator = finalComparator.thenComparing(new SortByTestClass());
-		// 	}
-		// }
 
 		if (!ExtractQuerySort.isAscending(query, "to")) {
 			Collections.reverse(runs);
