@@ -3,8 +3,9 @@
  */
 package dev.galasa.framework.api.ras.internal;
 
+import dev.galasa.framework.spi.FrameworkException;
 
-public class InternalServletException extends Exception {
+public class InternalServletException extends FrameworkException {
     
     ServletError servletError;
     int httpFailureCode;
