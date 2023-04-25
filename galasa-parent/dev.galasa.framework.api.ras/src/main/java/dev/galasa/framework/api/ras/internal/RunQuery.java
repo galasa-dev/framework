@@ -238,9 +238,7 @@ public class RunQuery extends HttpServlet {
 			critList.add(resultCriteria);
 		}
 		if (runName != null && !runName.isEmpty()) {
-			Set<String> runNames = new HashSet<String>();
-			runNames.add(runName);
-			RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runNames);
+			RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
 			critList.add(runNameCriteria);
 		}
 		return critList;
