@@ -36,18 +36,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
@@ -63,32 +59,54 @@ public class RunQuery extends HttpServlet {
 
 	private Log  logger  =  LogFactory.getLog(this.getClass());
 
-	Map<String,String> paramMap ;
+	
+
+	public static final int DEFAULT_PAGE_NUMBER = 1;
+	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try{
+			Map<String,String[]> rawParamMap = req.getParameterMap();
+			Map<String,String> paramMap = getParameterMap(rawParamMap);
+			
+			String responseBodyJson = retrieveResults(paramMap, rawParamMap);
+			sendResponse(resp, responseBodyJson, HttpServletResponse.SC_OK);
 
-		int pageNum = 1;
-		int pageSize = 100;
+		} catch (InternalServletException ex ) {
+			// the message is a curated servlet message, we intentionally threw up to this level.
+			String responseBody = ex.getError().toString();
+			int httpFailureCode = ex.getHttpFailureCode();
+			sendResponse(resp, responseBody, httpFailureCode);
+			logger.error(responseBody,ex);
 
-		paramMap= getParameterMap(req);
+		} catch (Throwable t){
+			// We didn't expect this failure to arrive. So deliver a generic error message.
+			String responseBody = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
+			int httpFailureCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+			sendResponse(resp, responseBody, httpFailureCode);
+			logger.error(responseBody,t);
+		}				
+	};
 
-		pageNum = extractPageProperty(resp, "page", pageNum);
-		pageSize = extractPageProperty(resp, "size", pageSize);
+
+	protected String retrieveResults( 
+		Map<String,String> paramMap, 
+		Map<String,String[]> rawParamMap
+	) throws InternalServletException {
+		
+		int pageNum = extractSingleIntProperty(rawParamMap, "page", DEFAULT_PAGE_NUMBER);
+		int pageSize = extractSingleIntProperty(rawParamMap, "size", DEFAULT_NUMBER_RECORDS_PER_PAGE);
 
 		List<RasRunResult> runs = new ArrayList<>();
 
 		/* Get list of Run Ids from the URL -
 		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
-
-		//private List<RasRunResult> (){}
-
-		String runIdsParam = "";
-		if (paramMap.get("runId") != null && !paramMap.get("runId").isEmpty()) {
-			runIdsParam = paramMap.get("runId");
+		
+		if (rawParamMap.get("runId") != null && (rawParamMap.get("runId").length >0) ){
+			String[] runIds = rawParamMap.get("runId");
 			
-			String [] runIds = runIdsParam.split(",");
 			IRunResult run = null;
 			for (String runId : runIds) {
 				try {
@@ -98,87 +116,49 @@ public class RunQuery extends HttpServlet {
 						runs.add(RunResultUtility.toRunResult(run, true));
 					}
 				} catch (ResultArchiveStoreException e) {
-					String msg = new ServletError(GAL5002_INVALID_RUN_ID,runId).toString();
-					sendResponse(resp, msg, HttpServletResponse.SC_NOT_FOUND);
-					logger.error(msg,e);
+					ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
+					throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
 				}
 			}
 
 		} else {
-
-			List<IRasSearchCriteria> critList = new ArrayList<>();       
-
-			String requestor = paramMap.get("requestor");
-			String testName = paramMap.get("testname");
-			String bundle = paramMap.get("bundle");
-			String result = paramMap.get("result");
-			String to = paramMap.get("to");
-			String from = paramMap.get("from");
-			String runName = paramMap.get("runname");
-			
-			// Checking all parameters to apply to the search criteria
-
-			try {
-				if (to != null && !to.isEmpty()) {
-					Instant toCrit = Instant.parse(to);
-					RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(toCrit);
-					critList.add(toCriteria);
-				}
-				} catch (Exception e) {
-				String msg = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"to",to ).toString();
-				sendResponse(resp,msg , HttpServletResponse.SC_BAD_REQUEST);
-				logger.error(msg,e);
-			}
-			try{
-				Instant fromCrit = null;
-				if (from != null && !from.isEmpty()) {
-					fromCrit = Instant.parse(from);
-				} else {
-					fromCrit = Instant.now();
-					fromCrit = fromCrit.minus(24, ChronoUnit.HOURS);
-				}
-				RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(fromCrit); 
-				critList.add(fromCriteria);
- 
-			} catch (Exception e) {
-				String msg  = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,"from",from ).toString();
-				sendResponse(resp, msg, HttpServletResponse.SC_BAD_REQUEST);
-				logger.error(msg,e);
-			}
-
-			if (requestor != null && !requestor.isEmpty()) {
-				RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
-				critList.add(requestorCriteria);
-			}
-			if (testName != null && !testName.isEmpty()) {
-				RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
-				critList.add(testNameCriteria);
-			}
-			if (bundle != null && !bundle.isEmpty()) {
-				RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
-				critList.add(bundleCriteria);
-			}
-			if (result != null && !result.isEmpty()) {
-				RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
-				critList.add(resultCriteria);
-			}
-			if (runName != null && !runName.isEmpty()) {
-				RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
-				critList.add(runNameCriteria);
-			}
+	
+			List<IRasSearchCriteria> critList = getCriteria(rawParamMap);
 
 			try {
 				runs = getRuns(critList);
 			} catch (Exception e) {
-				String msg = new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS).toString();
-				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				logger.error(msg,e);
+				ServletError error = new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS);
+				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 		}
 
+		runs = sortResults(runs, rawParamMap, extractSortValue(paramMap));
 
-		runs = sortResults(runs, paramMap , req.getParameterMap());
+		String responseBodyJson = buildResponseBody(runs,pageNum,pageSize);
 
+		return responseBodyJson;
+	}
+
+	private List<IRasSearchCriteria> getCriteria( Map<String,String[]> rawParamMap ) throws InternalServletException {
+
+		String requestor = extractSingleStringProperty(rawParamMap,"requestor",null);
+		String testName = extractSingleStringProperty(rawParamMap,"testname",null);
+		String bundle = extractSingleStringProperty(rawParamMap,"bundle",null);
+		String result = extractSingleStringProperty(rawParamMap, "result", null);
+		String runName = extractSingleStringProperty(rawParamMap, "runname", null);
+
+		Instant to = extractSingleDateTimeProperty(rawParamMap, "to", null);
+
+		Instant fromDefault = Instant.now();
+		fromDefault = fromDefault.minus(24, ChronoUnit.HOURS);
+		Instant from = extractSingleDateTimeProperty(rawParamMap, "from", fromDefault);
+
+		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,to, from, runName);
+		return criteria ;
+	}
+
+	private String buildResponseBody(List<RasRunResult> runs, int pageNum, int pageSize) throws InternalServletException {
 
 		List<JsonObject> returnArray = new ArrayList<>();
 
@@ -203,8 +183,6 @@ public class RunQuery extends HttpServlet {
 			returnArray.add(obj);
 		}
 	
-	 
-
 		String json = ""; 
 
 		if (returnArray.isEmpty()) {
@@ -214,29 +192,134 @@ public class RunQuery extends HttpServlet {
 			try {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
-				String msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
-				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				logger.error(msg,e);
+				ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
+				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}	
 		}
-
-		sendResponse(resp, json,200);
+		return json;
 	}
 
-	private int extractPageProperty(HttpServletResponse resp, String pageKey, int pageValue){
-		if (paramMap.get(pageKey) != null && !paramMap.get(pageKey).equals("")) {
-			try {
-				pageValue = Integer.parseInt(paramMap.get(pageKey));
-				return pageValue;
-			} catch (Exception e) {
-				String msg = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE).toString();
-				sendResponse(resp, msg, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				logger.error(msg,e);
+	private List<IRasSearchCriteria> getCriteria(
+		String requestor,
+		String testName,
+		String bundle,
+		String result,
+		Instant to, 
+		@NotNull Instant from, 
+		String runName
+	) throws InternalServletException {
+
+		List<IRasSearchCriteria> critList = new ArrayList<>();   
+
+		// The default for 'from' is now-24 hours. So will never be null.
+		RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(from); 
+		critList.add(fromCriteria);    
+		
+		// Checking all parameters to apply to the search criteria		
+		// The default for 'to' is null.
+		if (to != null) {	
+			RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(to);
+			critList.add(toCriteria);
+		}
+		if (requestor != null && !requestor.isEmpty()) {
+			RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
+			critList.add(requestorCriteria);
+		}
+		if (testName != null && !testName.isEmpty()) {
+			RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
+			critList.add(testNameCriteria);
+		}
+		if (bundle != null && !bundle.isEmpty()) {
+			RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
+			critList.add(bundleCriteria);
+		}
+		if (result != null && !result.isEmpty()) {
+			RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
+			critList.add(resultCriteria);
+		}
+		if (runName != null && !runName.isEmpty()) {
+			Set<String> runNames = new HashSet<String>();
+			runNames.add(runName);
+			RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runNames);
+			critList.add(runNameCriteria);
+		}
+		return critList;
+	}
+
+	/** 
+	 * Extract a string property from the list, throwing an error if there are >1 instances of the property.
+	 */
+	private String extractSingleStringProperty(Map<String, String[]> paramMap, String key, String defaultValue ) throws InternalServletException {
+		String returnedValue = defaultValue ;
+		String[] paramValues = paramMap.get(key);
+		if (paramValues != null && paramValues.length >0) {
+
+			if (paramValues.length >1) {
+				ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			}
+
+			String firstOccurrance = paramValues[0];
+			if( firstOccurrance != null ) {
+				String trimmedFirstOccurrance = firstOccurrance.trim();
+				if ( !(trimmedFirstOccurrance.isEmpty())) {
+					returnedValue = trimmedFirstOccurrance;
+				}
 			}
 		}
-		return pageValue;
-		
+		return returnedValue;
 	}	
+
+	private Instant extractSingleDateTimeProperty(Map<String, String[]> paramMap, String key, Instant defaultValue ) throws InternalServletException {
+		String[] values = paramMap.get(key);
+		Instant dateTime ;
+		if (values== null || values.length == 0) {
+			dateTime = defaultValue ;
+		} else {
+			if (values.length > 1){
+				ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			}
+			String firstOccurrance = values[0];
+			try {
+				dateTime = Instant.parse(firstOccurrance);
+			} catch (Exception e) {
+				ServletError error = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,key,firstOccurrance);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			}
+		}
+		return dateTime;
+	}
+
+	private int extractSingleIntProperty( 
+		Map<String, String[]> paramMap, 
+		String key, 
+		int defaultValue 
+	) throws InternalServletException {
+		
+		int returnedValue = defaultValue ;
+		String[] paramValuesStr = paramMap.get(key);
+		if (paramValuesStr != null &&  paramValuesStr.length > 0){
+			if (paramValuesStr.length > 1){
+				ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			}
+
+			String firstOccurrance = paramValuesStr[0];
+			String trimmedFirstOccurrance = firstOccurrance.trim();
+			if (!trimmedFirstOccurrance.equals("")){
+				try {
+					returnedValue = Integer.parseInt(trimmedFirstOccurrance);
+				} catch (NumberFormatException e) {
+					ServletError error = new ServletError(GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER,key,trimmedFirstOccurrance);
+					throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+				}
+			}
+
+		}   
+		return returnedValue;
+	}	
+
 
 	public void sendResponse(HttpServletResponse resp , String json , int status){
 		//Set headers for HTTP Response
@@ -269,20 +352,18 @@ public class RunQuery extends HttpServlet {
 
 	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 
-		List<IRunResult> runs = new ArrayList<>();
-
 		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
 
 		critList.toArray(criteria);
 
+		// Collect all the runs from all the RAS stores into a single list
+		List<IRunResult> runs = new ArrayList<>();
 		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-
 			runs.addAll(directoryService.getRuns(criteria));
-
 		}
 
+		// Convert each result to the required format
 		List<RasRunResult> runResults = new ArrayList<>();
-
 		for(IRunResult run : runs) {
 			runResults.add(RunResultUtility.toRunResult(run, true));
 		}
@@ -305,12 +386,13 @@ public class RunQuery extends HttpServlet {
 		return null;
 	}
 
-	private Map<String, String> getParameterMap(HttpServletRequest request) {
+	private Map<String, String> getParameterMap(Map<String, String[]> rawParameterMap) {
 
-		Map<String, String[]> ParameterMap = request.getParameterMap();
 		Map<String, String> newParameterMap = new HashMap<>();
-		for (String parameterName : ParameterMap.keySet()) {
-			String[] values = ParameterMap.get(parameterName);
+		for (String parameterName : rawParameterMap.keySet()) {
+
+			String[] values = rawParameterMap.get(parameterName);
+
 			if (values != null && values.length > 0) {
 				newParameterMap.put(parameterName, values[0]);
 			} else {
@@ -381,11 +463,11 @@ public class RunQuery extends HttpServlet {
 		}
 	}
 
-
 	public List<RasRunResult> sortResults(
 		List<RasRunResult> unsortedRuns,
-		Map<String,String> paramMap,
-		Map<String,String[]> query
+		
+		Map<String,String[]> rawParamMap,
+		String sortValue
 	) {
 
 		// shallow-clone the input list so we don't change it.
@@ -395,26 +477,36 @@ public class RunQuery extends HttpServlet {
 		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
 		// Checking ascending or descending for sorting
+		return sortingData(runs, rawParamMap, sortValue);
+		
+	}
 
+	public List<RasRunResult> sortingData(List<RasRunResult> runs, Map<String,String[]> query, @NotNull String sortValue){
+		
 		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
 		boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
 
-		String sortValue = paramMap.get("sort");
-		//if (sortValue != null) {
-			if (!ExtractQuerySort.isAscending(query, "to")) {
-				Collections.reverse(runs);
-			} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
-				Collections.sort(runs, new SortByTestClass());
-			} else if (!isTestClassSortAscending) {
-				Collections.sort(runs, new SortByTestClass());
-				Collections.reverse(runs);   
-			} else if (sortValue.equals("result:asc") && isResultSortAscending) {
-				Collections.sort(runs, new SortByResult());
-			} else if (!isResultSortAscending) {
-				Collections.sort(runs, new SortByResult());
-				Collections.reverse(runs);
-			}
-		//}
+		if (!ExtractQuerySort.isAscending(query, "to")) {
+			Collections.reverse(runs);
+		} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
+			Collections.sort(runs, new SortByTestClass());
+		} else if (!isTestClassSortAscending) {
+			Collections.sort(runs, new SortByTestClass());
+			Collections.reverse(runs);   
+		} else if (sortValue.equals("result:asc") && isResultSortAscending) {
+			Collections.sort(runs, new SortByResult());
+		} else if (!isResultSortAscending) {
+			Collections.sort(runs, new SortByResult());
+			Collections.reverse(runs);
+		}
 		return runs;
+	}
+
+	public String extractSortValue (Map<String,String> paramMap){
+		String sortValue = paramMap.get("sort");
+		if (sortValue == null){
+			sortValue = "to:desc";
+		}
+		return sortValue;
 	}
 }

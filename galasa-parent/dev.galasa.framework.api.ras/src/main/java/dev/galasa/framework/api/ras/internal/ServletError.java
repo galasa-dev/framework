@@ -7,7 +7,9 @@ import java.text.MessageFormat;
 
 import com.google.gson.*;
 
-public class ServletError {
+import dev.galasa.framework.spi.FrameworkException;
+
+public class ServletError extends FrameworkException {
 
     String [] params ;
     ServletErrorMessage template ;
