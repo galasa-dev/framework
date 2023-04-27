@@ -4,6 +4,7 @@
 package dev.galasa.framework.api.ras.internal;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import org.apache.commons.collections4.ListUtils;
@@ -17,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import dev.galasa.api.ras.RasRunResult;
+import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -44,7 +46,8 @@ import javax.validation.constraints.NotNull;
 "osgi.http.whiteboard.servlet.pattern=/ras/run" }, name = "Galasa Runs microservice")
 public class RunQuery extends BaseServlet {
 
-
+	@Reference
+	IFramework framework;
 
 	private static final long serialVersionUID = 1L;
 
@@ -57,15 +60,12 @@ public class RunQuery extends BaseServlet {
 	public static final int DEFAULT_PAGE_NUMBER = 1;
 	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
 
-
-	@Override
 	protected String retrieveResults( 
 		Map<String,String[]> rawParamMap
 	) throws InternalServletException {
-
 		QueryParameters queryParams = new QueryParameters(rawParamMap);
 		Map<String,String> paramMap = getParameterMap(rawParamMap);
-		
+
 		int pageNum = queryParams.getSingleInt("page", DEFAULT_PAGE_NUMBER);
 		int pageSize = queryParams.getSingleInt("size", DEFAULT_NUMBER_RECORDS_PER_PAGE);
 
