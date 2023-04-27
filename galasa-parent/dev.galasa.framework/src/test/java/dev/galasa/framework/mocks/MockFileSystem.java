@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import dev.galasa.framework.IFileSystem;
 
@@ -55,7 +56,7 @@ public class MockFileSystem implements IFileSystem {
                 Path parent = folderPath.getParent();
                 createDirectories(parent);
                 // Now create this folder.
-                createNode(folderPath, false);
+                createNode(folderPath, true);
             }
         }
     }
@@ -88,4 +89,15 @@ public class MockFileSystem implements IFileSystem {
         return isExists;
     }
 
+    @Override
+    public boolean isRegularFile(Path filePath) {
+        return !files.get(filePath.toString()).isFolder;
+    }
+
+    @Override
+    public Stream<Path> walk(Path folderPath) {
+        return files.keySet().stream()
+            .filter(path -> path.startsWith(folderPath.toString()))
+            .map(MockPath::new);
+    }
 }

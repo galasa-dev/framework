@@ -63,10 +63,11 @@ public class RunQuery extends BaseServlet {
 		Map<String,String[]> rawParamMap
 	) throws InternalServletException {
 
+		QueryParameters queryParams = new QueryParameters(rawParamMap);
 		Map<String,String> paramMap = getParameterMap(rawParamMap);
 		
-		int pageNum = extractSingleIntProperty(rawParamMap, "page", DEFAULT_PAGE_NUMBER);
-		int pageSize = extractSingleIntProperty(rawParamMap, "size", DEFAULT_NUMBER_RECORDS_PER_PAGE);
+		int pageNum = queryParams.getSingleInt("page", DEFAULT_PAGE_NUMBER);
+		int pageSize = queryParams.getSingleInt("size", DEFAULT_NUMBER_RECORDS_PER_PAGE);
 
 		List<RasRunResult> runs = new ArrayList<>();
 
@@ -93,12 +94,12 @@ public class RunQuery extends BaseServlet {
 
 		} else {
 	
-			List<IRasSearchCriteria> critList = getCriteria(rawParamMap);
+			List<IRasSearchCriteria> critList = getCriteria(queryParams);
 
 			try {
 				runs = getRuns(critList);
 			} catch (Exception e) {
-				ServletError error = new ServletError(GAL5003_ERROR_RETRIEVEING_RUNS);
+				ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
 				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 		}
@@ -110,19 +111,19 @@ public class RunQuery extends BaseServlet {
 		return responseBodyJson;
 	}
 
-	private List<IRasSearchCriteria> getCriteria( Map<String,String[]> rawParamMap ) throws InternalServletException {
+	private List<IRasSearchCriteria> getCriteria(QueryParameters queryParams) throws InternalServletException {
 
-		String requestor = extractSingleStringProperty(rawParamMap,"requestor",null);
-		String testName = extractSingleStringProperty(rawParamMap,"testname",null);
-		String bundle = extractSingleStringProperty(rawParamMap,"bundle",null);
-		String result = extractSingleStringProperty(rawParamMap, "result", null);
-		String runName = extractSingleStringProperty(rawParamMap, "runname", null);
+		String requestor = queryParams.getSingleString("requestor", null);
+		String testName = queryParams.getSingleString("testname", null);
+		String bundle = queryParams.getSingleString("bundle", null);
+		String result = queryParams.getSingleString("result", null);
+		String runName = queryParams.getSingleString("runname", null);
 
-		Instant to = extractSingleDateTimeProperty(rawParamMap, "to", null);
+		Instant to = queryParams.getSingleInstant("to", null);
 
 		Instant fromDefault = Instant.now();
 		fromDefault = fromDefault.minus(24, ChronoUnit.HOURS);
-		Instant from = extractSingleDateTimeProperty(rawParamMap, "from", fromDefault);
+		Instant from = queryParams.getSingleInstant("from", fromDefault);
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,to, from, runName);
 		return criteria ;
@@ -214,57 +215,6 @@ public class RunQuery extends BaseServlet {
 		return critList;
 	}
 
-	private Instant extractSingleDateTimeProperty(Map<String, String[]> paramMap, String key, Instant defaultValue ) throws InternalServletException {
-		String[] values = paramMap.get(key);
-		Instant dateTime ;
-		if (values== null || values.length == 0) {
-			dateTime = defaultValue ;
-		} else {
-			if (values.length > 1){
-				ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
-				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-			}
-			String firstOccurrance = values[0];
-			try {
-				dateTime = Instant.parse(firstOccurrance);
-			} catch (Exception e) {
-				ServletError error = new ServletError(GAL5001_INVALID_DATE_TIME_FIELD,key,firstOccurrance);
-				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-			}
-		}
-		return dateTime;
-	}
-
-	private int extractSingleIntProperty( 
-		Map<String, String[]> paramMap, 
-		String key, 
-		int defaultValue 
-	) throws InternalServletException {
-		
-		int returnedValue = defaultValue ;
-		String[] paramValuesStr = paramMap.get(key);
-		if (paramValuesStr != null &&  paramValuesStr.length > 0){
-			if (paramValuesStr.length > 1){
-				ServletError error = new ServletError(GAL5006_INVALID_QUERY_PARAM_DUPLICATES,key);
-				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-			}
-
-			String firstOccurrance = paramValuesStr[0];
-			String trimmedFirstOccurrance = firstOccurrance.trim();
-			if (!trimmedFirstOccurrance.equals("")){
-				try {
-					returnedValue = Integer.parseInt(trimmedFirstOccurrance);
-				} catch (NumberFormatException e) {
-					ServletError error = new ServletError(GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER,key,trimmedFirstOccurrance);
-					throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-				}
-			}
-
-		}   
-		return returnedValue;
-	}	
-
-
 	public void sendResponse(HttpServletResponse resp , String json , int status){
 		//Set headers for HTTP Response
 		resp.setStatus(status);
@@ -275,7 +225,7 @@ public class RunQuery extends BaseServlet {
 			out.print(json);
 			out.close();
 		}catch(Exception e){
-			logger.error("Error trying to set output buffer. Ignoring.",e);
+			logger.error("Error trying to set output buffer. Ignoring.", e);
 		}
 	}
 

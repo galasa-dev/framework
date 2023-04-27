@@ -3,38 +3,19 @@
  */
 package dev.galasa.framework.api.ras.internal.mocks;
 
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
-import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.teststructure.TestStructure;
-
-import org.junit.Test;
-
-import com.google.gson.*;
 
 import java.io.PrintWriter;
 
-
-import org.apache.commons.lang3.RandomStringUtils;
-
 import dev.galasa.framework.api.ras.internal.BaseServlet;
-import dev.galasa.framework.api.ras.internal.mocks.*;
-
-import static org.assertj.core.api.Assertions.*;
 
 import java.io.ByteArrayOutputStream;
 import java.util.*;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 
-import javax.servlet.http.*;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public abstract class MockServletBaseEnvironment {
 		

@@ -5,13 +5,17 @@ package dev.galasa.framework;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 public interface IFileSystem {
 
-    void createDirectories(Path folderPath ) throws IOException ;
+    void createDirectories(Path folderPath ) throws IOException;
 
-    void createFile(Path filePath) throws IOException ;
+    void createFile(Path filePath) throws IOException;
 
     boolean exists(Path pathToFolderOrFile);
+
+    boolean isRegularFile(Path filePath);
     
+    Stream<Path> walk(Path folderPath) throws IOException;
 }
