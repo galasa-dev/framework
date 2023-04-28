@@ -9,7 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public interface Route {
+public interface IRoute {
     String getPath();
     void handleRequest(HttpServletRequest req, HttpServletResponse res, String runId) throws ServletException, IOException;
 }

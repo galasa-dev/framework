@@ -42,7 +42,7 @@ public class RasRunServlet extends HttpServlet {
 
    static final Gson gson = GalasaGsonBuilder.build();
    
-   private final Map<String, Route> routes = new HashMap<>();
+   private final Map<String, IRoute> routes = new HashMap<>();
    
    RunResultRas runResultRas;
    RunLogRas runLogRas;
@@ -53,7 +53,7 @@ public class RasRunServlet extends HttpServlet {
       addRoute(new RunArtifactsListRoute(fileSystem, framework));
    }
 
-   private void addRoute(Route route) {
+   private void addRoute(IRoute route) {
       routes.put(route.getPath(), route);
    }
 
@@ -62,10 +62,10 @@ public class RasRunServlet extends HttpServlet {
 
       String url = req.getPathInfo();
       if (url != null) {
-         for (Map.Entry<String, Route> entry : routes.entrySet()) {
+         for (Map.Entry<String, IRoute> entry : routes.entrySet()) {
 
             String routePattern = entry.getKey();
-            Route route = entry.getValue();
+            IRoute route = entry.getValue();
             
             Matcher matcher = Pattern.compile(routePattern).matcher(url);
 

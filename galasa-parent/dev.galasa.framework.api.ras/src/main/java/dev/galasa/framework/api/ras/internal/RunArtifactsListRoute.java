@@ -81,7 +81,7 @@ public class RunArtifactsListRoute extends BaseRoute {
                artifactRecord.add("path", new JsonPrimitive(artifactPath.toString()));
                artifactRecord.add("url", new JsonPrimitive(artifactPath.toString()));
    
-               artifactRecords.add(artifactRecord);					
+               artifactRecords.add(artifactRecord);
             });
    
       } catch( ResultArchiveStoreException | IOException ex ) {
