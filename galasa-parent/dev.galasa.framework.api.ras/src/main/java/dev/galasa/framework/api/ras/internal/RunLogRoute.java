@@ -31,7 +31,7 @@ public class RunLogRoute extends BaseRoute {
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
          }
 
-         sendResponse(res, runLog, 200);
+         ResponseUtility.sendTextResponse(runLog, 200, res);
 
       } catch(Exception e) {
          String responseBody = new ServletError(GAL5002_INVALID_RUN_ID, runId).toString();
