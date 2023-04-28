@@ -173,7 +173,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		//     "url": "/testA/artifacts/dummyC.gz",
 		//   },
 		// ]
-		assertThat(resp.getStatus()==200);
+		assertThat(resp.getStatus()).isEqualTo(200);
 
 		String jsonString = outStream.toString();
 		JsonElement jsonElement = JsonParser.parseString(jsonString);
@@ -232,6 +232,9 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
 		assertThat(jsonArray.size()).isEqualTo(1);
+
+		String expectedJson = generateExpectedJson(runId, Arrays.asList(dummyArtifactPath));
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
 	
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
