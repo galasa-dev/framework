@@ -29,9 +29,25 @@ import javax.servlet.http.Part;
 public class MockHttpServletRequest implements HttpServletRequest{
 
     private Map<String, String[]> parameterMap ;
+    private String pathInfo;
 
-    public MockHttpServletRequest( Map<String, String[]> parameterMap ) {
+    public MockHttpServletRequest(Map<String, String[]> parameterMap) {
         this.parameterMap = parameterMap;
+    }
+
+    public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo) {
+        this.parameterMap = parameterMap;
+        this.pathInfo = pathInfo;
+    }
+
+    @Override
+    public String getPathInfo() {
+        return this.pathInfo;
+    }
+
+    @Override
+    public Map<String, String[]> getParameterMap() {
+        return this.parameterMap;
     }
 
     @Override
@@ -98,12 +114,6 @@ public class MockHttpServletRequest implements HttpServletRequest{
     public String[] getParameterValues(String name) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getParameterValues'");
-    }
-
-    @Override
-    public Map<String, String[]> getParameterMap() {
-
-        return this.parameterMap;
     }
 
     @Override
@@ -303,12 +313,6 @@ public class MockHttpServletRequest implements HttpServletRequest{
     public String getMethod() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getMethod'");
-    }
-
-    @Override
-    public String getPathInfo() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPathInfo'");
     }
 
     @Override

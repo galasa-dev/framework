@@ -299,7 +299,6 @@ paths:
           schema:
             type: string
       responses:
-      responses:
         '200':
           description: The list of artifacts was returned.
           content:

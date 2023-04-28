@@ -1,3 +1,6 @@
+/*
+ * Copyright contributors to the Galasa project 
+ */
 package dev.galasa.framework.api.ras.internal;
 
 import org.osgi.service.component.annotations.Activate;
@@ -9,7 +12,8 @@ import com.google.gson.Gson;
 import org.osgi.service.component.annotations.Reference;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,11 +23,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.api.ras.RasRunResult;
+import dev.galasa.framework.FileSystem;
+import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
-import dev.galasa.framework.spi.IRunResult;
-import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 
@@ -35,74 +37,48 @@ public class RasRunServlet extends HttpServlet {
    
    @Reference
    public IFramework framework;
+
+   protected IFileSystem fileSystem = new FileSystem();
+
+   static final Gson gson = GalasaGsonBuilder.build();
    
-   private static final Gson gson = GalasaGsonBuilder.build();
+   private final Map<String, Route> routes = new HashMap<>();
    
-   private static final Pattern pattern = Pattern.compile("\\/([A-z0-9.\\-=]+)");
-   private static final Pattern pattern2 = Pattern.compile("\\/([A-z0-9.\\-=]+)\\/runlog");
-   
-   private RunResultRas runResultRas;
-   private RunLogRas runLogRas;
-   
+   RunResultRas runResultRas;
+   RunLogRas runLogRas;
+
+   public void init() {
+      addRoute(new RunDetailsRoute(runResultRas));
+      addRoute(new RunLogRoute(runLogRas));
+      addRoute(new RunArtifactsListRoute(fileSystem, framework));
+   }
+
+   private void addRoute(Route route) {
+      routes.put(route.getPath(), route);
+   }
+
    @Override
    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-      
-      
-      String url = req.getPathInfo();
-     
-      Matcher matcher1 = pattern.matcher(url);
-  
-      String response = "";
-      
-      if(matcher1.matches()) {
-         
-         try {
-            
-            RasRunResult run = runResultRas.getRun(url);
-            
-            if(run != null) {
-               response = gson.toJson(run);
-               ResponseUtility.sendJsonResponse(response, 200, res);
-               return;
-            }else {
-               ResponseUtility.sendError("Could not receive run", 404, res);
-               return;
-            }
-            
-            
-         }catch(Exception e) {
-            throw new ServletException("Error occured trying to retrieve run from framework", e);
-         }
-      
-      }
-      
-      Matcher matcher2 = pattern2.matcher(url);
-     
-      if(matcher2.matches()) {
-          
-         try {
-            
-            String runLog = runLogRas.getRunlog(url);
-            
-            if(!runLog.isEmpty()) {
-               response = runLog;
-               ResponseUtility.sendTextResponse(response, 200, res);
-               return;
-            }else {
-               ResponseUtility.sendError("Could not receive run log", 404, res);
-               return;
-            }
-            
 
+      String url = req.getPathInfo();
+      if (url != null) {
+         for (Map.Entry<String, Route> entry : routes.entrySet()) {
+
+            String routePattern = entry.getKey();
+            Route route = entry.getValue();
             
-         }catch(Exception e) {
-            throw new ServletException("Error occured trying to retrieve run from framework", e);
+            Matcher matcher = Pattern.compile(routePattern).matcher(url);
+
+            if (matcher.matches()) {
+               // Retrieve the first matching group (0 retrieves the entire pattern)
+               String runId = matcher.group(1);
+
+               route.handleRequest(req, res, runId);
+               return;
+            }
          }
-         
       }
-      
       ResponseUtility.sendError("Invalid path", 404, res);
-   
    }
    
    @Activate
@@ -110,6 +86,4 @@ public class RasRunServlet extends HttpServlet {
       this.runResultRas = new RunResultRas(this.framework);
       this.runLogRas = new RunLogRas(this.framework);
    }
-   
-   
 }

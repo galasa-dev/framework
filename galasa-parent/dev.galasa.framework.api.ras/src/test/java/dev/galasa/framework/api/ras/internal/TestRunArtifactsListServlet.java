@@ -7,6 +7,7 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.gson.*;
@@ -31,41 +32,42 @@ import java.nio.file.Path;
 
 public class TestRunArtifactsListServlet extends BaseServletTest {	
 
-	private final IFileSystem mockFileSystem = new MockFileSystem();
+	private MockFileSystem mockFileSystem;
 	/** 
 	 * A subclass of the servlet we want to test, so that we can inject the mock framework in without 
 	 * adding any extra code to the production servlet class. The framework field is protected scope, 
 	 * so a subclass can do the injection instead of the injection framework.
 	 */
-	class MockRunArtifactListServlet extends RunArtifactListServlet implements IServletUnderTest {
-		
-		public MockRunArtifactListServlet(IFileSystem fileSystem) {
-			super(fileSystem);
-		}
+	class MockRasRunServlet extends RasRunServlet implements IServletUnderTest {
 
 		@Override
 		public void setFramework(IFramework framework) {
 			super.framework = framework;
 		}
+
+		@Override
+		public void setFileSystem(IFileSystem fileSystem) {
+			super.fileSystem = fileSystem;
+		}
 	}
 
-    class MockArtifactListServletEnvironment extends MockServletBaseEnvironment {
+    class MockRasRunServletEnvironment extends MockServletBaseEnvironment {
 
-		public MockArtifactListServletEnvironment(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap){ 
-        	super(mockInpResults, parameterMap, new MockResultArchiveStoreDirectoryService(mockInpResults));
+		public MockRasRunServletEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest){ 
+        	super(mockInpResults, mockRequest, new MockResultArchiveStoreDirectoryService(mockInpResults));
     	}
 
-		public MockArtifactListServletEnvironment(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap, MockResultArchiveStoreDirectoryService rasStore ){ 
-			super(mockInpResults, parameterMap, rasStore);
+		public MockRasRunServletEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockFileSystem mockFileSystem ){ 
+			super(mockInpResults, mockRequest, mockFileSystem);
 		}
 
-		public RunArtifactListServlet getServlet() {
-			return (RunArtifactListServlet) super.getBaseServlet();
+		public RasRunServlet getServlet() {
+			return (RasRunServlet) super.getBaseServlet();
 		}
 
 		@Override
 		public IServletUnderTest createServlet() {
-        	return new MockRunArtifactListServlet(mockFileSystem);
+        	return new MockRasRunServlet();
     	}
 	}
 
@@ -110,6 +112,11 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		return jsonResult;
 	}
 
+	@Before
+	public void setUp() {
+		mockFileSystem = new MockFileSystem();
+	}
+
     @Test
 	public void testMultipleArtifactsToListReturnsOKWithArtifacts() throws Exception {
 		//Given..
@@ -134,14 +141,17 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 
 		parameterMap.put("runId", new String[] {runId} );
 
-		MockArtifactListServletEnvironment mockServletEnvironment = new MockArtifactListServletEnvironment(mockInputRunResults,parameterMap);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/" + runId + "/artifacts");
+		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 
-		RunArtifactListServlet servlet = mockServletEnvironment.getServlet();
+		RasRunServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
 
 		//When...
+		servlet.activate();
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		// Then...
@@ -191,19 +201,18 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		String runId = "xxxxx678xxxxx";
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName);
 
-		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/" + runId + "/artifacts");
+		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 
-		parameterMap.put("runId", new String[] {runId} );
-
-		MockArtifactListServletEnvironment mockServletEnvironment = new MockArtifactListServletEnvironment(mockInputRunResults,parameterMap);
-
-		RunArtifactListServlet servlet = mockServletEnvironment.getServlet();
+		RasRunServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
 
 		//When...
+		servlet.activate();
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		// Then...
@@ -215,7 +224,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		//     "url": "/testA/artifacts/dummy.gz",
 		//   },
 		// ]
-		assertThat(resp.getStatus()==200);
+		assertThat(resp.getStatus()).isEqualTo(200);
 
 		String jsonString = outStream.toString();
 		JsonElement jsonElement = JsonParser.parseString(jsonString);
@@ -239,25 +248,24 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		String runId = "xxxxx678xxxxx";
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName);
 
-		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/" + runId + "/artifacts");
+		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 
-		parameterMap.put("runId", new String[] {runId} );
-
-		MockArtifactListServletEnvironment mockServletEnvironment = new MockArtifactListServletEnvironment(mockInputRunResults,parameterMap);
-
-		RunArtifactListServlet servlet = mockServletEnvironment.getServlet();
+		RasRunServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
 
 		//When...
+		servlet.activate();
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		// Then...
 		// Expecting this json:
 		// []
-		assertThat(resp.getStatus()==200);
+		assertThat(resp.getStatus()).isEqualTo(200);
 
 		String jsonString = outStream.toString();
 		JsonElement jsonElement = JsonParser.parseString(jsonString);
@@ -273,22 +281,21 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 	@Test
 	public void testBadRunIdGivesNotFoundError() throws Exception {
 		//Given..
-		String runId = "xxxxx678xxxxx";
-		List<IRunResult> mockInputRunResults = generateTestData(runId, "badRun");
+		String runId = "badRunId";
+		List<IRunResult> mockInputRunResults = new ArrayList<>();
 
-		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-
-		parameterMap.put("runId", new String[] {"badRunId"} );
-
-		MockArtifactListServletEnvironment mockServletEnvironment = new MockArtifactListServletEnvironment( mockInputRunResults,parameterMap);
-
-		RunArtifactListServlet servlet = mockServletEnvironment.getServlet();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/" + runId + "/artifacts");
+		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+		
+		RasRunServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
-
+		
 		//When...
+		servlet.activate();
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		// Then...
@@ -297,7 +304,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		//   "error_code" : 5002,
 		//   "error_message" : "GAL5002E: Error retrieving ras run from identifier 'badRunId'.""
 		// }
-		assertThat(resp.getStatus()==404);
+		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
 	
 		assertThat( resp.getContentType()).isEqualTo("Application/json");

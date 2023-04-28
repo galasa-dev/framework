@@ -8,11 +8,12 @@ import dev.galasa.framework.spi.IRunResult;
 
 import java.io.PrintWriter;
 
-import dev.galasa.framework.api.ras.internal.BaseServlet;
+import dev.galasa.framework.mocks.MockFileSystem;
 
 import java.io.ByteArrayOutputStream;
 import java.util.*;
 
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class MockServletBaseEnvironment {
 		
     MockFramework mockFramework;
+    MockFileSystem mockFileSystem;
     MockArchiveStore archiveStore;
     IServletUnderTest servlet;
 
@@ -32,15 +34,21 @@ public abstract class MockServletBaseEnvironment {
     HttpServletResponse resp;
 
     public MockServletBaseEnvironment(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap){ 
-        this(mockInpResults, parameterMap, new MockResultArchiveStoreDirectoryService(mockInpResults));
+        this(mockInpResults, new MockHttpServletRequest(parameterMap), new MockResultArchiveStoreDirectoryService(mockInpResults));
     }
 
-    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap, MockResultArchiveStoreDirectoryService rasStore ){ 
+    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockFileSystem mockFileSystem) { 
+        this(mockInpResults, mockRequest, new MockResultArchiveStoreDirectoryService(mockInpResults));
+        this.mockFileSystem = mockFileSystem;
+        this.servlet.setFileSystem(this.mockFileSystem);
+    }
+
+    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ){ 
         this.setMockInputs(mockInpResults);
         this.directoryServices = getDirectoryService(rasStore);
         this.setArchiveStore(new MockArchiveStore(this.directoryServices));
         this.mockFramework = new MockFramework(this.archiveStore);
-        this.req = new MockHttpServletRequest(parameterMap);
+        this.req = mockRequest;
         this.outStream = new ByteArrayOutputStream();
         this.writer = new PrintWriter(this.outStream);
         this.resp = new MockHttpServletResponse(this.writer);
@@ -59,8 +67,8 @@ public abstract class MockServletBaseEnvironment {
         return this.req;
     }
 
-    public BaseServlet getBaseServlet(){
-        return (BaseServlet)this.servlet;
+    public HttpServlet getBaseServlet(){
+        return (HttpServlet)this.servlet;
     }
 
     public ByteArrayOutputStream getOutStream(){
