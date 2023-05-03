@@ -7,7 +7,6 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-
 public class RunLogRas{
    
    private IFramework framework;
@@ -16,17 +15,14 @@ public class RunLogRas{
       this.framework = framework;
    }
    
-   public String getRunlog(String url) throws ResultArchiveStoreException, UnsupportedEncodingException {
-      
-      
+   public String getRunlog(String url) throws ResultArchiveStoreException, UnsupportedEncodingException, InternalServletException {
+
       String runId = "";
- 
+
       String[] parts = url.split("/");
-      String log = "";
+      String log = null;
       
-      String json = "";
-      
-      runId = parts[1];
+      runId = parts[2];
      
       if(runId != null) {
         String decoded = URLDecoder.decode(runId, "UTF-8");
@@ -37,10 +33,10 @@ public class RunLogRas{
   
    }
    
-   public String getRunLogFromFramework(String id) throws ResultArchiveStoreException {
+   public String getRunLogFromFramework(String id) throws ResultArchiveStoreException, InternalServletException {
       
       IRunResult run = null;
-      String runLog = "";
+      String runLog = null;
       
       for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
          

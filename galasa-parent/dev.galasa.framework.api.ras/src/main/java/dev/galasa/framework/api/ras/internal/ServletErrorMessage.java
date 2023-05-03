@@ -16,10 +16,10 @@ public enum ServletErrorMessage {
     // RunArtifactList...
     GAL5007_ERROR_RETRIEVING_ARTIFACTS              (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),
     
-    
-    //GenericErrors...
+    // GenericErrors...
     GAL5000_GENERIC_API_ERROR                       (5000,"E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."),
     GAL5404_UNRESOLVED_ENDPOINT_ERROR               (5404,"E: Error occured when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
+
     ;
 
 
