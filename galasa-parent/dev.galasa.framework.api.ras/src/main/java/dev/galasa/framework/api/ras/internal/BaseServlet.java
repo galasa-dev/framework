@@ -111,35 +111,6 @@ public class BaseServlet extends HttpServlet {
 	   this.runLogRas = new RunLogRas(this.framework);
 	}
 
-	// @Override
-	// protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-	// 	try{
-	// 		QueryParameters queryParams = new QueryParameters(req.getParameterMap());
-
-	// 		String responseBodyJson = retrieveResults(queryParams);
-
-	// 		sendResponse(resp, responseBodyJson, HttpServletResponse.SC_OK);
-
-	// 	} catch (InternalServletException ex ) {
-	// 		// the message is a curated servlet message, we intentionally threw up to this level.
-	// 		String responseBody = ex.getError().toString();
-	// 		int httpFailureCode = ex.getHttpFailureCode();
-	// 		sendResponse(resp, responseBody, httpFailureCode);
-	// 		logger.error(responseBody,ex);
-
-	// 	} catch (Throwable t) {
-	// 		// We didn't expect this failure to arrive. So deliver a generic error message.
-	// 		String responseBody = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
-	// 		int httpFailureCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-	// 		sendResponse(resp, responseBody, httpFailureCode);
-	// 		logger.error(responseBody,t);
-	// 	}
-	// };
-
-    // protected abstract String retrieveResults( 
-	// 	QueryParameters queryParams
-	// ) throws InternalServletException;
-
 	protected void sendResponse(HttpServletResponse resp , String json , int status){
 		//Set headers for HTTP Response
 		resp.setStatus(status);
