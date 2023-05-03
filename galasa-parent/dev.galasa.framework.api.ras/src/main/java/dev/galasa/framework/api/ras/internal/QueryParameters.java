@@ -3,7 +3,10 @@
  */
 package dev.galasa.framework.api.ras.internal;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.lang.reflect.Array;
 import java.time.*;
 import java.time.format.DateTimeParseException;
 
@@ -64,24 +67,15 @@ public class QueryParameters {
 	//  * @param defaultValues
 	//  * @return
 	//  */
-    // public List<String> getMultipleString(String queryParameterName, List<String> defaultValues ) {
-	// 	List<String> returnedValues = defaultValues ;
+    public List<String> getMultipleString(String queryParameterName, List<String> defaultValues ) {
+		List<String> returnedValues = defaultValues ;
+		String[] paramValues = params.get(queryParameterName);
+		if (paramValues != null && paramValues.length > 0) {
+			returnedValues = Arrays.asList(paramValues[0].split(","));
+		}
 
-	// 	String[] paramValues = params.get(queryParameterName);
-	// 	if (paramValues != null && paramValues.length >0) {
-
-	// 		for( String paramValue : paramValues ) {
-	// 			paramValue.split()
-	// 		String firstOccurrance = paramValues[0];
-	// 		if( firstOccurrance != null ) {
-	// 			String trimmedFirstOccurrance = firstOccurrance.trim();
-	// 			if ( !(trimmedFirstOccurrance.isEmpty())) {
-	// 				returnedValue = trimmedFirstOccurrance;
-	// 			}
-	// 		}
-	// 	}
-	// 	return returnedValue;
-	// }
+		return returnedValues;
+	}
 
 
 	/**

@@ -6,10 +6,11 @@ package dev.galasa.framework.api.ras.internal;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import dev.galasa.framework.spi.FrameworkException;
 
 public interface IRoute {
     String getPath();
-    void handleRequest(HttpServletRequest req, HttpServletResponse res, String runId) throws ServletException, IOException;
+
+    String handleRequest(String pathInfo, QueryParameters queryParams) throws ServletException, IOException, FrameworkException;
 }

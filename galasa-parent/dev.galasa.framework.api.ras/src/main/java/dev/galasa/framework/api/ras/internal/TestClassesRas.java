@@ -43,7 +43,7 @@ public class TestClassesRas extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	   
 	   
-		Map<String, String[]> query = req.getParameterMap();
+		QueryParameters queryParams = new QueryParameters(req.getParameterMap());
 		List<RasTestClass> classArray = new ArrayList<>();
 
 		try{
@@ -57,10 +57,8 @@ public class TestClassesRas extends HttpServlet {
 		classArray.sort(Comparator.comparing(RasTestClass::getTestClass));
 		
 		/* looking for sort options in query and sorting accordingly */
-		if(!query.isEmpty()){
-			if(!ExtractQuerySort.isAscending(query, "testclass")) {
-				classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
-			}
+		if(!ExtractQuerySort.isAscending(queryParams, "testclass")) {
+			classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
 		}
 
 

@@ -3,10 +3,6 @@
  */
 package dev.galasa.framework.api.ras.internal;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ServiceScope;
-
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +14,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import dev.galasa.api.ras.RasRunResult;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
@@ -32,39 +29,39 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
+public class RunQueryRoute extends BaseRoute {
+	
+	private IFramework framework;
 
-@Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-"osgi.http.whiteboard.servlet.pattern=/ras/run" }, name = "Galasa Runs microservice")
-public class RunQuery extends BaseServlet {
-
-	@Reference
-	IFramework framework;
-
-	private static final long serialVersionUID = 1L;
+	public RunQueryRoute(IFramework framework) {
+		super("\\/run");
+		this.framework = framework;
+	}
 
 	final static Gson gson = GalasaGsonBuilder.build();
-
 	private Log  logger  =  LogFactory.getLog(this.getClass());
-
-	
 
 	public static final int DEFAULT_PAGE_NUMBER = 1;
 	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
 
+	@Override
+	public String handleRequest(String pathInfo, QueryParameters queryParams) throws ServletException, IOException, FrameworkException {
+		return retrieveResults(queryParams);
+	}
+
 	protected String retrieveResults( 
-		Map<String,String[]> rawParamMap
+		QueryParameters queryParams
 	) throws InternalServletException {
-		QueryParameters queryParams = new QueryParameters(rawParamMap);
-		Map<String,String> paramMap = getParameterMap(rawParamMap);
 
 		int pageNum = queryParams.getSingleInt("page", DEFAULT_PAGE_NUMBER);
 		int pageSize = queryParams.getSingleInt("size", DEFAULT_NUMBER_RECORDS_PER_PAGE);
@@ -75,8 +72,9 @@ public class RunQuery extends BaseServlet {
 		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
 		
-		if (rawParamMap.get("runId") != null && (rawParamMap.get("runId").length >0) ){
-			String[] runIds = rawParamMap.get("runId");
+		List<String> runIds = queryParams.getMultipleString("runId", null);
+		if (runIds != null && runIds.size() > 0) {
+			
 			
 			IRunResult run = null;
 			for (String runId : runIds) {
@@ -104,7 +102,7 @@ public class RunQuery extends BaseServlet {
 			}
 		}
 
-		runs = sortResults(runs, rawParamMap, extractSortValue(paramMap));
+		runs = sortResults(runs, queryParams, extractSortValue(queryParams));
 
 		String responseBodyJson = buildResponseBody(runs,pageNum,pageSize);
 
@@ -280,23 +278,6 @@ public class RunQuery extends BaseServlet {
 		return null;
 	}
 
-	private Map<String, String> getParameterMap(Map<String, String[]> rawParameterMap) {
-
-		Map<String, String> newParameterMap = new HashMap<>();
-		for (String parameterName : rawParameterMap.keySet()) {
-
-			String[] values = rawParameterMap.get(parameterName);
-
-			if (values != null && values.length > 0) {
-				newParameterMap.put(parameterName, values[0]);
-			} else {
-				newParameterMap.put(parameterName, null);
-			}
-		}
-		return newParameterMap;
-	}
-
-
 	class SortByEndTime implements Comparator<RasRunResult> {
 
 		@Override
@@ -359,10 +340,9 @@ public class RunQuery extends BaseServlet {
 
 	public List<RasRunResult> sortResults(
 		List<RasRunResult> unsortedRuns,
-		
-		Map<String,String[]> rawParamMap,
+		QueryParameters queryParams,
 		String sortValue
-	) {
+	) throws InternalServletException {
 
 		// shallow-clone the input list so we don't change it.
 		List<RasRunResult> runs = new ArrayList<RasRunResult>();
@@ -371,17 +351,20 @@ public class RunQuery extends BaseServlet {
 		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
 		// Checking ascending or descending for sorting
-		return sortingData(runs, rawParamMap, sortValue);
+		return sortingData(runs, queryParams, sortValue);
 		
 	}
 
-	public List<RasRunResult> sortingData(List<RasRunResult> runs, Map<String,String[]> query, @NotNull String sortValue){
+	public List<RasRunResult> sortingData(List<RasRunResult> runs, QueryParameters queryParams, @NotNull String sortValue) {
 		
-		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(query,"testclass");
-		boolean isResultSortAscending = ExtractQuerySort.isAscending(query, "result");
+		boolean isToSortAscending = ExtractQuerySort.isAscending(queryParams,"to");
+		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(queryParams,"testclass");
+		boolean isResultSortAscending = ExtractQuerySort.isAscending(queryParams, "result");
 
-		if (!ExtractQuerySort.isAscending(query, "to")) {
+		if (sortValue.equals("to:asc") && isToSortAscending) {
 			Collections.reverse(runs);
+		} else if (!isToSortAscending) {
+			return runs;
 		} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
 			Collections.sort(runs, new SortByTestClass());
 		} else if (!isTestClassSortAscending) {
@@ -396,8 +379,8 @@ public class RunQuery extends BaseServlet {
 		return runs;
 	}
 
-	public String extractSortValue (Map<String,String> paramMap){
-		String sortValue = paramMap.get("sort");
+	public String extractSortValue (QueryParameters paramMap) throws InternalServletException {
+		String sortValue = paramMap.getSingleString("sort",null);
 		if (sortValue == null){
 			sortValue = "to:desc";
 		}

@@ -8,6 +8,7 @@ import dev.galasa.framework.spi.IRunResult;
 
 import java.io.PrintWriter;
 
+import dev.galasa.framework.api.ras.internal.BaseServlet;
 import dev.galasa.framework.mocks.MockFileSystem;
 
 import java.io.ByteArrayOutputStream;
@@ -67,8 +68,8 @@ public abstract class MockServletBaseEnvironment {
         return this.req;
     }
 
-    public HttpServlet getBaseServlet(){
-        return (HttpServlet)this.servlet;
+    public BaseServlet getBaseServlet(){
+        return (BaseServlet)this.servlet;
     }
 
     public ByteArrayOutputStream getOutStream(){

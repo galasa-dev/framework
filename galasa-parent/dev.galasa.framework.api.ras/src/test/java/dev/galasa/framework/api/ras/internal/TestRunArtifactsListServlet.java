@@ -38,7 +38,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 	 * adding any extra code to the production servlet class. The framework field is protected scope, 
 	 * so a subclass can do the injection instead of the injection framework.
 	 */
-	class MockRasRunServlet extends RasRunServlet implements IServletUnderTest {
+	class MockRasRunServlet extends BaseServlet implements IServletUnderTest {
 
 		@Override
 		public void setFramework(IFramework framework) {
@@ -61,8 +61,8 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 			super(mockInpResults, mockRequest, mockFileSystem);
 		}
 
-		public RasRunServlet getServlet() {
-			return (RasRunServlet) super.getBaseServlet();
+		public BaseServlet getServlet() {
+			return super.getBaseServlet();
 		}
 
 		@Override
@@ -141,10 +141,10 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 
 		parameterMap.put("runId", new String[] {runId} );
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/" + runId + "/artifacts");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts");
 		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 
-		RasRunServlet servlet = mockServletEnvironment.getServlet();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
@@ -202,10 +202,10 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/" + runId + "/artifacts");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts");
 		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 
-		RasRunServlet servlet = mockServletEnvironment.getServlet();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
@@ -252,10 +252,10 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/" + runId + "/artifacts");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts");
 		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 
-		RasRunServlet servlet = mockServletEnvironment.getServlet();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
@@ -288,10 +288,10 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		List<IRunResult> mockInputRunResults = new ArrayList<>();
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/" + runId + "/artifacts");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts");
 		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 		
-		RasRunServlet servlet = mockServletEnvironment.getServlet();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();

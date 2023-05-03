@@ -47,14 +47,16 @@ public class ExtractQuerySort {
     	return paramMap;
     }
 	
-	public static Boolean isAscending(Map<String, String[]> query, String param) {
-			if(query.containsKey("sort")) {
-				if(extractParameters(query).containsKey(param)) {
-					return extractParameters(query).get(param);
-				};
+	public static Boolean isAscending(QueryParameters queryParams, String param) {
+		try {
+			if (queryParams.getSingleString("sort", null) != null) {
+				String extractedParam = queryParams.getSingleString(param, null);
+				return extractedParam != null;
 			}
-		return Boolean.TRUE;
+		} catch (InternalServletException e) {
+			// Do nothing
+		}
+		return true;
 	}
 }
 
-	

@@ -36,7 +36,7 @@ public class ResultNames extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		Map<String, String[]> query = req.getParameterMap();
+		QueryParameters queryParams = new QueryParameters(req.getParameterMap());
 		List<String> resultsList = new ArrayList<>();
 
 		try {
@@ -50,10 +50,8 @@ public class ResultNames extends HttpServlet {
 
 		Collections.sort(resultsList);
 
-		if(!query.isEmpty()) { 
-			if(!ExtractQuerySort.isAscending(query, "resultname")) {
-				Collections.reverse(resultsList);
-			}
+		if(!ExtractQuerySort.isAscending(queryParams, "resultname")) {
+			Collections.reverse(resultsList);
 		}
 
 		JsonElement json = new Gson().toJsonTree(resultsList);
