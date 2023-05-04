@@ -16,6 +16,8 @@ public interface IFileSystem {
     boolean exists(Path pathToFolderOrFile);
 
     boolean isRegularFile(Path filePath);
+
+    boolean isDirectory(Path filePath);
     
     Stream<Path> walk(Path folderPath) throws IOException;
 }

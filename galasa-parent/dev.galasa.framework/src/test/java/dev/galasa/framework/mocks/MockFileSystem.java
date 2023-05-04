@@ -95,6 +95,11 @@ public class MockFileSystem implements IFileSystem {
     }
 
     @Override
+    public boolean isDirectory(Path filePath) {
+        return files.get(filePath.toString()).isFolder;
+    }
+
+    @Override
     public Stream<Path> walk(Path folderPath) {
         return files.keySet().stream()
             .filter(path -> path.startsWith(folderPath.toString()))

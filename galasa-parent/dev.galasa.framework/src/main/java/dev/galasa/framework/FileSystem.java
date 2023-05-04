@@ -33,6 +33,11 @@ public class FileSystem implements IFileSystem {
     }
 
     @Override
+    public boolean isDirectory(Path filePath) {
+        return Files.isDirectory(filePath);
+    }
+
+    @Override
     public Stream<Path> walk(Path folderPath) throws IOException {
         return Files.walk(folderPath);
     }

@@ -4,6 +4,12 @@
 package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.spi.FileSystemProvider;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.spi.FrameworkException;
@@ -58,27 +63,35 @@ public class RunArtifactsListRoute extends BaseRoute {
 
       JsonArray artifactRecords = new JsonArray();
       try {
-         // Walk through the artifact root directory, collecting each artifact and
-         // filtering out all subdirectories
-         fileSystem.walk(run.getArtifactsRoot())
-            .filter(fileSystem::isRegularFile)
-            .forEach(artifactPath -> {
+         List<Path> artifactPaths = getArtifactPaths(run.getArtifactsRoot(), new ArrayList<>());
+         for (Path artifactPath : artifactPaths) {
                JsonObject artifactRecord = new JsonObject();
 
-               artifactRecord.add("runId", new JsonPrimitive(runId));
-               artifactRecord.add("path", new JsonPrimitive(artifactPath.toString()));
-               artifactRecord.add("url", new JsonPrimitive(artifactPath.toString()));
+               artifactRecord.addProperty("runId", runId);
+               artifactRecord.addProperty("path", artifactPath.toString());
+               artifactRecord.addProperty("url", artifactPath.toString());
    
                artifactRecords.add(artifactRecord);
-            });
+         }
+         
+         // fileSystem.walk(run.getArtifactsRoot())
+         //    .filter(fileSystem::isRegularFile)
+         //    .forEach(artifactPath -> {
+         //       JsonObject artifactRecord = new JsonObject();
+
+         //       artifactRecord.add("runId", new JsonPrimitive(runId));
+         //       artifactRecord.add("path", new JsonPrimitive(artifactPath.toString()));
+         //       artifactRecord.add("url", new JsonPrimitive(artifactPath.toString()));
+   
+         //       artifactRecords.add(artifactRecord);
+         //    });
    
       } catch( ResultArchiveStoreException | IOException ex ) {
          ServletError error = new ServletError(GAL5007_ERROR_RETRIEVING_ARTIFACTS,runId);
          throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
 
-      String returnedJsonString = gson.toJson(artifactRecords);
-      return returnedJsonString;
+      return gson.toJson(artifactRecords);
    }
 
    private IRunResult getRunByRunId(String id) throws ResultArchiveStoreException {
@@ -94,5 +107,29 @@ public class RunArtifactsListRoute extends BaseRoute {
          }
       }
       return null;
+   }
+
+   /** 
+    * Walks through an artifact directory recursively, collecting each artifact and filtering out all subdirectories
+    * @param root - an artifact's root directory
+    * @param accumulatedPaths - an intermediate list of accumulated artifact paths
+    * @return a list of artifact paths
+    */ 
+   private List<Path> getArtifactPaths(Path root, List<Path> accumulatedPaths) throws IOException {
+      FileSystemProvider fsProvider = root.getFileSystem().provider();
+      
+      // Define a default filter to accept everything
+      DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
+      
+      try (DirectoryStream<Path> stream = fsProvider.newDirectoryStream(root, defaultFilter)) {
+         for (Path entry : stream) {
+            if (fileSystem.isDirectory(entry)) {
+               accumulatedPaths = getArtifactPaths(entry, accumulatedPaths);
+            } else {
+               accumulatedPaths.add(entry);
+            }
+         }
+      }
+      return accumulatedPaths;
    }
 }
