@@ -331,7 +331,6 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 	@Override
 	public void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
 			throws CertificateStoreException {
-		// TODO Auto-generated method stub
 		
 	}
 

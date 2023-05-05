@@ -50,7 +50,6 @@ public class MockRunResult implements IRunResult {
 
     @Override
     public void discard() throws ResultArchiveStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'discard'");
     }
     

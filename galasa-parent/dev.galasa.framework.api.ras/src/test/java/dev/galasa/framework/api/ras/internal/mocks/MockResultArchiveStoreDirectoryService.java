@@ -27,13 +27,11 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 	@Override
 	public @NotNull String getName() {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getName'");
 	}
 
 	@Override
 	public boolean isLocal() {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'isLocal'");
 	}
 
@@ -46,19 +44,16 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 	@Override
 	public @NotNull List<String> getRequestors() throws ResultArchiveStoreException {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getRequestors'");
 	}
 
 	@Override
 	public @NotNull List<RasTestClass> getTests() throws ResultArchiveStoreException {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getTests'");
 	}
 
 	@Override
 	public @NotNull List<String> getResultNames() throws ResultArchiveStoreException {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getResultNames'");
 	}
 

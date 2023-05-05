@@ -484,7 +484,6 @@ public class Framework implements IFramework {
 
 	@Override
 	public @NotNull ICertificateStoreService getCertificateStoreService() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

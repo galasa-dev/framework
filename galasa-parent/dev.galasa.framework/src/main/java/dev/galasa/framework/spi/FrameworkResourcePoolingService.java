@@ -507,26 +507,22 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService 
          */
         @Override
         public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         @Override
         public UUID watchPrefix(IDynamicStatusStoreWatcher watcher, String keyPrefix)
                 throws DynamicStatusStoreException {
-            // TODO Auto-generated method stub
             return null;
         }
 
         @Override
         public void unwatch(UUID watchId) throws DynamicStatusStoreException {
-            // TODO Auto-generated method stub
 
         }
 
         @Override
         public void performActions(IDssAction... actions) throws DynamicStatusStoreException {
-            // TODO Auto-generated method stub
             
         }
 

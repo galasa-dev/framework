@@ -34,33 +34,28 @@ public class MockFramework implements IFramework {
 
     @Override
     public void setFrameworkProperties(Properties overrideProperties) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'setFrameworkProperties'");
     }
 
     @Override
     public boolean isInitialised() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'isInitialised'");
     }
 
     @Override
     public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
             throws ConfigurationPropertyStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getConfigurationPropertyService'");
     }
 
     @Override
     public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
             throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getDynamicStatusStoreService'");
     }
 
     @Override
     public @NotNull ICertificateStoreService getCertificateStoreService() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getCertificateStoreService'");
     }
 
@@ -71,61 +66,51 @@ public class MockFramework implements IFramework {
 
     @Override
     public @NotNull IResourcePoolingService getResourcePoolingService() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getResourcePoolingService'");
     }
 
     @Override
     public @NotNull IConfidentialTextService getConfidentialTextService() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getConfidentialTextService'");
     }
 
     @Override
     public @NotNull ICredentialsService getCredentialsService() throws CredentialsException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getCredentialsService'");
     }
 
     @Override
     public String getTestRunName() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getTestRunName'");
     }
 
     @Override
     public Random getRandom() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getRandom'");
     }
 
     @Override
     public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getFrameworkRuns'");
     }
 
     @Override
     public IRun getTestRun() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getTestRun'");
     }
 
     @Override
     public Properties getRecordProperties() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getRecordProperties'");
     }
 
     @Override
     public URL getApiUrl(@NotNull Api api) throws FrameworkException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getApiUrl'");
     }
 
     @Override
     public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getSharedEnvironmentRunType'");
     }
     
