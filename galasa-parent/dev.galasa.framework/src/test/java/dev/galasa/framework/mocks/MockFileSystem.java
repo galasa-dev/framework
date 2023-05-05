@@ -5,26 +5,41 @@ package dev.galasa.framework.mocks;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.WatchService;
-import java.nio.file.attribute.UserPrincipalLookupService;
+
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.stream.Stream;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystem;
-import dev.galasa.framework.IFileSystem;
 import java.nio.file.DirectoryStream.Filter;
 
-public class MockFileSystem extends FileSystem implements IFileSystem {
 
+/**
+ * - A directory is a file system.
+ * - Each directory holds a map of nodes in that directory.
+ * - Each node could be a file, or another directory.
+ * - Each file system knows where it is mounted.
+ */
+public class MockFileSystem extends MockBaseFileSystem {
+
+    private MockFileSystem parentFileSystem ;
     private static class Node {
         // Path path;
         boolean isFolder ;
         byte[] contents ;
     }
 
+    // A map of parts of the path, and the node it relates to.
     private Map<String,Node> files = new HashMap<>();
+
+
+    public MockFileSystem() {
+        parentFileSystem = null ;
+    }
+
+    public MockFileSystem( MockFileSystem parentFileSystem) {
+        this.parentFileSystem = parentFileSystem ;
+    }
+
+
 
     public boolean isFolder(Path folderPath) {
         boolean isFolder = false ;
@@ -114,61 +129,6 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
     @Override
     public FileSystemProvider provider() {
         return new MockFileSystemProvider(this);
-    }
-
-    @Override
-    public void close() throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'close'");
-    }
-
-    @Override
-    public boolean isOpen() {
-        throw new UnsupportedOperationException("Unimplemented method 'isOpen'");
-    }
-
-    @Override
-    public boolean isReadOnly() {
-        throw new UnsupportedOperationException("Unimplemented method 'isReadOnly'");
-    }
-
-    @Override
-    public String getSeparator() {
-        throw new UnsupportedOperationException("Unimplemented method 'getSeparator'");
-    }
-
-    @Override
-    public Iterable<Path> getRootDirectories() {
-        throw new UnsupportedOperationException("Unimplemented method 'getRootDirectories'");
-    }
-
-    @Override
-    public Iterable<FileStore> getFileStores() {
-        throw new UnsupportedOperationException("Unimplemented method 'getFileStores'");
-    }
-
-    @Override
-    public Set<String> supportedFileAttributeViews() {
-        throw new UnsupportedOperationException("Unimplemented method 'supportedFileAttributeViews'");
-    }
-
-    @Override
-    public Path getPath(String first, String... more) {
-        throw new UnsupportedOperationException("Unimplemented method 'getPath'");
-    }
-
-    @Override
-    public PathMatcher getPathMatcher(String syntaxAndPattern) {
-        throw new UnsupportedOperationException("Unimplemented method 'getPathMatcher'");
-    }
-
-    @Override
-    public UserPrincipalLookupService getUserPrincipalLookupService() {
-        throw new UnsupportedOperationException("Unimplemented method 'getUserPrincipalLookupService'");
-    }
-
-    @Override
-    public WatchService newWatchService() throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'newWatchService'");
     }
 
     public List<Path> getListOfFiles( Filter<? super Path> filter ) throws IOException {

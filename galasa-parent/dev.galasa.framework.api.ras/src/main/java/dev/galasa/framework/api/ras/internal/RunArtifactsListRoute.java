@@ -109,19 +109,19 @@ public class RunArtifactsListRoute extends BaseRoute {
       return null;
    }
 
+   // Define a default filter to accept everything
+   static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
+
    /** 
     * Walks through an artifact directory recursively, collecting each artifact and filtering out all subdirectories
     * @param root - an artifact's root directory
     * @param accumulatedPaths - an intermediate list of accumulated artifact paths
     * @return a list of artifact paths
     */ 
-   private List<Path> getArtifactPaths(Path root, List<Path> accumulatedPaths) throws IOException {
-      FileSystemProvider fsProvider = root.getFileSystem().provider();
+   private List<Path> getArtifactPaths(Path directory, List<Path> accumulatedPaths) throws IOException {
+      FileSystemProvider fsProvider = directory.getFileSystem().provider();
       
-      // Define a default filter to accept everything
-      DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
-      
-      try (DirectoryStream<Path> stream = fsProvider.newDirectoryStream(root, defaultFilter)) {
+      try (DirectoryStream<Path> stream = fsProvider.newDirectoryStream(directory, defaultFilter)) {
          for (Path entry : stream) {
             if (fileSystem.isDirectory(entry)) {
                accumulatedPaths = getArtifactPaths(entry, accumulatedPaths);

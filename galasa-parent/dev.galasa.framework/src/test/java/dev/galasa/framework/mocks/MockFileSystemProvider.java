@@ -39,7 +39,6 @@ public class MockFileSystemProvider extends FileSystemProvider {
 
         @Override
         public void close() throws IOException {
-            throw new UnsupportedOperationException("Unimplemented method 'close'");
         }
 
         @Override

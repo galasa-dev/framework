@@ -44,7 +44,7 @@ public class MockPath implements Path {
 
     @Override
     public FileSystem getFileSystem() {
-        return this.fileSystem;
+        return fileSystem;
     }
 
     @Override

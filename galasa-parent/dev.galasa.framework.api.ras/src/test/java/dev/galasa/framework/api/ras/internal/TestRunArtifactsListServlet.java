@@ -8,6 +8,7 @@ import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.gson.*;
@@ -117,6 +118,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		mockFileSystem = new MockFileSystem();
 	}
 
+	@Ignore("The mock file system isn't clever enough to be able to recursively walk directories yet. Story 1407")
     @Test
 	public void testMultipleArtifactsToListReturnsOKWithArtifacts() throws Exception {
 		//Given..
@@ -189,7 +191,8 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
-    @Test
+    @Ignore("The mock file system isn't clever enough to be able to recursively walk directories yet. Story 1407")
+	@Test
 	public void testOneArtifactToListReturnsOKWithArtifact() throws Exception {
 		//Given..
 		String runName = "testA";
@@ -226,19 +229,20 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		// ]
 		// assertThat(resp.getStatus()).isEqualTo(200);
 
-		// String jsonString = outStream.toString();
-		// JsonElement jsonElement = JsonParser.parseString(jsonString);
-		// assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
+		String jsonString = outStream.toString();
+		JsonElement jsonElement = JsonParser.parseString(jsonString);
+		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
-		// JsonArray jsonArray = jsonElement.getAsJsonArray();
-		// assertThat(jsonArray.size()).isEqualTo(1);
+		JsonArray jsonArray = jsonElement.getAsJsonArray();
+		assertThat(jsonArray.size()).isEqualTo(1);
 
-		// String expectedJson = generateExpectedJson(runId, Arrays.asList(dummyArtifactPath));
-		// assertThat(outStream.toString()).isEqualTo(expectedJson);
+		String expectedJson = generateExpectedJson(runId, Arrays.asList(dummyArtifactPath));
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
 	
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
+
 
     @Test
 	public void testNoArtifactsToListGivesEmptyList() throws Exception {
@@ -268,14 +272,14 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		// Then...
 		// Expecting this json:
 		// []
-		// assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getStatus()).isEqualTo(200);
 
-		// String jsonString = outStream.toString();
-		// JsonElement jsonElement = JsonParser.parseString(jsonString);
-		// assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
+		String jsonString = outStream.toString();
+		JsonElement jsonElement = JsonParser.parseString(jsonString);
+		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
-		// JsonArray jsonArray = jsonElement.getAsJsonArray();
-		// assertThat(jsonArray.size()).isEqualTo(0);
+		JsonArray jsonArray = jsonElement.getAsJsonArray();
+		assertThat(jsonArray.size()).isEqualTo(0);
 	
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
