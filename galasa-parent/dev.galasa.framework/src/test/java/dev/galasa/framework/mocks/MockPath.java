@@ -17,8 +17,11 @@ public class MockPath implements Path {
 
     private final String path;
 
-    public MockPath(String path) {
+    protected MockFileSystem fileSystem;
+
+    public MockPath(String path, MockFileSystem mockFileSystem) {
         this.path = path;
+        this.fileSystem= mockFileSystem;
     }
 
     @Override
@@ -30,7 +33,7 @@ public class MockPath implements Path {
         } else {
             // This path has a parent, so return it
             String parentPath = path.substring(0, lastSeparator);
-            return new MockPath(parentPath);
+            return new MockPath(parentPath, this.fileSystem);
         }
     }
 
@@ -41,103 +44,86 @@ public class MockPath implements Path {
 
     @Override
     public FileSystem getFileSystem() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFileSystem'");
+        return this.fileSystem;
     }
 
     @Override
     public boolean isAbsolute() {
-        // TODO Auto-geneated method stub
         throw new UnsupportedOperationException("Unimplemented method 'isAbsolute'");
     }
 
     @Override
     public Path getRoot() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getRoot'");
     }
 
     @Override
     public Path getFileName() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getFileName'");
     }
 
     @Override
     public int getNameCount() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getName'");
     }
 
     @Override
     public Path getName(int index) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getName'");
     }
 
     @Override
     public Path subpath(int beginIndex, int endIndex) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'subpath'");
     }
 
     @Override
     public boolean startsWith(Path other) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'startsWith'");
     }
 
     @Override
     public boolean endsWith(Path other) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'endsWith'");
     }
 
     @Override
     public Path normalize() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'normalize'");
     }
 
     @Override
     public Path resolve(Path other) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'resolve'");
     }
 
     @Override
     public Path relativize(Path other) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'relativize'");
     }
 
     @Override
     public URI toUri() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'toUri'");
     }
 
     @Override
     public Path toAbsolutePath() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'toAbsolutePath'");
     }
 
     @Override
     public Path toRealPath(LinkOption... options) throws IOException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'toRealPath'");
     }
 
     @Override
     public WatchKey register(WatchService watcher, Kind<?>[] events, Modifier... modifiers) throws IOException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'register'");
     }
 
     @Override
     public int compareTo(Path other) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'compareTo'");
     }
     

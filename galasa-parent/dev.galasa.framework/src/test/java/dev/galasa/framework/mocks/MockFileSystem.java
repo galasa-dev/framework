@@ -5,13 +5,18 @@ package dev.galasa.framework.mocks;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.PathMatcher;
+import java.nio.file.WatchService;
+import java.nio.file.attribute.UserPrincipalLookupService;
+import java.nio.file.spi.FileSystemProvider;
+import java.util.*;
 import java.util.stream.Stream;
-
+import java.nio.file.FileStore;
+import java.nio.file.FileSystem;
 import dev.galasa.framework.IFileSystem;
+import java.nio.file.DirectoryStream.Filter;
 
-public class MockFileSystem implements IFileSystem {
+public class MockFileSystem extends FileSystem implements IFileSystem {
 
     private static class Node {
         // Path path;
@@ -103,6 +108,77 @@ public class MockFileSystem implements IFileSystem {
     public Stream<Path> walk(Path folderPath) {
         return files.keySet().stream()
             .filter(path -> path.startsWith(folderPath.toString()))
-            .map(MockPath::new);
+            .map(path -> new MockPath(path.toString(), this));
+    }
+
+    @Override
+    public FileSystemProvider provider() {
+        return new MockFileSystemProvider(this);
+    }
+
+    @Override
+    public void close() throws IOException {
+        throw new UnsupportedOperationException("Unimplemented method 'close'");
+    }
+
+    @Override
+    public boolean isOpen() {
+        throw new UnsupportedOperationException("Unimplemented method 'isOpen'");
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        throw new UnsupportedOperationException("Unimplemented method 'isReadOnly'");
+    }
+
+    @Override
+    public String getSeparator() {
+        throw new UnsupportedOperationException("Unimplemented method 'getSeparator'");
+    }
+
+    @Override
+    public Iterable<Path> getRootDirectories() {
+        throw new UnsupportedOperationException("Unimplemented method 'getRootDirectories'");
+    }
+
+    @Override
+    public Iterable<FileStore> getFileStores() {
+        throw new UnsupportedOperationException("Unimplemented method 'getFileStores'");
+    }
+
+    @Override
+    public Set<String> supportedFileAttributeViews() {
+        throw new UnsupportedOperationException("Unimplemented method 'supportedFileAttributeViews'");
+    }
+
+    @Override
+    public Path getPath(String first, String... more) {
+        throw new UnsupportedOperationException("Unimplemented method 'getPath'");
+    }
+
+    @Override
+    public PathMatcher getPathMatcher(String syntaxAndPattern) {
+        throw new UnsupportedOperationException("Unimplemented method 'getPathMatcher'");
+    }
+
+    @Override
+    public UserPrincipalLookupService getUserPrincipalLookupService() {
+        throw new UnsupportedOperationException("Unimplemented method 'getUserPrincipalLookupService'");
+    }
+
+    @Override
+    public WatchService newWatchService() throws IOException {
+        throw new UnsupportedOperationException("Unimplemented method 'newWatchService'");
+    }
+
+    public List<Path> getListOfFiles( Filter<? super Path> filter ) throws IOException {
+        List<Path> resultPaths = new ArrayList<>();
+        for( String pathStr : files.keySet() ) {
+            Path path = new MockPath(pathStr,this);
+            if (filter.accept(path)) {
+                resultPaths.add(path);
+            }
+        }
+        return resultPaths;
     }
 }
