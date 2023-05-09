@@ -131,12 +131,18 @@ public class MockFileSystem extends MockBaseFileSystem {
         return new MockFileSystemProvider(this);
     }
 
-    public List<Path> getListOfFiles( Filter<? super Path> filter ) throws IOException {
+
+    public List<Path> getListOfFiles(String directory, Filter<? super Path> filter) throws IOException {
         List<Path> resultPaths = new ArrayList<>();
-        for( String pathStr : files.keySet() ) {
-            Path path = new MockPath(pathStr,this);
-            if (filter.accept(path)) {
-                resultPaths.add(path);
+    
+        for (String pathStr : files.keySet()) {
+            // Check if this path is to a direct child of the given directory
+            if (pathStr.startsWith(directory + "/") && !(pathStr.substring(directory.length() + 1).contains("/"))) {
+                MockPath mockPath = new MockPath(pathStr, this);
+
+                if (filter.accept(mockPath)) {
+                    resultPaths.add(mockPath);
+                }
             }
         }
         return resultPaths;

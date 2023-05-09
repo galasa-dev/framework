@@ -31,21 +31,24 @@ public class MockFileSystemProvider extends FileSystemProvider {
 
         private MockFileSystem mockFS;
         private Filter<? super Path> filter;
+        private String directory;
 
-        public MockDirectoryStream(MockFileSystem mockFS, Filter<? super Path> filter) {
-            this.mockFS = mockFS ;
+        public MockDirectoryStream(MockFileSystem mockFS, Filter<? super Path> filter, String directory) {
+            this.mockFS = mockFS;
             this.filter = filter;
+            this.directory = directory;
         }
 
         @Override
         public void close() throws IOException {
+            // Do nothing
         }
 
         @Override
         public Iterator<Path> iterator() {
             List<Path> paths;
             try {
-                paths = mockFS.getListOfFiles(filter);
+                paths = mockFS.getListOfFiles(directory, filter);
             } catch( IOException ex ) {
                 // Not expecting the unit tests to have a problem filtering the file list.
                 // so just blow up the unit test.
@@ -65,7 +68,7 @@ public class MockFileSystemProvider extends FileSystemProvider {
 
     @Override
     public DirectoryStream<Path> newDirectoryStream(Path dir, Filter<? super Path> filter) throws IOException {
-        return new MockDirectoryStream(mockFS, filter);
+        return new MockDirectoryStream(mockFS, filter, dir.toString());
     }
 
     @Override

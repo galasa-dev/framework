@@ -8,7 +8,6 @@ import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.gson.*;
@@ -118,7 +117,6 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		mockFileSystem = new MockFileSystem();
 	}
 
-	@Ignore("The mock file system isn't clever enough to be able to recursively walk directories yet. Story 1407")
     @Test
 	public void testMultipleArtifactsToListReturnsOKWithArtifacts() throws Exception {
 		//Given..
@@ -191,7 +189,6 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
-    @Ignore("The mock file system isn't clever enough to be able to recursively walk directories yet. Story 1407")
 	@Test
 	public void testOneArtifactToListReturnsOKWithArtifact() throws Exception {
 		//Given..

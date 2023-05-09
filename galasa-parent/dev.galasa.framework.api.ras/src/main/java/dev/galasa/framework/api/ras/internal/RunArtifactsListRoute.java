@@ -5,7 +5,6 @@ package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
@@ -73,18 +72,6 @@ public class RunArtifactsListRoute extends BaseRoute {
    
                artifactRecords.add(artifactRecord);
          }
-         
-         // fileSystem.walk(run.getArtifactsRoot())
-         //    .filter(fileSystem::isRegularFile)
-         //    .forEach(artifactPath -> {
-         //       JsonObject artifactRecord = new JsonObject();
-
-         //       artifactRecord.add("runId", new JsonPrimitive(runId));
-         //       artifactRecord.add("path", new JsonPrimitive(artifactPath.toString()));
-         //       artifactRecord.add("url", new JsonPrimitive(artifactPath.toString()));
-   
-         //       artifactRecords.add(artifactRecord);
-         //    });
    
       } catch( ResultArchiveStoreException | IOException ex ) {
          ServletError error = new ServletError(GAL5007_ERROR_RETRIEVING_ARTIFACTS,runId);
