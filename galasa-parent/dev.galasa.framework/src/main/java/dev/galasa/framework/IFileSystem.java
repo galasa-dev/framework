@@ -20,4 +20,8 @@ public interface IFileSystem {
     boolean isDirectory(Path filePath);
     
     Stream<Path> walk(Path folderPath) throws IOException;
+
+    long size(Path folderPath) throws IOException;
+
+    String probeContentType(Path path) throws IOException;
 }

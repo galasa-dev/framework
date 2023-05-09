@@ -31,11 +31,11 @@ public class RunLogRoute extends BaseRoute {
 
    @Override
    public String handleRequest(String pathInfo, QueryParameters queryParams) throws ServletException, IOException, FrameworkException {
-      String runLog = runLogRas.getRunlog(pathInfo);
+      
       Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
       matcher.matches();
       String runId = matcher.group(1);
-
+      String runLog = runLogRas.getRunlog(runId);
       if (runLog != null) {
          JsonObject jsonLog = new JsonObject();
          jsonLog.addProperty("runId", runId);

@@ -64,13 +64,20 @@ public class RunArtifactsListRoute extends BaseRoute {
       try {
          List<Path> artifactPaths = getArtifactPaths(run.getArtifactsRoot(), new ArrayList<>());
          for (Path artifactPath : artifactPaths) {
-               JsonObject artifactRecord = new JsonObject();
-
-               artifactRecord.addProperty("runId", runId);
-               artifactRecord.addProperty("path", artifactPath.toString());
-               artifactRecord.addProperty("url", artifactPath.toString());
+            JsonObject artifactRecord = getArtifactJsonObject(artifactPath);
+            artifactRecords.add(artifactRecord);
+         }
+         
+         // Add the run log as a separate artifact as it does not exist on the file system
+         String runLog = run.getLog();
+         if (runLog != null) {
+            JsonObject artifactRecord = new JsonObject();
    
-               artifactRecords.add(artifactRecord);
+            artifactRecord.addProperty("path", "/run.log");
+            artifactRecord.addProperty("contentType", "text/plain");
+            artifactRecord.addProperty("size", runLog.getBytes("UTF-8").length);
+   
+            artifactRecords.add(artifactRecord);
          }
    
       } catch( ResultArchiveStoreException | IOException ex ) {
@@ -118,5 +125,14 @@ public class RunArtifactsListRoute extends BaseRoute {
          }
       }
       return accumulatedPaths;
+   }
+
+   private JsonObject getArtifactJsonObject(Path artifactPath) throws IOException {
+      JsonObject artifactRecord = new JsonObject();
+      artifactRecord.addProperty("path", artifactPath.toString());
+      artifactRecord.addProperty("contentType", fileSystem.probeContentType(artifactPath));
+      artifactRecord.addProperty("size", fileSystem.size(artifactPath));
+
+      return artifactRecord;
    }
 }

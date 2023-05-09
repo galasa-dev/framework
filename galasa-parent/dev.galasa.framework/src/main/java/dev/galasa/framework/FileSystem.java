@@ -41,4 +41,19 @@ public class FileSystem implements IFileSystem {
     public Stream<Path> walk(Path folderPath) throws IOException {
         return Files.walk(folderPath);
     }
+
+    @Override
+    public long size(Path folderPath) throws IOException {
+        return Files.size(folderPath);
+    }
+
+    public String probeContentType(Path path) throws IOException {
+        String contentType = null;
+        if (path.toString().endsWith(".properties")) {
+          contentType =  "text/plain";
+        } else {
+            contentType = Files.probeContentType(path);
+        }
+        return contentType;
+    }
 }
