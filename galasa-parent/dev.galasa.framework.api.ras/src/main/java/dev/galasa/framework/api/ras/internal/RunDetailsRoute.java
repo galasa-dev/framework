@@ -14,6 +14,7 @@ import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.FrameworkException;
 
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
+import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 
 public class RunDetailsRoute extends BaseRoute {
 
@@ -25,7 +26,7 @@ public class RunDetailsRoute extends BaseRoute {
    }
 
    @Override
-   public String handleRequest(String pathInfo, QueryParameters queryParams) throws ServletException, IOException, FrameworkException {
+   public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
       RasRunResult run = runResultRas.getRun(pathInfo);
       Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
       matcher.matches();
@@ -35,7 +36,8 @@ public class RunDetailsRoute extends BaseRoute {
          ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
          throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
       }
-
-      return BaseServlet.gson.toJson(run);
+      
+      String outputString = BaseServlet.gson.toJson(run);
+      return sendResponse(res, outputString, HttpServletResponse.SC_OK ); 
    }
 }

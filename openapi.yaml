@@ -300,11 +300,12 @@ paths:
             type: string
       responses:
         '200':
-          description: The list of artifacts was returned.
+          description: The artifact was returned.
           content:
-            application/json:
+            plain/text:
               schema:
-                $ref: '#/components/schemas/ArtifactIndex'
+                type: string
+              example: attachment; filename="cps.properties"
         '500':
           description: Internal Server
           content:

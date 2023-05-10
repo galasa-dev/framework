@@ -51,13 +51,14 @@ public class BaseServlet extends HttpServlet {
  
 	private RunResultRas runResultRas;
 	private RunLogRas runLogRas;
- 
+	
 	@Override
 	public void init() {
 	   addRoute(new RunDetailsRoute(runResultRas));
 	   addRoute(new RunLogRoute(runLogRas));
 	   addRoute(new RunArtifactsListRoute(fileSystem, framework));
 	   addRoute(new RunQueryRoute(framework));
+	   addRoute(new RunArtifactsDownloadRoute(fileSystem, framework));
 	}
  
 	private void addRoute(IRoute route) {
@@ -70,7 +71,6 @@ public class BaseServlet extends HttpServlet {
 		String response = "";
 		int httpStatusCode = HttpServletResponse.SC_OK;
 		QueryParameters queryParameters = new QueryParameters(req.getParameterMap());
-
 		try {
 			if (url != null) {
 				for (Map.Entry<String, IRoute> entry : routes.entrySet()) {
@@ -81,12 +81,12 @@ public class BaseServlet extends HttpServlet {
 					Matcher matcher = Pattern.compile(routePattern).matcher(url);
 		
 					if (matcher.matches()) {		
-						response = route.handleRequest(url, queryParameters);
+						res = route.handleRequest(url, queryParameters , res);
 						break;
 					}
 				}
-
-				if (response.isEmpty()) {
+				// Check that the response object has been set correctly.
+				if (res.getStatus() == 0) {
 					ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
 					throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
 				}
@@ -102,7 +102,9 @@ public class BaseServlet extends HttpServlet {
 			httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 			logger.error(response,t);
 		}
-		sendResponse(res, response, httpStatusCode);
+		if (!response.isEmpty()){
+			res = sendResponse(res, response, httpStatusCode);
+		}
 	}
 	
 	@Activate
@@ -111,7 +113,7 @@ public class BaseServlet extends HttpServlet {
 	   this.runLogRas = new RunLogRas(this.framework);
 	}
 
-	protected void sendResponse(HttpServletResponse resp , String json , int status){
+	public static HttpServletResponse sendResponse(HttpServletResponse resp , String json , int status){
 		//Set headers for HTTP Response
 		resp.setStatus(status);
 		resp.setContentType( "Application/json");
@@ -121,7 +123,7 @@ public class BaseServlet extends HttpServlet {
 			out.print(json);
 			out.close();
 		} catch (Exception e) {
-			logger.error("Error trying to set output buffer. Ignoring.",e);
 		}
+		return resp;
 	}
 }

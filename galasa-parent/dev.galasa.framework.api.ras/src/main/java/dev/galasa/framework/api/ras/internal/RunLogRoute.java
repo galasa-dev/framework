@@ -17,7 +17,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
-
+import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 public class RunLogRoute extends BaseRoute {
 
    private final RunLogRas runLogRas;
@@ -30,7 +30,7 @@ public class RunLogRoute extends BaseRoute {
    }
 
    @Override
-   public String handleRequest(String pathInfo, QueryParameters queryParams) throws ServletException, IOException, FrameworkException {
+   public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
       
       Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
       matcher.matches();
@@ -40,7 +40,9 @@ public class RunLogRoute extends BaseRoute {
          JsonObject jsonLog = new JsonObject();
          jsonLog.addProperty("runId", runId);
          jsonLog.addProperty("log", runLog);
-         return gson.toJson(jsonLog);
+         String outputString = gson.toJson(jsonLog);
+
+         return sendResponse(res, outputString, HttpServletResponse.SC_OK ); 
       } else {
          ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
          throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);

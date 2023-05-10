@@ -34,7 +34,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     
     public ServletOutputStream getOutputStream() throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'getOutputStream'");
+      return new MockServletOutputStream();
     }
 
     @Override
@@ -42,6 +42,35 @@ public class MockHttpServletResponse implements HttpServletResponse {
         return this.writer ;
     }
 
+    @Override
+    public int getStatus() {
+        return this.status;
+    }
+
+    @Override
+    public String getHeader(String name) {
+        return this.headers.get(name);
+    }
+    
+    @Override
+    public void setContentType(String type) {
+        this.contentType = type ;
+    }
+    @Override
+    public void setHeader(String name, String value) {
+       addHeader(name, value);
+    }
+
+    @Override
+    public void addHeader(String name, String value) {
+        this.headers.put(name,value);
+    }
+
+    @Override
+    public void setStatus(int sc) {
+        this.status = sc;
+    }
+    
     @Override
     public void setCharacterEncoding(String charset) {
         throw new UnsupportedOperationException("Unimplemented method 'setCharacterEncoding'");
@@ -57,10 +86,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
         throw new UnsupportedOperationException("Unimplemented method 'setContentLengthLong'");
     }
 
-    @Override
-    public void setContentType(String type) {
-        this.contentType = type ;
-    }
 
     @Override
     public void setBufferSize(int size) {
@@ -158,16 +183,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     @Override
-    public void setHeader(String name, String value) {
-        throw new UnsupportedOperationException("Unimplemented method 'setHeader'");
-    }
-
-    @Override
-    public void addHeader(String name, String value) {
-        this.headers.put(name,value);
-    }
-
-    @Override
     public void setIntHeader(String name, int value) {
         throw new UnsupportedOperationException("Unimplemented method 'setIntHeader'");
     }
@@ -178,24 +193,10 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     @Override
-    public void setStatus(int sc) {
-        this.status = sc;
-    }
-
-    @Override
     public void setStatus(int sc, String sm) {
         throw new UnsupportedOperationException("Unimplemented method 'setStatus'");
     }
 
-    @Override
-    public int getStatus() {
-        return this.status;
-    }
-
-    @Override
-    public String getHeader(String name) {
-       return this.headers.get(name);
-    }
 
     @Override
     public Collection<String> getHeaders(String name) {

@@ -4,10 +4,10 @@
 package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,7 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.IFileSystem;
@@ -28,65 +27,58 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
-import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 
-public class RunArtifactsListRoute extends BaseRoute {
+public class RunArtifactsDownloadRoute extends BaseRoute {
 
    private IFileSystem fileSystem;
    static final Gson gson = GalasaGsonBuilder.build();
 
    private IFramework framework;
    
-   public RunArtifactsListRoute(IFileSystem fileSystem, IFramework framework) {
-      super("\\/run\\/([A-z0-9.\\-=]+)\\/artifacts");
+   public RunArtifactsDownloadRoute(IFileSystem fileSystem, IFramework framework) {
+      super("\\/run\\/([A-z0-9.\\-=]+)\\/artifacts\\/([A-z0-9.\\-=]+)");
       this.fileSystem = fileSystem;
       this.framework = framework;
    }
 
    @Override
-   public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+   public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
       Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
       matcher.matches();
       String runId = matcher.group(1);
-      String outputString = retrieveResults(runId);
-      return sendResponse(res, outputString, HttpServletResponse.SC_OK ); 
+      String artifactId = matcher.group(2);
+      return retrieveArtifacts(runId, artifactId, response);
    }
 
-   private String retrieveResults(String runId) throws InternalServletException {
+   private HttpServletResponse retrieveArtifacts(String runId, String artifactId, HttpServletResponse res) throws InternalServletException, IOException {
       IRunResult run = null;
+      OutputStream outStream = res.getOutputStream();
       try {
          run = getRunByRunId(runId);
       } catch (ResultArchiveStoreException e) {
          ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
          throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
       }
-
-      JsonArray artifactRecords = new JsonArray();
+      
       try {
-         List<Path> artifactPaths = getArtifactPaths(run.getArtifactsRoot(), new ArrayList<>());
-         for (Path artifactPath : artifactPaths) {
-            JsonObject artifactRecord = getArtifactJsonObject(artifactPath);
-            artifactRecords.add(artifactRecord);
-         }
-         
-         // Add the run log as a separate artifact as it does not exist on the file system
-         String runLog = run.getLog();
-         if (runLog != null) {
-            JsonObject artifactRecord = new JsonObject();
-   
-            artifactRecord.addProperty("path", "/run.log");
-            artifactRecord.addProperty("contentType", "text/plain");
-            artifactRecord.addProperty("size", runLog.getBytes("UTF-8").length);
-   
-            artifactRecords.add(artifactRecord);
-         }
-   
+        if (artifactId.equals("run.log")) {
+            String runLog = run.getLog();
+            if (runLog != null) {
+               res.setStatus(HttpServletResponse.SC_OK);
+		         res.setContentType( "text/plain");
+               String contentDisposition = String.format("attachment; filename=\"%s-run.log\"", run.getTestStructure().getRunName());
+               res.setHeader( "Content-Disposition", contentDisposition);
+               outStream.write(runLog.getBytes("UTF-8"));
+               outStream.close();
+            } else {
+                //getArtifactPath(artifactId, new ArrayList<>());
+            }
+        }
       } catch( ResultArchiveStoreException | IOException ex ) {
          ServletError error = new ServletError(GAL5007_ERROR_RETRIEVING_ARTIFACTS,runId);
          throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
-
-      return gson.toJson(artifactRecords);
+      return res;
    }
 
    private IRunResult getRunByRunId(String id) throws ResultArchiveStoreException {
@@ -113,13 +105,13 @@ public class RunArtifactsListRoute extends BaseRoute {
     * @param accumulatedPaths - an intermediate list of accumulated artifact paths
     * @return a list of artifact paths
     */ 
-   private List<Path> getArtifactPaths(Path directory, List<Path> accumulatedPaths) throws IOException {
+   private List<Path> getArtifactPath(Path directory, List<Path> accumulatedPaths) throws IOException {
       FileSystemProvider fsProvider = directory.getFileSystem().provider();
       
       try (DirectoryStream<Path> stream = fsProvider.newDirectoryStream(directory, defaultFilter)) {
          for (Path entry : stream) {
             if (fileSystem.isDirectory(entry)) {
-               accumulatedPaths = getArtifactPaths(entry, accumulatedPaths);
+               accumulatedPaths = getArtifactPath(entry, accumulatedPaths);
             } else {
                accumulatedPaths.add(entry);
             }

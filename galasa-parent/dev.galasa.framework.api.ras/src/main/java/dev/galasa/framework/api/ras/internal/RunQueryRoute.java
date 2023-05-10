@@ -4,10 +4,9 @@
 package dev.galasa.framework.api.ras.internal;
 
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
+import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -30,7 +29,6 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -49,14 +47,14 @@ public class RunQueryRoute extends BaseRoute {
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();
-	private Log  logger  =  LogFactory.getLog(this.getClass());
 
 	public static final int DEFAULT_PAGE_NUMBER = 1;
 	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
 
 	@Override
-	public String handleRequest(String pathInfo, QueryParameters queryParams) throws ServletException, IOException, FrameworkException {
-		return retrieveResults(queryParams);
+	public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+		String outputString = retrieveResults(queryParams);
+		return sendResponse(res, outputString, HttpServletResponse.SC_OK ); 
 	}
 
 	protected String retrieveResults( 
@@ -211,20 +209,6 @@ public class RunQueryRoute extends BaseRoute {
 			critList.add(runNameCriteria);
 		}
 		return critList;
-	}
-
-	public void sendResponse(HttpServletResponse resp , String json , int status){
-		//Set headers for HTTP Response
-		resp.setStatus(status);
-		resp.setContentType( "Application/json");
-		resp.addHeader("Access-Control-Allow-Origin", "*");
-		try{
-			PrintWriter out = resp.getWriter();
-			out.print(json);
-			out.close();
-		}catch(Exception e){
-			logger.error("Error trying to set output buffer. Ignoring.", e);
-		}
 	}
 
 	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageIndex, int pageSize, int numPages) {
