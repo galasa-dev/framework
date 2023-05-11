@@ -4,37 +4,27 @@
 package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
-import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
-import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 
 public abstract class RunsRoute extends BaseRoute {
     
-    private IFileSystem fileSystem;
+    protected IFileSystem fileSystem;
     static final Gson gson = GalasaGsonBuilder.build();
  
     private IFramework framework;

@@ -4,6 +4,7 @@
 package dev.galasa.framework;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -23,5 +24,7 @@ public interface IFileSystem {
 
     long size(Path folderPath) throws IOException;
 
-    String probeContentType(Path artifactLocation) throws IOException;
+    String probeContentType(Path artifactPath) throws IOException;
+
+    InputStream newInputStream(Path folderPath) throws IOException;
 }

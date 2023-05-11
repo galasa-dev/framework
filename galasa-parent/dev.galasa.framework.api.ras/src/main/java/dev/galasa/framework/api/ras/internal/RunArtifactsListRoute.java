@@ -57,7 +57,7 @@ public class RunArtifactsListRoute extends RunsRoute {
          JsonArray rootartifacts = addArtifactsFromDB(run, artifacts);
          artifacts.addAll(rootartifacts);
       } catch (ResultArchiveStoreException | IOException ex) {
-         ServletError error = new ServletError(GAL5007_ERROR_RETRIEVING_ARTIFACTS,runId);
+         ServletError error = new ServletError(GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST,runId);
          throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
       return gson.toJson(artifacts);
@@ -73,7 +73,7 @@ public class RunArtifactsListRoute extends RunsRoute {
 
       TestStructure testStructure = run.getTestStructure();
       if (testStructure != null) {
-         String testStructureStr = testStructure.toString();
+         String testStructureStr = gson.toJson(testStructure);
          artifactRecords.add(getArtifactAsJsonObject("/structure.json", "application/json", testStructureStr.getBytes(StandardCharsets.UTF_8).length));
       }
       artifactRecords.add(getArtifactAsJsonObject("/artifacts.properties", "text/plain", artifacts.toString().getBytes(StandardCharsets.UTF_8).length));

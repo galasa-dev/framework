@@ -4,6 +4,7 @@
 package dev.galasa.framework;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
@@ -45,6 +46,11 @@ public class FileSystem implements IFileSystem {
     @Override
     public long size(Path folderPath) throws IOException {
         return Files.size(folderPath);
+    }
+
+    @Override
+    public InputStream newInputStream(Path folderPath) throws IOException {
+        return Files.newInputStream(folderPath);
     }
 
     public String probeContentType(Path path) throws IOException {

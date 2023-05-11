@@ -48,6 +48,16 @@ public class MockPath implements Path {
     }
 
     @Override
+    public Path getFileName() {
+        String[] dirStructure = path.split("/");
+        String result = dirStructure[dirStructure.length - 1];
+        if (result.contains(".") && !result.equals("nonexistent.file")) {
+            return new MockPath(result, fileSystem);
+        }
+        return null;
+    }
+
+    @Override
     public boolean isAbsolute() {
         throw new UnsupportedOperationException("Unimplemented method 'isAbsolute'");
     }
@@ -57,10 +67,6 @@ public class MockPath implements Path {
         throw new UnsupportedOperationException("Unimplemented method 'getRoot'");
     }
 
-    @Override
-    public Path getFileName() {
-        throw new UnsupportedOperationException("Unimplemented method 'getFileName'");
-    }
 
     @Override
     public int getNameCount() {

@@ -90,7 +90,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		//Given..
 		String runId = "runA";
 		List<IRunResult> mockRunResults = generateTestData(runId, "testName", "hello world");
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/run/" + runId + "/runlog");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/runs/" + runId + "/runlog");
 		MockRunLogServletEnvironment mockServletEnvironment = new MockRunLogServletEnvironment(mockRunResults, mockRequest);
 		
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -121,7 +121,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		//Given..
 		String runId = "runA";
 		List<IRunResult> mockRunResults = generateTestData(runId, "testName", "");
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/run/" + runId + "/runlog");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/runs/" + runId + "/runlog");
 		MockRunLogServletEnvironment mockServletEnvironment = new MockRunLogServletEnvironment(mockRunResults, mockRequest);
 		
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -153,7 +153,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		String runId = "badRunId";
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/runlog");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/runlog");
 		MockRunLogServletEnvironment mockServletEnvironment = new MockRunLogServletEnvironment(null, mockRequest);
 		
 		BaseServlet servlet = mockServletEnvironment.getServlet();

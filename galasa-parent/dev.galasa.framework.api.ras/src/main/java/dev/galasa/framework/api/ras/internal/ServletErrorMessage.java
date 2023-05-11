@@ -14,8 +14,10 @@ public enum ServletErrorMessage {
     GAL5006_INVALID_QUERY_PARAM_DUPLICATES          (5006,"E: Error parsing the query parameters. Duplicate instances of query parameter ''{0}'' found in the request URL. Expecting only one."),
     
     // RunArtifactList...
-    GAL5007_ERROR_RETRIEVING_ARTIFACTS              (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),
-    
+    GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST         (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),
+    GAL5008_ERROR_LOCATING_ARTIFACT                 (5008,"E: Error locating artifact ''{0}'' for run with identifier ''{1}''."),
+    GAL5009_ERROR_RETRIEVING_ARTIFACT               (5009,"E: Error retrieving artifact ''{0}'' for run with identifier ''{1}''."),
+
     // GenericErrors...
     GAL5000_GENERIC_API_ERROR                       (5000,"E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."),
     GAL5404_UNRESOLVED_ENDPOINT_ERROR               (5404,"E: Error occured when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),

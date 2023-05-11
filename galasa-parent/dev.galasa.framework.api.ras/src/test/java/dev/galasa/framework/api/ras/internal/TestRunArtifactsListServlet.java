@@ -119,7 +119,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 			String structureData= ",\n  {\n"+
 					   "    \"path\": \"/structure.json\",\n"+
 					   "    \"contentType\": \"application/json\",\n"+
-					   "    \"size\": 61\n"+
+					   "    \"size\": 70\n"+
 					   "  }";
 			jsonResult += structureData;
 			String artifactsData= ",\n  {\n"+
@@ -170,7 +170,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 
 		parameterMap.put("runId", new String[] {runId} );
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/artifacts");
 		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -237,7 +237,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/artifacts");
 		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -298,7 +298,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/artifacts");
 		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -345,7 +345,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		List<IRunResult> mockInputRunResults = new ArrayList<>();
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/artifacts");
 		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 		
 		BaseServlet servlet = mockServletEnvironment.getServlet();

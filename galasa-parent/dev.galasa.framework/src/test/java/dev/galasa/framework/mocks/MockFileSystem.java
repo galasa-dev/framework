@@ -3,7 +3,9 @@
  */
 package dev.galasa.framework.mocks;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -16,6 +18,7 @@ import java.util.stream.Stream;
 import dev.galasa.framework.IFileSystem;
 
 import java.nio.file.DirectoryStream.Filter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileStore;
 
 
@@ -165,6 +168,10 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         return resultPaths;
     }
 
+	@Override
+	public InputStream newInputStream(Path folderPath) throws IOException {
+		return new ByteArrayInputStream(folderPath.toString().getBytes(StandardCharsets.UTF_8));
+	}
 
     @Override
     public void close() throws IOException {
