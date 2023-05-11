@@ -4,6 +4,7 @@
 package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
@@ -38,7 +39,7 @@ public class RunArtifactsListRoute extends BaseRoute {
    private IFramework framework;
    
    public RunArtifactsListRoute(IFileSystem fileSystem, IFramework framework) {
-      super("\\/run\\/([A-z0-9.\\-=]+)\\/artifacts");
+      super("\\/run\\/([A-z0-9.\\-=]+)\\/artifacts\\/?");
       this.fileSystem = fileSystem;
       this.framework = framework;
    }
@@ -74,9 +75,9 @@ public class RunArtifactsListRoute extends BaseRoute {
          if (runLog != null) {
             JsonObject artifactRecord = new JsonObject();
    
-            artifactRecord.addProperty("path", "/run.log");
+            artifactRecord.addProperty("path", "run.log");
             artifactRecord.addProperty("contentType", "text/plain");
-            artifactRecord.addProperty("size", runLog.getBytes("UTF-8").length);
+            artifactRecord.addProperty("size", runLog.getBytes(StandardCharsets.UTF_8).length);
    
             artifactRecords.add(artifactRecord);
          }

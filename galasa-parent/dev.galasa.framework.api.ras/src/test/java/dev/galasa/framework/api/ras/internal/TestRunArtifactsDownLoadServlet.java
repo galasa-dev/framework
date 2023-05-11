@@ -24,6 +24,7 @@ import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 import org.junit.Before;
+import org.junit.Ignore;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -97,15 +98,50 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		mockFileSystem = new MockFileSystem();
 	}
 
+	@Ignore
+	@Test
+	public void testGoodRunIdAndBadArtifactIdGivesNotFoundError() throws Exception {
+		//Given..
+		String runId = "xx12345xx";
+        String artifactPath = "/bad/artifact/path";
+		List<IRunResult> mockInputRunResults = generateTestData(runId, "U123", null);
+
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts/" + artifactPath);
+		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+		
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		
+		//When...
+		servlet.activate();
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// Expecting this json:
+		// {
+		//   "error_code" : 5002,
+		//   "error_message" : "GAL5002E: Error retrieving artifact from path '/bad/artifact/path'.""
+		// }
+		assertThat(resp.getStatus()).isEqualTo(404);
+		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "xx12345xx" );
+	
+		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
 	@Test
 	public void testBadRunIdAndBadArtifactIdGivesNotFoundError() throws Exception {
 		//Given..
 		String runId = "badRunId";
-        String artifactId = "badArtifactId";
+        String artifactPath = "badArtifactId";
 		List<IRunResult> mockInputRunResults = new ArrayList<>();
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts/" + artifactId);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts/" + artifactPath);
 		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 		
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -136,12 +172,12 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		//Given..
 		String runId = "12345";
 		String runName = "testA";
-        String artifactId = "run.log";
+        String artifactPath = "run.log";
         String runlog = "Very Detailed Run Log. DEBUGGGING SOMETHING.";
         List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runlog);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts/" + artifactId);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run/" + runId + "/artifacts/" + artifactPath);
 		MockRasRunServletEnvironment mockServletEnvironment = new MockRasRunServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 		
 		BaseServlet servlet = mockServletEnvironment.getServlet();

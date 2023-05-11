@@ -25,7 +25,7 @@ public class RunLogRoute extends BaseRoute {
    private final static Gson gson = GalasaGsonBuilder.build();
 
    public RunLogRoute(RunLogRas runLogRas) {
-      super("\\/run\\/([A-z0-9.\\-=]+)\\/runlog");
+      super("\\/run\\/([A-z0-9.\\-=]+)\\/runlog\\/?");
       this.runLogRas = runLogRas;
    }
 

@@ -131,6 +131,11 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         return 0;
     }
 
+    @Override
+    public Path getPath(String first, String... more) {
+        return new MockPath(first + String.join("/", more), this);
+    }
+
     public String probeContentType(Path path) throws IOException {
         String contentType = null;
         if (path.toString().endsWith(".properties") 
@@ -159,6 +164,7 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         }
         return resultPaths;
     }
+
 
     @Override
     public void close() throws IOException {
@@ -193,11 +199,6 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
     @Override
     public Set<String> supportedFileAttributeViews() {
         throw new UnsupportedOperationException("Unimplemented method 'supportedFileAttributeViews'");
-    }
-
-    @Override
-    public Path getPath(String first, String... more) {
-        throw new UnsupportedOperationException("Unimplemented method 'getPath'");
     }
 
     @Override

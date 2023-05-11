@@ -23,5 +23,5 @@ public interface IFileSystem {
 
     long size(Path folderPath) throws IOException;
 
-    String probeContentType(Path path) throws IOException;
+    String probeContentType(Path artifactLocation) throws IOException;
 }

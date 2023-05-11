@@ -81,28 +81,28 @@ public class BaseServlet extends HttpServlet {
 					Matcher matcher = Pattern.compile(routePattern).matcher(url);
 		
 					if (matcher.matches()) {		
-						res = route.handleRequest(url, queryParameters , res);
-						break;
+						res = route.handleRequest(url, queryParameters, res);
+						return;
 					}
 				}
-				// Check that the response object has been set correctly.
-				if (res.getStatus() == 0) {
-					ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
-					throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-				}
+
+				// No matching route was found, throw a 404 error.
+				ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
+				throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
 			}
 		} catch (InternalServletException ex) {
 			// the message is a curated servlet message, we intentionally threw up to this level.
 		   	response = ex.getMessage();
 			httpStatusCode = ex.getHttpFailureCode();
-			logger.error(response,ex);
+			logger.error(response, ex);
 	   	} catch (Throwable t) {
 			// We didn't expect this failure to arrive. So deliver a generic error message.
 			response = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
 			httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 			logger.error(response,t);
 		}
-		if (!response.isEmpty()){
+
+		if (!response.isEmpty()) {
 			res = sendResponse(res, response, httpStatusCode);
 		}
 	}
