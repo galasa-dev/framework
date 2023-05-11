@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import com.google.gson.*;
 
-import org.apache.commons.lang3.RandomStringUtils;
 
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.mocks.*;
@@ -26,7 +25,6 @@ import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 
 import java.nio.file.Path;
 
@@ -87,7 +85,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
 
 		// Build the results the DB will return.
-		String requestor = RandomStringUtils.randomAlphanumeric(8);
+		String requestor = "galas";
 		
 		TestStructure testStructure = new TestStructure();
 		testStructure.setRunName(runName);
@@ -101,7 +99,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		return mockInputRunResults;
 	}
 
-	public String generateExpectedJson(List<MockJsonObject> artifacts) {
+	public String generateExpectedJson(List<MockJsonObject> artifacts, String size) {
 		String jsonResult = "[\n";
 		int numOfArtifacts = artifacts.size();
 		if (numOfArtifacts > 0) {
@@ -118,7 +116,20 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 					   "  }";
 				jsonResult += runData;
 			}
+			String structureData= ",\n  {\n"+
+					   "    \"path\": \"/structure.json\",\n"+
+					   "    \"contentType\": \"application/json\",\n"+
+					   "    \"size\": 61\n"+
+					   "  }";
+			jsonResult += structureData;
+			String artifactsData= ",\n  {\n"+
+					   "    \"path\": \"/artifacts.properties\",\n"+
+					   "    \"contentType\": \"text/plain\",\n"+
+					   "    \"size\": "+size+"\n"+
+					   "  }";
+			jsonResult += artifactsData;
 		}
+		
 		jsonResult += "\n]";
 		return jsonResult;
 	}
@@ -203,9 +214,9 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray.size()).isEqualTo(3);
+		assertThat(jsonArray.size()).isEqualTo(5);
 
-		String expectedJson = generateExpectedJson(mockArtifacts);
+		String expectedJson = generateExpectedJson(mockArtifacts, "240");
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 	
 		assertThat(resp.getContentType()).isEqualTo("Application/json");
@@ -247,6 +258,16 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		//     "contentType": "application/x-gzip",
 		//	   "size": 0
 		//   },
+		//	 {
+		//     "path": "/structure.json",
+		//     "contentType": "application/json",
+		//     "size": "82",
+		//   },
+		//	 {
+		//     "path": "/artifacts.properties",
+		//     "contentType": "text/plain",
+		//     "size": "240",
+		//   }
 		// ]
 		// assertThat(resp.getStatus()).isEqualTo(200);
 
@@ -255,9 +276,9 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray.size()).isEqualTo(1);
+		assertThat(jsonArray.size()).isEqualTo(3);
 
-		String expectedJson = generateExpectedJson(Arrays.asList(mockArtifact));
+		String expectedJson = generateExpectedJson(Arrays.asList(mockArtifact), "82");
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 	
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
@@ -266,7 +287,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 
 
     @Test
-	public void testNoArtifactsToListGivesEmptyList() throws Exception {
+	public void testNoArtifactsToListGivesRootArtifacts() throws Exception {
 		//Given..
 		String runName = "testA";
 		MockFileSystem mockFileSystem = new MockFileSystem();
@@ -292,7 +313,18 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 
 		// Then...
 		// Expecting this json:
-		// []
+		// [
+		//	 {
+		//     "path": "/structure.json",
+		//     "contentType": "application/json",
+		//     "size": "82",
+		//   },
+		//	 {
+		//     "path": "/artifacts.properties",
+		//     "contentType": "text/plain",
+		//     "size": "240",
+		//   }
+		// ]
 		assertThat(resp.getStatus()).isEqualTo(200);
 
 		String jsonString = outStream.toString();
@@ -300,7 +332,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray.size()).isEqualTo(0);
+		assertThat(jsonArray.size()).isEqualTo(2);
 	
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");

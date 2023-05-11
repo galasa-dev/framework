@@ -21,7 +21,7 @@ public class RunDetailsRoute extends BaseRoute {
    private final RunResultRas runResultRas;
 
    public RunDetailsRoute(RunResultRas runResultRas) {
-      super("\\/run\\/([A-z0-9.\\-=]+)\\/?");
+      super("\\/runs\\/([A-z0-9.\\-=]+)\\/?");
       this.runResultRas = runResultRas;
    }
 
