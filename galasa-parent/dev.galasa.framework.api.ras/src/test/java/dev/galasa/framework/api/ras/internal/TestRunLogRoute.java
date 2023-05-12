@@ -18,54 +18,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
-import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.ras.internal.mocks.IServletUnderTest;
+import dev.galasa.framework.api.ras.internal.mocks.MockBaseServletEnvironment;
 import dev.galasa.framework.api.ras.internal.mocks.MockHttpServletRequest;
-import dev.galasa.framework.api.ras.internal.mocks.MockResultArchiveStoreDirectoryService;
 import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
-import dev.galasa.framework.api.ras.internal.mocks.MockServletBaseEnvironment;
 import dev.galasa.framework.mocks.MockPath;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class TestRunLogRoute extends BaseServletTest {
-	
-    /** 
-	 * A subclass of the servlet we want to test, so that we can inject the mock framework in without 
-	 * adding any extra code to the production servlet class. The framework field is protected scope, 
-	 * so a subclass can do the injection instead of the injection framework.
-	 */
-	class MockRunLogServlet extends BaseServlet implements IServletUnderTest {
-		@Override
-		public void setFramework(IFramework framework) {
-			super.framework = framework;
-		}
-
-		@Override
-		public void setFileSystem(IFileSystem fileSystem) {
-		}
-	}
-
-	class MockRunLogServletEnvironment extends MockServletBaseEnvironment {
-
-		public MockRunLogServletEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest){ 
-        	super(mockInpResults, mockRequest, new MockResultArchiveStoreDirectoryService(mockInpResults));
-    	}
-
-		public MockRunLogServletEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ){ 
-			super(mockInpResults, mockRequest, rasStore);
-		}
-
-		public BaseServlet getServlet() {
-			return super.getBaseServlet();
-		}
-
-		@Override
-		public IServletUnderTest createServlet() {
-        	return new MockRunLogServlet();
-    	}
-	}
 
 	public List<IRunResult> generateTestData(String runId, String runName, String runLog) {
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
@@ -91,7 +51,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		String runId = "runA";
 		List<IRunResult> mockRunResults = generateTestData(runId, "testName", "hello world");
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/runs/" + runId + "/runlog");
-		MockRunLogServletEnvironment mockServletEnvironment = new MockRunLogServletEnvironment(mockRunResults, mockRequest);
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockRunResults, mockRequest);
 		
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
@@ -122,7 +82,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		String runId = "runA";
 		List<IRunResult> mockRunResults = generateTestData(runId, "testName", "");
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/runs/" + runId + "/runlog");
-		MockRunLogServletEnvironment mockServletEnvironment = new MockRunLogServletEnvironment(mockRunResults, mockRequest);
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockRunResults, mockRequest);
 		
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
@@ -154,7 +114,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/runlog");
-		MockRunLogServletEnvironment mockServletEnvironment = new MockRunLogServletEnvironment(null, mockRequest);
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(null, mockRequest);
 		
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();

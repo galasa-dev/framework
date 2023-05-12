@@ -100,7 +100,6 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
             FileSystem artifactFileSystem = run.getArtifactsRoot().getFileSystem();
             Path artifactLocation = artifactFileSystem.getPath(artifactPath);
             
-            
             // Open the artifact for reading
             Set<OpenOption> options = new HashSet<>();
             options.add(StandardOpenOption.READ);
@@ -123,7 +122,6 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
                     buffer.clear();
                     bytesRead = channel.read(buffer);
                 }
-
                 res.setStatus(HttpServletResponse.SC_OK);
                 res.setContentType(fileSystem.probeContentType(artifactLocation));
                 res.setHeader("Content-Disposition", "attachment");

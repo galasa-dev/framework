@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 public class BaseServlet extends HttpServlet {
 
 	@Reference
-	IFramework framework;
+	protected IFramework framework;
 
 	private static final long serialVersionUID = 1L;
 

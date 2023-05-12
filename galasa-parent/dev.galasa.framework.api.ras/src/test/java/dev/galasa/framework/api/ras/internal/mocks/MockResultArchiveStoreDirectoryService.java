@@ -3,12 +3,7 @@
  */
 package dev.galasa.framework.api.ras.internal.mocks;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
