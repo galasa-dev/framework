@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -24,73 +23,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
 
-interface IRunRootArtifact {
-    byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException;
-    String getContentType();
-}
-
 public class RunArtifactsDownloadRoute extends RunsRoute {
     
-    class RunLogArtifact implements IRunRootArtifact {
-
-        @Override
-        public byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException {
-            String runLog = run.getLog();
-            if (runLog != null) {
-                return runLog.getBytes(StandardCharsets.UTF_8);
-            }
-            return null;
-        }
-
-        @Override
-        public String getContentType() {
-            return "text/plain";
-        }
-    }
-
-    class StructureJsonArtifact implements IRunRootArtifact {
-
-        @Override
-        public byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException {
-            TestStructure testStructure = run.getTestStructure();
-            if (testStructure != null) {
-                return gson.toJson(testStructure).getBytes(StandardCharsets.UTF_8);
-            }
-            return null;
-        }
-
-        @Override
-        public String getContentType() {
-            return "application/json";
-        }
-    }
-
-    class ArtifactPropertiesArtifact implements IRunRootArtifact {
-
-        @Override
-        public byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException {
-            JsonArray artifactProperties = getArtifacts(run);
-            return artifactProperties.toString().getBytes(StandardCharsets.UTF_8);
-        }
-
-        @Override
-        public String getContentType() {
-            return "text/plain";
-        }
-    }
-
     static final Gson gson = GalasaGsonBuilder.build();
 
     public RunArtifactsDownloadRoute(IFileSystem fileSystem, IFramework framework) {
@@ -122,8 +66,8 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
         
         Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
         rootArtifacts.put("run.log", new RunLogArtifact());
-        rootArtifacts.put("structure.json", new StructureJsonArtifact() {});
-        rootArtifacts.put("artifacts.properties", new ArtifactPropertiesArtifact() {});
+        rootArtifacts.put("structure.json", new StructureJsonArtifact());
+        rootArtifacts.put("artifacts.properties", new ArtifactPropertiesArtifact(this));
 
         // Download the artifact that matches the artifact path or starts with "artifacts/"
         try {

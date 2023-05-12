@@ -4,7 +4,8 @@
 package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +20,6 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
@@ -27,56 +27,51 @@ import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 
 public class RunArtifactsListRoute extends RunsRoute {
 
-   static final Gson gson = GalasaGsonBuilder.build();
-   
-   public RunArtifactsListRoute(IFileSystem fileSystem, IFramework framework) {
-      super("\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?", fileSystem, framework);
-   }
+    static final Gson gson = GalasaGsonBuilder.build();
 
-   @Override
-   public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
-      Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
-      matcher.matches();
-      String runId = matcher.group(1);
-      String outputString = retrieveResults(runId);
-      return sendResponse(res, outputString, HttpServletResponse.SC_OK ); 
-   }
+    public RunArtifactsListRoute(IFileSystem fileSystem, IFramework framework) {
+        super("\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?", fileSystem, framework);
+    }
 
-   private String retrieveResults(String runId) throws InternalServletException {
-      IRunResult run = null;
-      JsonArray artifacts;
-      try {
-         run = getRunByRunId(runId);
-      } catch (ResultArchiveStoreException e) {
-         ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
-         throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-      }
+    @Override
+    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+        Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
+        matcher.matches();
+        String runId = matcher.group(1);
+        return sendResponse(res, retrieveResults(runId), HttpServletResponse.SC_OK);
+    }
 
-      try {
-         artifacts = getArtifacts(run);
-         JsonArray rootartifacts = addArtifactsFromDB(run, artifacts);
-         artifacts.addAll(rootartifacts);
-      } catch (ResultArchiveStoreException | IOException ex) {
-         ServletError error = new ServletError(GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST,runId);
-         throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      }
-      return gson.toJson(artifacts);
-   }
+    private String retrieveResults(String runId) throws InternalServletException {
+        IRunResult run = null;
+        JsonArray artifacts = new JsonArray();
+        try {
+            run = getRunByRunId(runId);
+        } catch (ResultArchiveStoreException e) {
+            ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
 
-   private JsonArray addArtifactsFromDB(IRunResult run, JsonArray artifacts) throws ResultArchiveStoreException, IOException{
-      // Add the run log as a separate artifact as it does not exist on the file system
-      String runLog = run.getLog();
-      JsonArray artifactRecords = new JsonArray();
-      if (runLog != null) {
-         artifactRecords.add(getArtifactAsJsonObject("/run.log","text/plain",runLog.getBytes(StandardCharsets.UTF_8).length));
-      }
+        // Build a JSON array of artifacts, then return it as a JSON string
+        try {
+            artifacts = getArtifacts(run);
+            artifacts.addAll(getRootArtifacts(run));
+        } catch (ResultArchiveStoreException | IOException ex) {
+            ServletError error = new ServletError(GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST, runId);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        return gson.toJson(artifacts);
+    }
 
-      TestStructure testStructure = run.getTestStructure();
-      if (testStructure != null) {
-         String testStructureStr = gson.toJson(testStructure);
-         artifactRecords.add(getArtifactAsJsonObject("/structure.json", "application/json", testStructureStr.getBytes(StandardCharsets.UTF_8).length));
-      }
-      artifactRecords.add(getArtifactAsJsonObject("/artifacts.properties", "text/plain", artifacts.toString().getBytes(StandardCharsets.UTF_8).length));
-      return artifactRecords;
-   }
+    private JsonArray getRootArtifacts(IRunResult run) throws ResultArchiveStoreException, IOException {
+        List<IRunRootArtifact> rootArtifacts = Arrays.asList(new RunLogArtifact(), new StructureJsonArtifact(), new ArtifactPropertiesArtifact(this));
+
+        JsonArray artifactRecords = new JsonArray();
+        for (IRunRootArtifact rootArtifact : rootArtifacts) {
+            byte[] content = rootArtifact.getContent(run);
+            if (content != null) {
+                artifactRecords.add(getArtifactAsJsonObject(rootArtifact.getPathName(), rootArtifact.getContentType(), content.length));
+            }
+        }
+        return artifactRecords;
+    }
 }
