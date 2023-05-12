@@ -211,7 +211,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
-  /ras/run/{runid}:
+  /ras/runs/{runid}:
     get:
       operationId: getRasRunById
       summary: Get Run by ID
@@ -242,7 +242,7 @@ paths:
   #--------------------------------------
   # List the artifacts available.
   #--------------------------------------
-  /ras/run/{runid}/artifacts:
+  /ras/runs/{runid}/artifacts:
     get:
       operationId: getRasRunArtifactList
       summary: Get the available Run artifacts whcih can be downloaded.
@@ -279,10 +279,10 @@ paths:
   #--------------------------------------
   # Download a specific artifact
   #--------------------------------------
-  /ras/run/{runid}/artifacts/{artifactid}:
+  /ras/runs/{runid}/files/{artifactPath}:
     get:
-      operationId: getRasRunArtifactById
-      summary: Get Run Artifact by IDs
+      operationId: getRasRunArtifactByPath
+      summary: Get Run Artifact by path
       tags: 
       - Result Archive Store API
       parameters:
@@ -292,19 +292,20 @@ paths:
           required: true
           schema:
             type: string
-        - name: artifactid
+        - name: artifactPath
           in: path
-          description: Run Artifact Id
+          description: Run Artifact path
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: The artifact was returned.
+          description: The artifact is made available to read.
           content:
-            plain/text:
+            application/octet-stream:
               schema:
                 type: string
+                format: binary
               example: attachment; filename="cps.properties"
         '500':
           description: Internal Server
@@ -321,10 +322,7 @@ paths:
 
 
 
-
-
-
-  /ras/run:
+  /ras/runs:
     get:
       operationId: getRasSearchRuns
       summary: Get Runs from Query
@@ -503,7 +501,7 @@ paths:
                     error_code: 5004
                     error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to return a results page
-  /ras/run/{runid}/runlog:
+  /ras/runs/{runid}/runlog:
     get:
       operationId: getRasRunLog
       summary: Get Run Log

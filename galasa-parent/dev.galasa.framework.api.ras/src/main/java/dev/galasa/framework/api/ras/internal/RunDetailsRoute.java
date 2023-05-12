@@ -10,8 +10,11 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.Gson;
+
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
 import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
@@ -19,6 +22,7 @@ import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 public class RunDetailsRoute extends BaseRoute {
 
    private final RunResultRas runResultRas;
+   static final Gson gson = GalasaGsonBuilder.build();
 
    public RunDetailsRoute(RunResultRas runResultRas) {
       super("\\/runs\\/([A-z0-9.\\-=]+)\\/?");
@@ -37,7 +41,7 @@ public class RunDetailsRoute extends BaseRoute {
          throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
       }
       
-      String outputString = BaseServlet.gson.toJson(run);
+      String outputString = gson.toJson(run);
       return sendResponse(res, outputString, HttpServletResponse.SC_OK ); 
    }
 }

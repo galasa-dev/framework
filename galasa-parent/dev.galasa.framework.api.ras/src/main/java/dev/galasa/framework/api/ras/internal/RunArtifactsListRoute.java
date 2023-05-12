@@ -53,7 +53,7 @@ public class RunArtifactsListRoute extends RunsRoute {
       }
 
       try {
-         artifacts = retrieveArtifacts(run);
+         artifacts = getArtifacts(run);
          JsonArray rootartifacts = addArtifactsFromDB(run, artifacts);
          artifacts.addAll(rootartifacts);
       } catch (ResultArchiveStoreException | IOException ex) {

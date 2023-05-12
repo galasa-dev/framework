@@ -42,7 +42,7 @@ public class RunQueryRoute extends BaseRoute {
 	private IFramework framework;
 
 	public RunQueryRoute(IFramework framework) {
-		super("\\/run\\/?");
+		super("\\/runs\\/?");
 		this.framework = framework;
 	}
 

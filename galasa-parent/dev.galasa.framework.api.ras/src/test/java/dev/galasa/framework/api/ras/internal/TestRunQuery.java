@@ -113,7 +113,7 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("requestor", requestorValues );
 		parameterMap.put("sort", sortValues );
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap,"/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap,"/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(null,mockRequest);
 
 		// Oh no ! There are no directory services which represent a RAS store !
@@ -144,7 +144,7 @@ public class TestRunQuery extends BaseServletTest {
 	@Test
 	public void testQueryWithFailedRequestReturnsGenericError() throws Exception {
 		// Given...
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null,"/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null,"/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(null, mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -181,7 +181,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockInputRunResults,mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -215,7 +215,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
 		
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -260,7 +260,7 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("requestor", requestorValues );
 		parameterMap.put("sort", sortValues );
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		String[] pageSize = {"100"};
@@ -314,7 +314,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] pageSize = {"100"};
 		String[] pageNo = {"1"};
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -374,7 +374,7 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("sort", sortValues );
 		parameterMap.put("size",pageSize);
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -435,7 +435,7 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("size",pageSize);
 		parameterMap.put("page",pageNo);
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -496,7 +496,7 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("size",pageSize);
 		parameterMap.put("page",pageNo);
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -557,7 +557,7 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("size",pageSize);
 		parameterMap.put("page",pageNo);
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -594,7 +594,7 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("sort", sortValues );
 		parameterMap.put("from", fromTime);
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -635,7 +635,7 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("sort", sortValues );
 		parameterMap.put("to", toTime);
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -684,7 +684,7 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("sort", sortValues );
 		parameterMap.put("runId", runId);
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest,storeWhichThrowsUp);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();
@@ -864,7 +864,7 @@ public class TestRunQuery extends BaseServletTest {
 		String[] sortValues = {"result:asc"};
 		parameterMap.put("sort", sortValues );
 
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/run");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		BaseServlet servlet = mockServletEnvironment.getServlet();

@@ -13,7 +13,9 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileAttribute;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,7 +36,60 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
 
+interface IRunRootArtifact {
+    byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException;
+    String getContentType();
+}
+
 public class RunArtifactsDownloadRoute extends RunsRoute {
+    
+    class RunLogArtifact implements IRunRootArtifact {
+
+        @Override
+        public byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException {
+            String runLog = run.getLog();
+            if (runLog != null) {
+                return runLog.getBytes(StandardCharsets.UTF_8);
+            }
+            return null;
+        }
+
+        @Override
+        public String getContentType() {
+            return "text/plain";
+        }
+    }
+
+    class StructureJsonArtifact implements IRunRootArtifact {
+
+        @Override
+        public byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException {
+            TestStructure testStructure = run.getTestStructure();
+            if (testStructure != null) {
+                return gson.toJson(testStructure).getBytes(StandardCharsets.UTF_8);
+            }
+            return null;
+        }
+
+        @Override
+        public String getContentType() {
+            return "application/json";
+        }
+    }
+
+    class ArtifactPropertiesArtifact implements IRunRootArtifact {
+
+        @Override
+        public byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException {
+            JsonArray artifactProperties = getArtifacts(run);
+            return artifactProperties.toString().getBytes(StandardCharsets.UTF_8);
+        }
+
+        @Override
+        public String getContentType() {
+            return "text/plain";
+        }
+    }
 
     static final Gson gson = GalasaGsonBuilder.build();
 
@@ -55,7 +110,7 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
         IRunResult run = null;
         String runName = "";
         String artifactsPrefix = "artifacts/";
-
+        
         // Get run details in order to find artifacts
         try {
             run = getRunByRunId(runId);
@@ -64,25 +119,19 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
+        
+        Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
+        rootArtifacts.put("run.log", new RunLogArtifact());
+        rootArtifacts.put("structure.json", new StructureJsonArtifact() {});
+        rootArtifacts.put("artifacts.properties", new ArtifactPropertiesArtifact() {});
 
-        // Get artifact that matches artifactId from URL or a path that starts with artifacts/
+        // Download the artifact that matches the artifact path or starts with "artifacts/"
         try {
-            if (artifactPath.equals("run.log")) {
-                String runLog = run.getLog();
-                if (runLog != null) {
-                    res = setDownloadResponse(res, runLog.getBytes(StandardCharsets.UTF_8), "text/plain");
-                }
-            } else if (artifactPath.equals("structure.json")) {
-                TestStructure testStructure = run.getTestStructure();
-                if (testStructure != null) {
-                    String testStructureStr = gson.toJson(testStructure);
-                    res = setDownloadResponse(res, testStructureStr.getBytes(StandardCharsets.UTF_8), "application/json");
-                }
-            } else if (artifactPath.equals("artifacts.properties")) {
-                JsonArray artifacts = retrieveArtifacts(run);
-                res = setDownloadResponse(res, artifacts.toString().getBytes(StandardCharsets.UTF_8), "text/plain");
+            IRunRootArtifact artifact = rootArtifacts.get(artifactPath);
+            if (artifact != null) {
+                res = setDownloadResponse(res, artifact.getContent(run), artifact.getContentType());
             } else if (artifactPath.startsWith(artifactsPrefix)) {
-                res = retrieveArtifact(res, run, artifactPath.substring(artifactsPrefix.length() - 1));
+                res = downloadStoredArtifact(res, run, artifactPath.substring(artifactsPrefix.length() - 1));
             } else {
                 ServletError error = new ServletError(GAL5008_ERROR_LOCATING_ARTIFACT, artifactPath, runName);
                 throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -94,7 +143,7 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
         return res;
     }
 
-    private HttpServletResponse retrieveArtifact(HttpServletResponse res, IRunResult run, String artifactPath) throws ResultArchiveStoreException, InternalServletException {
+    private HttpServletResponse downloadStoredArtifact(HttpServletResponse res, IRunResult run, String artifactPath) throws ResultArchiveStoreException, InternalServletException {
         try {
             // Get artifact path
             FileSystem artifactFileSystem = run.getArtifactsRoot().getFileSystem();
