@@ -11,10 +11,9 @@ import java.io.PrintWriter;
 import dev.galasa.framework.api.ras.internal.BaseServlet;
 import dev.galasa.framework.mocks.MockFileSystem;
 
-import java.io.ByteArrayOutputStream;
 import java.util.*;
 
-import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,7 +28,7 @@ public abstract class MockServletBaseEnvironment {
     HttpServletRequest req;
     List<IResultArchiveStoreDirectoryService> directoryServices;
     List<IRunResult> mockInputRunResults;
-    ByteArrayOutputStream outStream;
+    ServletOutputStream outStream;
     PrintWriter writer;
         
     HttpServletResponse resp;
@@ -44,15 +43,15 @@ public abstract class MockServletBaseEnvironment {
         this.servlet.setFileSystem(this.mockFileSystem);
     }
 
-    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ){ 
+    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ) { 
         this.setMockInputs(mockInpResults);
         this.directoryServices = getDirectoryService(rasStore);
         this.setArchiveStore(new MockArchiveStore(this.directoryServices));
         this.mockFramework = new MockFramework(this.archiveStore);
         this.req = mockRequest;
-        this.outStream = new ByteArrayOutputStream();
+        this.outStream = new MockServletOutputStream();
         this.writer = new PrintWriter(this.outStream);
-        this.resp = new MockHttpServletResponse(this.writer);
+        this.resp = new MockHttpServletResponse(this.writer, this.outStream);
         this.servlet = createServlet();
         this.servlet.setFramework(this.mockFramework);
     }
@@ -60,33 +59,29 @@ public abstract class MockServletBaseEnvironment {
 
     public abstract IServletUnderTest createServlet();
 
-    public HttpServletResponse getResponse (){
+    public HttpServletResponse getResponse() {
         return this.resp;
     }
 
-    public HttpServletRequest getRequest (){
+    public HttpServletRequest getRequest() {
         return this.req;
     }
 
-    public BaseServlet getBaseServlet(){
+    public BaseServlet getBaseServlet() {
         return (BaseServlet)this.servlet;
     }
 
-    public ByteArrayOutputStream getOutStream(){
-        return this.outStream;
-    }
-
-    public void setMockInputs(List<IRunResult> mockInpResults){
+    public void setMockInputs(List<IRunResult> mockInpResults) {
         this.mockInputRunResults = mockInpResults;
     }
 
-    public List<IResultArchiveStoreDirectoryService> getDirectoryService(MockResultArchiveStoreDirectoryService rasStore){
+    public List<IResultArchiveStoreDirectoryService> getDirectoryService(MockResultArchiveStoreDirectoryService rasStore) {
         List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
         directoryServices.add(rasStore);
         return directoryServices;
     }
 
-    public void setArchiveStore(MockArchiveStore store){
+    public void setArchiveStore(MockArchiveStore store) {
         this.archiveStore = store;
     }
 

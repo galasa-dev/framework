@@ -13,8 +13,10 @@ public enum ServletErrorMessage {
     GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER         (5005,"E: Error parsing the query parameter ''{0}'' in the request URL. Invalid value ''{1}''. Expecting an integer."),
     GAL5006_INVALID_QUERY_PARAM_DUPLICATES          (5006,"E: Error parsing the query parameters. Duplicate instances of query parameter ''{0}'' found in the request URL. Expecting only one."),
     
-    // RunArtifactList...
+    // RunArtifactsList...
     GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST         (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),
+
+    // RunArtifactsDownload...
     GAL5008_ERROR_LOCATING_ARTIFACT                 (5008,"E: Error locating artifact ''{0}'' for run with identifier ''{1}''."),
     GAL5009_ERROR_RETRIEVING_ARTIFACT               (5009,"E: Error retrieving artifact ''{0}'' for run with identifier ''{1}''."),
 

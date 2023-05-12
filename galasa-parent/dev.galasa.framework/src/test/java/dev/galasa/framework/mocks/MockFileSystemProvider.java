@@ -5,6 +5,7 @@ package dev.galasa.framework.mocks;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.AccessMode;
 import java.nio.file.CopyOption;
@@ -72,6 +73,67 @@ public class MockFileSystemProvider extends FileSystemProvider {
     }
 
     @Override
+    public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
+        if (!mockFS.exists(path)) {
+            throw new IOException("File not found!");
+        }
+
+        byte[] contents = mockFS.getContentsAsBytes(path);
+        return new SeekableByteChannel() {
+            private int position = 0;
+
+            @Override
+            public int read(ByteBuffer dst) throws IOException {
+                int bytesRemaining = contents.length - position;
+                int bytesToRead = Math.min(dst.remaining(), bytesRemaining);
+
+                if (bytesToRead <= 0) {
+                    return -1;
+                }
+
+                dst.put(contents, position, bytesToRead);
+                position += bytesToRead;
+                return bytesToRead;
+            }
+
+            @Override
+            public boolean isOpen() {
+                throw new UnsupportedOperationException("Unimplemented method 'isOpen'");
+            }
+
+            @Override
+            public void close() throws IOException {
+            }
+
+            @Override
+            public int write(ByteBuffer src) throws IOException {
+                throw new UnsupportedOperationException("Unimplemented method 'write'");
+            }
+
+            @Override
+            public long position() throws IOException {
+                return position;
+            }
+
+            @Override
+            public SeekableByteChannel position(long newPosition) throws IOException {
+                throw new UnsupportedOperationException("Unimplemented method 'position'");
+            }
+
+            @Override
+            public long size() throws IOException {
+                throw new UnsupportedOperationException("Unimplemented method 'size'");
+            }
+
+            @Override
+            public SeekableByteChannel truncate(long size) throws IOException {
+                throw new UnsupportedOperationException("Unimplemented method 'truncate'");
+            }
+            
+        };
+    }
+
+    @Override
     public String getScheme() {
         throw new UnsupportedOperationException("Unimplemented method 'getScheme'");
     }
@@ -90,13 +152,6 @@ public class MockFileSystemProvider extends FileSystemProvider {
     public Path getPath(URI uri) {
         throw new UnsupportedOperationException("Unimplemented method 'getPath'");
     }
-
-    @Override
-    public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs)
-            throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'newByteChannel'");
-    }
-
 
     @Override
     public void createDirectory(Path dir, FileAttribute<?>... attrs) throws IOException {

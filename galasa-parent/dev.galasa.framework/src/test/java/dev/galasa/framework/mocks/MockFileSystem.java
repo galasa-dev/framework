@@ -66,6 +66,13 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         return results;
     }
 
+    public void setFileContents(Path filePath, String contents) {
+        Node node = files.get(filePath.toString());
+        if (node != null) {
+            node.contents = contents.getBytes(StandardCharsets.UTF_8);
+        }
+    }
+
     @Override
     public void createDirectories(Path folderPath) throws IOException {
         if (folderPath!=null) {
@@ -170,7 +177,10 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
 
 	@Override
 	public InputStream newInputStream(Path folderPath) throws IOException {
-		return new ByteArrayInputStream(folderPath.toString().getBytes(StandardCharsets.UTF_8));
+        if (exists(folderPath)) {
+            return new ByteArrayInputStream(files.get(folderPath.toString()).contents);
+        }
+        return null;
 	}
 
     @Override

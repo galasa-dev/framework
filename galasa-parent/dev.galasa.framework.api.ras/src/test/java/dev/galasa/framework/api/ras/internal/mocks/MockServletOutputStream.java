@@ -26,4 +26,9 @@ public class MockServletOutputStream extends ServletOutputStream {
     public void write(int b) throws IOException {
         this.outputStream.write(b);
     } 
+
+    @Override
+    public String toString() {
+        return outputStream.toString();
+    }
 }

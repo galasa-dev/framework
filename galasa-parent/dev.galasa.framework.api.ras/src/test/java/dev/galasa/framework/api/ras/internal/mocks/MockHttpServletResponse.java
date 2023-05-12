@@ -13,12 +13,14 @@ import javax.servlet.http.HttpServletResponse;
 public class MockHttpServletResponse implements HttpServletResponse {
 
     private PrintWriter writer ;
+    private ServletOutputStream outputStream;
     private int status;
     private String contentType ;
     private Map<String,String> headers ;
 
-    public MockHttpServletResponse( PrintWriter writer) {
+    public MockHttpServletResponse(PrintWriter writer, ServletOutputStream outputStream) {
         this.writer = writer;
+        this.outputStream = outputStream;
         this.headers = new HashMap<String,String>();
     }
 
@@ -34,12 +36,12 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     
     public ServletOutputStream getOutputStream() throws IOException {
-      return new MockServletOutputStream();
+      return this.outputStream;
     }
 
     @Override
     public PrintWriter getWriter() throws IOException {
-        return this.writer ;
+        return this.writer;
     }
 
     @Override
@@ -54,7 +56,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     
     @Override
     public void setContentType(String type) {
-        this.contentType = type ;
+        this.contentType = type;
     }
     @Override
     public void setHeader(String name, String value) {

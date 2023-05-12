@@ -17,9 +17,9 @@ import dev.galasa.framework.api.ras.internal.mocks.*;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.ByteArrayOutputStream;
 import java.util.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
@@ -159,7 +159,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 				
 		// When...
 		servlet.activate();
@@ -189,7 +189,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		// When...
 		servlet.activate();
@@ -226,7 +226,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		// When...
 		servlet.activate();
@@ -260,7 +260,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		String[] pageSize = {"100"};
 		String[] pageNo = {"1"};
 
@@ -307,7 +307,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
 		servlet.activate();
@@ -359,7 +359,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
 		servlet.activate();
@@ -419,7 +419,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
 		servlet.activate();
@@ -480,7 +480,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
 		servlet.activate();
@@ -541,7 +541,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
 		servlet.activate();
@@ -602,7 +602,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
 		servlet.activate();
@@ -639,7 +639,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -680,7 +680,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -729,7 +729,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -909,7 +909,7 @@ public class TestRunQuery extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();

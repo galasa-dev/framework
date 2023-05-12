@@ -20,9 +20,9 @@ import dev.galasa.framework.mocks.MockPath;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.ByteArrayOutputStream;
 import java.util.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -176,7 +176,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
 		servlet.activate();
@@ -243,7 +243,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
 		servlet.activate();
@@ -304,7 +304,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
 		servlet.activate();
@@ -351,7 +351,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();

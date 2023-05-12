@@ -51,7 +51,7 @@ public class MockPath implements Path {
     public Path getFileName() {
         String[] dirStructure = path.split("/");
         String result = dirStructure[dirStructure.length - 1];
-        if (result.contains(".") && !result.equals("nonexistent.file")) {
+        if (result.contains(".")) {
             return new MockPath(result, fileSystem);
         }
         return null;

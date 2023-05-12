@@ -26,9 +26,9 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 import org.junit.Before;
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.ByteArrayOutputStream;
 import java.util.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -111,7 +111,7 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -146,7 +146,7 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -180,7 +180,7 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -206,7 +206,7 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		String runId = "12345";
 		String runName = "testA";
         String artifactPath = "run.log";
-        String runlog = "Very Detailed Run Log. DEBUGGGING SOMETHING.";
+        String runlog = "very detailed run log";
         List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runlog);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
@@ -216,7 +216,7 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -226,9 +226,9 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		// Then...
 		// Expecting:
 		assertThat(resp.getStatus()).isEqualTo(200);
-        assertThat(outStream.toString()).isEmpty();
+        assertThat(outStream.toString()).isEqualTo(runlog);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment; filename=\"run.log\"");
+		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment");
 	}
 
     @Test
@@ -247,7 +247,7 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -269,10 +269,10 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		String runId = "12345";
 		String runName = "testA";
         MockPath artifactPath = new MockPath("/term002.gz", mockFileSystem);
-        String runlog = "You have a terminal image to access.";
-        List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runlog);
-        mockFileSystem.createDirectories(artifactPath);
-		//mockFileSystem.createFile(artifactPath);
+		String fileContent = "dummy content";
+        List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+		mockFileSystem.createFile(artifactPath);
+		mockFileSystem.setFileContents(artifactPath, fileContent);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/artifacts" + artifactPath.toString());
@@ -281,7 +281,7 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -291,8 +291,8 @@ public class TestRunArtifactsDownLoadServlet extends BaseServletTest {
 		// Then...
 		// Expecting:
 		assertThat(resp.getStatus()).isEqualTo(200);
-        assertThat(outStream.toString()).isEmpty();
+        assertThat(outStream.toString()).isEqualTo(fileContent);
 		assertThat(resp.getContentType()).isEqualTo("application/x-gzip");
-		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment; filename=\"term002.gz\"");
+		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment");
 	}
 }

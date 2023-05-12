@@ -5,13 +5,13 @@ package dev.galasa.framework.api.ras.internal;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -96,7 +96,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -127,7 +127,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
@@ -159,7 +159,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		BaseServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ByteArrayOutputStream outStream = mockServletEnvironment.getOutStream();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
 		servlet.activate();
