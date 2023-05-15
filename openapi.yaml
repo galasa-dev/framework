@@ -500,7 +500,7 @@ paths:
   /ras/runs/{runid}/artifacts:
     get:
       operationId: getRasRunArtifactList
-      summary: Get the available Run artifacts whcih can be downloaded.
+      summary: Get the available Run artifacts which can be downloaded.
       tags: 
       - Result Archive Store API
       parameters:
@@ -549,7 +549,7 @@ paths:
   /ras/runs/{runid}/files/{artifactPath}:
     get:
       operationId: getRasRunArtifactByPath
-      summary: Get Run Artifact by path
+      summary: Download Artifact for a given runid by artifactPath
       tags: 
       - Result Archive Store API
       parameters:
