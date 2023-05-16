@@ -7,7 +7,7 @@ The below instructions will help you setup couchDB and a local API server in ord
 
 ### 1. CouchDB
 
-The current version of CouchDB that is used by Galasa is version 3.3.1 which can be downloaded [here](https://couchdb.apache.org/#download)
+The current version of CouchDB that is used by Galasa is version 2.3.1 which can be downloaded [here](https://couchdb.apache.org/#download)
 Alternatively you can downlaod it from the [archive](http://archive.apache.org/dist/couchdb/binary/)
 
 Once you have installed CouchDB you will need to create a username and password in order to authorise tranactions with the database. Keep this in mind as you will need it to view and access the database.
