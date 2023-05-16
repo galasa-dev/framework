@@ -4,6 +4,7 @@
 package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -29,8 +30,11 @@ public class RunArtifactsListRoute extends RunsRoute {
 
     static final Gson gson = GalasaGsonBuilder.build();
 
+    private List<IRunRootArtifact> rootArtifacts = new ArrayList<>();
+
     public RunArtifactsListRoute(IFileSystem fileSystem, IFramework framework) {
         super("\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?", fileSystem, framework);
+        rootArtifacts = Arrays.asList(new RunLogArtifact(), new StructureJsonArtifact(), new ArtifactPropertiesArtifact(this));
     }
 
     @Override
@@ -63,8 +67,6 @@ public class RunArtifactsListRoute extends RunsRoute {
     }
 
     private JsonArray getRootArtifacts(IRunResult run) throws ResultArchiveStoreException, IOException {
-        List<IRunRootArtifact> rootArtifacts = Arrays.asList(new RunLogArtifact(), new StructureJsonArtifact(), new ArtifactPropertiesArtifact(this));
-
         JsonArray artifactRecords = new JsonArray();
         for (IRunRootArtifact rootArtifact : rootArtifacts) {
             byte[] content = rootArtifact.getContent(run);

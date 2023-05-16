@@ -37,8 +37,14 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
     
     static final Gson gson = GalasaGsonBuilder.build();
 
+    private Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
+
     public RunArtifactsDownloadRoute(IFileSystem fileSystem, IFramework framework) {
         super("\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)", fileSystem, framework);
+
+        rootArtifacts.put("run.log", new RunLogArtifact());
+        rootArtifacts.put("structure.json", new StructureJsonArtifact());
+        rootArtifacts.put("artifacts.properties", new ArtifactPropertiesArtifact(this));
     }
 
     @Override
@@ -63,11 +69,6 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
-        
-        Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
-        rootArtifacts.put("run.log", new RunLogArtifact());
-        rootArtifacts.put("structure.json", new StructureJsonArtifact());
-        rootArtifacts.put("artifacts.properties", new ArtifactPropertiesArtifact(this));
 
         // Download the artifact that matches the artifact path or starts with "artifacts/"
         try {
