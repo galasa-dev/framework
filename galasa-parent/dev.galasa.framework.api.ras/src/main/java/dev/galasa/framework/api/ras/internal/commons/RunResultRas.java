@@ -1,3 +1,6 @@
+/*
+ * Copyright contributors to the Galasa project 
+ */
 package dev.galasa.framework.api.ras.internal.commons;
 
 import dev.galasa.api.ras.RasRunResult;
