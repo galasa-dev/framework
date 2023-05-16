@@ -93,7 +93,7 @@ public abstract class RunsRoute extends BaseRoute {
         JsonArray artifactRecords = new JsonArray();
         List<Path> artifactPaths = getArtifactPaths(run.getArtifactsRoot(), new ArrayList<>());
         for (Path artifactPath : artifactPaths) {
-            JsonObject artifactRecord = getArtifactAsJsonObject(artifactPath.toString(), fileSystem.probeContentType(artifactPath), fileSystem.size(artifactPath));
+            JsonObject artifactRecord = getArtifactAsJsonObject("/artifacts" + artifactPath.toString(), fileSystem.probeContentType(artifactPath), fileSystem.size(artifactPath));
             artifactRecords.add(artifactRecord);
         }
         return artifactRecords;

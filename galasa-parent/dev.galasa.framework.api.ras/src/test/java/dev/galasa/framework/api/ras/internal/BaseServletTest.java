@@ -55,7 +55,7 @@ public class BaseServletTest {
 		testStructure.setRequestor(requestor);
 		testStructure.setResult("Passed");
 
-		Path artifactRoot = new MockPath("/" + runName + "/artifacts", this.mockFileSystem);
+		Path artifactRoot = new MockPath("/" + runName, this.mockFileSystem);
 		IRunResult result = new MockRunResult( runId, testStructure, artifactRoot, runLog);
 		mockInputRunResults.add(result);
 

@@ -18,6 +18,7 @@ import dev.galasa.framework.mocks.MockPath;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -37,9 +38,21 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 			this.contentType = contentType;
 			this.size = size;
 		}
+
+        public Path getPath() {
+            return path;
+        }
+
+        public String getContentType() {
+            return contentType;
+        }
+
+        public int getSize() {
+            return size;
+        }
 	}
 
-	public String generateExpectedJson(List<MockJsonObject> artifacts, int size) {
+	public String generateExpectedJson(List<MockJsonObject> artifacts, String runLog, int artifactsSize) {
 		String jsonResult = "[\n";
 		int numOfArtifacts = artifacts.size();
 		if (numOfArtifacts > 0) {
@@ -56,6 +69,12 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 					   "  }";
 				jsonResult += runData;
 			}
+			String runLogData= ",\n  {\n"+
+					   "    \"path\": \"/run.log\",\n"+
+					   "    \"contentType\": \"text/plain\",\n"+
+					   "    \"size\": "+runLog.length()+"\n"+
+					   "  }";
+            jsonResult += runLogData;
 			String structureData= ",\n  {\n"+
 					   "    \"path\": \"/structure.json\",\n"+
 					   "    \"contentType\": \"application/json\",\n"+
@@ -65,7 +84,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 			String artifactsData= ",\n  {\n"+
 					   "    \"path\": \"/artifacts.properties\",\n"+
 					   "    \"contentType\": \"text/plain\",\n"+
-					   "    \"size\": "+size+"\n"+
+					   "    \"size\": "+artifactsSize+"\n"+
 					   "  }";
 			jsonResult += artifactsData;
 		}
@@ -83,12 +102,12 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 	public void testMultipleArtifactsToListReturnsOKWithArtifacts() throws Exception {
 		//Given..
 		String runName = "testA";
-		MockPath mockArtifactsPath = new MockPath("/" + runName + "/artifacts",mockFileSystem);
+		MockPath mockArtifactsPath = new MockPath("/" + runName, mockFileSystem);
 		List<Path> dummyArtifactPaths = Arrays.asList(
 			new MockPath(mockArtifactsPath + "/dummyB.gz",mockFileSystem),
 			new MockPath(mockArtifactsPath + "/dummyC.txt",mockFileSystem),
 			new MockPath(mockArtifactsPath + "/dummyA.json",mockFileSystem)
-			);
+        );
 		
 		List<MockJsonObject> mockArtifacts = Arrays.asList(
 			new MockJsonObject(dummyArtifactPaths.get(0), "application/x-gzip", 0),
@@ -103,7 +122,8 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		}
 		
 		String runId = "xxxxx678xxxxx";
-		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+        String runLog = "log";
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runLog);
 
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
@@ -125,28 +145,38 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 
 		// Then...
 		// Expecting this json:
-		// [
-		//	 {
-		//     "path": "/testA/artifacts/dummyA.gz",
-		//     "contentType": "application/x-gzip",
-		//     "size": "0",
-		//   },
-		//	 {
-		//     "path": "/testA/artifacts/dummyB.gz",
-		//     "contentType": "application/x-gzip",
-		//     "size": "0",
-		//   },
-		//	 {
-		//     "path": "/testA/artifacts/dummyC.gz",
-		//     "contentType": "application/x-gzip",
-		//     "size": "0",
-		//   },
-		//	 {
-		//     "path": "/run.log",
-		//     "contentType": "text/plain",
-		//     "size": "0",
-		//   },
-		// ]
+        // [
+        //     {
+        //       "path": "/artifacts/testA/dummyB.gz",
+        //       "contentType": "application/x-gzip",
+        //       "size": 0
+        //     },
+        //     {
+        //       "path": "/artifacts/testA/dummyC.txt",
+        //       "contentType": "text/plain",
+        //       "size": 0
+        //     },
+        //     {
+        //       "path": "/artifacts/testA/dummyA.json",
+        //       "contentType": "application/json",
+        //       "size": 0
+        //     },
+        //     {
+        //       "path": "/run.log",
+        //       "contentType": "text/plain",
+        //       "size": 3
+        //     },
+        //     {
+        //       "path": "/structure.json",
+        //       "contentType": "application/json",
+        //       "size": 71
+        //     },
+        //     {
+        //       "path": "/artifacts.properties",
+        //       "contentType": "text/plain",
+        //       "size": 240
+        //     }
+        // ]
 		assertThat(resp.getStatus()).isEqualTo(200);
 
 		String jsonString = outStream.toString();
@@ -154,9 +184,19 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray.size()).isEqualTo(5);
+		assertThat(jsonArray.size()).isEqualTo(6);
 
-		String expectedJson = generateExpectedJson(mockArtifacts, 240);
+        List<Path> expectedArtifactPaths = dummyArtifactPaths.stream()
+            .map(path -> new MockPath("/artifacts" + path.toString(), mockFileSystem))
+            .collect(Collectors.toList());
+        
+        List<MockJsonObject> expectedArtifacts = new ArrayList<>();
+        for (int i = 0; i < mockArtifacts.size(); i++) {
+            expectedArtifacts.add(
+                new MockJsonObject(expectedArtifactPaths.get(i), mockArtifacts.get(i).getContentType(), mockArtifacts.get(i).getSize()
+            ));
+        }
+		String expectedJson = generateExpectedJson(expectedArtifacts, runLog, 240);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 	
 		assertThat(resp.getContentType()).isEqualTo("Application/json");
@@ -167,14 +207,15 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 	public void testOneArtifactToListReturnsOKWithArtifact() throws Exception {
 		//Given..
 		String runName = "testA";
-		MockPath mockArtifactsPath = new MockPath("/" + runName + "/artifacts",mockFileSystem);
-		MockPath dummyArtifactPath = new MockPath(mockArtifactsPath + "/dummy.gz",mockFileSystem);
+        String runLog = "log";
+		MockPath mockArtifactPath = new MockPath("/" + runName,mockFileSystem);
+		MockPath dummyArtifactPath = new MockPath(mockArtifactPath + "/dummy.gz",mockFileSystem);
 		MockJsonObject mockArtifact = new MockJsonObject(dummyArtifactPath, "application/x-gzip", 0);
-		mockFileSystem.createDirectories(mockArtifactsPath);
+		mockFileSystem.createDirectories(mockArtifactPath);
 		mockFileSystem.createFile(dummyArtifactPath);
 
 		String runId = "xxxxx678xxxxx";
-		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runLog);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/artifacts");
@@ -194,9 +235,14 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		// Expecting this json:
 		// [
 		//	 {
-		//     "path": "/testA/artifacts/dummy.gz",
+		//     "path": "/artifacts/testA/dummy.gz",
 		//     "contentType": "application/x-gzip",
 		//	   "size": 0
+		//   },
+		//	 {
+		//     "path": "/run.log",
+		//     "contentType": "text/plain",
+		//	   "size": 3
 		//   },
 		//	 {
 		//     "path": "/structure.json",
@@ -216,9 +262,11 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray.size()).isEqualTo(3);
+		assertThat(jsonArray.size()).isEqualTo(4);
 
-		String expectedJson = generateExpectedJson(Arrays.asList(mockArtifact), 82);
+        MockPath expectedArtifactPath = new MockPath("/artifacts" + dummyArtifactPath.toString(), mockFileSystem);
+        MockJsonObject expectedArtifact = new MockJsonObject(expectedArtifactPath, mockArtifact.getContentType(), mockArtifact.getSize());
+		String expectedJson = generateExpectedJson(Arrays.asList(expectedArtifact), runLog, 82);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 	
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
