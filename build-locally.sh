@@ -256,7 +256,7 @@ ${CONSOLE_FLAG} \
 --warning-mode=all \
 -Dorg.gradle.java.home=${JAVA_HOME} \
 -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-build check \
+build check jacocoTestReport \
 2>&1 >> ${log_file}
 rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
 success "Built OK"
