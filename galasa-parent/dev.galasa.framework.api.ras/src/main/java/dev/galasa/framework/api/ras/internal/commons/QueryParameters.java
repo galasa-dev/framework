@@ -6,7 +6,6 @@ package dev.galasa.framework.api.ras.internal.commons;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.lang.reflect.Array;
 import java.time.*;
 import java.time.format.DateTimeParseException;
 

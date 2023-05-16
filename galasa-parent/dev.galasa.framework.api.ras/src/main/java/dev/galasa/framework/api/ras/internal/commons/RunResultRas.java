@@ -1,7 +1,5 @@
 package dev.galasa.framework.api.ras.internal.commons;
 
-import org.osgi.service.component.annotations.Reference;
-
 import com.google.gson.Gson;
 
 import dev.galasa.api.ras.RasRunResult;
