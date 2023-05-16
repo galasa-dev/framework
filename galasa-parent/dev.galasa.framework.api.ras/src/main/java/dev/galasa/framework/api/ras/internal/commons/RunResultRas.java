@@ -1,13 +1,10 @@
 package dev.galasa.framework.api.ras.internal.commons;
 
-import com.google.gson.Gson;
-
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -19,7 +16,6 @@ public class RunResultRas {
 
     private IFramework framework;
    
-    private final Gson gson = GalasaGsonBuilder.build();
 
     private static final Pattern pattern = Pattern.compile("(?!.*\\/).+");
     
@@ -34,7 +30,6 @@ public class RunResultRas {
 
         Matcher matcher = pattern.matcher(url);
        
-        String json = "";
         
         RasRunResult run = null;
         
