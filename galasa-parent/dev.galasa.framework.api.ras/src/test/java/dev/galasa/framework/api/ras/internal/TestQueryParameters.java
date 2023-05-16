@@ -18,9 +18,39 @@ import static org.assertj.core.api.Assertions.*;
 public class TestQueryParameters extends BaseServletTest {
     
 
+    //-----------------------------------------------------------------
+    // When the query parameter is a List of Strings
+    //-----------------------------------------------------------------
+    @Test
+    public void testGetMultipleStringIfMultipleStringPresentOK() throws Exception {
+        // Given...
+        String[] inputList = new String[] { "elf,orc,human" };
+        Map<String,String[]> inputs = new HashMap<>();
+        inputs.put("race", inputList);
+        QueryParameters params = new QueryParameters(inputs);
+
+        // When...
+        List<String> gotBack = params.getMultipleString("race", Arrays.asList("elf"));
+
+        // Then...
+        assertThat(gotBack).isEqualTo(Arrays.asList("elf", "orc", "human"));
+    }
+
+    @Test
+    public void testGetMultipleStringIfMultipleStringNotPresentReturnsDefault() throws Exception {
+        // Given...
+        Map<String,String[]> inputs = new HashMap<>();
+        QueryParameters params = new QueryParameters(inputs);
+
+        // When...
+        List<String> gotBack = params.getMultipleString("race", Arrays.asList("orc", "dragon"));
+
+        // Then...
+        assertThat(gotBack).isEqualTo(Arrays.asList("orc", "dragon"));
+    }
 
     //-----------------------------------------------------------------
-    // When the query parameter is a String
+    // When the query parameter is a Single String
     //-----------------------------------------------------------------
     @Test
     public void testGetSingleStringIfSingleStringPresentOK() throws Exception {
