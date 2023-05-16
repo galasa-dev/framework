@@ -396,6 +396,16 @@ paths:
                     error_code: 5001
                     error_message: "GAL5001E: Error parsing the date-time field 'to' in the request URL. Invalid value '2023-0F-12T13:08:10.295971Z'. Expecting a java LocalDateTime format. For example: '2023-04-11T09:52:56.586180Z'"
                   summary: An error occured parsing the to date-time field
+                interror:
+                  value:
+                    error_code: 5005
+                    error_message: "GAL5005E: Error parsing the query parameter 'page'' in the request URL. Invalid value 'five'. Expecting an integer."
+                  summary: An error occured parsing integer parameter
+                duplicateerror:
+                  value:
+                    error_code: 5006
+                    error_message: "GAL5006E: Error parsing the query parameters. Duplicate instances of query parameter 'size' found in the request URL. Expecting only one."
+                  summary: An error occured parsing duplicate parameter
         '404':
           description: Not Found
           content:
