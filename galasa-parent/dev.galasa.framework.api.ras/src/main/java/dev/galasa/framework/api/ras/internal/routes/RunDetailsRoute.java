@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.routes;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -13,11 +13,15 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 
 import dev.galasa.api.ras.RasRunResult;
+import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
+import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
+import dev.galasa.framework.api.ras.internal.commons.RunResultRas;
+import dev.galasa.framework.api.ras.internal.commons.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
-import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
 import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
+import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.*;
 
 /*
  * Implementation to return details for a given run based on its runId.

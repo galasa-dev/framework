@@ -1,13 +1,14 @@
 /*
  * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.commons;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import com.google.gson.JsonArray;
 
+import dev.galasa.framework.api.ras.internal.routes.RunsRoute;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 

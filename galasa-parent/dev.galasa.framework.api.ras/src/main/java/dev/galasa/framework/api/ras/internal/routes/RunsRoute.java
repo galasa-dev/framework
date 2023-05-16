@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.routes;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -88,7 +88,7 @@ public abstract class RunsRoute extends BaseRoute {
      * @throws ResultArchiveStoreException
      * @throws IOException
      */
-    protected JsonArray getArtifacts(IRunResult run) throws ResultArchiveStoreException, IOException {
+    public JsonArray getArtifacts(IRunResult run) throws ResultArchiveStoreException, IOException {
 
         JsonArray artifactRecords = new JsonArray();
         List<Path> artifactPaths = getArtifactPaths(run.getArtifactsRoot(), new ArrayList<>());

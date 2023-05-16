@@ -1,4 +1,4 @@
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.commons;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;

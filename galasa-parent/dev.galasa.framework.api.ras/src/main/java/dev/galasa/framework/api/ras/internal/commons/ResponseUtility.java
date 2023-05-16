@@ -1,4 +1,4 @@
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.commons;
 
 import java.io.IOException;
 import java.io.PrintWriter;

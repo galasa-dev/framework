@@ -1,22 +1,27 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.commons;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import com.google.gson.Gson;
+
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 public class StructureJsonArtifact implements IRunRootArtifact {
+
+    static final Gson gson = GalasaGsonBuilder.build();
 
     @Override
     public byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException {
         TestStructure testStructure = run.getTestStructure();
         if (testStructure != null) {
-            return RunArtifactsDownloadRoute.gson.toJson(testStructure).getBytes(StandardCharsets.UTF_8);
+            return gson.toJson(testStructure).getBytes(StandardCharsets.UTF_8);
         }
         return null;
     }

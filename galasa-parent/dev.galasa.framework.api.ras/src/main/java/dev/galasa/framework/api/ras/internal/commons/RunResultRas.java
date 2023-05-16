@@ -1,4 +1,4 @@
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.commons;
 
 import org.osgi.service.component.annotations.Reference;
 

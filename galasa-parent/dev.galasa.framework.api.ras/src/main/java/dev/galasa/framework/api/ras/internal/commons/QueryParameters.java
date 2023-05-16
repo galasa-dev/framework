@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.commons;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,9 +11,9 @@ import java.time.*;
 import java.time.format.DateTimeParseException;
 
 import javax.servlet.http.HttpServletResponse;
-import static javax.servlet.http.HttpServletResponse.*;
 
-import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
+import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.*;
+import static javax.servlet.http.HttpServletResponse.*;
 
 
 /**
