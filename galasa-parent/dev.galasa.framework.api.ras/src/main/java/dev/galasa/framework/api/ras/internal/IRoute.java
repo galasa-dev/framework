@@ -10,6 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.spi.FrameworkException;
 
+/**
+ * IRoute provides methods for endpoints to implement when a request is sent through a servlet,
+ * allowing for new routes to be added without needing servlets to know which route handles the request.
+ * 
+ * Route paths represent the regex patterns that are used to match request paths against.
+ */
 public interface IRoute {
     String getPath();
 

@@ -19,12 +19,16 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
 import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 
+/*
+ * Implementation to return details for a given run based on its runId.
+ */
 public class RunDetailsRoute extends BaseRoute {
 
    private final RunResultRas runResultRas;
    static final Gson gson = GalasaGsonBuilder.build();
 
    public RunDetailsRoute(RunResultRas runResultRas) {
+      //  Regex to match endpoint: /ras/runs/{runid}
       super("\\/runs\\/([A-z0-9.\\-=]+)\\/?");
       this.runResultRas = runResultRas;
    }

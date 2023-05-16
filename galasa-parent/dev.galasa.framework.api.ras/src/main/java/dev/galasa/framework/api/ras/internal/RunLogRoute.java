@@ -18,6 +18,10 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
 import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
+
+/**
+ * Implementation to retrieve the run log for a given run based on its runId.
+ */
 public class RunLogRoute extends BaseRoute {
 
    private final RunsRasBase runLogRas;
@@ -25,6 +29,7 @@ public class RunLogRoute extends BaseRoute {
    private final static Gson gson = GalasaGsonBuilder.build();
 
    public RunLogRoute(RunsRasBase runLogRas) {
+      //  Regex to match endpoint: /ras/runs/{runid}/runlog
       super("\\/runs\\/([A-z0-9.\\-=]+)\\/runlog\\/?");
       this.runLogRas = runLogRas;
    }

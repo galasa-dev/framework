@@ -36,7 +36,9 @@ import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-
+/*
+ * Implementation to query the ecosystem for a set of runs that match the default or supplied criteria
+ */
 public class RunQueryRoute extends BaseRoute {
 	
 	private IFramework framework;
@@ -44,6 +46,11 @@ public class RunQueryRoute extends BaseRoute {
 	private final RunsRasBase runRasBase;
 
 	public RunQueryRoute(IFramework framework, RunsRasBase runRasBase) {
+		/* Regex to match endpoints: 
+		*  -> /ras/runs
+		*  -> /ras/runs/
+		*  -> /ras/runs?{querystring} 
+		*/
 		super("\\/runs\\/?");
 		this.framework = framework;
 		this.runRasBase = runRasBase;

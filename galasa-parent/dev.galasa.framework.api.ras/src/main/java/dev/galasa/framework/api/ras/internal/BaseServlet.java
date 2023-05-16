@@ -32,6 +32,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/*
+ * Proxy Servlet for the /ras/* endpoints
+ */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
 "osgi.http.whiteboard.servlet.pattern=/ras/*" }, name = "Galasa Ras microservice")
 public class BaseServlet extends HttpServlet {

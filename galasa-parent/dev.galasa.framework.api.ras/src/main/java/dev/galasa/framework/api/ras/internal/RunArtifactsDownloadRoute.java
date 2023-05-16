@@ -33,6 +33,10 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
 
+/**
+ * Implementation to download an artifact for a given run based on its runId and the path
+ * to the artifact.
+ */
 public class RunArtifactsDownloadRoute extends RunsRoute {
     
     static final Gson gson = GalasaGsonBuilder.build();
@@ -40,6 +44,7 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
     private Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
 
     public RunArtifactsDownloadRoute(IFileSystem fileSystem, IFramework framework) {
+        //  Regex to match endpoint: /ras/runs/{runId}/files/{artifactPath}
         super("\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)", fileSystem, framework);
 
         rootArtifacts.put("run.log", new RunLogArtifact());

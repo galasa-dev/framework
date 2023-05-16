@@ -26,6 +26,9 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
 import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 
+/**
+ * Implementation to retrieve a list of artifacts for a given run based on its runId.
+ */
 public class RunArtifactsListRoute extends RunsRoute {
 
     static final Gson gson = GalasaGsonBuilder.build();
@@ -33,6 +36,7 @@ public class RunArtifactsListRoute extends RunsRoute {
     private List<IRunRootArtifact> rootArtifacts = new ArrayList<>();
 
     public RunArtifactsListRoute(IFileSystem fileSystem, IFramework framework) {
+        //  Regex to match endpoint: /ras/runs/{runId}/artifacts
         super("\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?", fileSystem, framework);
         rootArtifacts = Arrays.asList(new RunLogArtifact(), new StructureJsonArtifact(), new ArtifactPropertiesArtifact(this));
     }

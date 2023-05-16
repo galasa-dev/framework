@@ -7,6 +7,9 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+/*
+ * Common RAS functions against /ras/runs/* endpoints
+ */
 public class RunsRasBase{
    
    private IFramework framework;
