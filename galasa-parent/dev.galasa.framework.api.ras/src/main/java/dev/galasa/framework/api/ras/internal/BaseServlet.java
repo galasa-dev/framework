@@ -50,14 +50,14 @@ public class BaseServlet extends HttpServlet {
 	private final Map<String, IRoute> routes = new HashMap<>();
  
 	private RunResultRas runResultRas;
-	private RunLogRas runLogRas;
+	private RunsRasBase runLogRas;
 	
 	@Override
 	public void init() {
 	   addRoute(new RunDetailsRoute(runResultRas));
 	   addRoute(new RunLogRoute(runLogRas));
 	   addRoute(new RunArtifactsListRoute(fileSystem, framework));
-	   addRoute(new RunQueryRoute(framework));
+	   addRoute(new RunQueryRoute(framework, runLogRas));
 	   addRoute(new RunArtifactsDownloadRoute(fileSystem, framework));
 	}
  
@@ -110,7 +110,7 @@ public class BaseServlet extends HttpServlet {
 	@Activate
 	public void activate() {
 	   this.runResultRas = new RunResultRas(this.framework);
-	   this.runLogRas = new RunLogRas(this.framework);
+	   this.runLogRas = new RunsRasBase(this.framework);
 	}
 
 	public static HttpServletResponse sendResponse(HttpServletResponse resp , String json , int status){

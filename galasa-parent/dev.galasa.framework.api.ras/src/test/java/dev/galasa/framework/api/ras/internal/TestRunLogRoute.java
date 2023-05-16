@@ -69,7 +69,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		//    runId: "runA",
 		//	  log: "hello world"
 		// }
-		String expectedJson = "{\n  \"runId\": \"runA\",\n  \"log\": \"hello world\"\n}";
+		String expectedJson = "{\n  \"name\": \"testName\",\n  \"log\": \"hello world\"\n}";
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("Application/json");
@@ -100,7 +100,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		//    runId: "runA",
 		//	  log: ""
 		// }
-		String expectedJson = "{\n  \"runId\": \"runA\",\n  \"log\": \"\"\n}";
+		String expectedJson = "{\n  \"name\": \"testName\",\n  \"log\": \"\"\n}";
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("Application/json");

@@ -7,11 +7,11 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-public class RunLogRas{
+public class RunsRasBase{
    
    private IFramework framework;
    
-   public RunLogRas(IFramework framework) {
+   public RunsRasBase(IFramework framework) {
       this.framework = framework;
    }
    
@@ -35,5 +35,24 @@ public class RunLogRas{
       
       return runLog;
    }
+
+   public IRunResult getRunByRunId(String id) throws ResultArchiveStoreException {
+
+		IRunResult run = null;
+
+		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+
+			run = directoryService.getRunById(id);
+
+			if(run != null) {
+				return run;
+			}
+		}
+		return null;
+	}
    
+   public String getRunNamebyRunId(String id) throws ResultArchiveStoreException{
+      IRunResult run = getRunByRunId(id);
+      return run.getTestStructure().getRunName();
+   }
 }

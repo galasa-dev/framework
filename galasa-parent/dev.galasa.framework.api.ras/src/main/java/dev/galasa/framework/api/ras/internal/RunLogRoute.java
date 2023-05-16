@@ -20,11 +20,11 @@ import static dev.galasa.framework.api.ras.internal.ServletErrorMessage.*;
 import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 public class RunLogRoute extends BaseRoute {
 
-   private final RunLogRas runLogRas;
+   private final RunsRasBase runLogRas;
 
    private final static Gson gson = GalasaGsonBuilder.build();
 
-   public RunLogRoute(RunLogRas runLogRas) {
+   public RunLogRoute(RunsRasBase runLogRas) {
       super("\\/runs\\/([A-z0-9.\\-=]+)\\/runlog\\/?");
       this.runLogRas = runLogRas;
    }
@@ -37,8 +37,9 @@ public class RunLogRoute extends BaseRoute {
       String runId = matcher.group(1);
       String runLog = runLogRas.getRunlog(runId);
       if (runLog != null) {
+         String runname = runLogRas.getRunNamebyRunId(runId);
          JsonObject jsonLog = new JsonObject();
-         jsonLog.addProperty("runId", runId);
+         jsonLog.addProperty("name", runname);
          jsonLog.addProperty("log", runLog);
          String outputString = gson.toJson(jsonLog);
 

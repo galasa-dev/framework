@@ -41,9 +41,12 @@ public class RunQueryRoute extends BaseRoute {
 	
 	private IFramework framework;
 
-	public RunQueryRoute(IFramework framework) {
+	private final RunsRasBase runRasBase;
+
+	public RunQueryRoute(IFramework framework, RunsRasBase runRasBase) {
 		super("\\/runs\\/?");
 		this.framework = framework;
+		this.runRasBase = runRasBase;
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();
@@ -77,7 +80,7 @@ public class RunQueryRoute extends BaseRoute {
 			IRunResult run = null;
 			for (String runId : runIds) {
 				try {
-					run = getRunByRunId(runId.trim());
+					run = runRasBase.getRunByRunId(runId.trim());
 					
 					if (run != null) {
 						runs.add(RunResultUtility.toRunResult(run, true));
@@ -247,20 +250,7 @@ public class RunQueryRoute extends BaseRoute {
 		return runResults;
 	}
 
-	private IRunResult getRunByRunId(String id) throws ResultArchiveStoreException {
 
-		IRunResult run = null;
-
-		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-
-			run = directoryService.getRunById(id);
-
-			if(run != null) {
-				return run;
-			}
-		}
-		return null;
-	}
 
 	class SortByEndTime implements Comparator<RasRunResult> {
 
