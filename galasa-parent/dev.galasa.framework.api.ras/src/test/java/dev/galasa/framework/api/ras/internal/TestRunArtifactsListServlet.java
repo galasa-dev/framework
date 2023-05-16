@@ -67,28 +67,30 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 					   "    \"contentType\": \""+artifacts.get(i).contentType+"\",\n"+
 					   "    \"size\": "+artifacts.get(i).size+"\n"+
 					   "  }";
+                if (i == numOfArtifacts - 1) {
+                    runData += ",\n";
+                }
 				jsonResult += runData;
 			}
-			String runLogData= ",\n  {\n"+
-					   "    \"path\": \"/run.log\",\n"+
-					   "    \"contentType\": \"text/plain\",\n"+
-					   "    \"size\": "+runLog.length()+"\n"+
-					   "  }";
-            jsonResult += runLogData;
-			String structureData= ",\n  {\n"+
-					   "    \"path\": \"/structure.json\",\n"+
-					   "    \"contentType\": \"application/json\",\n"+
-					   "    \"size\": 71\n"+
-					   "  }";
-			jsonResult += structureData;
-			String artifactsData= ",\n  {\n"+
-					   "    \"path\": \"/artifacts.properties\",\n"+
-					   "    \"contentType\": \"text/plain\",\n"+
-					   "    \"size\": "+artifactsSize+"\n"+
-					   "  }";
-			jsonResult += artifactsData;
 		}
-		
+        String runLogData= "  {\n"+
+                   "    \"path\": \"/run.log\",\n"+
+                   "    \"contentType\": \"text/plain\",\n"+
+                   "    \"size\": "+runLog.length()+"\n"+
+                   "  }";
+        jsonResult += runLogData;
+        String structureData= ",\n  {\n"+
+                   "    \"path\": \"/structure.json\",\n"+
+                   "    \"contentType\": \"application/json\",\n"+
+                   "    \"size\": 71\n"+
+                   "  }";
+        jsonResult += structureData;
+        String artifactsData= ",\n  {\n"+
+                   "    \"path\": \"/artifacts.properties\",\n"+
+                   "    \"contentType\": \"text/plain\",\n"+
+                   "    \"size\": "+artifactsSize+"\n"+
+                   "  }";
+        jsonResult += artifactsData;
 		jsonResult += "\n]";
 		return jsonResult;
 	}
@@ -283,7 +285,8 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		mockFileSystem.createDirectories(mockArtifactsPath);
 
 		String runId = "xxxxx678xxxxx";
-		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+        String runLog = "log";
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runLog);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/artifacts");
@@ -303,14 +306,19 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		// Expecting this json:
 		// [
 		//	 {
+		//     "path": "/run.log",
+		//     "contentType": "text/plain",
+		//     "size": 3,
+		//   },
+        //	 {
 		//     "path": "/structure.json",
 		//     "contentType": "application/json",
-		//     "size": "82",
+		//     "size": 82,
 		//   },
 		//	 {
 		//     "path": "/artifacts.properties",
 		//     "contentType": "text/plain",
-		//     "size": "240",
+		//     "size": 240,
 		//   }
 		// ]
 		assertThat(resp.getStatus()).isEqualTo(200);
@@ -320,10 +328,13 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray.size()).isEqualTo(2);
+		assertThat(jsonArray.size()).isEqualTo(3);
+
+        String expectedJson = generateExpectedJson(new ArrayList<>(), runLog, 2);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
 	
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+		assertThat(resp.getContentType()).isEqualTo("Application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test

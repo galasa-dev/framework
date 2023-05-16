@@ -103,7 +103,7 @@ public abstract class RunsRoute extends BaseRoute {
      * Walks through an artifact directory recursively, collecting each artifact and
      * filtering out all subdirectories
      * 
-     * @param root             - an artifact's root directory
+     * @param directory        - the path to an artifact directory
      * @param accumulatedPaths - an intermediate list of accumulated artifact paths
      * @return a list of artifact paths
      */
