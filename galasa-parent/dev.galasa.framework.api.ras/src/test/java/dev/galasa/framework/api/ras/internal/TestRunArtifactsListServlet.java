@@ -141,7 +141,6 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -229,7 +228,6 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -298,7 +296,6 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -353,7 +350,6 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 

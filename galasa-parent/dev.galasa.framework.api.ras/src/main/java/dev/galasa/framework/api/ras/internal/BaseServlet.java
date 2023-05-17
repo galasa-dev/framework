@@ -3,7 +3,6 @@
  */
 package dev.galasa.framework.api.ras.internal;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
@@ -17,8 +16,7 @@ import dev.galasa.framework.FileSystem;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
 import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
-import dev.galasa.framework.api.ras.internal.commons.RunResultRas;
-import dev.galasa.framework.api.ras.internal.commons.RunsRasBase;
+
 import dev.galasa.framework.api.ras.internal.commons.ServletError;
 import dev.galasa.framework.api.ras.internal.routes.IRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunArtifactsDownloadRoute;
@@ -63,15 +61,13 @@ public class BaseServlet extends HttpServlet {
 	
 	private final Map<String, IRoute> routes = new HashMap<>();
  
-	private RunResultRas runResultRas;
-	private RunsRasBase runLogRas;
 	
 	@Override
 	public void init() {
-	   addRoute(new RunDetailsRoute(runResultRas));
-	   addRoute(new RunLogRoute(runLogRas));
+	   addRoute(new RunDetailsRoute(framework));
+	   addRoute(new RunLogRoute(framework));
 	   addRoute(new RunArtifactsListRoute(fileSystem, framework));
-	   addRoute(new RunQueryRoute(framework, runLogRas));
+	   addRoute(new RunQueryRoute(framework));
 	   addRoute(new RunArtifactsDownloadRoute(fileSystem, framework));
 	}
  
@@ -119,12 +115,6 @@ public class BaseServlet extends HttpServlet {
 		if (!response.isEmpty()) {
 			res = sendResponse(res, response, httpStatusCode);
 		}
-	}
-	
-	@Activate
-	public void activate() {
-	   this.runResultRas = new RunResultRas(this.framework);
-	   this.runLogRas = new RunsRasBase(this.framework);
 	}
 
 	public static HttpServletResponse sendResponse(HttpServletResponse resp , String json , int status){

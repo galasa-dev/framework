@@ -59,7 +59,6 @@ public class TestRunLogRoute extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -90,7 +89,6 @@ public class TestRunLogRoute extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -122,7 +120,6 @@ public class TestRunLogRoute extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 

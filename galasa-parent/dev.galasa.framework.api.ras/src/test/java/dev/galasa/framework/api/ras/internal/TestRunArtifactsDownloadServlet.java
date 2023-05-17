@@ -49,7 +49,6 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -84,7 +83,6 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -118,7 +116,6 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -154,7 +151,6 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -185,7 +181,6 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -219,7 +214,6 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 

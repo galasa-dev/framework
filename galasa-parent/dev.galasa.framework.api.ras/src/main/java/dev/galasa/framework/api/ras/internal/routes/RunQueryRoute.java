@@ -17,7 +17,6 @@ import dev.galasa.framework.api.ras.internal.commons.ExtractQuerySort;
 import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
 import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
 import dev.galasa.framework.api.ras.internal.commons.RunResultUtility;
-import dev.galasa.framework.api.ras.internal.commons.RunsRasBase;
 import dev.galasa.framework.api.ras.internal.commons.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -45,13 +44,9 @@ import javax.validation.constraints.NotNull;
 /*
  * Implementation to query the ecosystem for a set of runs that match the default or supplied criteria
  */
-public class RunQueryRoute extends BaseRoute {
-	
-	private IFramework framework;
+public class RunQueryRoute extends RunsRoute {
 
-	private final RunsRasBase runRasBase;
-
-	public RunQueryRoute(IFramework framework, RunsRasBase runRasBase) {
+	public RunQueryRoute(IFramework framework) {
 		/* Regex to match endpoints: 
 		*  -> /ras/runs
 		*  -> /ras/runs/
@@ -59,7 +54,6 @@ public class RunQueryRoute extends BaseRoute {
 		*/
 		super("\\/runs\\/?");
 		this.framework = framework;
-		this.runRasBase = runRasBase;
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();
@@ -93,7 +87,7 @@ public class RunQueryRoute extends BaseRoute {
 			IRunResult run = null;
 			for (String runId : runIds) {
 				try {
-					run = runRasBase.getRunByRunId(runId.trim());
+					run = getRunByRunId(runId.trim());
 					
 					if (run != null) {
 						runs.add(RunResultUtility.toRunResult(run, true));

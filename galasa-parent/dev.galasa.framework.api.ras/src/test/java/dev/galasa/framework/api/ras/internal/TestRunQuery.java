@@ -123,7 +123,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 				
 		// When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -153,7 +152,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		// When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -190,7 +188,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		// When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -226,7 +223,6 @@ public class TestRunQuery extends BaseServletTest {
 		String[] pageNo = {"1"};
 
 		// When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -271,7 +267,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -323,7 +318,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -383,7 +377,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -444,7 +437,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -505,7 +497,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -566,7 +557,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -603,7 +593,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -644,7 +633,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -693,7 +681,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 
@@ -873,7 +860,6 @@ public class TestRunQuery extends BaseServletTest {
 		ServletOutputStream outStream = resp.getOutputStream();
 		
 		//When...
-		servlet.activate();
 		servlet.init();
 		servlet.doGet(req,resp);
 

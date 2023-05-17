@@ -14,7 +14,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.IFileSystem;
+import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
+import dev.galasa.framework.api.ras.internal.commons.RunResultUtility;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
@@ -29,7 +32,11 @@ public abstract class RunsRoute extends BaseRoute {
     // Define a default filter to accept everything
     static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
 
-    private IFramework framework;
+    protected IFramework framework;
+
+    public RunsRoute(String path) {
+        super(path);
+    }
 
     public RunsRoute(String path, IFileSystem fileSystem, IFramework framework) {
         super(path);
@@ -51,6 +58,33 @@ public abstract class RunsRoute extends BaseRoute {
         }
         return null;
     }
+
+    public String getRunlog(String runId) throws ResultArchiveStoreException, InternalServletException {
+      
+        IRunResult run = getRunByRunId(runId);
+        String runLog = null;
+              
+        if(run != null) {
+           runLog = run.getLog();
+        }
+        
+        return runLog;
+     }
+  
+     public String getRunNamebyRunId(String id) throws ResultArchiveStoreException{
+        IRunResult run = getRunByRunId(id);
+        return run.getTestStructure().getRunName();
+     }
+  
+     public RasRunResult getRunFromFramework(String id) throws ResultArchiveStoreException {
+         
+        IRunResult run = getRunByRunId(id);
+  
+        if(run == null) {
+           return null;
+        }
+        return RunResultUtility.toRunResult(run, false);
+     }
 
     /**
      * Gets a JsonArray of artifacts for a given test run. The format of the

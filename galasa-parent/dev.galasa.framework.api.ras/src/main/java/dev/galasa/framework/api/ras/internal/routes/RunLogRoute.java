@@ -15,9 +15,9 @@ import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
 import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
-import dev.galasa.framework.api.ras.internal.commons.RunsRasBase;
 import dev.galasa.framework.api.ras.internal.commons.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
@@ -26,16 +26,15 @@ import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.
 /**
  * Implementation to retrieve the run log for a given run based on its runId.
  */
-public class RunLogRoute extends BaseRoute {
-
-   private final RunsRasBase runLogRas;
+public class RunLogRoute extends RunsRoute {
 
    private final static Gson gson = GalasaGsonBuilder.build();
 
-   public RunLogRoute(RunsRasBase runLogRas) {
+   public RunLogRoute(IFramework framework) {
       //  Regex to match endpoint: /ras/runs/{runid}/runlog
       super("\\/runs\\/([A-z0-9.\\-=]+)\\/runlog\\/?");
-      this.runLogRas = runLogRas;
+      this.framework = framework;
+
    }
 
    @Override
@@ -44,9 +43,9 @@ public class RunLogRoute extends BaseRoute {
       Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
       matcher.matches();
       String runId = matcher.group(1);
-      String runLog = runLogRas.getRunlog(runId);
+      String runLog = getRunlog(runId);
       if (runLog != null) {
-         String runname = runLogRas.getRunNamebyRunId(runId);
+         String runname = getRunNamebyRunId(runId);
          JsonObject jsonLog = new JsonObject();
          jsonLog.addProperty("name", runname);
          jsonLog.addProperty("log", runLog);
