@@ -10,6 +10,9 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasTestClass;
 
 public class MockResultArchiveStoreDirectoryService implements IResultArchiveStoreDirectoryService {
@@ -32,8 +35,43 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 
 	@Override
-	public @NotNull List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria)
-			throws ResultArchiveStoreException {
+	public @NotNull List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
+		for(IRasSearchCriteria searchCriteria : searchCriterias) {
+			if (searchCriteria instanceof RasSearchCriteriaQueuedFrom) {
+				List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
+				RasSearchCriteriaQueuedFrom sFrom = (RasSearchCriteriaQueuedFrom) searchCriteria;
+				for (IRunResult run : this.getRunsResults){
+					Boolean compareInstant = sFrom.criteriaMatched(run.getTestStructure());
+					if (compareInstant){
+						returnRuns.add(run);
+					}
+				}
+				this.getRunsResults = returnRuns;
+			} else if (searchCriteria instanceof RasSearchCriteriaRunName) {
+				List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
+				RasSearchCriteriaRunName sRunName = (RasSearchCriteriaRunName) searchCriteria;
+				for (IRunResult run : this.getRunsResults){
+					Boolean compareInstant = sRunName.criteriaMatched(run.getTestStructure());
+					
+					if (compareInstant){
+						returnRuns.add(run);
+					}
+				}
+				this.getRunsResults = returnRuns;
+			} else if (searchCriteria instanceof RasSearchCriteriaQueuedTo) {
+				List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
+				RasSearchCriteriaQueuedTo sTo = (RasSearchCriteriaQueuedTo) searchCriteria;
+				for (IRunResult run : this.getRunsResults){
+					Boolean compareInstant = sTo.criteriaMatched(run.getTestStructure());
+					
+					if (compareInstant){
+						returnRuns.add(run);
+					}
+				}
+				this.getRunsResults = returnRuns;
+			}
+			
+		}
 		return this.getRunsResults;
 	}
 

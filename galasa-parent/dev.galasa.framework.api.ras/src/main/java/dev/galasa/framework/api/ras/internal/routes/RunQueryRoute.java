@@ -127,9 +127,10 @@ public class RunQueryRoute extends RunsRoute {
 
 		Instant to = queryParams.getSingleInstant("to", null);
 
+		// The default for 'from' is now-24 hours. If no runname is specified
 		Instant fromDefault = Instant.now();
 		fromDefault = fromDefault.minus(24, ChronoUnit.HOURS);
-		Instant from = queryParams.getSingleInstant("from", fromDefault);
+		Instant from = queryParams.getSingleInstantIfParameterNotPresent("from", fromDefault,"runname");
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,to, from, runName);
 		return criteria ;
@@ -188,9 +189,10 @@ public class RunQueryRoute extends RunsRoute {
 
 		List<IRasSearchCriteria> critList = new ArrayList<>();   
 
-		// The default for 'from' is now-24 hours. So will never be null.
-		RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(from); 
-		critList.add(fromCriteria);    
+		if (from != null) {	
+			RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(from); 
+			critList.add(fromCriteria);
+		}    
 		
 		// Checking all parameters to apply to the search criteria		
 		// The default for 'to' is null.

@@ -127,6 +127,14 @@ public class QueryParameters {
 		return returnedValue;
 	}
 
-	
+	public Instant getSingleInstantIfParameterNotPresent(String queryParameterName, Instant defaultValue , String parameterToTest) throws InternalServletException {
+		String paramTestValueStr = getSingleString(parameterToTest, null);
+
+		if (paramTestValueStr != null ) {
+			return null;
+		} else {
+			return getSingleInstant(queryParameterName, defaultValue);
+		}
+	}
 
 }

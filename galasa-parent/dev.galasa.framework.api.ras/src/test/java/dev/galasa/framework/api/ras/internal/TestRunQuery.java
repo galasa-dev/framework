@@ -24,9 +24,11 @@ import javax.validation.constraints.NotNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 public class TestRunQuery extends BaseServletTest {	
 	
-	public List<IRunResult> generateTestData (int resSize, int passTests){
+	public List<IRunResult> generateTestData (int resSize, int passTests ,int hoursDeducted){
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
 		int passCount = 0;
 		// Build the results the DB will return.
@@ -39,6 +41,9 @@ public class TestRunQuery extends BaseServletTest {
 			testStructure.setRunName(runName);
 			testStructure.setRequestor(requestor);
 			testStructure.setTestShortName(testShortName);
+			testStructure.setQueued(Instant.now().minus(hoursDeducted, ChronoUnit.HOURS));
+			testStructure.setStartTime(Instant.now().minus(hoursDeducted, ChronoUnit.HOURS));
+			testStructure.setEndTime(Instant.now().minus(hoursDeducted, ChronoUnit.HOURS));
 			if (passCount < passTests){
 				testStructure.setResult("Passed");
 				passCount ++;
@@ -51,6 +56,15 @@ public class TestRunQuery extends BaseServletTest {
 			mockInputRunResults.add(result);
 		}
 		return mockInputRunResults;
+	}
+
+	public List<String> generateExpectedRunNames(List<IRunResult> expectedRunResults) throws ResultArchiveStoreException{
+		List <String> runnames = new ArrayList<String>();
+		for (IRunResult run : expectedRunResults){
+			runnames.add(run.getTestStructure().getRunName().toString());
+		}
+
+		return runnames;
 	}
 
 	public String generateExpectedJson (List<IRunResult> mockInputRunResults, String[] pageSize,String[] pageNo){
@@ -87,7 +101,10 @@ public class TestRunQuery extends BaseServletTest {
 						   "        \"runName\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getRunName()+"\",\n"+
 						   "        \"testShortName\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getTestShortName()+"\",\n"+
 						   "        \"requestor\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getRequestor()+"\",\n"+
-						   "        \"result\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getResult()+"\"\n"+
+						   "        \"result\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getResult()+"\",\n"+
+						   "        \"queued\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getQueued()+"\",\n"+
+						   "        \"startTime\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getStartTime()+"\",\n"+
+						   "        \"endTime\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getEndTime()+"\"\n"+
 						   "      }\n"+
 						   "    }";
 				} catch (ResultArchiveStoreException e) {
@@ -246,7 +263,7 @@ public class TestRunQuery extends BaseServletTest {
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceWithOneRecordReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(1,1);
+		List<IRunResult> mockInputRunResults = generateTestData(1,1,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
@@ -297,7 +314,7 @@ public class TestRunQuery extends BaseServletTest {
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2);
+		List<IRunResult> mockInputRunResults = generateTestData(10,2,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
@@ -353,9 +370,180 @@ public class TestRunQuery extends BaseServletTest {
 	}
 
 	@Test
+	public void testQueryWithFromDateNotSortedWithDBServiceWithOneRecordReturnsOK() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(1,1,1);
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		String fromTimeStr = Instant.now().minus(72, ChronoUnit.HOURS).toString();
+		String[] fromValue = {fromTimeStr};
+		String[] sortValues = {"asc"};
+		parameterMap.put("requestor", fromValue );
+		parameterMap.put("sort", sortValues );
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+
+		String[] pageSize = {"100"};
+		String[] pageNo = {"1"};
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		// Expecting:
+		//  {
+		//   "pageNum": 1,
+		//   "pageSize": 100,
+		//   "numPages": 1,
+		//   "amountOfRuns": 1,
+		//   "runs": [
+		//     {
+		//       "runId": "xxx-yyy-zzz-012345",
+		//       "testStructure": {
+		//         "runName": "A1234",
+		//         "requestor": "mickey"
+		//       }
+		// 	   }
+		// 	]
+		// }
+		String expectedJson = generateExpectedJson(mockInputRunResults ,pageSize, pageNo);
+		assertThat(resp.getStatus()==200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+	@Test
+	public void testQueryWithoutFromDateOrRunNameNotSortedWithDBServiceTenRecordsReturnsEmpty() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(10,2, 48);
+		//Build Http query parameters
+		String[] pageSize = {"100"};
+		String[] pageNo = {"1"};
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		String[] sortValues = {"asc"};
+		parameterMap.put("sort", sortValues );
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		// Expecting:
+
+		//Then...
+		String expectedJson = generateExpectedJson(new ArrayList<IRunResult>(),pageSize, pageNo);
+		assertThat(resp.getStatus()==200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+
+	@Test
+	public void testQueryWithoutFromDateWithRunNameNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(10,2, 48);
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		String[] sortValues = {"asc"};
+		IRunResult run = mockInputRunResults.get(1);
+		String[] runnnameValues = {run.getTestStructure().getRunName()};
+		parameterMap.put("sort", sortValues );
+		parameterMap.put("runname",runnnameValues);
+		String[] pageSize = {"100"};
+		String[] pageNo = {"1"};
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		List<IRunResult> expectedRun = new ArrayList<IRunResult>();
+		expectedRun.add(run);
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		// Expecting:
+		//  {
+		//   "pageNum": 1,
+		//   "pageSize": 100,
+		//   "numPages": 1,
+		//   "amountOfRuns": 0,
+		//   "runs": []
+		// }
+		String expectedJson = generateExpectedJson(expectedRun,pageSize,pageNo);
+		assertThat(resp.getStatus()==200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+	@Test
+	public void testQueryWithFromDateAndRunnameNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(10,2, 48);
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		String[] sortValues = {"asc"};
+		IRunResult run = mockInputRunResults.get(5);
+		String[] runnnameValues = {run.getTestStructure().getRunName()};
+		parameterMap.put("sort", sortValues );
+		parameterMap.put("runname",runnnameValues);
+		String[] pageSize = {"100"};
+		String[] pageNo = {"1"};
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		List<IRunResult> expectedRun = new ArrayList<IRunResult>();
+		expectedRun.add(run);
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		// Expecting:
+		//  {
+		//   "pageNum": 1,
+		//   "pageSize": 100,
+		//   "numPages": 1,
+		//   "amountOfRuns": 0,
+		//   "runs": []
+		// }
+		String expectedJson = generateExpectedJson(expectedRun,pageSize,pageNo);
+		assertThat(resp.getStatus()==200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTenRecordsPageSizeFiveReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,5);
+		List<IRunResult> mockInputRunResults = generateTestData(10,5,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
@@ -414,7 +602,7 @@ public class TestRunQuery extends BaseServletTest {
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTenRecordsPageSizeFivePageTwoReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,5);
+		List<IRunResult> mockInputRunResults = generateTestData(10,5,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
@@ -474,7 +662,7 @@ public class TestRunQuery extends BaseServletTest {
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTwentyRecordsPageSizeFivePageThreeReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,5);
+		List<IRunResult> mockInputRunResults = generateTestData(20,5,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
@@ -534,7 +722,7 @@ public class TestRunQuery extends BaseServletTest {
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTwentyRecordsPageSizeFivePageFiveReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,3);
+		List<IRunResult> mockInputRunResults = generateTestData(20,3,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
@@ -572,7 +760,7 @@ public class TestRunQuery extends BaseServletTest {
 	@Test
 	public void testQueryWithResultsSortedWithDBServiceTenRecordsPageSize100FalseFromDateReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,10);
+		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
@@ -612,7 +800,7 @@ public class TestRunQuery extends BaseServletTest {
 	@Test
 	public void testQueryWithResultsSortedWithDBServiceTenRecordsPageSize100FalseToDateReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,10);
+		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
@@ -652,7 +840,7 @@ public class TestRunQuery extends BaseServletTest {
 	@Test
 	public void testQueryWithResultsSortedWithDBServiceTenRecordsPageSize100FalseRunIDReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,10);
+		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
 
 		MockResultArchiveStoreDirectoryService storeWhichThrowsUp = new MockResultArchiveStoreDirectoryService(null) {
 			@Override
@@ -846,7 +1034,7 @@ public class TestRunQuery extends BaseServletTest {
 		String... expectedErrorMsgSubStrings
 	) throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,10);
+		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
 
 		String[] sortValues = {"result:asc"};
 		parameterMap.put("sort", sortValues );
@@ -872,6 +1060,54 @@ public class TestRunQuery extends BaseServletTest {
 			expectedErrorMsgSubStrings
 		);
 
+		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+	@Test
+	public void testQueryWithFromDateAndToDateNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(10,2, 72);
+		List<IRunResult> expectedInputRunResults = generateTestData(10,2, 48);
+		List<IRunResult> mockInputRunResults3 = generateTestData(10,2, 24);
+		mockInputRunResults.addAll(mockInputRunResults3);
+		mockInputRunResults.addAll(expectedInputRunResults);
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		String[] sortValues = {"asc"};
+		String fromTimeStr = Instant.now().minus(52, ChronoUnit.HOURS).toString();
+		String[] fromValue = {fromTimeStr};
+		String toTimeStr = Instant.now().minus(36, ChronoUnit.HOURS).toString();
+		String[] ToValue = {toTimeStr};
+		parameterMap.put("sort", sortValues );
+		parameterMap.put("from",fromValue);
+		parameterMap.put("to",ToValue);
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		// Expecting:
+		//  {
+		//   "pageNum": 1,
+		//   "pageSize": 100,
+		//   "numPages": 1,
+		//   "amountOfRuns": 0,
+		//   "runs": []
+		// }
+		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
+		assertThat(resp.getStatus()==200);
+		assertThat( outStream.toString() ).contains(expectedRunNames);
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
