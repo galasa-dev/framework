@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.commons;
 
 import dev.galasa.framework.spi.FrameworkException;
 
@@ -22,4 +22,8 @@ public class InternalServletException extends FrameworkException {
         return this.httpFailureCode;
     }
     
+    @Override
+    public String getMessage() {
+        return servletError.toString();
+    }
 }

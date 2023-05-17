@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project 
  */
 package dev.galasa.framework.api.ras.internal;
 
@@ -11,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -27,6 +24,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import dev.galasa.framework.api.ras.internal.commons.ExtractQuerySort;
+import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -49,7 +48,7 @@ public class RequestorRas extends HttpServlet {
 
 			//gets string query as hashmap
 
-			Map<String, String[]> query = req.getParameterMap();
+			QueryParameters queryParams = new QueryParameters(req.getParameterMap());
 
 
 
@@ -61,10 +60,8 @@ public class RequestorRas extends HttpServlet {
 
 			JsonObject requestors = new JsonObject();   	
 
-			if(!query.isEmpty()) { 
-				if(!ExtractQuerySort.isAscending(query, "requestor")) {
-					Collections.reverse(list);
-				}
+			if(!ExtractQuerySort.isAscending(queryParams, "requestor")) {
+				Collections.reverse(list);
 			}
 
 			//create json object

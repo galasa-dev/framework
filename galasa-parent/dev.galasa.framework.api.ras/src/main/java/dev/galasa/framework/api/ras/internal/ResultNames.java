@@ -1,3 +1,6 @@
+/*
+ * Copyright contributors to the Galasa project 
+ */
 package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
@@ -5,7 +8,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -21,6 +23,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.ras.internal.commons.ExtractQuerySort;
+import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -36,7 +40,7 @@ public class ResultNames extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		Map<String, String[]> query = req.getParameterMap();
+		QueryParameters queryParams = new QueryParameters(req.getParameterMap());
 		List<String> resultsList = new ArrayList<>();
 
 		try {
@@ -50,10 +54,8 @@ public class ResultNames extends HttpServlet {
 
 		Collections.sort(resultsList);
 
-		if(!query.isEmpty()) { 
-			if(!ExtractQuerySort.isAscending(query, "resultname")) {
-				Collections.reverse(resultsList);
-			}
+		if(!ExtractQuerySort.isAscending(queryParams, "resultname")) {
+			Collections.reverse(resultsList);
 		}
 
 		JsonElement json = new Gson().toJsonTree(resultsList);

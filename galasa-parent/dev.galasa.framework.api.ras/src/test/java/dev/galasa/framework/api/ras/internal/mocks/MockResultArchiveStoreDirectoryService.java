@@ -3,12 +3,7 @@
  */
 package dev.galasa.framework.api.ras.internal.mocks;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
@@ -27,13 +22,11 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 	@Override
 	public @NotNull String getName() {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getName'");
 	}
 
 	@Override
 	public boolean isLocal() {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'isLocal'");
 	}
 
@@ -46,32 +39,33 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 	@Override
 	public @NotNull List<String> getRequestors() throws ResultArchiveStoreException {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getRequestors'");
 	}
 
 	@Override
 	public @NotNull List<RasTestClass> getTests() throws ResultArchiveStoreException {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getTests'");
 	}
 
 	@Override
 	public @NotNull List<String> getResultNames() throws ResultArchiveStoreException {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getResultNames'");
 	}
 
 	@Override
 	public IRunResult getRunById(@NotNull String runId) throws ResultArchiveStoreException {
 		List <IRunResult> runResults = this.getRunsResults;
-		for (int c =0; c < runResults.size(); c++){
-			IRunResult match = runResults.get(c);
-			if ( match.getRunId().equals(runId)){
-				return  match;
-			}
+		if (runResults != null) {
+			for (int c =0; c < runResults.size(); c++){
+				IRunResult match = runResults.get(c);
+				if ( match.getRunId().equals(runId)){
+					return  match;
+				}
+			}	
+		} else {
+			return null;
 		}
-		return null;
+		throw new ResultArchiveStoreException("Run id not found in mock getRunById().");
 	}
     
 }

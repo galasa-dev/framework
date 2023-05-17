@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'biz.aQute.bnd.builder' version '5.3.0' apply false
     id 'dev.galasa.githash' version '0.15.0' apply false
+    id 'jacoco'
 }
 
 repositories {
@@ -17,6 +18,16 @@ dependencies {
     // We need the swagger generator to generate API documentation from the openapi.yaml file
     // https://mvnrepository.com/artifact/io.swagger.codegen.v3/swagger-codegen-cli
     implementation 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
+}
+
+subprojects {
+    apply plugin: 'jacoco'
+    test {
+        finalizedBy jacocoTestReport
+    }
+    jacocoTestReport {
+        dependsOn test
+    }
 }
 
 task downloadDependencies(type: Copy) {

@@ -1,3 +1,6 @@
+/*
+ * Copyright contributors to the Galasa project 
+ */
 package dev.galasa.framework.api.ras.internal;
 
 import java.io.IOException;
@@ -5,7 +8,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -21,6 +23,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import dev.galasa.framework.api.ras.internal.commons.ExtractQuerySort;
+import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -43,7 +47,7 @@ public class TestClassesRas extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	   
 	   
-		Map<String, String[]> query = req.getParameterMap();
+		QueryParameters queryParams = new QueryParameters(req.getParameterMap());
 		List<RasTestClass> classArray = new ArrayList<>();
 
 		try{
@@ -57,10 +61,8 @@ public class TestClassesRas extends HttpServlet {
 		classArray.sort(Comparator.comparing(RasTestClass::getTestClass));
 		
 		/* looking for sort options in query and sorting accordingly */
-		if(!query.isEmpty()){
-			if(!ExtractQuerySort.isAscending(query, "testclass")) {
-				classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
-			}
+		if(!ExtractQuerySort.isAscending(queryParams, "testclass")) {
+			classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
 		}
 
 

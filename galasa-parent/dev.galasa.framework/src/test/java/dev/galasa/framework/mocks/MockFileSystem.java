@@ -3,14 +3,32 @@
  */
 package dev.galasa.framework.mocks;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.PathMatcher;
+import java.nio.file.WatchService;
+import java.nio.file.attribute.UserPrincipalLookupService;
+import java.nio.file.spi.FileSystemProvider;
+import java.util.*;
+import java.util.stream.Stream;
 
 import dev.galasa.framework.IFileSystem;
 
-public class MockFileSystem implements IFileSystem {
+import java.nio.file.DirectoryStream.Filter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileStore;
+
+
+/**
+ * - A directory is a file system.
+ * - Each directory holds a map of nodes in that directory.
+ * - Each node could be a file, or another directory.
+ * - Each file system knows where it is mounted.
+ */
+public class MockFileSystem extends FileSystem implements IFileSystem {
 
     private static class Node {
         // Path path;
@@ -18,6 +36,7 @@ public class MockFileSystem implements IFileSystem {
         byte[] contents ;
     }
 
+    // A map of parts of the path, and the node it relates to.
     private Map<String,Node> files = new HashMap<>();
 
     public boolean isFolder(Path folderPath) {
@@ -47,6 +66,13 @@ public class MockFileSystem implements IFileSystem {
         return results;
     }
 
+    public void setFileContents(Path filePath, String contents) {
+        Node node = files.get(filePath.toString());
+        if (node != null) {
+            node.contents = contents.getBytes(StandardCharsets.UTF_8);
+        }
+    }
+
     @Override
     public void createDirectories(Path folderPath) throws IOException {
         if (folderPath!=null) {
@@ -55,7 +81,7 @@ public class MockFileSystem implements IFileSystem {
                 Path parent = folderPath.getParent();
                 createDirectories(parent);
                 // Now create this folder.
-                createNode(folderPath, false);
+                createNode(folderPath, true);
             }
         }
     }
@@ -88,4 +114,122 @@ public class MockFileSystem implements IFileSystem {
         return isExists;
     }
 
+    @Override
+    public boolean isRegularFile(Path filePath) {
+        return !files.get(filePath.toString()).isFolder;
+    }
+
+    @Override
+    public boolean isDirectory(Path filePath) {
+        return files.get(filePath.toString()).isFolder;
+    }
+
+    @Override
+    public Stream<Path> walk(Path folderPath) {
+        return files.keySet().stream()
+            .filter(path -> path.startsWith(folderPath.toString()))
+            .map(path -> new MockPath(path.toString(), this));
+    }
+
+    @Override
+    public FileSystemProvider provider() {
+        return new MockFileSystemProvider(this);
+    }
+
+    @Override
+    public long size(Path folderPath) throws IOException {
+        return 0;
+    }
+
+    @Override
+    public Path getPath(String first, String... more) {
+        return new MockPath(first + String.join("/", more), this);
+    }
+
+    public String probeContentType(Path path) throws IOException {
+        String contentType = null;
+        if (path.toString().endsWith(".properties") 
+            || path.toString().endsWith(".txt")) {
+          contentType =  "text/plain";
+        } else if (path.toString().endsWith(".gz")) {
+            contentType = "application/x-gzip";
+        } else if (path.toString().endsWith(".json")) {
+            contentType = "application/json";
+        }
+        return contentType;
+    }
+
+    public List<Path> getListOfFiles(String directory, Filter<? super Path> filter) throws IOException {
+        List<Path> resultPaths = new ArrayList<>();
+    
+        for (String pathStr : files.keySet()) {
+            // Check if this path is to a direct child of the given directory
+            if (pathStr.startsWith(directory + "/") && !(pathStr.substring(directory.length() + 1).contains("/"))) {
+                MockPath mockPath = new MockPath(pathStr, this);
+
+                if (filter.accept(mockPath)) {
+                    resultPaths.add(mockPath);
+                }
+            }
+        }
+        return resultPaths;
+    }
+
+	@Override
+	public InputStream newInputStream(Path folderPath) throws IOException {
+        if (exists(folderPath)) {
+            return new ByteArrayInputStream(files.get(folderPath.toString()).contents);
+        }
+        return null;
+	}
+
+    @Override
+    public void close() throws IOException {
+        throw new UnsupportedOperationException("Unimplemented method 'close'");
+    }
+
+    @Override
+    public boolean isOpen() {
+        throw new UnsupportedOperationException("Unimplemented method 'isOpen'");
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        throw new UnsupportedOperationException("Unimplemented method 'isReadOnly'");
+    }
+
+    @Override
+    public String getSeparator() {
+        throw new UnsupportedOperationException("Unimplemented method 'getSeparator'");
+    }
+
+    @Override
+    public Iterable<Path> getRootDirectories() {
+        throw new UnsupportedOperationException("Unimplemented method 'getRootDirectories'");
+    }
+
+    @Override
+    public Iterable<FileStore> getFileStores() {
+        throw new UnsupportedOperationException("Unimplemented method 'getFileStores'");
+    }
+
+    @Override
+    public Set<String> supportedFileAttributeViews() {
+        throw new UnsupportedOperationException("Unimplemented method 'supportedFileAttributeViews'");
+    }
+
+    @Override
+    public PathMatcher getPathMatcher(String syntaxAndPattern) {
+        throw new UnsupportedOperationException("Unimplemented method 'getPathMatcher'");
+    }
+
+    @Override
+    public UserPrincipalLookupService getUserPrincipalLookupService() {
+        throw new UnsupportedOperationException("Unimplemented method 'getUserPrincipalLookupService'");
+    }
+
+    @Override
+    public WatchService newWatchService() throws IOException {
+        throw new UnsupportedOperationException("Unimplemented method 'newWatchService'");
+    }
 }

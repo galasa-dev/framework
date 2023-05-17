@@ -3,18 +3,11 @@
  */
 package dev.galasa.framework.api.ras.internal;
 
-import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 import org.junit.Test;
-
-import com.google.gson.*;
-
-import java.io.PrintWriter;
-
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -22,101 +15,17 @@ import dev.galasa.framework.api.ras.internal.mocks.*;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.ByteArrayOutputStream;
 import java.util.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-public class TestRunQuery {
-
-	public class TestParameters {
-
-
-		MockFramework mockFramework;
-		MockArchiveStore archiveStore;
-		RunQuery servlet;
-
-		HttpServletRequest req;
-		List<IResultArchiveStoreDirectoryService> directoryServices;
-		List<IRunResult> mockInputRunResults;
-		ByteArrayOutputStream outStream;
-		PrintWriter writer;
-
-		HttpServletResponse resp;
-
-		public TestParameters(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap){
-			this(mockInpResults, parameterMap, new MockResultArchiveStoreDirectoryService(mockInpResults));
-		}
-
-		public TestParameters(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap, MockResultArchiveStoreDirectoryService rasStore ){
-			this.setMockInputs(mockInpResults);
-			this.directoryServices = getDirectoryService(rasStore);
-			this.setArchiveStore(new MockArchiveStore(this.directoryServices));
-			this.mockFramework = new MockFramework(this.archiveStore);
-			this.req = new MockHttpServletRequest(parameterMap);
-			this.outStream = new ByteArrayOutputStream();
-			this.writer = new PrintWriter(this.outStream);
-			this.resp = new MockHttpServletResponse(this.writer);
-			this.servlet = new RunQuery();
-			this.servlet.framework = (IFramework) this.mockFramework;
-		}
-
-		public HttpServletResponse getResponse (){
-			return this.resp;
-		}
-
-		public HttpServletRequest getRequest (){
-			return this.req;
-		}
-
-		public RunQuery getServlet(){
-			return this.servlet;
-		}
-
-		public ByteArrayOutputStream getOutStream(){
-			return this.outStream;
-		}
-
-		public void setMockInputs(List<IRunResult> mockInpResults){
-			this.mockInputRunResults = mockInpResults;
-		}
-
-		public List<IResultArchiveStoreDirectoryService> getDirectoryService(MockResultArchiveStoreDirectoryService rasStore){
-			List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
-			directoryServices.add(rasStore);
-			return directoryServices;
-		}
-
-		public void setArchiveStore(MockArchiveStore store){
-			this.archiveStore = store;
-		}
-
-	}
-
-	public IRunResult createRunResult (
-		String runName,
-		String requestor,
-		String runId,
-		String testShortName,
-		String result
-		){
-
-		TestStructure testStructure = new TestStructure();
-		testStructure.setRunName(runName);
-		testStructure.setRequestor(requestor);
-		testStructure.setTestShortName(testShortName);
-		testStructure.setResult(result);
-		Path artifactRoot = Paths.get(RandomStringUtils.randomAlphanumeric(12));
-		String log = RandomStringUtils.randomAlphanumeric(6);
-
-		IRunResult mockRunResult = new MockRunResult( runId, testStructure, artifactRoot , log);
-		return mockRunResult;
-	}
-
+public class TestRunQuery extends BaseServletTest {	
+	
 	public List<IRunResult> generateTestData (int resSize, int passTests){
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
 		int passCount = 0;
@@ -193,27 +102,7 @@ public class TestRunQuery {
 		return jsonResult;
 	}
 
-	void checkErrorStructure(String jsonString , int expectedErrorCode , String... expectedErrorMessageParts ) throws Exception {
 
-		JsonElement jsonElement = JsonParser.parseString(jsonString);
-		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
-
-		JsonObject jsonObject = jsonElement.getAsJsonObject();
-		assertThat(jsonObject).isNotNull().as("Json parsed is not a json object.");
-
-		// Check the error code
-		JsonElement errorCodeField = jsonObject.get("error_code");
-		assertThat(errorCodeField).isNotNull().as("Returned structure didn't contain the error_code field!");
-
-		int actualErrorCode = jsonObject.get("error_code").getAsInt();
-		assertThat(actualErrorCode).isEqualTo(expectedErrorCode);
-
-		// Check the error message...
-		String msg = jsonObject.get("error_message").toString();
-		for ( String expectedMessagePart : expectedErrorMessageParts ) {
-			assertThat(msg).contains(expectedMessagePart);
-		}
-	}
 
 	@Test
 	public void testQueryWithRequestorNotSortedButNoDBServiceReturnsError() throws Exception {
@@ -224,15 +113,17 @@ public class TestRunQuery {
 		parameterMap.put("requestor", requestorValues );
 		parameterMap.put("sort", sortValues );
 
-		TestParameters testParameters = new TestParameters(null,parameterMap);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap,"/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(null,mockRequest);
 
 		// Oh no ! There are no directory services which represent a RAS store !
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
-
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+				
 		// When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		// Then...
@@ -252,14 +143,16 @@ public class TestRunQuery {
 	@Test
 	public void testQueryWithFailedRequestReturnsGenericError() throws Exception {
 		// Given...
-		TestParameters testParameters = new TestParameters(null,null);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null,"/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(null, mockRequest);
 
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
-
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
 		// When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		// Then...
@@ -286,14 +179,16 @@ public class TestRunQuery {
 
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
 
-		TestParameters testParameters = new TestParameters(mockInputRunResults,parameterMap);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockInputRunResults,mockRequest);
 
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
-
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
 		// When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		// Then...
@@ -316,16 +211,19 @@ public class TestRunQuery {
 
 
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
+		
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
-		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
-
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 		String[] pageSize = {"100"};
 		String[] pageNo = {"1"};
+
 		// When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...
@@ -358,17 +256,18 @@ public class TestRunQuery {
 		parameterMap.put("requestor", requestorValues );
 		parameterMap.put("sort", sortValues );
 
-
-		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
 		String[] pageSize = {"100"};
 		String[] pageNo = {"1"};
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...
@@ -410,14 +309,16 @@ public class TestRunQuery {
 
 		String[] pageSize = {"100"};
 		String[] pageNo = {"1"};
-		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...
@@ -467,15 +368,16 @@ public class TestRunQuery {
 		parameterMap.put("sort", sortValues );
 		parameterMap.put("size",pageSize);
 
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
-		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
-
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...
@@ -526,15 +428,16 @@ public class TestRunQuery {
 		parameterMap.put("size",pageSize);
 		parameterMap.put("page",pageNo);
 
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
-		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
-
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...
@@ -585,15 +488,16 @@ public class TestRunQuery {
 		parameterMap.put("size",pageSize);
 		parameterMap.put("page",pageNo);
 
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
-		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
-
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...
@@ -644,14 +548,16 @@ public class TestRunQuery {
 		parameterMap.put("size",pageSize);
 		parameterMap.put("page",pageNo);
 
-		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 
 		//When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...
@@ -678,14 +584,16 @@ public class TestRunQuery {
 		parameterMap.put("sort", sortValues );
 		parameterMap.put("from", fromTime);
 
-		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
-
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
 		//When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...
@@ -716,14 +624,16 @@ public class TestRunQuery {
 		parameterMap.put("sort", sortValues );
 		parameterMap.put("to", toTime);
 
-		TestParameters testParameters = new TestParameters(mockInputRunResults,parameterMap);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
-
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
 		//When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...
@@ -762,14 +672,16 @@ public class TestRunQuery {
 		parameterMap.put("sort", sortValues );
 		parameterMap.put("runId", runId);
 
-		TestParameters testParameters = new TestParameters( mockInputRunResults,parameterMap,storeWhichThrowsUp);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest,storeWhichThrowsUp);
 
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
-
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
 		//When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...
@@ -781,7 +693,7 @@ public class TestRunQuery {
 			outStream.toString(),
 			5002,
 			"GAL5002E:",
-			"Error retrieving ras run from RunID",
+			"erroneousrunId",
 			runId[0]
 		);
 
@@ -837,8 +749,7 @@ public class TestRunQuery {
 		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'testname'","Duplicate");
 	}
 
-
-		@Test
+	@Test
 	public void testQueryWithMultipleBundlesReturnsError () throws Exception {
 
 		//Build Http query parameters
@@ -876,7 +787,6 @@ public class TestRunQuery {
 
 		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'runname'","Duplicate");
 	}
-
 
 	@Test
 	public void testQueryWithMultipleToTimesReturnsError () throws Exception {
@@ -941,15 +851,16 @@ public class TestRunQuery {
 		String[] sortValues = {"result:asc"};
 		parameterMap.put("sort", sortValues );
 
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
-		TestParameters testParameters = new TestParameters(mockInputRunResults,parameterMap);
-
-		RunQuery servlet = testParameters.getServlet();
-		HttpServletRequest req = testParameters.getRequest();
-		HttpServletResponse resp = testParameters.getResponse();
-		ByteArrayOutputStream outStream = testParameters.getOutStream();
-
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
 		//When...
+		servlet.init();
 		servlet.doGet(req,resp);
 
 		//Then...

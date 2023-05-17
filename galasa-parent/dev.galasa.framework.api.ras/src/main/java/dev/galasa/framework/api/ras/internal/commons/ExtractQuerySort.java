@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.commons;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,14 +47,16 @@ public class ExtractQuerySort {
     	return paramMap;
     }
 	
-	public static Boolean isAscending(Map<String, String[]> query, String param) {
-			if(query.containsKey("sort")) {
-				if(extractParameters(query).containsKey(param)) {
-					return extractParameters(query).get(param);
-				};
+	public static Boolean isAscending(QueryParameters queryParams, String param) {
+		try {
+			if (queryParams.getSingleString("sort", null) != null) {
+				String extractedParam = queryParams.getSingleString(param, null);
+				return extractedParam != null;
 			}
-		return Boolean.TRUE;
+		} catch (InternalServletException e) {
+			// Do nothing
+		}
+		return true;
 	}
 }
 
-	

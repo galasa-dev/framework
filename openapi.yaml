@@ -185,6 +185,10 @@ paths:
 ##################################################################################
 # RAS API
 ##################################################################################
+  
+  #--------------------------------------
+  # List all known requestors.
+  #--------------------------------------
   /ras/requestors:
     get:
       operationId: getRasRequestors
@@ -211,65 +215,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
-  /ras/run/{runid}:
+
+
+  #--------------------------------------
+  # List all known result names.
+  #--------------------------------------
+  /ras/resultnames:
     get:
-      operationId: getRasRunById
-      summary: Get Run by ID
+      operationId: getRasResultNames
+      summary: Get all the known result names
       tags: 
       - Result Archive Store API
       parameters:
-        - name: runid
-          in: path
-          description: Run Id
-          required: true
+        - name: sort
+          in: query
+          description: provides sorting, results:asc or results:desc
+          required: false
           schema:
             type: string
       responses:
         '200':
-          description: Run Data
+          description: ResultNames
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Run'
+                $ref: '#/components/schemas/ResultNames'
         '500':
           description: Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
-  /ras/run/{runid}/artifact/{artifactid}:
-    get:
-      operationId: getRasRunArtifactById
-      summary: Get Run Artifact by IDs
-      tags: 
-      - Result Archive Store API
-      parameters:
-        - name: runid
-          in: path
-          description: Run Id
-          required: true
-          schema:
-            type: string
-        - name: artifactid
-          in: path
-          description: Run Artifact Id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Artifact Content
-          content:
-            text/plain:
-              schema:
-                type: string
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-  /ras/run:
+
+
+  #--------------------------------------
+  # Retrieve Runs based on a query.
+  #--------------------------------------
+  /ras/runs:
     get:
       operationId: getRasSearchRuns
       summary: Get Runs from Query
@@ -414,6 +396,16 @@ paths:
                     error_code: 5001
                     error_message: "GAL5001E: Error parsing the date-time field 'to' in the request URL. Invalid value '2023-0F-12T13:08:10.295971Z'. Expecting a java LocalDateTime format. For example: '2023-04-11T09:52:56.586180Z'"
                   summary: An error occured parsing the to date-time field
+                interror:
+                  value:
+                    error_code: 5005
+                    error_message: "GAL5005E: Error parsing the query parameter 'page'' in the request URL. Invalid value 'five'. Expecting an integer."
+                  summary: An error occured parsing integer parameter
+                duplicateerror:
+                  value:
+                    error_code: 5006
+                    error_message: "GAL5006E: Error parsing the query parameters. Duplicate instances of query parameter 'size' found in the request URL. Expecting only one."
+                  summary: An error occured parsing duplicate parameter
         '404':
           description: Not Found
           content:
@@ -448,7 +440,43 @@ paths:
                     error_code: 5004
                     error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to return a results page
-  /ras/run/{runid}/runlog:
+ 
+ 
+  #--------------------------------------
+  # Retrieve a single Run.
+  #--------------------------------------
+  /ras/runs/{runid}:
+    get:
+      operationId: getRasRunById
+      summary: Get Run by ID
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+
+
+  #--------------------------------------
+  # Retrieve Run Log.
+  #--------------------------------------
+  /ras/runs/{runid}/runlog:
     get:
       operationId: getRasRunLog
       summary: Get Run Log
@@ -474,6 +502,128 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+
+
+  #--------------------------------------
+  # List the artifacts available.
+  #--------------------------------------
+  /ras/runs/{runid}/artifacts:
+    get:
+      operationId: getRasRunArtifactList
+      summary: Get the available Run artifacts which can be downloaded.
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The list of artifacts was returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactIndex'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runiderror:
+                  value:
+                    error_code: 5002
+                    error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
+                  summary: An error occured when trying to retrieve a specific run  using a runId
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa EcoSystem owner."
+                  summary: An error occured when trying access the endpoint
+
+
+  #--------------------------------------
+  # Download a specific artifact
+  #--------------------------------------
+  /ras/runs/{runid}/files/{artifactPath}:
+    get:
+      operationId: getRasRunArtifactByPath
+      summary: Download Artifact for a given runid by artifactPath
+      tags: 
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+        - name: artifactPath
+          in: path
+          description: Run Artifact path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The artifact is made available to read.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              example: attachment; filename="cps.properties"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runiderror:
+                  value:
+                    error_code: 5002
+                    error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
+                  summary: An error occured when trying to retrieve a specific run  using a runId
+        '500':
+          description: Internal Server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa EcoSystem owner."
+                  summary: An error occured when trying access the endpoint
+                locatingerror:
+                  value:
+                    error_code: 5008
+                    error_message: "GAL5008E: Error locating artifact '/unlocated.file' for run with identifier 'U116'."
+                  summary: An error occured when trying to locate the artifact
+                retrievingerror:
+                  value:
+                    error_code: 5009
+                    error_message: "GAL5009E: Error retrieving artifact  '/framework/cps_record.properties' for run with identifier 'U116'."
+                  summary: An error occured when trying to retrieve the artifact
+                
+
+
+  #--------------------------------------
+  # List all testclasses.
+  #--------------------------------------
   /ras/testclasses:
     get:
       operationId: getRasTestclasses
@@ -500,32 +650,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
-  /ras/resultnames:
-    get:
-      operationId: getRasResultNames
-      summary: Get all the known result names
-      tags: 
-      - Result Archive Store API
-      parameters:
-        - name: sort
-          in: query
-          description: provides sorting, results:asc or results:desc
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ResultNames
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResultNames'
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+
 ##################################################################################
 # Runs API
 ##################################################################################
@@ -876,3 +1001,24 @@ components:
           type: string
         result:
           type: string
+    
+    # Structures used by the listing of the available artifacts endpoint. 
+    ArtifactIndex:
+      type: array
+      items: 
+        $ref: '#/components/schemas/ArtifactIndexEntry'
+      uniqueItems: true
+
+    ArtifactIndexEntry:
+      type: object
+      properties:
+        runId:
+          type: string
+          readOnly: true
+        path:
+          type: string
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true

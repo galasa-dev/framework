@@ -1,4 +1,7 @@
-package dev.galasa.framework.api.ras.internal;
+/*
+ * Copyright contributors to the Galasa project 
+ */
+package dev.galasa.framework.api.ras.internal.commons;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
