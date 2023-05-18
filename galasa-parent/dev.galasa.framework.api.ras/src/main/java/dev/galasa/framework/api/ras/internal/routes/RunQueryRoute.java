@@ -35,7 +35,6 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import javax.servlet.ServletException;
@@ -127,10 +126,8 @@ public class RunQueryRoute extends RunsRoute {
 
 		Instant to = queryParams.getSingleInstant("to", null);
 
-		// The default for 'from' is now-24 hours. If no runname is specified
-		Instant fromDefault = Instant.now();
-		fromDefault = fromDefault.minus(24, ChronoUnit.HOURS);
-		Instant from = queryParams.getSingleInstantIfParameterNotPresent("from", fromDefault,"runname");
+		// from will error if no runname is specified as it is a mandatory field
+		Instant from = queryParams.getDefaultFromInstantIfNoQueryIsPresent();
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,to, from, runName);
 		return criteria ;
@@ -171,7 +168,7 @@ public class RunQueryRoute extends RunsRoute {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
 				ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
-				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 			}	
 		}
 		return json;
