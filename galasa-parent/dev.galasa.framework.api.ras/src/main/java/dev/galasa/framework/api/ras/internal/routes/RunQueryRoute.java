@@ -335,7 +335,7 @@ public class RunQueryRoute extends RunsRoute {
 		
 	}
 
-	public List<RasRunResult> sortingData(List<RasRunResult> runs, QueryParameters queryParams, @NotNull String sortValue) {
+	public List<RasRunResult> sortingData(List<RasRunResult> runs, QueryParameters queryParams, @NotNull String sortValue) throws InternalServletException {
 		
 		boolean isToSortAscending = ExtractQuerySort.isAscending(queryParams,"to");
 		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(queryParams,"testclass");
@@ -343,8 +343,6 @@ public class RunQueryRoute extends RunsRoute {
 
 		if (sortValue.equals("to:asc") && isToSortAscending) {
 			Collections.reverse(runs);
-		} else if (!isToSortAscending) {
-			return runs;
 		} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
 			Collections.sort(runs, new SortByTestClass());
 		} else if (!isTestClassSortAscending) {
@@ -356,6 +354,7 @@ public class RunQueryRoute extends RunsRoute {
 			Collections.sort(runs, new SortByResult());
 			Collections.reverse(runs);
 		}
+		// If no sort then default sort is to:desc
 		return runs;
 	}
 
