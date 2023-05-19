@@ -343,18 +343,19 @@ public class RunQueryRoute extends RunsRoute {
 
 		if (sortValue.equals("to:asc") && isToSortAscending) {
 			Collections.reverse(runs);
+		} else if (sortValue.equals("to:desc") &&!isToSortAscending) {
+			return runs;
 		} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
 			Collections.sort(runs, new SortByTestClass());
-		} else if (!isTestClassSortAscending) {
+		} else if (sortValue.equals("testclass:desc") &&!isTestClassSortAscending) {
 			Collections.sort(runs, new SortByTestClass());
 			Collections.reverse(runs);   
 		} else if (sortValue.equals("result:asc") && isResultSortAscending) {
 			Collections.sort(runs, new SortByResult());
-		} else if (!isResultSortAscending) {
+		} else if (sortValue.equals("result:desc") && !isResultSortAscending) {
 			Collections.sort(runs, new SortByResult());
 			Collections.reverse(runs);
 		}
-		// If no sort then default sort is to:desc
 		return runs;
 	}
 
