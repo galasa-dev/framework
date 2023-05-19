@@ -24,10 +24,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.ras.internal.commons.ExtractQuerySort;
+import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
 import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
+import dev.galasa.framework.api.ras.internal.commons.ServletError;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+
+import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.*;
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
 "osgi.http.whiteboard.servlet.pattern=/ras/resultnames" }, name = "Galasa Test Result Names microservice")
@@ -54,8 +58,13 @@ public class ResultNames extends HttpServlet {
 
 		Collections.sort(resultsList);
 
-		if(!ExtractQuerySort.isAscending(queryParams, "resultname")) {
-			Collections.reverse(resultsList);
+		try {
+			if (!ExtractQuerySort.isAscending(queryParams, "resultname")) {
+				Collections.reverse(resultsList);
+			}
+		} catch (InternalServletException e){
+			ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, "result");
+			throw new ServletException(error);
 		}
 
 		JsonElement json = new Gson().toJsonTree(resultsList);

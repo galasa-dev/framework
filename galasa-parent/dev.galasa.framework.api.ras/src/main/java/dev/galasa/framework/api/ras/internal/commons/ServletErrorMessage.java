@@ -14,6 +14,7 @@ public enum ServletErrorMessage {
     GAL5006_INVALID_QUERY_PARAM_DUPLICATES          (5006,"E: Error parsing the query parameters. Duplicate instances of query parameter ''{0}'' found in the request URL. Expecting only one."),
 
     GAL5010_FROM_DATE_IS_REQUIRED                   (5010,"E: Error parsing the query parameters. from time is a mandatory field if no runname is supplied."),    
+    GAL5011_SORT_VALUE_NOT_RECOGNIZED               (5011,"E: Error parsing the query parameters. sort value ''{0}'' not recognised. Expected 'asc' for ascending or 'desc' for descending"),    
     
     // RunArtifactsList...
     GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST         (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),

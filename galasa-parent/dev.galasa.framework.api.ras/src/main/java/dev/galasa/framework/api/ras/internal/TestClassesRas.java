@@ -24,12 +24,15 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.api.ras.internal.commons.ExtractQuerySort;
+import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
 import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
+import dev.galasa.framework.api.ras.internal.commons.ServletError;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.RasTestClass;
 
+import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.*;
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
 "osgi.http.whiteboard.servlet.pattern=/ras/testclasses" }, name = "TestClasses RAS")
 
@@ -61,8 +64,13 @@ public class TestClassesRas extends HttpServlet {
 		classArray.sort(Comparator.comparing(RasTestClass::getTestClass));
 		
 		/* looking for sort options in query and sorting accordingly */
-		if(!ExtractQuerySort.isAscending(queryParams, "testclass")) {
-			classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
+		try {
+			if(!ExtractQuerySort.isAscending(queryParams, "testclass")) {
+				classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
+			}
+		} catch (InternalServletException e) {
+			ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,"testclass");
+			throw new ServletException(error);
 		}
 
 
