@@ -46,7 +46,7 @@ public class BaseServletTest {
 		}
 	}
 
-	protected void checkJsonArrayStructure(String jsonString, Map<String, String> jsonFields) throws Exception {
+	protected void checkJsonArrayStructure(String jsonString, Map<String, String> jsonFieldsToCheck) throws Exception {
 
 		JsonElement jsonElement = JsonParser.parseString(jsonString);
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
@@ -54,7 +54,9 @@ public class BaseServletTest {
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
 		assertThat(jsonArray).isNotNull().as("Json parsed is not a json array.");
 
-        for (Entry<String, String> entry : jsonFields.entrySet()) {
+        // Go through the map of provided fields and check if any of the objects in the JSON array
+        // contain a matching key-value entry.
+        for (Entry<String, String> entry : jsonFieldsToCheck.entrySet()) {
             boolean fieldMatches = false;
 
             for (JsonElement element : jsonArray) {
