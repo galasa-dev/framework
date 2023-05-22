@@ -7,7 +7,6 @@ import com.google.gson.*;
 
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.teststructure.TestStructure;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockPath;
@@ -24,8 +23,6 @@ import java.util.Map.Entry;
 public class BaseServletTest {
 
 	protected MockFileSystem mockFileSystem;
-
-    protected static final Gson gson = GalasaGsonBuilder.build();
 
 	protected void checkErrorStructure(String jsonString , int expectedErrorCode , String... expectedErrorMessageParts ) throws Exception {
 
@@ -68,7 +65,7 @@ public class BaseServletTest {
             }
             assertThat(fieldMatches).isTrue();
         }
-	}
+    }
 
 	protected List<IRunResult> generateTestData(String runId, String runName, String runLog) {
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
