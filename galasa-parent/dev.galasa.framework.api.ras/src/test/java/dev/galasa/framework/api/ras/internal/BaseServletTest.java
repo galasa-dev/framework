@@ -7,6 +7,7 @@ import com.google.gson.*;
 
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockPath;
@@ -16,11 +17,15 @@ import static org.assertj.core.api.Assertions.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 
 public class BaseServletTest {
 
 	protected MockFileSystem mockFileSystem;
+
+    protected static final Gson gson = GalasaGsonBuilder.build();
 
 	protected void checkErrorStructure(String jsonString , int expectedErrorCode , String... expectedErrorMessageParts ) throws Exception {
 
@@ -42,6 +47,27 @@ public class BaseServletTest {
 		for ( String expectedMessagePart : expectedErrorMessageParts ) {
 			assertThat(msg).contains(expectedMessagePart);
 		}
+	}
+
+	protected void checkJsonArrayStructure(String jsonString, Map<String, String> jsonFields) throws Exception {
+
+		JsonElement jsonElement = JsonParser.parseString(jsonString);
+		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
+
+		JsonArray jsonArray = jsonElement.getAsJsonArray();
+		assertThat(jsonArray).isNotNull().as("Json parsed is not a json array.");
+
+        for (Entry<String, String> entry : jsonFields.entrySet()) {
+            boolean fieldMatches = false;
+
+            for (JsonElement element : jsonArray) {
+                JsonObject jsonObject = element.getAsJsonObject();
+                if (jsonObject.get(entry.getKey()).toString().equals(entry.getValue())) {
+                    fieldMatches = true;
+                }
+            }
+            assertThat(fieldMatches).isTrue();
+        }
 	}
 
 	protected List<IRunResult> generateTestData(String runId, String runName, String runLog) {

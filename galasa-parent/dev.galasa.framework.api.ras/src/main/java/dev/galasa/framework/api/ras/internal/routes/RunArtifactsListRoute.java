@@ -17,7 +17,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
 import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.ras.internal.commons.ArtifactPropertiesArtifact;
+import dev.galasa.framework.api.ras.internal.commons.ArtifactsJson;
+import dev.galasa.framework.api.ras.internal.commons.ArtifactsProperties;
 import dev.galasa.framework.api.ras.internal.commons.IRunRootArtifact;
 import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
 import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
@@ -45,7 +46,12 @@ public class RunArtifactsListRoute extends RunsRoute {
     public RunArtifactsListRoute(IFileSystem fileSystem, IFramework framework) {
         //  Regex to match endpoint: /ras/runs/{runId}/artifacts
         super("\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?", fileSystem, framework);
-        rootArtifacts = Arrays.asList(new RunLogArtifact(), new StructureJsonArtifact(), new ArtifactPropertiesArtifact(this));
+        rootArtifacts = Arrays.asList(
+            new RunLogArtifact(),
+            new StructureJsonArtifact(),
+            new ArtifactsProperties(this),
+            new ArtifactsJson(this)
+        );
     }
 
     @Override
