@@ -313,11 +313,9 @@ paths:
             type: string
           example: MyAutomationJobName
         - name: from
-          required: true
           in: query
           description: |
             Retrieve runs that started at a time after this date and time.
-            If you do not specify this parameter, then a default of 'now' minus 24 hours is assumed. 
             
             The only scenario in which from can be omitted is when a runname has been supplied
           schema:

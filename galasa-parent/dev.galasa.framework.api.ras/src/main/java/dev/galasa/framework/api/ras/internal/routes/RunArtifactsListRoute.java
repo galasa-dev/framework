@@ -17,13 +17,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
 import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.ras.internal.commons.ArtifactPropertiesArtifact;
-import dev.galasa.framework.api.ras.internal.commons.IRunRootArtifact;
-import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
-import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
-import dev.galasa.framework.api.ras.internal.commons.RunLogArtifact;
-import dev.galasa.framework.api.ras.internal.commons.ServletError;
-import dev.galasa.framework.api.ras.internal.commons.StructureJsonArtifact;
+import dev.galasa.framework.api.ras.internal.common.ArtifactPropertiesArtifact;
+import dev.galasa.framework.api.ras.internal.common.IRunRootArtifact;
+import dev.galasa.framework.api.ras.internal.common.InternalServletException;
+import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.ras.internal.common.RunLogArtifact;
+import dev.galasa.framework.api.ras.internal.common.ServletError;
+import dev.galasa.framework.api.ras.internal.common.StructureJsonArtifact;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
@@ -31,7 +31,7 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
-import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.*;
+import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
 
 /**
  * Implementation to retrieve a list of artifacts for a given run based on its runId.

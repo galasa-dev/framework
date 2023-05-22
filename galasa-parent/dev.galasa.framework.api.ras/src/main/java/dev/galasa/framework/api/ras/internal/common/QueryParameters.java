@@ -1,18 +1,17 @@
 /*
  * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.ras.internal.commons;
+package dev.galasa.framework.api.ras.internal.common;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.time.*;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.*;
+import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
 import static javax.servlet.http.HttpServletResponse.*;
 
 
@@ -137,25 +136,9 @@ public class QueryParameters {
 		}
 		return result;
 	}
-		
-	public Instant getDefaultFromInstantIfNoQueryIsPresent () throws InternalServletException{
-		// The default for 'from' is now-24 hours. If no query parameters are specified
-		Integer querysize = this.params.size();
-		Instant from = null ;
-		if (querysize >= 0){
-			from = getSingleInstantIfParameterNotPresent("from", "runname");
-			//Check to see if there is no query (i.e. hit the /ras/runs/ endpoint)
-			if (from == null && querysize == 0){
-				Instant fromDefault = Instant.now().minus(24, ChronoUnit.HOURS);
-				from = getSingleInstant("from", fromDefault);
-			}else if (from == null){
-				/*  RULE: Throw exception because a query exists but no from date has been supplied
-				* EXCEPT: When a runname is present in the query
-				*/
-				ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
-				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			}
-		}
-		return from;
-	}
+
+    public Integer getSize() {
+        return this.params.size();
+    }
+
 }

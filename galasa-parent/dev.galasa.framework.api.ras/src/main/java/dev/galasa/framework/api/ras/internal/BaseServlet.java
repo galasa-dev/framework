@@ -14,10 +14,9 @@ import com.google.gson.Gson;
 
 import dev.galasa.framework.FileSystem;
 import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
-import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
-
-import dev.galasa.framework.api.ras.internal.commons.ServletError;
+import dev.galasa.framework.api.ras.internal.common.InternalServletException;
+import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.ras.internal.common.ServletError;
 import dev.galasa.framework.api.ras.internal.routes.IRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunArtifactsDownloadRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunArtifactsListRoute;
@@ -27,7 +26,7 @@ import dev.galasa.framework.api.ras.internal.routes.RunQueryRoute;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
-import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.*;
+import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -6,18 +6,18 @@ package dev.galasa.framework.api.ras.internal.routes;
 import org.apache.commons.collections4.ListUtils;
 
 import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
-import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.*;
+import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import dev.galasa.api.ras.RasRunResult;
-import dev.galasa.framework.api.ras.internal.commons.ExtractQuerySort;
-import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
-import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
-import dev.galasa.framework.api.ras.internal.commons.RunResultUtility;
-import dev.galasa.framework.api.ras.internal.commons.ServletError;
+import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
+import dev.galasa.framework.api.ras.internal.common.InternalServletException;
+import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
+import dev.galasa.framework.api.ras.internal.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
@@ -57,6 +57,7 @@ public class RunQueryRoute extends RunsRoute {
 
 	final static Gson gson = GalasaGsonBuilder.build();
 
+	private SortQueryParameterChecker SortQueryParameterChecker = new SortQueryParameterChecker();
 	public static final int DEFAULT_PAGE_NUMBER = 1;
 	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
 
@@ -127,7 +128,7 @@ public class RunQueryRoute extends RunsRoute {
 		Instant to = queryParams.getSingleInstant("to", null);
 
 		// from will error if no runname is specified as it is a mandatory field
-		Instant from = queryParams.getDefaultFromInstantIfNoQueryIsPresent();
+		Instant from = getDefaultFromInstantIfNoQueryIsPresent(queryParams);
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,to, from, runName);
 		return criteria ;
@@ -331,39 +332,61 @@ public class RunQueryRoute extends RunsRoute {
 		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
 		// Checking ascending or descending for sorting
-		return sortingData(runs, queryParams, sortValue);
+		return sortData(runs, queryParams, sortValue);
 		
 	}
 
-	public List<RasRunResult> sortingData(List<RasRunResult> runs, QueryParameters queryParams, @NotNull String sortValue) throws InternalServletException {
-		
-		boolean isToSortAscending = ExtractQuerySort.isAscending(queryParams,"to");
-		boolean isTestClassSortAscending = ExtractQuerySort.isAscending(queryParams,"testclass");
-		boolean isResultSortAscending = ExtractQuerySort.isAscending(queryParams, "result");
+	public List<RasRunResult> sortData(List<RasRunResult> runs, QueryParameters queryParams, @NotNull String sortValue) throws InternalServletException {
 
-		if (sortValue.equals("to:asc") && isToSortAscending) {
-			Collections.reverse(runs);
-		} else if (sortValue.equals("to:desc") &&!isToSortAscending) {
-			return runs;
-		} else if (sortValue.equals("testclass:asc") && isTestClassSortAscending) {
-			Collections.sort(runs, new SortByTestClass());
-		} else if (sortValue.equals("testclass:desc") &&!isTestClassSortAscending) {
-			Collections.sort(runs, new SortByTestClass());
-			Collections.reverse(runs);   
-		} else if (sortValue.equals("result:asc") && isResultSortAscending) {
-			Collections.sort(runs, new SortByResult());
-		} else if (sortValue.equals("result:desc") && !isResultSortAscending) {
-			Collections.sort(runs, new SortByResult());
-			Collections.reverse(runs);
+		if (this.SortQueryParameterChecker.validateSortValue(queryParams)){
+			if (sortValue.toLowerCase().startsWith("to") ) {
+				boolean isAscending = this.SortQueryParameterChecker.isAscending(queryParams,"to");
+				if (isAscending) {
+					Collections.reverse(runs);
+				}
+			} else if (sortValue.toLowerCase().startsWith("testclass")) {
+				boolean isAscending = this.SortQueryParameterChecker.isAscending(queryParams,"testclass");
+				if (isAscending) {
+					Collections.sort(runs, new SortByTestClass());
+				} else {
+					Collections.sort(runs, new SortByTestClass());
+					Collections.reverse(runs);   
+				}
+
+			} else if (sortValue.toLowerCase().startsWith("result")) {
+				boolean isAscending = this.SortQueryParameterChecker.isAscending(queryParams, "result");
+				if (isAscending) {
+					Collections.sort(runs, new SortByResult());
+				} else {
+					Collections.sort(runs, new SortByResult());
+					Collections.reverse(runs);
+				}
+			}
 		}
 		return runs;
 	}
 
 	public String extractSortValue (QueryParameters paramMap) throws InternalServletException {
-		String sortValue = paramMap.getSingleString("sort",null);
-		if (sortValue == null){
-			sortValue = "to:desc";
+		return paramMap.getSingleString("sort","to:desc");
+	}
+
+	public Instant getDefaultFromInstantIfNoQueryIsPresent (QueryParameters paramMap) throws InternalServletException{
+		// The default for 'from' is now-24 hours. If no query parameters are specified
+		Integer querysize = paramMap.getSize();
+		Instant from = null ;
+		if (querysize >= 0){
+			from = paramMap.getSingleInstantIfParameterNotPresent("from", "runname");
+			//Check to see if there is no query (i.e. hit the /ras/runs/ endpoint)
+			if (from == null && querysize == 0){
+				return from;
+			}else if (from == null){
+				//  RULE: Throw exception because a query exists but no from date has been supplied
+				// EXCEPT: When a runname is present in the query
+				//
+				ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
+				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			}
 		}
-		return sortValue;
+		return from;
 	}
 }

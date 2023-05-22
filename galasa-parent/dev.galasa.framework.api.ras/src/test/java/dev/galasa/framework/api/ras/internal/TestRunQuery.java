@@ -39,25 +39,24 @@ public class TestRunQuery extends BaseServletTest {
 		return map;
 	}
 
-	private Map<String, String[]> addQueryParameter ( Map<String, String[]> map, String key, Integer value){
+	private Map<String, String[]> addQueryIntParameter ( Map<String, String[]> map, String key, Integer value){
 		if (value != null){
-			map.put(key, new String[] {value.toString()});
+			return addQueryParameter(map, key, value.toString());
 		}
 		return map;
 	}
 
 	private Map<String, String[]> addQueryTimeParameter ( Map<String, String[]> map, String key, Integer value){
 		if (value != null){
-			String TimeStr = Instant.now().minus(value, ChronoUnit.HOURS).toString();
-			map.put(key, new String[] {TimeStr});
+			return addQueryParameter(map, key, Instant.now().minus(value, ChronoUnit.HOURS).toString());
 		}
 		return map;
 	}
 
 	private Map<String, String[]> setQueryParameter (Integer page, Integer size,String sort, String runname, String requestor, Integer agemin, Integer agemax){
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		parameterMap = addQueryParameter(parameterMap, "page", page);
-		parameterMap = addQueryParameter(parameterMap, "size", size);
+		parameterMap = addQueryIntParameter(parameterMap, "page", page);
+		parameterMap = addQueryIntParameter(parameterMap, "size", size);
 		parameterMap = addQueryParameter(parameterMap, "sort", sort);
 		parameterMap = addQueryParameter(parameterMap, "runname", runname);
 		parameterMap = addQueryParameter(parameterMap, "requestor", requestor);
