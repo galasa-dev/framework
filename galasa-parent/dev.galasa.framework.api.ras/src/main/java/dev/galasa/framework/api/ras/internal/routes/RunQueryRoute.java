@@ -35,6 +35,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import javax.servlet.ServletException;
@@ -371,10 +372,9 @@ public class RunQueryRoute extends RunsRoute {
 	}
 
 	public Instant getDefaultFromInstantIfNoQueryIsPresent (QueryParameters paramMap) throws InternalServletException{
-		// The default for 'from' is now-24 hours. If no query parameters are specified
 		int querysize = paramMap.getSize();
 		Instant from = null ;
-		if (querysize >= 0){
+		if (querysize > 0){
 			from = paramMap.getSingleInstantIfParameterNotPresent("from", "runname");
 			//Check to see if there is no query (i.e. hit the /ras/runs/ endpoint)
 			if (from == null && querysize == 0){
@@ -383,9 +383,14 @@ public class RunQueryRoute extends RunsRoute {
 				//  RULE: Throw exception because a query exists but no from date has been supplied
 				// EXCEPT: When a runname is present in the query
 				//
-				ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
-				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				if (paramMap.getSingleString("runname", null) == null){
+					ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
+					throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				}
 			}
+		}else {
+			// The default for 'from' is now-24 hours. If no query parameters are specified
+			from = Instant.now().minus(24,ChronoUnit.HOURS);
 		}
 		return from;
 	}

@@ -12,7 +12,9 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 import org.junit.Test;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import dev.galasa.framework.api.ras.internal.common.QueryParameters;
 import dev.galasa.framework.api.ras.internal.mocks.*;
+import dev.galasa.framework.api.ras.internal.routes.RunQueryRoute;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -1792,4 +1794,76 @@ public class TestRunQuery extends BaseServletTest {
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
+
+	@Test
+    public void testGetDefaultFromInstantIfNoQueryIsPresentQuerySizeOneNoFromReturnsError() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        map.put("sort", new String[] {""} );
+        QueryParameters params = new QueryParameters(map);
+
+		Throwable thrown = catchThrowable( () -> { 
+           Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+        });
+
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5010E: Error parsing the query parameters. from time is a mandatory field if no runname is supplied.");
+    }
+
+	@Test
+    public void testGetDefaultFromInstantIfNoQueryIsPresentWithFromEmptyReturnsError() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        map.put("from", new String[] {""} );
+        QueryParameters params = new QueryParameters(map);
+
+		Throwable thrown = catchThrowable( () -> { 
+            Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+        });
+
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5010E: Error parsing the query parameters. from time is a mandatory field if no runname is supplied.");
+    }
+
+	@Test
+    public void testGetDefaultFromInstantIfNoQueryIsPresentWithFromReturnsValue() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+		String fromString = Instant.now().toString();
+        map.put("from", new String[] {fromString} );
+        QueryParameters params = new QueryParameters(map);
+        Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+
+		assertThat(checker).isNotNull();
+        assertThat(checker.toString()).isEqualTo(fromString);
+    }
+
+	@Test
+    public void testGetDefaultFromInstantIfNoQueryIsPresentWithFromAndRunnameReturnsValue() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+		String fromString = Instant.now().toString();
+        map.put("from", new String[] {fromString} );
+		map.put("runname", new String[] {"runname"} );
+        QueryParameters params = new QueryParameters(map);
+        Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+
+		assertThat(checker).isNotNull();
+        assertThat(checker.toString()).isEqualTo(fromString);
+    }
+
+	@Test
+    public void testGetDefaultFromInstantIfNoQueryIsPresentWithRunNameReturnsNull() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        map.put("runname", new String[] {"runname"} );
+        QueryParameters params = new QueryParameters(map);
+        Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+
+		assertThat(checker).isNull();
+    }
+
+	@Test
+    public void testGetDefaultFromInstantIfNoQueryIsPresentNoQueryReturnsValue() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        QueryParameters params = new QueryParameters(map);
+        Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+
+		assertThat(checker).isNotNull();
+    }
 }
