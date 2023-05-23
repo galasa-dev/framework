@@ -1750,4 +1750,46 @@ public class TestRunQuery extends BaseServletTest {
 		assertThat( resp.getContentType()).isEqualTo("Application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
+
+	@Test
+	public void testQueryWithRunIdsNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(2,2, 48);
+		List<IRunResult> expectedInputRunResults = generateTestData(2,1, 48);
+		mockInputRunResults.addAll(expectedInputRunResults);
+		IRunResult run = expectedInputRunResults.get(0);
+		String runid = run.getRunId();
+		IRunResult run1 = expectedInputRunResults.get(1);
+		String runid1 = run1.getRunId();
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = setQueryParameter(1,100, null, null, null, null, null);
+		parameterMap.put("runId", new String[] {runid+","+runid1});
+		
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+		
+		//Then...
+		// Expecting:
+		//  {
+		//   "pageNum": 1,
+		//   "pageSize": 100,
+		//   "numPages": 1,
+		//   "amountOfRuns": 10,
+		//   "runs": [...]
+		// }
+		String expectedRunNames = generateExpectedJson(expectedInputRunResults ,parameterMap.get("size"), parameterMap.get("page"));
+		assertThat(resp.getStatus()==200);
+		assertThat( outStream.toString() ).isEqualTo(expectedRunNames);
+		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
 }

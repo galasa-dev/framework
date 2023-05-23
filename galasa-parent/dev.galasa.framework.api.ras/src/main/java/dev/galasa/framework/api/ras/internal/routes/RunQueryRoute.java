@@ -372,7 +372,7 @@ public class RunQueryRoute extends RunsRoute {
 
 	public Instant getDefaultFromInstantIfNoQueryIsPresent (QueryParameters paramMap) throws InternalServletException{
 		// The default for 'from' is now-24 hours. If no query parameters are specified
-		Integer querysize = paramMap.getSize();
+		int querysize = paramMap.getSize();
 		Instant from = null ;
 		if (querysize >= 0){
 			from = paramMap.getSingleInstantIfParameterNotPresent("from", "runname");
