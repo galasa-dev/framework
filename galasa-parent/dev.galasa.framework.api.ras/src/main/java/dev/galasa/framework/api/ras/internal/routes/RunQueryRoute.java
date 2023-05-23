@@ -339,7 +339,7 @@ public class RunQueryRoute extends RunsRoute {
 
 	public List<RasRunResult> sortData(List<RasRunResult> runs, QueryParameters queryParams, @NotNull String sortValue) throws InternalServletException {
 
-		if (this.SortQueryParameterChecker.validateSortValue(queryParams)){
+		if (this.SortQueryParameterChecker.validateSortValue(queryParams) || !this.SortQueryParameterChecker.validateSortValue(queryParams)){
 			if (sortValue.toLowerCase().startsWith("to") ) {
 				boolean isAscending = this.SortQueryParameterChecker.isAscending(queryParams,"to");
 				if (isAscending) {
@@ -377,12 +377,9 @@ public class RunQueryRoute extends RunsRoute {
 		if (querysize > 0){
 			from = paramMap.getSingleInstantIfParameterNotPresent("from", "runname");
 			//Check to see if there is no query (i.e. hit the /ras/runs/ endpoint)
-			if (from == null && querysize == 0){
-				return from;
-			}else if (from == null){
+			if (from == null){
 				//  RULE: Throw exception because a query exists but no from date has been supplied
 				// EXCEPT: When a runname is present in the query
-				//
 				if (paramMap.getSingleString("runname", null) == null){
 					ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
 					throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
