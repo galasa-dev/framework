@@ -17,7 +17,7 @@ public class RunLogArtifact implements IRunRootArtifact {
         if (runLog != null) {
             return runLog.getBytes(StandardCharsets.UTF_8);
         }
-        return null;
+        return "".getBytes(StandardCharsets.UTF_8);
     }
 
     @Override

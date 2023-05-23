@@ -16,6 +16,8 @@ import static org.assertj.core.api.Assertions.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 
 public class BaseServletTest {
@@ -43,6 +45,29 @@ public class BaseServletTest {
 			assertThat(msg).contains(expectedMessagePart);
 		}
 	}
+
+	protected void checkJsonArrayStructure(String jsonString, Map<String, String> jsonFieldsToCheck) throws Exception {
+
+		JsonElement jsonElement = JsonParser.parseString(jsonString);
+		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
+
+		JsonArray jsonArray = jsonElement.getAsJsonArray();
+		assertThat(jsonArray).isNotNull().as("Json parsed is not a json array.");
+
+        // Go through the map of provided fields and check if any of the objects in the JSON array
+        // contain a matching key-value entry.
+        for (Entry<String, String> entry : jsonFieldsToCheck.entrySet()) {
+            boolean fieldMatches = false;
+
+            for (JsonElement element : jsonArray) {
+                JsonObject jsonObject = element.getAsJsonObject();
+                if (jsonObject.get(entry.getKey()).toString().equals(entry.getValue())) {
+                    fieldMatches = true;
+                }
+            }
+            assertThat(fieldMatches).isTrue();
+        }
+    }
 
 	protected List<IRunResult> generateTestData(String runId, String runName, String runLog) {
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();

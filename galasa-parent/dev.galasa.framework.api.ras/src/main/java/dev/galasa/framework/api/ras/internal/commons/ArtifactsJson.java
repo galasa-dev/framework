@@ -6,33 +6,36 @@ package dev.galasa.framework.api.ras.internal.commons;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
 import dev.galasa.framework.api.ras.internal.routes.RunsRoute;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
-public class ArtifactPropertiesArtifact implements IRunRootArtifact {
+public class ArtifactsJson implements IRunRootArtifact {
 
     private RunsRoute runsRoute;
+    static final Gson gson = GalasaGsonBuilder.build();
 
-    public ArtifactPropertiesArtifact(RunsRoute runsRoute) {
+    public ArtifactsJson(RunsRoute runsRoute) {
         this.runsRoute = runsRoute;
     }
 
     @Override
     public byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException {
-        JsonArray artifactProperties = runsRoute.getArtifacts(run);
-        return artifactProperties.toString().getBytes(StandardCharsets.UTF_8);
+        JsonArray artifactsJson = runsRoute.getArtifacts(run);
+        return gson.toJson(artifactsJson).getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
     public String getContentType() {
-        return "text/plain";
+        return "application/json";
     }
 
     @Override
     public String getPathName() {
-        return "/artifacts.properties";
+        return "/artifacts.json";
     }
 }
