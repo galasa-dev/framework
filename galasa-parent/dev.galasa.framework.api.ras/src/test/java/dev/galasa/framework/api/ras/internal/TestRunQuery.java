@@ -354,7 +354,7 @@ public class TestRunQuery extends BaseServletTest {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestData(1,1,1);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,"mickey", 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
@@ -399,7 +399,7 @@ public class TestRunQuery extends BaseServletTest {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestData(10,2,1);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,"mickey", 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
@@ -453,7 +453,7 @@ public class TestRunQuery extends BaseServletTest {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestData(1,1,1);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,"mickey", 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
@@ -562,7 +562,7 @@ public class TestRunQuery extends BaseServletTest {
 		List<IRunResult> mockInputRunResults = generateTestData(10,2, 48);
 		//Build Http query parameters
 		IRunResult run = mockInputRunResults.get(1);
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,run.getTestStructure().getRunName(),"mickey", 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,run.getTestStructure().getRunName(),null, 72, null);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
@@ -1549,7 +1549,7 @@ public class TestRunQuery extends BaseServletTest {
 		mockInputRunResults.addAll(expectedInputRunResults);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:asc",null, null, 72, null);
-		parameterMap.put("result", new String[] {"passed"});
+		parameterMap.put("result", new String[] {"Passed"});
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);

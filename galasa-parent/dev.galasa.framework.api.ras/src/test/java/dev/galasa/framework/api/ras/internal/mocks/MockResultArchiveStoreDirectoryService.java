@@ -33,44 +33,22 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 		throw new UnsupportedOperationException("Unimplemented method 'isLocal'");
 	}
 
+	private void applySearchCriteria( IRasSearchCriteria searchCriteria) throws ResultArchiveStoreException{
+		List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
+		for (IRunResult run : this.getRunsResults){
+			Boolean compareInstant = searchCriteria.criteriaMatched(run.getTestStructure());
+			if (compareInstant){
+				returnRuns.add(run);
+			}
+		}
+		
+		this.getRunsResults = returnRuns;
+	}
 
 	@Override
 	public @NotNull List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
 		for(IRasSearchCriteria searchCriteria : searchCriterias) {
-			if (searchCriteria instanceof RasSearchCriteriaQueuedFrom) {
-				List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
-				RasSearchCriteriaQueuedFrom sFrom = (RasSearchCriteriaQueuedFrom) searchCriteria;
-				for (IRunResult run : this.getRunsResults){
-					Boolean compareInstant = sFrom.criteriaMatched(run.getTestStructure());
-					if (compareInstant){
-						returnRuns.add(run);
-					}
-				}
-				this.getRunsResults = returnRuns;
-			} else if (searchCriteria instanceof RasSearchCriteriaRunName) {
-				List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
-				RasSearchCriteriaRunName sRunName = (RasSearchCriteriaRunName) searchCriteria;
-				for (IRunResult run : this.getRunsResults){
-					Boolean compareInstant = sRunName.criteriaMatched(run.getTestStructure());
-					
-					if (compareInstant){
-						returnRuns.add(run);
-					}
-				}
-				this.getRunsResults = returnRuns;
-			} else if (searchCriteria instanceof RasSearchCriteriaQueuedTo) {
-				List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
-				RasSearchCriteriaQueuedTo sTo = (RasSearchCriteriaQueuedTo) searchCriteria;
-				for (IRunResult run : this.getRunsResults){
-					Boolean compareInstant = sTo.criteriaMatched(run.getTestStructure());
-					
-					if (compareInstant){
-						returnRuns.add(run);
-					}
-				}
-				this.getRunsResults = returnRuns;
-			}
-			
+			applySearchCriteria(searchCriteria);
 		}
 		return this.getRunsResults;
 	}
