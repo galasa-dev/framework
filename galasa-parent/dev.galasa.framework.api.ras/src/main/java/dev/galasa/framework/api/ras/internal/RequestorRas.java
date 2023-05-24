@@ -36,7 +36,7 @@ public class RequestorRas extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private SortQueryParameterChecker SortQueryParameterChecker;
+	private SortQueryParameterChecker sortQueryParameterChecker;
 
 	@Reference
 	public IFramework framework; // NOSONAR
@@ -61,7 +61,7 @@ public class RequestorRas extends HttpServlet {
 
 			JsonObject requestors = new JsonObject();   	
 
-			if(!SortQueryParameterChecker.isAscending(queryParams, "requestor")) {
+			if(!sortQueryParameterChecker.isAscending(queryParams, "requestor")) {
 				Collections.reverse(list);
 			}
 

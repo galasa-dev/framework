@@ -43,7 +43,7 @@ public class TestClassesRas extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private SortQueryParameterChecker SortQueryParameterChecker;
+	private SortQueryParameterChecker sortQueryParameterChecker;
 
 	@Reference
 	public IFramework framework; 
@@ -67,7 +67,7 @@ public class TestClassesRas extends HttpServlet {
 		
 		/* looking for sort options in query and sorting accordingly */
 		try {
-			if(!SortQueryParameterChecker.isAscending(queryParams, "testclass")) {
+			if(!sortQueryParameterChecker.isAscending(queryParams, "testclass")) {
 				classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
 			}
 		} catch (InternalServletException e) {

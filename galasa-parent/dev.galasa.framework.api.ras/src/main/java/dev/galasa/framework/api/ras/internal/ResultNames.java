@@ -39,7 +39,7 @@ public class ResultNames extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private SortQueryParameterChecker SortQueryParameterChecker;
+	private SortQueryParameterChecker sortQueryParameterChecker;
 
 	@Reference
 	public IFramework framework; // NOSONAR
@@ -61,7 +61,7 @@ public class ResultNames extends HttpServlet {
 		Collections.sort(resultsList);
 
 		try {
-			if (!SortQueryParameterChecker.isAscending(queryParams, "resultname")) {
+			if (!sortQueryParameterChecker.isAscending(queryParams, "resultname")) {
 				Collections.reverse(resultsList);
 			}
 		} catch (InternalServletException e){

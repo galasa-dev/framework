@@ -58,7 +58,7 @@ public class RunQueryRoute extends RunsRoute {
 
 	final static Gson gson = GalasaGsonBuilder.build();
 
-	private SortQueryParameterChecker SortQueryParameterChecker = new SortQueryParameterChecker();
+	private SortQueryParameterChecker sortQueryParameterChecker = new SortQueryParameterChecker();
 	public static final int DEFAULT_PAGE_NUMBER = 1;
 	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
 
@@ -339,14 +339,14 @@ public class RunQueryRoute extends RunsRoute {
 
 	public List<RasRunResult> sortData(List<RasRunResult> runs, QueryParameters queryParams, @NotNull String sortValue) throws InternalServletException {
 
-		if (this.SortQueryParameterChecker.validateSortValue(queryParams) || !this.SortQueryParameterChecker.validateSortValue(queryParams)){
+		if (this.sortQueryParameterChecker.validateSortValue(queryParams) || !this.sortQueryParameterChecker.validateSortValue(queryParams)){
 			if (sortValue.toLowerCase().startsWith("to") ) {
-				boolean isAscending = this.SortQueryParameterChecker.isAscending(queryParams,"to");
+				boolean isAscending = this.sortQueryParameterChecker.isAscending(queryParams,"to");
 				if (isAscending) {
 					Collections.reverse(runs);
 				}
 			} else if (sortValue.toLowerCase().startsWith("testclass")) {
-				boolean isAscending = this.SortQueryParameterChecker.isAscending(queryParams,"testclass");
+				boolean isAscending = this.sortQueryParameterChecker.isAscending(queryParams,"testclass");
 				if (isAscending) {
 					Collections.sort(runs, new SortByTestClass());
 				} else {
@@ -355,7 +355,7 @@ public class RunQueryRoute extends RunsRoute {
 				}
 
 			} else if (sortValue.toLowerCase().startsWith("result")) {
-				boolean isAscending = this.SortQueryParameterChecker.isAscending(queryParams, "result");
+				boolean isAscending = this.sortQueryParameterChecker.isAscending(queryParams, "result");
 				if (isAscending) {
 					Collections.sort(runs, new SortByResult());
 				} else {
