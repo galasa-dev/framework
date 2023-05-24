@@ -127,12 +127,17 @@ public class QueryParameters {
 		return returnedValue;
 	}
 
-	public Instant getSingleInstantIfParameterNotPresent(String queryParameterName , String parameterToTest) throws InternalServletException {
+	public boolean checkAtLeastOneQueryParameterPresent(String... queryParameters ) throws InternalServletException {
 		// This function will return null when neither of the two parameters provided are in the query
-		String paramTestValueStr = getSingleString(parameterToTest, null);
-		Instant result = getSingleInstant(queryParameterName, null);
-		if (paramTestValueStr == null && result ==null) {
-			return null;
+		boolean result = true;
+		int paramswithvalue = 0 ;
+		for (String param : queryParameters){
+			if (getSingleString(param, null) !=null) {
+				paramswithvalue +=1;
+			}
+		}
+		if (paramswithvalue ==0) {
+			result = false;
 		}
 		return result;
 	}

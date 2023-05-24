@@ -375,16 +375,13 @@ public class RunQueryRoute extends RunsRoute {
 		int querysize = paramMap.getSize();
 		Instant from = null ;
 		if (querysize > 0){
-			from = paramMap.getSingleInstantIfParameterNotPresent("from", "runname");
-			//Check to see if there is no query (i.e. hit the /ras/runs/ endpoint)
-			if (from == null){
+			if (!paramMap.checkAtLeastOneQueryParameterPresent("from", "runname")){
 				//  RULE: Throw exception because a query exists but no from date has been supplied
 				// EXCEPT: When a runname is present in the query
-				if (paramMap.getSingleString("runname", null) == null){
 					ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
 					throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				}
 			}
+			from = paramMap.getSingleInstant("from", null);
 		}else {
 			// The default for 'from' is now-24 hours. If no query parameters are specified
 			from = Instant.now().minus(24,ChronoUnit.HOURS);
