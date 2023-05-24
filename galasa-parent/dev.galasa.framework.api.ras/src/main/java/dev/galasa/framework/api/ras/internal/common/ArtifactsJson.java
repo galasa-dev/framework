@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.ras.internal.commons;
+package dev.galasa.framework.api.ras.internal.common;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

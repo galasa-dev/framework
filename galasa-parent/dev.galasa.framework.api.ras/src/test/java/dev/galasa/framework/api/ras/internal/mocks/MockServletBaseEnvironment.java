@@ -45,7 +45,7 @@ public abstract class MockServletBaseEnvironment {
 
     public MockServletBaseEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ) { 
         this.setMockInputs(mockInpResults);
-        this.directoryServices = getDirectoryService(rasStore);
+        this.directoryServices = setDirectoryService(rasStore);
         this.setArchiveStore(new MockArchiveStore(this.directoryServices));
         this.mockFramework = new MockFramework(this.archiveStore);
         this.req = mockRequest;
@@ -75,10 +75,14 @@ public abstract class MockServletBaseEnvironment {
         this.mockInputRunResults = mockInpResults;
     }
 
-    public List<IResultArchiveStoreDirectoryService> getDirectoryService(MockResultArchiveStoreDirectoryService rasStore) {
+    public List<IResultArchiveStoreDirectoryService> setDirectoryService(MockResultArchiveStoreDirectoryService rasStore) {
         List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
         directoryServices.add(rasStore);
         return directoryServices;
+    }
+
+    public List<IResultArchiveStoreDirectoryService> getDirectoryService() {
+        return this.directoryServices;
     }
 
     public void setArchiveStore(MockArchiveStore store) {

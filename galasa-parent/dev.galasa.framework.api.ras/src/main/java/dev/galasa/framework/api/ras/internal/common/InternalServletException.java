@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal.commons;
+package dev.galasa.framework.api.ras.internal.common;
 
 import dev.galasa.framework.spi.FrameworkException;
 

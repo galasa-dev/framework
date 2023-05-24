@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.ras.internal.commons;
+package dev.galasa.framework.api.ras.internal.common;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.time.format.DateTimeParseException;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.*;
+import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
 import static javax.servlet.http.HttpServletResponse.*;
 
 
@@ -127,6 +127,23 @@ public class QueryParameters {
 		return returnedValue;
 	}
 
-	
+	public boolean checkAtLeastOneQueryParameterPresent(String... queryParameters ) throws InternalServletException {
+		// This function will return false when none of the parameters provided are in the query
+		boolean result = false;
+		int paramswithvalue = 0 ;
+		for (String param : queryParameters){
+			if ((this.params.containsKey(param)) && (this.params.get(param) != null ) && (this.params.get(param)[0] != "" )) {
+				paramswithvalue +=1;
+			}
+		}
+		if (paramswithvalue !=0) {
+			result = true;
+		}
+		return result;
+	}
+
+    public Integer getSize() {
+        return this.params.size();
+    }
 
 }
