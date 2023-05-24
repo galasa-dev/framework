@@ -129,7 +129,7 @@ public class RunQueryRoute extends RunsRoute {
 		Instant to = queryParams.getSingleInstant("to", null);
 
 		// from will error if no runname is specified as it is a mandatory field
-		Instant from = getDefaultFromInstantIfNoQueryIsPresent(queryParams);
+		Instant from = getWorkingFromValue(queryParams);
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,to, from, runName);
 		return criteria ;
@@ -367,21 +367,21 @@ public class RunQueryRoute extends RunsRoute {
 		return runs;
 	}
 
-	public String extractSortValue (QueryParameters paramMap) throws InternalServletException {
-		return paramMap.getSingleString("sort","to:desc");
+	public String extractSortValue (QueryParameters params) throws InternalServletException {
+		return params.getSingleString("sort","to:desc");
 	}
 
-	public Instant getDefaultFromInstantIfNoQueryIsPresent (QueryParameters paramMap) throws InternalServletException{
-		int querysize = paramMap.getSize();
+	public Instant getWorkingFromValue (QueryParameters params) throws InternalServletException{
+		int querysize = params.getSize();
 		Instant from = null ;
 		if (querysize > 0){
-			if (!paramMap.checkAtLeastOneQueryParameterPresent("from", "runname")){
+			if (!params.checkAtLeastOneQueryParameterPresent("from", "runname")){
 				//  RULE: Throw exception because a query exists but no from date has been supplied
 				// EXCEPT: When a runname is present in the query
 					ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
 					throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
-			from = paramMap.getSingleInstant("from", null);
+			from = params.getSingleInstant("from", null);
 		}else {
 			// The default for 'from' is now-24 hours. If no query parameters are specified
 			from = Instant.now().minus(24,ChronoUnit.HOURS);

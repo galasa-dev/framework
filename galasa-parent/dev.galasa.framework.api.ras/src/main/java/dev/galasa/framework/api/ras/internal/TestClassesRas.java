@@ -43,7 +43,7 @@ public class TestClassesRas extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private SortQueryParameterChecker sortQueryParameterChecker;
+	private SortQueryParameterChecker sortQueryParameterChecker = new SortQueryParameterChecker();
 
 	@Reference
 	public IFramework framework; 

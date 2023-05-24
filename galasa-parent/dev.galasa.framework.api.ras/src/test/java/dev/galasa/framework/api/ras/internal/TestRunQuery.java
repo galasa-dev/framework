@@ -1802,7 +1802,7 @@ public class TestRunQuery extends BaseServletTest {
         QueryParameters params = new QueryParameters(map);
 
 		Throwable thrown = catchThrowable( () -> { 
-           Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+           Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
         });
 
         assertThat(thrown).isNotNull();
@@ -1816,7 +1816,7 @@ public class TestRunQuery extends BaseServletTest {
         QueryParameters params = new QueryParameters(map);
 
 		Throwable thrown = catchThrowable( () -> { 
-            Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+            Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
         });
 
         assertThat(thrown).isNotNull();
@@ -1829,7 +1829,7 @@ public class TestRunQuery extends BaseServletTest {
 		String fromString = Instant.now().toString();
         map.put("from", new String[] {fromString} );
         QueryParameters params = new QueryParameters(map);
-        Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+        Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
 
 		assertThat(checker).isNotNull();
         assertThat(checker.toString()).isEqualTo(fromString);
@@ -1842,7 +1842,7 @@ public class TestRunQuery extends BaseServletTest {
         map.put("from", new String[] {fromString} );
 		map.put("runname", new String[] {"runname"} );
         QueryParameters params = new QueryParameters(map);
-        Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+        Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
 
 		assertThat(checker).isNotNull();
         assertThat(checker.toString()).isEqualTo(fromString);
@@ -1853,7 +1853,7 @@ public class TestRunQuery extends BaseServletTest {
         Map<String,String[]> map = new HashMap<String,String[]>();
         map.put("runname", new String[] {"runname"} );
         QueryParameters params = new QueryParameters(map);
-        Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+        Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
 
 		assertThat(checker).isNull();
     }
@@ -1862,7 +1862,7 @@ public class TestRunQuery extends BaseServletTest {
     public void testGetDefaultFromInstantIfNoQueryIsPresentNoQueryReturnsValue() throws Exception {
         Map<String,String[]> map = new HashMap<String,String[]>();
         QueryParameters params = new QueryParameters(map);
-        Instant checker = new RunQueryRoute(null).getDefaultFromInstantIfNoQueryIsPresent(params);
+        Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
 
 		assertThat(checker).isNotNull();
     }

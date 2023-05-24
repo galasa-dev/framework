@@ -128,16 +128,16 @@ public class QueryParameters {
 	}
 
 	public boolean checkAtLeastOneQueryParameterPresent(String... queryParameters ) throws InternalServletException {
-		// This function will return null when neither of the two parameters provided are in the query
-		boolean result = true;
+		// This function will return false when none of the parameters provided are in the query
+		boolean result = false;
 		int paramswithvalue = 0 ;
 		for (String param : queryParameters){
-			if (getSingleString(param, null) !=null) {
+			if ((this.params.containsKey(param)) && (this.params.get(param) != null ) && (this.params.get(param)[0] != "" )) {
 				paramswithvalue +=1;
 			}
 		}
-		if (paramswithvalue ==0) {
-			result = false;
+		if (paramswithvalue !=0) {
+			result = true;
 		}
 		return result;
 	}
