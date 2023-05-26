@@ -147,7 +147,7 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
     }
 
     public String probeContentType(Path path) throws IOException {
-        String contentType = null;
+        String contentType = "application/octet-stream";
         if (path.toString().endsWith(".properties") 
             || path.toString().endsWith(".txt")) {
           contentType =  "text/plain";

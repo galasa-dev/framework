@@ -260,6 +260,38 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 	}
 
     @Test
+    public void testDownloadArtifactWithUnknownContentTypeDefaultsToBinaryFile() throws Exception {
+		//Given..
+		String runId = "12345";
+		String runName = "testA";
+        MockPath artifactPath = new MockPath("/term002.artifact", mockFileSystem);
+		String fileContent = "dummy content";
+        List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+		mockFileSystem.createFile(artifactPath);
+		mockFileSystem.setFileContents(artifactPath, fileContent);
+
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/artifacts" + artifactPath.toString());
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+		
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// Expecting:
+		assertThat(resp.getStatus()).isEqualTo(200);
+        assertThat(outStream.toString()).isEqualTo(fileContent);
+		assertThat(resp.getContentType()).isEqualTo("application/octet-stream");
+		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment");
+	}
+
+    @Test
     public void testGoodRunIdAndArtifactsPropertiesReturnsOKAndFile() throws Exception {
 		//Given..
 		String runId = "12345";
@@ -288,6 +320,39 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		// Expecting:
 		assertThat(resp.getStatus()).isEqualTo(200);
         assertThat(outStream.toString()).isEqualTo("/artifacts" + existingPath + "=" + "application/x-gzip");
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment");
+	}
+
+    @Test
+    public void testUnknownContentTypeAndArtifactsPropertiesDefaultsToBinaryType() throws Exception {
+		//Given..
+		String runId = "12345";
+		String runName = "testA";
+        String artifactPath = "/artifacts.properties";
+        MockPath existingPath = new MockPath("/testA/unknown.artifact", mockFileSystem);
+		String fileContent = "dummy content";
+        List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+		mockFileSystem.createFile(existingPath);
+		mockFileSystem.setFileContents(existingPath, fileContent);
+
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files" + artifactPath);
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+		
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// Expecting:
+		assertThat(resp.getStatus()).isEqualTo(200);
+        assertThat(outStream.toString()).isEqualTo("/artifacts" + existingPath.toString() + "=application/octet-stream");
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment");
 	}
