@@ -112,18 +112,18 @@ public class BaseServlet extends HttpServlet {
 		}
 
 		if (!response.isEmpty()) {
-			res = sendResponse(res, response, httpStatusCode);
+			res = sendResponse(res, "application/json", response, httpStatusCode);
 		}
 	}
 
-	public static HttpServletResponse sendResponse(HttpServletResponse resp , String json , int status){
+	public static HttpServletResponse sendResponse(HttpServletResponse resp, String contentType, String content, int status){
 		//Set headers for HTTP Response
 		resp.setStatus(status);
-		resp.setContentType( "Application/json");
+		resp.setContentType(contentType);
 		resp.addHeader("Access-Control-Allow-Origin", "*");
 		try {
 			PrintWriter out = resp.getWriter();
-			out.print(json);
+			out.print(content);
 			out.close();
 		} catch (Exception e) {
 		}

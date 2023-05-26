@@ -7,16 +7,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public abstract class BaseRoute implements IRoute {
-   
-   protected Log logger = LogFactory.getLog(this.getClass());
 
-   private final String path;
+    protected Log logger = LogFactory.getLog(this.getClass());
 
-   public BaseRoute(String path) {
-      this.path = path;
-   }
+    private final String path;
 
-   public String getPath() {
-      return path;
-   }
+    public BaseRoute(String path) {
+        this.path = path;
+    }
+
+    public String getPath() {
+        return path;
+    }
 }

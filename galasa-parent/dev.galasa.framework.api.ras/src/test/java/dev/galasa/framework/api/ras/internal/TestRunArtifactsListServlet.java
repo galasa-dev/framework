@@ -213,7 +213,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		String expectedJson = generateExpectedJsonArtifacts(expectedArtifacts);
 		assertThat(jsonString).contains(expectedJson);
 	
-		assertThat(resp.getContentType()).isEqualTo("Application/json");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -289,7 +289,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		assertThat(jsonString).contains(expectedJson);
         checkRootArtifactsJson(jsonString);
 	
-		assertThat(resp.getContentType()).isEqualTo("Application/json");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -356,7 +356,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
         String expectedJson = generateExpectedJsonArtifacts(new ArrayList<>());
 		assertThat(jsonString).contains(expectedJson);
 	
-		assertThat(resp.getContentType()).isEqualTo("Application/json");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -388,7 +388,7 @@ public class TestRunArtifactsListServlet extends BaseServletTest {
 		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
 	
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 }

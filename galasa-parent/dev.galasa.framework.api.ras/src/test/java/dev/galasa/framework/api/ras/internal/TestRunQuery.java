@@ -194,7 +194,7 @@ public class TestRunQuery extends BaseServletTest {
 			expectedErrorMsgSubStrings
 		);
 
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -242,7 +242,7 @@ public class TestRunQuery extends BaseServletTest {
 		// Then...
 		// We expect an error back, because the API server couldn't find any RAS database to query
 		assertThat(resp.getStatus()==500);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
@@ -271,7 +271,7 @@ public class TestRunQuery extends BaseServletTest {
 		// Then...
 		// We expect an error back, because the API server couldn't find any RAS database to query
 		assertThat(resp.getStatus()==500);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
@@ -309,7 +309,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -347,7 +347,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -392,7 +392,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -446,7 +446,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -491,7 +491,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedJson = generateExpectedJson(mockInputRunResults ,pageSize, pageNo);
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -520,7 +520,7 @@ public class TestRunQuery extends BaseServletTest {
 		//Then...
 		assertThat(resp.getStatus()==400);
 		assertThat( outStream.toString() ).contains("GAL5010E: Error parsing the query parameters. from time is a mandatory field if no runname is supplied.");
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -554,7 +554,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -592,7 +592,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedJson = generateExpectedJson(expectedRun,parameterMap.get("size"),parameterMap.get("page"));
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -630,7 +630,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedJson = generateExpectedJson(expectedRun,parameterMap.get("size"),parameterMap.get("page"));
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -667,7 +667,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedJson = generateExpectedJson(expectedRun,parameterMap.get("size"),parameterMap.get("page"));
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -724,7 +724,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -783,7 +783,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -833,7 +833,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedJson = generateExpectedJson(mockInputRunResults,parameterMap.get("size"),parameterMap.get("page"));
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -862,7 +862,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		checkErrorStructure(outStream.toString(), 5004, "GAL5004E: ", "Error retrieving page.");
 
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -897,7 +897,7 @@ public class TestRunQuery extends BaseServletTest {
 			"GAL5001E:","Error parsing the date-time field","'from'",fromTime[0]
 		);
 
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -932,7 +932,7 @@ public class TestRunQuery extends BaseServletTest {
 			"GAL5001E:","Error parsing the date-time field","'to'",toTime[0]
 		);
 
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -968,7 +968,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		//Then...
 		assertThat(resp.getStatus()==404);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
@@ -1161,7 +1161,7 @@ public class TestRunQuery extends BaseServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).contains(expectedRunNames);
 		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1206,7 +1206,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1251,7 +1251,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1296,7 +1296,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1341,7 +1341,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1382,7 +1382,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1427,7 +1427,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1462,7 +1462,7 @@ public class TestRunQuery extends BaseServletTest {
 		// }
 		assertThat(resp.getStatus()==500);
 		assertThat( outStream.toString() ).contains("GAL5011E:","badsort");
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1497,7 +1497,7 @@ public class TestRunQuery extends BaseServletTest {
 		// }
 		assertThat(resp.getStatus()==500);
 		assertThat( outStream.toString() ).contains("GAL5011E:","to:erroneoussort");
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1537,7 +1537,7 @@ public class TestRunQuery extends BaseServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1579,7 +1579,7 @@ public class TestRunQuery extends BaseServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).contains(expectedRunNames);
 		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1623,7 +1623,7 @@ public class TestRunQuery extends BaseServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).contains(expectedRunNames);
 		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1667,7 +1667,7 @@ public class TestRunQuery extends BaseServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).contains(expectedRunNames);
 		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1707,7 +1707,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedRunNames = generateExpectedJson(expectedInputRunResults ,parameterMap.get("size"), parameterMap.get("page"));
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1749,7 +1749,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedRunNames = generateExpectedJson(expectedInputRunResults ,parameterMap.get("size"), parameterMap.get("page"));
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -1791,7 +1791,7 @@ public class TestRunQuery extends BaseServletTest {
 		String expectedRunNames = generateExpectedJson(expectedInputRunResults ,parameterMap.get("size"), parameterMap.get("page"));
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
