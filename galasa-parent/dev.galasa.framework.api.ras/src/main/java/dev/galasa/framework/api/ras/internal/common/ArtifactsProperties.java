@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.ras.internal.routes.RunsRoute;
@@ -35,7 +36,11 @@ public class ArtifactsProperties implements IRunRootArtifact {
         for (JsonElement element : artifactsJson) {
             JsonObject artifactObject = element.getAsJsonObject();
             
-            artifactsProperties.put(artifactObject.get("path").getAsString(), artifactObject.get("contentType").getAsString());
+            JsonElement path = artifactObject.get("path");
+            JsonElement contentType = artifactObject.get("contentType");
+            if ((path != JsonNull.INSTANCE) && (contentType != JsonNull.INSTANCE)) {
+                artifactsProperties.put(path.getAsString(), contentType.getAsString());
+            }
         }
         
         // Convert the map to a string, where keys and values are separated by =, and
