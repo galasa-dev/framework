@@ -115,7 +115,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		// Expecting this json:
 		// {
 		//   "error_code" : 5002,
-		//   "error_message" : "GAL5002E: Error retrieving ras run from identifier 'badRunId'.""
+		//   "error_message" : "GAL5002E: Error retrieving ras run from identifier 'runA'.""
 		// }
 		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "runA");
