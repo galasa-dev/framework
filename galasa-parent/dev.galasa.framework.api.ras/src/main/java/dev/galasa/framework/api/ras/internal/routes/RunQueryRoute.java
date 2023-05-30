@@ -65,7 +65,7 @@ public class RunQueryRoute extends RunsRoute {
 	@Override
 	public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
 		String outputString = retrieveResults(queryParams);
-		return sendResponse(res, outputString, HttpServletResponse.SC_OK ); 
+		return sendResponse(res, "application/json", outputString, HttpServletResponse.SC_OK); 
 	}
 
 	protected String retrieveResults( 

@@ -57,6 +57,8 @@ public class FileSystem implements IFileSystem {
         String contentType = Files.probeContentType(path);
         if (contentType == null) {
             contentType = "application/octet-stream";
+        } else if (path.toString().endsWith(".properties")) {
+            contentType = "text/plain";
         }
         return contentType;
     }

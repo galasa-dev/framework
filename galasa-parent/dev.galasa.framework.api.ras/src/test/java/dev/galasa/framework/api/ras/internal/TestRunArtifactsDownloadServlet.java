@@ -61,7 +61,7 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 5008, "GAL5008E", artifactPath, runName);
 	
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -95,7 +95,7 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 5009, "GAL5009E", artifactPath, runName);
 	
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -129,7 +129,7 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 5009, "GAL5009E", artifactPath, runName);
 	
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -162,7 +162,7 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
 	
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -223,7 +223,7 @@ public class TestRunArtifactsDownloadServlet extends BaseServletTest {
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 5009, "GAL5009E", artifactPath, runName);
 	
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 

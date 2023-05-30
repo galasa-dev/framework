@@ -49,7 +49,8 @@ public class TestRunLogRoute extends BaseServletTest {
 	public void testRunResultWithLogReturnsOK() throws Exception {
 		//Given..
 		String runId = "runA";
-		List<IRunResult> mockRunResults = generateTestData(runId, "testName", "hello world");
+        String runLog = "hello world";
+		List<IRunResult> mockRunResults = generateTestData(runId, "testName", runLog);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/runs/" + runId + "/runlog");
 		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockRunResults, mockRequest);
 		
@@ -63,15 +64,9 @@ public class TestRunLogRoute extends BaseServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		// Expecting this text:
-		// {
-		//    runId: "runA",
-		//	  log: "hello world"
-		// }
-		String expectedJson = "{\n  \"name\": \"testName\",\n  \"log\": \"hello world\"\n}";
 		assertThat(resp.getStatus()).isEqualTo(200);
-		assertThat(outStream.toString()).isEqualTo(expectedJson);
-		assertThat(resp.getContentType()).isEqualTo("Application/json");
+		assertThat(outStream.toString()).isEqualTo(runLog);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -93,15 +88,38 @@ public class TestRunLogRoute extends BaseServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		// Expecting this text:
-		// {
-		//    runId: "runA",
-		//	  log: ""
-		// }
-		String expectedJson = "{\n  \"name\": \"testName\",\n  \"log\": \"\"\n}";
 		assertThat(resp.getStatus()).isEqualTo(200);
-		assertThat(outStream.toString()).isEqualTo(expectedJson);
-		assertThat(resp.getContentType()).isEqualTo("Application/json");
+		assertThat(outStream.toString()).isEmpty();
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+	@Test
+	public void testRunResultWithNullLogReturnsNotFoundError() throws Exception {
+		//Given..
+		String runId = "runA";
+		List<IRunResult> mockRunResults = generateTestData(runId, "testName", null);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/runs/" + runId + "/runlog");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockRunResults, mockRequest);
+		
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// Expecting this json:
+		// {
+		//   "error_code" : 5002,
+		//   "error_message" : "GAL5002E: Error retrieving ras run from identifier 'runA'.""
+		// }
+		assertThat(resp.getStatus()).isEqualTo(404);
+		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "runA");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -131,7 +149,7 @@ public class TestRunLogRoute extends BaseServletTest {
 		// }
 		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 }

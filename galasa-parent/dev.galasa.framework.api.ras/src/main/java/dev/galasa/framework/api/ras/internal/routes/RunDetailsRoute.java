@@ -46,7 +46,7 @@ public class RunDetailsRoute extends RunsRoute {
       try{
          RasRunResult run = getRunFromFramework(runId);
          String outputString = gson.toJson(run);
-         return sendResponse(res, outputString, HttpServletResponse.SC_OK ); 
+         return sendResponse(res, "application/json", outputString, HttpServletResponse.SC_OK ); 
       
       }catch(ResultArchiveStoreException ex){
          ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
