@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.internal.ras.directory;
 
@@ -19,9 +17,6 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 
 /**
  * A RAS Registration
- *
- * @author Michael Baylis
- *
  */
 @Component(service = { IResultArchiveStoreRegistration.class })
 public class DirectoryResultArchiveStoreRegistration implements IResultArchiveStoreRegistration {
