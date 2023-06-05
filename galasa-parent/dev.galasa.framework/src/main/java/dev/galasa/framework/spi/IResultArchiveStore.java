@@ -11,27 +11,16 @@ import javax.validation.constraints.NotNull;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 /**
- * <p>
  * Used to gain access to the Result Archive Store (RAS)
- * </p>
  * 
- * <p>
  * POnce initialised, the Framework will provide access to 0 or more Result
  * Archive Stores.
- * </p>
  * 
- * <p>
  * Apache CouchDB is the preferred RAS for an automation, and a file directory
  * on the local filesystem is the preferred RAS for local runs.
- * </p>
  * 
- * <p>
  * An {@link IResultArchiveStore} can be obtained from
  * {@link IFramework#getResultArchiveStore()}.
- * </p>
- * 
- * @author Michael Baylis
- *
  */
 public interface IResultArchiveStore {
 
@@ -69,6 +58,18 @@ public interface IResultArchiveStore {
      * @return a {@link java.nio.file.Path}
      */
     Path getStoredArtifactsRoot();
+
+    /**
+     * Indicates whether the artifact root is on the fast disk or some 
+     * slower drive.
+     * 
+     * The decision on whether to write artifacts may depend upon
+     * how performant the RAS folder is.
+     * 
+     * @return true if the artifact root folder is on a fast disk.
+     * false otherwise.
+     */
+    boolean isArtifactRootOnFastDisk();
 
     void flush();
 

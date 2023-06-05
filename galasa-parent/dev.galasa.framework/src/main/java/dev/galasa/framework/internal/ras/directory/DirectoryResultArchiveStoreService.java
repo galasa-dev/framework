@@ -33,9 +33,6 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 /**
  * A RAS Service for storing the result archive store
- *
- * @author Michael Baylis
- *
  */
 @Component(service = { IResultArchiveStoreService.class })
 public class DirectoryResultArchiveStoreService implements IResultArchiveStoreService {
@@ -236,5 +233,10 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         return id;
     }
 
+    @Override
+    public boolean isArtifactRootOnFastDisk() {
+        // The default implementation uses fast local storage.
+        return true;
+    }
 
 }

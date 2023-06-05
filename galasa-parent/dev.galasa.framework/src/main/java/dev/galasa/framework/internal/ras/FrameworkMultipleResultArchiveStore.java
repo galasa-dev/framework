@@ -133,6 +133,18 @@ public class FrameworkMultipleResultArchiveStore implements IResultArchiveStoreS
         
         return null;
     }
-    
 
+    @Override
+    public boolean isArtifactRootOnFastDisk() {
+        boolean isFast = true;
+
+        // Only say this RAS is fast if all the sub-RAS services are fast.
+        for (IResultArchiveStoreService rasService : this.rasServices) {
+            if (!rasService.isArtifactRootOnFastDisk()) {
+                isFast = false;
+            }
+        }
+        return isFast;
+    }
+    
 }
