@@ -15,10 +15,12 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class MockRASStoreService implements IResultArchiveStoreService{
 
-    Map<String,String> properties ;
+    private Map<String,String> properties ;
+    private boolean isFast ;
 
-    public MockRASStoreService( Map<String,String> properties ) {
+    public MockRASStoreService( Map<String,String> properties , boolean isFast) {
         this.properties = properties ;
+        this.isFast = isFast ;
     }
 
     @Override
@@ -61,5 +63,9 @@ public class MockRASStoreService implements IResultArchiveStoreService{
         throw new UnsupportedOperationException("Unimplemented method 'calculateRasRunId'");
     }
 
+    @Override
+    public boolean isArtifactRootOnFastDisk() {
+        return this.isFast;
+    }
     
 }

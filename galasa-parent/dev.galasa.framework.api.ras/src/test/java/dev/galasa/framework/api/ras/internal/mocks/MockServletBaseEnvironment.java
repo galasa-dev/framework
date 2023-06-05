@@ -46,7 +46,9 @@ public abstract class MockServletBaseEnvironment {
     public MockServletBaseEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ) { 
         this.setMockInputs(mockInpResults);
         this.directoryServices = setDirectoryService(rasStore);
-        this.setArchiveStore(new MockArchiveStore(this.directoryServices));
+        boolean isFast = true;
+        MockArchiveStore mockStore = new MockArchiveStore(this.directoryServices,isFast);
+        this.setArchiveStore(mockStore);
         this.mockFramework = new MockFramework(this.archiveStore);
         this.req = mockRequest;
         this.outStream = new MockServletOutputStream();

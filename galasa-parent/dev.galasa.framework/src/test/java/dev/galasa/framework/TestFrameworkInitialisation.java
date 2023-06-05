@@ -137,7 +137,8 @@ public class TestFrameworkInitialisation {
 
     private MockRASStoreService addMockRASToMockServiceRegistry(Map<String,MockServiceReference<?>> services, Bundle bundle) {
         Map<String,String> rasProps = new HashMap<String,String>();
-        MockRASStoreService mockRASStoreService = new MockRASStoreService(rasProps);
+        boolean isFast = true ;
+        MockRASStoreService mockRASStoreService = new MockRASStoreService(rasProps,isFast);
         MockRASRegistration mockRASRegistration = new MockRASRegistration(mockRASStoreService);
         MockServiceReference<IResultArchiveStoreRegistration> mockRASRef = 
             new MockServiceReference<IResultArchiveStoreRegistration>(mockRASRegistration, bundle );

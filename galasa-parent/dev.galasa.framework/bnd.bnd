@@ -2,6 +2,7 @@
 Bundle-Name Galasa Framework
 Export-Package !dev.galasa.framework.internal*;!dev.galasa.framework.maven;dev.galasa.framework;dev.galasa.framework.*;
 Import-Package !javax.validation*,\
+               com.google.gson,\
                org.apache.commons.io;version="[2,3)",\
                org.apache.commons.io.filefilter;version="[2,3)",\
                org.apache.commons.io.monitor;version="[2,3)",\

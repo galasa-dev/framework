@@ -16,9 +16,11 @@ public class MockArchiveStore implements IResultArchiveStore {
 
 
     private List<IResultArchiveStoreDirectoryService> directoryServices ;
+    private boolean isFast ;
 
-    public MockArchiveStore( List<IResultArchiveStoreDirectoryService> directoryServices ) {
+    public MockArchiveStore( List<IResultArchiveStoreDirectoryService> directoryServices , boolean isFast ) {
         this.directoryServices = directoryServices;
+        this.isFast = isFast ;
     }
 
     @Override
@@ -59,5 +61,10 @@ public class MockArchiveStore implements IResultArchiveStore {
     @Override
     public String calculateRasRunId() {
         throw new UnsupportedOperationException("Unimplemented method 'calculateRasRunId'");
+    }
+
+    @Override
+    public boolean isArtifactRootOnFastDisk() {
+        return this.isFast ;
     }
 }
