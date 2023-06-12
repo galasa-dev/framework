@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
-  version: 0.26.0
+  version: 0.28.0
   description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
   contact:
     url: https://galasa.dev/support
@@ -774,6 +774,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+##################################################################################
+# Bootstrap API
+##################################################################################
+  /bootstrap:
+    get:
+      operationId: getEcosystemBootstrap
+      summary: Contact the Galasa ecosystem
+      tags: 
+        - Bootstrap API
+      responses:
+        '200':
+          description: The Galasa ecosystem bootstrap.
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+
 ##################################################################################
 # Components
 ##################################################################################
