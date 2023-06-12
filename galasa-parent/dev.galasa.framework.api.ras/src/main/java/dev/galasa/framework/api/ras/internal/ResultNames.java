@@ -3,6 +3,8 @@
  */
 package dev.galasa.framework.api.ras.internal;
 
+import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -23,8 +25,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.ras.internal.commons.ExtractQuerySort;
-import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
+import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
+import dev.galasa.framework.api.ras.internal.common.InternalServletException;
+import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.ras.internal.common.ServletError;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -34,6 +38,8 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 public class ResultNames extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
+
+	private SortQueryParameterChecker sortQueryParameterChecker = new SortQueryParameterChecker();
 
 	@Reference
 	public IFramework framework; // NOSONAR
@@ -54,8 +60,13 @@ public class ResultNames extends HttpServlet {
 
 		Collections.sort(resultsList);
 
-		if(!ExtractQuerySort.isAscending(queryParams, "resultname")) {
-			Collections.reverse(resultsList);
+		try {
+			if (!sortQueryParameterChecker.isAscending(queryParams, "resultname")) {
+				Collections.reverse(resultsList);
+			}
+		} catch (InternalServletException e){
+			ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, "result");
+			throw new ServletException(error);
 		}
 
 		JsonElement json = new Gson().toJsonTree(resultsList);

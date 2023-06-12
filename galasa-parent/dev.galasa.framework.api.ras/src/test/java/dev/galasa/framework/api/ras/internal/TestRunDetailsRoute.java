@@ -63,7 +63,7 @@ public class TestRunDetailsRoute extends BaseServletTest {
 		String expectedJson = generateExpectedJson(runId, runName);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("Application/json");
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -93,7 +93,7 @@ public class TestRunDetailsRoute extends BaseServletTest {
 		// {
         assertThat(resp.getStatus()).isEqualTo(404);
         checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", runId );
-        assertThat( resp.getContentType()).isEqualTo("Application/json");
+        assertThat( resp.getContentType()).isEqualTo("application/json");
         assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
@@ -122,7 +122,7 @@ public class TestRunDetailsRoute extends BaseServletTest {
 		// {
         assertThat(resp.getStatus()).isEqualTo(500);
         checkErrorStructure(outStream.toString() , 5000 , "GAL5000E" );
-        assertThat( resp.getContentType()).isEqualTo("Application/json");
+        assertThat( resp.getContentType()).isEqualTo("application/json");
         assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 

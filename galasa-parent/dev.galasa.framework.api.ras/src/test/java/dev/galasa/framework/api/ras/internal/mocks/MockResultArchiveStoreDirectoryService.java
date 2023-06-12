@@ -10,6 +10,9 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasTestClass;
 
 public class MockResultArchiveStoreDirectoryService implements IResultArchiveStoreDirectoryService {
@@ -30,10 +33,23 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 		throw new UnsupportedOperationException("Unimplemented method 'isLocal'");
 	}
 
+	private void applySearchCriteria( IRasSearchCriteria searchCriteria) throws ResultArchiveStoreException{
+		List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
+		for (IRunResult run : this.getRunsResults){
+			Boolean compareInstant = searchCriteria.criteriaMatched(run.getTestStructure());
+			if (compareInstant){
+				returnRuns.add(run);
+			}
+		}
+		
+		this.getRunsResults = returnRuns;
+	}
 
 	@Override
-	public @NotNull List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria)
-			throws ResultArchiveStoreException {
+	public @NotNull List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
+		for(IRasSearchCriteria searchCriteria : searchCriterias) {
+			applySearchCriteria(searchCriteria);
+		}
 		return this.getRunsResults;
 	}
 

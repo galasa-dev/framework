@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal.commons;
+package dev.galasa.framework.api.ras.internal.common;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +17,7 @@ public class RunLogArtifact implements IRunRootArtifact {
         if (runLog != null) {
             return runLog.getBytes(StandardCharsets.UTF_8);
         }
-        return null;
+        return "".getBytes(StandardCharsets.UTF_8);
     }
 
     @Override

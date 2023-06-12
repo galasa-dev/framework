@@ -3,7 +3,7 @@
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
-import static dev.galasa.framework.api.ras.internal.commons.ServletErrorMessage.*;
+import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,13 +27,14 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 
 import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.ras.internal.commons.ArtifactPropertiesArtifact;
-import dev.galasa.framework.api.ras.internal.commons.IRunRootArtifact;
-import dev.galasa.framework.api.ras.internal.commons.InternalServletException;
-import dev.galasa.framework.api.ras.internal.commons.QueryParameters;
-import dev.galasa.framework.api.ras.internal.commons.RunLogArtifact;
-import dev.galasa.framework.api.ras.internal.commons.ServletError;
-import dev.galasa.framework.api.ras.internal.commons.StructureJsonArtifact;
+import dev.galasa.framework.api.ras.internal.common.ArtifactsJson;
+import dev.galasa.framework.api.ras.internal.common.ArtifactsProperties;
+import dev.galasa.framework.api.ras.internal.common.IRunRootArtifact;
+import dev.galasa.framework.api.ras.internal.common.InternalServletException;
+import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.ras.internal.common.RunLogArtifact;
+import dev.galasa.framework.api.ras.internal.common.ServletError;
+import dev.galasa.framework.api.ras.internal.common.StructureJsonArtifact;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
@@ -56,7 +57,8 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
 
         rootArtifacts.put("run.log", new RunLogArtifact());
         rootArtifacts.put("structure.json", new StructureJsonArtifact());
-        rootArtifacts.put("artifacts.properties", new ArtifactPropertiesArtifact(this));
+        rootArtifacts.put("artifacts.properties", new ArtifactsProperties(this));
+        rootArtifacts.put("artifacts.json", new ArtifactsJson(this));
     }
 
     @Override
@@ -100,42 +102,35 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
         return res;
     }
 
-    private HttpServletResponse downloadStoredArtifact(HttpServletResponse res, IRunResult run, String artifactPath) throws ResultArchiveStoreException, InternalServletException {
-        try {
-            // Get artifact path
-            FileSystem artifactFileSystem = run.getArtifactsRoot().getFileSystem();
-            Path artifactLocation = artifactFileSystem.getPath(artifactPath);
+    private HttpServletResponse downloadStoredArtifact(HttpServletResponse res, IRunResult run, String artifactPath) throws ResultArchiveStoreException, IOException {
+        FileSystem artifactFileSystem = run.getArtifactsRoot().getFileSystem();
+        Path artifactLocation = artifactFileSystem.getPath(artifactPath);
+        
+        // Open the artifact for reading
+        Set<OpenOption> options = new HashSet<>();
+        options.add(StandardOpenOption.READ);
+        try (ByteChannel channel = artifactFileSystem.provider().newByteChannel(artifactLocation, options, new FileAttribute<?>[]{});
+            OutputStream outStream = res.getOutputStream()) {
             
-            // Open the artifact for reading
-            Set<OpenOption> options = new HashSet<>();
-            options.add(StandardOpenOption.READ);
-            try (ByteChannel channel = artifactFileSystem.provider().newByteChannel(artifactLocation, options, new FileAttribute<?>[]{});
-                OutputStream outStream = res.getOutputStream()) {
-                
-                // Create a buffer to read small amounts of data into to avoid out-of-memory issues
-                int bufferCapacity = 1024;
-                ByteBuffer buffer = ByteBuffer.allocate(bufferCapacity);
+            // Create a buffer to read small amounts of data into to avoid out-of-memory issues
+            int bufferCapacity = 1024;
+            ByteBuffer buffer = ByteBuffer.allocate(bufferCapacity);
 
-                // Read the artifact and write it to the response's output stream
-                int bytesRead = channel.read(buffer);
-                while (bytesRead > 0) {
-                    buffer.flip();
-                    byte[] bytes = new byte[bytesRead];
-                    buffer.get(bytes);
+            // Read the artifact and write it to the response's output stream
+            int bytesRead = channel.read(buffer);
+            while (bytesRead > 0) {
+                buffer.flip();
+                byte[] bytes = new byte[bytesRead];
+                buffer.get(bytes);
 
-                    outStream.write(bytes);
+                outStream.write(bytes);
 
-                    buffer.clear();
-                    bytesRead = channel.read(buffer);
-                }
-                res.setStatus(HttpServletResponse.SC_OK);
-                res.setContentType(fileSystem.probeContentType(artifactLocation));
-                res.setHeader("Content-Disposition", "attachment");
+                buffer.clear();
+                bytesRead = channel.read(buffer);
             }
-
-        } catch (IOException ex) {
-            ServletError error = new ServletError(GAL5008_ERROR_LOCATING_ARTIFACT, artifactPath, run.getTestStructure().getRunName());
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            res.setStatus(HttpServletResponse.SC_OK);
+            res.setContentType(fileSystem.probeContentType(artifactLocation));
+            res.setHeader("Content-Disposition", "attachment");
         }
         return res;
     }
