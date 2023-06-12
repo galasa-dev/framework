@@ -33,7 +33,7 @@ signing {
 }
 
 tasks.withType(Sign) {
-    onlyIf { isRelease.toBoolean() }
+    onlyIf { isMainOrRelease.toBoolean() }
 }
 
 task gitHash(dependsOn : 'classes') {
