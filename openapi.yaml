@@ -779,13 +779,13 @@ paths:
 ##################################################################################
   /bootstrap:
     get:
-      operationId: getBootstrapProperties
+      operationId: getEcosystemBootstrap
       summary: Contact the Galasa ecosystem
       tags: 
         - Bootstrap API
       responses:
         '200':
-          description: The Galasa ecosystem basic CPS properties.
+          description: The Galasa ecosystem bootstrap.
           content:
             text/plain:
               schema:
