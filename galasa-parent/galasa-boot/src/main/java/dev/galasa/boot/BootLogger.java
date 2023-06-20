@@ -1,7 +1,5 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019.
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.boot;
 
@@ -16,7 +14,7 @@ import java.util.Properties;
  */
 public class BootLogger {
 
-    private static Level bootlogLevel = Level.ALL;
+    private static Level bootlogLevel = Level.DEBUG;
 
     // Use Log4j log level from log4j.properties
     static {
