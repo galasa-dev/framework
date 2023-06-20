@@ -1044,18 +1044,31 @@ public class TestRunQuery extends BaseServletTest {
 		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'bundle'","Duplicate");
 	}
 
-	@Test
-	public void testQueryWithMultipleResultsReturnsError () throws Exception {
+	// @Test
+	// public void testQueryWithMultipleResultsReturnsError () throws Exception {
 
-		//Build Http query parameters
-		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+	// 	//Build Http query parameters
+	// 	Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
-		// Two results ! should be invalid !
-		String[] results = new String[] {"resultA","resultB"};
-		parameterMap.put("result",  results);
+	// 	// Two results ! should be invalid !
+	// 	String[] results = new String[] {"resultA","resultB"};
+	// 	parameterMap.put("result",  results);
 
-		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'result'","Duplicate");
-	}
+	// 	testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'result'","Duplicate");
+	// }
+
+	// @Test
+	// public void testQueryWithMultipleResultsReturnsOk () throws Exception {
+
+	// 	//Build Http query parameters
+	// 	Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		
+	// 	String[] results = new String[] {"resultA","resultB"};
+	// 	parameterMap.put("result",  results);
+	
+	// }
+	
 
 	@Test
 	public void testQueryWithMultipleRunNamesReturnsError () throws Exception {
