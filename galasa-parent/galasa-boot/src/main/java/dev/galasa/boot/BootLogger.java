@@ -16,7 +16,7 @@ import java.util.Properties;
  */
 public class BootLogger {
 
-    private static Level bootlogLevel = Level.ALL;
+    private static Level bootlogLevel = Level.DEBUG;
 
     // Use Log4j log level from log4j.properties
     static {
