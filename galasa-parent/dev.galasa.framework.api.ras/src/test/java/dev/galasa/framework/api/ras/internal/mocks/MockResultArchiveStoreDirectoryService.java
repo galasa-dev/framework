@@ -10,9 +10,6 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasTestClass;
 
 public class MockResultArchiveStoreDirectoryService implements IResultArchiveStoreDirectoryService {

@@ -47,18 +47,7 @@ public class ResultNames extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		QueryParameters queryParams = new QueryParameters(req.getParameterMap());
-		List<String> resultsList = new ArrayList<>();
-
-		try {
-			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-				resultsList.addAll(directoryService.getResultNames());
-			}
-		}
-		catch(ResultArchiveStoreException e){
-			throw new ServletException("Error occured during get result names", e);
-		}
-
-		Collections.sort(resultsList);
+		List<String> resultsList = getResultNames();
 
 		try {
 			if (!sortQueryParameterChecker.isAscending(queryParams, "resultname")) {
@@ -81,4 +70,20 @@ public class ResultNames extends HttpServlet {
 		out.close();
 	}
 
+	public List<String> getResultNames () throws ServletException{
+		List<String> resultsList = new ArrayList<>();
+
+		try {
+			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+				resultsList.addAll(directoryService.getResultNames());
+			}
+		}
+		catch(ResultArchiveStoreException e){
+			throw new ServletException("Error occured during get result names", e);
+		}
+
+		Collections.sort(resultsList);
+
+		return resultsList;
+	}
 }

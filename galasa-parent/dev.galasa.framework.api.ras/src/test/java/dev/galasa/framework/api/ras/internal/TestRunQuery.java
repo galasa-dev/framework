@@ -1044,31 +1044,40 @@ public class TestRunQuery extends BaseServletTest {
 		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'bundle'","Duplicate");
 	}
 
-	// @Test
-	// public void testQueryWithMultipleResultsReturnsError () throws Exception {
+	@Test
+	public void testQueryWithMultipleResultsReturnsOK () throws Exception {
 
-	// 	//Build Http query parameters
-	// 	Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		//Given...
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = setQueryParameter(null,null,"result:asc",null, null, 72, null);
+		// Two results should return all the results
+		String[] results = new String[] {"Passed,Failed"};
+		parameterMap.put("result",  results);
 
-	// 	// Two results ! should be invalid !
-	// 	String[] results = new String[] {"resultA","resultB"};
-	// 	parameterMap.put("result",  results);
+		String[] pageSize = {"100"};
+		String[] pageNo = {"1"};
 
-	// 	testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'result'","Duplicate");
-	// }
+		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
 
-	// @Test
-	// public void testQueryWithMultipleResultsReturnsOk () throws Exception {
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
 
-	// 	//Build Http query parameters
-	// 	Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 		
-	// 	String[] results = new String[] {"resultA","resultB"};
-	// 	parameterMap.put("result",  results);
-	
-	// }
-	
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
+		assertThat(resp.getStatus()==200);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+ 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+	}
 
 	@Test
 	public void testQueryWithMultipleRunNamesReturnsError () throws Exception {

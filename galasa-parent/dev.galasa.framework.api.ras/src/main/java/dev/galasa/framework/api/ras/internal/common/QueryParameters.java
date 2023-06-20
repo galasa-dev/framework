@@ -3,7 +3,9 @@
  */
 package dev.galasa.framework.api.ras.internal.common;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.time.*;
@@ -146,4 +148,27 @@ public class QueryParameters {
         return this.params.size();
     }
 
+	public List<String> getResultsFromParameters (String queryParameterName, List<String> rasResults){
+		// Create map for the lowercase values of all results to ensure we can compare accurately
+		Map<String,String> resultNames = new HashMap<String,String>();
+		for (String result :rasResults){
+			resultNames.put(result.toLowerCase(), result);
+		}
+		// Return the Results from the URL Query
+		List<String> queryResults = getMultipleString(queryParameterName, null);
+		// Check the results against the map
+		if (queryResults != null){
+			List<String> returnResults = new ArrayList<String>();
+			String matched;
+			for (String result: queryResults){
+				matched = resultNames.get(result.toLowerCase());
+				if (!matched.isEmpty()){
+					returnResults.add(matched);
+				}
+				// TODO throw error if not matched
+			}
+			return returnResults;
+		}
+		return null;
+	}
 }
