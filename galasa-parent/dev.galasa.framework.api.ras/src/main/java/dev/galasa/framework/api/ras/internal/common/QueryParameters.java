@@ -148,26 +148,30 @@ public class QueryParameters {
         return this.params.size();
     }
 
-	public List<String> getResultsFromParameters (String queryParameterName, List<String> rasResults){
+	public List<String> getResultsFromParameters (List<String> rasResults) throws InternalServletException{
 		// Create map for the lowercase values of all results to ensure we can compare accurately
-		Map<String,String> resultNames = new HashMap<String,String>();
-		for (String result :rasResults){
-			resultNames.put(result.toLowerCase(), result);
-		}
-		// Return the Results from the URL Query
-		List<String> queryResults = getMultipleString(queryParameterName, null);
-		// Check the results against the map
-		if (queryResults != null){
-			List<String> returnResults = new ArrayList<String>();
-			String matched;
-			for (String result: queryResults){
-				matched = resultNames.get(result.toLowerCase());
-				if (!matched.isEmpty()){
-					returnResults.add(matched);
-				}
-				// TODO throw error if not matched
+		if (rasResults != null){
+			Map<String,String> resultNames = new HashMap<String,String>();
+			for (String result :rasResults){
+				resultNames.put(result.toLowerCase(), result);
 			}
-			return returnResults;
+			// Return the Results from the URL Query
+			List<String> queryResults = getMultipleString("result", null);
+			// Check the results against the map
+			if (queryResults != null){
+				List<String> returnResults = new ArrayList<String>();
+				String matched;
+				for (String result: queryResults){
+					matched = resultNames.get(result.toLowerCase());
+					if (matched != null) {
+						returnResults.add(matched);
+					} else {
+						ServletError error = new ServletError(GAL5013_RESULT_NAME_NOT_RECOGNIZED, result, rasResults.toString());
+						throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+					}
+				}
+				return returnResults;
+			}
 		}
 		return null;
 	}

@@ -16,6 +16,7 @@ public enum ServletErrorMessage {
     GAL5010_FROM_DATE_IS_REQUIRED                   (5010,"E: Error parsing the query parameters. 'from' time is a mandatory field if no 'runname' is supplied."),    
     GAL5011_SORT_VALUE_NOT_RECOGNIZED               (5011,"E: Error parsing the query parameters. 'sort' value ''{0}'' not recognised. Expected query parameter in the format 'sort={fieldName}:{order}' where order is 'asc' for ascending or 'desc' for descending."),
     GAL5012_SORT_VALUE_MISSING                      (5012,"E: Error parsing the query parameters. 'sort' value was not supplied. Expected query parameter in the format 'sort={fieldName}:{order}' where order is 'asc' for ascending or 'desc' for descending."),
+    GAL5013_RESULT_NAME_NOT_RECOGNIZED              (5013,"E: Error parsing the query parameters. 'result' value ''{0}'' not recognised. Expected result name to match one of the following ''{1}''."),
     
     // RunArtifactsList...
     GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST         (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),

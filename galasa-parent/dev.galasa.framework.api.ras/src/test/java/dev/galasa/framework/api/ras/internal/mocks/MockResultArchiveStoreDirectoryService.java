@@ -62,7 +62,14 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 	@Override
 	public @NotNull List<String> getResultNames() throws ResultArchiveStoreException {
-		throw new UnsupportedOperationException("Unimplemented method 'getResultNames'");
+		List<String> resultNames = new ArrayList<>();
+		for (IRunResult run : this.getRunsResults){
+				String result  = run.getTestStructure().getResult().toString();
+				if (!resultNames.contains(result)){
+					resultNames.add(result);
+				}
+		}
+		return resultNames;
 	}
 
 	@Override

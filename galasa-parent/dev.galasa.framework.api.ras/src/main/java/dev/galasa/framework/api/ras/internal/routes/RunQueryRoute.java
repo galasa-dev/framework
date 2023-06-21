@@ -123,8 +123,7 @@ public class RunQueryRoute extends RunsRoute {
 		String requestor = queryParams.getSingleString("requestor", null);
 		String testName = queryParams.getSingleString("testname", null);
 		String bundle = queryParams.getSingleString("bundle", null);
-		List<String> resultDefaults = null;
-		List<String> result = queryParams.getMultipleString("result", resultDefaults);
+		List<String> result = queryParams.getResultsFromParameters(getResultNames());
 		String runName = queryParams.getSingleString("runname", null);
 
 		Instant to = queryParams.getSingleInstant("to", null);
