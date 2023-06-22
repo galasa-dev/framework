@@ -20,11 +20,6 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class RunResultUtility {
 	
-	
-	public RunResultUtility() {
-
-	}
-	
 	public static @NotNull RasRunResult toRunResult(@NotNull IRunResult runResult, boolean isShort) throws ResultArchiveStoreException {
 	   
 	    String runId = runResult.getRunId();

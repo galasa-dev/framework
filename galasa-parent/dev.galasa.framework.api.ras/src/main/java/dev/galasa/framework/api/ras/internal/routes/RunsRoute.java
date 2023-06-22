@@ -8,7 +8,10 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -18,12 +21,15 @@ import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.common.InternalServletException;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
+import dev.galasa.framework.api.ras.internal.common.ServletError;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
+
+import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
 public abstract class RunsRoute extends BaseRoute {
 
     protected IFileSystem fileSystem;
@@ -163,4 +169,25 @@ public abstract class RunsRoute extends BaseRoute {
         artifactRecord.addProperty("size", fileSize);
         return artifactRecord;
     }
+
+    public List<String> getResultNames () throws InternalServletException{
+		List<String> resultsList = new ArrayList<>();
+
+		try {
+			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+                List<String> results = directoryService.getResultNames();
+                if (results != null){
+				resultsList.addAll(directoryService.getResultNames());
+                }
+			}
+		}
+        catch(ResultArchiveStoreException r){
+            ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE );
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
+		Collections.sort(resultsList);
+
+		return resultsList;
+	}
 }

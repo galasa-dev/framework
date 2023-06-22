@@ -10,9 +10,6 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasTestClass;
 
 public class MockResultArchiveStoreDirectoryService implements IResultArchiveStoreDirectoryService {
@@ -65,7 +62,16 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 	@Override
 	public @NotNull List<String> getResultNames() throws ResultArchiveStoreException {
-		throw new UnsupportedOperationException("Unimplemented method 'getResultNames'");
+		List<String> resultNames = new ArrayList<>();
+		for (IRunResult run : this.getRunsResults){
+				String result  = run.getTestStructure().getResult().toString();
+				if (result.equals("ForceException")){
+					throw new ResultArchiveStoreException("ForceException result found in run");
+				}else if (!resultNames.contains(result)){
+					resultNames.add(result);
+				}
+		}
+		return resultNames;
 	}
 
 	@Override
