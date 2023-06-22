@@ -13,7 +13,6 @@ import dev.galasa.framework.mocks.MockCredentialsStore;
 import dev.galasa.framework.mocks.MockCredentialsStoreRegistration;
 import dev.galasa.framework.mocks.MockDSSRegistration;
 import dev.galasa.framework.mocks.MockDSSStore;
-import dev.galasa.framework.mocks.MockEnvironment;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.mocks.MockLog;

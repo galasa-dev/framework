@@ -437,7 +437,7 @@ public class Launcher {
         } else {
             try {
                 this.localMavenRepo = new File(
-                        System.getProperty(USER_HOME) + File.separator + ".m2" + File.separator + "repository").toURI()
+                        new SystemEnvironment().getProperty(USER_HOME) + File.separator + ".m2" + File.separator + "repository").toURI()
                                 .toURL();
             } catch (MalformedURLException e) {
                 logger.error("internal error", e);
@@ -576,12 +576,13 @@ public class Launcher {
         // 1st: If GALASA_HOME is set as a system property then use that,
         // 2nd: If GALASA_HOME is set as a system environment variable, then use that.
         // 3rd: otherwise we use the calling users' home folder.
+        SystemEnvironment system = new SystemEnvironment();
         String GALASA_HOME = "GALASA_HOME";
-        String home = System.getProperty(GALASA_HOME);
+        String home = system.getProperty(GALASA_HOME);
         if( (home == null) || (home.trim().isEmpty())) {
-            home = System.getenv(GALASA_HOME);
+            home = system.getenv(GALASA_HOME);
             if( (home == null) || (home.trim().isEmpty())) {
-                home = System.getProperty(USER_HOME)+"/.galasa";
+                home = system.getProperty(USER_HOME)+"/.galasa";
                 logger.info("System property "+USER_HOME+" used to set value of home location.");
             } else {
                 logger.info("Environment variable GALASA_HOME used to set value of home location.");
