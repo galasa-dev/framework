@@ -358,15 +358,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     ) throws URISyntaxException {
 
         URI storeUri ;
-        String propUri = env.getenv("GALASA_CONFIG_STORE");
-        if ((propUri == null) || propUri.isEmpty()) {
-            propUri = bootstrapProperties.getProperty("framework.config.store");
-            if ((propUri != null) && (!propUri.isEmpty())) {
-                logger.debug("bootstrap property framework.config.store used to determine CPS location.");
-            }
-        } else {
-            logger.debug("GALASA_CONFIG_STORE used to determine CPS location.");
+        String propUri = bootstrapProperties.getProperty("framework.config.store");
+        if ((propUri != null) && (!propUri.isEmpty())) {
+            logger.debug("bootstrap property framework.config.store used to determine CPS location.");
         }
+
         if ((propUri == null) || propUri.isEmpty()) {
             String galasaHome = getGalasaHome(env);
             Path path = Paths.get(galasaHome , "cps.properties");
@@ -392,14 +388,10 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         URI uriDynamicStatusStore = null;
         try {
-            String dssProperty = env.getenv("GALASA_DYNAMICSTATUS_STORE");
-            if ((dssProperty == null) || dssProperty.isEmpty()) {
-                dssProperty = cpsFramework.getProperty("dynamicstatus", "store");
-            }
+            String dssProperty = cpsFramework.getProperty("dynamicstatus", "store");
             if ((dssProperty == null) || dssProperty.isEmpty()) {
                 String galasaHome = getGalasaHome(env);
-                uriDynamicStatusStore = Paths.get(galasaHome, "dss.properties")
-                        .toUri();
+                uriDynamicStatusStore = Paths.get(galasaHome, "dss.properties").toUri();
                 createIfMissing(uriDynamicStatusStore,fileSystem);
             } else {
                 uriDynamicStatusStore = new URI(dssProperty);
@@ -495,12 +487,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         Path localRasPath = Paths.get(galasaHome, "ras");
         URI localRasUri = localRasPath.toUri();
         try {
-            // Use the GALASA_RESULTARCHIVE_STORE in preference to anything else.
-            String rasProperty = env.getenv("GALASA_RESULTARCHIVE_STORE");
-            if ((rasProperty == null) || rasProperty.isEmpty()) {
-                // Fall back on cps property "framework.resultarchive.store"
-                rasProperty = cpsFramework.getProperty("resultarchive", "store");
-            }
+            String rasProperty = cpsFramework.getProperty("resultarchive", "store");
 
             // Create the empty list.
             uriResultArchiveStores = new ArrayList<>(1);
@@ -561,10 +548,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         URI uriCredentialsStore ;
         // *** Work out the creds uri
         try {
-            String credsProperty = env.getenv("GALASA_CREDENTIALS_STORE");
-            if ((credsProperty == null) || credsProperty.isEmpty()) {
-                credsProperty = cpsFramework.getProperty("credentials", "store");
-            }
+            String credsProperty = cpsFramework.getProperty("credentials", "store");
+
             if ((credsProperty == null) || credsProperty.isEmpty()) {
                 String galasaHome = getGalasaHome(env);
                 uriCredentialsStore = Paths.get(
