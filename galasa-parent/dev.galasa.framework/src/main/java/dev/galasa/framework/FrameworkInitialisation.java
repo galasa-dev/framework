@@ -43,7 +43,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         Properties overrideProperties
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
         this(bootstrapProperties, overrideProperties, false, null, 
-        new SystemEnvironment() , getBundleContext() , new FileSystem() );
+        getBundleContext() , new FileSystem() );
     }
 
 
@@ -53,7 +53,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         boolean testrun
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
         this(bootstrapProperties, overrideProperties, testrun, null, 
-        new SystemEnvironment() , getBundleContext() , new FileSystem());
+        getBundleContext() , new FileSystem());
     }
 
 
@@ -64,7 +64,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         Log initLogger
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
         this(bootstrapProperties, overrideProperties, testrun, initLogger, 
-        new SystemEnvironment(), getBundleContext(), new FileSystem());
+        getBundleContext(), new FileSystem());
     }
 
 
@@ -77,8 +77,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         Properties bootstrapProperties, 
         Properties overrideProperties, 
         boolean testrun,
-        Log initLogger, 
-        Environment env , 
+        Log initLogger,
         BundleContext bundleContext , 
         IFileSystem fileSystem
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
@@ -112,11 +111,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         }
 
         this.uriConfigurationPropertyStore = locateConfigurationPropertyStore(
-            this.logger, env,this.bootstrapProperties, this.fileSystem);
+            this.logger, this.bootstrapProperties, this.fileSystem);
         this.cpsFramework = initialiseConfigurationPropertyStore(logger,bundleContext);
 
         this.uriDynamicStatusStore = locateDynamicStatusStore(
-            this.logger,env,this.cpsFramework, this.fileSystem);
+            this.logger, this.cpsFramework, this.fileSystem);
         this.dssFramework = initialiseDynamicStatusStore(logger,bundleContext);
 
         if (testrun) {
@@ -128,12 +127,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             this.framework.setTestRunName(runName);
         }
 
-        this.uriResultArchiveStores = createUriResultArchiveStores(env,this.cpsFramework);
+        this.uriResultArchiveStores = createUriResultArchiveStores(this.cpsFramework);
         logger.debug("Result Archive Stores are " + this.uriResultArchiveStores.toString());
         initialiseResultsArchiveStore(logger,bundleContext);
 
         this.uriCredentialsStore = locateCredentialsStore(
-            this.logger,env,this.cpsFramework,this.fileSystem);
+            this.logger,this.cpsFramework,this.fileSystem);
         initialiseCredentialsStore(logger,bundleContext);
 
         initialiseConfidentialTextService(logger,bundleContext);
@@ -350,14 +349,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * 
      * Note: package level scope so we can unit test it.
      * @param logger
-     * @param env
      * @param bootstrapProperties
      * @return
      * @throws URISyntaxException
      */
     URI locateConfigurationPropertyStore(
-        Log logger , 
-        Environment env, 
+        Log logger ,
         Properties bootstrapProperties,
         IFileSystem fileSystem
     ) throws URISyntaxException {
@@ -384,8 +381,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     // Find where the DSS should be, creating a new blank one if it's not already there.
     // Note: Not private so we can easily unit test it.
     URI locateDynamicStatusStore(
-        Log logger, 
-        Environment env, 
+        Log logger,
         IConfigurationPropertyStoreService cpsFramework,
         IFileSystem fileSystem
     ) throws FrameworkException {
@@ -429,14 +425,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     /**
      * Creates a list of URIs which refer to Result Archive Stores.
-     * 
-     * @param env
+     *
      * @param cpsFramework
      * @return
      * @throws FrameworkException
      */
     List<URI> createUriResultArchiveStores(
-        Environment env , 
         IConfigurationPropertyStoreService cpsFramework
     ) throws FrameworkException {
 
@@ -491,15 +485,13 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     /**
      * Find the credentials store, creating it if it doesn't already exist.
      * @param logger
-     * @param env
      * @param cpsFramework
      * @param fileSystem
      * @return
      * @throws FrameworkException
      */
     URI locateCredentialsStore(
-        Log logger, 
-        Environment env , 
+        Log logger,
         IConfigurationPropertyStoreService cpsFramework,
         IFileSystem fileSystem
     ) throws FrameworkException {
