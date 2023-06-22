@@ -3,6 +3,9 @@
  */
 package dev.galasa.framework.spi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 public class Result {
@@ -27,6 +30,16 @@ public class Result {
     private boolean             fullStop    = false;
 
     private Result() {
+    }
+
+    public static List<String> getDefaultResultNames(){
+        // Returns a list of the default result values a test can have
+        List<String> resultNames = new ArrayList<String>();
+        resultNames.add(IGNORED);
+        resultNames.add(PASSED);
+        resultNames.add(FAILED);
+        resultNames.add(ENVFAIL);
+        return resultNames;
     }
 
     public static Result passed() {

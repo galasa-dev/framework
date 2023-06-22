@@ -18,6 +18,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.api.ras.RasRunResult;
+import dev.galasa.framework.ResultNames;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.common.InternalServletException;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
@@ -172,7 +173,7 @@ public abstract class RunsRoute extends BaseRoute {
 
     public List<String> getResultNames () throws InternalServletException{
 		List<String> resultsList = new ArrayList<>();
-
+    
 		try {
 			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
                 List<String> results = directoryService.getResultNames();
@@ -180,6 +181,11 @@ public abstract class RunsRoute extends BaseRoute {
 				resultsList.addAll(directoryService.getResultNames());
                 }
 			}
+            for (String defaultResultName : ResultNames.getDefaultResultNames()){
+				if (!resultsList.contains(defaultResultName)){
+					resultsList.add(defaultResultName);
+				}
+		}
 		}
         catch(ResultArchiveStoreException r){
             ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE );
