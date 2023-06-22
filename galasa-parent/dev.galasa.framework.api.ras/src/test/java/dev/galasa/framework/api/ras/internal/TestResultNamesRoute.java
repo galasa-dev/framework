@@ -69,6 +69,10 @@ public class TestResultNamesRoute extends BaseServletTest{
 
     private String generateExpectedJSON (List<IRunResult> mockInputRunResults, boolean reverse) throws ResultArchiveStoreException{
         List<String> resultNames = new ArrayList<>();
+		resultNames.add("Passed");
+		resultNames.add("Failed");
+		resultNames.add("EnvFail");
+		resultNames.add("Ignored");
 		for (IRunResult run : mockInputRunResults){
 				String result  = run.getTestStructure().getResult().toString();
 				if (!resultNames.contains(result)){
@@ -338,5 +342,39 @@ public class TestResultNamesRoute extends BaseServletTest{
 			"GAL5004E: ",
 			"Error retrieving page."
 		);
+	}
+
+	@Test
+	public void testResultNamesWithZeroTestsReturnsOK() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(0);
+		//Build Http query parameters
+
+        Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/resultnames");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		// Expecting:
+        //[
+		//  "EnvFail",
+		//  "Failed",
+		//  "Ignored",
+        //  "Passed"
+        //]
+		String expectedJson = generateExpectedJSON(mockInputRunResults, false);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 }
