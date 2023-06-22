@@ -181,9 +181,6 @@ public abstract class RunsRoute extends BaseRoute {
                 }
 			}
 		}
-		catch(NullPointerException e){
-            return null;
-        }
         catch(ResultArchiveStoreException r){
             ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE );
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

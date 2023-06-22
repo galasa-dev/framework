@@ -65,7 +65,9 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 		List<String> resultNames = new ArrayList<>();
 		for (IRunResult run : this.getRunsResults){
 				String result  = run.getTestStructure().getResult().toString();
-				if (!resultNames.contains(result)){
+				if (result == "ForceException"){
+					throw new ResultArchiveStoreException("ForceException result found in run");
+				}else if (!resultNames.contains(result)){
 					resultNames.add(result);
 				}
 		}

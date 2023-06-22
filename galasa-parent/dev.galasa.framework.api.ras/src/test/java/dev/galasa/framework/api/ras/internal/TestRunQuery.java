@@ -247,9 +247,9 @@ public class TestRunQuery extends BaseServletTest {
 
 		checkErrorStructure(
 			outStream.toString(),
-			5003,
-			"GAL5003E: ",
-			"Error retrieving runs"
+			5000,
+			"GAL5000E: ",
+			"Error occured when trying to access the endpoint"
 		);
 	}
 

@@ -12,6 +12,7 @@ import java.time.*;
 import java.time.format.DateTimeParseException;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
 import static javax.servlet.http.HttpServletResponse.*;
@@ -148,30 +149,27 @@ public class QueryParameters {
         return this.params.size();
     }
 
-	public List<String> getResultsFromParameters (List<String> rasResults) throws InternalServletException{
+	public List<String> getResultsFromParameters (@NotNull List<String> rasResults) throws InternalServletException{
 		// Create map for the lowercase values of all results to ensure we can compare accurately
-		if (rasResults != null){
-			Map<String,String> resultNames = new HashMap<String,String>();
-			for (String result :rasResults){
-				resultNames.put(result.toLowerCase(), result);
-			}
-			// Return the Results from the URL Query
-			List<String> queryResults = getMultipleString("result", null);
-			// Check the results against the map
-			if (queryResults != null){
-				List<String> returnResults = new ArrayList<String>();
-				String matched;
-				for (String result: queryResults){
-					matched = resultNames.get(result.toLowerCase());
-					if (matched != null) {
-						returnResults.add(matched);
-					} else {
-						ServletError error = new ServletError(GAL5013_RESULT_NAME_NOT_RECOGNIZED, result, rasResults.toString());
-						throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-					}
+		Map<String,String> resultNames = new HashMap<String,String>();
+		for (String result :rasResults){
+			resultNames.put(result.toLowerCase(), result);
+		}
+		// Return the Results from the URL Query
+		List<String> queryResults = getMultipleString("result", null);
+		// Check the results against the map
+		if (queryResults != null){
+			List<String> returnResults = new ArrayList<String>();
+			for (String result: queryResults){
+				String matched = resultNames.get(result.toLowerCase());
+				if (matched != null) {
+					returnResults.add(matched);
+				} else {
+					ServletError error = new ServletError(GAL5013_RESULT_NAME_NOT_RECOGNIZED, result, rasResults.toString());
+					throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 				}
-				return returnResults;
 			}
+			return returnResults;
 		}
 		return null;
 	}

@@ -111,7 +111,7 @@ public class TestResultNamesRoute extends BaseServletTest{
         //  "Passed"
         //]
 		String expectedJson = generateExpectedJSON(mockInputRunResults, false);
-		assertThat(resp.getStatus()==200);
+		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
@@ -139,11 +139,11 @@ public class TestResultNamesRoute extends BaseServletTest{
 		//Then...
 		// Expecting:
         //[
-        //  "Passed",
-        //  "Failed"
+		//  "Failed",
+        //  "Passed"
         //]
 		String expectedJson = generateExpectedJSON(mockInputRunResults, false);
-		assertThat(resp.getStatus()==200);
+		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
@@ -171,11 +171,14 @@ public class TestResultNamesRoute extends BaseServletTest{
 		//Then...
 		// Expecting:
         //[
+		//  "EnvFail",
+		//  "Failed",
+		//  "Ignored",
         //  "Passed",
-        //  "Failed"
+		//  "UNKNOWN"
         //]
 		String expectedJson = generateExpectedJSON(mockInputRunResults, false);
-		assertThat(resp.getStatus()==200);
+		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
@@ -204,11 +207,14 @@ public class TestResultNamesRoute extends BaseServletTest{
 		//Then...
 		// Expecting:
         //[
-        //  "Passed",
-        //  "Failed"
+		//  "UNKNOWN",
+		//  "Passed",
+		//  "Ignored",
+		//  "Failed",
+		//  "EnvFail"
         //]
 		String expectedJson = generateExpectedJSON(mockInputRunResults, true);
-		assertThat(resp.getStatus()==200);
+		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
@@ -237,11 +243,14 @@ public class TestResultNamesRoute extends BaseServletTest{
 		//Then...
 		// Expecting:
         //[
+		//  "EnvFail",
+		//  "Failed",
+		//  "Ignored",
         //  "Passed",
-        //  "Failed"
+		//  "UNKNOWN"
         //]
 		String expectedJson = generateExpectedJSON(mockInputRunResults, false);
-		assertThat(resp.getStatus()==200);
+		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
@@ -270,14 +279,64 @@ public class TestResultNamesRoute extends BaseServletTest{
 		//Then...
 		// Expecting:
         //[
-        //  "Passed",
-        //  "Failed"
+        //  GAL5011E: Error parsing the query parameters. sort value 'resultnames' not recognised.
+		//  Expected query parameter in the format sort={fieldName}:{order} where order is asc for ascending or desc for descending.
         //]
 		checkErrorStructure(
 			outStream.toString(),
 			5011,
 			"GAL5011E: ",
 			"resultnames"
+		);
+	}
+
+	@Test
+	public void testResultNamesWithNoResultsReturnsError() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
+		// Build the results the DB will return.
+			String runName = RandomStringUtils.randomAlphanumeric(5);
+			String testShortName = RandomStringUtils.randomAlphanumeric(5);
+			String requestor = RandomStringUtils.randomAlphanumeric(8);
+			String runId = RandomStringUtils.randomAlphanumeric(16);
+			TestStructure testStructure = new TestStructure();
+			testStructure.setRunName(runName);
+			testStructure.setRequestor(requestor);
+			testStructure.setTestShortName(testShortName);
+			testStructure.setBundle(RandomStringUtils.randomAlphanumeric(16));
+			testStructure.setTestName(testShortName + "." + RandomStringUtils.randomAlphanumeric(8));
+			testStructure.setQueued(Instant.now());
+			testStructure.setStartTime(Instant.now());
+			testStructure.setEndTime(Instant.now());
+			testStructure.setResult("ForceException");
+			IRunResult result = new MockRunResult( runId, testStructure, null , null);
+			mockInputRunResults.add(result);
+		//Build Http query parameters
+
+        Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/resultnames");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		// Expecting:
+        //[
+        //  GAL5011E: Error parsing the query parameters. sort value 'resultnames' not recognised.
+		//  Expected query parameter in the format sort={fieldName}:{order} where order is asc for ascending or desc for descending.
+        //]
+		checkErrorStructure(
+			outStream.toString(),
+			5004,
+			"GAL5004E: ",
+			"Error retrieving page."
 		);
 	}
 }
