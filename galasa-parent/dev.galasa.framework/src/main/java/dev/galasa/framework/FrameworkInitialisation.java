@@ -35,6 +35,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private Log logger;
     private IFileSystem fileSystem ;
 
+    private String galasaHome;
+
     
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
@@ -83,6 +85,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         this.bootstrapProperties = bootstrapProperties;
         this.fileSystem = fileSystem;
+
+        //load galasa home from the bootstrap
+        this.galasaHome = bootstrapProperties.getProperty("framework.galasa.home");
 
         // *** Copy the the bootstrap properties to the override properties so that they
         // are available to the managers
@@ -364,8 +369,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         }
 
         if ((propUri == null) || propUri.isEmpty()) {
-            String galasaHome = getGalasaHome(env);
-            Path path = Paths.get(galasaHome , "cps.properties");
+            Path path = Paths.get(this.galasaHome , "cps.properties");
             storeUri = path.toUri();
             logger.debug("galasa home used to determine CPS location.");
             createIfMissing(storeUri,fileSystem);
@@ -390,8 +394,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         try {
             String dssProperty = cpsFramework.getProperty("dynamicstatus", "store");
             if ((dssProperty == null) || dssProperty.isEmpty()) {
-                String galasaHome = getGalasaHome(env);
-                uriDynamicStatusStore = Paths.get(galasaHome, "dss.properties").toUri();
+                uriDynamicStatusStore = Paths.get(this.galasaHome, "dss.properties").toUri();
                 createIfMissing(uriDynamicStatusStore,fileSystem);
             } else {
                 uriDynamicStatusStore = new URI(dssProperty);
@@ -401,50 +404,6 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         }
         logger.debug("Dynamic Status Store is " + uriDynamicStatusStore.toString());
         return uriDynamicStatusStore;
-    }
-
-    
-    private String getGalasaHome(Environment env) {
-        // 1st: If GALASA_HOME is set as a system property then use that,
-        // 2nd: If GALASA_HOME is set as a system environment variable, then use that.
-        // 3rd: otherwise we use the calling users' home folder.
-        String home = env.getProperty(GALASA_HOME);
-        if( (home == null) || (home.trim().isEmpty())) {
-            home = env.getenv(GALASA_HOME);
-            if( (home == null) || (home.trim().isEmpty())) {
-                home = env.getProperty(USER_HOME)+"/.galasa";
-                logger.info("System property "+USER_HOME+" used to set value of home location.");
-            } else {
-                logger.info("Environment variable GALASA_HOME used to set value of home location.");
-            }
-        } else {
-            logger.info("System property GALASA_HOME used to set value of home location.");
-            // The system property value may be surrounded by " characters. 
-            // If so, strip them off.
-            // We allow this because a path with strings in would be split
-            // into separate system properties otherwise.
-            home = stripLeadingAndTrailingQuotes(home);
-        }
-        logger.info("Galasa home location is "+home);
-
-        return home;
-    }
-
-    /**
-     * String the first double-quote and the last double-quote off
-     * the begining and end of a string.
-     * @param input
-     * @return The stripped (or unaltered) string.
-     */
-    String stripLeadingAndTrailingQuotes(String input ) {
-        String output = input ;
-        if (output.startsWith("\"")) {
-            output = output.replaceFirst("\"", "");
-        }
-        if (output.endsWith("\"")) {
-            output = output.substring(0,output.length()-1);
-        }
-        return output;
     }
 
     // Find the run name of the test run, if it's not a set property 
@@ -483,8 +442,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         ArrayList<URI> uriResultArchiveStores ;
 
-        String galasaHome = getGalasaHome(env);
-        Path localRasPath = Paths.get(galasaHome, "ras");
+        Path localRasPath = Paths.get(this.galasaHome, "ras");
         URI localRasUri = localRasPath.toUri();
         try {
             String rasProperty = cpsFramework.getProperty("resultarchive", "store");
@@ -551,9 +509,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             String credsProperty = cpsFramework.getProperty("credentials", "store");
 
             if ((credsProperty == null) || credsProperty.isEmpty()) {
-                String galasaHome = getGalasaHome(env);
                 uriCredentialsStore = Paths.get(
-                    galasaHome, "credentials.properties")
+                    this.galasaHome, "credentials.properties")
                         .toUri();
                 createIfMissing(uriCredentialsStore,fileSystem);
             } else {
