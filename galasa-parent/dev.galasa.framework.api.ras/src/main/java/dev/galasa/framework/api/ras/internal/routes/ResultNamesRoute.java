@@ -11,6 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.ras.internal.common.InternalServletException;
 import dev.galasa.framework.api.ras.internal.common.QueryParameters;
@@ -59,8 +61,10 @@ public class ResultNamesRoute extends RunsRoute {
 			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 		}
 
-		String json = gson.toJson(resultsList);
-		return json;
+		JsonElement json = new Gson().toJsonTree(resultsList);
+		JsonObject resultnames = new JsonObject();
+		resultnames.add("resultnames", json);
+		return resultnames.toString();
     }
 
 }
