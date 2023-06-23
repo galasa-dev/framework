@@ -9,6 +9,8 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 import org.junit.Test;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -83,7 +85,10 @@ public class TestResultNamesRoute extends BaseServletTest{
         if (reverse == true) {
             Collections.reverse(resultNames);
         }
-        return gson.toJson(resultNames);
+		JsonElement jsonResultsArray = new Gson().toJsonTree(resultNames);
+		JsonObject json = new JsonObject();
+		json.add("resultnames", jsonResultsArray);
+		return json.toString();
     }
 
     /*
