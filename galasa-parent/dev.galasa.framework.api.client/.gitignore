@@ -20,5 +20,8 @@ target
 .gradle
 build
 
-src/main/
-src/test/
+src/main
+src/test
+.openapi-generator
+api
+docs
