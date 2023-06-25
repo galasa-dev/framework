@@ -41,26 +41,17 @@ blue=$(tput setaf 25)
 # Headers and Logging
 #
 #-----------------------------------------------------------------------------------------                   
-underline() { printf "${underline}${bold}%s${reset}\n" "$@"
-}
-h1() { printf "\n${underline}${bold}${blue}%s${reset}\n" "$@"
-}
-h2() { printf "\n${underline}${bold}${white}%s${reset}\n" "$@"
-}
-debug() { printf "${white}%s${reset}\n" "$@"
-}
-info() { printf "${white}➜ %s${reset}\n" "$@"
-}
-success() { printf "${green}✔ %s${reset}\n" "$@"
-}
-error() { printf "${red}✖ %s${reset}\n" "$@"
-}
-warn() { printf "${tan}➜ %s${reset}\n" "$@"
-}
-bold() { printf "${bold}%s${reset}\n" "$@"
-}
-note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@"
-}
+underline() { printf "${underline}${bold}%s${reset}\n" "$@" ; }
+h1() { printf "\n${underline}${bold}${blue}%s${reset}\n" "$@" ; }
+h2() { printf "\n${underline}${bold}${white}%s${reset}\n" "$@" ; }
+debug() { printf "${white}%s${reset}\n" "$@" ; }
+info() { printf "${white}➜ %s${reset}\n" "$@" ; }
+success() { printf "${green}✔ %s${reset}\n" "$@" ; }
+error() { printf "${red}✖ %s${reset}\n" "$@" ; }
+warn() { printf "${tan}➜ %s${reset}\n" "$@" ; }
+bold() { printf "${bold}%s${reset}\n" "$@" ; }
+note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@" ; }
+
 
 #-----------------------------------------------------------------------------------------                   
 # Functions
@@ -72,63 +63,6 @@ Options are:
 -c | --clean : Do a clean build. One of the --clean or --delta flags are mandatory.
 -d | --delta : Do a delta build. One of the --clean or --delta flags are mandatory.
 EOF
-}
-
-function download_dependencies {
-    if [[ "${build_type}" == "clean" ]]; then
-        h2 "Cleaning the dependencies out..."
-        rm -rf build/dependencies
-        success "OK"
-    fi
-
-    # Download the dependencies we define in gradle into a local folder
-    h2 "Downloading dependencies"
-    gradle \
-    --warning-mode=all \
-    -Dorg.gradle.java.home=${JAVA_HOME} \
-    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-    downloadDependencies \
-    2>&1 >> ${log_file}
-
-    rc=$? ; if [[ "${rc}" != "0" ]]; then  error "Failed to run the gradle task to download our dependencies. rc=${rc}" ; exit 1 ; fi
-    success "OK"
-}
-
-function generate_rest_docs {
-    OPENAPI_YAML_FILE="${BASEDIR}/openapi.yaml"
-    OUTPUT_DIR="${BASEDIR}/docs/generated/galasaapi"
-    
-    if [[ "${build_type}" == "clean" ]]; then
-        h2 "Cleaning the generated documentation..."
-        rm -rf ${OUTPUT_DIR}
-        success "OK"
-    fi
-
-    h2 "Generate the REST API documentation..."
-    
-    # Pick up and use the swagger generator we just downloaded.
-    # We don't know which version it is (dictated by the gradle build), but as there
-    # is only one we can just pick the filename up..
-    # Should end up being something like: ${BASEDIR}/galasa-parent/build/dependencies/swagger-codegen-cli-3.0.41.jar
-    if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
-        export SWAGGER_CODEGEN_CLI_JAR=$(ls ${BASEDIR}/galasa-parent/build/dependencies/swagger-codegen-cli*)
-        info "SWAGGER_CODEGEN_CLI_JAR environment variable is not set, setting to ${SWAGGER_CODEGEN_CLI_JAR}."
-    fi
-
-    if [[ ! -e ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
-        echo "The Swagger Generator cannot be found at ${SWAGGER_CODEGEN_CLI_JAR}."
-        echo "Download it and set the SWAGGER_CODEGEN_CLI_JAR environment variable to point to it."
-        exit 1
-    fi
-
-    java -jar ${SWAGGER_CODEGEN_CLI_JAR} generate \
-    -i ${OPENAPI_YAML_FILE} \
-    -l html2 \
-    -o ${OUTPUT_DIR} \
-    2>&1>> ${log_file}
-
-    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate documentation from the openapi.yaml file. rc=${rc}" ; exit 1 ; fi
-    success "Generated REST API documentation at ${OUTPUT_DIR}/index.html"
 }
 
 #-----------------------------------------------------------------------------------------                   
@@ -211,72 +145,221 @@ fi
 # auto plain rich or verbose
 CONSOLE_FLAG=--console=plain
 
+
+#-----------------------------------------------------------------------------------------
 log_file=${LOGS_DIR}/${project}.txt
 info "Log will be placed at ${log_file}"
 
-if [[ "${build_type}" == "delta" ]]; then
-    info "Skipping clean phase because this is a delta build."
-else
-    h2 "Cleaning..."
-    gradle --no-daemon \
-    ${CONSOLE_FLAG} \
-    --warning-mode=all --debug \
+
+#-----------------------------------------------------------------------------------------
+function download_dependencies {
+    if [[ "${build_type}" == "clean" ]]; then
+        h2 "Cleaning the dependencies out..."
+        rm -rf build/dependencies
+        success "OK"
+    fi
+
+    # Download the dependencies we define in gradle into a local folder
+    h2 "Downloading dependencies"
+    gradle \
+    --warning-mode=all \
     -Dorg.gradle.java.home=${JAVA_HOME} \
     -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-    clean \
+    downloadDependencies \
     2>&1 >> ${log_file}
-    rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project}" ; exit 1 ; fi
-    success "Cleaned OK"
-fi
 
-h2 "Removing .m2 artifacts"
-rm -fr ~/.m2/repository/dev/galasa/dev.galasa.framework*
-rm -fr ~/.m2/repository/dev/galasa/dev.galasa
-rm -fr ~/.m2/repository/dev/galasa/galasa-boot
-rm -fr ~/.m2/repository/dev/galasa/galasa-testharness
-success "OK"
+    rc=$? ; if [[ "${rc}" != "0" ]]; then  error "Failed to run the gradle task to download our dependencies. rc=${rc}" ; exit 1 ; fi
+    success "OK"
+}
 
-h2 "Building..."
-cat << EOF
 
-Using this command:
+#-----------------------------------------------------------------------------------------
+function check_openapi_generator_installed {
 
-gradle --build-cache  \
-${CONSOLE_FLAG} \
---warning-mode=all \
--Dorg.gradle.java.home=${JAVA_HOME} \
--PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-build check \
-2>&1 >> ${log_file}
+    info "Checking that the openapi/swagger generator is installed..."
+
+    # Pick up and use the swagger generator we just downloaded.
+    # We don't know which version it is (dictated by the gradle build), but as there
+    # is only one we can just pick the filename up..
+    # Should end up being something like: ${BASEDIR}/galasa-parent/build/dependencies/swagger-codegen-cli-3.0.41.jar
+    if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
+        export SWAGGER_CODEGEN_CLI_JAR=$(ls ${BASEDIR}/galasa-parent/build/dependencies/swagger-codegen-cli*)
+        info "SWAGGER_CODEGEN_CLI_JAR environment variable is not set, setting to ${SWAGGER_CODEGEN_CLI_JAR}."
+    fi
+
+    if [[ ! -e ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
+        error "The Swagger Generator cannot be found at ${SWAGGER_CODEGEN_CLI_JAR}."
+        info "Download it and set the SWAGGER_CODEGEN_CLI_JAR environment variable to point to it."
+        exit 1
+    fi
+
+    success "The Swagger generator is installed. OK"
+}
+
+
+#-----------------------------------------------------------------------------------------
+function generate_rest_docs {
+    export OPENAPI_YAML_FILE="${BASEDIR}/openapi.yaml"
+    OUTPUT_DIR="${BASEDIR}/docs/generated/galasaapi"
+    
+    if [[ "${build_type}" == "clean" ]]; then
+        h2 "Cleaning the generated documentation..."
+        rm -rf ${OUTPUT_DIR}
+        success "OK"
+    fi
+
+    h2 "Generate the REST API documentation..."
+
+    cmd="java -jar ${SWAGGER_CODEGEN_CLI_JAR} generate \
+    -i ${OPENAPI_YAML_FILE} \
+    -l html2 \
+    -o ${OUTPUT_DIR} "
+
+    info "Command is $cmd"
+
+    $cmd 2>&1>> ${log_file}
+
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate documentation from the openapi.yaml file. rc=${rc}" ; exit 1 ; fi
+    success "Generated REST API documentation at ${OUTPUT_DIR}/index.html"
+}
+
+
+#-----------------------------------------------------------------------------------------
+function clean {
+    h2 "Cleaning..."
+    if [[ "${build_type}" == "delta" ]]; then
+        info "Skipping clean phase because this is a delta build."
+    else
+        cmd="gradle --no-daemon \
+        ${CONSOLE_FLAG} \
+        --warning-mode=all --debug \
+        -Dorg.gradle.java.home=${JAVA_HOME} \
+        -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+        clean"
+        info "Command is $cmd"
+        $cmd 2>&1 >> ${log_file}
+        rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project}" ; exit 1 ; fi
+        success "Cleaned OK"
+    fi
+
+    h2 "Removing .m2 artifacts"
+    rm -fr ~/.m2/repository/dev/galasa/dev.galasa.framework*
+    rm -fr ~/.m2/repository/dev/galasa/dev.galasa
+    rm -fr ~/.m2/repository/dev/galasa/galasa-boot
+    rm -fr ~/.m2/repository/dev/galasa/galasa-testharness
+    success "OK"
+}
+
+
+#-----------------------------------------------------------------------------------------
+function generate_code_from_openapi {
+    h2 "Generating artifacts from openapi.yaml..."
+
+    export OPENAPI_YAML_FILE="${BASEDIR}/openapi.yaml"
+
+    cd $BASEDIR/galasa-parent
+
+    cmd="java -jar ${OPENAPI_GENERATOR_CLI_JAR} generate \
+    -i ${OPENAPI_YAML_FILE} \
+    -g java \
+    -o dev.galasa.framework.api.client \
+    --additional-properties=packageName=dev.galasa.framework.api.client \
+    --global-property=apiTests=false"
+
+    info "Command is $cmd"
+    $cmd 2>&1 >> ${log_file}
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project}. log is at ${log_file}" ; exit 1 ; fi
+
+    cd $BASEDIR/galasa-parent/dev.galasa.framework.api.client
+
+    while read -r line; do 
+        trimmed_line=$(echo $line | xargs)
+
+        # Ignore any blank lines.
+        if [[ "$line" != "" ]]; then
+            # Ignore any comment lines.
+            if [[ $line != "#"* ]]; then 
+                info "Removing file $line"
+                rm -fr $line
+            fi
+        fi
+    done << EOF 
+    
+#
+# openapi-generator-unwanted-files
+#
+# Generating code using the openapi generator causes a lot of things to be
+# created. Some of which we don't want to use.
+# 
+# This file contains the list of things we don't want to keep.
+#
+# One entry per line
+# Comment lines start with a hash.
+# Blank lines are allowed.
+
+README.md
+pom.xml
+gradlew.bat
+gradlew
+gradle.properties
+git_push.sh
+build.sbt
+.travis.yml
+gradle
+.github
 
 EOF
 
-gradle --build-cache --parallel \
-${CONSOLE_FLAG} \
---warning-mode=all \
--Dorg.gradle.java.home=${JAVA_HOME} \
--PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-build check jacocoTestReport \
-2>&1 >> ${log_file}
-rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
-success "Built OK"
+    success "OK"
+}
 
 
+#-----------------------------------------------------------------------------------------
+function build {
+    h2 "Building..."
+    cmd="gradle --build-cache --parallel \
+    ${CONSOLE_FLAG} \
+    --warning-mode=all \
+    -Dorg.gradle.java.home=${JAVA_HOME} \
+    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+    build check jacocoTestReport "
 
-h2 "Publishing to local maven repo..."
-gradle --build-cache --parallel \
-${CONSOLE_FLAG} \
---warning-mode=all --debug  \
--Dorg.gradle.java.home=${JAVA_HOME} \
--PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-publishToMavenLocal \
-2>&1 >> ${log_file}
-rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
-success "Published OK"
+    info "Command is $cmd"
 
-if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
-    download_dependencies
-fi
+    $cmd 2>&1 >> ${log_file}
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
+    success "Built OK"
+}
+
+
+#-----------------------------------------------------------------------------------------
+function publish_to_local_maven {
+    h2 "Publishing to local maven repo..."
+    cmd="gradle --build-cache --parallel \
+    ${CONSOLE_FLAG} \
+    --warning-mode=all --debug  \
+    -Dorg.gradle.java.home=${JAVA_HOME} \
+    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+    publishToMavenLocal"
+
+    info "Command is $cmd"
+
+    $cmd 2>&1 >> ${log_file}
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
+    success "Published OK"
+
+    if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
+        download_dependencies
+    fi
+}
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+check_openapi_generator_installed
+clean
+generate_code_from_openapi
+build
+publish_to_local_maven
 generate_rest_docs
 
 success "Project ${project} built - OK - log is at ${log_file}"
