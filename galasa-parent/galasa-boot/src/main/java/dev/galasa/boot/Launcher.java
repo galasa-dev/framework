@@ -136,7 +136,9 @@ public class Launcher {
      */
     protected void launch(String[] args) throws LauncherException, InterruptedException {
 
-        validateJavaLevel();
+        if(!validateJavaLevel()){
+            System.exit(16);
+        }
 
         felixFramework = new FelixFramework();
 
@@ -568,6 +570,7 @@ public class Launcher {
         String version = System.getProperty("java.version");
         logger.trace("Checking version of Java, found: " + version);
         if(version == null || version.isEmpty()){
+            logger.error("Unable to determine Java version - will exit");
             return false;
         }
 
