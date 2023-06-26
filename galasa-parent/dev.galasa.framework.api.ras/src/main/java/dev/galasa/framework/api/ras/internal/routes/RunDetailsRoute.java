@@ -13,9 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 
 import dev.galasa.framework.api.common.*;
+import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
+import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
@@ -31,8 +34,7 @@ public class RunDetailsRoute extends RunsRoute {
 
    public RunDetailsRoute(ResponseBuilder responseBuilder, IFramework framework) {
       //  Regex to match endpoint: /ras/runs/{runid}
-      super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/?");
-      this.framework = framework;
+      super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/?", framework);
    }
 
    @Override
@@ -50,4 +52,19 @@ public class RunDetailsRoute extends RunsRoute {
          throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
       }
    }
+
+
+   public RasRunResult getRunFromFramework(String id) throws ResultArchiveStoreException {
+         
+      IRunResult run = getRunByRunId(id);
+  
+      if(run == null) {
+         return null;
+      }
+      return RunResultUtility.toRunResult(run, false);
+   }
+
+
+
+
 }

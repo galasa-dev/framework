@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import dev.galasa.framework.api.common.*;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -23,8 +25,7 @@ public class RunLogRoute extends RunsRoute {
 
     public RunLogRoute(ResponseBuilder responseBuilder, IFramework framework) {
         //  Regex to match endpoint: /ras/runs/{runid}/runlog
-        super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/runlog\\/?");
-        this.framework = framework;
+        super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/runlog\\/?", framework);
     }
 
     @Override
@@ -41,4 +42,17 @@ public class RunLogRoute extends RunsRoute {
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
+
+
+    public String getRunlog(String runId) throws ResultArchiveStoreException, InternalServletException {
+      
+        IRunResult run = getRunByRunId(runId);
+        String runLog = null;
+              
+        if(run != null) {
+           runLog = run.getLog();
+        }
+        
+        return runLog;
+     }
 }

@@ -30,8 +30,7 @@ public class ResultNamesRoute extends RunsRoute {
 		*  -> /ras/runs/
 		*  -> /ras/runs?{querystring} 
 		*/
-		super(responseBuilder, "\\/resultnames?");
-		this.framework = framework;
+		super(responseBuilder, "\\/resultnames?", framework);
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();

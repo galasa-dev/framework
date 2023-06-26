@@ -52,8 +52,8 @@ public class RunQueryRoute extends RunsRoute {
 		*  -> /ras/runs/
 		*  -> /ras/runs?{querystring} 
 		*/
-		super(responseBuilder, "\\/runs\\/?");
-		this.framework = framework;
+		super(responseBuilder, "\\/runs\\/?", framework);
+
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();
@@ -245,7 +245,7 @@ public class RunQueryRoute extends RunsRoute {
 
 		// Collect all the runs from all the RAS stores into a single list
 		List<IRunResult> runs = new ArrayList<>();
-		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
 			runs.addAll(directoryService.getRuns(criteria));
 		}
 

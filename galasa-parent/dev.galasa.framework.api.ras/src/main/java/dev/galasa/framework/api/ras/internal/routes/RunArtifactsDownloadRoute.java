@@ -43,7 +43,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  * Implementation to download an artifact for a given run based on its runId and the path
  * to the artifact.
  */
-public class RunArtifactsDownloadRoute extends RunsRoute {
+public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
     
     static final Gson gson = GalasaGsonBuilder.build();
 
@@ -53,9 +53,10 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
         //  Regex to match endpoint: /ras/runs/{runId}/files/{artifactPath}
         super(responseBuilder,
               "\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)", 
-              fileSystem, 
+              fileSystem,
               framework
         );
+
 
         rootArtifacts.put("run.log", new RunLogArtifact());
         rootArtifacts.put("structure.json", new StructureJsonArtifact());
@@ -131,7 +132,7 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
                 bytesRead = channel.read(buffer);
             }
             res.setStatus(HttpServletResponse.SC_OK);
-            res.setContentType(fileSystem.probeContentType(artifactLocation));
+            res.setContentType(getFileSystem().probeContentType(artifactLocation));
             res.setHeader("Content-Disposition", "attachment");
         }
         return res;

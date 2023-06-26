@@ -34,7 +34,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 /**
  * Implementation to retrieve a list of artifacts for a given run based on its runId.
  */
-public class RunArtifactsListRoute extends RunsRoute {
+public class RunArtifactsListRoute extends RunArtifactsRoute {
 
     static final Gson gson = GalasaGsonBuilder.build();
 
