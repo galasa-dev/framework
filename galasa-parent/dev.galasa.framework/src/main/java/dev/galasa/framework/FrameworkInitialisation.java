@@ -508,6 +508,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                 createIfMissing(uriCredentialsStore,fileSystem);
             } else {
                 uriCredentialsStore = new URI(credsProperty);
+                createIfMissing(uriCredentialsStore,fileSystem);
             }
         } catch (final Exception e) {
             throw new FrameworkException("Unable to resolve the Credentials Store URI", e);

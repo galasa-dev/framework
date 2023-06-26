@@ -319,7 +319,7 @@ public class TestFrameworkInitialisation {
     }
 
     @Test
-    public void testLocateCredentialsStoreUsesUserHome() throws Exception {
+    public void testLocateCredentialsStoreUsesCPS() throws Exception {
 
         // Given...
 
@@ -336,16 +336,20 @@ public class TestFrameworkInitialisation {
 //        // The user home... which should be ignored if GALASA_HOME is set.
 //        mockEnv.setProperty("user.home","/myuser2/home");
 
+        Map<String,String> cpsProps = new HashMap<String,String>();
+        cpsProps.put("credentials.store","file:///myoverriddenhome/credentials.properties");
+        MockCPSStore mockCPS = new MockCPSStore(cpsProps);
+
         // When...
         URI uri = frameworkInit.locateCredentialsStore(
-            logger, frameworkInit.getFramework().getConfigurationPropertyService("framework"), fs);
+            logger, mockCPS, fs);
 
         // Then...
         assertThat(uri).isNotNull();
-        assertThat(uri.getPath()).isEqualTo("/myuser2/home/.galasa/credentials.properties" );
+        assertThat(uri.getPath()).isEqualTo("/myoverriddenhome/credentials.properties" );
 
         // The empty file system should now have a blank file also.
-        Path expectedPath = Path.of("/myuser2","home",".galasa","credentials.properties");
+        Path expectedPath = Path.of("/myoverriddenhome","credentials.properties");
         assertThat(fs.exists(expectedPath)).isTrue();
     }
 
@@ -375,10 +379,10 @@ public class TestFrameworkInitialisation {
 
         // Then...
         assertThat(uri).isNotNull();
-        assertThat(uri.getPath()).isEqualTo("/myoverriddenhome/credentials.properties" );
+        assertThat(uri.getPath()).isEqualTo("/myuser/home/credentials.properties" );
 
         // The empty file system should now have a blank file also.
-        Path expectedPath = Path.of("/myoverriddenhome","credentials.properties");
+        Path expectedPath = Path.of("/myuser","home","credentials.properties");
         assertThat(fs.exists(expectedPath)).isTrue();
     }
 
