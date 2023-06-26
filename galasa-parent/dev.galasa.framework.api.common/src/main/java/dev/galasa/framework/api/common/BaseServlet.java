@@ -67,7 +67,7 @@ public class BaseServlet extends HttpServlet {
 					Matcher matcher = Pattern.compile(routePattern).matcher(url);
 		
 					if (matcher.matches()) {		
-						res = route.handleGetRequest(url, queryParameters, res);
+						res = route.handleRequest(url, queryParameters, res);
 						return;
 					}
 				}

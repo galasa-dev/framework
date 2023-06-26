@@ -38,7 +38,7 @@ public class ResultNamesRoute extends RunsRoute {
     private SortQueryParameterChecker sortQueryParameterChecker = new SortQueryParameterChecker();
 
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String outputString = retrieveResults(queryParams);
 		return getResponseBuilder().sendResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }

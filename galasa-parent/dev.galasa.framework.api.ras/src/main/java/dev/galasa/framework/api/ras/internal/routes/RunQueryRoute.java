@@ -63,7 +63,7 @@ public class RunQueryRoute extends RunsRoute {
 	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
 
 	@Override
-	public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+	public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
 		String outputString = retrieveResults(queryParams);
 		return getResponseBuilder().sendResponse(res, "application/json", outputString, HttpServletResponse.SC_OK); 
 	}

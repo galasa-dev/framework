@@ -19,6 +19,6 @@ import dev.galasa.framework.spi.FrameworkException;
 public interface IRoute {
     String getPath();
 
-    HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) 
+    HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) 
         throws ServletException, IOException, FrameworkException;
 }
