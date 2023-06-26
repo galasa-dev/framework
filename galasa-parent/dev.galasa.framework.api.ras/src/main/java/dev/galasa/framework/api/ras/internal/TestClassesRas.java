@@ -3,7 +3,7 @@
  */
 package dev.galasa.framework.api.ras.internal;
 
-import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,9 +26,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
-import dev.galasa.framework.api.ras.internal.common.InternalServletException;
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
-import dev.galasa.framework.api.ras.internal.common.ServletError;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;

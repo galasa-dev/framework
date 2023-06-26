@@ -10,14 +10,14 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.ras.internal.common.InternalServletException;
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
-import dev.galasa.framework.api.ras.internal.common.ServletError;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
 import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
-import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 /**
  * Implementation to retrieve the run log for a given run based on its runId.

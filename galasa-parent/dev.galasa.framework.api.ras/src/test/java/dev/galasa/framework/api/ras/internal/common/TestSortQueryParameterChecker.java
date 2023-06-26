@@ -4,6 +4,7 @@
 package dev.galasa.framework.api.ras.internal.common;
 
 import static org.assertj.core.api.Assertions.*;
+import dev.galasa.framework.api.common.*;
 
 import org.junit.Test;
 import java.util.*;

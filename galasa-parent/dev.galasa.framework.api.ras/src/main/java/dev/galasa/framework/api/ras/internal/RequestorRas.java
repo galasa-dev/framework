@@ -25,7 +25,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;

@@ -12,7 +12,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 import org.junit.Test;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.ras.internal.mocks.*;
 import dev.galasa.framework.api.ras.internal.routes.RunQueryRoute;
 

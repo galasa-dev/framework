@@ -20,9 +20,9 @@ import com.google.gson.JsonObject;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.ResultNames;
 import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.ras.internal.common.InternalServletException;
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
-import dev.galasa.framework.api.ras.internal.common.ServletError;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
@@ -30,7 +30,7 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 
-import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public abstract class RunsRoute extends BaseRoute {
 
     protected IFileSystem fileSystem;

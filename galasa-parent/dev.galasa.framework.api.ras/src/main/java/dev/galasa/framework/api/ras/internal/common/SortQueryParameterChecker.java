@@ -3,7 +3,8 @@
  */
 package dev.galasa.framework.api.ras.internal.common;
 
-import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+import dev.galasa.framework.api.common.*;
 
 import javax.servlet.http.HttpServletResponse;
 

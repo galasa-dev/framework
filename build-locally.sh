@@ -172,7 +172,7 @@ info "Build type is --'${build_type}'"
 # Debug or not debug ? Override using the DEBUG flag.
 if [[ -z ${DEBUG} ]]; then
     export DEBUG=0
-    #export DEBUG=1
+    # export DEBUG=1
     info "DEBUG defaulting to ${DEBUG}."
     info "Over-ride this variable if you wish. Valid values are 0 and 1."
 else
@@ -225,7 +225,7 @@ else
     -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
     clean \
     2>&1 >> ${log_file}
-    rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project}" ; exit 1 ; fi
+    rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project} - rc is ${rc} - See logs in ${log_file}" ; exit 1 ; fi
     success "Cleaned OK"
 fi
 
@@ -237,27 +237,17 @@ rm -fr ~/.m2/repository/dev/galasa/galasa-testharness
 success "OK"
 
 h2 "Building..."
-cat << EOF
-
-Using this command:
-
-gradle --build-cache  \
+# --parallel
+cmd="gradle --no-build-cache  \
 ${CONSOLE_FLAG} \
 --warning-mode=all \
 -Dorg.gradle.java.home=${JAVA_HOME} \
 -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-build check \
-2>&1 >> ${log_file}
+build check jacocoTestReport"
 
-EOF
+echo "Using this command: $cmd"
 
-gradle --build-cache --parallel \
-${CONSOLE_FLAG} \
---warning-mode=all \
--Dorg.gradle.java.home=${JAVA_HOME} \
--PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-build check jacocoTestReport \
-2>&1 >> ${log_file}
+$cmd 2>&1 >> ${log_file}
 rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
 success "Built OK"
 

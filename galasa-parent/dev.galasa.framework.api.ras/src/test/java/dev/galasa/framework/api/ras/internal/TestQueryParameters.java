@@ -9,8 +9,8 @@ import java.util.*;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.ras.internal.common.InternalServletException;
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
 
 import static org.assertj.core.api.Assertions.*;
 
