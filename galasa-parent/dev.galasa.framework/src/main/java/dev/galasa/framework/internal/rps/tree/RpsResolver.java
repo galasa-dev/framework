@@ -57,6 +57,7 @@ public class RpsResolver/*@bgen(jjtree)*/implements RpsResolverTreeConstants, Rp
             jjtree.closeNodeScope(jjtn000, true);
           }
     }
+    // Dead code: but we need to do something so the compiler doesn't complain.
     throw new Error("Missing return statement in function");
   }
 
