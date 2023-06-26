@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class ResponseBuilder {
 
-    public HttpServletResponse sendResponse(HttpServletResponse resp, String contentType, String content, int status){
+    public HttpServletResponse buildResponse(HttpServletResponse resp, String contentType, String content, int status){
 		//Set headers for HTTP Response
 		resp.setStatus(status);
 		resp.setContentType(contentType);

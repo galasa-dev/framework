@@ -40,7 +40,7 @@ public class ResultNamesRoute extends RunsRoute {
     @Override
     public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String outputString = retrieveResults(queryParams);
-		return getResponseBuilder().sendResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
+		return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }
 
     public String retrieveResults (QueryParameters queryParams) throws ServletException, InternalServletException{

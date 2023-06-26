@@ -89,7 +89,7 @@ public class BaseServlet extends HttpServlet {
 		}
 
 		if (!response.isEmpty()) {
-			res = getResponseBuilder().sendResponse(res, "application/json", response, httpStatusCode);
+			res = getResponseBuilder().buildResponse(res, "application/json", response, httpStatusCode);
 		}
 	}
 
