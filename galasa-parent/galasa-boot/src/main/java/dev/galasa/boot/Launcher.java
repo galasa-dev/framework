@@ -136,7 +136,7 @@ public class Launcher {
      */
     protected void launch(String[] args) throws LauncherException, InterruptedException {
 
-        this.galasaHome = getGalasaHome();
+        this.galasaHome = getGalasaHome(new SystemEnvironment());
 
         felixFramework = new FelixFramework();
 
@@ -568,21 +568,18 @@ public class Launcher {
 
     /**
      * Obtain the location of the galasa home directory
-     * Note that this logic is copied from FrameworkInitialisation whcih we do not
-     * have access to at this point in time so if you change it here - change it there
      * @return a String representing the location of the users Galasa home directory
      */
-    private String getGalasaHome() {
+    public String getGalasaHome(Environment env) {
         // 1st: If GALASA_HOME is set as a system property then use that,
         // 2nd: If GALASA_HOME is set as a system environment variable, then use that.
         // 3rd: otherwise we use the calling users' home folder.
-        SystemEnvironment system = new SystemEnvironment();
         String GALASA_HOME = "GALASA_HOME";
-        String home = system.getProperty(GALASA_HOME);
+        String home = env.getProperty(GALASA_HOME);
         if( (home == null) || (home.trim().isEmpty())) {
-            home = system.getenv(GALASA_HOME);
+            home = env.getenv(GALASA_HOME);
             if( (home == null) || (home.trim().isEmpty())) {
-                home = system.getProperty(USER_HOME)+"/.galasa";
+                home = env.getProperty(USER_HOME)+"/.galasa";
                 logger.info("System property "+USER_HOME+" used to set value of home location.");
             } else {
                 logger.info("Environment variable GALASA_HOME used to set value of home location.");

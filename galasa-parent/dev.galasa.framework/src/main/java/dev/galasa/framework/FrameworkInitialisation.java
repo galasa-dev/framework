@@ -394,6 +394,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                 createIfMissing(uriDynamicStatusStore,fileSystem);
             } else {
                 uriDynamicStatusStore = new URI(dssProperty);
+                createIfMissing(uriDynamicStatusStore, fileSystem);
             }
         } catch (final Exception e) {
             throw new FrameworkException("Unable to resolve the Dynamic Status Store URI", e);
@@ -446,7 +447,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
             if ((rasProperty == null) || rasProperty.isEmpty()) {
                 // Neither environment nor cps have set the RAS location.
-                // Default to a local RAS
+                // Default to a local RAS within galasaHome
                 uriResultArchiveStores.add(localRasUri);
             } else {
 
