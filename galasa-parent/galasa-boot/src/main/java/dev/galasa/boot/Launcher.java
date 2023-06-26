@@ -111,6 +111,8 @@ public class Launcher {
     private URL                     localMavenRepo;
     private List<URL>               remoteMavenRepos          = new ArrayList<>();
 
+    public Environment              env                       = new SystemEnvironment();
+
     /**
      * Launcher main method
      * 
@@ -136,7 +138,7 @@ public class Launcher {
      */
     protected void launch(String[] args) throws LauncherException, InterruptedException {
 
-        this.galasaHome = getGalasaHome(new SystemEnvironment());
+        this.galasaHome = getGalasaHome(env);
 
         felixFramework = new FelixFramework();
 
@@ -437,7 +439,7 @@ public class Launcher {
         } else {
             try {
                 this.localMavenRepo = new File(
-                        new SystemEnvironment().getProperty(USER_HOME) + File.separator + ".m2" + File.separator + "repository").toURI()
+                        env.getProperty(USER_HOME) + File.separator + ".m2" + File.separator + "repository").toURI()
                                 .toURL();
             } catch (MalformedURLException e) {
                 logger.error("internal error", e);
