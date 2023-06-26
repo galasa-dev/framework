@@ -3,10 +3,8 @@
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
-import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
-import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,14 +12,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.*;
-import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.ResultNames;
-import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;

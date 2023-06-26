@@ -1825,7 +1825,7 @@ public class TestRunQuery extends RasServletTest {
         QueryParameters params = new QueryParameters(map);
 
 		Throwable thrown = catchThrowable( () -> { 
-           Instant checker = new RunQueryRoute( new ResponseBuilder(), null).getWorkingFromValue(params);
+        	new RunQueryRoute( new ResponseBuilder(), null).getWorkingFromValue(params);
         });
 
         assertThat(thrown).isNotNull();
@@ -1839,7 +1839,7 @@ public class TestRunQuery extends RasServletTest {
         QueryParameters params = new QueryParameters(map);
 
 		Throwable thrown = catchThrowable( () -> { 
-            Instant checker = new RunQueryRoute( new ResponseBuilder(), null).getWorkingFromValue(params);
+            new RunQueryRoute( new ResponseBuilder(), null).getWorkingFromValue(params);
         });
 
         assertThat(thrown).isNotNull();
