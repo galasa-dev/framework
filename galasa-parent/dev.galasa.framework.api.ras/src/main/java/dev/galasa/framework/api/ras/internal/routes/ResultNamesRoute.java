@@ -14,27 +14,23 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.QueryParameters;
-import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.*;
 import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
-
-import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class ResultNamesRoute extends RunsRoute {
 
-	public ResultNamesRoute(IFramework framework) {
+	public ResultNamesRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints: 
 		*  -> /ras/runs
 		*  -> /ras/runs/
 		*  -> /ras/runs?{querystring} 
 		*/
-		super("\\/resultnames?");
+		super(responseBuilder, "\\/resultnames?");
 		this.framework = framework;
 	}
 
@@ -42,9 +38,9 @@ public class ResultNamesRoute extends RunsRoute {
     private SortQueryParameterChecker sortQueryParameterChecker = new SortQueryParameterChecker();
 
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String outputString = retrieveResults(queryParams);
-		return sendResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
+		return getResponseBuilder().sendResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }
 
     public String retrieveResults (QueryParameters queryParams) throws ServletException, InternalServletException{

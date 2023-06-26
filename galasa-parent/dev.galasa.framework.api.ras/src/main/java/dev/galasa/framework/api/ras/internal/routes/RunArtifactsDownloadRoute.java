@@ -26,14 +26,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 
+import dev.galasa.framework.api.common.*;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsJson;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsProperties;
 import dev.galasa.framework.api.ras.internal.common.IRunRootArtifact;
-import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.ras.internal.common.RunLogArtifact;
-import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.ras.internal.common.StructureJsonArtifact;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -51,9 +49,13 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
 
     private Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
 
-    public RunArtifactsDownloadRoute(IFileSystem fileSystem, IFramework framework) {
+    public RunArtifactsDownloadRoute(ResponseBuilder responseBuilder, IFileSystem fileSystem, IFramework framework) {
         //  Regex to match endpoint: /ras/runs/{runId}/files/{artifactPath}
-        super("\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)", fileSystem, framework);
+        super(responseBuilder,
+              "\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)", 
+              fileSystem, 
+              framework
+        );
 
         rootArtifacts.put("run.log", new RunLogArtifact());
         rootArtifacts.put("structure.json", new StructureJsonArtifact());
@@ -62,7 +64,7 @@ public class RunArtifactsDownloadRoute extends RunsRoute {
     }
 
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);

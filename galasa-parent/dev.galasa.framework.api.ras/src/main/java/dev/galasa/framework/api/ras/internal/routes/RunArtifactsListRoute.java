@@ -16,14 +16,12 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
+import dev.galasa.framework.api.common.*;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsJson;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsProperties;
 import dev.galasa.framework.api.ras.internal.common.IRunRootArtifact;
-import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.ras.internal.common.RunLogArtifact;
-import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.ras.internal.common.StructureJsonArtifact;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -31,7 +29,6 @@ import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
-import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 /**
@@ -43,9 +40,13 @@ public class RunArtifactsListRoute extends RunsRoute {
 
     private List<IRunRootArtifact> rootArtifacts = new ArrayList<>();
 
-    public RunArtifactsListRoute(IFileSystem fileSystem, IFramework framework) {
+    public RunArtifactsListRoute(
+        ResponseBuilder responseBuilder, 
+        IFileSystem fileSystem, 
+        IFramework framework
+    ) {
         //  Regex to match endpoint: /ras/runs/{runId}/artifacts
-        super("\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?", fileSystem, framework);
+        super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?", fileSystem, framework);
         rootArtifacts = Arrays.asList(
             new RunLogArtifact(),
             new StructureJsonArtifact(),
@@ -55,11 +56,11 @@ public class RunArtifactsListRoute extends RunsRoute {
     }
 
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
         Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);
-        return sendResponse(res, "application/json", retrieveResults(runId), HttpServletResponse.SC_OK);
+        return getResponseBuilder().sendResponse(res, "application/json", retrieveResults(runId), HttpServletResponse.SC_OK);
     }
 
     private String retrieveResults(String runId) throws InternalServletException {

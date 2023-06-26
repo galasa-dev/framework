@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.ras.internal.mocks.MockBaseServletEnvironment;
+import dev.galasa.framework.api.ras.internal.mocks.MockRasServletEnvironment;
 import dev.galasa.framework.api.ras.internal.mocks.MockHttpServletRequest;
 import dev.galasa.framework.spi.IRunResult;
 
@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
-public class TestRunDetailsRoute extends BaseServletTest {
+public class TestRunDetailsRoute extends RasServletTest {
 
     public String generateExpectedJson (String runId, String runName ){
 		return  "{\n"+
@@ -46,9 +46,9 @@ public class TestRunDetailsRoute extends BaseServletTest {
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId);
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -77,9 +77,9 @@ public class TestRunDetailsRoute extends BaseServletTest {
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId);
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -106,9 +106,9 @@ public class TestRunDetailsRoute extends BaseServletTest {
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId);
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();

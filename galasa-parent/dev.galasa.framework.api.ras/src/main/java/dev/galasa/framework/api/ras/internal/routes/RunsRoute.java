@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.common.*;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.ResultNames;
 import dev.galasa.framework.IFileSystem;
@@ -41,12 +42,12 @@ public abstract class RunsRoute extends BaseRoute {
 
     protected IFramework framework;
 
-    public RunsRoute(String path) {
-        super(path);
+    public RunsRoute(ResponseBuilder responseBuilder, String path) {
+        super(responseBuilder, path);
     }
 
-    public RunsRoute(String path, IFileSystem fileSystem, IFramework framework) {
-        super(path);
+    public RunsRoute(ResponseBuilder responseBuilder,String path, IFileSystem fileSystem, IFramework framework) {
+        super(responseBuilder, path);
         this.framework = framework;
         this.fileSystem = fileSystem;
     }

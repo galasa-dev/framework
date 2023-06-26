@@ -15,7 +15,7 @@ import dev.galasa.framework.api.common.QueryParameters;
 import static org.assertj.core.api.Assertions.*;
 
 
-public class TestQueryParameters extends BaseServletTest {
+public class TestQueryParameters extends RasServletTest {
     
 
     //-----------------------------------------------------------------

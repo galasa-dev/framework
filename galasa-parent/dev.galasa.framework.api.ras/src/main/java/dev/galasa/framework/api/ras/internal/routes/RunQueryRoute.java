@@ -5,13 +5,13 @@ package dev.galasa.framework.api.ras.internal.routes;
 
 import org.apache.commons.collections4.ListUtils;
 
-import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.common.*;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -46,13 +46,13 @@ import javax.validation.constraints.NotNull;
  */
 public class RunQueryRoute extends RunsRoute {
 
-	public RunQueryRoute(IFramework framework) {
+	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints: 
 		*  -> /ras/runs
 		*  -> /ras/runs/
 		*  -> /ras/runs?{querystring} 
 		*/
-		super("\\/runs\\/?");
+		super(responseBuilder, "\\/runs\\/?");
 		this.framework = framework;
 	}
 
@@ -63,9 +63,9 @@ public class RunQueryRoute extends RunsRoute {
 	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
 
 	@Override
-	public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+	public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
 		String outputString = retrieveResults(queryParams);
-		return sendResponse(res, "application/json", outputString, HttpServletResponse.SC_OK); 
+		return getResponseBuilder().sendResponse(res, "application/json", outputString, HttpServletResponse.SC_OK); 
 	}
 
 	protected String retrieveResults( 

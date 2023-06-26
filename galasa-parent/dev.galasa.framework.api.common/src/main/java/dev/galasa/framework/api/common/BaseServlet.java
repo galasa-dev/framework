@@ -1,41 +1,25 @@
 /*
  * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.common;
 
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ServiceScope;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.google.gson.Gson;
 
-import dev.galasa.framework.FileSystem;
-import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.QueryParameters;
-import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.ras.internal.routes.IRoute;
-import dev.galasa.framework.api.ras.internal.routes.ResultNamesRoute;
-import dev.galasa.framework.api.ras.internal.routes.RunArtifactsDownloadRoute;
-import dev.galasa.framework.api.ras.internal.routes.RunArtifactsListRoute;
-import dev.galasa.framework.api.ras.internal.routes.RunDetailsRoute;
-import dev.galasa.framework.api.ras.internal.routes.RunLogRoute;
-import dev.galasa.framework.api.ras.internal.routes.RunQueryRoute;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -44,8 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 /*
  * Proxy Servlet for the /ras/* endpoints
  */
-@Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-"osgi.http.whiteboard.servlet.pattern=/ras/*" }, name = "Galasa Ras microservice")
 public class BaseServlet extends HttpServlet {
 
 	@Reference
@@ -53,31 +35,24 @@ public class BaseServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private Log  logger  =  LogFactory.getLog(this.getClass());
-
-	protected IFileSystem fileSystem = new FileSystem();
+	protected Log  logger  =  LogFactory.getLog(this.getClass());
 
 	static final Gson gson = GalasaGsonBuilder.build();
 	
 	private final Map<String, IRoute> routes = new HashMap<>();
- 
+
+	private ResponseBuilder responseBuilder = new ResponseBuilder();
 	
-	@Override
-	public void init() {
-	   addRoute(new RunDetailsRoute(framework));
-	   addRoute(new RunLogRoute(framework));
-	   addRoute(new RunArtifactsListRoute(fileSystem, framework));
-	   addRoute(new RunQueryRoute(framework));
-	   addRoute(new RunArtifactsDownloadRoute(fileSystem, framework));
-	   addRoute(new ResultNamesRoute(framework));
-	}
- 
-	private void addRoute(IRoute route) {
+	protected void addRoute(IRoute route) {
 	   routes.put(route.getPath(), route);
 	}
 
+	protected ResponseBuilder getResponseBuilder() {
+		return this.responseBuilder;
+	}
+
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		String url = req.getPathInfo();
 		String response = "";
 		int httpStatusCode = HttpServletResponse.SC_OK;
@@ -92,7 +67,7 @@ public class BaseServlet extends HttpServlet {
 					Matcher matcher = Pattern.compile(routePattern).matcher(url);
 		
 					if (matcher.matches()) {		
-						res = route.handleRequest(url, queryParameters, res);
+						res = route.handleGetRequest(url, queryParameters, res);
 						return;
 					}
 				}
@@ -114,21 +89,9 @@ public class BaseServlet extends HttpServlet {
 		}
 
 		if (!response.isEmpty()) {
-			res = sendResponse(res, "application/json", response, httpStatusCode);
+			res = getResponseBuilder().sendResponse(res, "application/json", response, httpStatusCode);
 		}
 	}
 
-	public static HttpServletResponse sendResponse(HttpServletResponse resp, String contentType, String content, int status){
-		//Set headers for HTTP Response
-		resp.setStatus(status);
-		resp.setContentType(contentType);
-		resp.addHeader("Access-Control-Allow-Origin", "*");
-		try {
-			PrintWriter out = resp.getWriter();
-			out.print(content);
-			out.close();
-		} catch (Exception e) {
-		}
-		return resp;
-	}
+	
 }
