@@ -136,6 +136,8 @@ public class Launcher {
      */
     protected void launch(String[] args) throws LauncherException, InterruptedException {
 
+        validateJavaLevel();
+
         felixFramework = new FelixFramework();
 
         // Build Felix framework and install required bundles
@@ -560,5 +562,21 @@ public class Launcher {
                 "\nExample test run arguments: --obr infra.obr --obr test.obr --test test.bundle/test.package.TestClass\n"
                         + "Example Resource Management arguments: --obr infra.obr --obr test.obr --resourcemanagement");
         System.exit(-1);
+    }
+
+    public boolean validateJavaLevel(){
+        String version = System.getProperty("java.version");
+        logger.trace("Checking version of Java, found: " + version);
+        if(version == null || version.isEmpty()){
+            return false;
+        }
+
+        if(version.startsWith("11")){
+            logger.trace("Java version 11 validated");
+            return true;
+        }
+
+        logger.error("Galasa requires Java 11, we found: " + version + " will exit");
+        return false;
     }
 }
