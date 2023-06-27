@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.common;
+package dev.galasa.framework.api.ras.internal.verycommon;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

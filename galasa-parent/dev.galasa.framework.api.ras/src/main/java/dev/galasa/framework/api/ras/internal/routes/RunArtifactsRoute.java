@@ -14,7 +14,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;

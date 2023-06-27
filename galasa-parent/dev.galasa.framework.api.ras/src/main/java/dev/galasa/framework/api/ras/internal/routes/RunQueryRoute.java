@@ -5,19 +5,18 @@ package dev.galasa.framework.api.ras.internal.routes;
 
 import org.apache.commons.collections4.ListUtils;
 
-import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.common.*;
+import dev.galasa.framework.api.ras.internal.verycommon.*;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
-import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
+import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
+import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
+import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
-import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
@@ -32,6 +31,8 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+
+import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.time.Instant;

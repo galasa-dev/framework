@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.common;
+package dev.galasa.framework.api.ras.internal.verycommon;
 
 import java.io.PrintWriter;
 import javax.servlet.http.HttpServletResponse;
@@ -24,9 +24,9 @@ public class ResponseBuilder {
 		resp.setContentType(contentType);
 		resp.addHeader("Access-Control-Allow-Origin", "*");
 		
-		// Note: Auto-closes when we leave the code block
-		try (PrintWriter out = resp.getWriter()) {
+		try(PrintWriter out = resp.getWriter()) {
 			out.print(content);
+			out.flush();
 		} catch (Exception ex) {
 			// TODO: Should we actually ignore these exceptions ? How bad is this ?
 			logger.warn("Failed to build response object. Ignoring.", ex);

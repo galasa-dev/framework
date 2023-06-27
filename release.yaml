@@ -108,7 +108,7 @@ api:
     codecoverage: true
     
   - artifact: dev.galasa.framework.api.ras
-    version: 0.28.0
+    version: 0.29.0
     obr: true
     isolated: true
     codecoverage: true
