@@ -29,9 +29,9 @@ dependencies {
             strictly '1.60'
         }
     }
-    implementation ('org.bouncycastle:bcprov-jdk15on') {
+    implementation ('org.bouncycastle:bcprov-jdk18on') {
         version {
-            strictly '1.60'
+            strictly '1.75'
         }
     }
 
