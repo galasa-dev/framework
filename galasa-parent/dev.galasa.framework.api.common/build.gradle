@@ -1,7 +1,8 @@
 plugins {
     id 'biz.aQute.bnd.builder'
     id 'org.openapi.generator' version "5.0.1"
-    id 'galasa.api.server'
+    // id 'galasa.api.server'
+    id 'galasa.java'
 }
 
 description = 'Galasa API - Common'

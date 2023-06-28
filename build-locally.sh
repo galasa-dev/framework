@@ -218,13 +218,18 @@ if [[ "${build_type}" == "delta" ]]; then
     info "Skipping clean phase because this is a delta build."
 else
     h2 "Cleaning..."
-    gradle --no-daemon \
+    echo ">>>>>> Cleaning <<<<<<<" >> ${log_file}
+    cmd="gradle --no-daemon \
     ${CONSOLE_FLAG} \
     --warning-mode=all --debug \
     -Dorg.gradle.java.home=${JAVA_HOME} \
     -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-    clean \
-    2>&1 >> ${log_file}
+    clean"
+    echo "Command is $cmd"
+    echo "------------------" >> ${log_file}
+    echo "Command is $cmd" >> ${log_file}
+    echo "------------------" >> ${log_file}
+    $cmd 2>&1 >> ${log_file}
     rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project} - rc is ${rc} - See logs in ${log_file}" ; exit 1 ; fi
     success "Cleaned OK"
 fi
@@ -237,6 +242,7 @@ rm -fr ~/.m2/repository/dev/galasa/galasa-testharness
 success "OK"
 
 h2 "Building..."
+echo ">>>>>> Building <<<<<<<" >> ${log_file}
 # --parallel
 cmd="gradle --no-build-cache  \
 ${CONSOLE_FLAG} \
@@ -247,6 +253,9 @@ build check jacocoTestReport"
 
 echo "Using this command: $cmd"
 
+echo "------------------" >> ${log_file}
+echo "Command is $cmd" >> ${log_file}
+echo "------------------" >> ${log_file}
 $cmd 2>&1 >> ${log_file}
 rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
 success "Built OK"
@@ -254,13 +263,20 @@ success "Built OK"
 
 
 h2 "Publishing to local maven repo..."
-gradle --build-cache --parallel \
+echo ">>>>>> Publishing <<<<<<<" >> ${log_file}
+cmd="gradle --build-cache --parallel \
 ${CONSOLE_FLAG} \
 --warning-mode=all --debug  \
 -Dorg.gradle.java.home=${JAVA_HOME} \
 -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-publishToMavenLocal \
-2>&1 >> ${log_file}
+publishToMavenLocal"
+
+echo "Command is $cmd"
+
+echo "------------------" >> ${log_file}
+echo "Command is $cmd" >> ${log_file}
+echo "------------------" >> ${log_file}
+$cmd 2>&1 >> ${log_file}
 rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
 success "Published OK"
 
