@@ -47,3 +47,4 @@ Embed-Dependency: *;scope=compile
     simpleclient-0.15.0.jar; lib:=true,\
     simpleclient_httpserver-0.15.0.jar; lib:=true
 -fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning
+

@@ -29,3 +29,4 @@ Embed-Dependency: *;scope=compile
     bcprov-jdk18on-1.75.jar; lib:=true,\
     httpcore5-5.0.2.jar; lib:=true,\
     commons-codec-1.15.jar; lib:=true
+-fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning
