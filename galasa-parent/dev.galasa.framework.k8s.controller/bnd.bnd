@@ -22,9 +22,9 @@ Import-Package: dev.galasa.framework,\
 Embed-Transitive: true
 Embed-Dependency: *;scope=compile
 -includeresource: client-java-16.0.2.jar; lib:=true,\
-    bcpkix-jdk18on-1.71.jar; lib:=true,\
-    bcprov-jdk18on-1.71.jar; lib:=true,\
-    bcutil-jdk18on-1.71.jar; lib:=true,\
+    bcpkix-jdk18on-1.75.jar; lib:=true,\
+    bcprov-jdk18on-1.75.jar; lib:=true,\
+    bcutil-jdk18on-1.75.jar; lib:=true,\
     client-java-api-16.0.2.jar; lib:=true,\
     client-java-proto-16.0.2.jar; lib:=true,\
     commons-codec-1.15.jar; lib:=true,\
@@ -47,3 +47,4 @@ Embed-Dependency: *;scope=compile
     simpleclient-0.15.0.jar; lib:=true,\
     simpleclient_httpserver-0.15.0.jar; lib:=true
 -fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning
+
