@@ -22,10 +22,11 @@ Embed-Dependency: *;scope=compile
     commons-lang3-3.12.0.jar; lib:=true,\
     jackson-databind-2.10.3.jar; lib:=true,\
     guava-19.0.jar; lib:=true,\
-    bcpkix-jdk15on-1.60.jar; lib:=true,\
     jna-5.12.1.jar; lib:=true,\
     jackson-annotations-2.10.3.jar; lib:=true,\
     jackson-core-2.10.3.jar; lib:=true,\
-    bcprov-jdk15on-1.60.jar; lib:=true,\
+    bcpkix-jdk18on-1.75.jar; lib:=true,\
+    bcprov-jdk18on-1.75.jar; lib:=true,\
     httpcore5-5.0.2.jar; lib:=true,\
     commons-codec-1.15.jar; lib:=true
+-fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning
