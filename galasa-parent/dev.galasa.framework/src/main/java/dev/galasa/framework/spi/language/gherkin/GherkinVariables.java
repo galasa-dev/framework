@@ -58,8 +58,8 @@ public class GherkinVariables {
         }
     }
 
-    public HashMap<String,String> getVariableInstance(int instance) {
-        HashMap<String,String> result = new HashMap<>();
+    public HashMap<String,Object> getVariableInstance(int instance) {
+        HashMap<String,Object> result = new HashMap<>();
         for(String key : this.variables.keySet()) {
             result.put(key, this.variables.get(key).get(instance));
         }
