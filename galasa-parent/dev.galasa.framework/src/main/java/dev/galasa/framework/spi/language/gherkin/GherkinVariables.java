@@ -5,6 +5,7 @@ package main.java.dev.galasa.framework.spi.language.gherkin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +51,11 @@ public class GherkinVariables {
     }
 
     public int getNumberOfInstances() {
-        return variables.entrySet().iterator().next().getValue().size();
+        try {
+            return variables.entrySet().iterator().next().getValue().size();
+        }catch(NoSuchElementException nsee) {
+            return 0;
+        }
     }
 
     public HashMap<String,String> getVariableInstance(int instance) {

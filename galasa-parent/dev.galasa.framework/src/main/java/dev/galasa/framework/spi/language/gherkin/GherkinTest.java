@@ -201,7 +201,7 @@ public class GherkinTest {
         } catch (FrameworkException e) {
             throw new TestRunException("Unable to inform managers of start of test class", e);
         }
-
+        
         for (GherkinMethod method : this.methods) {
             method.invoke(managers, this.variables.getVariablesOriginal());
             if(method.fullStop()) {
