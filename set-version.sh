@@ -108,7 +108,7 @@ function update_release_yaml {
     # Read through the release yaml and set the version of the framework bundle explicitly.
     # It's on the line after the line containing 'artifact: dev.galasa.framework'
     is_line_supressed=false
-    while IFS='\n' read -r line
+    while IFS= read -r line
     do
         regex="^.*dev.galasa.framework[ ]*$"
         if [[ "$line" =~ $regex ]]; then
