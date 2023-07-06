@@ -287,6 +287,7 @@ public class Launcher {
         }
 
         checkForBootstrap(commandLine);
+        setStoresFromEnvironmentVariables(env);
         checkForOverrides(commandLine);
         checkForBundles(commandLine);
         checkForMetricsPort(commandLine);
@@ -477,7 +478,7 @@ public class Launcher {
      * 
      * @param commandLine - The command line instance
      */
-    private void checkForBoostrap(CommandLine commandLine) {
+    private void checkForBootstrap(CommandLine commandLine) {
         URI bootstrapUri = null;
         if (commandLine.hasOption(BOOTSTRAP_OPTION)) {
             String uri = commandLine.getOptionValue(BOOTSTRAP_OPTION);
@@ -616,6 +617,11 @@ public class Launcher {
         return output;
     }
 
+
+    /**
+     * Read a set of environment variables that will override the values of the CPS, RAS, DSS and Creds store
+     * if these are set then they override the value in the bootstrap   
+     */
     public void setStoresFromEnvironmentVariables(Environment env, Properties bootstrap) {
         String CPS_ENV_VAR = "GALASA_CONFIG_STORE";
         String DSS_ENV_VAR = "GALASA_DYNAMICSTATUS_STORE";
