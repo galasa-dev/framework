@@ -286,7 +286,7 @@ public class Launcher {
             }
         }
 
-        checkForBoostrap(commandLine);
+        checkForBootstrap(commandLine);
         checkForOverrides(commandLine);
         checkForBundles(commandLine);
         checkForMetricsPort(commandLine);
@@ -614,5 +614,36 @@ public class Launcher {
             output = output.substring(0,output.length()-1);
         }
         return output;
+    }
+
+    public void setStoresFromEnvironmentVariables(Environment env, Properties bootstrap) {
+        String CPS_ENV_VAR = "GALASA_CONFIG_STORE";
+        String DSS_ENV_VAR = "GALASA_DYNAMICSTATUS_STORE";
+        String RAS_ENV_VAR = "GALASA_RESULTARCHIVE_STORE";
+        String CREDS_ENV_VAR = "GALASA_CREDENTIALS_STORE";
+
+        String cps = env.getProperty(CPS_ENV_VAR);
+        if( (cps != null) || (!cps.trim().isEmpty())){
+            logger.info(String.format("Environment variable: %s used to locate CPS location",CPS_ENV_VAR));
+            bootstrap.setProperty("framework.config.store",cps);
+        }
+
+        String dss = env.getProperty(DSS_ENV_VAR);
+        if( (dss != null) || (!dss.trim().isEmpty())){
+            logger.info(String.format("Environment variable: %s used to locate DSS location",DSS_ENV_VAR));
+            bootstrap.setProperty("framework.dynamicstatus.store",dss);
+        }
+
+        String ras = env.getProperty(RAS_ENV_VAR);
+        if( (ras != null) || (!ras.trim().isEmpty())){
+            logger.info(String.format("Environment variable: %s used to locate RAS location",RAS_ENV_VAR));
+            bootstrap.setProperty("framework.resultarchive.store",ras);
+        }
+
+        String creds = env.getProperty(CREDS_ENV_VAR);
+        if( (creds != null) || (!creds.trim().isEmpty())){
+            logger.info(String.format("Environment variable: %s used to locate credentials store location",CREDS_ENV_VAR));
+            bootstrap.setProperty("framework.credentials.store",creds);
+        }
     }
 }
