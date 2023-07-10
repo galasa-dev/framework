@@ -138,11 +138,9 @@ public class Launcher {
      */
     protected void launch(String[] args) throws LauncherException, InterruptedException {
 
-<<<<<<< HEAD
         validateJavaLevel();
-=======
+        
         this.galasaHome = getGalasaHome(env);
->>>>>>> main
 
         felixFramework = new FelixFramework();
 
