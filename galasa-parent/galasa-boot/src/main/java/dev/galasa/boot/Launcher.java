@@ -138,8 +138,8 @@ public class Launcher {
      */
     protected void launch(String[] args) throws LauncherException, InterruptedException {
 
-        validateJavaLevel();
-        
+        validateJavaLevel(env);
+
         this.galasaHome = getGalasaHome(env);
 
         felixFramework = new FelixFramework();
@@ -571,8 +571,8 @@ public class Launcher {
         System.exit(-1);
     }
 
-    public void validateJavaLevel() throws LauncherException{
-        String version = System.getProperty("java.version");
+    public void validateJavaLevel(Environment env) throws LauncherException{
+        String version = env.getProperty("java.version");
         logger.trace("Checking version of Java, found: " + version);
         if(version == null || version.isEmpty()){
             logger.error("Unable to determine Java version - will exit");
