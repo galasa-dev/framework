@@ -287,7 +287,7 @@ public class Launcher {
         }
 
         checkForBootstrap(commandLine);
-        setStoresFromEnvironmentVariables(env);
+        setStoresFromEnvironmentVariables(env,bootstrapProperties);
         checkForOverrides(commandLine);
         checkForBundles(commandLine);
         checkForMetricsPort(commandLine);
