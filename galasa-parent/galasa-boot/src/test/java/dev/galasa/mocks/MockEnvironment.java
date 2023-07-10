@@ -1,11 +1,11 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.mocks;
+package dev.galasa.boot.mocks;
 
 import java.util.*;
 
-import dev.galasa.framework.Environment;
+import dev.galasa.boot.Environment;
 
 /**
  * An implementation of the Environment interface which allows code to get

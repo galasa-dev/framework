@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework;
+package dev.galasa.boot;
 
 /**
  * An implementation of the Environment interface which allows code to get
