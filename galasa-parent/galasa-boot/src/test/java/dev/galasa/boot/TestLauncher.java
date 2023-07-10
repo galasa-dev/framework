@@ -96,4 +96,30 @@ public class TestLauncher {
         assertThat(bootstrap.getProperty("framework.resultarchive.store")).isEqualTo("/this/should/be/ignored/ras");
         assertThat(bootstrap.getProperty("framework.credentials.store")).isEqualTo("/this/should/be/ignored.properties");
     }
+
+    @Test
+    public void checkEnvironmentVariablesAreTrimmed() {
+        Launcher l  = new Launcher();
+        MockEnvironment me = new MockEnvironment();
+        Properties bootstrap = new Properties();
+
+        bootstrap.setProperty("framework.config.store","/this/should/be/ignored.properties");
+        me.setProperty("GALASA_CONFIG_STORE","/Users/hobbit/galasa_home/cps.properties  ");
+
+        bootstrap.setProperty("framework.dynamicstatus.store","/this/should/be/ignored.properties");
+        me.setProperty("GALASA_DYNAMICSTATUS_STORE","  /Users/hobbit/galasa_home/dss.properties");
+
+        bootstrap.setProperty("framework.resultarchive.store","/this/should/be/ignored/ras");
+        me.setProperty("GALASA_RESULTARCHIVE_STORE"," /Users/hobbit/galasa_home/ras  ");
+
+        bootstrap.setProperty("framework.credentials.store","/this/should/be/ignored.properties");
+        me.setProperty("GALASA_CREDENTIALS_STORE","/Users/hobbit/galasa_home/creds.properties");
+
+        l.setStoresFromEnvironmentVariables(me,bootstrap);
+
+        assertThat(bootstrap.getProperty("framework.config.store")).isEqualTo("/Users/hobbit/galasa_home/cps.properties");
+        assertThat(bootstrap.getProperty("framework.dynamicstatus.store")).isEqualTo("/Users/hobbit/galasa_home/dss.properties");
+        assertThat(bootstrap.getProperty("framework.resultarchive.store")).isEqualTo("/Users/hobbit/galasa_home/ras");
+        assertThat(bootstrap.getProperty("framework.credentials.store")).isEqualTo("/Users/hobbit/galasa_home/creds.properties");
+    }
 }
