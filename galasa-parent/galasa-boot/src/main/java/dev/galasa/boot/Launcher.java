@@ -136,9 +136,7 @@ public class Launcher {
      */
     protected void launch(String[] args) throws LauncherException, InterruptedException {
 
-        if(!validateJavaLevel()){
-            System.exit(16);
-        }
+        validateJavaLevel();
 
         felixFramework = new FelixFramework();
 
@@ -566,20 +564,20 @@ public class Launcher {
         System.exit(-1);
     }
 
-    public boolean validateJavaLevel(){
+    public void validateJavaLevel() throws LauncherException{
         String version = System.getProperty("java.version");
         logger.trace("Checking version of Java, found: " + version);
         if(version == null || version.isEmpty()){
             logger.error("Unable to determine Java version - will exit");
-            return false;
+            throw new LauncherException("Unable to determine Java version - will exit");
         }
 
         if(version.startsWith("11")){
             logger.trace("Java version 11 validated");
-            return true;
+            return;
         }
 
         logger.error("Galasa requires Java 11, we found: " + version + " will exit");
-        return false;
+        throw new LauncherException("Galasa requires Java 11, we found: " + version + " will exit");
     }
 }
