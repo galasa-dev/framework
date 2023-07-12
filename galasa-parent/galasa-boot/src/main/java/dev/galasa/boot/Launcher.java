@@ -138,6 +138,8 @@ public class Launcher {
      */
     protected void launch(String[] args) throws LauncherException, InterruptedException {
 
+        validateJavaLevel(env);
+
         this.galasaHome = getGalasaHome(env);
 
         felixFramework = new FelixFramework();
@@ -569,6 +571,23 @@ public class Launcher {
         System.exit(-1);
     }
 
+    public void validateJavaLevel(Environment env) throws LauncherException{
+        String version = env.getProperty("java.version");
+        logger.trace("Checking version of Java, found: " + version);
+        if(version == null || version.isEmpty()){
+            logger.error("Unable to determine Java version - will exit");
+            throw new LauncherException("Unable to determine Java version - will exit");
+        }
+
+        if(version.startsWith("11")){
+            logger.trace("Java version 11 validated");
+            return;
+        }
+
+        logger.error("Galasa requires Java 11, we found: " + version + " will exit");
+        throw new LauncherException("Galasa requires Java 11, we found: " + version + " will exit");
+    }
+    
     /**
      * Obtain the location of the galasa home directory
      * @return a String representing the location of the users Galasa home directory

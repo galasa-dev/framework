@@ -122,4 +122,74 @@ public class TestLauncher {
         assertThat(bootstrap.getProperty("framework.resultarchive.store")).isEqualTo("/Users/hobbit/galasa_home/ras");
         assertThat(bootstrap.getProperty("framework.credentials.store")).isEqualTo("/Users/hobbit/galasa_home/creds.properties");
     }
+
+    @Test
+    public void testJava8Fails() {
+        Launcher l  = new Launcher();
+        MockEnvironment me = new MockEnvironment();
+
+        me.setProperty("java.version","8");
+
+        try{
+            l.validateJavaLevel(me);
+        }catch(LauncherException le){
+            return;
+        }
+        fail("LauncherException should have been thrown");
+    }
+
+    @Test
+    public void testJava11Passes() {
+        Launcher l  = new Launcher();
+        MockEnvironment me = new MockEnvironment();
+
+        me.setProperty("java.version","11");
+
+        try{
+            l.validateJavaLevel(me);
+        }catch(LauncherException le){
+            fail("LauncherException thrown");
+        }
+    }
+
+    @Test
+    public void testJava16Fails() {
+        Launcher l  = new Launcher();
+        MockEnvironment me = new MockEnvironment();
+
+        me.setProperty("java.version","16");
+
+        try{
+            l.validateJavaLevel(me);
+        }catch(LauncherException le){
+            return;
+        }
+        fail("LauncherException should have been thrown");
+    }
+
+    @Test
+    public void testCurrentJavaWorks() {
+        Launcher l  = new Launcher();
+        MockEnvironment me = new MockEnvironment();
+
+        me.setProperty("java.version",System.getProperty("java.version"));
+
+        try{
+            l.validateJavaLevel(me);
+        }catch(LauncherException le){
+            fail("LauncherException thrown");
+        }
+    }
+
+    @Test
+    public void testWhenNoJavaFails() {
+        Launcher l  = new Launcher();
+        MockEnvironment me = new MockEnvironment();
+        try{
+            l.validateJavaLevel(me);
+        }catch(LauncherException le){
+            return;
+        }
+        fail("LauncherException should have been thrown");
+    }
 }
