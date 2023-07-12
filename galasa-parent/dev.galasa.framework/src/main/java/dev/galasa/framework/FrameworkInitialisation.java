@@ -111,11 +111,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         }
 
         this.uriConfigurationPropertyStore = locateConfigurationPropertyStore(
-            this.logger, this.bootstrapProperties, this.fileSystem);
+            this.logger, overrideProperties, this.fileSystem);
         this.cpsFramework = initialiseConfigurationPropertyStore(logger,bundleContext);
 
         this.uriDynamicStatusStore = locateDynamicStatusStore(
-            this.logger, this.cpsFramework, this.fileSystem);
+            this.logger, overrideProperties, this.cpsFramework, this.fileSystem);
         this.dssFramework = initialiseDynamicStatusStore(logger,bundleContext);
 
         if (testrun) {
@@ -127,12 +127,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             this.framework.setTestRunName(runName);
         }
 
-        this.uriResultArchiveStores = createUriResultArchiveStores(this.cpsFramework);
+        this.uriResultArchiveStores = createUriResultArchiveStores(overrideProperties, this.cpsFramework);
         logger.debug("Result Archive Stores are " + this.uriResultArchiveStores.toString());
         initialiseResultsArchiveStore(logger,bundleContext);
 
         this.uriCredentialsStore = locateCredentialsStore(
-            this.logger,this.cpsFramework,this.fileSystem);
+            this.logger,overrideProperties,this.cpsFramework,this.fileSystem);
         initialiseCredentialsStore(logger,bundleContext);
 
         initialiseConfidentialTextService(logger,bundleContext);
@@ -355,12 +355,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      */
     URI locateConfigurationPropertyStore(
         Log logger ,
-        Properties bootstrapProperties,
+        Properties overrideProperties,
         IFileSystem fileSystem
     ) throws URISyntaxException {
 
         URI storeUri ;
-        String propUri = bootstrapProperties.getProperty("framework.config.store");
+        String propUri = overrideProperties.getProperty("framework.config.store");
         if ((propUri != null) && (!propUri.isEmpty())) {
             logger.debug("bootstrap property framework.config.store used to determine CPS location.");
         }
@@ -382,13 +382,14 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     // Note: Not private so we can easily unit test it.
     URI locateDynamicStatusStore(
         Log logger,
+        Properties overrideProperties,
         IConfigurationPropertyStoreService cpsFramework,
         IFileSystem fileSystem
     ) throws FrameworkException {
 
         URI uriDynamicStatusStore = null;
         try {
-            String dssProperty = bootstrapProperties.getProperty("framework.dynamicstatus.store");
+            String dssProperty = overrideProperties.getProperty("framework.dynamicstatus.store");
             if((dssProperty != null) && !dssProperty.isEmpty()){
                 uriDynamicStatusStore = new URI(dssProperty);
                 logger.debug("Dynamic Status Store is " + uriDynamicStatusStore.toString());
@@ -442,6 +443,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * @throws FrameworkException
      */
     List<URI> createUriResultArchiveStores(
+        Properties overrideProperties,
         IConfigurationPropertyStoreService cpsFramework
     ) throws FrameworkException {
 
@@ -451,7 +453,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         URI localRasUri = localRasPath.toUri();
         try {
 
-            String rasProperty = bootstrapProperties.getProperty("framework.resultarchive.store");
+            String rasProperty = overrideProperties.getProperty("framework.resultarchive.store");
             if((rasProperty != null) && !rasProperty.isEmpty()){
                 final String[] rasPaths = rasProperty.split(",");
                 for (final String rasPath : rasPaths) {
@@ -513,6 +515,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      */
     URI locateCredentialsStore(
         Log logger,
+        Properties overrideProperties,
         IConfigurationPropertyStoreService cpsFramework,
         IFileSystem fileSystem
     ) throws FrameworkException {
@@ -520,7 +523,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         URI uriCredentialsStore ;
         // *** Work out the creds uri
         try {
-            String credsProperty = bootstrapProperties.getProperty("framework.credentials.store");
+            String credsProperty = overrideProperties.getProperty("framework.credentials.store");
             if((credsProperty != null) && !credsProperty.isEmpty()){
                 uriCredentialsStore = new URI(credsProperty);
                 logger.debug("Credentials Store is " + uriCredentialsStore.toString());
@@ -680,4 +683,4 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                 + this.framework.getConfidentialTextService().getClass().getName());
 
     }
-}
+}   

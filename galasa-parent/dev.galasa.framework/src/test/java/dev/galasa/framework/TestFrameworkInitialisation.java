@@ -274,7 +274,7 @@ public class TestFrameworkInitialisation {
 
         // When...
         URI uri = frameworkInit.locateDynamicStatusStore(
-            logger, mockCPS, fs);
+            logger, bootstrap, mockCPS, fs);
 
         // Then...
         assertThat(uri).isNotNull();
@@ -307,7 +307,7 @@ public class TestFrameworkInitialisation {
 
         // When...
         URI uri = frameworkInit.locateDynamicStatusStore(
-            logger, frameworkInit.getFramework().getConfigurationPropertyService("framework"), fs);
+            logger, new Properties(), frameworkInit.getFramework().getConfigurationPropertyService("framework"), fs);
 
         // Then...
         assertThat(uri).isNotNull();
@@ -342,7 +342,7 @@ public class TestFrameworkInitialisation {
 
         // When...
         URI uri = frameworkInit.locateCredentialsStore(
-            logger, mockCPS, fs);
+            logger, new Properties(), mockCPS, fs);
 
         // Then...
         assertThat(uri).isNotNull();
@@ -375,7 +375,7 @@ public class TestFrameworkInitialisation {
 
         // When...
         URI uri = frameworkInit.locateCredentialsStore(
-            logger, frameworkInit.getFramework().getConfigurationPropertyService("framework"), fs);
+            logger, new Properties(), frameworkInit.getFramework().getConfigurationPropertyService("framework"), fs);
 
         // Then...
         assertThat(uri).isNotNull();
@@ -399,7 +399,7 @@ public class TestFrameworkInitialisation {
         MockCPSStore mockCPS = new MockCPSStore(cpsProps);
 
         // When...
-        List<URI> uriList = frameworkInit.createUriResultArchiveStores(mockCPS);
+        List<URI> uriList = frameworkInit.createUriResultArchiveStores(new Properties(), mockCPS);
         assertThat(uriList).contains(URI.create("file:///myoverriddenhome/ras"));
     }
 
@@ -421,7 +421,7 @@ public class TestFrameworkInitialisation {
         MockCPSStore mockCPS = new MockCPSStore(cpsProps);
 
         // When...
-        List<URI> uriList = frameworkInit.createUriResultArchiveStores(mockCPS);
+        List<URI> uriList = frameworkInit.createUriResultArchiveStores(new Properties(),mockCPS);
         assertThat(uriList).contains(URI.create("file:///myuser/home/ras"));
     }
 
