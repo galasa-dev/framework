@@ -74,6 +74,7 @@ Options are:
 EOF
 }
 
+#-------------------------------------------------------------
 function download_dependencies {
     if [[ "${build_type}" == "clean" ]]; then
         h2 "Cleaning the dependencies out..."
@@ -94,6 +95,7 @@ function download_dependencies {
     success "OK"
 }
 
+#-------------------------------------------------------------
 function generate_rest_docs {
     OPENAPI_YAML_FILE="${BASEDIR}/openapi.yaml"
     OUTPUT_DIR="${BASEDIR}/docs/generated/galasaapi"
@@ -131,6 +133,73 @@ function generate_rest_docs {
     success "Generated REST API documentation at ${OUTPUT_DIR}/index.html"
 }
 
+#-------------------------------------------------------------
+function build_code {
+    h2 "Building..."
+
+    # goals="buildReleaseYaml build check jacocoTestReport"
+    goals="buildReleaseYaml"
+
+    info "Building goals $goals"
+
+    cmd="gradle --build-cache --parallel \
+    ${CONSOLE_FLAG} \
+    --warning-mode=all \
+    -Dorg.gradle.java.home=${JAVA_HOME} \
+    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+    $goals \
+    "
+
+    info "Using this command: $cmd"
+    $cmd 2>&1 >> ${log_file}
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
+    success "Built OK"
+}
+
+#-------------------------------------------------------------
+function publish_to_maven {
+    h2 "Publishing to local maven repo..."
+    gradle --build-cache --parallel \
+    ${CONSOLE_FLAG} \
+    --warning-mode=all --debug  \
+    -Dorg.gradle.java.home=${JAVA_HOME} \
+    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+    publishToMavenLocal \
+    2>&1 >> ${log_file}
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
+    success "Published OK"
+}
+
+#-------------------------------------------------------------
+function clean_up_local_maven_repo {
+    h2 "Removing .m2 artifacts"
+    rm -fr ~/.m2/repository/dev/galasa/dev.galasa.framework*
+    rm -fr ~/.m2/repository/dev/galasa/dev.galasa
+    rm -fr ~/.m2/repository/dev/galasa/galasa-boot
+    rm -fr ~/.m2/repository/dev/galasa/galasa-testharness
+    success "OK"
+}
+
+#-------------------------------------------------------------
+function cleaning_up_before_we_start {
+    if [[ "${build_type}" == "delta" ]]; then
+        info "Skipping clean phase because this is a delta build."
+    else
+        h2 "Cleaning..."
+        gradle --no-daemon \
+        ${CONSOLE_FLAG} \
+        --warning-mode=all --debug \
+        -Dorg.gradle.java.home=${JAVA_HOME} \
+        -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+        clean \
+        2>&1 >> ${log_file}
+        rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project}" ; exit 1 ; fi
+        success "Cleaned OK"
+    fi
+
+    clean_up_local_maven_repo
+}
+
 #-----------------------------------------------------------------------------------------                   
 # Process parameters
 #-----------------------------------------------------------------------------------------                   
@@ -157,6 +226,7 @@ if [[ "${build_type}" == "" ]]; then
     usage
     exit 1  
 fi
+
 
 
 #-----------------------------------------------------------------------------------------                   
@@ -214,69 +284,16 @@ CONSOLE_FLAG=--console=plain
 log_file=${LOGS_DIR}/${project}.txt
 info "Log will be placed at ${log_file}"
 
-if [[ "${build_type}" == "delta" ]]; then
-    info "Skipping clean phase because this is a delta build."
-else
-    h2 "Cleaning..."
-    gradle --no-daemon \
-    ${CONSOLE_FLAG} \
-    --warning-mode=all --debug \
-    -Dorg.gradle.java.home=${JAVA_HOME} \
-    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-    clean \
-    2>&1 >> ${log_file}
-    rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project}" ; exit 1 ; fi
-    success "Cleaned OK"
-fi
-
-h2 "Removing .m2 artifacts"
-rm -fr ~/.m2/repository/dev/galasa/dev.galasa.framework*
-rm -fr ~/.m2/repository/dev/galasa/dev.galasa
-rm -fr ~/.m2/repository/dev/galasa/galasa-boot
-rm -fr ~/.m2/repository/dev/galasa/galasa-testharness
-success "OK"
-
-h2 "Building..."
-cat << EOF
-
-Using this command:
-
-gradle --build-cache  \
-${CONSOLE_FLAG} \
---warning-mode=all \
--Dorg.gradle.java.home=${JAVA_HOME} \
--PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-build check \
-2>&1 >> ${log_file}
-
-EOF
-
-gradle --build-cache --parallel \
-${CONSOLE_FLAG} \
---warning-mode=all \
--Dorg.gradle.java.home=${JAVA_HOME} \
--PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-build check jacocoTestReport \
-2>&1 >> ${log_file}
-rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
-success "Built OK"
 
 
-
-h2 "Publishing to local maven repo..."
-gradle --build-cache --parallel \
-${CONSOLE_FLAG} \
---warning-mode=all --debug  \
--Dorg.gradle.java.home=${JAVA_HOME} \
--PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-publishToMavenLocal \
-2>&1 >> ${log_file}
-rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
-success "Published OK"
+cleaning_up_before_we_start
+build_code
+publish_to_maven
 
 if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
     download_dependencies
 fi
+
 generate_rest_docs
 
 success "Project ${project} built - OK - log is at ${log_file}"

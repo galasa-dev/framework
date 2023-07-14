@@ -6,3 +6,17 @@ plugins {
 version = '0.21.0'
 
 description = 'Galasa Testers Programmer Interface (TPI)'
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file 
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.project_name=project.name
+ext.include_in_obr          = true
+ext.include_in_mvp          = true
+ext.include_in_isolated     = false
+ext.include_in_bom          = true
+ext.include_in_codecoverage = true
+ext.include_in_javadoc      = true
+
