@@ -453,7 +453,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         URI localRasUri = localRasPath.toUri();
         try {
 
+<<<<<<< HEAD
             String rasProperty = overrideProperties.getProperty("framework.resultarchive.store");
+=======
+            String rasProperty = bootstrapProperties.getProperty("framework.resultarchive.store");
+>>>>>>> 9b352623 (updates to initialisation)
             if((rasProperty != null) && !rasProperty.isEmpty()){
                 final String[] rasPaths = rasProperty.split(",");
                 for (final String rasPath : rasPaths) {
@@ -523,7 +527,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         URI uriCredentialsStore ;
         // *** Work out the creds uri
         try {
+<<<<<<< HEAD
             String credsProperty = overrideProperties.getProperty("framework.credentials.store");
+=======
+            String credsProperty = bootstrapProperties.getProperty("framework.credentials.store");
+>>>>>>> 9b352623 (updates to initialisation)
             if((credsProperty != null) && !credsProperty.isEmpty()){
                 uriCredentialsStore = new URI(credsProperty);
                 logger.debug("Credentials Store is " + uriCredentialsStore.toString());
