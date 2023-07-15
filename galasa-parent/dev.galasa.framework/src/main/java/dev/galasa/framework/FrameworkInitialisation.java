@@ -389,7 +389,6 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         URI uriDynamicStatusStore = null;
         try {
-
             String dssProperty = overrideProperties.getProperty("framework.dynamicstatus.store");
             if((dssProperty != null) && !dssProperty.isEmpty()){
                 uriDynamicStatusStore = new URI(dssProperty);
