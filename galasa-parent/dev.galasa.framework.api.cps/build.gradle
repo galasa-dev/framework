@@ -32,11 +32,11 @@ openApiGenerate {
 // or referenced from.
 // The settings here are gathered together by the build process to create a release.yaml file 
 // which gathers-up all the packaging metadata about all the OSGi bundles in this component.
-ext.project_name=project.name
-ext.include_in_obr          = true
-ext.include_in_mvp          = false
-ext.include_in_isolated     = true
-ext.include_in_bom          = false
-ext.include_in_codecoverage = true
-ext.include_in_javadoc      = false
+ext.projectName=project.name
+ext.includeInOBR          = true
+ext.includeInMVP          = false
+ext.includeInIsolated     = true
+ext.includeInBOM          = false
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = false
 

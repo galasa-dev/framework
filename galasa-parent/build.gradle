@@ -164,13 +164,13 @@ task buildReleaseYamlSubprojects() {
         ext {
             // the property that should be overridden in suproject's build.gradle
             // Each sub-project will set the values...
-            project_name = '' // The name of the bundle.
-            include_in_obr = '' // Is the bundle included in the uber-obr ?
-            include_in_mvp = '' 
-            include_in_bom = '' 
-            include_in_javadoc = '' // Is the component displayed to users on the public javadoc site ?
-            include_in_isolated = '' // Is the component included in the bundles shipped as part of the isolated build ?
-            include_in_codecoverage = ''
+            projectName = '' // The name of the bundle.
+            includeInOBR = '' // Is the bundle included in the uber-obr ?
+            includeInMVP = '' 
+            includeInBOM = '' 
+            includeInJavadoc = '' // Is the component displayed to users on the public javadoc site ?
+            includeInIsolated = '' // Is the component included in the bundles shipped as part of the isolated build ?
+            includeInCodeCoverage = ''
         }
 
         afterEvaluate {
@@ -180,36 +180,36 @@ task buildReleaseYamlSubprojects() {
 
                     // Decide which manifest file we want to append to based on subcomponent.
                     def manifestFilePath
-                    if ( project_name.startsWith('dev.galasa.framework.api') ) {
+                    if ( projectName.startsWith('dev.galasa.framework.api') ) {
                         manifestFilePath = apiManifestFilePath
                     } else {
                         manifestFilePath = frameworkManifestFilePath
                     }
 
-                    if (project_name == '') {
+                    if (projectName == '') {
                         throw new Exception("Project has no name.")
                     }
 
                     def f = new File(manifestFilePath)
-                    f.append("\n\n  - artifact: $project_name")
+                    f.append("\n\n  - artifact: $projectName")
                     f.append("\n    version: $version")
-                    if (include_in_obr != '') {
-                        f.append("\n    obr:          $include_in_obr")
+                    if (includeInOBR != '') {
+                        f.append("\n    obr:          $includeInOBR")
                     }
-                    if (include_in_mvp != '') {
-                        f.append("\n    mvp:          $include_in_mvp")
+                    if (includeInMVP != '') {
+                        f.append("\n    mvp:          $includeInMVP")
                     }
-                    if (include_in_bom != '') {
-                        f.append("\n    bom:          $include_in_bom")
+                    if (includeInBOM != '') {
+                        f.append("\n    bom:          $includeInBOM")
                     }
-                    if (include_in_javadoc != '') {
-                        f.append("\n    javadoc:      $include_in_javadoc")
+                    if (includeInJavadoc != '') {
+                        f.append("\n    javadoc:      $includeInJavadoc")
                     }
-                    if (include_in_isolated != '') {
-                        f.append("\n    isolated:     $include_in_isolated")
+                    if (includeInIsolated != '') {
+                        f.append("\n    isolated:     $includeInIsolated")
                     }
-                    if (include_in_codecoverage != '') {
-                        f.append("\n    codecoverage: $include_in_codecoverage")
+                    if (includeInCodeCoverage != '') {
+                        f.append("\n    codecoverage: $includeInCodeCoverage")
                     }
 
                 }
