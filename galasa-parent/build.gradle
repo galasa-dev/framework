@@ -6,6 +6,10 @@ plugins {
     id 'maven-publish'
 }
 
+// Note: The following line is changed by the set-version.sh script.
+// It is also read by other build scrips as required.
+version = "0.30.0"
+
 repositories {
     gradlePluginPortal()
     mavenCentral()
@@ -56,7 +60,24 @@ allprojects {
    }
 }
 
-
+//---------------------------------------------------------------
+// We need to gather the release and packaging metadata from each
+// sub-project, to generate a release.yaml document which can act
+// as a manifest for this component.
+//
+// The OSGi bundles in this project are all in one of two groups:
+// - The 'framework'
+// or 
+// - The 'api'
+//
+// Each module is examined, and contributes it's metadata to one
+// of two manifest files. Both manifest files are then combined
+// into an overall manifest file ready to be published to a 
+// maven repository.
+//
+// At a later time, the OBR project will draw-down the manifest
+// and use it to build the uber-obr.
+//---------------------------------------------------------------
 configurations {
     release_metadata
 }
@@ -96,6 +117,11 @@ api:
   bundles:
 """
 
+
+//----------------------------------------------------------
+// Flushes any existing content on the specified path, and 
+// creates a new file, containing the header text.
+//----------------------------------------------------------
 def prepareGeneratedFile(path , header) {
     // Make sure the manifest file is clean, and exists.
     def overallManifestFile = new File(path)
@@ -109,6 +135,10 @@ def prepareGeneratedFile(path , header) {
     overallManifestFile.append(header)
 }
 
+//----------------------------------------------------------
+// Prepare the overall manifest, and a manifest for each of 
+// the 'framework' and 'api' collections of bundles.
+//----------------------------------------------------------
 task buildReleaseYamlPrepare() {
     // During execution phase, make sure the file exists.
     doFirst{
@@ -123,6 +153,10 @@ task buildReleaseYamlPrepare() {
     }
 }
 
+//----------------------------------------------------------
+// Allow each subproject to contribute to one of the manifest 
+// collectons.
+//----------------------------------------------------------
 task buildReleaseYamlSubprojects() {
     dependsOn buildReleaseYamlPrepare
 
@@ -184,6 +218,11 @@ task buildReleaseYamlSubprojects() {
     }
 }
 
+//----------------------------------------------------------
+// Once we've collected all the metadata into either the 
+// 'framework' or 'api' collections of bundle information, 
+// Combine them into the 'overall' manifest file.
+//----------------------------------------------------------
 task buildReleaseYamlFinalise() {
     dependsOn buildReleaseYamlSubprojects
     // At the end of days, add the framework and api sections to the overall manifest file.
@@ -200,6 +239,7 @@ task buildReleaseYaml() {
     dependsOn buildReleaseYamlFinalise
 }
 
+// Declare that the uber-manifest release.yaml file exists, and how to build it.
 def myReleaseYaml = artifacts.add('release_metadata', file(overallManifestFilePath)) {
     builtBy 'buildReleaseYaml'
 }
@@ -209,8 +249,9 @@ def myReleaseYaml = artifacts.add('release_metadata', file(overallManifestFilePa
 publishing {
     publications {
         maven(MavenPublication) {
+            // Publish the component manifest/release.yaml
             artifact myReleaseYaml
-            artifactId "dev.galasa.framework"
+            artifactId "dev.galasa.framework.manifest"
             groupId 'dev.galasa'
             version version
         }
