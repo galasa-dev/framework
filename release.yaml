@@ -76,12 +76,6 @@ api:
     obr: true
     isolated: true
     codecoverage: true
-
-  - artifact: dev.galasa.framework.api.common
-    version: 0.29.0
-    obr: true
-    isolated: true
-    codecoverage: true
     
   - artifact: dev.galasa.framework.api.authentication
     version: 0.25.0

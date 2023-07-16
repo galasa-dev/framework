@@ -1,3 +1,0 @@
--snapshot ${tstamp}
-Bundle-Name: Galasa API common microservices servlet classes
-Export-Package: dev.galasa.framework.api.common
