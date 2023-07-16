@@ -35,13 +35,15 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private Log logger;
     private IFileSystem fileSystem ;
 
+    private String galasaHome;
+
     
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
         Properties overrideProperties
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
         this(bootstrapProperties, overrideProperties, false, null, 
-        new SystemEnvironment() , getBundleContext() , new FileSystem() );
+        getBundleContext() , new FileSystem() );
     }
 
 
@@ -51,7 +53,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         boolean testrun
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
         this(bootstrapProperties, overrideProperties, testrun, null, 
-        new SystemEnvironment() , getBundleContext() , new FileSystem());
+        getBundleContext() , new FileSystem());
     }
 
 
@@ -62,7 +64,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         Log initLogger
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
         this(bootstrapProperties, overrideProperties, testrun, initLogger, 
-        new SystemEnvironment(), getBundleContext(), new FileSystem());
+        getBundleContext(), new FileSystem());
     }
 
 
@@ -75,14 +77,16 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         Properties bootstrapProperties, 
         Properties overrideProperties, 
         boolean testrun,
-        Log initLogger, 
-        Environment env , 
+        Log initLogger,
         BundleContext bundleContext , 
         IFileSystem fileSystem
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
 
         this.bootstrapProperties = bootstrapProperties;
         this.fileSystem = fileSystem;
+
+        //load galasa home from the bootstrap
+        this.galasaHome = bootstrapProperties.getProperty("framework.galasa.home");
 
         // *** Copy the the bootstrap properties to the override properties so that they
         // are available to the managers
@@ -107,11 +111,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         }
 
         this.uriConfigurationPropertyStore = locateConfigurationPropertyStore(
-            this.logger, env,this.bootstrapProperties, this.fileSystem);
+            this.logger, overrideProperties, this.fileSystem);
         this.cpsFramework = initialiseConfigurationPropertyStore(logger,bundleContext);
 
         this.uriDynamicStatusStore = locateDynamicStatusStore(
-            this.logger,env,this.cpsFramework, this.fileSystem);
+            this.logger, overrideProperties, this.cpsFramework, this.fileSystem);
         this.dssFramework = initialiseDynamicStatusStore(logger,bundleContext);
 
         if (testrun) {
@@ -123,12 +127,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             this.framework.setTestRunName(runName);
         }
 
-        this.uriResultArchiveStores = createUriResultArchiveStores(env,this.cpsFramework);
+        this.uriResultArchiveStores = createUriResultArchiveStores(overrideProperties, this.cpsFramework);
         logger.debug("Result Archive Stores are " + this.uriResultArchiveStores.toString());
         initialiseResultsArchiveStore(logger,bundleContext);
 
         this.uriCredentialsStore = locateCredentialsStore(
-            this.logger,env,this.cpsFramework,this.fileSystem);
+            this.logger,overrideProperties,this.cpsFramework,this.fileSystem);
         initialiseCredentialsStore(logger,bundleContext);
 
         initialiseConfidentialTextService(logger,bundleContext);
@@ -345,31 +349,24 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * 
      * Note: package level scope so we can unit test it.
      * @param logger
-     * @param env
      * @param bootstrapProperties
      * @return
      * @throws URISyntaxException
      */
     URI locateConfigurationPropertyStore(
-        Log logger , 
-        Environment env, 
-        Properties bootstrapProperties,
+        Log logger ,
+        Properties overrideProperties,
         IFileSystem fileSystem
     ) throws URISyntaxException {
 
         URI storeUri ;
-        String propUri = env.getenv("GALASA_CONFIG_STORE");
-        if ((propUri == null) || propUri.isEmpty()) {
-            propUri = bootstrapProperties.getProperty("framework.config.store");
-            if ((propUri != null) && (!propUri.isEmpty())) {
-                logger.debug("bootstrap property framework.config.store used to determine CPS location.");
-            }
-        } else {
-            logger.debug("GALASA_CONFIG_STORE used to determine CPS location.");
+        String propUri = overrideProperties.getProperty("framework.config.store");
+        if ((propUri != null) && (!propUri.isEmpty())) {
+            logger.debug("bootstrap property framework.config.store used to determine CPS location.");
         }
+
         if ((propUri == null) || propUri.isEmpty()) {
-            String galasaHome = getGalasaHome(env);
-            Path path = Paths.get(galasaHome , "cps.properties");
+            Path path = Paths.get(this.galasaHome , "cps.properties");
             storeUri = path.toUri();
             logger.debug("galasa home used to determine CPS location.");
             createIfMissing(storeUri,fileSystem);
@@ -384,75 +381,37 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     // Find where the DSS should be, creating a new blank one if it's not already there.
     // Note: Not private so we can easily unit test it.
     URI locateDynamicStatusStore(
-        Log logger, 
-        Environment env, 
+        Log logger,
+        Properties overrideProperties,
         IConfigurationPropertyStoreService cpsFramework,
         IFileSystem fileSystem
     ) throws FrameworkException {
 
         URI uriDynamicStatusStore = null;
         try {
-            String dssProperty = env.getenv("GALASA_DYNAMICSTATUS_STORE");
-            if ((dssProperty == null) || dssProperty.isEmpty()) {
-                dssProperty = cpsFramework.getProperty("dynamicstatus", "store");
-            }
-            if ((dssProperty == null) || dssProperty.isEmpty()) {
-                String galasaHome = getGalasaHome(env);
-                uriDynamicStatusStore = Paths.get(galasaHome, "dss.properties")
-                        .toUri();
-                createIfMissing(uriDynamicStatusStore,fileSystem);
-            } else {
+            String dssProperty = overrideProperties.getProperty("framework.dynamicstatus.store");
+            if((dssProperty != null) && !dssProperty.isEmpty()){
                 uriDynamicStatusStore = new URI(dssProperty);
+                logger.debug("Dynamic Status Store is " + uriDynamicStatusStore.toString());
+                createIfMissing(uriDynamicStatusStore, fileSystem);
+                return uriDynamicStatusStore;
             }
+
+            dssProperty = cpsFramework.getProperty("dynamicstatus", "store");
+            if((dssProperty != null) && !dssProperty.isEmpty()){
+                uriDynamicStatusStore = new URI(dssProperty);
+                logger.debug("Dynamic Status Store is " + uriDynamicStatusStore.toString());
+                createIfMissing(uriDynamicStatusStore, fileSystem);
+                return uriDynamicStatusStore;
+            }
+
+            uriDynamicStatusStore = Paths.get(this.galasaHome, "dss.properties").toUri();
+            logger.debug("Dynamic Status Store is " + uriDynamicStatusStore.toString());
+            createIfMissing(uriDynamicStatusStore,fileSystem);
+            return uriDynamicStatusStore;
         } catch (final Exception e) {
             throw new FrameworkException("Unable to resolve the Dynamic Status Store URI", e);
         }
-        logger.debug("Dynamic Status Store is " + uriDynamicStatusStore.toString());
-        return uriDynamicStatusStore;
-    }
-
-    
-    private String getGalasaHome(Environment env) {
-        // 1st: If GALASA_HOME is set as a system property then use that,
-        // 2nd: If GALASA_HOME is set as a system environment variable, then use that.
-        // 3rd: otherwise we use the calling users' home folder.
-        String home = env.getProperty(GALASA_HOME);
-        if( (home == null) || (home.trim().isEmpty())) {
-            home = env.getenv(GALASA_HOME);
-            if( (home == null) || (home.trim().isEmpty())) {
-                home = env.getProperty(USER_HOME)+"/.galasa";
-                logger.info("System property "+USER_HOME+" used to set value of home location.");
-            } else {
-                logger.info("Environment variable GALASA_HOME used to set value of home location.");
-            }
-        } else {
-            logger.info("System property GALASA_HOME used to set value of home location.");
-            // The system property value may be surrounded by " characters. 
-            // If so, strip them off.
-            // We allow this because a path with strings in would be split
-            // into separate system properties otherwise.
-            home = stripLeadingAndTrailingQuotes(home);
-        }
-        logger.info("Galasa home location is "+home);
-
-        return home;
-    }
-
-    /**
-     * String the first double-quote and the last double-quote off
-     * the begining and end of a string.
-     * @param input
-     * @return The stripped (or unaltered) string.
-     */
-    String stripLeadingAndTrailingQuotes(String input ) {
-        String output = input ;
-        if (output.startsWith("\"")) {
-            output = output.replaceFirst("\"", "");
-        }
-        if (output.endsWith("\"")) {
-            output = output.substring(0,output.length()-1);
-        }
-        return output;
     }
 
     // Find the run name of the test run, if it's not a set property 
@@ -478,49 +437,52 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     /**
      * Creates a list of URIs which refer to Result Archive Stores.
-     * 
-     * @param env
+     *
      * @param cpsFramework
      * @return
      * @throws FrameworkException
      */
     List<URI> createUriResultArchiveStores(
-        Environment env , 
+        Properties overrideProperties,
         IConfigurationPropertyStoreService cpsFramework
     ) throws FrameworkException {
 
-        ArrayList<URI> uriResultArchiveStores ;
+        ArrayList<URI> uriResultArchiveStores = new ArrayList<>(1);
 
-        String galasaHome = getGalasaHome(env);
-        Path localRasPath = Paths.get(galasaHome, "ras");
+        Path localRasPath = Paths.get(this.galasaHome, "ras");
         URI localRasUri = localRasPath.toUri();
         try {
-            // Use the GALASA_RESULTARCHIVE_STORE in preference to anything else.
-            String rasProperty = env.getenv("GALASA_RESULTARCHIVE_STORE");
-            if ((rasProperty == null) || rasProperty.isEmpty()) {
-                // Fall back on cps property "framework.resultarchive.store"
-                rasProperty = cpsFramework.getProperty("resultarchive", "store");
-            }
 
-            // Create the empty list.
-            uriResultArchiveStores = new ArrayList<>(1);
-
-            if ((rasProperty == null) || rasProperty.isEmpty()) {
-                // Neither environment nor cps have set the RAS location.
-                // Default to a local RAS
-                uriResultArchiveStores.add(localRasUri);
-            } else {
-
-                // Allow for comma-separated list of RAS paths.
+            String rasProperty = overrideProperties.getProperty("framework.resultarchive.store");
+            if((rasProperty != null) && !rasProperty.isEmpty()){
                 final String[] rasPaths = rasProperty.split(",");
                 for (final String rasPath : rasPaths) {
                     if (!rasPath.trim().isEmpty()) {
+                        logger.debug("Adding Result Archive Store location " + uriDynamicStatusStore.toString());
                         uriResultArchiveStores.add(new URI(rasPath));
                     }
                 }
-                if (uriResultArchiveStores.isEmpty()) {
-                    throw new FrameworkException("No Result Archive Store URIs were provided");
+            }
+
+            rasProperty = cpsFramework.getProperty("resultarchive", "store");
+            if((rasProperty != null) && !rasProperty.isEmpty()){
+                final String[] rasPaths = rasProperty.split(",");
+                for (final String rasPath : rasPaths) {
+                    if (!rasPath.trim().isEmpty()) {
+                        logger.debug("Adding Result Archive Store location " + uriDynamicStatusStore.toString());
+                        uriResultArchiveStores.add(new URI(rasPath));
+                    }
                 }
+            }
+
+            if(uriResultArchiveStores.size() == 0) {
+                // Neither environment nor cps have set the RAS location.
+                // Default to a local RAS within galasaHome
+                uriResultArchiveStores.add(localRasUri);
+            }
+
+            if(uriResultArchiveStores.isEmpty()){
+                throw new FrameworkException("No Result Archive Store URIs were provided");
             }
         } catch (final FrameworkException e) {
             throw e;
@@ -546,34 +508,39 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     /**
      * Find the credentials store, creating it if it doesn't already exist.
      * @param logger
-     * @param env
      * @param cpsFramework
      * @param fileSystem
      * @return
      * @throws FrameworkException
      */
     URI locateCredentialsStore(
-        Log logger, 
-        Environment env , 
+        Log logger,
+        Properties overrideProperties,
         IConfigurationPropertyStoreService cpsFramework,
         IFileSystem fileSystem
     ) throws FrameworkException {
+        
         URI uriCredentialsStore ;
         // *** Work out the creds uri
         try {
-            String credsProperty = env.getenv("GALASA_CREDENTIALS_STORE");
-            if ((credsProperty == null) || credsProperty.isEmpty()) {
-                credsProperty = cpsFramework.getProperty("credentials", "store");
-            }
-            if ((credsProperty == null) || credsProperty.isEmpty()) {
-                String galasaHome = getGalasaHome(env);
-                uriCredentialsStore = Paths.get(
-                    galasaHome, "credentials.properties")
-                        .toUri();
-                createIfMissing(uriCredentialsStore,fileSystem);
-            } else {
+            String credsProperty = overrideProperties.getProperty("framework.credentials.store");
+            if((credsProperty != null) && !credsProperty.isEmpty()){
                 uriCredentialsStore = new URI(credsProperty);
+                logger.debug("Credentials Store is " + uriCredentialsStore.toString());
+                createIfMissing(uriCredentialsStore, fileSystem);
+                return uriCredentialsStore;
             }
+
+            credsProperty = cpsFramework.getProperty("credentials", "store");
+            if((credsProperty != null) && !credsProperty.isEmpty()){
+                uriCredentialsStore = new URI(credsProperty);
+                logger.debug("Credentials Store is " + uriCredentialsStore.toString());
+                createIfMissing(uriCredentialsStore, fileSystem);
+                return uriCredentialsStore;
+            }
+            uriCredentialsStore = Paths.get(this.galasaHome, "credentials.properties").toUri();
+            createIfMissing(uriCredentialsStore,fileSystem);
+            
         } catch (final Exception e) {
             throw new FrameworkException("Unable to resolve the Credentials Store URI", e);
         }
@@ -716,4 +683,4 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                 + this.framework.getConfidentialTextService().getClass().getName());
 
     }
-}
+}   

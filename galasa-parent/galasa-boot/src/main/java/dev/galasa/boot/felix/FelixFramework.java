@@ -73,11 +73,10 @@ public class FelixFramework {
      * @throws ClassNotFoundException
      */
     public void buildFramework(List<String> bundleRepositories, Properties boostrapProperties, URL localMavenRepo,
-            List<URL> remoteMavenRepos) throws LauncherException, ClassNotFoundException {
+            List<URL> remoteMavenRepos, String galasaHome) throws LauncherException, ClassNotFoundException {
         logger.debug("Building Felix Framework...");
 
-        String felixCacheDirectory = System.getProperty("user.home");
-        File galasaDirectory = new File(felixCacheDirectory, ".galasa");
+        File galasaDirectory = new File(galasaHome);
         String cacheDirectory = "felix-cache";
         
         this.felixCache = new File(galasaDirectory, cacheDirectory);
