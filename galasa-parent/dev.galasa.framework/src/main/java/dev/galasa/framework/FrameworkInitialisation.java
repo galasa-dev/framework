@@ -201,6 +201,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      */
     private void createIfMissing(URI propertyFile, IFileSystem fileSystem) {
 
+        //if the URI is not using a file scheme then we cannot create it
+        //so return
+        if(!propertyFile.getScheme().startsWith("file")){
+            return;
+        }
+
         Path path = Paths.get(propertyFile);
         try {
             if (!fileSystem.exists(path)) {
@@ -392,6 +398,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             String dssProperty = overrideProperties.getProperty("framework.dynamicstatus.store");
             if((dssProperty != null) && !dssProperty.isEmpty()){
                 uriDynamicStatusStore = new URI(dssProperty);
+                logger.debug("Obtained value of DSS from properties");
                 logger.debug("Dynamic Status Store is " + uriDynamicStatusStore.toString());
                 createIfMissing(uriDynamicStatusStore, fileSystem);
                 return uriDynamicStatusStore;
@@ -400,6 +407,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             dssProperty = cpsFramework.getProperty("dynamicstatus", "store");
             if((dssProperty != null) && !dssProperty.isEmpty()){
                 uriDynamicStatusStore = new URI(dssProperty);
+                logger.debug("Obtained value of DSS from CPS");
                 logger.debug("Dynamic Status Store is " + uriDynamicStatusStore.toString());
                 createIfMissing(uriDynamicStatusStore, fileSystem);
                 return uriDynamicStatusStore;
@@ -407,6 +415,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
             uriDynamicStatusStore = Paths.get(this.galasaHome, "dss.properties").toUri();
             logger.debug("Dynamic Status Store is " + uriDynamicStatusStore.toString());
+            logger.debug("Obtained value of DSS from galasa home");
             createIfMissing(uriDynamicStatusStore,fileSystem);
             return uriDynamicStatusStore;
         } catch (final Exception e) {
