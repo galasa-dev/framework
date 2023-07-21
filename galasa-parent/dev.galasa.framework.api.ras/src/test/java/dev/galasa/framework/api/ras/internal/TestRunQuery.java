@@ -87,9 +87,11 @@ public class TestRunQuery extends BaseServletTest {
 			testStructure.setEndTime(Instant.now().minus(hoursDeducted, ChronoUnit.HOURS).minus(c, ChronoUnit.MINUTES));
 			if (passCount < passTests){
 				testStructure.setResult("Passed");
+				testStructure.setStatus("running");
 				passCount ++;
 			}else{
 				testStructure.setResult("Failed");
+				testStructure.setStatus("building");
 			}
 			Path artifactRoot = Paths.get(RandomStringUtils.randomAlphanumeric(12));
 			String log = RandomStringUtils.randomAlphanumeric(6);
@@ -1053,6 +1055,41 @@ public class TestRunQuery extends BaseServletTest {
 		// Two results should return all the results
 		String[] results = new String[] {"Passed,Failed"};
 		parameterMap.put("result",  results);
+
+		String[] pageSize = {"100"};
+		String[] pageNo = {"1"};
+
+		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+
+		BaseServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+		
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
+		assertThat(resp.getStatus()==200);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+ 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+	}
+
+	@Test
+	public void testQueryWithMultipleStatusesReturnsOK () throws Exception {
+
+		//Given...
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = setQueryParameter(null,null,"result:asc",null, null, 72, null);
+		// Two results should return all the results
+		String[] statuses = new String[] {"building,running"};
+		parameterMap.put("status",  statuses);
 
 		String[] pageSize = {"100"};
 		String[] pageNo = {"1"};

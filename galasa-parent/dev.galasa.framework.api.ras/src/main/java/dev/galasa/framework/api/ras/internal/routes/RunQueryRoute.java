@@ -30,6 +30,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
@@ -124,6 +125,7 @@ public class RunQueryRoute extends RunsRoute {
 		String testName = queryParams.getSingleString("testname", null);
 		String bundle = queryParams.getSingleString("bundle", null);
 		List<String> result = queryParams.getResultsFromParameters(getResultNames());
+		List<String> status = queryParams.getMultipleString("status", null);
 		String runName = queryParams.getSingleString("runname", null);
 
 		Instant to = queryParams.getSingleInstant("to", null);
@@ -131,7 +133,7 @@ public class RunQueryRoute extends RunsRoute {
 		// from will error if no runname is specified as it is a mandatory field
 		Instant from = getWorkingFromValue(queryParams);
 
-		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,to, from, runName);
+		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,status,to, from, runName);
 		return criteria ;
 	}
 
@@ -181,6 +183,7 @@ public class RunQueryRoute extends RunsRoute {
 		String testName,
 		String bundle,
 		List<String> result,
+		List<String> status,
 		Instant to, 
 		@NotNull Instant from, 
 		String runName
@@ -214,6 +217,10 @@ public class RunQueryRoute extends RunsRoute {
 		if (result != null && !result.isEmpty()) {
 			RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result.toArray(new String[0]));
 			critList.add(resultCriteria);
+		}
+		if (status != null && !status.isEmpty()){
+			RasSearchCriteriaStatus statusCriteria = new RasSearchCriteriaStatus(status.toArray(new String[0]));
+			critList.add(statusCriteria);
 		}
 		if (runName != null && !runName.isEmpty()) {
 			RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);

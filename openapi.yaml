@@ -299,6 +299,13 @@ paths:
           schema:
             type: string
           example: Passed
+        - name: status
+          in: query
+          description: |
+            Execution Status for the run. Commonly queried values: 'building','generating','running'
+          schema:
+            type: string
+          example: running  
         - name: bundle
           in: query
           description: |
