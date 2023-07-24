@@ -14,15 +14,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.ras.internal.routes.RunsRoute;
+import dev.galasa.framework.api.ras.internal.routes.RunArtifactsRoute;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 
 public class ArtifactsProperties implements IRunRootArtifact {
 
-    private RunsRoute runsRoute;
+    private RunArtifactsRoute runsRoute;
 
-    public ArtifactsProperties(RunsRoute runsRoute) {
+    public ArtifactsProperties(RunArtifactsRoute runsRoute) {
         this.runsRoute = runsRoute;
     }
 

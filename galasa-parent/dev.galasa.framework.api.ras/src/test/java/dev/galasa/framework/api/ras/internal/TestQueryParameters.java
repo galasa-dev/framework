@@ -9,13 +9,13 @@ import java.util.*;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.ras.internal.common.InternalServletException;
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
+import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
 
 import static org.assertj.core.api.Assertions.*;
 
 
-public class TestQueryParameters extends BaseServletTest {
+public class TestQueryParameters extends RasServletTest {
     
 
     //-----------------------------------------------------------------

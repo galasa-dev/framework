@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal.common;
+package dev.galasa.framework.api.ras.internal.verycommon;
 
 import java.text.MessageFormat;
 
