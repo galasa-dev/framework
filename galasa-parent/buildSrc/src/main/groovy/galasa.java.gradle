@@ -13,7 +13,7 @@ java {
     withJavadocJar()
     withSourcesJar()
 }
-    
+
 tasks.withType(Javadoc) {
     failOnError = false
     enabled = true
@@ -40,18 +40,18 @@ task gitHash(dependsOn : 'classes') {
     def dir    = file("${buildDir}/githash")
     def meta   = file("${buildDir}/githash/META-INF")
     def result = file("${buildDir}/githash/META-INF/git.hash")
-    
+
     outputs.dir meta
     tasks.jar.dependsOn('gitHash')
     tasks.jar.from(dir)
-    
+
     doLast {
         if(!meta.exists()) {
             meta.mkdirs()
         }
-        
+
         def hash = "unknown"
-        
+
         try {
             new ByteArrayOutputStream().withStream { os ->
                 def r = exec {
@@ -80,6 +80,44 @@ publishing {
                         url = 'https://www.eclipse.org/legal/epl-2.0/t'
                     }
                 }
+                developers {
+                    developer {
+                        name = 'Michael Baylis'
+                        email = 'Michael.Baylis@uk.ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'William Yates'
+                        email = 'wyates@uk.ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'David Roberts'
+                        email = 'david.roberts@uk.ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'James Davies'
+                        email = 'james.davies@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'Kees Jansen'
+                        email = 'kees.jansen@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                    developer {
+                        name = 'Jade Carino'
+                        email = 'jade.carino@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                }
                 scm {
                     connection = 'scm:git:git:://github.com/galasa-dev/framework'
                     developerConnection = 'scm:git:git:://github.com/galasa-dev/framework'
@@ -95,7 +133,7 @@ publishing {
     repositories {
         maven {
             url  = "$targetMaven"
-            
+
             if ("$targetMaven".startsWith('http')) {
                 credentials {
                     username System.getenv('MAVENUSERNAME')
