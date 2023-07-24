@@ -29,3 +29,6 @@ build/
 **/.idea/
 **/heapdump*
 docs/generated/
+
+# A folder scripts can put things into without fear of them being checked-in.
+temp/

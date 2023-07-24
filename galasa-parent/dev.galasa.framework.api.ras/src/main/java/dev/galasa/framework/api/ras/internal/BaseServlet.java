@@ -18,6 +18,7 @@ import dev.galasa.framework.api.ras.internal.common.InternalServletException;
 import dev.galasa.framework.api.ras.internal.common.QueryParameters;
 import dev.galasa.framework.api.ras.internal.common.ServletError;
 import dev.galasa.framework.api.ras.internal.routes.IRoute;
+import dev.galasa.framework.api.ras.internal.routes.ResultNamesRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunArtifactsDownloadRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunArtifactsListRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunDetailsRoute;
@@ -68,6 +69,7 @@ public class BaseServlet extends HttpServlet {
 	   addRoute(new RunArtifactsListRoute(fileSystem, framework));
 	   addRoute(new RunQueryRoute(framework));
 	   addRoute(new RunArtifactsDownloadRoute(fileSystem, framework));
+	   addRoute(new ResultNamesRoute(framework));
 	}
  
 	private void addRoute(IRoute route) {

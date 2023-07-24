@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework;
+package dev.galasa.boot;
 
 /** 
  * An interface through which we can get environment variable values. 

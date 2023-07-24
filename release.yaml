@@ -18,26 +18,26 @@ framework:
     codecoverage: true
     
   - artifact: dev.galasa.framework
-    version: 0.28.0
+    version: 0.30.0
     obr: true
     bom: true
     mvp: true
     codecoverage: true
     
   - artifact: galasa-boot
-    version: 0.27.0
+    version: 0.29.0
     mvp: true
     codecoverage: true
 
     
   - artifact: dev.galasa.framework.docker.controller
-    version: 0.21.0
+    version: 0.29.0
     obr: true
     isolated: true
     codecoverage: true
     
   - artifact: dev.galasa.framework.k8s.controller
-    version: 0.27.0
+    version: 0.29.0
     obr: true
     isolated: true
     codecoverage: true

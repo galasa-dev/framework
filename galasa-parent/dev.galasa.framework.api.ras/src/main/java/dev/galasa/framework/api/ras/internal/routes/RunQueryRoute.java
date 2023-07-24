@@ -123,7 +123,7 @@ public class RunQueryRoute extends RunsRoute {
 		String requestor = queryParams.getSingleString("requestor", null);
 		String testName = queryParams.getSingleString("testname", null);
 		String bundle = queryParams.getSingleString("bundle", null);
-		String result = queryParams.getSingleString("result", null);
+		List<String> result = queryParams.getResultsFromParameters(getResultNames());
 		String runName = queryParams.getSingleString("runname", null);
 
 		Instant to = queryParams.getSingleInstant("to", null);
@@ -180,7 +180,7 @@ public class RunQueryRoute extends RunsRoute {
 		String requestor,
 		String testName,
 		String bundle,
-		String result,
+		List<String> result,
 		Instant to, 
 		@NotNull Instant from, 
 		String runName
@@ -212,7 +212,7 @@ public class RunQueryRoute extends RunsRoute {
 			critList.add(bundleCriteria);
 		}
 		if (result != null && !result.isEmpty()) {
-			RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result);
+			RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result.toArray(new String[0]));
 			critList.add(resultCriteria);
 		}
 		if (runName != null && !runName.isEmpty()) {
