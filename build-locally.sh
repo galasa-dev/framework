@@ -1,6 +1,6 @@
-#! /usr/bin/env bash 
+#! /usr/bin/env bash
 
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 #
 # Objectives: Build this repository code locally.
 #
@@ -9,8 +9,8 @@
 # SOURCE_MAVEN - Optional. Where a maven repository is from which the build will draw artifacts.
 # DEBUG - Optional. Defaults to 0 (off)
 # SWAGGER_CODEGEN_CLI_JAR - Optional. Where the swagger-codegen-cli.jar file is located.
-# 
-#-----------------------------------------------------------------------------------------                   
+#
+#-----------------------------------------------------------------------------------------
 
 # Where is this script executing from ?
 BASEDIR=$(dirname "$0");pushd $BASEDIR 2>&1 >> /dev/null ;BASEDIR=$(pwd);popd 2>&1 >> /dev/null
@@ -22,11 +22,11 @@ cd "${BASEDIR}/.."
 WORKSPACE_DIR=$(pwd)
 
 
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 #
 # Set Colors
 #
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 bold=$(tput bold)
 underline=$(tput sgr 0 1)
 reset=$(tput sgr0)
@@ -36,11 +36,11 @@ white=$(tput setaf 7)
 tan=$(tput setaf 202)
 blue=$(tput setaf 25)
 
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 #
 # Headers and Logging
 #
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 underline() { printf "${underline}${bold}%s${reset}\n" "$@"
 }
 h1() { printf "\n${underline}${bold}${blue}%s${reset}\n" "$@"
@@ -62,9 +62,9 @@ bold() { printf "${bold}%s${reset}\n" "$@"
 note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@"
 }
 
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 # Functions
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 function usage {
     info "Syntax: build-locally.sh [OPTIONS]"
     cat << EOF
@@ -74,6 +74,7 @@ Options are:
 EOF
 }
 
+#-------------------------------------------------------------
 function download_dependencies {
     if [[ "${build_type}" == "clean" ]]; then
         h2 "Cleaning the dependencies out..."
@@ -94,10 +95,11 @@ function download_dependencies {
     success "OK"
 }
 
+#-------------------------------------------------------------
 function generate_rest_docs {
     OPENAPI_YAML_FILE="${BASEDIR}/openapi.yaml"
     OUTPUT_DIR="${BASEDIR}/docs/generated/galasaapi"
-    
+
     if [[ "${build_type}" == "clean" ]]; then
         h2 "Cleaning the generated documentation..."
         rm -rf ${OUTPUT_DIR}
@@ -105,7 +107,7 @@ function generate_rest_docs {
     fi
 
     h2 "Generate the REST API documentation..."
-    
+
     # Pick up and use the swagger generator we just downloaded.
     # We don't know which version it is (dictated by the gradle build), but as there
     # is only one we can just pick the filename up..
@@ -131,9 +133,75 @@ function generate_rest_docs {
     success "Generated REST API documentation at ${OUTPUT_DIR}/index.html"
 }
 
-#-----------------------------------------------------------------------------------------                   
+#-------------------------------------------------------------
+function build_code {
+    h2 "Building..."
+
+    goals="buildReleaseYaml build check jacocoTestReport"
+
+    info "Building goals $goals"
+
+    cmd="gradle --build-cache --parallel \
+    ${CONSOLE_FLAG} \
+    --warning-mode=all \
+    -Dorg.gradle.java.home=${JAVA_HOME} \
+    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+    $goals \
+    "
+
+    info "Using this command: $cmd"
+    $cmd 2>&1 >> ${log_file}
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
+    success "Built OK"
+}
+
+#-------------------------------------------------------------
+function publish_to_maven {
+    h2 "Publishing to local maven repo..."
+    gradle --build-cache --parallel \
+    ${CONSOLE_FLAG} \
+    --warning-mode=all --debug  \
+    -Dorg.gradle.java.home=${JAVA_HOME} \
+    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+    publishToMavenLocal \
+    2>&1 >> ${log_file}
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
+    success "Published OK"
+}
+
+#-------------------------------------------------------------
+function clean_up_local_maven_repo {
+    h2 "Removing .m2 artifacts"
+    rm -fr ~/.m2/repository/dev/galasa/dev.galasa.framework*
+    rm -fr ~/.m2/repository/dev/galasa/dev.galasa
+    rm -fr ~/.m2/repository/dev/galasa/galasa-boot
+    rm -fr ~/.m2/repository/dev/galasa/galasa-testharness
+    success "OK"
+}
+
+#-------------------------------------------------------------
+function cleaning_up_before_we_start {
+    if [[ "${build_type}" == "delta" ]]; then
+        info "Skipping clean phase because this is a delta build."
+    else
+        h2 "Cleaning..."
+        gradle --no-daemon \
+        ${CONSOLE_FLAG} \
+        --warning-mode=all --debug \
+        -Dorg.gradle.java.home=${JAVA_HOME} \
+        -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
+        clean \
+        2>&1 >> ${log_file}
+        rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project}" ; exit 1 ; fi
+        success "Cleaned OK"
+    fi
+
+    clean_up_local_maven_repo
+}
+
+#-----------------------------------------------------------------------------------------
 # Process parameters
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 build_type=""
 
 while [ "$1" != "" ]; do
@@ -155,13 +223,14 @@ done
 if [[ "${build_type}" == "" ]]; then
     error "Need to use either the --clean or --delta parameter."
     usage
-    exit 1  
+    exit 1
 fi
 
 
-#-----------------------------------------------------------------------------------------                   
+
+#-----------------------------------------------------------------------------------------
 # Main logic.
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 
 source_dir="galasa-parent"
 
@@ -214,75 +283,14 @@ CONSOLE_FLAG=--console=plain
 log_file=${LOGS_DIR}/${project}.txt
 info "Log will be placed at ${log_file}"
 
-if [[ "${build_type}" == "delta" ]]; then
-    info "Skipping clean phase because this is a delta build."
-else
-    h2 "Cleaning..."
-    echo ">>>>>> Cleaning <<<<<<<" >> ${log_file}
-    cmd="gradle --no-daemon \
-    ${CONSOLE_FLAG} \
-    --warning-mode=all --debug \
-    -Dorg.gradle.java.home=${JAVA_HOME} \
-    -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-    clean"
-    echo "Command is $cmd"
-    echo "------------------" >> ${log_file}
-    echo "Command is $cmd" >> ${log_file}
-    echo "------------------" >> ${log_file}
-    $cmd 2>&1 >> ${log_file}
-    rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project} - rc is ${rc} - See logs in ${log_file}" ; exit 1 ; fi
-    success "Cleaned OK"
-fi
-
-h2 "Removing .m2 artifacts"
-rm -fr ~/.m2/repository/dev/galasa/dev.galasa.framework*
-rm -fr ~/.m2/repository/dev/galasa/dev.galasa
-rm -fr ~/.m2/repository/dev/galasa/galasa-boot
-rm -fr ~/.m2/repository/dev/galasa/galasa-testharness
-success "OK"
-
-h2 "Building..."
-echo ">>>>>> Building <<<<<<<" >> ${log_file}
-# --parallel
-cmd="gradle --no-build-cache  \
-${CONSOLE_FLAG} \
---warning-mode=all \
--Dorg.gradle.java.home=${JAVA_HOME} \
--PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-build check jacocoTestReport"
-
-echo "Using this command: $cmd"
-
-echo "------------------" >> ${log_file}
-echo "Command is $cmd" >> ${log_file}
-echo "------------------" >> ${log_file}
-$cmd 2>&1 >> ${log_file}
-rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
-success "Built OK"
-
-
-
-h2 "Publishing to local maven repo..."
-echo ">>>>>> Publishing <<<<<<<" >> ${log_file}
-cmd="gradle --build-cache --parallel \
-${CONSOLE_FLAG} \
---warning-mode=all --debug  \
--Dorg.gradle.java.home=${JAVA_HOME} \
--PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-publishToMavenLocal"
-
-echo "Command is $cmd"
-
-echo "------------------" >> ${log_file}
-echo "Command is $cmd" >> ${log_file}
-echo "------------------" >> ${log_file}
-$cmd 2>&1 >> ${log_file}
-rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
-success "Published OK"
+cleaning_up_before_we_start
+build_code
+publish_to_maven
 
 if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
     download_dependencies
 fi
+
 generate_rest_docs
 
 success "Project ${project} built - OK - log is at ${log_file}"

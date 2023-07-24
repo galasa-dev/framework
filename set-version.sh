@@ -136,18 +136,25 @@ mkdir -p $temp_dir
 # of the framework component lives.
 # For example: version = "0.29.0"
 cat $BASEDIR/galasa-parent/dev.galasa.framework/build.gradle | sed "s/^[ ]*version[ ]*=.*/version = \"$component_version\"/1" > $temp_dir/framework-build.gradle
+cp $temp_dir/framework-build.gradle $BASEDIR/galasa-parent/dev.galasa.framework/build.gradle
+
 
 # The galasa-parent/dev.galasa.framework/settings.gradle file has a bundleVersion number which needs
 # to be bumped also...
 # eg: bundleVersion = 0.27.0
 cat $BASEDIR/galasa-parent/dev.galasa.framework/settings.gradle | sed "s/^[ ]*bundleVersion[ ]*=.*/bundleVersion = $component_version/1" > $temp_dir/framework-settings.gradle
+cp $temp_dir/framework-settings.gradle $BASEDIR/galasa-parent/dev.galasa.framework/settings.gradle
+
+
+# The parent project also needs to know the version, as it builds the release.yaml file
+# which must have that version also.
+cat $BASEDIR/galasa-parent/build.gradle | sed "s/^[ ]*version[ ]*=.*/version = \"$component_version\"/1" > $temp_dir/framework-parent-build.gradle
+cp $temp_dir/framework-parent-build.gradle $BASEDIR/galasa-parent/build.gradle
 
 
 update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml
+cp $temp_dir/release.yaml ${BASEDIR}/release.yaml
 
 # Copy the temp files back to where they belong...
 
-cp $temp_dir/framework-build.gradle $BASEDIR/galasa-parent/dev.galasa.framework/build.gradle
-cp $temp_dir/framework-settings.gradle $BASEDIR/galasa-parent/dev.galasa.framework/settings.gradle
-cp $temp_dir/release.yaml ${BASEDIR}/release.yaml
 
