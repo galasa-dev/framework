@@ -12,6 +12,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 import org.junit.Test;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.ras.internal.mocks.*;
 import dev.galasa.framework.api.ras.internal.routes.RunQueryRoute;
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
@@ -1860,7 +1861,7 @@ public class TestRunQuery extends RasServletTest {
     public void testGetDefaultFromInstantIfNoQueryIsPresentQuerySizeOneNoFromReturnsError() throws Exception {
         Map<String,String[]> map = new HashMap<String,String[]>();
         map.put("sort", new String[] {""} );
-        QueryParameters params = new QueryParameters(map);
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
 		Throwable thrown = catchThrowable( () -> { 
         	new RunQueryRoute( new ResponseBuilder(), null).getWorkingFromValue(params);
@@ -1874,7 +1875,7 @@ public class TestRunQuery extends RasServletTest {
     public void testGetDefaultFromInstantIfNoQueryIsPresentWithFromEmptyReturnsError() throws Exception {
         Map<String,String[]> map = new HashMap<String,String[]>();
         map.put("from", new String[] {""} );
-        QueryParameters params = new QueryParameters(map);
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
 		Throwable thrown = catchThrowable( () -> { 
             new RunQueryRoute( new ResponseBuilder(), null).getWorkingFromValue(params);
@@ -1889,7 +1890,7 @@ public class TestRunQuery extends RasServletTest {
         Map<String,String[]> map = new HashMap<String,String[]>();
 		String fromString = Instant.now().toString();
         map.put("from", new String[] {fromString} );
-        QueryParameters params = new QueryParameters(map);
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
         Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params);
 
 		assertThat(checker).isNotNull();
@@ -1902,7 +1903,7 @@ public class TestRunQuery extends RasServletTest {
 		String fromString = Instant.now().toString();
         map.put("from", new String[] {fromString} );
 		map.put("runname", new String[] {"runname"} );
-        QueryParameters params = new QueryParameters(map);
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
         Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params);
 
 		assertThat(checker).isNotNull();
@@ -1913,7 +1914,7 @@ public class TestRunQuery extends RasServletTest {
     public void testGetDefaultFromInstantIfNoQueryIsPresentWithRunNameReturnsNull() throws Exception {
         Map<String,String[]> map = new HashMap<String,String[]>();
         map.put("runname", new String[] {"runname"} );
-        QueryParameters params = new QueryParameters(map);
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
         Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params);
 
 		assertThat(checker).isNull();
@@ -1922,7 +1923,7 @@ public class TestRunQuery extends RasServletTest {
 	@Test
     public void testGetDefaultFromInstantIfNoQueryIsPresentNoQueryReturnsValue() throws Exception {
         Map<String,String[]> map = new HashMap<String,String[]>();
-        QueryParameters params = new QueryParameters(map);
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
         Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params);
 
 		assertThat(checker).isNotNull();

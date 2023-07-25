@@ -16,6 +16,7 @@ import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
 import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
 import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
+import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -61,21 +62,21 @@ public class RunQueryRoute extends RunsRoute {
 	final static Gson gson = GalasaGsonBuilder.build();
 
 	private SortQueryParameterChecker sortQueryParameterChecker = new SortQueryParameterChecker();
-	public static final int DEFAULT_PAGE_NUMBER = 1;
-	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
+
 
 	@Override
-	public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+	public HttpServletResponse handleRequest(String pathInfo, QueryParameters generalQueryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+		RasQueryParameters queryParams = new RasQueryParameters(generalQueryParams);
 		String outputString = retrieveResults(queryParams);
 		return getResponseBuilder().buildResponse(res, "application/json", outputString, HttpServletResponse.SC_OK); 
 	}
 
 	protected String retrieveResults( 
-		QueryParameters queryParams
+		RasQueryParameters queryParams
 	) throws InternalServletException {
 
-		int pageNum = queryParams.getSingleInt("page", DEFAULT_PAGE_NUMBER);
-		int pageSize = queryParams.getSingleInt("size", DEFAULT_NUMBER_RECORDS_PER_PAGE);
+		int pageNum = queryParams.getPageNumber();
+		int pageSize = queryParams.getPageSize();
 
 		List<RasRunResult> runs = new ArrayList<>();
 
@@ -83,7 +84,8 @@ public class RunQueryRoute extends RunsRoute {
 		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
 		
-		List<String> runIds = queryParams.getMultipleString("runId", null);
+		List<String> runIds = queryParams.getRunIds();
+
 		if (runIds != null && runIds.size() > 0) {
 			
 			
@@ -113,23 +115,23 @@ public class RunQueryRoute extends RunsRoute {
 			}
 		}
 
-		runs = sortResults(runs, queryParams, extractSortValue(queryParams));
+		runs = sortResults(runs, queryParams, queryParams.getSortValue());
 
 		String responseBodyJson = buildResponseBody(runs,pageNum,pageSize);
 
 		return responseBodyJson;
 	}
 
-	private List<IRasSearchCriteria> getCriteria(QueryParameters queryParams) throws InternalServletException {
+	private List<IRasSearchCriteria> getCriteria(RasQueryParameters queryParams) throws InternalServletException {
 
-		String requestor = queryParams.getSingleString("requestor", null);
-		String testName = queryParams.getSingleString("testname", null);
-		String bundle = queryParams.getSingleString("bundle", null);
+		String requestor = queryParams.getRequestor();
+		String testName = queryParams.getTestName();
+		String bundle = queryParams.getBundle();
 		List<String> result = queryParams.getResultsFromParameters(getResultNames());
 		List<String> status = queryParams.getStatusesFromParameters();
-		String runName = queryParams.getSingleString("runname", null);
+		String runName = queryParams.getRunName();
 
-		Instant to = queryParams.getSingleInstant("to", null);
+		Instant to = queryParams.getToTime();
 
 		// from will error if no runname is specified as it is a mandatory field
 		Instant from = getWorkingFromValue(queryParams);
@@ -330,7 +332,7 @@ public class RunQueryRoute extends RunsRoute {
 
 	public List<RasRunResult> sortResults(
 		List<RasRunResult> unsortedRuns,
-		QueryParameters queryParams,
+		RasQueryParameters queryParams,
 		String sortValue
 	) throws InternalServletException {
 
@@ -341,7 +343,7 @@ public class RunQueryRoute extends RunsRoute {
 		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
 		// Checking ascending or descending for sorting
-		return sortData(runs, queryParams, sortValue);
+		return sortData(runs, queryParams.getGeneralQueryParameters(), sortValue);
 		
 	}
 
@@ -375,21 +377,18 @@ public class RunQueryRoute extends RunsRoute {
 		return runs;
 	}
 
-	public String extractSortValue (QueryParameters params) throws InternalServletException {
-		return params.getSingleString("sort","to:desc");
-	}
 
-	public Instant getWorkingFromValue (QueryParameters params) throws InternalServletException{
+	public Instant getWorkingFromValue (RasQueryParameters params) throws InternalServletException{
 		int querysize = params.getSize();
 		Instant from = null ;
 		if (querysize > 0){
-			if (!params.checkAtLeastOneQueryParameterPresent("from", "runname")){
+			if (!params.checkFromTimeOrRunNamePresent()){
 				//  RULE: Throw exception because a query exists but no from date has been supplied
 				// EXCEPT: When a runname is present in the query
 					ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
 					throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
-			from = params.getSingleInstant("from", null);
+			from = params.getFromTime();
 		}else {
 			// The default for 'from' is now-24 hours. If no query parameters are specified
 			from = Instant.now().minus(24,ChronoUnit.HOURS);

@@ -3,6 +3,8 @@
  */
 package dev.galasa.framework;
 
+import java.util.*;
+
 public class StatusNames {
     public enum statuses{
         finished,
@@ -14,5 +16,17 @@ public class StatusNames {
         started,
         provstart,
         ending
+        ;
+
+        /** 
+         * @return A list of possible status names, as strings
+         */
+		public static List<String> getAll() {
+            List<String> validStatuses = new ArrayList<String>();
+            for (statuses status : statuses.values()){
+                validStatuses.add(status.toString());
+            }
+            return validStatuses;
+        }
     }
 }
