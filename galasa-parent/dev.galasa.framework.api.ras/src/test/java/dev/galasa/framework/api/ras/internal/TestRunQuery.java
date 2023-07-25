@@ -1099,9 +1099,9 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
