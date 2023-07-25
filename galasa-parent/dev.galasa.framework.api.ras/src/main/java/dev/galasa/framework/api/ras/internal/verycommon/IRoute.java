@@ -1,14 +1,13 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.framework.api.ras.internal.routes;
+package dev.galasa.framework.api.ras.internal.verycommon;
 
 import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
 import dev.galasa.framework.spi.FrameworkException;
 
 /**
@@ -20,5 +19,6 @@ import dev.galasa.framework.spi.FrameworkException;
 public interface IRoute {
     String getPath();
 
-    HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException;
+    HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) 
+        throws ServletException, IOException, FrameworkException;
 }

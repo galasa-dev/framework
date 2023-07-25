@@ -8,7 +8,7 @@ import dev.galasa.framework.spi.IRunResult;
 
 import java.io.PrintWriter;
 
-import dev.galasa.framework.api.ras.internal.BaseServlet;
+import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.mocks.MockFileSystem;
 
 import java.util.*;
@@ -67,8 +67,8 @@ public abstract class MockServletBaseEnvironment {
         return this.req;
     }
 
-    public BaseServlet getBaseServlet() {
-        return (BaseServlet)this.servlet;
+    public RasServlet getRasServlet() {
+        return (RasServlet)this.servlet;
     }
 
     public void setMockInputs(List<IRunResult> mockInpResults) {

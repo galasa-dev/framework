@@ -5,19 +5,18 @@ package dev.galasa.framework.api.ras.internal.routes;
 
 import org.apache.commons.collections4.ListUtils;
 
-import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
-import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.ras.internal.verycommon.*;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
-import dev.galasa.framework.api.ras.internal.common.InternalServletException;
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
+import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
+import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
+import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
-import dev.galasa.framework.api.ras.internal.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
@@ -34,6 +33,8 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
+import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -47,14 +48,14 @@ import javax.validation.constraints.NotNull;
  */
 public class RunQueryRoute extends RunsRoute {
 
-	public RunQueryRoute(IFramework framework) {
+	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints: 
 		*  -> /ras/runs
 		*  -> /ras/runs/
 		*  -> /ras/runs?{querystring} 
 		*/
-		super("\\/runs\\/?");
-		this.framework = framework;
+		super(responseBuilder, "\\/runs\\/?", framework);
+
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();
@@ -66,7 +67,7 @@ public class RunQueryRoute extends RunsRoute {
 	@Override
 	public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
 		String outputString = retrieveResults(queryParams);
-		return sendResponse(res, "application/json", outputString, HttpServletResponse.SC_OK); 
+		return getResponseBuilder().buildResponse(res, "application/json", outputString, HttpServletResponse.SC_OK); 
 	}
 
 	protected String retrieveResults( 
@@ -252,7 +253,7 @@ public class RunQueryRoute extends RunsRoute {
 
 		// Collect all the runs from all the RAS stores into a single list
 		List<IRunResult> runs = new ArrayList<>();
-		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
 			runs.addAll(directoryService.getRuns(criteria));
 		}
 

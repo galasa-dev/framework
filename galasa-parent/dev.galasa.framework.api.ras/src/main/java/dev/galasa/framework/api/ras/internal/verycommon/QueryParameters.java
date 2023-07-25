@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.ras.internal.common;
+package dev.galasa.framework.api.ras.internal.verycommon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import dev.galasa.framework.StatusNames.statuses;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
-import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
+import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
 import static javax.servlet.http.HttpServletResponse.*;
 
 

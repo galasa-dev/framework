@@ -12,9 +12,10 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 import org.junit.Test;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
 import dev.galasa.framework.api.ras.internal.mocks.*;
 import dev.galasa.framework.api.ras.internal.routes.RunQueryRoute;
+import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
+import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -32,7 +33,7 @@ import java.time.temporal.ChronoUnit;
 
 import com.google.gson.*;
 
-public class TestRunQuery extends BaseServletTest {	
+public class TestRunQuery extends RasServletTest {	
 
 	private Map<String, String[]> addQueryParameter ( Map<String, String[]> map, String key, String value){
 		if (value != null){
@@ -177,9 +178,9 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("sort", sortValues );
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -230,10 +231,10 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,"mickey", 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap,"/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(null,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(null,mockRequest);
 
 		// Oh no ! There are no directory services which represent a RAS store !
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -260,9 +261,9 @@ public class TestRunQuery extends BaseServletTest {
 	public void testQueryWithFailedRequestReturnsGenericError() throws Exception {
 		// Given...
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null,"/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(null, mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(null, mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -296,9 +297,9 @@ public class TestRunQuery extends BaseServletTest {
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment(mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -324,9 +325,9 @@ public class TestRunQuery extends BaseServletTest {
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -362,11 +363,11 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
 		String[] pageSize = {"100"};
 		String[] pageNo = {"1"};
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -407,9 +408,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -461,11 +462,11 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
 		String[] pageSize = {"100"};
 		String[] pageNo = {"1"};
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -506,9 +507,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null ,null, null, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -535,9 +536,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(null,null,null, null ,null, null, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -570,9 +571,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,run.getTestStructure().getRunName(),null, 72, null);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -608,9 +609,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,run.getTestStructure().getRunName(),null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -646,9 +647,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,run.getTestStructure().getRunName(),null, 24, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -683,9 +684,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,null,requestor, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -740,9 +741,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(2,5,null,null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -798,9 +799,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(3,5,null,null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -849,9 +850,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(5,5,null,null,requestor, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -880,9 +881,9 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("from", fromTime);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -915,9 +916,9 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("to", toTime);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -958,9 +959,9 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("runId", runId);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest,storeWhichThrowsUp);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest,storeWhichThrowsUp);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1063,9 +1064,9 @@ public class TestRunQuery extends BaseServletTest {
 		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1196,9 +1197,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,null, null, 72, 36);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1239,9 +1240,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:desc",null, null, 72, 36);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1284,9 +1285,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:asc",null, null, 72, 36);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1329,9 +1330,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"result:desc",null, null, 72, 36);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1374,9 +1375,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"result:asc",null, null, 72, 36);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1415,9 +1416,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"testclass:desc",null, null, 72, null);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1460,9 +1461,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"testclass:asc",null, null, 72, 36);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1500,9 +1501,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"badsort",null, null, 72, 36);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1535,9 +1536,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:erroneoussort",null, null, 72, null);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1570,9 +1571,9 @@ public class TestRunQuery extends BaseServletTest {
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"erroneoussort:desc",null, null, 72, null);
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1614,9 +1615,9 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("result", new String[] {"Passed"});
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1658,9 +1659,9 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("testname", new String[] {testName});
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1702,9 +1703,9 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("bundle", new String[] {bundle});
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1744,9 +1745,9 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("runId", new String[] {runid});
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1786,9 +1787,9 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("runId", new String[] {runid+","+runid1});
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1828,9 +1829,9 @@ public class TestRunQuery extends BaseServletTest {
 		parameterMap.put("runId", new String[] {runid+","+runid1});
 		
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockBaseServletEnvironment mockServletEnvironment = new MockBaseServletEnvironment( mockInputRunResults,mockRequest);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 		
-		BaseServlet servlet = mockServletEnvironment.getServlet();
+		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
@@ -1862,7 +1863,7 @@ public class TestRunQuery extends BaseServletTest {
         QueryParameters params = new QueryParameters(map);
 
 		Throwable thrown = catchThrowable( () -> { 
-           Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
+        	new RunQueryRoute( new ResponseBuilder(), null).getWorkingFromValue(params);
         });
 
         assertThat(thrown).isNotNull();
@@ -1876,7 +1877,7 @@ public class TestRunQuery extends BaseServletTest {
         QueryParameters params = new QueryParameters(map);
 
 		Throwable thrown = catchThrowable( () -> { 
-            Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
+            new RunQueryRoute( new ResponseBuilder(), null).getWorkingFromValue(params);
         });
 
         assertThat(thrown).isNotNull();
@@ -1889,7 +1890,7 @@ public class TestRunQuery extends BaseServletTest {
 		String fromString = Instant.now().toString();
         map.put("from", new String[] {fromString} );
         QueryParameters params = new QueryParameters(map);
-        Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
+        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params);
 
 		assertThat(checker).isNotNull();
         assertThat(checker.toString()).isEqualTo(fromString);
@@ -1902,7 +1903,7 @@ public class TestRunQuery extends BaseServletTest {
         map.put("from", new String[] {fromString} );
 		map.put("runname", new String[] {"runname"} );
         QueryParameters params = new QueryParameters(map);
-        Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
+        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params);
 
 		assertThat(checker).isNotNull();
         assertThat(checker.toString()).isEqualTo(fromString);
@@ -1913,7 +1914,7 @@ public class TestRunQuery extends BaseServletTest {
         Map<String,String[]> map = new HashMap<String,String[]>();
         map.put("runname", new String[] {"runname"} );
         QueryParameters params = new QueryParameters(map);
-        Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
+        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params);
 
 		assertThat(checker).isNull();
     }
@@ -1922,7 +1923,7 @@ public class TestRunQuery extends BaseServletTest {
     public void testGetDefaultFromInstantIfNoQueryIsPresentNoQueryReturnsValue() throws Exception {
         Map<String,String[]> map = new HashMap<String,String[]>();
         QueryParameters params = new QueryParameters(map);
-        Instant checker = new RunQueryRoute(null).getWorkingFromValue(params);
+        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params);
 
 		assertThat(checker).isNotNull();
     }

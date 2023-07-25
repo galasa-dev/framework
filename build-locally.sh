@@ -1,6 +1,6 @@
-#! /usr/bin/env bash 
+#! /usr/bin/env bash
 
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 #
 # Objectives: Build this repository code locally.
 #
@@ -9,8 +9,8 @@
 # SOURCE_MAVEN - Optional. Where a maven repository is from which the build will draw artifacts.
 # DEBUG - Optional. Defaults to 0 (off)
 # SWAGGER_CODEGEN_CLI_JAR - Optional. Where the swagger-codegen-cli.jar file is located.
-# 
-#-----------------------------------------------------------------------------------------                   
+#
+#-----------------------------------------------------------------------------------------
 
 # Where is this script executing from ?
 BASEDIR=$(dirname "$0");pushd $BASEDIR 2>&1 >> /dev/null ;BASEDIR=$(pwd);popd 2>&1 >> /dev/null
@@ -22,11 +22,11 @@ cd "${BASEDIR}/.."
 WORKSPACE_DIR=$(pwd)
 
 
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 #
 # Set Colors
 #
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 bold=$(tput bold)
 underline=$(tput sgr 0 1)
 reset=$(tput sgr0)
@@ -36,11 +36,11 @@ white=$(tput setaf 7)
 tan=$(tput setaf 202)
 blue=$(tput setaf 25)
 
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 #
 # Headers and Logging
 #
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 underline() { printf "${underline}${bold}%s${reset}\n" "$@"
 }
 h1() { printf "\n${underline}${bold}${blue}%s${reset}\n" "$@"
@@ -62,9 +62,9 @@ bold() { printf "${bold}%s${reset}\n" "$@"
 note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@"
 }
 
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 # Functions
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 function usage {
     info "Syntax: build-locally.sh [OPTIONS]"
     cat << EOF
@@ -99,7 +99,7 @@ function download_dependencies {
 function generate_rest_docs {
     OPENAPI_YAML_FILE="${BASEDIR}/openapi.yaml"
     OUTPUT_DIR="${BASEDIR}/docs/generated/galasaapi"
-    
+
     if [[ "${build_type}" == "clean" ]]; then
         h2 "Cleaning the generated documentation..."
         rm -rf ${OUTPUT_DIR}
@@ -107,7 +107,7 @@ function generate_rest_docs {
     fi
 
     h2 "Generate the REST API documentation..."
-    
+
     # Pick up and use the swagger generator we just downloaded.
     # We don't know which version it is (dictated by the gradle build), but as there
     # is only one we can just pick the filename up..
@@ -199,9 +199,9 @@ function cleaning_up_before_we_start {
     clean_up_local_maven_repo
 }
 
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 # Process parameters
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 build_type=""
 
 while [ "$1" != "" ]; do
@@ -223,14 +223,14 @@ done
 if [[ "${build_type}" == "" ]]; then
     error "Need to use either the --clean or --delta parameter."
     usage
-    exit 1  
+    exit 1
 fi
 
 
 
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 # Main logic.
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
 
 source_dir="galasa-parent"
 
@@ -241,7 +241,7 @@ info "Build type is --'${build_type}'"
 # Debug or not debug ? Override using the DEBUG flag.
 if [[ -z ${DEBUG} ]]; then
     export DEBUG=0
-    #export DEBUG=1
+    # export DEBUG=1
     info "DEBUG defaulting to ${DEBUG}."
     info "Over-ride this variable if you wish. Valid values are 0 and 1."
 else
@@ -282,8 +282,6 @@ CONSOLE_FLAG=--console=plain
 
 log_file=${LOGS_DIR}/${project}.txt
 info "Log will be placed at ${log_file}"
-
-
 
 cleaning_up_before_we_start
 build_code

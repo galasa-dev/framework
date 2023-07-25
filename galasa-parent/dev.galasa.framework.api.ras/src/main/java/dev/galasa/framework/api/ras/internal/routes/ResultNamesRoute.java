@@ -3,6 +3,8 @@
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
+import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -14,28 +16,26 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.ras.internal.common.InternalServletException;
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
-import dev.galasa.framework.api.ras.internal.common.ServletError;
+import dev.galasa.framework.api.ras.internal.verycommon.*;
 import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
+import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
+import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
+import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
+import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
-import static dev.galasa.framework.api.ras.internal.BaseServlet.*;
-import static dev.galasa.framework.api.ras.internal.common.ServletErrorMessage.*;
-
 public class ResultNamesRoute extends RunsRoute {
 
-	public ResultNamesRoute(IFramework framework) {
+	public ResultNamesRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints: 
 		*  -> /ras/runs
 		*  -> /ras/runs/
 		*  -> /ras/runs?{querystring} 
 		*/
-		super("\\/resultnames?");
-		this.framework = framework;
+		super(responseBuilder, "\\/resultnames?", framework);
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();
@@ -44,7 +44,7 @@ public class ResultNamesRoute extends RunsRoute {
     @Override
     public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String outputString = retrieveResults(queryParams);
-		return sendResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
+		return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }
 
     public String retrieveResults (QueryParameters queryParams) throws ServletException, InternalServletException{
