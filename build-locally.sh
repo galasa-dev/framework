@@ -137,8 +137,7 @@ function generate_rest_docs {
 function build_code {
     h2 "Building..."
 
-    # goals="buildReleaseYaml build check jacocoTestReport"
-    goals="buildReleaseYaml"
+    goals="buildReleaseYaml build check jacocoTestReport"
 
     info "Building goals $goals"
 

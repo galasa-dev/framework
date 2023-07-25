@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project 
  */
-package dev.galasa.boot.mocks;
+package dev.galasa.mocks;
 
 import java.util.*;
 

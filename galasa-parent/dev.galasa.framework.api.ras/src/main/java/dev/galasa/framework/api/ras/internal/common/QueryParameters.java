@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.time.*;
 import java.time.format.DateTimeParseException;
+import dev.galasa.framework.StatusNames.statuses;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
@@ -171,6 +172,33 @@ public class QueryParameters {
 			}
 			return returnResults;
 		}
+		return null;
+	}
+// make func to validate status values
+	public List<String> getStatusesFromParameters () throws InternalServletException{
+		// status values received from the query
+		List<String> queryStatuses = getMultipleString("status", null);
+		// list of possible status names
+		List<String> validStatuses = new ArrayList<String>();
+		for (statuses status : statuses.values()){
+			validStatuses.add(status.toString());
+		}
+		
+		if (queryStatuses != null){
+			List<String> returnStatuses = new ArrayList<String>();
+			for (String status : queryStatuses){
+				String statusLowercase = status.toLowerCase();
+				if (validStatuses.contains(statusLowercase)) {
+					returnStatuses.add(statusLowercase);
+				} else {
+					ServletError error = new ServletError(GAL5014_STATUS_NAME_NOT_RECOGNIZED, status, validStatuses.toString());
+					throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+				}
+				
+			}
+			return returnStatuses;
+		}
+
 		return null;
 	}
 }

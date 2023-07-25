@@ -440,4 +440,125 @@ public class TestQueryParameters extends BaseServletTest {
             .hasMessageContaining("env")
             .hasMessageContaining("GAL5013"); // GAL5013_RESULT_NAME_NOT_RECOGNIZED
     }
+
+    //-----------------------------------------------------------------
+    // Test getStatusesFromParameters 
+    //-----------------------------------------------------------------
+
+    @Test
+    public void testGetStatusesFromParametersIfMultipleStatusesLowerCaseParametersOK() throws Exception {
+        // Given...
+        Map<String,String[]> mockURLQuery = new HashMap<>();
+        mockURLQuery.put("status", new String[] { "building,generating,running" });
+        QueryParameters params = new QueryParameters(mockURLQuery);
+
+        // When...
+        List<String> returnedStatuses = params.getStatusesFromParameters();
+
+        // Then...
+        assertThat(returnedStatuses).isEqualTo(Arrays.asList("building", "generating", "running"));
+    }
+
+    @Test
+    public void testGetStatusesFromParametersIfMultipleStatusesUpperCaseParametersOK() throws Exception {
+        // Given...
+        Map<String,String[]> mockURLQuery = new HashMap<>();
+        mockURLQuery.put("status", new String[] { "BUILDING,GENERATING,RUNNING" });
+        QueryParameters params = new QueryParameters(mockURLQuery);
+
+        // When...
+        List<String> returnedStatuses = params.getStatusesFromParameters();
+
+        // Then...
+        assertThat(returnedStatuses).isEqualTo(Arrays.asList("building", "generating", "running"));
+    }
+
+    @Test
+    public void testGetStatusesFromParametersIfMultipleStatusesMixedCaseParametersOK() throws Exception {
+        // Given...
+        Map<String,String[]> mockURLQuery = new HashMap<>();
+        mockURLQuery.put("status", new String[] { "BuIlDiNg,gEnErAtInG,RuNNinG" });
+        QueryParameters params = new QueryParameters(mockURLQuery);
+
+        // When...
+        List<String> returnedStatuses = params.getStatusesFromParameters();
+
+        // Then...
+        assertThat(returnedStatuses).isEqualTo(Arrays.asList("building", "generating", "running"));
+    }
+
+    @Test
+    public void testGetStatusesFromParametersIfStatusParameterIsInvalidThrowsException() throws Exception {
+        // Given...
+        Map<String,String[]> mockURLQuery = new HashMap<String,String[]>();
+        QueryParameters params = new QueryParameters(mockURLQuery);
+        mockURLQuery.put("status", new String[]{"building,generating,garbage"} );
+
+        // When...
+        Throwable thrown = catchThrowable( () -> {
+            params.getStatusesFromParameters();
+        });
+
+        // Then...
+        assertThat(thrown)
+            .isInstanceOf(InternalServletException.class)
+            .hasMessageContaining("garbage")
+            .hasMessageContaining("GAL5014"); // GAL5014_STATUS_NAME_NOT_RECOGNIZED
+            
+    }
+
+    @Test
+    public void testGetStatusesFromParametersIfStatusParameterIsNullReturnsNull() throws Exception {
+        // Given...
+        Map<String,String[]> mockURLQuery = new HashMap<String,String[]>();
+        QueryParameters params = new QueryParameters(mockURLQuery);
+        mockURLQuery.put("status", new String[]{} );
+
+        // When...
+
+        List<String> returnedResults = params.getStatusesFromParameters();
+
+        // Then...
+        assertThat(returnedResults)
+            .isNull();
+            
+    }
+
+    @Test
+    public void testGetStatusesFromParametersWithMultipleCommasTogetherReturnsError() throws Exception {
+        // Given...
+        Map<String,String[]> mockURLQuery = new HashMap<>();
+        mockURLQuery.put("status", new String[] { "building,,genrating,running" });
+        QueryParameters params = new QueryParameters(mockURLQuery);
+
+        // When...
+        Throwable thrown = catchThrowable( () -> {
+            params.getStatusesFromParameters();
+        });
+
+        // Then...
+        assertThat(thrown)
+            .isInstanceOf(InternalServletException.class)
+            .hasMessageContaining("''")
+            .hasMessageContaining("GAL5014"); // GAL5014_STATUS_NAME_NOT_RECOGNIZED
+    }
+
+    @Test
+    public void testGetStatusesFromParametersWithMultipleCommasInParameterReturnsError() throws Exception {
+        // Given...
+        Map<String,String[]> mockURLQuery = new HashMap<>();
+        mockURLQuery.put("status", new String[] { "building,running,gen,erating" });
+        QueryParameters params = new QueryParameters(mockURLQuery);
+
+        /// When...
+        Throwable thrown = catchThrowable( () -> {
+            params.getStatusesFromParameters();
+        });
+
+        // Then...
+        assertThat(thrown)
+            .isInstanceOf(InternalServletException.class)
+            .hasMessageContaining("gen")
+            .hasMessageContaining("GAL5014"); // GAL5014_STATUS_NAME_NOT_RECOGNIZED
+    }
 }

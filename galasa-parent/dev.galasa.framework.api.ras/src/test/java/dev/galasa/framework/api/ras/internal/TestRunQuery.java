@@ -146,6 +146,7 @@ public class TestRunQuery extends BaseServletTest {
 						   "        \"testName\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getTestName()+"\",\n"+
 						   "        \"testShortName\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getTestShortName()+"\",\n"+
 						   "        \"requestor\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getRequestor()+"\",\n"+
+						   "        \"status\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getStatus()+"\",\n"+
 						   "        \"result\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getResult()+"\",\n"+
 						   "        \"queued\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getQueued()+"\",\n"+
 						   "        \"startTime\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getStartTime()+"\",\n"+
