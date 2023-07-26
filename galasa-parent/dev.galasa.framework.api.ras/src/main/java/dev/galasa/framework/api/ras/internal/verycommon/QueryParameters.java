@@ -146,7 +146,7 @@ public class QueryParameters {
 		return result;
 	}
 
-    public Integer getSize() {
+    public int getSize() {
         return this.params.size();
     }
 	

@@ -50,7 +50,6 @@ import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
-import dev.galasa.framework.StatusNames.statuses;
 
 /**
  * Run the supplied test class
@@ -168,7 +167,7 @@ public class TestRunner {
                 //*** TODO remove above code in 0.9.0
             } catch (Exception e) {
                 logger.error("Unable to load stream " + stream + " settings", e);
-                updateStatus(statuses.finished.toString(), statuses.finished.toString());
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 frameworkInitialisation.shutdownFramework();
                 return;
             }
@@ -195,7 +194,7 @@ public class TestRunner {
                 }
             } catch (MalformedURLException e) {
                 logger.error("Unable to add remote maven repository " + testRepository, e);
-                updateStatus(statuses.finished.toString(), statuses.finished.toString());
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 frameworkInitialisation.shutdownFramework();
                 return;
             }
@@ -213,7 +212,7 @@ public class TestRunner {
                 }
             } catch (Exception e) {
                 logger.error("Unable to load specified OBR " + testOBR, e);
-                updateStatus(statuses.finished.toString(), statuses.finished.toString());
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 frameworkInitialisation.shutdownFramework();
                 return;
             }
@@ -223,7 +222,7 @@ public class TestRunner {
             BundleManagement.loadBundle(repositoryAdmin, bundleContext, testBundleName);
         } catch (Exception e) {
             logger.error("Unable to load the test bundle " + testBundleName, e);
-            updateStatus(statuses.finished.toString(), statuses.finished.toString());
+            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
             frameworkInitialisation.shutdownFramework();
             return;
         }
@@ -233,7 +232,7 @@ public class TestRunner {
             testClass = getTestClass(testBundleName, testClassName);
         } catch(Throwable t) {
             logger.error("Problem locating test " + testBundleName + "/" + testClassName, t);
-            updateStatus(statuses.finished.toString(), statuses.finished.toString());
+            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
             frameworkInitialisation.shutdownFramework();
             return;
         }
@@ -304,7 +303,7 @@ public class TestRunner {
             }
         }
 
-        updateStatus(statuses.started.toString(), statuses.started.toString());
+        updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
         // *** Try to load the Core Manager bundle, even if the test doesn't use it, and if not already active
         if (!BundleManagement.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
@@ -328,7 +327,7 @@ public class TestRunner {
         try {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
                 stopHeartbeat();
-                updateStatus(statuses.finished.toString(), statuses.finished.toString());
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 frameworkInitialisation.shutdownFramework();
                 return; // TODO handle ignored classes
             }
@@ -373,7 +372,7 @@ public class TestRunner {
         }
 
         if (!runOk || this.runType == RunType.Test || this.runType == RunType.SharedEnvironmentDiscard) {
-            updateStatus(statuses.ending.toString(), null);
+            updateStatus(TestRunLifecycleStatus.ENDING, null);
             managers.endOfTestRun();
 
             boolean markedWaiting = false;
@@ -391,7 +390,7 @@ public class TestRunner {
                         logger.error("Problem cleaning shared environment properties", e);
                     }
                 }
-                updateStatus(statuses.finished.toString(), statuses.finished.toString());
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
             }
 
             stopHeartbeat();
@@ -413,7 +412,7 @@ public class TestRunner {
             }
         } else if (this.runType == RunType.SharedEnvironmentBuild) {
             recordCPSProperties(frameworkInitialisation);
-            updateStatus(statuses.up.toString(), "built");
+            updateStatus(TestRunLifecycleStatus.UP, "built");
         } else {
             logger.error("Unrecognised end condition");
         }
@@ -431,7 +430,7 @@ public class TestRunner {
         }
 
         try {
-            updateStatus(statuses.generating.toString(), null);
+            updateStatus(TestRunLifecycleStatus.GENERATING, null);
             logger.info("Starting Provision Generate phase");
             managers.provisionGenerate();
         } catch (Exception e) { 
@@ -460,7 +459,7 @@ public class TestRunner {
         try {
             if (this.runType == RunType.Test || this.runType == RunType.SharedEnvironmentBuild) {
                 try {
-                    updateStatus(statuses.building.toString(), null);
+                    updateStatus(TestRunLifecycleStatus.BUILDING, null);
                     logger.info("Starting Provision Build phase");
                     managers.provisionBuild();
                 } catch (FrameworkException e) {
@@ -503,7 +502,7 @@ public class TestRunner {
         try {
             if (this.runType == RunType.Test || this.runType == RunType.SharedEnvironmentBuild) {
                 try {
-                    updateStatus(statuses.provstart.toString(), null);
+                    updateStatus(TestRunLifecycleStatus.PROVSTART, null);
                     logger.info("Starting Provision Start phase");
                     managers.provisionStart();
                 } catch (FrameworkException e) {
@@ -543,12 +542,12 @@ public class TestRunner {
             return;
         }
 
-        updateStatus(statuses.running.toString(), null);
+        updateStatus(TestRunLifecycleStatus.RUNNING, null);
         try {
             logger.info("Running the test class");
             testClassWrapper.runTestMethods(managers, this.dss, this.run.getName());
         } finally {
-            updateStatus(statuses.rundone.toString(), null);
+            updateStatus(TestRunLifecycleStatus.RUNDONE, null);
         }
 
     }
@@ -589,10 +588,10 @@ public class TestRunner {
         }
     }
 
-    private void updateStatus(String status, String timestamp) throws TestRunException {
+    private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
 
-        this.testStructure.setStatus(status);
-        if ("finished".equals(status)) {
+        this.testStructure.setStatus(status.toString());
+        if ("finished".equals(status.toString())) {
             updateResult();
             this.testStructure.setEndTime(Instant.now());
         }
@@ -600,7 +599,7 @@ public class TestRunner {
         writeTestStructure();
 
         try {
-            this.dss.put("run." + run.getName() + ".status", status);
+            this.dss.put("run." + run.getName() + ".status", status.toString());
             if (timestamp != null) {
                 this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
             }

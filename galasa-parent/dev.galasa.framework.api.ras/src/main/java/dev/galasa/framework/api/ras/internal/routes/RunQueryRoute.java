@@ -343,20 +343,20 @@ public class RunQueryRoute extends RunsRoute {
 		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
 		// Checking ascending or descending for sorting
-		return sortData(runs, queryParams.getGeneralQueryParameters(), sortValue);
+		return sortData(runs, queryParams, sortValue);
 		
 	}
 
-	public List<RasRunResult> sortData(List<RasRunResult> runs, QueryParameters queryParams, @NotNull String sortValue) throws InternalServletException {
+	public List<RasRunResult> sortData(List<RasRunResult> runs, RasQueryParameters queryParams, @NotNull String sortValue) throws InternalServletException {
 
-		if (this.sortQueryParameterChecker.validateSortValue(queryParams) || !this.sortQueryParameterChecker.validateSortValue(queryParams)){
+		if (queryParams.validateSortValue() || !queryParams.validateSortValue()){
 			if (sortValue.toLowerCase().startsWith("to") ) {
-				boolean isAscending = this.sortQueryParameterChecker.isAscending(queryParams,"to");
+				boolean isAscending = queryParams.isAscending("to");
 				if (isAscending) {
 					Collections.reverse(runs);
 				}
 			} else if (sortValue.toLowerCase().startsWith("testclass")) {
-				boolean isAscending = this.sortQueryParameterChecker.isAscending(queryParams,"testclass");
+				boolean isAscending = queryParams.isAscending("testclass");
 				if (isAscending) {
 					Collections.sort(runs, new SortByTestClass());
 				} else {
@@ -365,7 +365,7 @@ public class RunQueryRoute extends RunsRoute {
 				}
 
 			} else if (sortValue.toLowerCase().startsWith("result")) {
-				boolean isAscending = this.sortQueryParameterChecker.isAscending(queryParams, "result");
+				boolean isAscending = queryParams.isAscending("result");
 				if (isAscending) {
 					Collections.sort(runs, new SortByResult());
 				} else {

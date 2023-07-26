@@ -12,7 +12,7 @@ import java.time.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.framework.StatusNames.statuses;
+import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
 import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
@@ -36,7 +36,7 @@ public class RasQueryParameters {
 		// status values received from the query
 		List<String> queryStatuses = generalQueryParams.getMultipleString("status", null);
 
-		List<String> validStatuses = statuses.getAll();
+		List<String> validStatuses = TestRunLifecycleStatus.getAll();
 		
 		if (queryStatuses != null){
 			List<String> returnStatuses = new ArrayList<String>();
@@ -136,5 +136,14 @@ public class RasQueryParameters {
     public QueryParameters getGeneralQueryParameters() {
         return this.generalQueryParams;
     }
+
+    public boolean isAscending(String fieldToSortBy) throws InternalServletException{
+        SortQueryParameterChecker sortChecker = new SortQueryParameterChecker();
+        return sortChecker.isAscending(generalQueryParams, fieldToSortBy);
+    }
+
+    public boolean validateSortValue() throws InternalServletException{
+		return isAscending(null);
+	}
 
 }

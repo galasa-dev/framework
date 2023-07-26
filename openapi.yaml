@@ -296,13 +296,17 @@ paths:
           in: query
           description: |
             Result Status for the run. Commonly queried values: 'EnvFail','Passed','Failed'
+            Multiple values can be used in the query for example: 'EnvFail,Passed,Failed'.
+            Values are case insensitive. For example 'PASSED' and 'passED' will both be valid.
           schema:
             type: string
           example: Passed
         - name: status
           in: query
           description: |
-            Execution Status for the run. Commonly queried values: 'building','generating','running'
+            Test run lifecycle status. Current possibles: 'finished','building','generating','running','rundone','up','started','provstart','ending'. These are not case sensitive.
+            Multiple values can be used in the query for example: 'finished,running,started'.
+            Values are case insensitive. For example 'FINISHED' and 'finiSHed' will both be valid.
           schema:
             type: string
           example: running  
