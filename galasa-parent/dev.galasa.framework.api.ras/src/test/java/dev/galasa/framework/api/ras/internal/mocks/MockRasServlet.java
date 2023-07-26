@@ -4,7 +4,7 @@
 package dev.galasa.framework.api.ras.internal.mocks;
 
 import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.ras.internal.BaseServlet;
+import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.spi.IFramework;
 
 /** 
@@ -12,7 +12,7 @@ import dev.galasa.framework.spi.IFramework;
  * adding any extra code to the production servlet class. The framework field is protected scope, 
  * so a subclass can do the injection instead of the injection framework.
  */
-public class MockBaseServlet extends BaseServlet implements IServletUnderTest {
+public class MockRasServlet extends RasServlet implements IServletUnderTest {
 
 	@Override
 	public void setFramework(IFramework framework) {

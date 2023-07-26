@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 
-public class BaseServletTest {
+public class RasServletTest {
 
 	protected MockFileSystem mockFileSystem;
 
