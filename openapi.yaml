@@ -20,6 +20,28 @@ servers:
 
 paths:
 ##################################################################################
+# Authentication API
+##################################################################################
+  /auth:
+    post:
+      operationId: authenticate
+      summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
+      tags:
+      - Authentication API
+      responses:
+        '200':
+          description: Returns a JSON Object containing a JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+##################################################################################
 # CPS API
 ##################################################################################
   /cps/namespace:
@@ -802,6 +824,11 @@ paths:
 ##################################################################################
 components:
   schemas:
+    TokenResponse:
+      properties:
+        jwt:
+          type: string
+          description: A JSON Web Token to use when authenticating to a Galasa ecosystem.
     CpsProperty:
       properties:
         name:
