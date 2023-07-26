@@ -16,6 +16,7 @@ import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
 import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
 import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
+import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.framework.spi.FrameworkException;
@@ -128,7 +129,7 @@ public class RunQueryRoute extends RunsRoute {
 		String testName = queryParams.getTestName();
 		String bundle = queryParams.getBundle();
 		List<String> result = queryParams.getResultsFromParameters(getResultNames());
-		List<String> status = queryParams.getStatusesFromParameters();
+		List<TestRunLifecycleStatus> status = queryParams.getStatusesFromParameters();
 		String runName = queryParams.getRunName();
 
 		Instant to = queryParams.getToTime();
@@ -186,7 +187,7 @@ public class RunQueryRoute extends RunsRoute {
 		String testName,
 		String bundle,
 		List<String> result,
-		List<String> status,
+		List<TestRunLifecycleStatus> status,
 		Instant to, 
 		@NotNull Instant from, 
 		String runName
@@ -222,7 +223,7 @@ public class RunQueryRoute extends RunsRoute {
 			critList.add(resultCriteria);
 		}
 		if (status != null && !status.isEmpty()){
-			RasSearchCriteriaStatus statusCriteria = new RasSearchCriteriaStatus(status.toArray(new String[0]));
+			RasSearchCriteriaStatus statusCriteria = new RasSearchCriteriaStatus(TestRunLifecycleStatus.convertTestRunLifecycleStausListToStringList(status).toArray(new TestRunLifecycleStatus[0]));
 			critList.add(statusCriteria);
 		}
 		if (runName != null && !runName.isEmpty()) {

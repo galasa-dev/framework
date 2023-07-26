@@ -32,23 +32,20 @@ public class RasQueryParameters {
 
 
     // make func to validate status values
-    public List<String> getStatusesFromParameters () throws InternalServletException{
+    public List<TestRunLifecycleStatus> getStatusesFromParameters () throws InternalServletException{
 		// status values received from the query
 		List<String> queryStatuses = generalQueryParams.getMultipleString("status", null);
-
-		List<String> validStatuses = TestRunLifecycleStatus.getAll();
 		
 		if (queryStatuses != null){
-			List<String> returnStatuses = new ArrayList<String>();
+			List<TestRunLifecycleStatus> returnStatuses = new ArrayList<TestRunLifecycleStatus>();
 			for (String status : queryStatuses){
-				String statusLowercase = status.toLowerCase();
-				if (validStatuses.contains(statusLowercase)) {
-					returnStatuses.add(statusLowercase);
+				String statusUppercase = status.toUpperCase();
+				if (TestRunLifecycleStatus.isStatusValid(statusUppercase)) {
+					returnStatuses.add(TestRunLifecycleStatus.valueOf(statusUppercase));
 				} else {
-					ServletError error = new ServletError(GAL5014_STATUS_NAME_NOT_RECOGNIZED, status, validStatuses.toString());
+					ServletError error = new ServletError(GAL5014_STATUS_NAME_NOT_RECOGNIZED, status, TestRunLifecycleStatus.getAll().toString());
 					throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 				}
-				
 			}
 			return returnStatuses;
 		}
