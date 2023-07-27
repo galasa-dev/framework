@@ -3,7 +3,7 @@
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,17 +26,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 
-import dev.galasa.framework.api.ras.internal.verycommon.*;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsJson;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsProperties;
 import dev.galasa.framework.api.ras.internal.common.IRunRootArtifact;
 import dev.galasa.framework.api.ras.internal.common.RunLogArtifact;
 import dev.galasa.framework.api.ras.internal.common.StructureJsonArtifact;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
-import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
-import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
@@ -48,7 +47,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  * to the artifact.
  */
 public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
-    
+
     static final Gson gson = GalasaGsonBuilder.build();
 
     private Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
@@ -56,7 +55,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
     public RunArtifactsDownloadRoute(ResponseBuilder responseBuilder, IFileSystem fileSystem, IFramework framework) {
         //  Regex to match endpoint: /ras/runs/{runId}/files/{artifactPath}
         super(responseBuilder,
-              "\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)", 
+              "\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)",
               fileSystem,
               framework
         );
@@ -81,7 +80,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
         IRunResult run = null;
         String runName = "";
         String artifactsPrefix = "artifacts/";
-        
+
         // Get run details in order to find artifacts
         try {
             run = getRunByRunId(runId);
@@ -112,13 +111,13 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
     private HttpServletResponse downloadStoredArtifact(HttpServletResponse res, IRunResult run, String artifactPath) throws ResultArchiveStoreException, IOException {
         FileSystem artifactFileSystem = run.getArtifactsRoot().getFileSystem();
         Path artifactLocation = artifactFileSystem.getPath(artifactPath);
-        
+
         // Open the artifact for reading
         Set<OpenOption> options = new HashSet<>();
         options.add(StandardOpenOption.READ);
         try (ByteChannel channel = artifactFileSystem.provider().newByteChannel(artifactLocation, options, new FileAttribute<?>[]{});
             OutputStream outStream = res.getOutputStream()) {
-            
+
             // Create a buffer to read small amounts of data into to avoid out-of-memory issues
             int bufferCapacity = 1024;
             ByteBuffer buffer = ByteBuffer.allocate(bufferCapacity);

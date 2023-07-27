@@ -1,5 +1,5 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
@@ -9,13 +9,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.ras.internal.verycommon.*;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
-import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
-import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -32,7 +31,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -48,10 +47,10 @@ import javax.validation.constraints.NotNull;
 public class RunQueryRoute extends RunsRoute {
 
 	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework) {
-		/* Regex to match endpoints: 
+		/* Regex to match endpoints:
 		*  -> /ras/runs
 		*  -> /ras/runs/
-		*  -> /ras/runs?{querystring} 
+		*  -> /ras/runs?{querystring}
 		*/
 		super(responseBuilder, "\\/runs\\/?", framework);
 
@@ -66,10 +65,10 @@ public class RunQueryRoute extends RunsRoute {
 	@Override
 	public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
 		String outputString = retrieveResults(queryParams);
-		return getResponseBuilder().buildResponse(res, "application/json", outputString, HttpServletResponse.SC_OK); 
+		return getResponseBuilder().buildResponse(res, "application/json", outputString, HttpServletResponse.SC_OK);
 	}
 
-	protected String retrieveResults( 
+	protected String retrieveResults(
 		QueryParameters queryParams
 	) throws InternalServletException {
 
@@ -81,16 +80,16 @@ public class RunQueryRoute extends RunsRoute {
 		/* Get list of Run Ids from the URL -
 		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
-		
+
 		List<String> runIds = queryParams.getMultipleString("runId", null);
 		if (runIds != null && runIds.size() > 0) {
-			
-			
+
+
 			IRunResult run = null;
 			for (String runId : runIds) {
 				try {
 					run = getRunByRunId(runId.trim());
-					
+
 					if (run != null) {
 						runs.add(RunResultUtility.toRunResult(run, true));
 					}
@@ -101,7 +100,7 @@ public class RunQueryRoute extends RunsRoute {
 			}
 
 		} else {
-	
+
 			List<IRasSearchCriteria> critList = getCriteria(queryParams);
 
 			try {
@@ -160,8 +159,8 @@ public class RunQueryRoute extends RunsRoute {
 			JsonObject obj = pageToJson(runs,runs.size(),pageIndex,pageSize,1);
 			returnArray.add(obj);
 		}
-	
-		String json = ""; 
+
+		String json = "";
 
 		if (returnArray.isEmpty()) {
 			// No items to return, so json list will be empty.
@@ -172,7 +171,7 @@ public class RunQueryRoute extends RunsRoute {
 			} catch (Exception e) {
 				ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
 				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-			}	
+			}
 		}
 		return json;
 	}
@@ -182,21 +181,21 @@ public class RunQueryRoute extends RunsRoute {
 		String testName,
 		String bundle,
 		List<String> result,
-		Instant to, 
-		@NotNull Instant from, 
+		Instant to,
+		@NotNull Instant from,
 		String runName
 	) throws InternalServletException {
 
-		List<IRasSearchCriteria> critList = new ArrayList<>();   
+		List<IRasSearchCriteria> critList = new ArrayList<>();
 
-		if (from != null) {	
-			RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(from); 
+		if (from != null) {
+			RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(from);
 			critList.add(fromCriteria);
-		}    
-		
-		// Checking all parameters to apply to the search criteria		
+		}
+
+		// Checking all parameters to apply to the search criteria
 		// The default for 'to' is null.
-		if (to != null) {	
+		if (to != null) {
 			RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(to);
 			critList.add(toCriteria);
 		}
@@ -236,7 +235,7 @@ public class RunQueryRoute extends RunsRoute {
 		obj.add("runs", tree);
 		return obj;
 	}
-	
+
 
 	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 
@@ -330,12 +329,12 @@ public class RunQueryRoute extends RunsRoute {
 		// shallow-clone the input list so we don't change it.
 		List<RasRunResult> runs = new ArrayList<RasRunResult>();
 		runs.addAll(unsortedRuns);
-		
+
 		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
 
 		// Checking ascending or descending for sorting
 		return sortData(runs, queryParams, sortValue);
-		
+
 	}
 
 	public List<RasRunResult> sortData(List<RasRunResult> runs, QueryParameters queryParams, @NotNull String sortValue) throws InternalServletException {
@@ -352,7 +351,7 @@ public class RunQueryRoute extends RunsRoute {
 					Collections.sort(runs, new SortByTestClass());
 				} else {
 					Collections.sort(runs, new SortByTestClass());
-					Collections.reverse(runs);   
+					Collections.reverse(runs);
 				}
 
 			} else if (sortValue.toLowerCase().startsWith("result")) {

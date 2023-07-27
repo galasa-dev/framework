@@ -14,7 +14,10 @@ import java.time.format.DateTimeParseException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.ServletError;
+
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static javax.servlet.http.HttpServletResponse.*;
 
 
@@ -23,7 +26,7 @@ import static javax.servlet.http.HttpServletResponse.*;
  * and verifying the parameter contents.
  */
 public class QueryParameters {
-    
+
     Map<String,String[]> params ;
 
 	/**
@@ -32,9 +35,9 @@ public class QueryParameters {
     public QueryParameters( Map<String,String[]> paramMap ) {
         this.params = paramMap;
     }
-	
+
 	/**
-	 * 
+	 *
 	 * @param queryParameterName The query parameter
 	 * @param defaultValue
 	 * @return
@@ -64,7 +67,7 @@ public class QueryParameters {
 	}
 
 	// /**
-	//  * 
+	//  *
 	//  * @param queryParameterName The query parameter
 	//  * @param defaultValues
 	//  * @return
@@ -90,12 +93,12 @@ public class QueryParameters {
     public int getSingleInt(String queryParameterName, int defaultValue) throws InternalServletException {
 		int returnedValue = defaultValue ;
 		String paramValueStr = getSingleString(queryParameterName, Integer.toString(defaultValue));
-		
+
 		if (paramValueStr != null ) {
 			try {
 				returnedValue = Integer.parseInt(paramValueStr.trim());
 			} catch (NumberFormatException ex) {
-				
+
 				ServletError error = new ServletError(
 					GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER,
 					queryParameterName,paramValueStr);
@@ -115,7 +118,7 @@ public class QueryParameters {
     public Instant getSingleInstant(String queryParameterName, Instant defaultValue) throws InternalServletException {
 		Instant returnedValue = defaultValue ;
 		String paramValueStr = getSingleString(queryParameterName, null);
-		
+
 		if (paramValueStr != null ) {
 			try {
 				returnedValue = Instant.parse(paramValueStr.trim());

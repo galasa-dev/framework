@@ -1,17 +1,19 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal.verycommon;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.api.common.ResponseBuilder;
+
 public abstract class BaseRoute implements IRoute {
 
     protected Log logger = LogFactory.getLog(this.getClass());
-	
+
 	private final ResponseBuilder responseBuilder ;
-	
+
     private final String path;
 
     public BaseRoute(ResponseBuilder responseBuilder , String path) {

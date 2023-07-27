@@ -1,7 +1,7 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.ras.internal.verycommon;
+package dev.galasa.framework.api.common;
 
 import java.text.MessageFormat;
 
@@ -34,5 +34,5 @@ public class ServletError extends FrameworkException {
 
         return renderedJsonMessage ;
     }
-    
+
 }
