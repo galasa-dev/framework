@@ -1,9 +1,9 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
@@ -15,11 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 
-import dev.galasa.framework.api.ras.internal.verycommon.*;
 import dev.galasa.framework.api.ras.internal.verycommon.BaseRoute;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
-import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.ResultNames;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
@@ -51,7 +50,7 @@ public abstract class RunsRoute extends BaseRoute {
 
     protected List<String> getResultNames () throws InternalServletException{
 		List<String> resultsList = new ArrayList<>();
-    
+
 		try {
 			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
                 List<String> results = directoryService.getResultNames();

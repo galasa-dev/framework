@@ -1,5 +1,5 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal;
 
@@ -9,14 +9,14 @@ import java.util.*;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
 
 import static org.assertj.core.api.Assertions.*;
 
 
 public class TestQueryParameters extends RasServletTest {
-    
+
 
     //-----------------------------------------------------------------
     // When the query parameter is a List of Strings
@@ -285,7 +285,7 @@ public class TestQueryParameters extends RasServletTest {
     }
 
     //-----------------------------------------------------------------
-    // Test getResultsFromParameters 
+    // Test getResultsFromParameters
     //-----------------------------------------------------------------
 
     @Test
@@ -367,7 +367,7 @@ public class TestQueryParameters extends RasServletTest {
             .isInstanceOf(InternalServletException.class)
             .hasMessageContaining("garbage")
             .hasMessageContaining("GAL5013"); // GAL5013_RESULT_NAME_NOT_RECOGNIZED
-            
+
     }
 
     @Test
@@ -390,7 +390,7 @@ public class TestQueryParameters extends RasServletTest {
         // Then...
         assertThat(returnedResults)
             .isNull();
-            
+
     }
 
     @Test

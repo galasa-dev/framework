@@ -8,10 +8,12 @@ import org.apache.commons.logging.LogFactory;
 
 import com.google.gson.Gson;
 
-
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -34,11 +36,11 @@ public class BaseServlet extends HttpServlet {
 	protected Log  logger  =  LogFactory.getLog(this.getClass());
 
 	static final Gson gson = GalasaGsonBuilder.build();
-	
+
 	private final Map<String, IRoute> routes = new HashMap<>();
 
 	private ResponseBuilder responseBuilder = new ResponseBuilder();
-	
+
 	protected void addRoute(IRoute route) {
 		String path = route.getPath();
 		logger.info("Base servlet adding route "+path);
@@ -51,11 +53,11 @@ public class BaseServlet extends HttpServlet {
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		
+
 		String url = req.getPathInfo();
-		
+
 		logger.info("BaseServlet : doGet() entered. Url:"+url);
-		
+
 		String errorString = "";
 		int httpStatusCode = HttpServletResponse.SC_OK;
 		QueryParameters queryParameters = new QueryParameters(req.getParameterMap());
@@ -64,14 +66,14 @@ public class BaseServlet extends HttpServlet {
 		try {
 			if (url != null) {
 				for (Map.Entry<String, IRoute> entry : routes.entrySet()) {
-		
+
 					String routePattern = entry.getKey();
 					IRoute route = entry.getValue();
-					
+
 					Matcher matcher = Pattern.compile(routePattern).matcher(url);
-		
-					if (matcher.matches()) {	
-						logger.info("BaseServlet : doGet() Found a route that matches.");	
+
+					if (matcher.matches()) {
+						logger.info("BaseServlet : doGet() Found a route that matches.");
 						route.handleRequest(url, queryParameters, res);
 						return;
 					}

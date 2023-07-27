@@ -1,22 +1,24 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal.common;
 
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.ras.internal.verycommon.*;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import javax.servlet.http.HttpServletResponse;
 
 public class SortQueryParameterChecker {
-	
-	
+
+
 	/**
 	 * Check if the sort value contains an asc for ascending or desc for descending
 	 * otherwise return null
 	 */
-		
+
 	public boolean isAscending(QueryParameters queryParams, String param) throws InternalServletException{
 		String sortValue = queryParams.getSingleString("sort", null);
 		boolean isAscending = false ;
@@ -45,14 +47,14 @@ public class SortQueryParameterChecker {
 						}
 					}
 				}
-			
+
 			}
 
 			if (isBad) {
 				ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,sortValue);
 				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 			}
-		} 
+		}
 
 		return isAscending;
 	}
