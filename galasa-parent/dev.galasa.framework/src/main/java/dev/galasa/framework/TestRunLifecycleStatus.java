@@ -19,6 +19,7 @@ public enum TestRunLifecycleStatus {
     ENDING("ending")
     ;
 
+    
     private String value ;  // blame Mike (He coded this on a liveshare, what is value Mike???)
 
     private TestRunLifecycleStatus(String value) {
@@ -34,14 +35,14 @@ public enum TestRunLifecycleStatus {
         return EnumUtils.isValidEnum(TestRunLifecycleStatus.class, statusInput);
     }
 
-    // @Override
-    // public String toString(){
-    //     return value.toLowerCase();
-    // }
+    @Override
+    public String toString(){
+        return value;
+    }
 
-/**
- * @return A string list from a TestRunLifecycleStatus list
- */
+    /**
+     * @return A string list from a TestRunLifecycleStatus list
+     */
     public static List<String> convertTestRunLifecycleStausListToStringList (List<TestRunLifecycleStatus> testRunLifecycleStatuses){
         List<String> returnList = new ArrayList<String>();
         for (TestRunLifecycleStatus status : testRunLifecycleStatuses){
@@ -61,6 +62,6 @@ public enum TestRunLifecycleStatus {
             validStatuses.add(status.toString());
         }
         return validStatuses;
-    
+
     }
 }

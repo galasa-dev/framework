@@ -3,6 +3,8 @@
  */
 package dev.galasa.framework.spi.ras;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.TestRunLifecycleStatus;
@@ -10,9 +12,9 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class RasSearchCriteriaStatus implements IRasSearchCriteria {
    
-   private final TestRunLifecycleStatus[] statuses;
+   private final List<TestRunLifecycleStatus> statuses;
    
-   public RasSearchCriteriaStatus(@NotNull TestRunLifecycleStatus... statuses) {
+   public RasSearchCriteriaStatus(@NotNull List<TestRunLifecycleStatus> statuses) {
       this.statuses = statuses;
    }
    
@@ -37,7 +39,7 @@ public class RasSearchCriteriaStatus implements IRasSearchCriteria {
    }
    
 
-   public TestRunLifecycleStatus[] getStatuses() {
+   public List<TestRunLifecycleStatus> getStatuses() {
        return this.statuses;
    }
    

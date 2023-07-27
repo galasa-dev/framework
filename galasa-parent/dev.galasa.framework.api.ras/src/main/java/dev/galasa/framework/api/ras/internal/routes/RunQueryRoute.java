@@ -187,7 +187,7 @@ public class RunQueryRoute extends RunsRoute {
 		String testName,
 		String bundle,
 		List<String> result,
-		List<TestRunLifecycleStatus> status,
+		List<TestRunLifecycleStatus> passedInStatuses,
 		Instant to, 
 		@NotNull Instant from, 
 		String runName
@@ -222,8 +222,8 @@ public class RunQueryRoute extends RunsRoute {
 			RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result.toArray(new String[0]));
 			critList.add(resultCriteria);
 		}
-		if (status != null && !status.isEmpty()){
-			RasSearchCriteriaStatus statusCriteria = new RasSearchCriteriaStatus(TestRunLifecycleStatus.convertTestRunLifecycleStausListToStringList(status).toArray(new TestRunLifecycleStatus[0]));
+		if (passedInStatuses != null && !passedInStatuses.isEmpty()){
+			RasSearchCriteriaStatus statusCriteria = new RasSearchCriteriaStatus(passedInStatuses);
 			critList.add(statusCriteria);
 		}
 		if (runName != null && !runName.isEmpty()) {

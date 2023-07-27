@@ -282,6 +282,7 @@ public class TestQueryParameters extends RasServletTest {
             .isInstanceOf(InternalServletException.class)
             .hasMessageContaining("died")
             .hasMessageContaining("GAL5001") // GAL5001_INVALID_DATE_TIME_FIELD
+            
         ;
     }
 
