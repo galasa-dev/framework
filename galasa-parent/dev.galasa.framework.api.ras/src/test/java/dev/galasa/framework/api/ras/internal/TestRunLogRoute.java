@@ -1,5 +1,5 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal;
 
@@ -19,7 +19,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
 import dev.galasa.framework.api.ras.internal.mocks.MockRasServletEnvironment;
-import dev.galasa.framework.api.ras.internal.mocks.MockHttpServletRequest;
+import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
 import dev.galasa.framework.mocks.MockPath;
 import dev.galasa.framework.spi.IRunResult;
@@ -32,7 +32,7 @@ public class TestRunLogRoute extends RasServletTest {
 
 		// Build the results the DB will return.
 		String requestor = RandomStringUtils.randomAlphanumeric(8);
-		
+
 		TestStructure testStructure = new TestStructure();
 		testStructure.setRunName(runName);
 		testStructure.setRequestor(requestor);
@@ -51,14 +51,14 @@ public class TestRunLogRoute extends RasServletTest {
 		String runId = "runA";
         String runLog = "hello world";
 		List<IRunResult> mockRunResults = generateTestData(runId, "testName", runLog);
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/runs/" + runId + "/runlog");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(new HashMap<>(), "/runs/" + runId + "/runlog");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockRunResults, mockRequest);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -75,14 +75,14 @@ public class TestRunLogRoute extends RasServletTest {
 		//Given..
 		String runId = "runA";
 		List<IRunResult> mockRunResults = generateTestData(runId, "testName", "");
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/runs/" + runId + "/runlog");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(new HashMap<>(), "/runs/" + runId + "/runlog");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockRunResults, mockRequest);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -99,14 +99,14 @@ public class TestRunLogRoute extends RasServletTest {
 		//Given..
 		String runId = "runA";
 		List<IRunResult> mockRunResults = generateTestData(runId, "testName", null);
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/runs/" + runId + "/runlog");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(new HashMap<>(), "/runs/" + runId + "/runlog");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockRunResults, mockRequest);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -131,12 +131,12 @@ public class TestRunLogRoute extends RasServletTest {
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/runlog");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(null, mockRequest);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);

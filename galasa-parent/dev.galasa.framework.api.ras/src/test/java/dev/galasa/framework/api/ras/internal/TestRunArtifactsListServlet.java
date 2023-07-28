@@ -1,5 +1,5 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal;
 
@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import com.google.gson.*;
 
-
+import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.mocks.*;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockPath;
@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.nio.file.Path;
 
-public class TestRunArtifactsListServlet extends RasServletTest {	
+public class TestRunArtifactsListServlet extends RasServletTest {
 
 	class MockJsonObject {
 		public Path path;
@@ -56,7 +56,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		String jsonResult = "[\n";
 		int numOfArtifacts = artifacts.size();
 		if (numOfArtifacts > 0) {
-			
+
 			for (int i = 0; i < numOfArtifacts; i++ ) {
 				String runData = "";
 				if (0 < i && i < numOfArtifacts) {
@@ -116,7 +116,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 			new MockPath(mockArtifactsPath + "/dummyC.txt",mockFileSystem),
 			new MockPath(mockArtifactsPath + "/dummyA.json",mockFileSystem)
         );
-		
+
 		List<MockJsonObject> mockArtifacts = Arrays.asList(
 			new MockJsonObject(dummyArtifactPaths.get(0), "application/x-gzip", 0),
 			new MockJsonObject(dummyArtifactPaths.get(1), "text/plain", 0),
@@ -128,7 +128,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 			mockFileSystem.createFile(artifactPath);
 
 		}
-		
+
 		String runId = "xxxxx678xxxxx";
         String runLog = "log";
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runLog);
@@ -201,7 +201,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
         List<Path> expectedArtifactPaths = dummyArtifactPaths.stream()
             .map(path -> new MockPath("/artifacts" + path.toString(), mockFileSystem))
             .collect(Collectors.toList());
-        
+
         List<MockJsonObject> expectedArtifacts = new ArrayList<>();
         for (int i = 0; i < mockArtifacts.size(); i++) {
             expectedArtifacts.add(
@@ -212,7 +212,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
         checkRootArtifactsJson(jsonString);
 		String expectedJson = generateExpectedJsonArtifacts(expectedArtifacts);
 		assertThat(jsonString).contains(expectedJson);
-	
+
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -288,7 +288,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		String expectedJson = generateExpectedJsonArtifacts(Arrays.asList(expectedArtifact));
 		assertThat(jsonString).contains(expectedJson);
         checkRootArtifactsJson(jsonString);
-	
+
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -355,7 +355,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
         checkRootArtifactsJson(jsonString);
         String expectedJson = generateExpectedJsonArtifacts(new ArrayList<>());
 		assertThat(jsonString).contains(expectedJson);
-	
+
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -369,12 +369,12 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/artifacts");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -387,7 +387,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		// }
 		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
-	
+
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}

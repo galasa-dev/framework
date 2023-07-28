@@ -1,7 +1,7 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.ras.internal.mocks;
+package dev.galasa.framework.api.common.mocks;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,11 +12,17 @@ import javax.servlet.http.HttpServletResponse;
 
 public class MockHttpServletResponse implements HttpServletResponse {
 
-    private PrintWriter writer ;
+    private PrintWriter writer;
     private ServletOutputStream outputStream;
     private int status;
-    private String contentType ;
-    private Map<String,String> headers ;
+    private String contentType;
+    private Map<String,String> headers;
+
+    public MockHttpServletResponse() {
+        this.outputStream = new MockServletOutputStream();
+        this.writer = new PrintWriter(outputStream);
+        this.headers = new HashMap<String,String>();
+    }
 
     public MockHttpServletResponse(PrintWriter writer, ServletOutputStream outputStream) {
         this.writer = writer;
@@ -34,7 +40,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
         return this.contentType;
     }
 
-    
+
     public ServletOutputStream getOutputStream() throws IOException {
       return this.outputStream;
     }
@@ -53,7 +59,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     public String getHeader(String name) {
         return this.headers.get(name);
     }
-    
+
     @Override
     public void setContentType(String type) {
         this.contentType = type;
@@ -72,7 +78,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     public void setStatus(int sc) {
         this.status = sc;
     }
-    
+
     @Override
     public void setCharacterEncoding(String charset) {
         throw new UnsupportedOperationException("Unimplemented method 'setCharacterEncoding'");
@@ -209,5 +215,5 @@ public class MockHttpServletResponse implements HttpServletResponse {
     public Collection<String> getHeaderNames() {
         throw new UnsupportedOperationException("Unimplemented method 'getHeaderNames'");
     }
-    
+
 }

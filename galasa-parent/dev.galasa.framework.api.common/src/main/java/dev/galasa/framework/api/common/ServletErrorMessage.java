@@ -28,7 +28,8 @@ public enum ServletErrorMessage {
     // GenericErrors...
     GAL5000_GENERIC_API_ERROR                       (5000,"E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."),
     GAL5404_UNRESOLVED_ENDPOINT_ERROR               (5404,"E: Error occured when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
-    GAL5400_BAD_REQUEST                             (5400,"E: Error occured when trying to execute request ''{0}''. Please check your request parameters or report the problem to your Galasa Ecosystem owner.")
+    GAL5400_BAD_REQUEST                             (5400,"E: Error occured when trying to execute request ''{0}''. Please check your request parameters or report the problem to your Galasa Ecosystem owner."),
+    GAL5401_UNAUTHORIZED                            (5401,"E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again.")
     ;
 
 

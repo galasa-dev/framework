@@ -24,10 +24,16 @@ paths:
 ##################################################################################
   /auth:
     post:
-      operationId: authenticate
+      operationId: postAuthenticate
       summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
       tags:
       - Authentication API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthProperties'
       responses:
         '200':
           description: Returns a JSON Object containing a JWT
@@ -48,7 +54,7 @@ paths:
     get:
       operationId: getCpsNamespaces
       summary: Get CPS Namespaces
-      tags: 
+      tags:
       - Configuration Property Store API
       responses:
         '200':
@@ -59,6 +65,18 @@ paths:
                 type: array
                 items:
                   type: string
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Internal Server Error
           content:
@@ -69,7 +87,7 @@ paths:
     get:
       operationId: getCpsNamespaceProperties
       summary: Get all properties for a namepace
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
         - name: namespace
@@ -95,6 +113,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Internal Server Error
           content:
@@ -105,7 +135,7 @@ paths:
     get:
       operationId: getCpsNamespaceCascadeProperty
       summary: Get cascade CPS property
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -148,6 +178,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CpsProperty'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -159,13 +201,13 @@ paths:
       operationId: putCpsNamespaceProperty
       summary: Put new CPS Property
       description: |
-        Searches multiple places in the property store for the first property matching the namespace, 
+        Searches multiple places in the property store for the first property matching the namespace,
         prefix and suffix, and as many of the leading infix strings as possible.
-        This results in a value which is the most specific, given a sparsely populated hierarchical 
+        This results in a value which is the most specific, given a sparsely populated hierarchical
         structure of property names.
-        Over-rides of values (if present) are returned in preference to the normal stored value 
+        Over-rides of values (if present) are returned in preference to the normal stored value
         of a property.
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -179,7 +221,7 @@ paths:
       - name: property
         in: path
         description: |
-          Property Name. 
+          Property Name.
           The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
           and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
@@ -198,6 +240,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CpsProperty'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -207,7 +261,7 @@ paths:
 ##################################################################################
 # RAS API
 ##################################################################################
-  
+
   #--------------------------------------
   # List all known requestors.
   #--------------------------------------
@@ -215,7 +269,7 @@ paths:
     get:
       operationId: getRasRequestors
       summary: Get all known requestors
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: sort
@@ -231,6 +285,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Requestors'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -246,7 +312,7 @@ paths:
     get:
       operationId: getRasResultNames
       summary: Get all the known result names
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: sort
@@ -262,6 +328,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResultNames'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -278,42 +356,42 @@ paths:
       operationId: getRasSearchRuns
       summary: Get Runs from Query
       description: |
-        API endpoint to query the Result Archive Store (RAS) for a (possibly sorted) 
+        API endpoint to query the Result Archive Store (RAS) for a (possibly sorted)
         list of runs based on the given search criteria.
 
-        The results returned are paginated, in that the number of desired records per page can be 
-        set, and if there are more test run records to retrieve, requests can be made for 
+        The results returned are paginated, in that the number of desired records per page can be
+        set, and if there are more test run records to retrieve, requests can be made for
         successive pages of results using the same query parameters, but varying the 'page' value.
 
-        Note: When querying multiple pages of results, tests may complete, or be started between 
-        successive calls to this endpoint. When the 'to' field is not used, no timeframe 
-        limit is specified in the query, so results retrieved in later pages may contain 
+        Note: When querying multiple pages of results, tests may complete, or be started between
+        successive calls to this endpoint. When the 'to' field is not used, no timeframe
+        limit is specified in the query, so results retrieved in later pages may contain
         test runs which were already retrieved in previous pages of the same query critera.
 
         Invalid query parameters are ignored. For example: a 'cache-buster' parameter.
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: sort
           in: query
           description: |
-            Sorts the returned runs based on the sort field. 
+            Sorts the returned runs based on the sort field.
             Supports sorting fields 'to','result' and 'testclass'.
 
             Use '{FIELD-NAME}:asc' to sort in ascending order.
             Use '{FIELD-NAME}:desc' to sort in descending order.
 
             You can use multiple instances of this query parameter, or specify
-            multiple sort orders using one query parameter, and a comma-separated 
+            multiple sort orders using one query parameter, and a comma-separated
             list of sort orders.
           required: true
-          schema: 
+          schema:
             type: string
           examples:
             single:
               value: result:asc
             multiple:
-              value: result:asc,testclass:desc  
+              value: result:asc,testclass:desc
         - name: result
           in: query
           description: |
@@ -338,17 +416,17 @@ paths:
           in: query
           description: |
             Retrieve runs that started at a time after this date and time.
-            
+
             The only scenario in which from can be omitted is when a runname has been supplied
           schema:
             type: string
             format: date-time
-          example: '2023-04-11T09:42:06.589180Z' 
+          example: '2023-04-11T09:42:06.589180Z'
         - name: to
           in: query
           description: |
             Retrieve runs that ended at a date and time prior to this date and time value.
-            If you specify this parameter, only test runs which have completed will be returned. 
+            If you specify this parameter, only test runs which have completed will be returned.
             Tests currently in-flight will not be visible.
           schema:
             type: string
@@ -359,16 +437,16 @@ paths:
           description: The full test name (package + short test name)
           schema:
             type: string
-          example: dev.galasa.inttests.simbank.local.mvp.SimBankLocalJava11UbuntuMvp   
+          example: dev.galasa.inttests.simbank.local.mvp.SimBankLocalJava11UbuntuMvp
         - name: page
           in: query
           description: |
-            Causes a specific page in the available results to be returned. 
+            Causes a specific page in the available results to be returned.
             The first page is page 1.
             If omitted, then page 1 is returned.
           schema:
             type: integer
-          example: 2  
+          example: 2
         - name: size
           in: query
           description: |
@@ -380,7 +458,7 @@ paths:
         - name: runId
           in: query
           description: |
-            The ID for a specific test run as seen by the RAS. 
+            The ID for a specific test run as seen by the RAS.
             This number is unique across the system, so using this field you can expect
             one or zero test runs in the first page.
           schema:
@@ -429,6 +507,18 @@ paths:
                     error_code: 5006
                     error_message: "GAL5006E: Error parsing the query parameters. Duplicate instances of query parameter 'size' found in the request URL. Expecting only one."
                   summary: An error occured parsing duplicate parameter
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Not Found
           content:
@@ -453,18 +543,18 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying access the endpoint
-                runerror: 
-                  value: 
+                runerror:
+                  value:
                     error_code: 5003
                     error_message: "GAL5003E: Error retrieving runs. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to retireve the runs
                 pageerror:
-                  value: 
+                  value:
                     error_code: 5004
                     error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to return a results page
- 
- 
+
+
   #--------------------------------------
   # Retrieve a single Run.
   #--------------------------------------
@@ -472,7 +562,7 @@ paths:
     get:
       operationId: getRasRunById
       summary: Get Run by ID
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: runid
@@ -488,6 +578,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Run'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -503,7 +605,7 @@ paths:
     get:
       operationId: getRasRunLog
       summary: Get Run Log
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: runid
@@ -519,6 +621,18 @@ paths:
             text/plain:
               schema:
                 type: string
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -534,7 +648,7 @@ paths:
     get:
       operationId: getRasRunArtifactList
       summary: Get the available Run artifacts which can be downloaded.
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: runid
@@ -550,6 +664,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ArtifactIndex'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Not Found
           content:
@@ -572,7 +698,7 @@ paths:
                 genericerror:
                   value:
                     error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa EcoSystem owner."
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying access the endpoint
 
 
@@ -583,7 +709,7 @@ paths:
     get:
       operationId: getRasRunArtifactByPath
       summary: Download Artifact for a given runid by artifactPath
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: runid
@@ -607,6 +733,18 @@ paths:
                 type: string
                 format: binary
               example: attachment; filename="cps.properties"
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Not Found
           content:
@@ -629,7 +767,7 @@ paths:
                 genericerror:
                   value:
                     error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa EcoSystem owner."
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying access the endpoint
                 locatingerror:
                   value:
@@ -641,7 +779,7 @@ paths:
                     error_code: 5009
                     error_message: "GAL5009E: Error retrieving artifact  '/framework/cps_record.properties' for run with identifier 'U116'."
                   summary: An error occured when trying to retrieve the artifact
-                
+
 
 
   #--------------------------------------
@@ -651,12 +789,12 @@ paths:
     get:
       operationId: getRasTestclasses
       summary: Get all the known test classes
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: sort
           in: query
-          description: Provide Sorting 
+          description: Provide Sorting
           required: false
           schema:
             type: string
@@ -664,9 +802,21 @@ paths:
         '200':
           description: TestClasses
           content:
-            application/json:  
+            application/json:
              schema:
                 $ref: '#/components/schemas/TestClasses'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -681,7 +831,7 @@ paths:
     get:
       summary: Get group runs
       operationId: getRunsGroup
-      tags: 
+      tags:
       - Runs API
       parameters:
         - name: groupId
@@ -697,10 +847,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestRuns'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
     post:
       summary: Sumbit test runs
       operationId: postSubmitTestRuns
-      tags: 
+      tags:
       - Runs API
       parameters:
         - name: groupId
@@ -722,6 +884,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestRuns'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                  summary: The request was unauthenticated so is unauthorized.
 ##################################################################################
 # WebUI API
 ##################################################################################
@@ -729,7 +903,7 @@ paths:
     get:
       operationId: getWebuiWorklist
       summary: Get the users Worklist
-      tags: 
+      tags:
         - WebUI Worklist API
       responses:
         '200':
@@ -748,19 +922,19 @@ paths:
     put:
       operationId: addWebuiWorklistRunId
       summary: Add RAS runId to Worklist
-      tags: 
+      tags:
         - WebUI Worklist API
-      parameters: 
+      parameters:
         - name: runId
           in: query
           description: Run ID
           required: true
           schema:
             type: string
-      responses: 
+      responses:
         '200':
           description: Run added to Worklist and updated Worklist returned
-          content: 
+          content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Worklist'
@@ -773,7 +947,7 @@ paths:
 
     delete:
       operationId: deleteWebuiWorklistRunId
-      tags: 
+      tags:
         - WebUI Worklist API
       summary: Remove RAS runId from Worklist
       parameters:
@@ -786,7 +960,7 @@ paths:
       responses:
         '200':
           description: Run removed from Worklist and updated Worklist returned
-          content: 
+          content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Worklist'
@@ -803,7 +977,7 @@ paths:
     get:
       operationId: getEcosystemBootstrap
       summary: Contact the Galasa ecosystem
-      tags: 
+      tags:
         - Bootstrap API
       responses:
         '200':
@@ -824,6 +998,17 @@ paths:
 ##################################################################################
 components:
   schemas:
+    AuthProperties:
+      properties:
+        clientId:
+          type: string
+          description: The ID of a Galasa client that is being authenticated.
+        secret:
+          type: string
+          description: The secret for the client that is being authenticated.
+        refreshToken:
+          type: string
+          description: The refresh token to be exchanged for a JWT.
     TokenResponse:
       properties:
         jwt:
@@ -990,12 +1175,12 @@ components:
       properties:
         testclasses:
           type: array
-          items: 
+          items:
             $ref: '#/components/schemas/TestClass'
     TestClass:
       type: object
       properties:
-        testclass: 
+        testclass:
            type: string
         bundle:
            type: string
@@ -1037,7 +1222,7 @@ components:
       properties:
         worklistItems:
           type: array
-          items: 
+          items:
             $ref: '#/components/schemas/WorklistItem'
     WorklistItem:
       type: object
@@ -1052,11 +1237,11 @@ components:
           type: string
         result:
           type: string
-    
-    # Structures used by the listing of the available artifacts endpoint. 
+
+    # Structures used by the listing of the available artifacts endpoint.
     ArtifactIndex:
       type: array
-      items: 
+      items:
         $ref: '#/components/schemas/ArtifactIndexEntry'
       uniqueItems: true
 

@@ -16,6 +16,7 @@ import dev.galasa.framework.api.ras.internal.mocks.*;
 import dev.galasa.framework.api.ras.internal.routes.RunQueryRoute;
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -257,7 +258,7 @@ public class TestRunQuery extends RasServletTest {
 	@Test
 	public void testQueryWithFailedRequestReturnsGenericError() throws Exception {
 		// Given...
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null,"/runs");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(new HashMap<>(),"/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(null, mockRequest);
 
 		RasServlet servlet = mockServletEnvironment.getServlet();

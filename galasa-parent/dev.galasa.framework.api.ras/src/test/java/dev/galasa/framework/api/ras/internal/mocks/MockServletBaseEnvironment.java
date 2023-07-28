@@ -1,5 +1,5 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal.mocks;
 
@@ -8,6 +8,9 @@ import dev.galasa.framework.spi.IRunResult;
 
 import java.io.PrintWriter;
 
+import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
+import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
+import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
 import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.mocks.MockFileSystem;
 
@@ -19,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 public abstract class MockServletBaseEnvironment {
-		
+
     MockFramework mockFramework;
     MockFileSystem mockFileSystem;
     MockArchiveStore archiveStore;
@@ -30,20 +33,20 @@ public abstract class MockServletBaseEnvironment {
     List<IRunResult> mockInputRunResults;
     ServletOutputStream outStream;
     PrintWriter writer;
-        
+
     HttpServletResponse resp;
 
-    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap){ 
+    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, Map<String, String[]> parameterMap) {
         this(mockInpResults, new MockHttpServletRequest(parameterMap), new MockResultArchiveStoreDirectoryService(mockInpResults));
     }
 
-    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockFileSystem mockFileSystem) { 
+    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockFileSystem mockFileSystem) {
         this(mockInpResults, mockRequest, new MockResultArchiveStoreDirectoryService(mockInpResults));
         this.mockFileSystem = mockFileSystem;
         this.servlet.setFileSystem(this.mockFileSystem);
     }
 
-    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ) { 
+    public MockServletBaseEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ) {
         this.setMockInputs(mockInpResults);
         this.directoryServices = setDirectoryService(rasStore);
         this.setArchiveStore(new MockArchiveStore(this.directoryServices));

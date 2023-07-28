@@ -14,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.Servlet;
@@ -26,16 +27,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
@@ -54,10 +55,11 @@ public class AuthenticationServlet extends HttpServlet {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    protected HttpClient httpClient = HttpClient.newHttpClient();
 
-    @Reference
-    public IFramework framework;
+    private List<String> requiredPayload = Arrays.asList("client_id", "secret", "refresh_token");
+
+    protected Environment env = new SystemEnvironment();
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -67,13 +69,12 @@ public class AuthenticationServlet extends HttpServlet {
         ResponseBuilder responseBuilder = new ResponseBuilder();
 
         try {
-            // Check that the request body contains a client_id, secret, and refresh_token.
             JsonObject requestBodyJson = getRequestBodyAsJson(req);
-            if (requestBodyJson != null && !requestBodyJson.isJsonNull()) {
-                if (!(requestBodyJson.keySet().containsAll(Arrays.asList("client_id", "secret", "refresh_token")))) {
-                    ServletError error = new ServletError(GAL5400_BAD_REQUEST, requestBodyJson.toString());
-                    throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-                }
+
+            // Check that the request body contains the required payload
+            if (requestBodyJson == null || !(requestBodyJson.keySet().containsAll(requiredPayload))) {
+                ServletError error = new ServletError(GAL5400_BAD_REQUEST, req.getPathInfo());
+                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
 
             // Send a POST request to Dex's /token endpoint and ensure the returned response contains a JWT.
@@ -88,17 +89,18 @@ public class AuthenticationServlet extends HttpServlet {
             // Return the JWT as the servlet's response.
             String jwtJsonStr = "{\"jwt\": \"" + tokenResponseBodyJson.get("id_token").getAsString() + "\"}";
             responseBuilder.buildResponse(resp, "application/json", jwtJsonStr, httpStatusCode);
+            return;
 
         } catch (InternalServletException ex) {
             // The message is a curated servlet message, we intentionally threw up to this level.
             errorString = ex.getMessage();
             httpStatusCode = ex.getHttpFailureCode();
             logger.error(errorString, ex);
-        } catch (Throwable t) {
+        } catch (Exception e) {
             // We didn't expect this failure to arrive. So deliver a generic error message.
             errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
             httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-            logger.error(errorString, t);
+            logger.error(errorString, e);
         }
 
         responseBuilder.buildResponse(resp, "application/json", errorString, httpStatusCode);
@@ -125,7 +127,7 @@ public class AuthenticationServlet extends HttpServlet {
      */
     private HttpResponse<String> sendTokenPost(JsonObject requestBody) throws IOException, InterruptedException {
 
-        String dexIssuer = "http://127.0.0.1:5556/dex";
+        String dexIssuer = env.getenv("GALASA_DEX_URL");
 
         StringBuilder sbRequestBody = new StringBuilder();
         String clientId = requestBody.get("client_id").getAsString();

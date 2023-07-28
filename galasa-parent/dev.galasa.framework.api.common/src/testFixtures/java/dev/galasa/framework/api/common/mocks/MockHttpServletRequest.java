@@ -1,10 +1,12 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
-package dev.galasa.framework.api.ras.internal.mocks;
+package dev.galasa.framework.api.common.mocks;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Collection;
@@ -26,10 +28,11 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
-public class MockHttpServletRequest implements HttpServletRequest{
+public class MockHttpServletRequest implements HttpServletRequest {
 
-    private Map<String, String[]> parameterMap ;
+    private Map<String, String[]> parameterMap;
     private String pathInfo;
+    private String payload;
 
     public MockHttpServletRequest(Map<String, String[]> parameterMap) {
         this.parameterMap = parameterMap;
@@ -38,6 +41,17 @@ public class MockHttpServletRequest implements HttpServletRequest{
     public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo) {
         this.parameterMap = parameterMap;
         this.pathInfo = pathInfo;
+    }
+
+    public MockHttpServletRequest(String payload, String pathInfo){
+        this.payload = payload;
+        this.pathInfo = pathInfo;
+    }
+
+    @Override
+    public BufferedReader getReader() throws IOException {
+        Reader stringReader = new StringReader(payload);
+        return new BufferedReader(stringReader);
     }
 
     @Override
@@ -123,11 +137,6 @@ public class MockHttpServletRequest implements HttpServletRequest{
     @Override
     public int getServerPort() {
         throw new UnsupportedOperationException("Unimplemented method 'getServerPort'");
-    }
-
-    @Override
-    public BufferedReader getReader() throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'getReader'");
     }
 
     @Override
@@ -385,5 +394,5 @@ public class MockHttpServletRequest implements HttpServletRequest{
     public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
         throw new UnsupportedOperationException("Unimplemented method 'upgrade'");
     }
-    
+
 }

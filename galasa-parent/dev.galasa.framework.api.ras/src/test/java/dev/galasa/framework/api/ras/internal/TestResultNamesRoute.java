@@ -1,5 +1,5 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal;
 import dev.galasa.framework.spi.IRunResult;
@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.mocks.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -92,7 +93,7 @@ public class TestResultNamesRoute extends RasServletTest{
     }
 
     /*
-     * Tests 
+     * Tests
      */
 
     @Test
@@ -157,7 +158,7 @@ public class TestResultNamesRoute extends RasServletTest{
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
-    
+
     @Test
 	public void testResultNamesWithTenTestsFiveResultsReturnsOK() throws Exception {
 		//Given..
