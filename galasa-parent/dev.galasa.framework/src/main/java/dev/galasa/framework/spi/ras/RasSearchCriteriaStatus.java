@@ -34,14 +34,10 @@ public class RasSearchCriteriaStatus implements IRasSearchCriteria {
      }
       
       return false;
-      
-      
    }
    
 
    public List<TestRunLifecycleStatus> getStatuses() {
        return this.statuses;
    }
-   
-
 }

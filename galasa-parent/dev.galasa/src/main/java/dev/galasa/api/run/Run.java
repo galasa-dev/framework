@@ -24,15 +24,15 @@ public class Run {
     private String  stream;
     private String  repo;
     private String  obr;
-    private Boolean local;
-    private Boolean trace;
+    private boolean local;
+    private boolean trace;
     private String  rasRunId;
     
     public Run() {};
 
     public Run(String name, Instant heartbeat, String type, String group, String test, String bundleName,
             String testName, String status, String result, Instant queued, Instant finished, Instant waitUntil,
-            String requestor, String stream, String repo, String obr, Boolean local, Boolean trace, String rasRunId) {
+            String requestor, String stream, String repo, String obr, boolean local, boolean trace, String rasRunId) {
         this.name = name;
         this.heartbeat = heartbeat;
         this.type = type;
@@ -114,11 +114,11 @@ public class Run {
         return obr;
     }
 
-    public Boolean getLocal() {
+    public boolean getLocal() {
         return local;
     }
 
-    public Boolean getTrace() {
+    public boolean getTrace() {
         return trace;
     }
 
