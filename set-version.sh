@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
+
 #-----------------------------------------------------------------------------------------                   
 #
 # Objectives: Sets the version number of this component.
