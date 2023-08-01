@@ -387,7 +387,7 @@ public class TestFrameworkInitialisation {
     }
 
     @Test
-    public void testCreatingRASUriListUsesCPS() throws Exception {
+    public void testCreatingRASUriListUsesCPSNoOverrides() throws Exception {
 
         // As all the logic is inside a constructor ! (bad)
         // we can't call any methods on the class until we have constructed it
@@ -395,12 +395,33 @@ public class TestFrameworkInitialisation {
         FrameworkInitialisation frameworkInit = createFrameworkInit();
 
         Map<String,String> cpsProps = new HashMap<String,String>();
-        cpsProps.put("resultarchive.store","file:///myoverriddenhome/ras");
+        cpsProps.put("resultarchive.store","file:///myoverriddenhome/rasFromCPS");
         MockCPSStore mockCPS = new MockCPSStore(cpsProps);
 
         // When...
         List<URI> uriList = frameworkInit.createUriResultArchiveStores(new Properties(), mockCPS);
-        assertThat(uriList).contains(URI.create("file:///myoverriddenhome/ras"));
+        assertThat(uriList).contains(URI.create("file:///myoverriddenhome/rasFromCPS"));
+    }
+
+    @Test
+    public void testCreatingRASUriListUsesOverridesNotCPS() throws Exception {
+
+        // As all the logic is inside a constructor ! (bad)
+        // we can't call any methods on the class until we have constructed it
+        // using a good passing test...
+        FrameworkInitialisation frameworkInit = createFrameworkInit();
+
+        Map<String,String> cpsProps = new HashMap<String,String>();
+        cpsProps.put("resultarchive.store","file:///myoverriddenhome/rasFromCPS");
+        MockCPSStore mockCPS = new MockCPSStore(cpsProps);
+
+        Properties overrides = new Properties();
+        overrides.setProperty("framework.resultarchive.store", "file:///myoverriddenhome/rasFromOverrides");
+
+        // When...
+        List<URI> uriList = frameworkInit.createUriResultArchiveStores(overrides, mockCPS);
+        assertThat(uriList).contains(URI.create("file:///myoverriddenhome/rasFromOverrides"));
+        assertThat(uriList).doesNotContain(URI.create("file:///myoverriddenhome/rasFromCPS"));
     }
 
     @Test
