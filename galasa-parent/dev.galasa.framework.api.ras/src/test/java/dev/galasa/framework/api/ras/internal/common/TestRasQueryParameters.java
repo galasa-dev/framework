@@ -293,4 +293,92 @@ public class TestRasQueryParameters extends RasServletTest{
             .hasMessageContaining("gen")
             .hasMessageContaining("GAL5014"); // GAL5014_STATUS_NAME_NOT_RECOGNIZED
     }
+
+    
+
+
+    //-----------------------------------------------------------------
+    // Test isAscending()
+    //-----------------------------------------------------------------
+    @Test
+    public void testSortFieldAscendingReturnsTrue() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        map.put("sort", new String[] {"runname:asc"} );
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
+
+        boolean isAscending = params.isAscending("runname");
+        
+        assertThat(isAscending).isTrue();
+    }
+
+    @Test
+    public void testSortFieldNoAscOrDescValueThrowsInvalidValueError() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        map.put("sort", new String[] {"runname:"} );
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
+        
+
+        Throwable thrown = catchThrowable( () -> { 
+            boolean isAscending = params.isAscending("runname");
+        });
+
+        assertThat(thrown.getMessage()).contains("GAL5011","runname","sort");
+    }
+
+    @Test
+    public void testSortFieldManySortValuePartsThrowsInvalidValueError() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        map.put("sort", new String[] {"runname:asc:desc:asc"} );
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
+
+        Throwable thrown = catchThrowable( () -> { 
+            boolean isAscending = params.isAscending("runname");
+        });
+
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5011","runname:asc:desc:asc","sort");
+    }
+
+    @Test
+    public void testSortFieldNoQueryDefaultFalse() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
+
+        boolean isAscending = params.isAscending("runname");
+        
+        assertThat(isAscending).isFalse();
+    }
+
+    @Test
+    public void testSortFieldNoValueReturnsDefaultFalse() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        map.put("sort", new String[] {""} );
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
+
+        boolean isAscending = params.isAscending("runname");
+        
+        assertThat(isAscending).isFalse();
+    }
+
+    @Test
+    public void testSortFieldNoValueReturnsDefaultFalseValidate() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        map.put("sort", new String[] {""} );
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
+
+        boolean validateSortValue = params.validateSortValue();
+        
+        assertThat(validateSortValue).isFalse();
+    }
+
+    @Test
+    public void testSortFieldValueReturnsTrueValidate() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        map.put("sort", new String[] {"to:asc"} );
+        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
+
+        boolean validateSortValue = params.validateSortValue();
+        
+        assertThat(validateSortValue).isTrue();
+    }
 }

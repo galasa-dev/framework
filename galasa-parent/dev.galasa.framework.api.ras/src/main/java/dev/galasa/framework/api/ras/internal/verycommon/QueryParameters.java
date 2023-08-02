@@ -3,17 +3,12 @@
  */
 package dev.galasa.framework.api.ras.internal.verycommon;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.time.*;
 import java.time.format.DateTimeParseException;
-
-
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 
 import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
 import static javax.servlet.http.HttpServletResponse.*;

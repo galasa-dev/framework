@@ -135,9 +135,42 @@ public class RasQueryParameters {
     }
 
     public boolean isAscending(String fieldToSortBy) throws InternalServletException{
-        SortQueryParameterChecker sortChecker = new SortQueryParameterChecker();
-        return sortChecker.isAscending(generalQueryParams, fieldToSortBy);
-    }
+        String sortValue = generalQueryParams.getSingleString("sort", null);
+		boolean isAscending = false ;
+
+		if (sortValue != null) {
+			boolean isBad = false ;
+
+			if(!sortValue.contains(":")) {
+				isBad = true ; // Sort value doesn't contain a ':'
+			} else {
+				String[] split = sortValue.split(":");
+				if (split.length != 2) {
+					isBad = true; // Wrong number of parts
+				} else {
+					String fieldName = split[0].toLowerCase();
+					if (fieldName.equals(fieldToSortBy) || fieldToSortBy == null ){
+						String order = split[1].toLowerCase();
+						if (order.equals("desc")) {
+							isAscending = false;
+						} else if (order.equals("asc")){
+							isAscending = true;
+						} else {
+							isBad = true; // It's not 'asc' or 'desc'
+						}
+					}
+				}
+			
+			}
+
+			if (isBad) {
+				ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,sortValue);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			}
+		} 
+
+		return isAscending;
+	}
 
     public boolean validateSortValue() throws InternalServletException{
 		return isAscending(null);

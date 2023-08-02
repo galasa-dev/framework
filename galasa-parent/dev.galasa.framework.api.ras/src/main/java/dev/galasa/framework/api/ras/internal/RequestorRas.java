@@ -24,7 +24,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
+import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
@@ -35,8 +35,6 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 public class RequestorRas extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-
-	private SortQueryParameterChecker sortQueryParameterChecker = new SortQueryParameterChecker();
 
 	@Reference
 	public IFramework framework; // NOSONAR
@@ -49,8 +47,7 @@ public class RequestorRas extends HttpServlet {
 
 			//gets string query as hashmap
 
-			QueryParameters queryParams = new QueryParameters(req.getParameterMap());
-
+			RasQueryParameters queryParameters = new RasQueryParameters(new QueryParameters(req.getParameterMap()));
 
 
 			//gets requestors
@@ -61,7 +58,7 @@ public class RequestorRas extends HttpServlet {
 
 			JsonObject requestors = new JsonObject();   	
 
-			if(!sortQueryParameterChecker.isAscending(queryParams, "requestor")) {
+			if(!queryParameters.isAscending("requestor")) {
 				Collections.reverse(list);
 			}
 

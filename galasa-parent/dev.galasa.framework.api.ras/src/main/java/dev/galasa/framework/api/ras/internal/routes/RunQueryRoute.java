@@ -9,9 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.ras.internal.verycommon.*;
 import dev.galasa.api.ras.RasRunResult;
-import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
 import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
 import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
@@ -61,9 +59,6 @@ public class RunQueryRoute extends RunsRoute {
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();
-
-	private SortQueryParameterChecker sortQueryParameterChecker = new SortQueryParameterChecker();
-
 
 	@Override
 	public HttpServletResponse handleRequest(String pathInfo, QueryParameters generalQueryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
