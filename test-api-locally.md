@@ -34,9 +34,9 @@ Open the file and paste the below in replacing `${HOME}` with the fully qualifie
 Please note that the version numbers in these commmands will need to be updated to the next version number of Galasa in order to work with your changes.
 
 ```shell
-alias galasaapi='java -jar ~/.m2/repository/dev/galasa/galasa-boot/0.27.0/galasa-boot-0.27.0.jar --api --localmaven file://${HOME}/.m2/repository/ --remotemaven https://development.galasa.dev/ --obr mvn:dev.galasa/dev.galasa.uber.obr/0.27.0/obr ;'
+alias galasaapi='java -jar ~/.m2/repository/dev/galasa/galasa-boot/0.30.0/galasa-boot-0.30.0.jar --api --localmaven file://${HOME}/.m2/repository/ --remotemaven https://development.galasa.dev/ --obr mvn:dev.galasa/dev.galasa.uber.obr/0.30.0/obr ;'
 
-alias galasatest='java -jar ~/.m2/repository/dev/galasa/galasa-boot/0.27.0/galasa-boot-0.27.0.jar --api --localmaven file://${HOME}/.m2/repository/ --remotemaven https://development.galasa.dev/  --obr mvn:dev.galasa/dev.galasa.uber.obr/0.27.0/obr  --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr --test dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount;'
+alias galasatest='java -jar ~/.m2/repository/dev/galasa/galasa-boot/0.30.0/galasa-boot-0.30.0.jar --api --localmaven file://${HOME}/.m2/repository/ --remotemaven https://development.galasa.dev/  --obr mvn:dev.galasa/dev.galasa.uber.obr/0.30.0/obr  --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr --test dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount;'
 
 ```
 

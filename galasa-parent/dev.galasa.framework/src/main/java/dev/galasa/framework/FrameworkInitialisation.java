@@ -448,7 +448,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             final String[] rasPaths = rasProperty.split(",");
             for (final String rasPath : rasPaths) {
                 if (!rasPath.trim().isEmpty()) {
-                    logger.debug("Adding Result Archive Store location " + uriDynamicStatusStore.toString());
+                    logger.debug("Adding Result Archive Store location " + rasPath);
                     uriResultArchiveStores.add(new URI(rasPath));
                 }
             }
