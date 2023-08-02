@@ -20,7 +20,7 @@ public enum TestRunLifecycleStatus {
     ;
 
     
-    private String value ;  // blame Mike (He coded this on a liveshare, what is value Mike???)
+    private String value ;  
 
     private TestRunLifecycleStatus(String value) {
         this.value = value ;
