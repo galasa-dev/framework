@@ -23,7 +23,7 @@ public class RasQueryParameters {
 
 	public static final int DEFAULT_PAGE_NUMBER = 1;
 	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
-    private static final Map<String, Boolean> sortDirectionMap = new HashMap<String,Boolean>(){{
+    private final Map<String, Boolean> sortDirectionMap = new HashMap<String,Boolean>(){{
         put("asc",true);
         put("ascending",true);
         put("desc",false);
@@ -143,13 +143,17 @@ public class RasQueryParameters {
     public boolean isAscending(String fieldToSortBy) throws InternalServletException{
         String sortValue = generalQueryParams.getSingleString("sort", null);
 		boolean isAscending = false;
-        try{
-            if(sortIsValidFormat(sortValue)) {
-                isAscending = getSortDirection(fieldToSortBy,sortValue);
+        if (sortValue != null){
+            try{
+                if(sortIsValidFormat(sortValue)) {
+                    isAscending = getSortDirection(fieldToSortBy,sortValue);
+                }else{
+                throw new Exception();
+                }
+            }catch (Exception e) {
+                ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,sortValue);
+                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
-        }catch (Exception e) {
-            ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,sortValue);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 		return isAscending;
 	}
@@ -158,9 +162,7 @@ public class RasQueryParameters {
     private boolean getSortDirection(String fieldToSortBy, String sortValue) {
         boolean isAscending = false;
         String[] split = sortValue.split(":");
-        if(fieldToSortBy == split[0].toLowerCase()){
             isAscending = sortDirectionMap.get(split[1].toLowerCase());
-        }
         return isAscending;
     }
 
