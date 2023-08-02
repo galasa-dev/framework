@@ -23,6 +23,12 @@ public class RasQueryParameters {
 
 	public static final int DEFAULT_PAGE_NUMBER = 1;
 	public static final int DEFAULT_NUMBER_RECORDS_PER_PAGE = 100;
+    private static final Map<String, Boolean> sortDirectionMap = new HashMap<String,Boolean>(){{
+        put("asc",true);
+        put("ascending",true);
+        put("desc",false);
+        put("descending",false);
+    }};
 
     private QueryParameters generalQueryParams ;
 
@@ -136,41 +142,38 @@ public class RasQueryParameters {
 
     public boolean isAscending(String fieldToSortBy) throws InternalServletException{
         String sortValue = generalQueryParams.getSingleString("sort", null);
-		boolean isAscending = false ;
-
-		if (sortValue != null) {
-			boolean isBad = false ;
-
-			if(!sortValue.contains(":")) {
-				isBad = true ; // Sort value doesn't contain a ':'
-			} else {
-				String[] split = sortValue.split(":");
-				if (split.length != 2) {
-					isBad = true; // Wrong number of parts
-				} else {
-					String fieldName = split[0].toLowerCase();
-					if (fieldName.equals(fieldToSortBy) || fieldToSortBy == null ){
-						String order = split[1].toLowerCase();
-						if (order.equals("desc")) {
-							isAscending = false;
-						} else if (order.equals("asc")){
-							isAscending = true;
-						} else {
-							isBad = true; // It's not 'asc' or 'desc'
-						}
-					}
-				}
-			
-			}
-
-			if (isBad) {
-				ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,sortValue);
-				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-			}
-		} 
-
+		boolean isAscending = false;
+        try{
+            if(sortIsValidFormat(sortValue)) {
+                isAscending = getSortDirection(fieldToSortBy,sortValue);
+            }
+        }catch (Exception e) {
+            ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,sortValue);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
 		return isAscending;
 	}
+
+    // note asc = true, desc = false
+    private boolean getSortDirection(String fieldToSortBy, String sortValue) {
+        boolean isAscending = false;
+        String[] split = sortValue.split(":");
+        if(fieldToSortBy == split[0].toLowerCase()){
+            isAscending = sortDirectionMap.get(split[1].toLowerCase());
+        }
+        return isAscending;
+    }
+
+    // check if sort value has right formatting
+    private boolean sortIsValidFormat(String sortValue){
+        boolean isValid = false;
+        if(sortValue.contains(":")) {
+            if(sortValue.split(":").length == 2){
+                isValid = true;
+            }
+        }
+        return isValid;
+    }
 
     public boolean validateSortValue() throws InternalServletException{
 		return isAscending(null);

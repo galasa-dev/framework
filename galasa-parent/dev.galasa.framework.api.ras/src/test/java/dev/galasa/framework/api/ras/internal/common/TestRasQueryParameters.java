@@ -18,7 +18,6 @@ public class TestRasQueryParameters extends RasServletTest{
     //-----------------------------------------------------------------
     // Test getResultsFromParameters 
     //-----------------------------------------------------------------
-
     @Test
     public void testGetResultsFromParametersIfMultipleResultLowerCaseParametersOK() throws Exception {
         // Given...
