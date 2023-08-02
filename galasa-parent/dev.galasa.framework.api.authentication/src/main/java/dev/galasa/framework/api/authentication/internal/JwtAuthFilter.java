@@ -10,20 +10,14 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
-import java.time.Instant;
 import java.util.Base64;
-import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.servlet.Filter;
@@ -38,11 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.AlgorithmMismatchException;
-import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.SignatureVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -58,7 +48,6 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
@@ -77,22 +66,6 @@ public class JwtAuthFilter implements Filter {
     protected Environment env = new SystemEnvironment();
 
     protected HttpClient httpClient = HttpClient.newHttpClient();
-
-    // private static String SECRET_KEY = "framework.jwt.secret";
-
-    // private Properties configurationProperties = new Properties();
-
-    // @Activate
-    // void activate(Map<String, Object> properties) {
-    // synchronized (configurationProperties) {
-    // String secret = (String) properties.get(SECRET_KEY);
-    // if (secret != null) {
-    // this.configurationProperties.put(SECRET_KEY, secret);
-    // } else {
-    // this.configurationProperties.remove(SECRET_KEY);
-    // }
-    // }
-    // }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -116,12 +89,6 @@ public class JwtAuthFilter implements Filter {
             chain.doFilter(request, response);
             return;
         }
-
-        // Principal principal = servletRequest.getUserPrincipal();
-        // if (principal != null) { // already authenticated
-        //     chain.doFilter(request, response);
-        //     return;
-        // }
 
         String errorString = "";
         int httpStatusCode = HttpServletResponse.SC_OK;
@@ -149,39 +116,9 @@ public class JwtAuthFilter implements Filter {
             httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
         responseBuilder.buildResponse(servletResponse, "application/json", errorString, httpStatusCode);
-
-        // String sJwt = st.nextToken();
-        // Algorithm algorithm = Algorithm.HMAC256(this.configurationProperties.getProperty(SECRET_KEY));
-
-        // JWTVerifier verifier = JWT.require(algorithm).withIssuer("galasa").build();
-        // try {
-        //     DecodedJWT jwt = verifier.verify(sJwt);
-
-        //     String subject = jwt.getSubject();
-        //     String role = jwt.getClaim("role").asString();
-
-        //     JwtRequestWrapper wrapper = new JwtRequestWrapper(subject, role, servletRequest);
-
-        //     chain.doFilter(wrapper, servletResponse);
-        //     return;
-        // } catch (AlgorithmMismatchException e) {
-        //     chain.doFilter(request, response);
-        //     invalidAuth(servletRequest, servletResponse, "Incorrect Algorithim " + e);
-        //     return;
-        // } catch (SignatureVerificationException e) {
-        //     chain.doFilter(request, response);
-        //     invalidAuth(servletRequest, servletResponse, "Non valid signature " + e);
-        // } catch (TokenExpiredException e) {
-        //     chain.doFilter(request, response);
-        //     invalidAuth(servletRequest, servletResponse, "Jwt has expired " + e);
-        // } catch (InvalidClaimException e) {
-        //     chain.doFilter(request, response);
-        //     invalidAuth(servletRequest, servletResponse, "Invalid Claims " + e);
-        // }
     }
 
-    // Gets the JWT from a given request's Authorization header, returning null if
-    // it does not have one
+    // Gets the JWT from a given request's Authorization header, returning null if it does not have one
     private String getBearerTokenFromAuthHeader(HttpServletRequest servletRequest) {
         String sJwt = null;
         String authorization = servletRequest.getHeader("Authorization");
@@ -209,73 +146,73 @@ public class JwtAuthFilter implements Filter {
             JWTVerifier verifier = JWT.require(algorithm).withIssuer(dexIssuer).build();
 
             verifier.verify(jwt);
-
             return (decodedJwt != null);
 
         } catch (JWTVerificationException e) {
-            logger.debug("-----ERROR IS");
-            logger.debug(e.getMessage());
+            // The JWT is not valid
+            logger.info("Invalid JWT '" + jwt + "'. Reason: " + e.getMessage());
+            return false;
         }
-        return false;
     }
 
+    // Constructs an RSA public key from a JSON Web Key (JWK) that contains the provided key ID
     private RSAPublicKey getRSAPublicKeyFromIssuer(String keyId, String issuer)
             throws IOException, InterruptedException, NoSuchAlgorithmException, InvalidKeySpecException, InternalServletException {
 
-        // Send GET request to the issuer's /keys endpoint
-        String dexIssuer = env.getenv("GALASA_DEX_ISSUER");
-        HttpRequest getRequest = HttpRequest.newBuilder().GET().header("Accept", "application/json")
-                .uri(URI.create(dexIssuer + "/keys")).build();
-
-        HttpResponse<String> response = httpClient.send(getRequest, BodyHandlers.ofString());
-        JsonObject responseBodyJson = gson.fromJson(response.body(), JsonObject.class);
-
-        if (!responseBodyJson.has("keys")) {
-            logger.error("Error: No JSON Web Keys were found at the '" + dexIssuer + "/keys' endpoint.");
+        // Get the JWK with the given key ID
+        JsonObject matchingJwk = getJsonWebKeyFromIssuerByKeyId(keyId, issuer);
+        if (matchingJwk == null) {
+            logger.error("Error: No matching JSON Web Key was found with key ID '" + keyId + "'.");
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
-        // Iterate over returned JSON response for a JWK that matches the JWT's key ID
-        // ('kid') field
-        JsonArray keys = responseBodyJson.get("keys").getAsJsonArray();
+        // A JWK contains an 'n' field to represent the key's modulus, and an 'e' field to represent the key's exponent
+        BigInteger modulus = new BigInteger(1, Base64.getUrlDecoder().decode(matchingJwk.get("n").getAsString()));
+        BigInteger exponent = new BigInteger(1, Base64.getUrlDecoder().decode(matchingJwk.get("e").getAsString()));
 
+        // Build a public key from the JWK that was matched
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        RSAPublicKey generatedPublicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
+        return generatedPublicKey;
+    }
+
+    // Gets a JSON array of the JSON Web Keys (JWKs) from a GET request to an issuer's /keys endpoint
+    private JsonArray getJsonWebKeysFromIssuer(String issuer) throws InternalServletException, IOException, InterruptedException {
+        HttpRequest getRequest = HttpRequest.newBuilder()
+            .GET()
+            .header("Accept", "application/json")
+            .uri(URI.create(issuer + "/keys"))
+            .build();
+
+        // Send a GET request to the issuer's /keys endpoint
+        HttpResponse<String> response = httpClient.send(getRequest, BodyHandlers.ofString());
+
+        JsonObject responseBodyJson = gson.fromJson(response.body(), JsonObject.class);
+        if (!responseBodyJson.has("keys")) {
+            logger.error("Error: No JSON Web Keys were found at the '" + issuer + "/keys' endpoint.");
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        return responseBodyJson.get("keys").getAsJsonArray();
+    }
+
+    // Gets a JSON Web Key with a given key ID ('kid') from an OpenID connect issuer's /keys endpoint
+    private JsonObject getJsonWebKeyFromIssuerByKeyId(String keyId, String issuer) throws IOException, InterruptedException, InternalServletException {
+        JsonArray jsonWebKeys = getJsonWebKeysFromIssuer(issuer);
+
+        // Iterate over the JSON array of JWKs, finding the one that matches the given key ID
         JsonObject matchingKey = null;
-        for (JsonElement key : keys) {
+        for (JsonElement key : jsonWebKeys) {
             JsonObject keyAsJsonObject = key.getAsJsonObject();
             if (keyAsJsonObject.get("kid").getAsString().equals(keyId)) {
                 matchingKey = keyAsJsonObject;
                 break;
             }
         }
-
-        if (matchingKey == null) {
-            logger.error("Error: No matching JSON Web Key was found with key ID '" + keyId + "'.");
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-
-        // The JWK contains an 'n' field to represent the key's modulus, and an 'e'
-        // field to represent the key's exponent
-        BigInteger modulus = new BigInteger(1, Base64.getUrlDecoder().decode(matchingKey.get("n").getAsString()));
-        BigInteger exponent = new BigInteger(1, Base64.getUrlDecoder().decode(matchingKey.get("e").getAsString()));
-
-        // Build a public key from the JWK that matches
-        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        RSAPublicKey generatedPublicKey = (RSAPublicKey) kf.generatePublic(keySpec);
-        return generatedPublicKey;
+        return matchingKey;
     }
-
-    // private void invalidAuth(HttpServletRequest servletRequest,
-    // HttpServletResponse servletResponse, String jwtResponse)
-    // throws IOException {
-    // servletResponse.setContentType("text/plain");
-    // servletResponse.addHeader("WWW-Authenticate", "Bearer realm=\"Galasa\""); //
-    // *** Ability to set the realm
-    // servletResponse.getWriter().write(jwtResponse);
-    // return;
-    // }
 
     @Override
     public void destroy() {
