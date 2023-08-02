@@ -13,7 +13,7 @@ dependencies {
     implementation project(':dev.galasa.framework')
     implementation project(':dev.galasa.framework.api.common')
 
-    implementation 'com.auth0:java-jwt:3.19.1'
+    implementation 'dev.galasa:com.auth0.jwt:4.4.0'
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
 }
 

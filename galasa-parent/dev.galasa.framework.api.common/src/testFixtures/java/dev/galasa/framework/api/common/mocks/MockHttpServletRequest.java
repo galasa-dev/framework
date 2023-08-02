@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.AsyncContext;
@@ -31,6 +32,7 @@ import javax.servlet.http.Part;
 public class MockHttpServletRequest implements HttpServletRequest {
 
     private Map<String, String[]> parameterMap;
+    private Map<String, String> headerMap = new HashMap<>();
     private String pathInfo;
     private String payload;
 
@@ -43,7 +45,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
         this.pathInfo = pathInfo;
     }
 
-    public MockHttpServletRequest(String payload, String pathInfo){
+    public MockHttpServletRequest(String servletPath, Map<String, String> headerMap) {
+        this.pathInfo = servletPath;
+        this.headerMap = headerMap;
+    }
+
+    public MockHttpServletRequest(String payload, String pathInfo) {
         this.payload = payload;
         this.pathInfo = pathInfo;
     }
@@ -62,6 +69,16 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public Map<String, String[]> getParameterMap() {
         return this.parameterMap;
+    }
+
+    @Override
+    public String getServletPath() {
+        return this.pathInfo;
+    }
+
+    @Override
+    public String getHeader(String name) {
+        return headerMap.get(name);
     }
 
     @Override
@@ -256,11 +273,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public String getHeader(String name) {
-        throw new UnsupportedOperationException("Unimplemented method 'getHeader'");
-    }
-
-    @Override
     public Enumeration<String> getHeaders(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getHeaders'");
     }
@@ -323,11 +335,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public StringBuffer getRequestURL() {
         throw new UnsupportedOperationException("Unimplemented method 'getRequestURL'");
-    }
-
-    @Override
-    public String getServletPath() {
-        throw new UnsupportedOperationException("Unimplemented method 'getServletPath'");
     }
 
     @Override

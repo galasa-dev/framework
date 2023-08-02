@@ -127,7 +127,7 @@ public class AuthenticationServlet extends HttpServlet {
      */
     private HttpResponse<String> sendTokenPost(JsonObject requestBody) throws IOException, InterruptedException {
 
-        String dexIssuer = env.getenv("GALASA_DEX_URL");
+        String dexIssuer = env.getenv("GALASA_DEX_ISSUER");
 
         StringBuilder sbRequestBody = new StringBuilder();
         String clientId = requestBody.get("client_id").getAsString();

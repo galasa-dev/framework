@@ -17,7 +17,8 @@ servers:
         default: localhost
       port:
         default: "8080"
-
+security:
+  - JwtAuth : []
 paths:
 ##################################################################################
 # Authentication API
@@ -28,6 +29,7 @@ paths:
       summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
       tags:
       - Authentication API
+      security: []
       requestBody:
         required: true
         content:
@@ -75,7 +77,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Internal Server Error
@@ -123,7 +125,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Internal Server Error
@@ -188,7 +190,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
@@ -250,7 +252,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
@@ -295,7 +297,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
@@ -338,7 +340,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
@@ -517,7 +519,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Not Found
@@ -588,7 +590,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
@@ -631,7 +633,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
@@ -674,7 +676,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Not Found
@@ -743,7 +745,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Not Found
@@ -815,7 +817,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
@@ -857,7 +859,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
     post:
       summary: Sumbit test runs
@@ -894,7 +896,7 @@ paths:
                 unauthorizederror:
                   value:
                     error_code: 5401
-                    error_message: "GAL5401E: Your request was unauthorized as it lacks valid authentication credentials. Please authenticate and try again."
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
 ##################################################################################
 # WebUI API
@@ -1258,3 +1260,11 @@ components:
           type: string
           format: uri
           readOnly: true
+##################################################################################
+# Security Schemas
+##################################################################################
+  securitySchemes:
+    JwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,3 +1,8 @@
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package dev.galasa.framework.api.authentication;
 
 import static org.assertj.core.api.Assertions.*;
@@ -103,7 +108,7 @@ public class AuthenticationServletTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
-        mockEnv.setenv("GALASA_DEX_URL", "http://dummy.host");
+        mockEnv.setenv("GALASA_DEX_ISSUER", "http://dummy.host");
 
         // When...
         servlet.doPost(mockRequest, servletResponse);
@@ -137,7 +142,7 @@ public class AuthenticationServletTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
-        mockEnv.setenv("GALASA_DEX_URL", "http://dummy.host");
+        mockEnv.setenv("GALASA_DEX_ISSUER", "http://dummy.host");
 
         // When...
         servlet.doPost(mockRequest, servletResponse);
