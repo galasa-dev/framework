@@ -15,6 +15,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.StringTokenizer;
+import java.util.Base64.Decoder;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -131,7 +132,7 @@ public class JwtAuthFilter implements Filter {
     private boolean isJwtValid(String jwt)
             throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException, InternalServletException {
         try {
-            String dexIssuer = env.getenv("GALASA_DEX_ISSUER");
+            String dexIssuer = oidcProvider.getIssuer();
 
             DecodedJWT decodedJwt = JWT.decode(jwt);
             RSAPublicKey publicKey = getRSAPublicKeyFromIssuer(decodedJwt.getKeyId(), dexIssuer);
@@ -149,6 +150,15 @@ public class JwtAuthFilter implements Filter {
     }
 
     // Constructs an RSA public key from a JSON Web Key (JWK) that contains the provided key ID
+    // A JWK contains the following fields:
+    // {
+    //   "use": "sig",
+    //   "kty": "RSA",
+    //   "kid": "123abc",
+    //   "alg": "RS256",
+    //   "n": "abcdefg",
+    //   "e": "xyz"
+    // }
     private RSAPublicKey getRSAPublicKeyFromIssuer(String keyId, String issuer)
             throws IOException, InterruptedException, NoSuchAlgorithmException, InvalidKeySpecException, InternalServletException {
 
@@ -160,9 +170,10 @@ public class JwtAuthFilter implements Filter {
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
-        // A JWK contains an 'n' field to represent the key's modulus, and an 'e' field to represent the key's exponent
-        BigInteger modulus = new BigInteger(1, Base64.getUrlDecoder().decode(matchingJwk.get("n").getAsString()));
-        BigInteger exponent = new BigInteger(1, Base64.getUrlDecoder().decode(matchingJwk.get("e").getAsString()));
+        // A JWK contains an 'n' field to represent the key's modulus, and an 'e' field to represent the key's exponent, both are Base64URL-encoded
+        Decoder decoder = Base64.getUrlDecoder();
+        BigInteger modulus = new BigInteger(1, decoder.decode(matchingJwk.get("n").getAsString()));
+        BigInteger exponent = new BigInteger(1, decoder.decode(matchingJwk.get("e").getAsString()));
 
         // Build a public key from the JWK that was matched
         RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
