@@ -56,7 +56,7 @@ public enum TestRunLifecycleStatus {
     /** 
      * @return A list of possible status names, as strings
      */
-    public static List<String> getAll() {
+    public static List<String> allToStringList() {
         List<String> validStatuses = new ArrayList<String>();
         for (TestRunLifecycleStatus status : TestRunLifecycleStatus.values()){
             validStatuses.add(status.toString());

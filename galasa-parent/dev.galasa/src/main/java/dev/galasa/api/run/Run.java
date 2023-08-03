@@ -22,15 +22,14 @@ public class Run {
     private String  stream;
     private String  repo;
     private String  obr;
-    private boolean local;
-    private boolean trace;
+    private boolean isLocal;
+    private boolean isTraceEnabled;
     private String  rasRunId;
-    
-    public Run() {};
+
 
     public Run(String name, Instant heartbeat, String type, String group, String test, String bundleName,
             String testName, String status, String result, Instant queued, Instant finished, Instant waitUntil,
-            String requestor, String stream, String repo, String obr, boolean local, boolean trace, String rasRunId) {
+            String requestor, String stream, String repo, String obr, boolean isLocal, boolean isTraceEnabled, String rasRunId) {
         this.name = name;
         this.heartbeat = heartbeat;
         this.type = type;
@@ -47,8 +46,8 @@ public class Run {
         this.stream = stream;
         this.repo = repo;
         this.obr = obr;
-        this.local = local;
-        this.trace = trace;
+        this.isLocal = isLocal;
+        this.isTraceEnabled = isTraceEnabled;
         this.rasRunId = rasRunId;
     }
 
@@ -113,11 +112,21 @@ public class Run {
     }
 
     public boolean getLocal() {
-        return local;
+    // To be depracated, replaced by isLocalRun() which follows naming conventions
+        return isLocalRun();
+    }
+
+    public boolean isLocalRun(){
+        return isLocal;
     }
 
     public boolean getTrace() {
-        return trace;
+        // TO be depracated, replaced by isTraceEnabledOnRun() which follows naming conventions
+        return isTraceEnabledOnRun();
+    }
+
+    public boolean isTraceEnabledOnRun(){
+        return isTraceEnabled;
     }
 
     public String getResult() {

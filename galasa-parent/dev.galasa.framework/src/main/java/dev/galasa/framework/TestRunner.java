@@ -85,7 +85,7 @@ public class TestRunner {
 
     private RunType                            runType;
 
-    private boolean                            runOk = true;
+    private boolean                            isRunOK = true;
     private boolean                            resourcesAvailable = true;
 
     private IFramework                          framework;
@@ -360,7 +360,7 @@ public class TestRunner {
                 logger.error("There are Managers that do not support Shared Environment builds");
                 testClassWrapper.setResult(Result.failed("Invalid Shared Environment build"));
                 testStructure.setResult(testClassWrapper.getResult().getName());
-                runOk = false;
+                isRunOK = false;
             }
         }
 
@@ -368,10 +368,10 @@ public class TestRunner {
             generateEnvironment(testClassWrapper, managers);
         } catch(Exception e) {
             logger.fatal("Error within test runner",e);
-            this.runOk = false;
+            this.isRunOK = false;
         }
 
-        if (!runOk || this.runType == RunType.TEST || this.runType == RunType.SHAREDENVIRONMENTDISCARD) {
+        if (!isRunOK || this.runType == RunType.TEST || this.runType == RunType.SHAREDENVIRONMENTDISCARD) {
             updateStatus(TestRunLifecycleStatus.ENDING, null);
             managers.endOfTestRun();
 
@@ -420,39 +420,33 @@ public class TestRunner {
         managers.shutdown();
 
         frameworkInitialisation.shutdownFramework();
-
-        return;
     }
 
     private void generateEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
-        if (!runOk) {
-            return;
-        }
-
-        try {
-            updateStatus(TestRunLifecycleStatus.GENERATING, null);
-            logger.info("Starting Provision Generate phase");
-            managers.provisionGenerate();
-        } catch (Exception e) { 
-            logger.info("Provision Generate failed", e);
-            if (e instanceof FrameworkResourceUnavailableException) {
-                this.resourcesAvailable = false;
+        if(isRunOK){
+            try {
+                updateStatus(TestRunLifecycleStatus.GENERATING, null);
+                logger.info("Starting Provision Generate phase");
+                managers.provisionGenerate();
+                createEnvironment(testClassWrapper, managers);
+            } catch (Exception e) { 
+                logger.info("Provision Generate failed", e);
+                if (e instanceof FrameworkResourceUnavailableException) {
+                    this.resourcesAvailable = false;
+                }
+                testClassWrapper.setResult(Result.envfail(e));
+                if (resourcesAvailable) {
+                    managers.testClassResult(testClassWrapper.getResult(), e);
+                }
+                testStructure.setResult(testClassWrapper.getResult().getName());
+                isRunOK = false;
             }
-            testClassWrapper.setResult(Result.envfail(e));
-            if (resourcesAvailable) {
-                managers.testClassResult(testClassWrapper.getResult(), e);
-            }
-            testStructure.setResult(testClassWrapper.getResult().getName());
-            runOk = false;
-            return;
         }
-
-        createEnvironment(testClassWrapper, managers);
     }
 
 
     private void createEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
-        if (!runOk) {
+        if (!isRunOK) {
             return;
         }
 
@@ -463,7 +457,7 @@ public class TestRunner {
                     logger.info("Starting Provision Build phase");
                     managers.provisionBuild();
                 } catch (FrameworkException e) {
-                    this.runOk = false;
+                    this.isRunOK = false;
                     logger.error("Provision build failed",e);
                     if (e instanceof FrameworkResourceUnavailableException) {
                         this.resourcesAvailable = false;
@@ -485,7 +479,7 @@ public class TestRunner {
 
 
     private void discardEnvironment(TestRunManagers managers) {
-        if (this.runType == RunType.TEST || this.runType == RunType.SHAREDENVIRONMENTDISCARD) {
+        if (this.runType != RunType.SHAREDENVIRONMENTBUILD) {
             logger.info("Starting Provision Discard phase");
             managers.provisionDiscard();
         }
@@ -493,59 +487,51 @@ public class TestRunner {
 
 
     private void runEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
-        if (!runOk) {
-            return;
-        }
-
-        try {
-            if (this.runType == RunType.TEST || this.runType == RunType.SHAREDENVIRONMENTBUILD) {
-                try {
-                    updateStatus(TestRunLifecycleStatus.PROVSTART, null);
-                    logger.info("Starting Provision Start phase");
-                    managers.provisionStart();
-                } catch (FrameworkException e) {
-                    this.runOk = false;
-                    logger.error("Provision start failed",e);
-                    if (e instanceof FrameworkResourceUnavailableException) {
-                        this.resourcesAvailable = false;
+        if (isRunOK) {    
+            try {
+                if (this.runType != RunType.SHAREDENVIRONMENTDISCARD) {
+                    try {
+                        updateStatus(TestRunLifecycleStatus.PROVSTART, null);
+                        logger.info("Starting Provision Start phase");
+                        managers.provisionStart();
+                    } catch (FrameworkException e) {
+                        this.isRunOK = false;
+                        logger.error("Provision start failed",e);
+                        if (e instanceof FrameworkResourceUnavailableException) {
+                            this.resourcesAvailable = false;
+                        }
+                        testClassWrapper.setResult(Result.envfail(e));
+                        testStructure.setResult(testClassWrapper.getResult().getName());
+                        return;
                     }
-                    testClassWrapper.setResult(Result.envfail(e));
-                    testStructure.setResult(testClassWrapper.getResult().getName());
-                    return;
                 }
+                
+                runTestClassWrapper(testClassWrapper, managers);
+            } finally {
+                stopEnvironment(managers);
             }
-
-            runTestClassWrapper(testClassWrapper, managers);
-        } finally {
-            stopEnvironment(managers);
         }
+        return;
     }
 
     private void stopEnvironment(TestRunManagers managers) {
-        if (this.runType != RunType.TEST && this.runType != RunType.SHAREDENVIRONMENTDISCARD) {
-            return;
+        if (this.runType == RunType.SHAREDENVIRONMENTBUILD) {   
+            logger.info("Starting Provision Stop phase");
+            managers.provisionStop();
         }
-
-        logger.info("Starting Provision Stop phase");
-        managers.provisionStop();
     }
 
 
     private void runTestClassWrapper(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
-        if (this.runType != RunType.TEST && this.runType == RunType.SHAREDENVIRONMENTBUILD) {
-            return;
-        }
-
-        if (!runOk) {
-            return;
-        }
-
-        updateStatus(TestRunLifecycleStatus.RUNNING, null);
-        try {
-            logger.info("Running the test class");
-            testClassWrapper.runTestMethods(managers, this.dss, this.run.getName());
-        } finally {
-            updateStatus(TestRunLifecycleStatus.RUNDONE, null);
+        if (this.runType == RunType.SHAREDENVIRONMENTBUILD && isRunOK) {
+            
+            updateStatus(TestRunLifecycleStatus.RUNNING, null);
+            try {
+                logger.info("Running the test class");
+                testClassWrapper.runTestMethods(managers, this.dss, this.run.getName());
+            } finally {
+                updateStatus(TestRunLifecycleStatus.RUNDONE, null);
+            }
         }
 
     }
@@ -742,6 +728,5 @@ public class TestRunner {
             logger.error("Failed to save the recorded properties", e);
         }
     }
-
 
 }

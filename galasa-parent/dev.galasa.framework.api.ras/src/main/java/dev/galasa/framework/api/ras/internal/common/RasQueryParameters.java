@@ -49,7 +49,7 @@ public class RasQueryParameters {
 				if (TestRunLifecycleStatus.isStatusValid(statusUppercase)) {
 					returnStatuses.add(TestRunLifecycleStatus.valueOf(statusUppercase));
 				} else {
-					ServletError error = new ServletError(GAL5014_STATUS_NAME_NOT_RECOGNIZED, status, TestRunLifecycleStatus.getAll().toString());
+					ServletError error = new ServletError(GAL5014_STATUS_NAME_NOT_RECOGNIZED, status, TestRunLifecycleStatus.allToStringList().toString());
 					throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 				}
 			}
