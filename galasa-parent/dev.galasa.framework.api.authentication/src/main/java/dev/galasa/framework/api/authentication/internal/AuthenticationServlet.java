@@ -81,15 +81,15 @@ public class AuthenticationServlet extends HttpServlet {
             HttpResponse<String> tokenResponse = oidcProvider.sendTokenPost(requestBodyJson);
 
             JsonObject tokenResponseBodyJson = gson.fromJson(tokenResponse.body(), JsonObject.class);
-            if (!tokenResponseBodyJson.has("id_token")) {
-                ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            if (tokenResponseBodyJson.has("id_token")) {
+                // Return the JWT as the servlet's response.
+                String jwtJsonStr = "{\"jwt\": \"" + tokenResponseBodyJson.get("id_token").getAsString() + "\"}";
+                responseBuilder.buildResponse(resp, "application/json", jwtJsonStr, httpStatusCode);
+                return;
             }
 
-            // Return the JWT as the servlet's response.
-            String jwtJsonStr = "{\"jwt\": \"" + tokenResponseBodyJson.get("id_token").getAsString() + "\"}";
-            responseBuilder.buildResponse(resp, "application/json", jwtJsonStr, httpStatusCode);
-            return;
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
         } catch (InternalServletException ex) {
             // The message is a curated servlet message, we intentionally threw up to this level.

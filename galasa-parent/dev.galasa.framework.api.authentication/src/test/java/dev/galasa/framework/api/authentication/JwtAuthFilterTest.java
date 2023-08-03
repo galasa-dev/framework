@@ -10,9 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.Map;
-import java.util.Base64.Encoder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -49,22 +47,6 @@ public class JwtAuthFilterTest extends BaseServletTest {
             HttpServletResponse servletResponse = (HttpServletResponse) response;
             servletResponse.setStatus(200);
         }
-    }
-
-    private String createMockJwt(String issuer, int expiresAt, String keyId) {
-        String header = "{ \"alg\": \"RSA256\", \"kid\": \"" + keyId + "\" }";
-        String payload = "{ \"iss\": \"" + issuer + "\","+
-            "\"exp\": " + expiresAt + "}";
-
-        String signature = "dummy signature";
-
-        Encoder encoder = Base64.getEncoder();
-        String encodedHeader = encoder.encodeToString(header.getBytes());
-        String encodedPayload = encoder.encodeToString(payload.getBytes());
-        String encodedSignature = encoder.encodeToString(signature.getBytes());
-
-        // To do: Base64 encode the header, payload, and signature, and then return a string of the form: "header.payload.signature"
-        return encodedHeader + "." + encodedPayload + "." + encodedSignature;
     }
 
     @Test
@@ -172,7 +154,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         String mockIssuerUrl = "http://dummy-issuer/dex";
         mockEnv.setenv("GALASA_DEX_ISSUER", mockIssuerUrl);
 
-        String mockJwt = createMockJwt(mockIssuerUrl, 123, "id");
+        String mockJwt = "dummy.jwt.here";
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.isJwtValid(mockJwt)).thenReturn(false);
 
@@ -200,7 +182,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         String mockIssuerUrl = "http://dummy-issuer/dex";
         mockEnv.setenv("GALASA_DEX_ISSUER", mockIssuerUrl);
 
-        String mockJwt = createMockJwt(mockIssuerUrl, 123, "id");
+        String mockJwt = "dummy.jwt.here";
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.isJwtValid(mockJwt)).thenThrow(new IOException("simulating a failure!"));
 
@@ -228,7 +210,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         String mockIssuerUrl = "http://dummy-issuer/dex";
         mockEnv.setenv("GALASA_DEX_ISSUER", mockIssuerUrl);
 
-        String mockJwt = createMockJwt(mockIssuerUrl, 123, "id");
+        String mockJwt = "dummy.jwt.here";
 
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.isJwtValid(mockJwt)).thenReturn(true);

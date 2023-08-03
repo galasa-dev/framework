@@ -141,4 +141,21 @@ public class OidcProviderTest {
         // Then...
         assertThat(key).isNull();
     }
+
+    @Test
+    public void testIsJwtValidWithBadTokenFormatReturnsFalse() throws Exception {
+        // Given...
+        // A JWT that does not have 3 parts (should be of the form "header.payload.signature")
+        String testJwt = "thisisabadjwt";
+
+        HttpClient mockHttpClient = mock(HttpClient.class);
+
+        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
+
+        // When...
+        boolean result = oidcProvider.isJwtValid(testJwt);
+
+        // Then...
+        assertThat(result).isFalse();
+    }
 }

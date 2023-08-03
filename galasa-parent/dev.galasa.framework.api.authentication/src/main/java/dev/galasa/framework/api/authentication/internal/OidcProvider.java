@@ -60,14 +60,15 @@ public class OidcProvider {
 
         StringBuilder sbRequestBody = new StringBuilder();
         String clientId = requestBody.get("client_id").getAsString();
-        String secret = requestBody.get("secret").getAsString();
         String refreshToken = requestBody.get("refresh_token").getAsString();
+        String secret = requestBody.get("secret").getAsString();
+        String decodedSecret = new String(Base64.getDecoder().decode(secret));
 
         // Convert the request's JSON object to the application/x-www-form-urlencoded content type
         // as required by the /token endpoint.
         sbRequestBody.append("grant_type=refresh_token");
         sbRequestBody.append("&client_id=" + clientId);
-        sbRequestBody.append("&client_secret=" + secret);
+        sbRequestBody.append("&client_secret=" + decodedSecret);
         sbRequestBody.append("&refresh_token=" + refreshToken);
 
         // Create a POST request to the /token endpoint
