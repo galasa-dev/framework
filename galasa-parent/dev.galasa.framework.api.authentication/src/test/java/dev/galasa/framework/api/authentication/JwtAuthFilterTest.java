@@ -6,12 +6,10 @@
 package dev.galasa.framework.api.authentication;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.net.http.HttpResponse;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Base64.Encoder;
@@ -24,7 +22,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import dev.galasa.framework.api.authentication.internal.JwtAuthFilter;
@@ -73,6 +70,10 @@ public class JwtAuthFilterTest extends BaseServletTest {
     @Test
     public void testRequestWithNoAuthorizationHeaderReturnsUnauthorized() throws Exception {
         // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+        String mockIssuerUrl = "http://dummy-issuer/dex";
+        mockEnv.setenv("GALASA_DEX_ISSUER", mockIssuerUrl);
+
         JwtAuthFilter authFilter = new JwtAuthFilter();
         HttpServletRequest mockRequest = new MockHttpServletRequest("", "/ras/runs");
         HttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -81,6 +82,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         FilterChain mockChain = new MockFilterChain();
 
         // When...
+        authFilter.init(null);
         authFilter.doFilter(mockRequest, mockResponse, mockChain);
 
         // Then...
@@ -100,6 +102,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         FilterChain mockChain = new MockFilterChain();
 
         // When...
+        authFilter.init(null);
         authFilter.doFilter(mockRequest, mockResponse, mockChain);
 
         // Then...
@@ -118,6 +121,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         FilterChain mockChain = new MockFilterChain();
 
         // When...
+        authFilter.init(null);
         authFilter.doFilter(mockRequest, mockResponse, mockChain);
 
         // Then...
@@ -136,6 +140,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         FilterChain mockChain = new MockFilterChain();
 
         // When...
+        authFilter.init(null);
         authFilter.doFilter(mockRequest, mockResponse, mockChain);
 
         // Then...
@@ -153,30 +158,26 @@ public class JwtAuthFilterTest extends BaseServletTest {
         FilterChain mockChain = new MockFilterChain();
 
         // When...
+        authFilter.init(null);
         authFilter.doFilter(mockRequest, mockResponse, mockChain);
 
         // Then...
         assertThat(mockResponse.getStatus()).isEqualTo(200);
     }
 
-    @Ignore
     @Test
-    public void testRequestWithExpiredJwtReturnsUnauthorized() throws Exception {
+    public void testRequestWithInvalidJwtReturnsUnauthorized() throws Exception {
         // Given...
         MockEnvironment mockEnv = new MockEnvironment();
         String mockIssuerUrl = "http://dummy-issuer/dex";
         mockEnv.setenv("GALASA_DEX_ISSUER", mockIssuerUrl);
 
-        @SuppressWarnings(value = { "unchecked" })
-        HttpResponse<String> mockResponse = mock(HttpResponse.class);
-        when(mockResponse.body()).thenReturn("{ \"keys\": [{ }] }");
-
+        String mockJwt = createMockJwt(mockIssuerUrl, 123, "id");
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
-        when(mockOidcProvider.sendTokenPost(any())).thenReturn(mockResponse);
+        when(mockOidcProvider.isJwtValid(mockJwt)).thenReturn(false);
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
 
-        String mockJwt = createMockJwt(mockIssuerUrl, 123, "id");
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
         HttpServletRequest mockRequest = new MockHttpServletRequest("/ras/runs", headers);
         HttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -190,5 +191,60 @@ public class JwtAuthFilterTest extends BaseServletTest {
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(401);
         checkErrorStructure(outStream.toString(), 5401, "GAL5401E", "Unauthorized");
+    }
+
+    @Test
+    public void testRequestWithExceptionGetsCaught() throws Exception {
+        // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+        String mockIssuerUrl = "http://dummy-issuer/dex";
+        mockEnv.setenv("GALASA_DEX_ISSUER", mockIssuerUrl);
+
+        String mockJwt = createMockJwt(mockIssuerUrl, 123, "id");
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        when(mockOidcProvider.isJwtValid(mockJwt)).thenThrow(new IOException("simulating a failure!"));
+
+        JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
+
+        Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
+        HttpServletRequest mockRequest = new MockHttpServletRequest("/ras/runs", headers);
+        HttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        FilterChain mockChain = new MockFilterChain();
+
+        // When...
+        authFilter.doFilter(mockRequest, servletResponse, mockChain);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(500);
+        checkErrorStructure(outStream.toString(), 5000, "GAL5000E", "Error occured when trying to access the endpoint");
+    }
+
+    @Test
+    public void testRequestWithValidJwtReturnsOk() throws Exception {
+        // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+        String mockIssuerUrl = "http://dummy-issuer/dex";
+        mockEnv.setenv("GALASA_DEX_ISSUER", mockIssuerUrl);
+
+        String mockJwt = createMockJwt(mockIssuerUrl, 123, "id");
+
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        when(mockOidcProvider.isJwtValid(mockJwt)).thenReturn(true);
+
+        JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
+
+        Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
+        HttpServletRequest mockRequest = new MockHttpServletRequest("/ras/runs", headers);
+        HttpServletResponse servletResponse = new MockHttpServletResponse();
+
+        FilterChain mockChain = new MockFilterChain();
+
+        // When...
+        authFilter.doFilter(mockRequest, servletResponse, mockChain);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
     }
 }
