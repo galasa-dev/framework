@@ -575,4 +575,9 @@ public class GherkinTestRunner {
         }
     }
 
+    // method to replace repeating "run." + run.getName() + "."... where ... is the key suffix to be passed
+    private String getDSSKeyString(String keySuffix){
+        return "run." + run.getName() + "." + keySuffix;
+    }
+
 }
