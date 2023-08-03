@@ -184,7 +184,7 @@ public class RunQueryRoute extends RunsRoute {
 		List<String> result,
 		List<TestRunLifecycleStatus> passedInStatuses,
 		Instant to, 
-		@NotNull Instant from, 
+		Instant from, 
 		String runName
 	) throws InternalServletException {
 

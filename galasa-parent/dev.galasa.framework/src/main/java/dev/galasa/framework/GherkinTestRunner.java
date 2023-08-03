@@ -461,7 +461,7 @@ public class GherkinTestRunner {
     private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
 
         this.testStructure.setStatus(status.toString());
-        if ("finished".equals(status.toString())) {
+        if (status == TestRunLifecycleStatus.FINISHED) {
             updateResult();
             this.testStructure.setEndTime(Instant.now());
         }

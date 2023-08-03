@@ -58,9 +58,9 @@ import dev.galasa.framework.spi.utils.DssUtils;
 public class TestRunner {
 
     private enum RunType {
-        Test,
-        SharedEnvironmentBuild,
-        SharedEnvironmentDiscard
+        TEST,
+        SHAREDENVIRONMENTBUILD,
+        SHAREDENVIRONMENTDISCARD
     }
 
 
@@ -86,7 +86,7 @@ public class TestRunner {
     private RunType                            runType;
 
     private boolean                            runOk = true;
-    private boolean                            resourcesUnavailable = false;
+    private boolean                            resourcesAvailable = true;
 
     private IFramework                          framework;
 
@@ -247,7 +247,7 @@ public class TestRunner {
 
         if (testAnnotation != null) {
             logger.info("Run test: " + testBundleName + "/" + testClassName);
-            this.runType = RunType.Test;
+            this.runType = RunType.TEST;
         } else {
             logger.info("Shared Environment class: " + testBundleName + "/" + testClassName);
         }
@@ -259,10 +259,10 @@ public class TestRunner {
                 if (seType != null) {
                     switch(seType) {
                         case BUILD:
-                            this.runType = RunType.SharedEnvironmentBuild;
+                            this.runType = RunType.SHAREDENVIRONMENTBUILD;
                             break;
                         case DISCARD:
-                            this.runType = RunType.SharedEnvironmentDiscard;
+                            this.runType = RunType.SHAREDENVIRONMENTDISCARD;
                             break;
                         default:
                             throw new TestRunException("Unknown Shared Environment phase, '" + seType + "', needs to be BUILD or DISCARD");
@@ -277,7 +277,7 @@ public class TestRunner {
             }
         }
 
-        if (this.runType == RunType.Test) {
+        if (this.runType == RunType.TEST) {
             try {
                 heartbeat = new TestRunHeartbeat(this.framework);
                 heartbeat.start();
@@ -291,7 +291,7 @@ public class TestRunner {
             } else {
                 DssUtils.incrementMetric(dss, "metrics.runs.automated");
             }
-        } else if (this.runType == RunType.SharedEnvironmentBuild) {
+        } else if (this.runType == RunType.SHAREDENVIRONMENTBUILD) {
             int expireHours = sharedEnvironmentAnnotation.expireAfterHours();
             Instant expire = Instant.now().plus(expireHours, ChronoUnit.HOURS);
             try {
@@ -346,7 +346,7 @@ public class TestRunner {
 
         testClassWrapper.instantiateTestClass();
 
-        if (this.runType == RunType.SharedEnvironmentBuild) {
+        if (this.runType == RunType.SHAREDENVIRONMENTBUILD) {
             //*** Check all the active Managers to see if they support a shared environment build
             boolean invalidManager = false;
             for(IManager manager : managers.getActiveManagers()) {
@@ -371,18 +371,18 @@ public class TestRunner {
             this.runOk = false;
         }
 
-        if (!runOk || this.runType == RunType.Test || this.runType == RunType.SharedEnvironmentDiscard) {
+        if (!runOk || this.runType == RunType.TEST || this.runType == RunType.SHAREDENVIRONMENTDISCARD) {
             updateStatus(TestRunLifecycleStatus.ENDING, null);
             managers.endOfTestRun();
 
             boolean markedWaiting = false;
 
-            if (resourcesUnavailable && !run.isLocal()) {
+            if (!resourcesAvailable && !run.isLocal()) {
                 markWaiting(this.framework);
                 logger.info("Placing queue on the waiting list");
                 markedWaiting = true;
             } else {
-                if (this.runType == RunType.SharedEnvironmentDiscard) {
+                if (this.runType == RunType.SHAREDENVIRONMENTDISCARD) {
                     this.testStructure.setResult("Discarded");
                     try {
                         this.dss.deletePrefix("run." + this.run.getName() + ".shared.environment");
@@ -410,7 +410,7 @@ public class TestRunner {
             if (!markedWaiting) {
                 deleteRunProperties(this.framework);
             }
-        } else if (this.runType == RunType.SharedEnvironmentBuild) {
+        } else if (this.runType == RunType.SHAREDENVIRONMENTBUILD) {
             recordCPSProperties(frameworkInitialisation);
             updateStatus(TestRunLifecycleStatus.UP, "built");
         } else {
@@ -436,10 +436,10 @@ public class TestRunner {
         } catch (Exception e) { 
             logger.info("Provision Generate failed", e);
             if (e instanceof FrameworkResourceUnavailableException) {
-                this.resourcesUnavailable = true;
+                this.resourcesAvailable = false;
             }
             testClassWrapper.setResult(Result.envfail(e));
-            if (!resourcesUnavailable) {
+            if (resourcesAvailable) {
                 managers.testClassResult(testClassWrapper.getResult(), e);
             }
             testStructure.setResult(testClassWrapper.getResult().getName());
@@ -457,7 +457,7 @@ public class TestRunner {
         }
 
         try {
-            if (this.runType == RunType.Test || this.runType == RunType.SharedEnvironmentBuild) {
+            if (this.runType == RunType.TEST || this.runType == RunType.SHAREDENVIRONMENTBUILD) {
                 try {
                     updateStatus(TestRunLifecycleStatus.BUILDING, null);
                     logger.info("Starting Provision Build phase");
@@ -466,10 +466,10 @@ public class TestRunner {
                     this.runOk = false;
                     logger.error("Provision build failed",e);
                     if (e instanceof FrameworkResourceUnavailableException) {
-                        this.resourcesUnavailable = true;
+                        this.resourcesAvailable = false;
                     }
                     testClassWrapper.setResult(Result.envfail(e));
-                    if (!this.resourcesUnavailable) {
+                    if (this.resourcesAvailable) {
                         managers.testClassResult(testClassWrapper.getResult(), e);
                     }
                     testStructure.setResult(testClassWrapper.getResult().getName());
@@ -485,12 +485,10 @@ public class TestRunner {
 
 
     private void discardEnvironment(TestRunManagers managers) {
-        if (this.runType != RunType.Test && this.runType != RunType.SharedEnvironmentDiscard) {
-            return;
+        if (this.runType == RunType.TEST || this.runType == RunType.SHAREDENVIRONMENTDISCARD) {
+            logger.info("Starting Provision Discard phase");
+            managers.provisionDiscard();
         }
-
-        logger.info("Starting Provision Discard phase");
-        managers.provisionDiscard();
     }
 
 
@@ -500,7 +498,7 @@ public class TestRunner {
         }
 
         try {
-            if (this.runType == RunType.Test || this.runType == RunType.SharedEnvironmentBuild) {
+            if (this.runType == RunType.TEST || this.runType == RunType.SHAREDENVIRONMENTBUILD) {
                 try {
                     updateStatus(TestRunLifecycleStatus.PROVSTART, null);
                     logger.info("Starting Provision Start phase");
@@ -509,7 +507,7 @@ public class TestRunner {
                     this.runOk = false;
                     logger.error("Provision start failed",e);
                     if (e instanceof FrameworkResourceUnavailableException) {
-                        this.resourcesUnavailable = true;
+                        this.resourcesAvailable = false;
                     }
                     testClassWrapper.setResult(Result.envfail(e));
                     testStructure.setResult(testClassWrapper.getResult().getName());
@@ -524,7 +522,7 @@ public class TestRunner {
     }
 
     private void stopEnvironment(TestRunManagers managers) {
-        if (this.runType != RunType.Test && this.runType != RunType.SharedEnvironmentDiscard) {
+        if (this.runType != RunType.TEST && this.runType != RunType.SHAREDENVIRONMENTDISCARD) {
             return;
         }
 
@@ -534,7 +532,7 @@ public class TestRunner {
 
 
     private void runTestClassWrapper(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
-        if (this.runType != RunType.Test && this.runType == RunType.SharedEnvironmentBuild) {
+        if (this.runType != RunType.TEST && this.runType == RunType.SHAREDENVIRONMENTBUILD) {
             return;
         }
 

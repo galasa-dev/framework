@@ -239,7 +239,7 @@ public class TestRasQueryParameters extends RasServletTest{
     }
 
     @Test
-    public void testGetStatusesFromParametersIfStatusParameterIsNullReturnsNull() throws Exception {
+    public void testGetStatusesFromParametersIfStatusParameterIsNullReturnsEmptyList() throws Exception {
         // Given...
         Map<String,String[]> mockURLQuery = new HashMap<String,String[]>();
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(mockURLQuery));
@@ -250,9 +250,7 @@ public class TestRasQueryParameters extends RasServletTest{
         List<TestRunLifecycleStatus> returnedResults = params.getStatusesFromParameters();
 
         // Then...
-        assertThat(returnedResults)
-            .isNull();
-            
+        assertThat(returnedResults.equals(new ArrayList<TestRunLifecycleStatus>()));
     }
 
     @Test

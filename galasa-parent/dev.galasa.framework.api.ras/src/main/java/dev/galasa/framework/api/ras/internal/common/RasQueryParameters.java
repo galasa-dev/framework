@@ -56,7 +56,7 @@ public class RasQueryParameters {
 			return returnStatuses;
 		}
 
-		return null;
+		return new ArrayList<TestRunLifecycleStatus>();
 	}
 
 
@@ -99,7 +99,7 @@ public class RasQueryParameters {
     } 
 
     public List<String> getRunIds( ) {
-        return generalQueryParams.getMultipleString("runId", null);
+        return generalQueryParams.getMultipleString("runId", new ArrayList<String>());
     }
 
     public boolean checkFromTimeOrRunNamePresent() throws InternalServletException {
