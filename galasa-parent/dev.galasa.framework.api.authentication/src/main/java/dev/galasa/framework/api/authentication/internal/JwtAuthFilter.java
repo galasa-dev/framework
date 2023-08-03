@@ -7,7 +7,6 @@ package dev.galasa.framework.api.authentication.internal;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.http.HttpClient;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -55,8 +54,6 @@ public class JwtAuthFilter implements Filter {
     private ResponseBuilder responseBuilder = new ResponseBuilder();
 
     protected Environment env = new SystemEnvironment();
-
-    protected HttpClient httpClient = HttpClient.newHttpClient();
 
     protected OidcProvider oidcProvider;
 

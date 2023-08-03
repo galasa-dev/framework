@@ -11,7 +11,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 import java.util.Base64;
 import java.util.Map;
@@ -29,6 +28,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import dev.galasa.framework.api.authentication.internal.JwtAuthFilter;
+import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
@@ -39,9 +39,9 @@ public class JwtAuthFilterTest extends BaseServletTest {
 
     class MockJwtAuthFilter extends JwtAuthFilter {
 
-        public MockJwtAuthFilter(Environment env, HttpClient httpClient) {
+        public MockJwtAuthFilter(Environment env, OidcProvider oidcProvider) {
             super.env = env;
-            super.httpClient = httpClient;
+            super.oidcProvider = oidcProvider;
         }
     }
 
@@ -168,13 +168,13 @@ public class JwtAuthFilterTest extends BaseServletTest {
         mockEnv.setenv("GALASA_DEX_ISSUER", mockIssuerUrl);
 
         @SuppressWarnings(value = { "unchecked" })
-        HttpResponse<Object> mockResponse = mock(HttpResponse.class);
+        HttpResponse<String> mockResponse = mock(HttpResponse.class);
         when(mockResponse.body()).thenReturn("{ \"keys\": [{ }] }");
 
-        HttpClient mockClient = mock(HttpClient.class);
-        when(mockClient.send(any(), any())).thenReturn(mockResponse);
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        when(mockOidcProvider.sendTokenPost(any())).thenReturn(mockResponse);
 
-        JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockClient);
+        JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
 
         String mockJwt = createMockJwt(mockIssuerUrl, 123, "id");
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
