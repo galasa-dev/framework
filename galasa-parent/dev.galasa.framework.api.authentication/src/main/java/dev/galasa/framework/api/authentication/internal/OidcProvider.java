@@ -21,8 +21,6 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,11 +34,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
-
-import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 /**
  * A class that handles communications with an OpenID Connect (OIDC) Provider.
@@ -53,7 +47,7 @@ public class OidcProvider {
 
     private String issuerUrl;
 
-    private HttpClient httpClient = HttpClient.newHttpClient();
+    protected HttpClient httpClient = HttpClient.newHttpClient();
 
     public OidcProvider(String issuerUrl) {
         this.issuerUrl = issuerUrl;
@@ -90,7 +84,7 @@ public class OidcProvider {
     /**
      * Gets a JSON array of the JSON Web Keys (JWKs) from a GET request to an issuer's /keys endpoint
      */
-    public JsonArray getJsonWebKeysFromIssuer(String issuer) throws InternalServletException, IOException, InterruptedException {
+    public JsonArray getJsonWebKeysFromIssuer(String issuer) throws IOException, InterruptedException {
         HttpRequest getRequest = HttpRequest.newBuilder()
             .GET()
             .header("Accept", "application/json")
@@ -103,8 +97,7 @@ public class OidcProvider {
         JsonObject responseBodyJson = gson.fromJson(response.body(), JsonObject.class);
         if (!responseBodyJson.has("keys")) {
             logger.error("Error: No JSON Web Keys were found at the '" + issuer + "/keys' endpoint.");
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return null;
         }
         return responseBodyJson.get("keys").getAsJsonArray();
     }
@@ -112,7 +105,7 @@ public class OidcProvider {
     /**
      * Gets a JSON Web Key with a given key ID ('kid') from an OpenID connect issuer's /keys endpoint, returned as a JSON object
      */
-    public JsonObject getJsonWebKeyFromIssuerByKeyId(String keyId, String issuer) throws IOException, InterruptedException, InternalServletException {
+    public JsonObject getJsonWebKeyFromIssuerByKeyId(String keyId, String issuer) throws IOException, InterruptedException {
         JsonArray jsonWebKeys = getJsonWebKeysFromIssuer(issuer);
 
         // Iterate over the JSON array of JWKs, finding the one that matches the given key ID
@@ -127,8 +120,11 @@ public class OidcProvider {
         return matchingKey;
     }
 
+    /**
+     * Checks if a given JWT is valid or not
+     */
     public boolean isJwtValid(String jwt)
-            throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException, InternalServletException {
+            throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException {
         try {
 
             DecodedJWT decodedJwt = JWT.decode(jwt);
@@ -157,14 +153,13 @@ public class OidcProvider {
     //   "e": "xyz"
     // }
     private RSAPublicKey getRSAPublicKeyFromIssuer(String keyId, String issuer)
-            throws IOException, InterruptedException, NoSuchAlgorithmException, InvalidKeySpecException, InternalServletException {
+            throws IOException, InterruptedException, NoSuchAlgorithmException, InvalidKeySpecException {
 
         // Get the JWK with the given key ID
         JsonObject matchingJwk = getJsonWebKeyFromIssuerByKeyId(keyId, issuer);
         if (matchingJwk == null) {
             logger.error("Error: No matching JSON Web Key was found with key ID '" + keyId + "'.");
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return null;
         }
 
         // A JWK contains an 'n' field to represent the key's modulus, and an 'e' field to represent the key's exponent, both are Base64URL-encoded
@@ -178,8 +173,6 @@ public class OidcProvider {
         RSAPublicKey generatedPublicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
         return generatedPublicKey;
     }
-
-    
 
     public String getIssuer() {
         return this.issuerUrl;
