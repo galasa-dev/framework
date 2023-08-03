@@ -7,11 +7,7 @@ package dev.galasa.framework.api.authentication.internal;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -34,9 +30,6 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.Environment;
@@ -44,7 +37,6 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.SystemEnvironment;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,17 +51,18 @@ public class JwtAuthFilter implements Filter {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private static final Gson gson = GalasaGsonBuilder.build();
-
     private ResponseBuilder responseBuilder = new ResponseBuilder();
 
     protected Environment env = new SystemEnvironment();
 
     protected HttpClient httpClient = HttpClient.newHttpClient();
 
+    protected OidcProvider oidcProvider;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        logger.info("Galasa JWT Auth Filter initialised.");
+        oidcProvider = new OidcProvider(env.getenv("GALASA_DEX_ISSUER"));
+        logger.info("Galasa JWT Auth Filter initialised");
     }
 
     @Override
@@ -160,7 +153,7 @@ public class JwtAuthFilter implements Filter {
             throws IOException, InterruptedException, NoSuchAlgorithmException, InvalidKeySpecException, InternalServletException {
 
         // Get the JWK with the given key ID
-        JsonObject matchingJwk = getJsonWebKeyFromIssuerByKeyId(keyId, issuer);
+        JsonObject matchingJwk = oidcProvider.getJsonWebKeyFromIssuerByKeyId(keyId, issuer);
         if (matchingJwk == null) {
             logger.error("Error: No matching JSON Web Key was found with key ID '" + keyId + "'.");
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
@@ -176,42 +169,6 @@ public class JwtAuthFilter implements Filter {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         RSAPublicKey generatedPublicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
         return generatedPublicKey;
-    }
-
-    // Gets a JSON array of the JSON Web Keys (JWKs) from a GET request to an issuer's /keys endpoint
-    private JsonArray getJsonWebKeysFromIssuer(String issuer) throws InternalServletException, IOException, InterruptedException {
-        HttpRequest getRequest = HttpRequest.newBuilder()
-            .GET()
-            .header("Accept", "application/json")
-            .uri(URI.create(issuer + "/keys"))
-            .build();
-
-        // Send a GET request to the issuer's /keys endpoint
-        HttpResponse<String> response = httpClient.send(getRequest, BodyHandlers.ofString());
-
-        JsonObject responseBodyJson = gson.fromJson(response.body(), JsonObject.class);
-        if (!responseBodyJson.has("keys")) {
-            logger.error("Error: No JSON Web Keys were found at the '" + issuer + "/keys' endpoint.");
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-        return responseBodyJson.get("keys").getAsJsonArray();
-    }
-
-    // Gets a JSON Web Key with a given key ID ('kid') from an OpenID connect issuer's /keys endpoint
-    private JsonObject getJsonWebKeyFromIssuerByKeyId(String keyId, String issuer) throws IOException, InterruptedException, InternalServletException {
-        JsonArray jsonWebKeys = getJsonWebKeysFromIssuer(issuer);
-
-        // Iterate over the JSON array of JWKs, finding the one that matches the given key ID
-        JsonObject matchingKey = null;
-        for (JsonElement key : jsonWebKeys) {
-            JsonObject keyAsJsonObject = key.getAsJsonObject();
-            if (keyAsJsonObject.get("kid").getAsString().equals(keyId)) {
-                matchingKey = keyAsJsonObject;
-                break;
-            }
-        }
-        return matchingKey;
     }
 
     @Override

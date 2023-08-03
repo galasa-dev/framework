@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import dev.galasa.framework.api.authentication.internal.AuthenticationServlet;
 import dev.galasa.framework.api.authentication.internal.JwtAuthFilter;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.Environment;

@@ -7,15 +7,9 @@ package dev.galasa.framework.api.authentication.internal;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -25,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
@@ -55,11 +48,18 @@ public class AuthenticationServlet extends HttpServlet {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    protected HttpClient httpClient = HttpClient.newHttpClient();
-
     private List<String> requiredPayload = Arrays.asList("client_id", "secret", "refresh_token");
 
     protected Environment env = new SystemEnvironment();
+
+    protected OidcProvider oidcProvider;
+
+    @Override
+    public void init() throws ServletException {
+        oidcProvider = new OidcProvider(env.getenv("GALASA_DEX_ISSUER"));
+        logger.info("Galasa Authentication API initialised");
+    }
+
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -78,7 +78,7 @@ public class AuthenticationServlet extends HttpServlet {
             }
 
             // Send a POST request to Dex's /token endpoint and ensure the returned response contains a JWT.
-            HttpResponse<String> tokenResponse = sendTokenPost(requestBodyJson);
+            HttpResponse<String> tokenResponse = oidcProvider.sendTokenPost(requestBodyJson);
 
             JsonObject tokenResponseBodyJson = gson.fromJson(tokenResponse.body(), JsonObject.class);
             if (!tokenResponseBodyJson.has("id_token")) {
@@ -120,40 +120,5 @@ public class AuthenticationServlet extends HttpServlet {
         }
 
         return gson.fromJson(sbRequestBody.toString(), JsonObject.class);
-    }
-
-    /**
-     * Sends a POST request to an OpenID Connect /token endpoint, returning the received response.
-     */
-    private HttpResponse<String> sendTokenPost(JsonObject requestBody) throws IOException, InterruptedException {
-
-        String dexIssuer = env.getenv("GALASA_DEX_ISSUER");
-
-        StringBuilder sbRequestBody = new StringBuilder();
-        String clientId = requestBody.get("client_id").getAsString();
-        String secret = requestBody.get("secret").getAsString();
-        String refreshToken = requestBody.get("refresh_token").getAsString();
-
-        // Convert the request's JSON object to the application/x-www-form-urlencoded content type
-        // as required by the /token endpoint.
-        sbRequestBody.append("grant_type=refresh_token");
-        sbRequestBody.append("&client_id=" + clientId);
-        sbRequestBody.append("&client_secret=" + secret);
-        sbRequestBody.append("&refresh_token=" + refreshToken);
-
-        // Create a POST request to the /token endpoint
-        HttpRequest postRequest = HttpRequest.newBuilder()
-            .POST(BodyPublishers.ofString(sbRequestBody.toString()))
-            .header("Content-type", "application/x-www-form-urlencoded")
-            .uri(URI.create(dexIssuer + "/token"))
-            .build();
-
-        HttpResponse<String> response = httpClient.send(postRequest, BodyHandlers.ofString());
-        return response;
-    }
-
-    @Activate
-    void activate(Map<String, Object> properties) {
-        logger.info("Galasa Authentication API activated");
     }
 }

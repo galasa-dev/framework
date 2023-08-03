@@ -10,7 +10,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 
 import javax.servlet.ServletOutputStream;
@@ -18,6 +17,7 @@ import javax.servlet.ServletOutputStream;
 import org.junit.Test;
 
 import dev.galasa.framework.api.authentication.internal.AuthenticationServlet;
+import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
@@ -28,9 +28,9 @@ public class AuthenticationServletTest extends BaseServletTest {
 
     class MockAuthenticationServlet extends AuthenticationServlet {
 
-        public MockAuthenticationServlet(Environment env, HttpClient httpClient) {
+        public MockAuthenticationServlet(Environment env, OidcProvider oidcProvider) {
             super.env = env;
-            super.httpClient = httpClient;
+            super.oidcProvider = oidcProvider;
         }
     }
 
@@ -94,14 +94,14 @@ public class AuthenticationServletTest extends BaseServletTest {
         // Given...
         // Mock out Http requests and responses
         @SuppressWarnings(value = { "unchecked" })
-        HttpResponse<Object> mockResponse = mock(HttpResponse.class);
+        HttpResponse<String> mockResponse = mock(HttpResponse.class);
         when(mockResponse.body()).thenReturn("{ \"id_token\": \"this-is-a-jwt\" }");
 
-        HttpClient mockClient = mock(HttpClient.class);
-        when(mockClient.send(any(), any())).thenReturn(mockResponse);
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        when(mockOidcProvider.sendTokenPost(any())).thenReturn(mockResponse);
 
         MockEnvironment mockEnv = new MockEnvironment();
-        AuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockClient);
+        AuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
 
         String payload = buildRequestPayload("dummy-id", "asecret", "here-is-a-token");
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(payload, "/auth");
@@ -128,14 +128,14 @@ public class AuthenticationServletTest extends BaseServletTest {
         // Given...
         // Mock out Http requests and responses
         @SuppressWarnings(value = { "unchecked" })
-        HttpResponse<Object> mockResponse = mock(HttpResponse.class);
+        HttpResponse<String> mockResponse = mock(HttpResponse.class);
         when(mockResponse.body()).thenReturn("{ \"error\": \"oh no, something went wrong!\" }");
 
-        HttpClient mockClient = mock(HttpClient.class);
-        when(mockClient.send(any(), any())).thenReturn(mockResponse);
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        when(mockOidcProvider.sendTokenPost(any())).thenReturn(mockResponse);
 
         MockEnvironment mockEnv = new MockEnvironment();
-        AuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockClient);
+        AuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
 
         String payload = buildRequestPayload("dummy-id", "asecret", "here-is-a-token");
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(payload, "/auth");
