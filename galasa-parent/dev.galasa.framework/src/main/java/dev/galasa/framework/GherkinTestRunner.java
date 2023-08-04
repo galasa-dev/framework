@@ -109,7 +109,7 @@ public class GherkinTestRunner {
 
         //*** Load the overrides if present
         try {
-            String prefix = "run." + run.getName() + ".override.";
+            String prefix = getDSSKeyString("override.");
             Map<String, String> runOverrides = dss.getPrefix(prefix);
             for(Entry<String, String> entry : runOverrides.entrySet()) {
                 String key = entry.getKey().substring(prefix.length());
@@ -449,8 +449,8 @@ public class GherkinTestRunner {
         until = until.plus(totalDelay, ChronoUnit.SECONDS);
 
         HashMap<String, String> properties = new HashMap<>();
-        properties.put("run." + run.getName() + ".status", "waiting");
-        properties.put("run." + run.getName() + ".wait.until", until.toString());
+        properties.put(getDSSKeyString("status"), "waiting");
+        properties.put(getDSSKeyString("wait.until"), until.toString());
         try {
             this.dss.put(properties);
         } catch (DynamicStatusStoreException e) {
@@ -459,19 +459,20 @@ public class GherkinTestRunner {
     }
 
     private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
+        Instant time = Instant.now();
 
         this.testStructure.setStatus(status.toString());
         if (status == TestRunLifecycleStatus.FINISHED) {
             updateResult();
-            this.testStructure.setEndTime(Instant.now());
+            this.testStructure.setEndTime(time);
         }
 
         writeTestStructure();
 
         try {
-            this.dss.put("run." + run.getName() + ".status", status.toString());
+            this.dss.put(getDSSKeyString("status"), status.toString());
             if (timestamp != null) {
-                this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
+                this.dss.put(getDSSKeyString(timestamp), time.toString());
             }
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update status", e);
@@ -483,7 +484,7 @@ public class GherkinTestRunner {
             if (this.testStructure.getResult() == null) {
                 this.testStructure.setResult("UNKNOWN");
             }
-            this.dss.put("run." + run.getName() + ".result", this.testStructure.getResult());
+            this.dss.put(getDSSKeyString("result"), this.testStructure.getResult());
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update result", e);
         }
@@ -501,7 +502,7 @@ public class GherkinTestRunner {
         }
 
         try {
-            dss.delete("run." + run.getName() + ".heartbeat");
+            dss.delete(getDSSKeyString("heartbeat"));
         } catch (DynamicStatusStoreException e) {
             logger.error("Unable to delete heartbeat", e);
         }
