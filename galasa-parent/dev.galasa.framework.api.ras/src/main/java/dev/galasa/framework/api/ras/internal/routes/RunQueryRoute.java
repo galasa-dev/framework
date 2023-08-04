@@ -129,8 +129,9 @@ public class RunQueryRoute extends RunsRoute {
 
 		Instant to = queryParams.getToTime();
 
+		Instant noQueryFrom = Instant.now().minus(24,ChronoUnit.HOURS);
 		// from will error if no runname is specified as it is a mandatory field
-		Instant from = getWorkingFromValue(queryParams);
+		Instant from = getWorkingFromValue(queryParams, noQueryFrom);
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,status,to, from, runName);
 		return criteria ;
@@ -374,7 +375,7 @@ public class RunQueryRoute extends RunsRoute {
 	}
 
 
-	public Instant getWorkingFromValue (RasQueryParameters params) throws InternalServletException{
+	public Instant getWorkingFromValue (RasQueryParameters params , Instant defaultFromTimestamp) throws InternalServletException{
 		int querysize = params.getSize();
 		Instant from = null ;
 		if (querysize > 0){
@@ -387,7 +388,7 @@ public class RunQueryRoute extends RunsRoute {
 			from = params.getFromTime();
 		}else {
 			// The default for 'from' is now-24 hours. If no query parameters are specified
-			from = Instant.now().minus(24,ChronoUnit.HOURS);
+			from = defaultFromTimestamp;
 		}
 		return from;
 	}
