@@ -378,4 +378,18 @@ public class TestRasQueryParameters extends RasServletTest{
         
         assertThat(validateSortValue).isTrue();
     }
+
+    @Test
+    public void testgetGeneralQueryParameters() throws Exception {
+        Map<String,String[]> map = new HashMap<String,String[]>();
+        map.put("sort", new String[] {"to:asc"} );
+        map.put("runname", new String[] {"C1234"} );
+        map.put("requestor", new String[] {"user"} );
+        QueryParameters queryParams = new QueryParameters(map);
+        RasQueryParameters params = new RasQueryParameters(queryParams);
+
+        QueryParameters returnedParameters = params.getGeneralQueryParameters();
+        
+        assertThat(returnedParameters).isEqualTo(queryParams);
+    }
 }

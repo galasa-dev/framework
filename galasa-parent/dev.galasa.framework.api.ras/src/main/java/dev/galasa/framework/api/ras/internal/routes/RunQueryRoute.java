@@ -111,7 +111,7 @@ public class RunQueryRoute extends RunsRoute {
 			}
 		}
 
-		runs = sortResults(runs, queryParams, queryParams.getSortValue());
+		runs = sortResults(runs, queryParams, queryParams.getSortValue("to:desc"));
 
 		String responseBodyJson = buildResponseBody(runs,pageNum,pageSize);
 

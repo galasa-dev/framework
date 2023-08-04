@@ -95,9 +95,12 @@ public class RasQueryParameters {
     } 
 
     public String getSortValue() throws InternalServletException {
-        return generalQueryParams.getSingleString("sort","to:desc");
+        return getSortValue(null);
     } 
 
+    public String getSortValue(String defaultValue) throws InternalServletException {
+        return generalQueryParams.getSingleString("sort",defaultValue);
+    } 
     public List<String> getRunIds( ) {
         return generalQueryParams.getMultipleString("runId", new ArrayList<String>());
     }

@@ -41,17 +41,16 @@ public class ResultNamesRoute extends RunsRoute {
 
     @Override
     public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
-        String outputString = retrieveResults(queryParams);
+        String outputString = retrieveResults(new RasQueryParameters(queryParams));
 		return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }
 
-    public String retrieveResults (QueryParameters queryParams) throws ServletException, InternalServletException{
+    public String retrieveResults (RasQueryParameters queryParams) throws ServletException, InternalServletException{
         List<String> resultsList = getResultNames();
-		RasQueryParameters rQueryParameters = new RasQueryParameters(queryParams);
 	
 		try {
-            if (queryParams.getSingleString("sort", null) !=null ){
-			    if (!rQueryParameters.isAscending("resultnames")) {
+            if (queryParams.getSortValue() !=null ){
+			    if (!queryParams.isAscending("resultnames")) {
 				    Collections.reverse(resultsList);
                 }
 			}
