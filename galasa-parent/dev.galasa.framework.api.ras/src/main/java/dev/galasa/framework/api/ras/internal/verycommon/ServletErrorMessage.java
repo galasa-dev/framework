@@ -19,7 +19,8 @@ public enum ServletErrorMessage {
     GAL5011_SORT_VALUE_NOT_RECOGNIZED               (5011,"E: Error parsing the query parameters. 'sort' value ''{0}'' not recognised. Expected query parameter in the format 'sort={fieldName}:{order}' where order is 'asc' for ascending or 'desc' for descending."),
     GAL5012_SORT_VALUE_MISSING                      (5012,"E: Error parsing the query parameters. 'sort' value was not supplied. Expected query parameter in the format 'sort={fieldName}:{order}' where order is 'asc' for ascending or 'desc' for descending."),
     GAL5013_RESULT_NAME_NOT_RECOGNIZED              (5013,"E: Error parsing the query parameters. 'result' value ''{0}'' not recognised. Expected result name to match one of the following ''{1}''."),
-    
+    GAL5014_STATUS_NAME_NOT_RECOGNIZED              (5014,"E: Error parsing the query parameters. 'status' value ''{0}'' not recognised. Expected status name to match one of the following ''{1}''."),
+
     // RunArtifactsList...
     GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST         (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),
 
