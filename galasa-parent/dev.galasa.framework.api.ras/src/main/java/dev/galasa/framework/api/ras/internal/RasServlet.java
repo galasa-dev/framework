@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.FileSystem;
 import dev.galasa.framework.IFileSystem;
+import dev.galasa.framework.api.ras.internal.routes.RequestorRoute;
 import dev.galasa.framework.api.ras.internal.routes.ResultNamesRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunArtifactsDownloadRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunArtifactsListRoute;
@@ -54,6 +55,7 @@ public class RasServlet extends BaseServlet {
 	   	addRoute(new RunQueryRoute(getResponseBuilder(),framework));
 	   	addRoute(new RunArtifactsDownloadRoute(getResponseBuilder(),fileSystem, framework));
 	   	addRoute(new ResultNamesRoute(getResponseBuilder(),framework));
+		addRoute(new RequestorRoute(getResponseBuilder(), getServletInfo(), framework));
 	}
 
 }

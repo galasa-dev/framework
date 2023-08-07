@@ -81,13 +81,7 @@ public class TestClassesRas extends HttpServlet {
 		JsonObject testclasses = new JsonObject();
 		testclasses.add("testclasses", json);
 
-		/* setting response status and type */
-		resp.setStatus(200);
-		resp.setContentType("application/json");
-		resp.setHeader("Access-Control-Allow-Origin", "*");
-		PrintWriter out = resp.getWriter();
-		out.print(testclasses);
-		out.close();
+
 
 	}
 

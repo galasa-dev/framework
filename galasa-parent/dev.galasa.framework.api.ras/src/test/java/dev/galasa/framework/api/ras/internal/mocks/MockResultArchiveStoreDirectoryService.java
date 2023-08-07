@@ -8,11 +8,13 @@ package dev.galasa.framework.api.ras.internal.mocks;
 import java.util.*;
 import javax.validation.constraints.NotNull;
 
+import dev.galasa.framework.internal.ras.directory.DirectoryRASRunResult;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.ras.RasTestClass;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class MockResultArchiveStoreDirectoryService implements IResultArchiveStoreDirectoryService {
 
@@ -54,12 +56,25 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 	@Override
 	public @NotNull List<String> getRequestors() throws ResultArchiveStoreException {
-		throw new UnsupportedOperationException("Unimplemented method 'getRequestors'");
+		List<String> requestors = new ArrayList<>();
+		for (IRunResult run : this.getRunsResults){
+			requestors.add(run.getTestStructure().getRequestor().toString());
+		}
+		return requestors;
 	}
 
 	@Override
 	public @NotNull List<RasTestClass> getTests() throws ResultArchiveStoreException {
-		throw new UnsupportedOperationException("Unimplemented method 'getTests'");
+		HashMap<String,RasTestClass> tests = new HashMap<>();
+        String key;
+        for (IRunResult run : this.getRunsResults){
+			TestStructure testStructure = run.getTestStructure();
+			key = testStructure.getBundle()+"/"+testStructure.getTestName();
+			if(!tests.containsKey(key)){
+				tests.put(key,new RasTestClass(testStructure.getTestName(), testStructure.getBundle()));
+			}
+        }
+        return new ArrayList<>(tests.values());
 	}
 
 	@Override
