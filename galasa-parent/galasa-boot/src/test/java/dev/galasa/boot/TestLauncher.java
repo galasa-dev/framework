@@ -7,7 +7,6 @@ package dev.galasa.boot;
 
 import static org.assertj.core.api.Assertions.*;
 
-import dev.galasa.boot.Launcher;
 import dev.galasa.boot.mocks.MockEnvironment;
 import org.junit.Test;
 import java.util.Properties;

@@ -10,8 +10,6 @@ import static org.junit.Assert.fail;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import dev.galasa.boot.Launcher;
-
 public class ITLauncher {
 
     /**

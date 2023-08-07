@@ -12,7 +12,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,9 +56,7 @@ public class FelixFramework {
     private Bundle obrBundle;
 
     private RepositoryAdmin repositoryAdmin;
-    
-    private final SecureRandom random = new SecureRandom();
-    
+        
     private File felixCache;
 
     /**
