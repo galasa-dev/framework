@@ -113,21 +113,39 @@ public class Run {
         return obr;
     }
 
+    /** 
+     * @deprecated
+     * This method will be removed in later versions of the code.
+     * 
+     * Use {@link #isLocal} instead.
+     */
+    @Deprecated(since = "0.30.0", forRemoval = true)
     public boolean getLocal() {
-    // To be depracated, replaced by isLocalRun() which follows naming conventions
-        return isLocalRun();
+        return isLocal();
     }
 
-    public boolean isLocalRun(){
+    /**
+     * @since 0.30.0
+     */
+    public boolean isLocal(){
         return isLocal;
     }
 
+    /** 
+     * @deprecated
+     * This method will be removed in later versions of the code.
+     * 
+     * Use {@link #isTraceEnabled} instead.
+     */
+    @Deprecated (since = "0.30.0", forRemoval = true)
     public boolean getTrace() {
-        // TO be depracated, replaced by isTraceEnabledOnRun() which follows naming conventions
-        return isTraceEnabledOnRun();
+        return isTraceEnabled();
     }
 
-    public boolean isTraceEnabledOnRun(){
+    /**
+     * @since 0.30.0
+     */
+    public boolean isTraceEnabled(){
         return isTraceEnabled;
     }
 

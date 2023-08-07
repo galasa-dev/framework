@@ -5,8 +5,13 @@ package dev.galasa.framework;
 
 import java.util.*;
 
-import org.apache.commons.lang3.EnumUtils;
-
+/** 
+ * Represents a possible state of a test run.
+ * 
+ * Over the course of a test run lifespan, the state will transition between these possible values.
+ * 
+ * @since 0.30.0
+ */
 public enum TestRunLifecycleStatus {
     FINISHED("finished"),
     BUILDING("building"),
@@ -19,44 +24,48 @@ public enum TestRunLifecycleStatus {
     ENDING("ending")
     ;
 
-    
     private String value ;  
 
     private TestRunLifecycleStatus(String value) {
         this.value = value ;
     }
    
-
-    public TestRunLifecycleStatus getStatusFromString(String statusInput) {
-        return valueOf(statusInput);
+    /**
+     * Looks up the enum from the string which describes the enum.
+     * 
+     * The string matches the enum value if the enum.toString() matches it,
+     * ignoring case.
+     */
+    public static TestRunLifecycleStatus getFromString(String statusAsString) {
+        TestRunLifecycleStatus match = null ;
+        for( TestRunLifecycleStatus possibleMatch : TestRunLifecycleStatus.values() ) {
+            if (possibleMatch.toString().equalsIgnoreCase(statusAsString) ) {
+                match = possibleMatch ;
+            }
+        }
+        return match;
     }
 
-    public static boolean isStatusValid(String statusInput){
-        return EnumUtils.isValidEnum(TestRunLifecycleStatus.class, statusInput);
+    /** 
+     * Does the input string represent one of the enumerated values ?
+     * 
+     * An insensitive string comparison is performed against the enum.toString() 
+     */
+    public static boolean isStatusValid(String statusAsString){
+        TestRunLifecycleStatus status = getFromString(statusAsString);
+        return status != null;
     }
+
 
     @Override
     public String toString(){
         return value;
     }
-
-    /**
-     * @return A string list from a TestRunLifecycleStatus list
-     */
-    public static List<String> convertTestRunLifecycleStausListToStringList (List<TestRunLifecycleStatus> testRunLifecycleStatuses){
-        List<String> returnList = new ArrayList<String>();
-        for (TestRunLifecycleStatus status : testRunLifecycleStatuses){
-            returnList.add(status.value);
-        }
-
-        return returnList;
-    }
-
       
     /** 
      * @return A list of possible status names, as strings
      */
-    public static List<String> allToStringList() {
+    public static List<String> getAllAsStringList() {
         List<String> validStatuses = new ArrayList<String>();
         for (TestRunLifecycleStatus status : TestRunLifecycleStatus.values()){
             validStatuses.add(status.toString());

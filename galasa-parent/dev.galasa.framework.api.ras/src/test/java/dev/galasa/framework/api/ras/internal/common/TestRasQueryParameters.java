@@ -187,7 +187,7 @@ public class TestRasQueryParameters extends RasServletTest{
         List<TestRunLifecycleStatus> returnedStatuses = params.getStatusesFromParameters();
 
         // Then...
-        assertThat(TestRunLifecycleStatus.convertTestRunLifecycleStausListToStringList(returnedStatuses)).isEqualTo(Arrays.asList("building", "generating", "running"));
+        assertThat(returnedStatuses).isEqualTo(Arrays.asList(TestRunLifecycleStatus.BUILDING, TestRunLifecycleStatus.GENERATING, TestRunLifecycleStatus.RUNNING));
     }
 
     @Test
@@ -201,7 +201,7 @@ public class TestRasQueryParameters extends RasServletTest{
         List<TestRunLifecycleStatus> returnedStatuses = params.getStatusesFromParameters();
 
         // Then...
-        assertThat(TestRunLifecycleStatus.convertTestRunLifecycleStausListToStringList(returnedStatuses)).isEqualTo(Arrays.asList("building", "generating", "running"));
+        assertThat(returnedStatuses).isEqualTo(Arrays.asList(TestRunLifecycleStatus.BUILDING, TestRunLifecycleStatus.GENERATING, TestRunLifecycleStatus.RUNNING));
     }
 
     @Test
@@ -215,7 +215,7 @@ public class TestRasQueryParameters extends RasServletTest{
         List<TestRunLifecycleStatus> returnedStatuses = params.getStatusesFromParameters();
 
         // Then...
-        assertThat(TestRunLifecycleStatus.convertTestRunLifecycleStausListToStringList(returnedStatuses)).isEqualTo(Arrays.asList("building", "generating", "running"));
+        assertThat(returnedStatuses).isEqualTo(Arrays.asList(TestRunLifecycleStatus.BUILDING, TestRunLifecycleStatus.GENERATING, TestRunLifecycleStatus.RUNNING));
     }
 
     @Test

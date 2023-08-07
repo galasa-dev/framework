@@ -61,8 +61,8 @@ public class TestRunner {
 
     private enum RunType {
         TEST,
-        SHAREDENVIRONMENTBUILD,
-        SHAREDENVIRONMENTDISCARD
+        SHARED_ENVIRONMENT_BUILD,
+        SHARED_ENVIRONMENT_DISCARD
     }
 
 
@@ -261,10 +261,10 @@ public class TestRunner {
                 if (seType != null) {
                     switch(seType) {
                         case BUILD:
-                            this.runType = RunType.SHAREDENVIRONMENTBUILD;
+                            this.runType = RunType.SHARED_ENVIRONMENT_BUILD;
                             break;
                         case DISCARD:
-                            this.runType = RunType.SHAREDENVIRONMENTDISCARD;
+                            this.runType = RunType.SHARED_ENVIRONMENT_DISCARD;
                             break;
                         default:
                             throw new TestRunException("Unknown Shared Environment phase, '" + seType + "', needs to be BUILD or DISCARD");
@@ -293,7 +293,7 @@ public class TestRunner {
             } else {
                 DssUtils.incrementMetric(dss, "metrics.runs.automated");
             }
-        } else if (this.runType == RunType.SHAREDENVIRONMENTBUILD) {
+        } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
             int expireHours = sharedEnvironmentAnnotation.expireAfterHours();
             Instant expire = Instant.now().plus(expireHours, ChronoUnit.HOURS);
             try {
@@ -348,7 +348,7 @@ public class TestRunner {
 
         testClassWrapper.instantiateTestClass();
 
-        if (this.runType == RunType.SHAREDENVIRONMENTBUILD) {
+        if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
             //*** Check all the active Managers to see if they support a shared environment build
             boolean invalidManager = false;
             for(IManager manager : managers.getActiveManagers()) {
@@ -373,7 +373,7 @@ public class TestRunner {
             this.isRunOK = false;
         }
 
-        if (!isRunOK || this.runType == RunType.TEST || this.runType == RunType.SHAREDENVIRONMENTDISCARD) {
+        if (!isRunOK || this.runType == RunType.TEST || this.runType == RunType.SHARED_ENVIRONMENT_DISCARD) {
             updateStatus(TestRunLifecycleStatus.ENDING, null);
             managers.endOfTestRun();
 
@@ -384,7 +384,7 @@ public class TestRunner {
                 logger.info("Placing queue on the waiting list");
                 markedWaiting = true;
             } else {
-                if (this.runType == RunType.SHAREDENVIRONMENTDISCARD) {
+                if (this.runType == RunType.SHARED_ENVIRONMENT_DISCARD) {
                     this.testStructure.setResult("Discarded");
                     try {
                         this.dss.deletePrefix("run." + this.run.getName() + ".shared.environment");
@@ -412,7 +412,7 @@ public class TestRunner {
             if (!markedWaiting) {
                 deleteRunProperties(this.framework);
             }
-        } else if (this.runType == RunType.SHAREDENVIRONMENTBUILD) {
+        } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
             recordCPSProperties(frameworkInitialisation);
             updateStatus(TestRunLifecycleStatus.UP, "built");
         } else {
@@ -453,7 +453,7 @@ public class TestRunner {
         }
 
         try {
-            if (this.runType == RunType.TEST || this.runType == RunType.SHAREDENVIRONMENTBUILD) {
+            if (this.runType == RunType.TEST || this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
                 try {
                     updateStatus(TestRunLifecycleStatus.BUILDING, null);
                     logger.info("Starting Provision Build phase");
@@ -481,7 +481,7 @@ public class TestRunner {
 
 
     private void discardEnvironment(TestRunManagers managers) {
-        if (this.runType != RunType.SHAREDENVIRONMENTBUILD) {
+        if (this.runType != RunType.SHARED_ENVIRONMENT_BUILD) {
             logger.info("Starting Provision Discard phase");
             managers.provisionDiscard();
         }
@@ -491,7 +491,7 @@ public class TestRunner {
     private void runEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
         if (isRunOK) {    
             try {
-                if (this.runType != RunType.SHAREDENVIRONMENTDISCARD) {
+                if (this.runType != RunType.SHARED_ENVIRONMENT_DISCARD) {
                     try {
                         updateStatus(TestRunLifecycleStatus.PROVSTART, null);
                         logger.info("Starting Provision Start phase");
@@ -517,7 +517,7 @@ public class TestRunner {
     }
 
     private void stopEnvironment(TestRunManagers managers) {
-        if (this.runType == RunType.SHAREDENVIRONMENTBUILD) {   
+        if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {   
             logger.info("Starting Provision Stop phase");
             managers.provisionStop();
         }
@@ -525,7 +525,7 @@ public class TestRunner {
 
 
     private void runTestClassWrapper(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
-        if (this.runType == RunType.SHAREDENVIRONMENTBUILD && isRunOK) {
+        if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD && isRunOK) {
             
             updateStatus(TestRunLifecycleStatus.RUNNING, null);
             try {
