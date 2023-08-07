@@ -18,8 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.ras.internal.verycommon.*;
-import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
+import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
 import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
 import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
@@ -41,20 +40,19 @@ public class ResultNamesRoute extends RunsRoute {
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();
-    private SortQueryParameterChecker sortQueryParameterChecker = new SortQueryParameterChecker();
 
     @Override
     public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
-        String outputString = retrieveResults(queryParams);
+        String outputString = retrieveResults(new RasQueryParameters(queryParams));
 		return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }
 
-    public String retrieveResults (QueryParameters queryParams) throws ServletException, InternalServletException{
+    public String retrieveResults (RasQueryParameters queryParams) throws ServletException, InternalServletException{
         List<String> resultsList = getResultNames();
-
+	
 		try {
-            if (queryParams.getSingleString("sort", null) !=null ){
-			    if (!sortQueryParameterChecker.isAscending(queryParams, "resultnames")) {
+            if (queryParams.getSortValue() !=null ){
+			    if (!queryParams.isAscending("resultnames")) {
 				    Collections.reverse(resultsList);
                 }
 			}

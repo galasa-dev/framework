@@ -32,8 +32,8 @@ public class RunImpl implements IRun {
     private final String  stream;
     private final String  repo;
     private final String  obr;
-    private final Boolean local;
-    private final Boolean trace;
+    private final boolean local;
+    private final boolean trace;
     private final boolean sharedEnvironment;
     private final String  rasRunId;
 
