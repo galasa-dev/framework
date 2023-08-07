@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.mocks;
+package dev.galasa.boot.mocks;
 
 import java.util.*;
 

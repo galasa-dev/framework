@@ -16,18 +16,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.ras.internal.common.SortQueryParameterChecker;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
-import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
-import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
+import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
+import dev.galasa.framework.api.ras.internal.verycommon.*;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
-
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
 
 public class TestClassesRoute extends RunsRoute {
 
@@ -40,32 +35,26 @@ public class TestClassesRoute extends RunsRoute {
     }
 
     final static Gson gson = GalasaGsonBuilder.build();
-    private SortQueryParameterChecker sortQueryParameterChecker = new SortQueryParameterChecker();
 
     @Override
     public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response)
     throws ServletException, IOException, FrameworkException {
-        String outputString = retrieveTestClasses(queryParams);
+        String outputString = retrieveTestClasses(new RasQueryParameters(queryParams));
         return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }
     
-    private String retrieveTestClasses (QueryParameters queryParams) throws ResultArchiveStoreException, ServletException {
+    private String retrieveTestClasses (RasQueryParameters params) throws ResultArchiveStoreException, InternalServletException, ServletException {
+        List<RasTestClass> testClassesArray = getTestClasses();
 
-        List<RasTestClass> classArray = getTestClasses();
-
-		classArray.sort(Comparator.comparing(RasTestClass::getTestClass));
-
-        try {
-			if(!sortQueryParameterChecker.isAscending(queryParams, "testclass")) {
-				classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
+		testClassesArray.sort(Comparator.comparing(RasTestClass::getTestClass));
+        if (params.getSortValue() !=null){
+			if(!params.isAscending("testclass")) {
+				testClassesArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
 			}
-		} catch (InternalServletException e) {
-			ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,"testclass");
-			throw new ServletException(error);
-		}
+        }
 
         /* converting data to json */
-		JsonElement json = new Gson().toJsonTree(classArray);
+		JsonElement json = new Gson().toJsonTree(testClassesArray);
 		JsonObject testclasses = new JsonObject();
 		testclasses.add("testclasses", json);
         return testclasses.toString();

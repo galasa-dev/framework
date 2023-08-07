@@ -39,15 +39,25 @@ public class TestTestClassesRoute extends RasServletTest{
 			String runId = RandomStringUtils.randomAlphanumeric(16);
 			TestStructure testStructure = new TestStructure();
 			switch (c % 5){
-                case 0: testStructure.setRequestor("galasa");
+                case 0: 
+					testStructure.setBundle("Bundle1");
+					testStructure.setTestName("testName1");
 					break;
-				case 1: testStructure.setRequestor("mickey");
+				case 1:  
+					testStructure.setBundle("Bundle2");
+					testStructure.setTestName("testName2");
 					break;
-				case 2: testStructure.setRequestor("user");
+				case 2: 
+					testStructure.setBundle("Bundle3");
+					testStructure.setTestName("testName3");
 					break;
-                case 3: testStructure.setRequestor("UNKNOWN");
+                case 3: 
+					testStructure.setBundle("Bundle4");
+					testStructure.setTestName("testName4");
 					break;
-                case 4: testStructure.setRequestor("jindex");
+                case 4: 
+					testStructure.setBundle("Bundle5");
+					testStructure.setTestName("testName5");
 					break;
 			}
 			IRunResult result = new MockRunResult( runId, testStructure, null , null);
@@ -82,5 +92,147 @@ public class TestTestClassesRoute extends RasServletTest{
     /*
      * Tests 
      */
+
+	@Test
+	public void testRequestorsWithOneTestNoURLQueryReturnsSingleResult() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(1);
+		//Build Http query parameters
+ 
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/testclasses");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
+ 
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+ 
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+ 
+		//Then...
+		String expectedJson = generateExpectedJSON(mockInputRunResults, false);
+		System.out.println(expectedJson);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+	@Test
+	public void testRequestorsWithThreeTestsNoURLQueryReturnsSingleResult() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(3);
+		//Build Http query parameters
+ 
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/testclasses");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
+ 
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+ 
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+ 
+		//Then...
+		String expectedJson = generateExpectedJSON(mockInputRunResults, false);
+		System.out.println(expectedJson);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+	@Test
+	public void testRequestorsWithTenTestsNoURLQueryReturnsSingleResult() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(10);
+		//Build Http query parameters
+
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/testclasses");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		String expectedJson = generateExpectedJSON(mockInputRunResults, false);
+		System.out.println(expectedJson);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+	@Test
+	public void testRequestorsWithTenTestsAndSortAscendingURLQueryReturnsSingleResult() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(10);
+		//Build Http query parameters
+ 
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		parameterMap.put("sort", new String[] {"testclass:asc"});
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/testclasses");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
+ 
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+ 
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+ 
+		//Then...
+		String expectedJson = generateExpectedJSON(mockInputRunResults, false);
+		System.out.println(expectedJson);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+	@Test
+	public void testRequestorsWithTenTestsAndSortDescendingURLQueryReturnsSingleResult() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(10);
+		//Build Http query parameters
+ 
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		parameterMap.put("sort", new String[] {"testclass:desc"});
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/testclasses");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
+ 
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+ 
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+ 
+		//Then...
+		String expectedJson = generateExpectedJSON(mockInputRunResults, true);
+		System.out.println(expectedJson);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
 
 }
