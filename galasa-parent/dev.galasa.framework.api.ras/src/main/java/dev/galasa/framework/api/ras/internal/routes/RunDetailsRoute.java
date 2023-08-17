@@ -18,7 +18,7 @@ import com.google.gson.Gson;
 
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
+import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.api.ras.RasRunResult;

@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal.verycommon;
+package dev.galasa.framework.api.common;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,9 +11,6 @@ import java.util.Map;
 import java.time.*;
 import java.time.format.DateTimeParseException;
 import javax.servlet.http.HttpServletResponse;
-
-import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.ServletError;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static javax.servlet.http.HttpServletResponse.*;
@@ -149,5 +146,5 @@ public class QueryParameters {
     public int getSize() {
         return this.params.size();
     }
-	
+
 }

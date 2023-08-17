@@ -60,8 +60,8 @@ public class JwtAuthFilter implements Filter {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         HttpServletResponse servletResponse = (HttpServletResponse) response;
 
-        // Do not apply the filter to the /auth endpoint
-        if ((servletRequest.getServletPath()).equals("/auth") || "eclipse".equalsIgnoreCase(servletRequest.getHeader("Application"))) {
+        // Do not apply the filter to the /auth endpoint and only force galasactl to authenticate
+        if ((servletRequest.getServletPath()).equals("/auth") || !"galasactl".equalsIgnoreCase(servletRequest.getHeader("Galasa-Application"))) {
             chain.doFilter(request, response);
             return;
         }

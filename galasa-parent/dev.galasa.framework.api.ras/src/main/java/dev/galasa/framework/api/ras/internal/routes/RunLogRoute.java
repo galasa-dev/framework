@@ -15,7 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
+import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;

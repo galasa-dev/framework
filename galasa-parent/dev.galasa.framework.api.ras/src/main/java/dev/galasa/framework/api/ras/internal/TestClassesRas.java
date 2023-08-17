@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
+import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;

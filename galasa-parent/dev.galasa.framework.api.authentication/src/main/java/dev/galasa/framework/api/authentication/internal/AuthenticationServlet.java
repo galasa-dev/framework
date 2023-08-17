@@ -13,7 +13,6 @@ import java.util.List;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,11 +24,13 @@ import org.osgi.service.component.annotations.ServiceScope;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.SystemEnvironment;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
@@ -40,7 +41,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
         "osgi.http.whiteboard.servlet.pattern=/auth" }, name = "Galasa Authentication")
-public class AuthenticationServlet extends HttpServlet {
+public class AuthenticationServlet extends BaseServlet {
 
     private static final long serialVersionUID = 1L;
 
@@ -60,50 +61,31 @@ public class AuthenticationServlet extends HttpServlet {
         logger.info("Galasa Authentication API initialised");
     }
 
-
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void handleRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException, InterruptedException {
 
-        String errorString = "";
-        int httpStatusCode = HttpServletResponse.SC_OK;
         ResponseBuilder responseBuilder = new ResponseBuilder();
+        JsonObject requestBodyJson = getRequestBodyAsJson(req);
 
-        try {
-            JsonObject requestBodyJson = getRequestBodyAsJson(req);
-
-            // Check that the request body contains the required payload
-            if (requestBodyJson == null || !(requestBodyJson.keySet().containsAll(requiredPayload))) {
-                ServletError error = new ServletError(GAL5400_BAD_REQUEST, req.getPathInfo());
-                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-            }
-
-            // Send a POST request to Dex's /token endpoint and ensure the returned response contains a JWT.
-            HttpResponse<String> tokenResponse = oidcProvider.sendTokenPost(requestBodyJson);
-
-            JsonObject tokenResponseBodyJson = gson.fromJson(tokenResponse.body(), JsonObject.class);
-            if (tokenResponseBodyJson.has("id_token")) {
-                // Return the JWT as the servlet's response.
-                String jwtJsonStr = "{\"jwt\": \"" + tokenResponseBodyJson.get("id_token").getAsString() + "\"}";
-                responseBuilder.buildResponse(resp, "application/json", jwtJsonStr, httpStatusCode);
-                return;
-            }
-
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
-        } catch (InternalServletException ex) {
-            // The message is a curated servlet message, we intentionally threw up to this level.
-            errorString = ex.getMessage();
-            httpStatusCode = ex.getHttpFailureCode();
-            logger.error(errorString, ex);
-        } catch (Exception e) {
-            // We didn't expect this failure to arrive. So deliver a generic error message.
-            errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
-            httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-            logger.error(errorString, e);
+        // Check that the request body contains the required payload
+        if (requestBodyJson == null || !(requestBodyJson.keySet().containsAll(requiredPayload))) {
+            ServletError error = new ServletError(GAL5400_BAD_REQUEST, req.getPathInfo());
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        responseBuilder.buildResponse(resp, "application/json", errorString, httpStatusCode);
+        // Send a POST request to Dex's /token endpoint and ensure the returned response contains a JWT.
+        HttpResponse<String> tokenResponse = oidcProvider.sendTokenPost(requestBodyJson);
+
+        JsonObject tokenResponseBodyJson = gson.fromJson(tokenResponse.body(), JsonObject.class);
+        if (tokenResponseBodyJson.has("id_token")) {
+            // Return the JWT as the servlet's response.
+            String jwtJsonStr = "{\"jwt\": \"" + tokenResponseBodyJson.get("id_token").getAsString() + "\"}";
+            responseBuilder.buildResponse(res, "application/json", jwtJsonStr, HttpServletResponse.SC_OK);
+            return;
+        }
+
+        ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+        throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
 
     /**
