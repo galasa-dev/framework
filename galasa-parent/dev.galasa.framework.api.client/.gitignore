@@ -19,9 +19,7 @@ hs_err_pid*
 target
 .gradle
 build
-
-src/main
-src/test
-.openapi-generator
-api
-docs
+.openapi-generator/
+api/
+docs/
+src/
