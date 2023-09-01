@@ -1,7 +1,7 @@
 /*
- * Licensed Materials - Property of IBM
- * 
- * (c) Copyright IBM Corp. 2019-2021.
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.api.run;
 
@@ -24,15 +24,14 @@ public class Run {
     private String  stream;
     private String  repo;
     private String  obr;
-    private Boolean local;
-    private Boolean trace;
+    private boolean isLocal;
+    private boolean isTraceEnabled;
     private String  rasRunId;
-    
-    public Run() {};
+
 
     public Run(String name, Instant heartbeat, String type, String group, String test, String bundleName,
             String testName, String status, String result, Instant queued, Instant finished, Instant waitUntil,
-            String requestor, String stream, String repo, String obr, Boolean local, Boolean trace, String rasRunId) {
+            String requestor, String stream, String repo, String obr, boolean isLocal, boolean isTraceEnabled, String rasRunId) {
         this.name = name;
         this.heartbeat = heartbeat;
         this.type = type;
@@ -49,8 +48,8 @@ public class Run {
         this.stream = stream;
         this.repo = repo;
         this.obr = obr;
-        this.local = local;
-        this.trace = trace;
+        this.isLocal = isLocal;
+        this.isTraceEnabled = isTraceEnabled;
         this.rasRunId = rasRunId;
     }
 
@@ -114,12 +113,40 @@ public class Run {
         return obr;
     }
 
-    public Boolean getLocal() {
-        return local;
+    /** 
+     * @deprecated
+     * This method will be removed in later versions of the code.
+     * 
+     * Use {@link #isLocal} instead.
+     */
+    @Deprecated(since = "0.30.0", forRemoval = true)
+    public boolean getLocal() {
+        return isLocal();
     }
 
-    public Boolean getTrace() {
-        return trace;
+    /**
+     * @since 0.30.0
+     */
+    public boolean isLocal(){
+        return isLocal;
+    }
+
+    /** 
+     * @deprecated
+     * This method will be removed in later versions of the code.
+     * 
+     * Use {@link #isTraceEnabled} instead.
+     */
+    @Deprecated (since = "0.30.0", forRemoval = true)
+    public boolean getTrace() {
+        return isTraceEnabled();
+    }
+
+    /**
+     * @since 0.30.0
+     */
+    public boolean isTraceEnabled(){
+        return isTraceEnabled;
     }
 
     public String getResult() {

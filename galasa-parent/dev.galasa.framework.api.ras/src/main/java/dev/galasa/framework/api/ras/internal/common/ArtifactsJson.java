@@ -1,5 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.ras.internal.common;
 
@@ -9,17 +11,17 @@ import java.nio.charset.StandardCharsets;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
-import dev.galasa.framework.api.ras.internal.routes.RunsRoute;
+import dev.galasa.framework.api.ras.internal.routes.RunArtifactsRoute;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 public class ArtifactsJson implements IRunRootArtifact {
 
-    private RunsRoute runsRoute;
+    private RunArtifactsRoute runsRoute;
     static final Gson gson = GalasaGsonBuilder.build();
 
-    public ArtifactsJson(RunsRoute runsRoute) {
+    public ArtifactsJson(RunArtifactsRoute runsRoute) {
         this.runsRoute = runsRoute;
     }
 

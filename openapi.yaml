@@ -1,6 +1,9 @@
 #
 # Copyright contributors to the Galasa project
 #
+# SPDX-License-Identifier: EPL-2.0
+#
+
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
@@ -296,9 +299,20 @@ paths:
           in: query
           description: |
             Result Status for the run. Commonly queried values: 'EnvFail','Passed','Failed'
+            Multiple values can be used in the query for example: 'EnvFail,Passed,Failed'.
+            Values are case insensitive. For example 'PASSED' and 'passED' will both be valid.
           schema:
             type: string
           example: Passed
+        - name: status
+          in: query
+          description: |
+            Test run lifecycle status. Current possibles: 'finished','building','generating','running','rundone','up','started','provstart','ending'. These are not case sensitive.
+            Multiple values can be used in the query for example: 'finished,running,started'.
+            Values are case insensitive. For example 'FINISHED' and 'finiSHed' will both be valid.
+          schema:
+            type: string
+          example: running  
         - name: bundle
           in: query
           description: |

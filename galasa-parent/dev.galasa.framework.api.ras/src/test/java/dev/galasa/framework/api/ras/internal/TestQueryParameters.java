@@ -1,5 +1,7 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.ras.internal;
 
@@ -9,13 +11,14 @@ import java.util.*;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.ras.internal.common.InternalServletException;
-import dev.galasa.framework.api.ras.internal.common.QueryParameters;
+import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
+import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
+import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
 
 import static org.assertj.core.api.Assertions.*;
 
 
-public class TestQueryParameters extends BaseServletTest {
+public class TestQueryParameters extends RasServletTest {
     
 
     //-----------------------------------------------------------------
@@ -281,163 +284,8 @@ public class TestQueryParameters extends BaseServletTest {
             .isInstanceOf(InternalServletException.class)
             .hasMessageContaining("died")
             .hasMessageContaining("GAL5001") // GAL5001_INVALID_DATE_TIME_FIELD
+            
         ;
     }
 
-    //-----------------------------------------------------------------
-    // Test getResultsFromParameters 
-    //-----------------------------------------------------------------
-
-    @Test
-    public void testGetResultsFromParametersIfMultipleResultLowerCaseParametersOK() throws Exception {
-        // Given...
-        List<String> mockRasResultNames = new ArrayList<String>();
-        mockRasResultNames.add("Passed");
-        mockRasResultNames.add("Failed");
-        mockRasResultNames.add("EnvFail");
-        mockRasResultNames.add("UNKNOWN");
-        Map<String,String[]> mockURLQuery = new HashMap<>();
-        mockURLQuery.put("result", new String[] { "passed,failed,envfail" });
-        QueryParameters params = new QueryParameters(mockURLQuery);
-
-        // When...
-        List<String> returnedResults = params.getResultsFromParameters(mockRasResultNames);
-
-        // Then...
-        assertThat(returnedResults).isEqualTo(Arrays.asList("Passed", "Failed", "EnvFail"));
-    }
-
-    @Test
-    public void testGetResultsFromParametersIfMultipleResultUpperCaseParametersOK() throws Exception {
-        // Given...
-        List<String> mockRasResultNames = new ArrayList<String>();
-        mockRasResultNames.add("Passed");
-        mockRasResultNames.add("Failed");
-        mockRasResultNames.add("EnvFail");
-        mockRasResultNames.add("UNKNOWN");
-        Map<String,String[]> mockURLQuery = new HashMap<>();
-        mockURLQuery.put("result", new String[] { "PASSED,FAILED,ENVFAIL" });
-        QueryParameters params = new QueryParameters(mockURLQuery);
-
-        // When...
-        List<String> returnedResults = params.getResultsFromParameters(mockRasResultNames);
-
-        // Then...
-        assertThat(returnedResults).isEqualTo(Arrays.asList("Passed", "Failed", "EnvFail"));
-    }
-
-    @Test
-    public void testGetResultsFromParametersIfMultipleResultMixedCaseParametersOK() throws Exception {
-        // Given...
-        List<String> mockRasResultNames = new ArrayList<String>();
-        mockRasResultNames.add("Passed");
-        mockRasResultNames.add("Failed");
-        mockRasResultNames.add("EnvFail");
-        mockRasResultNames.add("UNKNOWN");
-        Map<String,String[]> mockURLQuery = new HashMap<>();
-        mockURLQuery.put("result", new String[] { "pasSed,Failed,envfAIl" });
-        QueryParameters params = new QueryParameters(mockURLQuery);
-
-        // When...
-        List<String> returnedResults = params.getResultsFromParameters(mockRasResultNames);
-
-        // Then...
-        assertThat(returnedResults).isEqualTo(Arrays.asList("Passed", "Failed", "EnvFail"));
-    }
-
-    @Test
-    public void testGetResultsFromParametersIfResultParameterIsInvalidThrowsException() throws Exception {
-        // Given...
-        List<String> mockRasResultNames = new ArrayList<String>();
-        mockRasResultNames.add("Passed");
-        mockRasResultNames.add("Failed");
-        mockRasResultNames.add("EnvFail");
-        mockRasResultNames.add("UNKNOWN");
-        Map<String,String[]> mockURLQuery = new HashMap<String,String[]>();
-        QueryParameters params = new QueryParameters(mockURLQuery);
-        mockURLQuery.put("result", new String[]{"Passed,Failed,garbage"} );
-
-        // When...
-        Throwable thrown = catchThrowable( () -> {
-            params.getResultsFromParameters(mockRasResultNames);
-        });
-
-        // Then...
-        assertThat(thrown)
-            .isInstanceOf(InternalServletException.class)
-            .hasMessageContaining("garbage")
-            .hasMessageContaining("GAL5013"); // GAL5013_RESULT_NAME_NOT_RECOGNIZED
-            
-    }
-
-    @Test
-    public void testGetResultsFromParametersIfResultParameterIsNullReturnsNull() throws Exception {
-        // Given...
-        List<String> mockRasResultNames = new ArrayList<String>();
-        mockRasResultNames.add("Passed");
-        mockRasResultNames.add("Failed");
-        mockRasResultNames.add("EnvFail");
-        mockRasResultNames.add("UNKNOWN");
-        Map<String,String[]> mockURLQuery = new HashMap<String,String[]>();
-        QueryParameters params = new QueryParameters(mockURLQuery);
-        mockURLQuery.put("result", new String[]{} );
-
-        // When...
-
-        List<String> returnedResults = params.getResultsFromParameters(mockRasResultNames);
-
-
-        // Then...
-        assertThat(returnedResults)
-            .isNull();
-            
-    }
-
-    @Test
-    public void testGetResultsFromParametersWithMultipleCommasTogetherReturnsError() throws Exception {
-        // Given...
-        List<String> mockRasResultNames = new ArrayList<String>();
-        mockRasResultNames.add("Passed");
-        mockRasResultNames.add("Failed");
-        mockRasResultNames.add("EnvFail");
-        mockRasResultNames.add("UNKNOWN");
-        Map<String,String[]> mockURLQuery = new HashMap<>();
-        mockURLQuery.put("result", new String[] { "pasSed,,Failed,env,fAIl" });
-        QueryParameters params = new QueryParameters(mockURLQuery);
-
-        // When...
-        Throwable thrown = catchThrowable( () -> {
-            params.getResultsFromParameters(mockRasResultNames);
-        });
-
-        // Then...
-        assertThat(thrown)
-            .isInstanceOf(InternalServletException.class)
-            .hasMessageContaining("''")
-            .hasMessageContaining("GAL5013"); // GAL5013_RESULT_NAME_NOT_RECOGNIZED
-    }
-
-    @Test
-    public void testGetResultsFromParametersWithMultipleCommasInParameterReturnsError() throws Exception {
-        // Given...
-        List<String> mockRasResultNames = new ArrayList<String>();
-        mockRasResultNames.add("Passed");
-        mockRasResultNames.add("Failed");
-        mockRasResultNames.add("EnvFail");
-        mockRasResultNames.add("UNKNOWN");
-        Map<String,String[]> mockURLQuery = new HashMap<>();
-        mockURLQuery.put("result", new String[] { "pasSed,Failed,env,fAIl" });
-        QueryParameters params = new QueryParameters(mockURLQuery);
-
-        /// When...
-        Throwable thrown = catchThrowable( () -> {
-            params.getResultsFromParameters(mockRasResultNames);
-        });
-
-        // Then...
-        assertThat(thrown)
-            .isInstanceOf(InternalServletException.class)
-            .hasMessageContaining("env")
-            .hasMessageContaining("GAL5013"); // GAL5013_RESULT_NAME_NOT_RECOGNIZED
-    }
 }

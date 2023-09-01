@@ -1,5 +1,7 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework;
 
@@ -443,6 +445,17 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         return runName;
     }
 
+    private void processRASlocationProperty(String rasProperty , List<URI> uriResultArchiveStores) throws URISyntaxException {
+        if((rasProperty != null) && !rasProperty.isEmpty()){
+            final String[] rasPaths = rasProperty.split(",");
+            for (final String rasPath : rasPaths) {
+                if (!rasPath.trim().isEmpty()) {
+                    logger.debug("Adding Result Archive Store location " + rasPath);
+                    uriResultArchiveStores.add(new URI(rasPath));
+                }
+            }
+        }
+    }
 
     /**
      * Creates a list of URIs which refer to Result Archive Stores.
@@ -462,29 +475,18 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         URI localRasUri = localRasPath.toUri();
         try {
 
+            // Are we using a RAS store indicated by the overrides ?
             String rasProperty = overrideProperties.getProperty("framework.resultarchive.store");
-            if((rasProperty != null) && !rasProperty.isEmpty()){
-                final String[] rasPaths = rasProperty.split(",");
-                for (final String rasPath : rasPaths) {
-                    if (!rasPath.trim().isEmpty()) {
-                        logger.debug("Adding Result Archive Store location " + uriDynamicStatusStore.toString());
-                        uriResultArchiveStores.add(new URI(rasPath));
-                    }
-                }
+            processRASlocationProperty(rasProperty,uriResultArchiveStores);
+
+            
+            if (uriResultArchiveStores.isEmpty()) {
+                // We've not got a RAS store yet, so use the one configured in the CPS...
+                rasProperty = cpsFramework.getProperty("resultarchive", "store");
+                processRASlocationProperty(rasProperty,uriResultArchiveStores);
             }
 
-            rasProperty = cpsFramework.getProperty("resultarchive", "store");
-            if((rasProperty != null) && !rasProperty.isEmpty()){
-                final String[] rasPaths = rasProperty.split(",");
-                for (final String rasPath : rasPaths) {
-                    if (!rasPath.trim().isEmpty()) {
-                        logger.debug("Adding Result Archive Store location " + uriDynamicStatusStore.toString());
-                        uriResultArchiveStores.add(new URI(rasPath));
-                    }
-                }
-            }
-
-            if(uriResultArchiveStores.size() == 0) {
+            if(uriResultArchiveStores.isEmpty()) {
                 // Neither environment nor cps have set the RAS location.
                 // Default to a local RAS within galasaHome
                 uriResultArchiveStores.add(localRasUri);
@@ -623,11 +625,18 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         for (final ServiceReference<?> rasReference : rasServiceReference) {
             final IResultArchiveStoreRegistration rasRegistration = (IResultArchiveStoreRegistration) bundleContext
                     .getService(rasReference);
-            logger.trace("Found RAS Provider " + rasRegistration.getClass().getName());
-            // Magic here: The ras Registration calls back to this.registerResultArchiveStoreService()
-            // which in turn sets the value into the framework, so that 
-            // ramework.getResultArchiveStoreService() returns non-null.
-            rasRegistration.initialise(this);
+            if (rasRegistration == null) {
+                // Something went wrong. Can't find a RAS service to use.
+                FrameworkException ex = new FrameworkException( new Exception("Unable to find RAS provider."));
+                logger.error("Unable to find RAS provider.", ex);
+                throw ex ;
+            } else {
+                logger.trace("Found RAS Provider " + rasRegistration.getClass().getName());
+                // Magic here: The ras Registration calls back to this.registerResultArchiveStoreService()
+                // which in turn sets the value into the framework, so that 
+                // ramework.getResultArchiveStoreService() returns non-null.
+                rasRegistration.initialise(this);
+            }
         }
         if (this.framework.getResultArchiveStoreService() == null) {
             throw new FrameworkException("Failed to initialise a Result Archive Store, unable to continue");

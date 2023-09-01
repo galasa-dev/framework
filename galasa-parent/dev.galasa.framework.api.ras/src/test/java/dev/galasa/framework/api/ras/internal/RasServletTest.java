@@ -1,5 +1,7 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.ras.internal;
 
@@ -20,7 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 
-public class BaseServletTest {
+public class RasServletTest {
 
 	protected MockFileSystem mockFileSystem;
 

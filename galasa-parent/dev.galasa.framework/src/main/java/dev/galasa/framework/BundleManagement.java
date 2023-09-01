@@ -1,5 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework;
 
@@ -74,7 +76,7 @@ public class BundleManagement {
 
             //*** Load only bundles that are not already resolved
             for(Resource resource : resources) {
-                Boolean gherkinSupport = false;
+                boolean gherkinSupport = false;
                 Capability[] capabilities = resource.getCapabilities();
                 for(Capability capability : capabilities) {
                     if(capability.getName().equals("service")) {

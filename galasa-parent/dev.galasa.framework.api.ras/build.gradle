@@ -9,10 +9,11 @@ plugins {
 
 description = 'Galasa API - RAS'
 
-version '0.28.0'
+version '0.29.0'
 
 dependencies {
     implementation project(':dev.galasa.framework')
+    // implementation project(':dev.galasa.framework.api.common')
 
     implementation 'org.apache.commons:commons-collections4:4.4'
     

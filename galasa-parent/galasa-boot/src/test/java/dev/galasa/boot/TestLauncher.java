@@ -1,12 +1,15 @@
 /*
  * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.boot;
 
 import static org.assertj.core.api.Assertions.*;
 
 import dev.galasa.boot.Launcher;
-import dev.galasa.boot.mocks.MockEnvironment;
+import dev.galasa.mocks.MockEnvironment;
+
 import org.junit.Test;
 import java.util.Properties;
 

@@ -1,5 +1,11 @@
 #! /usr/bin/env bash 
 
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
 #-----------------------------------------------------------------------------------------                   
 #
 # Objectives: Run the framework code from local .m2 repository
@@ -66,7 +72,7 @@ Options are:
 -h | --help : get this help text.
 
 Environment variables:
-BOOTSTRAP_LOCATION - Optional. 
+GALASA_BOOTSTRAP - Optional. 
     Controls where the galasa bootstrap information can be found.
     Defaults to file://${HOME}/.galasa/bootstrap.properties
 None
@@ -110,38 +116,52 @@ boot_jar_name=$(ls ${BOOT_FOLDER}/galasa-boot-*.jar | grep -v "sources" | grep -
 info "Boot jar is at ${BOOT_FOLDER}/${boot_jar_name}"
 
 # Work out where the locally-build-OBR is held...
-OBR_VERSION="0.27.0"
+OBR_VERSION="0.30.0"
 
 M2_PATH=~/.m2
 
-
-# Allow setting the bootstrap location from the environment.
-if [[ -z ${BOOTSTRAP_LOCATION} ]]; then
-    BOOTSTRAP_LOCATION="file://${HOME}/.galasa/bootstrap.properties"
-    info "Environment variable BOOTSTRAP_LOCATION is not set. Using default value of $BOOTSTRAP_LOCATION"
-fi
-info "Environment variable BOOTSTRAP_LOCATION is $BOOTSTRAP_LOCATION"
+cd $BASEDIR
+rm -fr temp
+mkdir -p temp
+cd temp
 
 
-cat << EOF
-Command is :
 
-${JAVA_HOME}/bin/java \
+
+function set_up_bootstrap {
+
+    export GALASA_HOME="${BASEDIR}/temp/home"
+    info "Environment variable GALASA_HOME is ${GALASA_HOME}"
+
+    export GALASA_BOOTSTRAP="file://${GALASA_HOME}/bootstrap.properties"
+    info "Environment variable GALASA_BOOTSTRAP is $GALASA_BOOTSTRAP"
+
+    h1 "Setting up the bootstrap to refer to the prod ecosystem"
+    galasactl local init
+    echo >> ${GALASA_HOME}/bootstrap.properties
+    echo "framework.config.store=etcd:http://galasa-cicsk8s.hursley.ibm.com:32189" >> ${GALASA_HOME}/bootstrap.properties
+    echo "framework.extra.bundles=dev.galasa.cps.etcd,dev.galasa.ras.couchdb,dev.galasa.phoenix2.manager" >> ${GALASA_HOME}/bootstrap.properties
+}
+
+
+function launch_api_server {
+    h1 "Launching API server"
+
+    cmd="${JAVA_HOME}/bin/java \
     -jar ${boot_jar_name} \
     --localmaven file:${M2_PATH}/repository/ \
-    --bootstrap ${BOOTSTRAP_LOCATION} \
-    --overrides file://${HOME}/.galasa/overrides.properties \
+    --bootstrap ${GALASA_BOOTSTRAP} \
+    --overrides file://${GALASA_HOME}/overrides.properties \
     --obr mvn:dev.galasa/dev.galasa.uber.obr/${OBR_VERSION}/obr \
-    --api
+    --trace \
+    --api"
 
-EOF
+    info "Command is ${cmd}"
 
-${JAVA_HOME}/bin/java \
-    -jar ${boot_jar_name} \
-    --localmaven file:${M2_PATH}/repository/ \
-    --bootstrap ${BOOTSTRAP_LOCATION} \
-    --overrides file://${HOME}/.galasa/overrides.properties \
-    --obr mvn:dev.galasa/dev.galasa.uber.obr/${OBR_VERSION}/obr \
-    --api
+    ${cmd} 2>&1 > log.txt
 
-    
+    success "Launched OK"
+}
+
+set_up_bootstrap
+launch_api_server

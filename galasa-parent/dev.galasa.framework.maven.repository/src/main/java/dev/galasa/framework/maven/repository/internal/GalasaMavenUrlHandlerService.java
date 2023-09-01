@@ -1,5 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.maven.repository.internal;
 
@@ -314,17 +316,28 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         // *** Read the artifact
         URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version,
                 localArtifact.getFileName().toString());
-        logger.debug("Attempting to download " + urlRemoteFile);
+        int connectionTimeoutMilliSecs = 300000;
+        int readTimeoutMilliSecs = 300000;
+        logger.debug("Attempting to download " + urlRemoteFile+ 
+                    " with connection timeout of "+Integer.toString(connectionTimeoutMilliSecs)+"ms "+
+                    "and read timeout of "+Integer.toString(readTimeoutMilliSecs)+"ms "
+                    );
         URLConnection connection = urlRemoteFile.openConnection();
         connection.setDoOutput(false);
-        connection.setConnectTimeout(300000);
-        connection.setReadTimeout(300000);
+
+        connection.setConnectTimeout(connectionTimeoutMilliSecs);
+        connection.setReadTimeout(readTimeoutMilliSecs);
 
         try {
             connection.connect();
             Files.copy(connection.getInputStream(), localArtifact, StandardCopyOption.REPLACE_EXISTING);
         } catch (FileNotFoundException e) {
+            logger.trace("Release artifact "+ urlRemoteFile+" failed to download. File not found.",e );
             return false;
+        } catch (Exception e) {
+            // Re-throw any exception after tracing it.
+            logger.trace("Release artifact "+ urlRemoteFile+" failed to download.",e );
+            throw e ; 
         }
 
         logger.trace("Release artifact downloaded from " + urlRemoteFile);
