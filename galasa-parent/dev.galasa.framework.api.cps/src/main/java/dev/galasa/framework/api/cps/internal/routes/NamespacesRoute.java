@@ -58,7 +58,7 @@ public class NamespacesRoute extends CPSRoute {
         String namespaces = getNamespaces();
 		return getResponseBuilder().buildResponse(response, "application/json", namespaces, HttpServletResponse.SC_OK); 
     }
-    private String getNamespaces() throws InternalServletException {
+    protected String getNamespaces() throws InternalServletException {
         logger.debug("Getting the list of namespaces");
         JsonArray namespaceArray = new JsonArray();
         List<String> namespaces;
