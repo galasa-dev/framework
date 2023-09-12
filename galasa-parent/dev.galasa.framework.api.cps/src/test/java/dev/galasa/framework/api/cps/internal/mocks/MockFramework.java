@@ -28,10 +28,11 @@ import java.util.Random;
 import javax.validation.constraints.NotNull;
 
 public class MockFramework implements IFramework {
-    IResultArchiveStore archiveStore;
 
-    public MockFramework(IResultArchiveStore archiveStore) {
-        this.archiveStore = archiveStore;
+    MockIConfigurationPropertyStoreService cpsService;
+
+    public MockFramework(IConfigurationPropertyStoreService cpsService){
+        this.cpsService = (MockIConfigurationPropertyStoreService) cpsService;
     }
 
     @Override
@@ -47,7 +48,10 @@ public class MockFramework implements IFramework {
     @Override
     public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
             throws ConfigurationPropertyStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'getConfigurationPropertyService'");
+        if (this.cpsService.getNamespaceInput() == "error"){
+            throw new ConfigurationPropertyStoreException();
+        }
+       return this.cpsService;
     }
 
     @Override
@@ -63,7 +67,7 @@ public class MockFramework implements IFramework {
 
     @Override
     public @NotNull IResultArchiveStore getResultArchiveStore() {
-        return archiveStore;
+        throw new UnsupportedOperationException("Unimplemented method 'getResultArchiveStore'");
     }
 
     @Override

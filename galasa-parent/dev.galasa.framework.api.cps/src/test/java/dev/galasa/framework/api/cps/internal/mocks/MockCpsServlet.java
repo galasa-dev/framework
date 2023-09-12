@@ -14,7 +14,7 @@ import dev.galasa.framework.spi.IFramework;
  * adding any extra code to the production servlet class. The framework field is protected scope, 
  * so a subclass can do the injection instead of the injection framework.
  */
-public class MockRasServlet extends CpsServlet implements IServletUnderTest {
+public class MockCpsServlet extends CpsServlet implements IServletUnderTest {
 
 	@Override
 	public void setFramework(IFramework framework) {

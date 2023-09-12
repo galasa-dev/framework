@@ -23,12 +23,14 @@ import dev.galasa.framework.api.cps.internal.verycommon.ResponseBuilder;
 import dev.galasa.framework.api.cps.internal.verycommon.ServletError;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.IConfigurationPropertyStore;
+import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 
 /**
- * An abstract route used by all the Run-related routes.
+ * An abstract route used by all the Property-related routes.
  */
 public class NamespacesRoute extends CPSRoute {
 
@@ -37,20 +39,16 @@ public class NamespacesRoute extends CPSRoute {
     // Define a default filter to accept everything
     static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
 
-    private IFramework framework;
-
 
     public NamespacesRoute(ResponseBuilder responseBuilder, IFramework framework ) {
 		/* Regex to match endpoints: 
 		*  -> /cps/
-		*  -> /ras/runs/
-		*  -> /ras/runs?{querystring} 
 		*/
-		super(responseBuilder, "\\/", framework);
+		super(responseBuilder, "/cps", framework);
 	}
 
     protected IFramework getFramework() {
-        return this.framework;
+        return super.framework;
     }
 
     @Override
@@ -58,12 +56,15 @@ public class NamespacesRoute extends CPSRoute {
         String namespaces = getNamespaces();
 		return getResponseBuilder().buildResponse(response, "application/json", namespaces, HttpServletResponse.SC_OK); 
     }
+
     protected String getNamespaces() throws InternalServletException {
         logger.debug("Getting the list of namespaces");
         JsonArray namespaceArray = new JsonArray();
         List<String> namespaces;
         try {
-            namespaces = framework.getConfigurationPropertyService("framework").getCPSNamespaces();
+            IFramework framework = getFramework();
+            IConfigurationPropertyStoreService cpsstore =  framework.getConfigurationPropertyService("framework");
+            namespaces = cpsstore.getCPSNamespaces();
             for (String name : namespaces) {
                 if ( ! hiddenNameSpaces.contains(name) ) {
                     namespaceArray.add(name);

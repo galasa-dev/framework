@@ -28,7 +28,7 @@ public abstract class CPSRoute extends BaseRoute {
     // Define a default filter to accept everything
     static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
 
-    private IFramework framework;
+    protected IFramework framework;
 
     /*******************************
     This section will probably move to the super class

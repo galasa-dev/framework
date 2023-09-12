@@ -25,7 +25,7 @@ import javax.servlet.ServletException;
  * Proxy Servlet for the /ras/* endpoints
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-"osgi.http.whiteboard.servlet.pattern=/cps*" }, name = "Galasa CPS microservice")
+"osgi.http.whiteboard.servlet.pattern=/cps/*" }, name = "Galasa CPS microservice")
 public class CpsServlet extends BaseServlet {
 
 	@Reference
