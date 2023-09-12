@@ -69,13 +69,15 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
     @Override
     public List<String> getCPSNamespaces() {
         ArrayList<String> cpsList = new ArrayList<String>();
-        cpsList.add("nampespace1");
-        cpsList.add("nampespace2");
-        cpsList.add("nampespace3");
-        cpsList.add("nampespace4");
-        cpsList.add("nampespace5");
-        cpsList.add("nampespace6");
-        cpsList.add("nampespace7");
+        if (this.namespaceInput !="empty"){
+            cpsList.add("nampespace1");
+            cpsList.add("nampespace2");
+            cpsList.add("nampespace3");
+            cpsList.add("nampespace4");
+            cpsList.add("nampespace5");
+            cpsList.add("nampespace6");
+            cpsList.add("nampespace7");
+        }
         return cpsList;
     }
     ;

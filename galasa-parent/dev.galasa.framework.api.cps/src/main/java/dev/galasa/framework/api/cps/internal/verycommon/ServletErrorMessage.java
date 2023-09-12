@@ -32,6 +32,8 @@ public enum ServletErrorMessage {
     GAL5000_GENERIC_API_ERROR                       (5000,"E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."),
     GAL5404_UNRESOLVED_ENDPOINT_ERROR               (5404,"E: Error occured when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
 
+    //CPS Namespaces
+    GAL5015_CPS_STORE_ERROR                         (5015,"E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."),
     ;
 
 

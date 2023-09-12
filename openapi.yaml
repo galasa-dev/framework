@@ -25,6 +25,42 @@ paths:
 ##################################################################################
 # CPS API
 ##################################################################################
+  #--------------------------------------
+  # List all known Namespaces in CPS, excluding hidden namesapces
+  #--------------------------------------
+  /cps:
+    get:
+      operationId: getAllCpsNamespaces
+      summary: Get all known CPS Namespaces
+      description: Returns a list of all Namespaces in the Configuration Property Store 
+      tags:
+      - Configuration Property Store API
+      responses:
+        '200':
+          description: Array of CPS Namespaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying access the endpoint
+                runerror: 
+                  value: 
+                    error_code: 5015
+                    error_message: "GAL5015E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to retrieve the CPS namespaces
   /cps/namespace:
     get:
       operationId: getCpsNamespaces
@@ -434,7 +470,7 @@ paths:
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
                   summary: An error occured when trying to retrieve a specific run  using a runId
         '500':
-          description: Internal Server
+          description: Internal Server Error
           content:
             application/json:
               schema:

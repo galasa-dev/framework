@@ -62,17 +62,15 @@ public class NamespacesRoute extends CPSRoute {
         JsonArray namespaceArray = new JsonArray();
         List<String> namespaces;
         try {
-            IFramework framework = getFramework();
-            IConfigurationPropertyStoreService cpsstore =  framework.getConfigurationPropertyService("framework");
-            namespaces = cpsstore.getCPSNamespaces();
+            namespaces = getFramework().getConfigurationPropertyService("framework").getCPSNamespaces();
             for (String name : namespaces) {
                 if ( ! hiddenNameSpaces.contains(name) ) {
                     namespaceArray.add(name);
                 }
             }
         } catch (ConfigurationPropertyStoreException e) {
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+            ServletError error = new ServletError(GAL5015_CPS_STORE_ERROR);
+			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         return gson.toJson(namespaceArray);
     }

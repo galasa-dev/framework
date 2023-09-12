@@ -62,7 +62,32 @@ public class TestNamespacesRoute extends CpsServletTest{
     }
 
 	@Test
-	public void TestGetNamespacesWithFrameworkReturnsOk() throws Exception{
+	public void TestGetNamespacesWithFrameworkNoDataReturnsOk() throws Exception{
+		// Given...
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+        ServletOutputStream outStream = new MockServletOutputStream();
+        PrintWriter writer = new PrintWriter(outStream);
+		IConfigurationPropertyStoreService cpsstore = new MockIConfigurationPropertyStoreService("empty");
+		IFramework framework = new MockFramework(cpsstore);
+		MockCpsServlet servlet = new MockCpsServlet();
+		servlet.setFramework(framework);
+		HttpServletRequest req = new MockHttpServletRequest(parameterMap,"/cps");
+		HttpServletResponse resp = new MockHttpServletResponse(writer, outStream);
+				
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()==200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+		assertThat(outStream.toString()).isEqualTo("[]");
+	}
+
+	@Test
+	public void TestGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
 		// Given...
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 
@@ -107,16 +132,16 @@ public class TestNamespacesRoute extends CpsServletTest{
 		servlet.doGet(req,resp);
 
 		// Then...
-		// We expect an error back, because the API server couldn't find any results
+		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
 		assertThat(resp.getStatus()==500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
-			5000,
-			"GAL5000E: ",
-			"Error occured when trying to access the endpoint"
+			5015,
+			"E: Error occured when trying to access the Configuration Property Store.",
+			" Report the problem to your Galasa Ecosystem owner."
 		);
     }
 }
