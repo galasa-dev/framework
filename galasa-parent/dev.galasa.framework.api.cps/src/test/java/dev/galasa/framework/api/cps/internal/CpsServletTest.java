@@ -7,14 +7,60 @@ package dev.galasa.framework.api.cps.internal;
 
 import com.google.gson.*;
 
+import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
+import dev.galasa.framework.api.cps.internal.mocks.MockFramework;
+import dev.galasa.framework.api.cps.internal.mocks.MockHttpServletRequest;
+import dev.galasa.framework.api.cps.internal.mocks.MockHttpServletResponse;
+import dev.galasa.framework.api.cps.internal.mocks.MockIConfigurationPropertyStoreService;
+import dev.galasa.framework.api.cps.internal.mocks.MockServletOutputStream;
+import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
+import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+
 import static org.assertj.core.api.Assertions.*;
 
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 public class CpsServletTest {
 
+	static final Gson gson = GalasaGsonBuilder.build();
+
+	MockCpsServlet servlet;
+	HttpServletRequest req;
+	HttpServletResponse resp;
+
+	protected void setServlet(String path,String namespace, Map<String, String[]> parameterMap){
+		ServletOutputStream outStream = new MockServletOutputStream();
+        PrintWriter writer = new PrintWriter(outStream);
+		this.servlet = new MockCpsServlet();
+		if (namespace != null){
+			IConfigurationPropertyStoreService cpsstore = new MockIConfigurationPropertyStoreService(namespace);
+			IFramework framework = new MockFramework(cpsstore);
+			this.servlet.setFramework(framework);
+		}
+		this.req = new MockHttpServletRequest(parameterMap,path);
+		this.resp = new MockHttpServletResponse(writer, outStream);
+	}
+
+	protected MockCpsServlet getServlet(){
+		return this.servlet;
+	}
+
+	protected HttpServletRequest getRequest(){
+		return this.req;
+	}
+
+	protected HttpServletResponse getResponse(){
+	return this.resp;
+	}
+	
 	protected void checkErrorStructure(String jsonString , int expectedErrorCode , String... expectedErrorMessageParts ) throws Exception {
 
 		JsonElement jsonElement = JsonParser.parseString(jsonString);
@@ -39,7 +85,7 @@ public class CpsServletTest {
 
 	protected void checkJsonArrayStructure(String jsonString, Map<String, String> jsonFieldsToCheck) throws Exception {
 
-		JsonElement jsonElement = JsonParser.parseString(jsonString);
+		JsonElement jsonElement = gson.toJsonTree(jsonString);
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();

@@ -34,6 +34,7 @@ public enum ServletErrorMessage {
 
     //CPS Namespaces
     GAL5015_CPS_STORE_ERROR                         (5015,"E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."),
+    GAL5016_CPS_HIDDEN_NAMESPACE_ERROR              (5016,"E: Error occured when trying to access namespace ''{0}''. Namespace ''{0}'' is not available")
     ;
 
 

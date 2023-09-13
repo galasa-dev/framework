@@ -1,6 +1,7 @@
 package dev.galasa.framework.api.cps.internal.mocks;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,8 +51,14 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
 
     @Override
     public Map<String, String> getAllProperties() {
-        
-        throw new UnsupportedOperationException("Unimplemented method 'getAllProperties'");
+        Map<String, String> properties = new HashMap<String,String>();
+        properties.put("property1", "value1");
+        properties.put("property2", "value2");
+        properties.put("property3", "value3");
+        properties.put("property4", "value4");
+        properties.put("property5", "value5");
+
+        return properties;
     }
 
     @Override

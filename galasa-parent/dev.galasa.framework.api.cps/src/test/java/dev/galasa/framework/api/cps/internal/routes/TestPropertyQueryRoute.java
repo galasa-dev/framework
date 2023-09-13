@@ -1,3 +1,4 @@
+
 /*
  * Copyright contributors to the Galasa project
  *
@@ -7,11 +8,12 @@
 package dev.galasa.framework.api.cps.internal.routes;
 import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
-import dev.galasa.framework.api.cps.internal.routes.TestNamespacesRoute;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -19,12 +21,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 
-public class TestNamespacesRoute extends CpsServletTest{
-    
+
+public class TestPropertyQueryRoute extends CpsServletTest{
     @Test
-    public void TestGetNamespacesNoFrameworkReturnError () throws Exception{
+    public void TestPropertyQueryNoFrameworkReturnError() throws Exception{
 		// Given...
-		setServlet("/cps",null ,new HashMap<String,String[]>());
+		setServlet("/cps/namespace1",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -48,52 +50,41 @@ public class TestNamespacesRoute extends CpsServletTest{
 		);
     }
 
-	@Test
-	public void TestGetNamespacesWithFrameworkNoDataReturnsOk() throws Exception{
-		// Given...
-		setServlet("/cps/","empty",new HashMap<String,String[]>());
+
+    @Test
+    public void TestGetNamespacesPropertiesWithExistingNamespaceReturnsOk() throws Exception {
+        // Given...
+        setServlet("/cps/framework", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
-		ServletOutputStream outStream = resp.getOutputStream();	
+        ServletOutputStream outStream = resp.getOutputStream();	
 
-		// When...
-		servlet.init();
-		servlet.doGet(req,resp);
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+        Map<String, String> properties = new HashMap<String,String>();
+        properties.put("property1", "value1");
+        properties.put("property2", "value2");
+        properties.put("property3", "value3");
+        properties.put("property4", "value4");
+        properties.put("property5", "value5");
 
-		// Then...
-		assertThat(resp.getStatus()==200);
+        // Then...
+        // We expect data back
+        String output = outStream.toString();
+        assertThat(resp.getStatus()==200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(outStream.toString()).isEqualTo("[]");
-	}
+		checkJsonArrayStructure(output,properties);
+        
+    }
 
-	@Test
-	public void TestGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
-		// Given...
-		setServlet("/cps","framework",new HashMap<String,String[]>());
-		MockCpsServlet servlet = getServlet();
-		HttpServletRequest req = getRequest();
-		HttpServletResponse resp = getResponse();
-		ServletOutputStream outStream = resp.getOutputStream();	
 
-		// When...
-		servlet.init();
-		servlet.doGet(req,resp);
-	
-		// Then...
-		assertThat(resp.getStatus()==200);
-		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(outStream.toString()).isEqualTo("[\n  \"nampespace1\","+
-				"\n  \"nampespace2\",\n  \"nampespace3\",\n  \"nampespace4\","+
-				"\n  \"nampespace5\",\n  \"nampespace6\",\n  \"nampespace7\"\n]");
-	}
-
-	@Test
-	public void TestGetNamespacesWithFrameworkNullNamespacesReturnsError() throws Exception{
-		// Given...
-		setServlet("/cps","error",new HashMap<String,String[]>());
+    @Test
+    public void TestGetNamespacePropertiesErrorsWhenGettingHidden() throws Exception {
+        // Given...
+		setServlet("/cps/dss", "dss" ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -104,16 +95,16 @@ public class TestNamespacesRoute extends CpsServletTest{
 		servlet.doGet(req,resp);
 
 		// Then...
-		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
+		// We expect an error back, because the API server could find the namespace, but it was hidden
 		assertThat(resp.getStatus()==500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
-			5015,
-			"E: Error occured when trying to access the Configuration Property Store.",
-			" Report the problem to your Galasa Ecosystem owner."
+			5016,
+			"GAL5016E: ",
+			"Error occured when trying to access namespace 'dss'. Namespace 'dss' is not available"
 		);
     }
 }

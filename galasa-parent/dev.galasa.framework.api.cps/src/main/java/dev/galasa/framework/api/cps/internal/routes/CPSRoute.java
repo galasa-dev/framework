@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.google.gson.Gson;
 
+import dev.galasa.framework.ResourceNameValidator;
 import dev.galasa.framework.api.cps.internal.verycommon.BaseRoute;
 import dev.galasa.framework.api.cps.internal.verycommon.ResponseBuilder;
 import dev.galasa.framework.spi.IFramework;
@@ -23,6 +24,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  */
 public abstract class CPSRoute extends BaseRoute {
 
+    static final ResourceNameValidator nameValidator = new ResourceNameValidator();
     static final Gson gson = GalasaGsonBuilder.build();
 
     // Define a default filter to accept everything
@@ -30,12 +32,9 @@ public abstract class CPSRoute extends BaseRoute {
 
     protected IFramework framework;
 
-    /*******************************
-    This section will probably move to the super class
-    START
-    ********************************/
+    private static final String REDACTED_PROPERTY_VALUE = "********";
 
-      protected final static Set<String> hiddenNameSpaces = new HashSet<>();
+    protected final static Set<String> hiddenNameSpaces = new HashSet<>();
     static {
         hiddenNameSpaces.add("dss");
     }
@@ -50,10 +49,16 @@ public abstract class CPSRoute extends BaseRoute {
         writeOnlyNameSpaces.add("secure");
     }
 
-    /*******************************
-    This section will probably move to the super class
-    END
-    ********************************/
+    protected String getProtectedValue(String actualValue , String namespace) {
+        String protectedValue ;
+        if (writeOnlyNameSpaces.contains(namespace)) {
+            // The namespace is protected, write-only, so should not be readable.
+            protectedValue = REDACTED_PROPERTY_VALUE;
+        } else {
+            protectedValue = actualValue ;
+        }
+        return protectedValue ;
+    }
 
     public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework ) {
         super(responseBuilder, path);

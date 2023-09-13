@@ -42,7 +42,7 @@ public class NamespacesRoute extends CPSRoute {
 		/* Regex to match endpoints: 
 		*  -> /cps/
 		*/
-		super(responseBuilder, "/cps", framework);
+		super(responseBuilder, "/cps\\/?", framework);
 	}
 
     protected IFramework getFramework() {
