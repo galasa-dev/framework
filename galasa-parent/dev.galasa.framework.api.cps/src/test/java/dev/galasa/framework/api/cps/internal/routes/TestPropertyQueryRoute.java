@@ -26,7 +26,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
     @Test
     public void TestPropertyQueryNoFrameworkReturnError() throws Exception{
 		// Given...
-		setServlet("/cps/namespace1",null ,new HashMap<String,String[]>());
+		setServlet("/cps/namespace1/properties",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -53,7 +53,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
     @Test
     public void TestPropertyQueryWithExistingNamespaceReturnsOk() throws Exception {
         // Given...
-        setServlet("/cps/framework", "framework", new HashMap<String,String[]>());
+        setServlet("/cps/framework/properties", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -82,7 +82,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
     @Test
     public void TestPropertyQueryHiddenNamespaceReturnsError() throws Exception {
         // Given...
-		setServlet("/cps/dss", "dss" ,new HashMap<String,String[]>());
+		setServlet("/cps/dss/properties", "dss" ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -109,7 +109,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 	@Test
     public void TestPropertyQueryInvalidNamespaceReturnsError() throws Exception {
         // Given...
-		setServlet("/cps/j!ndex", "framework" ,new HashMap<String,String[]>());
+		setServlet("/cps/j!ndex/properties", "framework" ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -120,7 +120,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		servlet.doGet(req,resp);
 
 		// Then...
-		// We expect an error back, because the API server could find the namespace, but it was hidden
+		// We expect an error back, because the API server could find the namespace
 		assertThat(resp.getStatus()==500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
@@ -271,7 +271,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("suffix", new String[] {"1"});
 
-        setServlet("/cps/framework?suffix=1", "framework", params);
+        setServlet("/cps/framework/properties?suffix=1", "framework", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -296,7 +296,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("suffix", new String[] {"mickey"});
 
-        setServlet("/cps/framework?suffix=mickey", "framework", params);
+        setServlet("/cps/framework/properties?suffix=mickey", "framework", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -321,7 +321,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("suffix", new String[] {"ty"});
 
-        setServlet("/cps/multi?suffix=mickey", "multi", params);
+        setServlet("/cps/multi/properties?suffix=mickey", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -347,7 +347,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("prefix", new String[] {".char"});
 
-        setServlet("/cps/multi?prefix=.char", "multi", params);
+        setServlet("/cps/multi/properties?prefix=.char", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -372,7 +372,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("prefix", new String[] {"goof"});
 
-        setServlet("/cps/framework?prefix=goof", "framework", params);
+        setServlet("/cps/framework/properties?prefix=goof", "framework", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -397,7 +397,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("prefix", new String[] {"test"});
 
-        setServlet("/cps/multi?prefix=test", "multi", params);
+        setServlet("/cps/multi/properties?prefix=test", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -424,7 +424,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		params.put("prefix", new String[] {"prop"});
 		params.put("suffix", new String[] {"5"});
 
-        setServlet("/cps/framework?prefix=prop&suffix=5", "framework", params);
+        setServlet("/cps/framework/properties?prefix=prop&suffix=5", "framework", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -450,7 +450,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		params.put("prefix", new String[] {"hello"});
 		params.put("suffix", new String[] {"world"});
 
-        setServlet("/cps/framework?prefix=hellosuffix=world", "framework", params);
+        setServlet("/cps/framework/properties?prefix=hellosuffix=world", "framework", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -476,7 +476,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		params.put("prefix", new String[] {"."});
 		params.put("suffix", new String[] {"1"});
 
-        setServlet("/cps/multi?prefix=.&suffix=1", "multi", params);
+        setServlet("/cps/multi/properties?prefix=.&suffix=1", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
