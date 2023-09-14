@@ -1,8 +1,12 @@
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package dev.galasa.framework.api.cps.internal.routes;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +21,6 @@ import dev.galasa.framework.api.cps.internal.verycommon.ServletError;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
-import java.util.regex.Pattern;
 
 import static dev.galasa.framework.api.cps.internal.verycommon.ServletErrorMessage.*;
 
@@ -37,9 +40,15 @@ public class PropertyQueryRoute extends CPSRoute{
     @Override
     public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
+        String properties;
         String namespace = getNamespaceFromURL(pathInfo);
-        nameValidator.assertNamespaceCharPatternIsValid(namespace);
-        String properties = getNamespaceProperties(namespace);
+        try {
+            nameValidator.assertNamespaceCharPatternIsValid(namespace);
+        }catch (FrameworkException f){
+            ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+        properties = getNamespaceProperties(namespace);
         return getResponseBuilder().buildResponse(response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
     

@@ -52,7 +52,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 
 
     @Test
-    public void TestGetNamespacesPropertiesWithExistingNamespaceReturnsOk() throws Exception {
+    public void TestPropertyQueryWithExistingNamespaceReturnsOk() throws Exception {
         // Given...
         setServlet("/cps/framework", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -82,7 +82,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 
 
     @Test
-    public void TestGetNamespacePropertiesErrorsWhenGettingHidden() throws Exception {
+    public void TestPropertyQueryHiddenNamespaceReturnsError() throws Exception {
         // Given...
 		setServlet("/cps/dss", "dss" ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -107,4 +107,31 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 			"Error occured when trying to access namespace 'dss'. Namespace 'dss' is not available"
 		);
     }
+
+	@Test
+    public void TestPropertyQueryInvalidNamespaceReturnsError() throws Exception {
+        // Given...
+		setServlet("/cps/j!ndex", "framework" ,new HashMap<String,String[]>());
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server could find the namespace, but it was hidden
+		assertThat(resp.getStatus()==500);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5017,
+			"GAL5017E: ",
+			"Error occured when trying to access namespace 'j!ndex'. The Namespace provided is invalid"
+		);
+	}
 }

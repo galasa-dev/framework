@@ -85,7 +85,7 @@ public class CpsServletTest {
 
 	protected void checkJsonArrayStructure(String jsonString, Map<String, String> jsonFieldsToCheck) throws Exception {
 
-		JsonElement jsonElement = gson.toJsonTree(jsonString);
+		JsonElement jsonElement = JsonParser.parseString(jsonString);
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
@@ -98,7 +98,7 @@ public class CpsServletTest {
 
             for (JsonElement element : jsonArray) {
                 JsonObject jsonObject = element.getAsJsonObject();
-                if (jsonObject.get(entry.getKey()).toString().equals(entry.getValue())) {
+                if (jsonObject.get("name").getAsString().equals(entry.getKey()) && jsonObject.get("value").getAsString().equals(entry.getValue()) ) {
                     fieldMatches = true;
                 }
             }
