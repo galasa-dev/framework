@@ -56,13 +56,87 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying access the endpoint
-                runerror: 
+                cpserror: 
                   value: 
                     error_code: 5015
                     error_message: "GAL5015E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to retrieve the CPS namespaces
+  #--------------------------------------
+  # List all properties for a given Namespace in CPS
+  #--------------------------------------
+  /cps/{namespace}/properties:
+    get:
+      operationId: getCpsNamespaceProperties
+      summary: Get CPS Namespace Properties
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: prefix
+        in: query
+        description: |
+          Property Prefix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
+      - name: suffix
+        in: query
+        description: |
+          Property suffix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Array of CPS Properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CpsProperty'
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespacerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. Namespace 'xyz' is not available."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying access the endpoint
+                invaliderror: 
+                  value: 
+                    error_code: 5017
+                    error_message: "GAL5017E: Error occured when trying to access namespace 'abc!'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+
   /cps/namespace:
     get:
+      deprecated: true
       operationId: getCpsNamespaces
       summary: Get CPS Namespaces
       tags: 
@@ -84,6 +158,7 @@ paths:
                 $ref: '#/components/schemas/JsonError'
   /cps/namespace/{namespace}:
     get:
+      deprecated: true
       operationId: getCpsNamespaceProperties
       summary: Get all properties for a namepace
       tags: 
@@ -120,6 +195,7 @@ paths:
                 $ref: '#/components/schemas/JsonError'
   /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
     get:
+      deprecated: true
       operationId: getCpsNamespaceCascadeProperty
       summary: Get cascade CPS property
       tags: 

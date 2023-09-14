@@ -27,17 +27,13 @@ import static dev.galasa.framework.api.cps.internal.verycommon.ServletErrorMessa
 
 public class PropertyQueryRoute extends CPSRoute{
 
-    private static final String path = "/cps/(.*)/properties[?]?.*";
+    private static final String path = "/cps/(.*)/properties([?]?|[^/])+$";
 
     public PropertyQueryRoute(ResponseBuilder responseBuilder, IFramework framework) {
         super(responseBuilder, path , framework);
     }
 
     private String getNamespaceFromURL(String pathInfo){
-        // if(pathInfo.contains("?")){
-        //     String[] query = pathInfo.split("\\?");
-        //     pathInfo = query[0];
-        // }
         String[] namespace = pathInfo.split("/");
         return namespace[2];
     }
