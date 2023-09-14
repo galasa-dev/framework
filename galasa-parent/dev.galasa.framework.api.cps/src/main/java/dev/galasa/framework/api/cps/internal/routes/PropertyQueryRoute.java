@@ -33,11 +33,7 @@ public class PropertyQueryRoute extends CPSRoute{
         super(responseBuilder, path , framework);
     }
 
-    private String getNamespaceFromURL(String pathInfo){
-        String[] namespace = pathInfo.split("/");
-        return namespace[2];
-    }
-    
+   
     @Override
     public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
@@ -89,10 +85,6 @@ public class PropertyQueryRoute extends CPSRoute{
         return gson.toJson(propertyArray);
     }
     
-    private Map<String, String> getAllProperties(String namespace) throws ConfigurationPropertyStoreException {
-        return framework.getConfigurationPropertyService(namespace).getAllProperties();
-    }
-
     protected  Map<String, String> filterPropertiesByPrefix( Map<String, String> properties , String prefix){
         Map<String, String> filteredProperties = new HashMap<String,String>();
         for (Map.Entry<String, String> entry : properties.entrySet()) {

@@ -8,6 +8,7 @@ package dev.galasa.framework.api.cps.internal.routes;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gson.Gson;
@@ -15,6 +16,7 @@ import com.google.gson.Gson;
 import dev.galasa.framework.ResourceNameValidator;
 import dev.galasa.framework.api.cps.internal.verycommon.BaseRoute;
 import dev.galasa.framework.api.cps.internal.verycommon.ResponseBuilder;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
@@ -69,4 +71,12 @@ public abstract class CPSRoute extends BaseRoute {
         return this.framework;
     }
 
+    protected Map<String, String> getAllProperties(String namespace) throws ConfigurationPropertyStoreException {
+        return framework.getConfigurationPropertyService(namespace).getAllProperties();
+    }
+
+    protected String getNamespaceFromURL(String pathInfo){
+        String[] namespace = pathInfo.split("/");
+        return namespace[2];
+    }
 }
