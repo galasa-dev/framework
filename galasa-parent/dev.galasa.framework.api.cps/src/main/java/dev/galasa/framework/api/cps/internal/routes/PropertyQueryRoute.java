@@ -73,10 +73,10 @@ public class PropertyQueryRoute extends CPSRoute{
         Map<String, String> properties = getAllProperties(namespace);
        
         if (prefix != null){
-            properties = getPropertiesWithPrefix(properties,prefix);
+            properties = filterPropertiesByPrefix(properties,prefix);
         }
         if (suffix != null){
-            properties = getPropertiesWithSuffix(properties,suffix);
+            properties = filterPropertiesBySuffix(properties,suffix);
         }
         
         JsonArray propertyArray = new JsonArray();
@@ -93,7 +93,7 @@ public class PropertyQueryRoute extends CPSRoute{
         return framework.getConfigurationPropertyService(namespace).getAllProperties();
     }
 
-    protected  Map<String, String> getPropertiesWithPrefix( Map<String, String> properties , String prefix){
+    protected  Map<String, String> filterPropertiesByPrefix( Map<String, String> properties , String prefix){
         Map<String, String> filteredProperties = new HashMap<String,String>();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             if (entry.getKey().toString().startsWith(prefix)){
@@ -103,7 +103,7 @@ public class PropertyQueryRoute extends CPSRoute{
         return filteredProperties;
     }
 
-    protected  Map<String, String> getPropertiesWithSuffix( Map<String, String> properties , String suffix){
+    protected  Map<String, String> filterPropertiesBySuffix( Map<String, String> properties , String suffix){
         Map<String, String> filteredProperties = new HashMap<String,String>();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             if (entry.getKey().toString().endsWith(suffix)){

@@ -146,7 +146,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		properties.put("property6", "value6");
 
 		//When...
-		Map<String, String> results = new PropertyQueryRoute(null,null).getPropertiesWithSuffix(properties, suffix);
+		Map<String, String> results = new PropertyQueryRoute(null,null).filterPropertiesBySuffix(properties, suffix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
@@ -167,7 +167,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		properties.putAll(expectedProperties);
 
 		//When...
-		Map<String, String> results = new PropertyQueryRoute(null,null).getPropertiesWithSuffix(properties, suffix);
+		Map<String, String> results = new PropertyQueryRoute(null,null).filterPropertiesBySuffix(properties, suffix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
@@ -192,7 +192,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		properties.putAll(expectedProperties);
 
 		//When...
-		Map<String, String> results = new PropertyQueryRoute(null,null).getPropertiesWithSuffix(properties, suffix);
+		Map<String, String> results = new PropertyQueryRoute(null,null).filterPropertiesBySuffix(properties, suffix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
@@ -212,7 +212,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		properties.put("property6", "value6");
 
 		//When...
-		Map<String, String> results = new PropertyQueryRoute(null,null).getPropertiesWithPrefix(properties, prefix);
+		Map<String, String> results = new PropertyQueryRoute(null,null).filterPropertiesByPrefix(properties, prefix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
@@ -233,7 +233,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		properties.putAll(expectedProperties);
 
 		//When...
-		Map<String, String> results = new PropertyQueryRoute(null,null).getPropertiesWithPrefix(properties, prefix);
+		Map<String, String> results = new PropertyQueryRoute(null,null).filterPropertiesByPrefix(properties, prefix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
@@ -258,7 +258,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 		properties.putAll(expectedProperties);
 
 		//When...
-		Map<String, String> results = new PropertyQueryRoute(null,null).getPropertiesWithPrefix(properties, prefix);
+		Map<String, String> results = new PropertyQueryRoute(null,null).filterPropertiesByPrefix(properties, prefix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
