@@ -52,11 +52,20 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
     @Override
     public Map<String, String> getAllProperties() {
         Map<String, String> properties = new HashMap<String,String>();
-        properties.put("property1", "value1");
-        properties.put("property2", "value2");
-        properties.put("property3", "value3");
-        properties.put("property4", "value4");
-        properties.put("property5", "value5");
+        if (namespaceInput != "multi"){
+            properties.put("property1", "value1");
+            properties.put("property2", "value2");
+            properties.put("property3", "value3");
+            properties.put("property4", "value4");
+            properties.put("property5", "value5");
+        }else{
+            properties.put("test.property", "value1");
+            properties.put(".charity1", "value2");
+            properties.put(".lecture101", "value101");
+            properties.put(".hospitality", "value3");
+            properties.put("test.aunty5", "value4");
+            properties.put("test.empty", "value5");
+        }
 
         return properties;
     }

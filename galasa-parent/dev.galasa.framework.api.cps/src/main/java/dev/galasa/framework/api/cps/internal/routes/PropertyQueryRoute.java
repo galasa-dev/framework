@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.cps.internal.routes;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -33,6 +34,10 @@ public class PropertyQueryRoute extends CPSRoute{
     }
 
     private String getNamespaceFromURL(String pathInfo){
+        if(pathInfo.contains("?")){
+            String[] query = pathInfo.split("\\?");
+            pathInfo = query[0];
+        }
         String[] namespace = pathInfo.split("/");
         return namespace[2];
     }
@@ -40,28 +45,45 @@ public class PropertyQueryRoute extends CPSRoute{
     @Override
     public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
-        String properties;
         String namespace = getNamespaceFromURL(pathInfo);
-        try {
-            nameValidator.assertNamespaceCharPatternIsValid(namespace);
-        }catch (FrameworkException f){
-            ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }
-        properties = getNamespaceProperties(namespace);
+        String properties = getNamespaceProperties(namespace, queryParams);
         return getResponseBuilder().buildResponse(response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
-    
-    private String getNamespaceProperties(String namespace)
-            throws IOException, ConfigurationPropertyStoreException, InternalServletException {
 
-        if (hiddenNameSpaces.contains(namespace)) {
+    private String getNamespaceProperties(String namespace, QueryParameters queryParams) throws FrameworkException{
+        String properties = "";
+         try {
+            nameValidator.assertNamespaceCharPatternIsValid(namespace);
+            if (hiddenNameSpaces.contains(namespace)) {
             ServletError error = new ServletError(GAL5016_CPS_HIDDEN_NAMESPACE_ERROR, namespace);
 			throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            }
+            String prefix = queryParams.getSingleString("prefix", null);
+            String suffix = queryParams.getSingleString("suffix", null);
+            properties = getProperties(namespace, prefix, suffix);
+        }catch (FrameworkException f){
+            if (f instanceof InternalServletException){
+                throw f;
+            }else{
+                ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            }
         }
-
+        return properties;
+    }
+    
+    
+    private String getProperties(String namespace, String prefix, String suffix) throws ConfigurationPropertyStoreException {
+        Map<String, String> properties = getAllProperties(namespace);
+       
+        if (prefix != null){
+            properties = getPropertiesWithPrefix(properties,prefix);
+        }
+        if (suffix != null){
+            properties = getPropertiesWithSuffix(properties,suffix);
+        }
+        
         JsonArray propertyArray = new JsonArray();
-        Map<String, String> properties = framework.getConfigurationPropertyService(namespace).getAllProperties();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             JsonObject cpsProp = new JsonObject();
             cpsProp.addProperty("name", entry.getKey());
@@ -70,4 +92,29 @@ public class PropertyQueryRoute extends CPSRoute{
         }
         return gson.toJson(propertyArray);
     }
+    
+    private Map<String, String> getAllProperties(String namespace) throws ConfigurationPropertyStoreException {
+        return framework.getConfigurationPropertyService(namespace).getAllProperties();
+    }
+
+    protected  Map<String, String> getPropertiesWithPrefix( Map<String, String> properties , String prefix){
+        Map<String, String> filteredProperties = new HashMap<String,String>();
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            if (entry.getKey().toString().startsWith(prefix)){
+                filteredProperties.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return filteredProperties;
+    }
+
+    protected  Map<String, String> getPropertiesWithSuffix( Map<String, String> properties , String suffix){
+        Map<String, String> filteredProperties = new HashMap<String,String>();
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            if (entry.getKey().toString().endsWith(suffix)){
+                filteredProperties.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return filteredProperties;
+    }
+
 }
