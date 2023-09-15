@@ -19,9 +19,24 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 public class MockIConfigurationPropertyStoreService implements IConfigurationPropertyStoreService{
 
     protected String namespaceInput;
+    Map<String, String> properties = new HashMap<String,String>();
 
     public MockIConfigurationPropertyStoreService(@NotNull String namespace) {
         this.namespaceInput = namespace;
+        if (this.namespaceInput != "multi"){
+            this.properties.put("property1", "value1");
+            this.properties.put("property2", "value2");
+            this.properties.put("property3", "value3");
+            this.properties.put("property4", "value4");
+            this.properties.put("property5", "value5");
+        }else{
+            this.properties.put("test.property", "value1");
+            this.properties.put(".charity1", "value2");
+            this.properties.put(".lecture101", "value101");
+            this.properties.put(".hospitality", "value3");
+            this.properties.put("test.aunty5", "value4");
+            this.properties.put("test.empty", "value5");
+        }
 	}
 
     public String getNamespaceInput(){
@@ -44,8 +59,7 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
 
     @Override
     public void setProperty(@NotNull String name, @NotNull String value) throws ConfigurationPropertyStoreException {
-        
-        throw new UnsupportedOperationException("Unimplemented method 'setProperty'");
+       this.properties.put(name,value);
     }
 
     @Override
@@ -56,23 +70,7 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
 
     @Override
     public Map<String, String> getAllProperties() {
-        Map<String, String> properties = new HashMap<String,String>();
-        if (namespaceInput != "multi"){
-            properties.put("property1", "value1");
-            properties.put("property2", "value2");
-            properties.put("property3", "value3");
-            properties.put("property4", "value4");
-            properties.put("property5", "value5");
-        }else{
-            properties.put("test.property", "value1");
-            properties.put(".charity1", "value2");
-            properties.put(".lecture101", "value101");
-            properties.put(".hospitality", "value3");
-            properties.put("test.aunty5", "value4");
-            properties.put("test.empty", "value5");
-        }
-
-        return properties;
+        return this.properties;
     }
 
     @Override

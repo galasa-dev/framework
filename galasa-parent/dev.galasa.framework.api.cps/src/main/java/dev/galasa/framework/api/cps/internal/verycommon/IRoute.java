@@ -8,6 +8,7 @@ package dev.galasa.framework.api.cps.internal.verycommon;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.spi.FrameworkException;
@@ -22,5 +23,8 @@ public interface IRoute {
     String getPath();
 
     HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) 
+        throws ServletException, IOException, FrameworkException;
+
+    HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
         throws ServletException, IOException, FrameworkException;
 }

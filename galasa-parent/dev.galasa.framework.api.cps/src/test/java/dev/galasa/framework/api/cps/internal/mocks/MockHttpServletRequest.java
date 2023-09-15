@@ -7,6 +7,9 @@ package dev.galasa.framework.api.cps.internal.mocks;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Collection;
@@ -32,6 +35,8 @@ public class MockHttpServletRequest implements HttpServletRequest{
 
     private Map<String, String[]> parameterMap ;
     private String pathInfo;
+    private String content;
+    private MockServletInputStream inputStream;
 
     public MockHttpServletRequest(Map<String, String[]> parameterMap) {
         this.parameterMap = parameterMap;
@@ -40,6 +45,12 @@ public class MockHttpServletRequest implements HttpServletRequest{
     public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo) {
         this.parameterMap = parameterMap;
         this.pathInfo = pathInfo;
+    }
+
+    public MockHttpServletRequest( String pathInfo, String content) {
+        this.pathInfo = pathInfo;
+        this.content = content;
+        this.inputStream = new MockServletInputStream(content);
     }
 
     @Override
@@ -74,7 +85,7 @@ public class MockHttpServletRequest implements HttpServletRequest{
 
     @Override
     public int getContentLength() {
-        throw new UnsupportedOperationException("Unimplemented method 'getContentLength'");
+        return this.content.length();
     }
 
     @Override
@@ -89,7 +100,7 @@ public class MockHttpServletRequest implements HttpServletRequest{
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'getInputStream'");
+        return this.inputStream;
     }
 
     @Override

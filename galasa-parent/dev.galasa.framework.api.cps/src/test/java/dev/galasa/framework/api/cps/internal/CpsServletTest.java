@@ -13,6 +13,7 @@ import dev.galasa.framework.api.cps.internal.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.cps.internal.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.cps.internal.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.cps.internal.mocks.MockServletOutputStream;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -36,16 +37,28 @@ public class CpsServletTest {
 	HttpServletRequest req;
 	HttpServletResponse resp;
 
-	protected void setServlet(String path,String namespace, Map<String, String[]> parameterMap){
-		ServletOutputStream outStream = new MockServletOutputStream();
-        PrintWriter writer = new PrintWriter(outStream);
+	protected void setServlet(String namespace){
 		this.servlet = new MockCpsServlet();
 		if (namespace != null){
 			IConfigurationPropertyStoreService cpsstore = new MockIConfigurationPropertyStoreService(namespace);
 			IFramework framework = new MockFramework(cpsstore);
 			this.servlet.setFramework(framework);
 		}
+	}
+	
+	protected void setServlet(String path,String namespace, Map<String, String[]> parameterMap){
+		setServlet(namespace);
+		ServletOutputStream outStream = new MockServletOutputStream();
+		PrintWriter writer = new PrintWriter(outStream);
 		this.req = new MockHttpServletRequest(parameterMap,path);
+		this.resp = new MockHttpServletResponse(writer, outStream);
+	}
+
+	protected void setServlet( String path,String namespace, String value){
+		setServlet(namespace);
+		ServletOutputStream outStream = new MockServletOutputStream();
+        PrintWriter writer = new PrintWriter(outStream);
+		this.req = new MockHttpServletRequest(path, value);
 		this.resp = new MockHttpServletResponse(writer, outStream);
 	}
 
@@ -106,6 +119,17 @@ public class CpsServletTest {
         }
     }
 
-	
+	protected boolean checkNewPropertyInNamespace(String propertyName, String propertyValue) throws Exception{
+		boolean found = false;
+		Map<String,String> properties = this.servlet.getFramework().getConfigurationPropertyService("framework").getAllProperties();
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            String key = entry.getKey().toString();
+			String value =entry.getValue().toString();
+            if (key.equals(propertyName) && value.equals(propertyValue)){
+				found = true;
+            }
+        }
+		return found;
+	}
 
 }

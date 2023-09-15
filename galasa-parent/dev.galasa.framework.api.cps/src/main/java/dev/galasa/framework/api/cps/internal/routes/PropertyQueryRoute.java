@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonArray;
@@ -103,6 +104,14 @@ public class PropertyQueryRoute extends CPSRoute{
             }
         }
         return filteredProperties;
+    }
+
+
+    @Override
+    public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters,
+            HttpServletRequest request, HttpServletResponse response) throws InternalServletException {
+        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo);  
+        throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
 }

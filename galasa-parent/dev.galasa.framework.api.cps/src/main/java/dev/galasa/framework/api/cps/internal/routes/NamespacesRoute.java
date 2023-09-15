@@ -12,6 +12,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.List;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
@@ -71,6 +72,13 @@ public class NamespacesRoute extends CPSRoute {
 			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         return gson.toJson(namespaceArray);
+    }
+
+    @Override
+    public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters,
+            HttpServletRequest request, HttpServletResponse response) throws InternalServletException {
+        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo);  
+        throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
 }

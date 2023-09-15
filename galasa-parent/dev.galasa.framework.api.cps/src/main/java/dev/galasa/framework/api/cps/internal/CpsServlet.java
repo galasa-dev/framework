@@ -15,6 +15,7 @@ import dev.galasa.framework.FileSystem;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.cps.internal.routes.NamespacesRoute;
 import dev.galasa.framework.api.cps.internal.routes.PropertyQueryRoute;
+import dev.galasa.framework.api.cps.internal.routes.PropertyRoute;
 import dev.galasa.framework.api.cps.internal.verycommon.BaseServlet;
 
 import dev.galasa.framework.spi.IFramework;
@@ -46,6 +47,7 @@ public class CpsServlet extends BaseServlet {
 		
 		addRoute(new NamespacesRoute(getResponseBuilder(),framework));
 		addRoute(new PropertyQueryRoute(getResponseBuilder(),framework));
+		addRoute(new PropertyRoute(getResponseBuilder(),framework));
 
 	}
 

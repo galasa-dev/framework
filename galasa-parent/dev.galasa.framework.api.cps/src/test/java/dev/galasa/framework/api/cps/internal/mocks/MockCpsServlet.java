@@ -25,4 +25,8 @@ public class MockCpsServlet extends CpsServlet implements IServletUnderTest {
 	public void setFileSystem(IFileSystem fileSystem) {
 		super.fileSystem = fileSystem;
 	}
+
+	public IFramework getFramework() {
+		return super.framework;
+	}
 }
