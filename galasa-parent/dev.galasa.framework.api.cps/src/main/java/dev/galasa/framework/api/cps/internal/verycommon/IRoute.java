@@ -27,4 +27,7 @@ public interface IRoute {
 
     HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
         throws ServletException, IOException, FrameworkException;
+
+    HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
+        throws ServletException, IOException, FrameworkException;
 }

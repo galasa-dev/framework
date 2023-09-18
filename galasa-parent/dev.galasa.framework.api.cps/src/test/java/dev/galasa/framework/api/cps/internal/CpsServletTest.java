@@ -53,11 +53,11 @@ public class CpsServletTest {
 		this.resp = new MockHttpServletResponse(writer, outStream);
 	}
 
-	protected void setServlet( String path,String namespace, String value){
+	protected void setServlet( String path,String namespace, String value, String method){
 		setServlet(namespace);
 		ServletOutputStream outStream = new MockServletOutputStream();
         PrintWriter writer = new PrintWriter(outStream);
-		this.req = new MockHttpServletRequest(path, value);
+		this.req = new MockHttpServletRequest(path, value, method);
 		this.resp = new MockHttpServletResponse(writer, outStream);
 	}
 

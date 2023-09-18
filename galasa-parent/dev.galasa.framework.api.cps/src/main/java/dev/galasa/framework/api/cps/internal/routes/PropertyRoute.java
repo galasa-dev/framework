@@ -69,13 +69,9 @@ public class PropertyRoute extends CPSRoute {
                }
            }
         }catch (Exception e){
-        if (e instanceof InternalServletException){
-            throw e;
-        }else{
             ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
-    }
         return null;
     }
 
@@ -138,7 +134,7 @@ public class PropertyRoute extends CPSRoute {
         if (!checkPropertyExists(namespace, propertyName)){
             framework.getConfigurationPropertyService(namespace).setProperty(propertyName, value);
         }else{
-            ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
+            ServletError error = new ServletError(GAL5019_PROPERTY_ALREADY_EXISTS_ERROR, propertyName ,namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
@@ -146,11 +142,33 @@ public class PropertyRoute extends CPSRoute {
     /*
      * Handle Post Request
      */
+    @Override
+    public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
+            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, FrameworkException {
+        String namespace = getNamespaceFromURL(pathInfo);
+        String property = getPropertyNameFromURL(pathInfo);
+        try{
+        if (request.getContentLength() >0){
+            String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
+            updateProperty(namespace, property, value);
+        }else{
+            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
+            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
+        }
+        }catch (NullPointerException e ){
+            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
+            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
+        }
+        String responseBody = String.format("Successfully updated property %s in %s",property, namespace);
+        return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_CREATED); 
+    }
+
     private void updateProperty(String namespace, String propertyName, String value) throws FrameworkException {
         if (checkPropertyExists(namespace, propertyName)){
             framework.getConfigurationPropertyService(namespace).setProperty(propertyName, value);
         }else{
-            ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
+            ServletError error = new ServletError(GAL5018_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
@@ -162,9 +180,10 @@ public class PropertyRoute extends CPSRoute {
             if (checkPropertyExists(namespace, propertyName)){
             framework.getConfigurationPropertyService(namespace).deleteProperty(propertyName);
         }else{
-            ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
+            ServletError error = new ServletError(GAL5018_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
+
 
 }

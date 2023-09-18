@@ -77,7 +77,15 @@ public class NamespacesRoute extends CPSRoute {
     @Override
     public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response) throws InternalServletException {
-        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo, "PUT");  
+        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo, request.getMethod());
+        throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+
+    @Override
+    public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
+            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, FrameworkException {
+        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo, request.getMethod()); 
         throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 

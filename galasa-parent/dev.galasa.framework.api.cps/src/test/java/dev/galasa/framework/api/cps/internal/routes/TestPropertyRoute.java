@@ -176,7 +176,7 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = "value6";
-        setServlet("/cps/framework/properties/"+propertyName, "framework", value);
+        setServlet("/cps/framework/properties/"+propertyName, "framework", value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -197,11 +197,39 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
     @Test
+    public void TestPropertyRouteWithExistingNamespacePUTExistingPropertyReturnsError() throws Exception {
+        // Given...
+        String propertyName = "property5";
+        String value = "value6";
+        setServlet("/cps/framework/properties/"+propertyName, "framework", value, "PUT");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPut(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        assertThat(status).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+       checkErrorStructure(
+			outStream.toString(),
+			5019,
+			"E: Error occured when trying to access property 'property5'.",
+            " The property name provided already exists in the 'framework' namesapce."
+		);        
+    }
+
+    @Test
     public void TestPropertyRouteWithErroneousNamespacePUTNewPropertyReturnsError() throws Exception {
         // Given...
         String propertyName = "property6";
         String value = "value6";
-        setServlet("/cps/framew0rk/properties/"+propertyName, "framework", value);
+        setServlet("/cps/framew0rk/properties/"+propertyName, "framework", value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -228,7 +256,7 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = "";
-        setServlet("/cps/framew0rk/properties/"+propertyName, "framework", value);
+        setServlet("/cps/framew0rk/properties/"+propertyName, "framework", value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -256,7 +284,7 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = null;
-        setServlet("/cps/framework/properties/"+propertyName, "framework", value);
+        setServlet("/cps/framework/properties/"+propertyName, "framework", value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -278,4 +306,144 @@ public class TestPropertyRoute extends CpsServletTest{
             " The request body is empty."
 		); 
     }
+
+    /*
+     * TESTS  -- POST requests
+     */
+
+    @Test
+    public void TestPropertyRouteWithExistingNamespacePOSTExistingPropertyReturnsError() throws Exception {
+        // Given...
+        String propertyName = "property5";
+        String value = "value6";
+        setServlet("/cps/framework/properties/"+propertyName, "framework", value, "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(201);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).isEqualTo("Successfully updated property property5 in framework");
+        assertThat(checkNewPropertyInNamespace(propertyName, value)).isTrue();       
+    }
+    @Test
+    public void TestPropertyRouteWithExistingNamespacePOSTNewPropertyReturnsError() throws Exception {
+        // Given...
+        String propertyName = "property6";
+        String value = "value6";
+        setServlet("/cps/framework/properties/"+propertyName, "framework", value, "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        assertThat(status).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+       checkErrorStructure(
+			outStream.toString(),
+			5018,
+			"E: Error occured when trying to access property 'property6'. The property name provided is invalid."
+		);        
+    }
+
+    @Test
+    public void TestPropertyRouteWithErroneousNamespacePOSTNewPropertyReturnsError() throws Exception {
+        // Given...
+        String propertyName = "property5";
+        String value = "value6";
+        setServlet("/cps/framew0rk/properties/"+propertyName, "framework", value, "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5017,
+			"E: Error occured when trying to access namespace 'framew0rk'. The Namespace provided is invalid."
+		); 
+    }
+    
+    @Test
+    public void TestPropertyRouteWithNamespaceNoValuePOSTNewPropertyReturnsError() throws Exception {
+        // Given...
+        String propertyName = "property5";
+        String value = "";
+        setServlet("/cps/framew0rk/properties/"+propertyName, "framework", value, "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(411);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5411,
+            "E: Error occured when trying to access the endpoint '/cps/framew0rk/properties/property5'.",
+            " The request body is empty."
+		); 
+    }
+
+    @Test
+    public void TestPropertyRouteWithNamespaceNullValuePOSTNewPropertyReturnsError() throws Exception {
+        // Given...
+        String propertyName = "property6";
+        String value = null;
+        setServlet("/cps/framework/properties/"+propertyName, "framework", value, "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(411);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5411,
+            "E: Error occured when trying to access the endpoint '/cps/framework/properties/property6'.",
+            " The request body is empty."
+		); 
+    }
+
+
 }

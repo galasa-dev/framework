@@ -100,9 +100,50 @@ public class BaseServlet extends HttpServlet {
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		String url = req.getPathInfo();
+		
+		logger.info("BaseServlet : doPost() entered. Url:"+url);
+		
+		String errorString = "";
+		int httpStatusCode = HttpServletResponse.SC_CREATED;
+		QueryParameters queryParameters = new QueryParameters(req.getParameterMap());
 
-   }
+		logger.info("BaseServlet : doPut() query parameters extracted.");
+		try {
+			if (url != null) {
+				for (Map.Entry<String, IRoute> entry : routes.entrySet()) {
+		
+					String routePattern = entry.getKey();
+					IRoute route = entry.getValue();
+					
+					Matcher matcher = Pattern.compile(routePattern).matcher(url);
+		
+					if (matcher.matches()) {	
+						logger.info("BaseServlet : doPost() Found a route that matches.");	
+						route.handlePostRequest(url, queryParameters, req, res);
+						return;
+					}
+				}
+
+				// No matching route was found, throw a 404 error.
+				logger.info("BaseServlet : doPost() no a route that matches.");
+				ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
+				throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+			}
+		} catch (InternalServletException ex) {
+			// the message is a curated servlet message, we intentionally threw up to this level.
+		   	errorString = ex.getMessage();
+			httpStatusCode = ex.getHttpFailureCode();
+			logger.error(errorString, ex);
+	   	} catch (Throwable t) {
+			// We didn't expect this failure to arrive. So deliver a generic error message.
+			errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
+			httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+			logger.error(errorString,t);
+		}
+		getResponseBuilder().buildResponse(res, "application/json", errorString, httpStatusCode);
+	}
 
    @Override
 	public void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -132,7 +173,7 @@ public class BaseServlet extends HttpServlet {
 				}
 
 				// No matching route was found, throw a 404 error.
-				logger.info("BaseServlet : doGet() no a route that matches.");
+				logger.info("BaseServlet : doPut() no a route that matches.");
 				ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
 				throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
 			}

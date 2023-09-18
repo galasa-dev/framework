@@ -37,6 +37,7 @@ public class MockHttpServletRequest implements HttpServletRequest{
     private String pathInfo;
     private String content;
     private MockServletInputStream inputStream;
+    private String method; 
 
     public MockHttpServletRequest(Map<String, String[]> parameterMap) {
         this.parameterMap = parameterMap;
@@ -47,9 +48,10 @@ public class MockHttpServletRequest implements HttpServletRequest{
         this.pathInfo = pathInfo;
     }
 
-    public MockHttpServletRequest( String pathInfo, String content) {
+    public MockHttpServletRequest( String pathInfo, String content, String method) {
         this.pathInfo = pathInfo;
         this.content = content;
+        this.method = method;
         this.inputStream = new MockServletInputStream(content);
     }
 
@@ -281,7 +283,7 @@ public class MockHttpServletRequest implements HttpServletRequest{
 
     @Override
     public String getMethod() {
-        throw new UnsupportedOperationException("Unimplemented method 'getMethod'");
+        return this.method;
     }
 
     @Override
