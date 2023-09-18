@@ -110,7 +110,7 @@ public class PropertyQueryRoute extends CPSRoute{
     @Override
     public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response) throws InternalServletException {
-        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo);  
+        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo,"PUT");  
         throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 

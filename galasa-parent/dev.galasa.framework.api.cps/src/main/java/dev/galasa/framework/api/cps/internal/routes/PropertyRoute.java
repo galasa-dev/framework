@@ -59,19 +59,27 @@ public class PropertyRoute extends CPSRoute {
         return namespace[4];
     }
     
-    private Map.Entry<String, String> retrieveProperty(String namespace, String propertyName) throws ConfigurationPropertyStoreException {
-        Map<String, String> properties = getAllProperties(namespace);
-        
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            String key = entry.getKey().toString();
-            if (key.equals(propertyName)){
-                return entry;
-            }
+    private Map.Entry<String, String> retrieveProperty(String namespace, String propertyName) throws  FrameworkException {
+        try{
+           Map<String, String> properties = getAllProperties(namespace);
+           for (Map.Entry<String, String> entry : properties.entrySet()) {
+               String key = entry.getKey().toString();
+               if (key.equals(propertyName)){
+                   return entry;
+               }
+           }
+        }catch (Exception e){
+        if (e instanceof InternalServletException){
+            throw e;
+        }else{
+            ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
+    }
         return null;
     }
 
-    private boolean checkPropertyExists (String namespace, String propertyName) throws ConfigurationPropertyStoreException{
+    private boolean checkPropertyExists (String namespace, String propertyName) throws FrameworkException{
         Map.Entry<String, String> entry = retrieveProperty(namespace, propertyName);
         if( entry  == null){
             return false;
@@ -90,7 +98,7 @@ public class PropertyRoute extends CPSRoute {
 		return getResponseBuilder().buildResponse(response, "application/json", property, HttpServletResponse.SC_OK); 
     }
 
-    private String getProperty(String namespace, String propertyName) throws ConfigurationPropertyStoreException {
+    private String getProperty(String namespace, String propertyName) throws FrameworkException {
         Map.Entry<String, String> entry = retrieveProperty(namespace, propertyName);
         JsonArray propertyArray = new JsonArray();
         if (entry != null){
@@ -110,17 +118,23 @@ public class PropertyRoute extends CPSRoute {
             throws ServletException, IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String property = getPropertyNameFromURL(pathInfo);
+        try{
         if (request.getContentLength() >0){
-            setProperty(namespace, property, new String(request.getInputStream().readAllBytes(),StandardCharsets.UTF_8));
+            String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
+            setProperty(namespace, property, value);
         }else{
-            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,namespace);  
+            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
+            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
+        }
+        }catch (NullPointerException e ){
+            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
             throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
         }
         String responseBody = String.format("Successfully created property %s in %s",property, namespace);
         return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_CREATED); 
     }
 
-    private void setProperty(String namespace, String propertyName, String value) throws ConfigurationPropertyStoreException, InternalServletException {
+    private void setProperty(String namespace, String propertyName, String value) throws FrameworkException {
         if (!checkPropertyExists(namespace, propertyName)){
             framework.getConfigurationPropertyService(namespace).setProperty(propertyName, value);
         }else{
@@ -132,7 +146,7 @@ public class PropertyRoute extends CPSRoute {
     /*
      * Handle Post Request
      */
-    private void updateProperty(String namespace, String propertyName, String value) throws ConfigurationPropertyStoreException, InternalServletException {
+    private void updateProperty(String namespace, String propertyName, String value) throws FrameworkException {
         if (checkPropertyExists(namespace, propertyName)){
             framework.getConfigurationPropertyService(namespace).setProperty(propertyName, value);
         }else{
@@ -144,7 +158,7 @@ public class PropertyRoute extends CPSRoute {
     /*
      * Handle Delete Request
      */
-    private void deleteProperty(String namespace, String propertyName) throws ConfigurationPropertyStoreException, InternalServletException {
+    private void deleteProperty(String namespace, String propertyName) throws FrameworkException {
             if (checkPropertyExists(namespace, propertyName)){
             framework.getConfigurationPropertyService(namespace).deleteProperty(propertyName);
         }else{

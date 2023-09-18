@@ -66,7 +66,7 @@ paths:
   #--------------------------------------
   /cps/{namespace}/properties:
     get:
-      operationId: getCpsNamespaceProperties
+      operationId: queryCpsNamespaceProperties
       summary: Get CPS Namespace Properties
       tags: 
       - Configuration Property Store API

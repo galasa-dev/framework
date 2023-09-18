@@ -495,5 +495,32 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 			"\n  {\n    \"name\": \".lecture101\",\n    \"value\": \"value101\"\n  }\n]");
     }
 
+	/*
+	 * TEST - HANDLE PUT REQUEST - should error as this method is not supported by this API end-point
+	 */
+	@Test
+	public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixAndSuffixPUTRequestsReturnsError() throws Exception{
+		// Given...
+		setServlet("/cps/multi/properties?prefix=.&suffix=1","multi",new HashMap<String,String[]>());
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doPut(req,resp);
 
+		// Then...
+		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
+		assertThat(resp.getStatus()).isEqualTo(405);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5405,
+			"E: Error occured when trying to access the endpoint '/cps/multi/properties?prefix=.&suffix=1'. The method 'PUT' is not allowed."
+		);
+    }
 }

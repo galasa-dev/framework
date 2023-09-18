@@ -13,7 +13,6 @@ import dev.galasa.framework.api.cps.internal.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.cps.internal.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.cps.internal.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.cps.internal.mocks.MockServletOutputStream;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
