@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal.verycommon;
+package dev.galasa.framework.api.common;
 
 public enum ServletErrorMessage {
 
@@ -15,7 +15,7 @@ public enum ServletErrorMessage {
     GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER         (5005,"E: Error parsing the query parameter ''{0}'' in the request URL. Invalid value ''{1}''. Expecting an integer."),
     GAL5006_INVALID_QUERY_PARAM_DUPLICATES          (5006,"E: Error parsing the query parameters. Duplicate instances of query parameter ''{0}'' found in the request URL. Expecting only one."),
 
-    GAL5010_FROM_DATE_IS_REQUIRED                   (5010,"E: Error parsing the query parameters. 'from' time is a mandatory field if no 'runname' is supplied."),    
+    GAL5010_FROM_DATE_IS_REQUIRED                   (5010,"E: Error parsing the query parameters. 'from' time is a mandatory field if no 'runname' is supplied."),
     GAL5011_SORT_VALUE_NOT_RECOGNIZED               (5011,"E: Error parsing the query parameters. 'sort' value ''{0}'' not recognised. Expected query parameter in the format 'sort={fieldName}:{order}' where order is 'asc' for ascending or 'desc' for descending."),
     GAL5012_SORT_VALUE_MISSING                      (5012,"E: Error parsing the query parameters. 'sort' value was not supplied. Expected query parameter in the format 'sort={fieldName}:{order}' where order is 'asc' for ascending or 'desc' for descending."),
     GAL5013_RESULT_NAME_NOT_RECOGNIZED              (5013,"E: Error parsing the query parameters. 'result' value ''{0}'' not recognised. Expected result name to match one of the following ''{1}''."),
@@ -31,7 +31,8 @@ public enum ServletErrorMessage {
     // GenericErrors...
     GAL5000_GENERIC_API_ERROR                       (5000,"E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."),
     GAL5404_UNRESOLVED_ENDPOINT_ERROR               (5404,"E: Error occured when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
-
+    GAL5400_BAD_REQUEST                             (5400,"E: Error occured when trying to execute request ''{0}''. Please check your request parameters or report the problem to your Galasa Ecosystem owner."),
+    GAL5401_UNAUTHORIZED                            (5401,"E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again.")
     ;
 
 

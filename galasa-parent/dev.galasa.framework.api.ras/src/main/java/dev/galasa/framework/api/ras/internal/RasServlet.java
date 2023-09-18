@@ -19,7 +19,7 @@ import dev.galasa.framework.api.ras.internal.routes.RunArtifactsListRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunDetailsRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunLogRoute;
 import dev.galasa.framework.api.ras.internal.routes.RunQueryRoute;
-import dev.galasa.framework.api.ras.internal.verycommon.BaseServlet;
+import dev.galasa.framework.api.common.BaseServlet;
 
 import dev.galasa.framework.spi.IFramework;
 
@@ -39,15 +39,15 @@ public class RasServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
 
 	protected Log  logger  =  LogFactory.getLog(this.getClass());
-	
+
 	protected IFileSystem fileSystem = new FileSystem();
- 
+
 	@Override
 	public void init() throws ServletException {
 		logger.info("RasServlet initialising");
 
 		super.init();
-		
+
 		addRoute(new RunDetailsRoute(getResponseBuilder(),framework));
 	   	addRoute(new RunLogRoute(getResponseBuilder(),framework));
 	   	addRoute(new RunArtifactsListRoute(getResponseBuilder(),fileSystem, framework));

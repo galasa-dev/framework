@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal.verycommon;
+package dev.galasa.framework.api.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,9 +11,9 @@ import org.apache.commons.logging.LogFactory;
 public abstract class BaseRoute implements IRoute {
 
     protected Log logger = LogFactory.getLog(this.getClass());
-	
+
 	private final ResponseBuilder responseBuilder ;
-	
+
     private final String path;
 
     public BaseRoute(ResponseBuilder responseBuilder , String path) {

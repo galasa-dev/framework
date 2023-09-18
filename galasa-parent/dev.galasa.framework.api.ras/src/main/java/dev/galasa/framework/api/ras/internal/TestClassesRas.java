@@ -5,7 +5,7 @@
  */
 package dev.galasa.framework.api.ras.internal;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,9 +28,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
-import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -46,12 +46,12 @@ public class TestClassesRas extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Reference
-	public IFramework framework; 
+	public IFramework framework;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-	   
-	   
+
+
 		RasQueryParameters rQueryParameters = new RasQueryParameters(new QueryParameters(req.getParameterMap()));
 		List<RasTestClass> classArray = new ArrayList<>();
 
@@ -64,7 +64,7 @@ public class TestClassesRas extends HttpServlet {
 		}
 
 		classArray.sort(Comparator.comparing(RasTestClass::getTestClass));
-		
+
 		/* looking for sort options in query and sorting accordingly */
 		try {
 			if(!rQueryParameters.isAscending("testclass")) {

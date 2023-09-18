@@ -16,14 +16,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
+import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 
 /**
- * An abstract route for holding common code used by multiple artifact-related routes to inherit from.
- * 
+ * An abstract route for holding common code used by multiple artifact-related
+ * routes to inherit from.
+ *
  * In particular, artifact routes all use a file system which is passed-in.
  */
 public abstract class RunArtifactsRoute extends RunsRoute {
@@ -36,7 +37,7 @@ public abstract class RunArtifactsRoute extends RunsRoute {
         super(responseBuilder, path, framework);
         this.fileSystem = fileSystem;
     }
-    
+
     protected IFileSystem getFileSystem() {
         return this.fileSystem;
     }
@@ -44,7 +45,7 @@ public abstract class RunArtifactsRoute extends RunsRoute {
     /**
      * Gets a JsonArray of artifacts for a given test run. The format of the
      * returned JSON array is as follows:
-     * 
+     *
      * <pre>
      * <code>
      * [
@@ -71,7 +72,7 @@ public abstract class RunArtifactsRoute extends RunsRoute {
      * ]
      * </code>
      * </pre>
-     * 
+     *
      * @param run
      * @return
      * @throws ResultArchiveStoreException
@@ -91,7 +92,7 @@ public abstract class RunArtifactsRoute extends RunsRoute {
     /**
      * Walks through an artifact directory recursively, collecting each artifact and
      * filtering out all subdirectories
-     * 
+     *
      * @param directory        - the path to an artifact directory
      * @param accumulatedPaths - an intermediate list of accumulated artifact paths
      * @return a list of artifact paths

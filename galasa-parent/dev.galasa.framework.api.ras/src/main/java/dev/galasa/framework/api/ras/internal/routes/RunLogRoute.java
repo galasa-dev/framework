@@ -5,7 +5,7 @@
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -14,11 +14,10 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.ras.internal.verycommon.*;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
-import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
-import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
@@ -36,13 +35,13 @@ public class RunLogRoute extends RunsRoute {
 
     @Override
     public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
-        
+
         Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);
         String runLog = getRunlog(runId);
         if (runLog != null) {
-            return getResponseBuilder().buildResponse(res, "text/plain", runLog, HttpServletResponse.SC_OK); 
+            return getResponseBuilder().buildResponse(res, "text/plain", runLog, HttpServletResponse.SC_OK);
         } else {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
@@ -51,14 +50,14 @@ public class RunLogRoute extends RunsRoute {
 
 
     public String getRunlog(String runId) throws ResultArchiveStoreException, InternalServletException {
-      
+
         IRunResult run = getRunByRunId(runId);
         String runLog = null;
-              
+
         if(run != null) {
            runLog = run.getLog();
         }
-        
+
         return runLog;
      }
 }

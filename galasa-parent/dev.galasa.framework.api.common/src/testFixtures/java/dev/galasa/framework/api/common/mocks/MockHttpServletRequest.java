@@ -3,14 +3,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal.mocks;
+package dev.galasa.framework.api.common.mocks;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.AsyncContext;
@@ -28,10 +31,12 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
-public class MockHttpServletRequest implements HttpServletRequest{
+public class MockHttpServletRequest implements HttpServletRequest {
 
-    private Map<String, String[]> parameterMap ;
+    private Map<String, String[]> parameterMap;
+    private Map<String, String> headerMap = new HashMap<>();
     private String pathInfo;
+    private String payload;
 
     public MockHttpServletRequest(Map<String, String[]> parameterMap) {
         this.parameterMap = parameterMap;
@@ -42,6 +47,22 @@ public class MockHttpServletRequest implements HttpServletRequest{
         this.pathInfo = pathInfo;
     }
 
+    public MockHttpServletRequest(String servletPath, Map<String, String> headerMap) {
+        this.pathInfo = servletPath;
+        this.headerMap = headerMap;
+    }
+
+    public MockHttpServletRequest(String payload, String pathInfo) {
+        this.payload = payload;
+        this.pathInfo = pathInfo;
+    }
+
+    @Override
+    public BufferedReader getReader() throws IOException {
+        Reader stringReader = new StringReader(payload);
+        return new BufferedReader(stringReader);
+    }
+
     @Override
     public String getPathInfo() {
         return this.pathInfo;
@@ -50,6 +71,16 @@ public class MockHttpServletRequest implements HttpServletRequest{
     @Override
     public Map<String, String[]> getParameterMap() {
         return this.parameterMap;
+    }
+
+    @Override
+    public String getServletPath() {
+        return this.pathInfo;
+    }
+
+    @Override
+    public String getHeader(String name) {
+        return headerMap.get(name);
     }
 
     @Override
@@ -125,11 +156,6 @@ public class MockHttpServletRequest implements HttpServletRequest{
     @Override
     public int getServerPort() {
         throw new UnsupportedOperationException("Unimplemented method 'getServerPort'");
-    }
-
-    @Override
-    public BufferedReader getReader() throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'getReader'");
     }
 
     @Override
@@ -249,11 +275,6 @@ public class MockHttpServletRequest implements HttpServletRequest{
     }
 
     @Override
-    public String getHeader(String name) {
-        throw new UnsupportedOperationException("Unimplemented method 'getHeader'");
-    }
-
-    @Override
     public Enumeration<String> getHeaders(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getHeaders'");
     }
@@ -316,11 +337,6 @@ public class MockHttpServletRequest implements HttpServletRequest{
     @Override
     public StringBuffer getRequestURL() {
         throw new UnsupportedOperationException("Unimplemented method 'getRequestURL'");
-    }
-
-    @Override
-    public String getServletPath() {
-        throw new UnsupportedOperationException("Unimplemented method 'getServletPath'");
     }
 
     @Override
@@ -387,5 +403,5 @@ public class MockHttpServletRequest implements HttpServletRequest{
     public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
         throw new UnsupportedOperationException("Unimplemented method 'upgrade'");
     }
-    
+
 }

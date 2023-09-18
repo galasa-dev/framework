@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal.verycommon;
+package dev.galasa.framework.api.common;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.time.*;
 import java.time.format.DateTimeParseException;
 import javax.servlet.http.HttpServletResponse;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static javax.servlet.http.HttpServletResponse.*;
 
 
@@ -21,7 +21,7 @@ import static javax.servlet.http.HttpServletResponse.*;
  * and verifying the parameter contents.
  */
 public class QueryParameters {
-    
+
     Map<String,String[]> params ;
 
 	/**
@@ -30,9 +30,9 @@ public class QueryParameters {
     public QueryParameters( Map<String,String[]> paramMap ) {
         this.params = paramMap;
     }
-	
+
 	/**
-	 * 
+	 *
 	 * @param queryParameterName The query parameter
 	 * @param defaultValue
 	 * @return
@@ -62,7 +62,7 @@ public class QueryParameters {
 	}
 
 	// /**
-	//  * 
+	//  *
 	//  * @param queryParameterName The query parameter
 	//  * @param defaultValues
 	//  * @return
@@ -88,12 +88,12 @@ public class QueryParameters {
     public int getSingleInt(String queryParameterName, int defaultValue) throws InternalServletException {
 		int returnedValue = defaultValue ;
 		String paramValueStr = getSingleString(queryParameterName, Integer.toString(defaultValue));
-		
+
 		if (paramValueStr != null ) {
 			try {
 				returnedValue = Integer.parseInt(paramValueStr.trim());
 			} catch (NumberFormatException ex) {
-				
+
 				ServletError error = new ServletError(
 					GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER,
 					queryParameterName,paramValueStr);
@@ -113,7 +113,7 @@ public class QueryParameters {
     public Instant getSingleInstant(String queryParameterName, Instant defaultValue) throws InternalServletException {
 		Instant returnedValue = defaultValue ;
 		String paramValueStr = getSingleString(queryParameterName, null);
-		
+
 		if (paramValueStr != null ) {
 			try {
 				returnedValue = Instant.parse(paramValueStr.trim());
@@ -146,5 +146,5 @@ public class QueryParameters {
     public int getSize() {
         return this.params.size();
     }
-	
+
 }
