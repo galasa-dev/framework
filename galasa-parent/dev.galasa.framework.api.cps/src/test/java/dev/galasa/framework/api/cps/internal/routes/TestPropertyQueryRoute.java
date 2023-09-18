@@ -23,7 +23,7 @@ import org.junit.Test;
 
 public class TestPropertyQueryRoute extends CpsServletTest{
     @Test
-    public void TestPropertyQueryNoFrameworkReturnError() throws Exception{
+    public void TestPropertyQueryNoFrameworkReturnsError() throws Exception{
 		// Given...
 		setServlet("/cps/namespace1/properties",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -550,6 +550,36 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 			outStream.toString(),
 			5405,
 			"E: Error occured when trying to access the endpoint '/cps/multi/properties?prefix=.&suffix=1'. The method 'POST' is not allowed."
+		);
+    }
+
+
+	/*
+	 * TEST - HANDLE DELETE REQUEST - should error as this method is not supported by this API end-point
+	 */
+	@Test
+	public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixAndSuffixDELETERequestsReturnsError() throws Exception{
+		// Given...
+		setServlet("/cps/multi/properties?prefix=.&suffix=1","multi",null, "DELETE");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
+		assertThat(resp.getStatus()).isEqualTo(405);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5405,
+			"E: Error occured when trying to access the endpoint '/cps/multi/properties?prefix=.&suffix=1'. The method 'DELETE' is not allowed."
 		);
     }
 }

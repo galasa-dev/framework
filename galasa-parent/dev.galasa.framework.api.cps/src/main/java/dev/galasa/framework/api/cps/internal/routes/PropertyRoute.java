@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -26,7 +25,6 @@ import dev.galasa.framework.api.cps.internal.verycommon.InternalServletException
 import dev.galasa.framework.api.cps.internal.verycommon.QueryParameters;
 import dev.galasa.framework.api.cps.internal.verycommon.ResponseBuilder;
 import dev.galasa.framework.api.cps.internal.verycommon.ServletError;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -83,6 +81,22 @@ public class PropertyRoute extends CPSRoute {
         return true;
     }
 
+    private void checkRequestHasContent(HttpServletRequest request, String pathInfo) throws InternalServletException{
+        boolean valid = false;
+        try{
+            if (request.getContentLength() >0){
+                valid = true;
+            }
+        }catch (NullPointerException e ){
+            //Catch the NullPointerException (empty request body) 
+            //Exception is thrown by the if below
+        }  
+        if (!valid){
+            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
+            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
+        }
+    }
+
     /*
      * Handle Get Request
      */
@@ -111,28 +125,19 @@ public class PropertyRoute extends CPSRoute {
      */
     @Override
     public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
-            throws ServletException, IOException, FrameworkException {
+            throws  IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String property = getPropertyNameFromURL(pathInfo);
-        try{
-        if (request.getContentLength() >0){
-            String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-            setProperty(namespace, property, value);
-        }else{
-            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
-            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
-        }
-        }catch (NullPointerException e ){
-            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
-            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
-        }
+        checkRequestHasContent(request, pathInfo);
+        String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
+        setProperty(namespace, property, value);
         String responseBody = String.format("Successfully created property %s in %s",property, namespace);
         return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_CREATED); 
     }
 
     private void setProperty(String namespace, String propertyName, String value) throws FrameworkException {
         if (!checkPropertyExists(namespace, propertyName)){
-            framework.getConfigurationPropertyService(namespace).setProperty(propertyName, value);
+            getFramework().getConfigurationPropertyService(namespace).setProperty(propertyName, value);
         }else{
             ServletError error = new ServletError(GAL5019_PROPERTY_ALREADY_EXISTS_ERROR, propertyName ,namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
@@ -145,28 +150,19 @@ public class PropertyRoute extends CPSRoute {
     @Override
     public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, FrameworkException {
+            throws  IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String property = getPropertyNameFromURL(pathInfo);
-        try{
-        if (request.getContentLength() >0){
-            String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-            updateProperty(namespace, property, value);
-        }else{
-            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
-            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
-        }
-        }catch (NullPointerException e ){
-            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
-            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
-        }
+        checkRequestHasContent(request, pathInfo);
+        String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
+        updateProperty(namespace, property, value);
         String responseBody = String.format("Successfully updated property %s in %s",property, namespace);
         return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_CREATED); 
     }
 
     private void updateProperty(String namespace, String propertyName, String value) throws FrameworkException {
         if (checkPropertyExists(namespace, propertyName)){
-            framework.getConfigurationPropertyService(namespace).setProperty(propertyName, value);
+            getFramework().getConfigurationPropertyService(namespace).setProperty(propertyName, value);
         }else{
             ServletError error = new ServletError(GAL5018_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
@@ -176,8 +172,19 @@ public class PropertyRoute extends CPSRoute {
     /*
      * Handle Delete Request
      */
+    public HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters,
+            HttpServletRequest request, HttpServletResponse response)
+            throws FrameworkException {
+        String namespace = getNamespaceFromURL(pathInfo);
+        String property = getPropertyNameFromURL(pathInfo);
+        deleteProperty(namespace, property);
+        String responseBody = String.format("Successfully deleted property %s in %s",property, namespace);
+        return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_OK);
+    }
+
+
     private void deleteProperty(String namespace, String propertyName) throws FrameworkException {
-            if (checkPropertyExists(namespace, propertyName)){
+        if (checkPropertyExists(namespace, propertyName)){
             framework.getConfigurationPropertyService(namespace).deleteProperty(propertyName);
         }else{
             ServletError error = new ServletError(GAL5018_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  

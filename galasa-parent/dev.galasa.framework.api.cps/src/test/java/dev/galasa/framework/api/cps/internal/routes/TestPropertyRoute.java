@@ -27,7 +27,7 @@ public class TestPropertyRoute extends CpsServletTest{
      * TESTS  -- GET requests
      */
     @Test
-    public void TestPropertyRouteGetNoFrameworkReturnError() throws Exception{
+    public void TestPropertyRouteGETNoFrameworkReturnsError() throws Exception{
 		// Given...
 		setServlet("/cps/namespace1/properties/property1",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -53,7 +53,7 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteGetBadNamespaceReturnError() throws Exception{
+    public void TestPropertyRouteGetBadNamespaceReturnsError() throws Exception{
 		// Given...
 		setServlet("/cps/error/properties/property1",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -171,6 +171,59 @@ public class TestPropertyRoute extends CpsServletTest{
     /*
      * TESTS  -- PUT requests
      */
+
+    @Test
+    public void TestPropertyRoutePUTNoFrameworkReturnsError() throws Exception{
+		// Given...
+		setServlet("/cps/namespace1/properties/property1",null ,"value6", "PUT");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doPut(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to Route
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5017,
+			"GAL5017E: Error occured when trying to access namespace 'namespace1'. The Namespace provided is invalid."
+		);
+    }
+
+    @Test
+    public void TestPropertyRoutePUTBadNamespaceReturnsError() throws Exception{
+		// Given...
+		setServlet("/cps/error/properties/property1",null ,"value6", "PUT");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doPut(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to Route
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5017,
+			"GAL5017E: Error occured when trying to access namespace 'error'. The Namespace provided is invalid."
+		);
+    }
+
     @Test
     public void TestPropertyRouteWithExistingNamespacePUTNewPropertyReturnsSuccess() throws Exception {
         // Given...
@@ -310,9 +363,60 @@ public class TestPropertyRoute extends CpsServletTest{
     /*
      * TESTS  -- POST requests
      */
+    @Test
+    public void TestPropertyRouteGetPOSTFrameworkReturnsError() throws Exception{
+		// Given...
+		setServlet("/cps/namespace1/properties/property1",null ,"value12", "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doPost(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to Route
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5017,
+			"GAL5017E: Error occured when trying to access namespace 'namespace1'. The Namespace provided is invalid."
+		);
+    }
+    
+    @Test
+    public void TestPropertyRoutePOSTBadNamespaceReturnsError() throws Exception{
+		// Given...
+		setServlet("/cps/error/properties/property1",null ,"value6", "PUT");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doPost(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to Route
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5017,
+			"GAL5017E: Error occured when trying to access namespace 'error'. The Namespace provided is invalid."
+		);
+    }
 
     @Test
-    public void TestPropertyRouteWithExistingNamespacePOSTExistingPropertyReturnsError() throws Exception {
+    public void TestPropertyRouteWithExistingNamespacePOSTExistingPropertyReturnsOK() throws Exception {
         // Given...
         String propertyName = "property5";
         String value = "value6";
@@ -335,6 +439,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(output).isEqualTo("Successfully updated property property5 in framework");
         assertThat(checkNewPropertyInNamespace(propertyName, value)).isTrue();       
     }
+
     @Test
     public void TestPropertyRouteWithExistingNamespacePOSTNewPropertyReturnsError() throws Exception {
         // Given...
@@ -445,5 +550,111 @@ public class TestPropertyRoute extends CpsServletTest{
 		); 
     }
 
+    /*
+     * TESTS  -- DELETE requests
+     */
 
+    @Test
+    public void TestPropertyRouteDELETENoFrameworkReturnsError() throws Exception{
+        // Given...
+		setServlet("/cps/namespace1/properties/property1", null, null, "DELETE");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+        
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+        
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to Route
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        
+		checkErrorStructure(
+			outStream.toString(),
+			5017,
+			"GAL5017E: Error occured when trying to access namespace 'namespace1'. The Namespace provided is invalid."
+        );
+    }
+        
+    
+    @Test
+    public void TestPropertyRouteDELETEBadNamespaceReturnsError() throws Exception{
+        // Given...
+		setServlet("/cps/error/properties/property1", null, null, "DELETE");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+        
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+        
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to Route
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        
+		checkErrorStructure(
+            outStream.toString(),
+			5017,
+			"GAL5017E: Error occured when trying to access namespace 'error'. The Namespace provided is invalid."
+            );
+        }
+        
+    @Test
+    public void TestPropertyRouteDELETEBadPropertyReturnsError() throws Exception{
+        // Given...
+		setServlet("/cps/framework/properties/badproperty", "framework", null, "DELETE");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+        
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+        
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to Route
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        
+		checkErrorStructure(
+			outStream.toString(),
+			5018,
+			"E: Error occured when trying to access property 'badproperty'. The property name provided is invalid."
+        );
+    }
+
+    @Test
+    public void TestPropertyRouteDELETEPropertyReturnsOk() throws Exception{
+        // Given...
+        String propertyName = "property1";
+        String value = "value1";
+		setServlet("/cps/framework/properties/"+propertyName, "framework", null, "DELETE");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+        
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+        
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to RouteInteger status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).isEqualTo("Successfully deleted property property1 in framework");
+        assertThat(checkNewPropertyInNamespace(propertyName, value)).isFalse();
+    }
 }

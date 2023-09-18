@@ -30,4 +30,7 @@ public interface IRoute {
 
     HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
         throws ServletException, IOException, FrameworkException;
+
+    HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters, HttpServletRequest request ,HttpServletResponse response)
+    throws ServletException, IOException, FrameworkException;
 }
