@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal.mocks;
+package dev.galasa.framework.api.common.mocks;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ public class MockServletOutputStream extends ServletOutputStream {
     @Override
     public void write(int b) throws IOException {
         this.outputStream.write(b);
-    } 
+    }
 
     @Override
     public String toString() {

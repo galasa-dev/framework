@@ -3,12 +3,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal.verycommon;
+package dev.galasa.framework.api.common;
 
 import dev.galasa.framework.spi.FrameworkException;
 
 public class InternalServletException extends FrameworkException {
-    
+
     ServletError servletError;
     int httpFailureCode;
 
@@ -23,7 +23,7 @@ public class InternalServletException extends FrameworkException {
     public int getHttpFailureCode(){
         return this.httpFailureCode;
     }
-    
+
     @Override
     public String getMessage() {
         return servletError.toString();

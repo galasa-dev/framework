@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal.verycommon;
+package dev.galasa.framework.api.common;
 
 import java.text.MessageFormat;
 
@@ -36,5 +36,5 @@ public class ServletError extends FrameworkException {
 
         return renderedJsonMessage ;
     }
-    
+
 }

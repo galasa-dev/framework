@@ -1,5 +1,5 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
  */
 package dev.galasa.framework.api.ras.internal.common;
 
@@ -9,14 +9,14 @@ import org.junit.Test;
 
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.api.ras.internal.RasServletTest;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
 
 import static org.assertj.core.api.Assertions.*;
 
 public class TestRasQueryParameters extends RasServletTest{
     //-----------------------------------------------------------------
-    // Test getResultsFromParameters 
+    // Test getResultsFromParameters
     //-----------------------------------------------------------------
     @Test
     public void testGetResultsFromParametersIfMultipleResultLowerCaseParametersOK() throws Exception {
@@ -97,7 +97,7 @@ public class TestRasQueryParameters extends RasServletTest{
             .isInstanceOf(InternalServletException.class)
             .hasMessageContaining("garbage")
             .hasMessageContaining("GAL5013"); // GAL5013_RESULT_NAME_NOT_RECOGNIZED
-            
+
     }
 
     @Test
@@ -120,7 +120,7 @@ public class TestRasQueryParameters extends RasServletTest{
         // Then...
         assertThat(returnedResults)
             .isNull();
-            
+
     }
 
     @Test
@@ -172,7 +172,7 @@ public class TestRasQueryParameters extends RasServletTest{
     }
 
     //-----------------------------------------------------------------
-    // Test getStatusesFromParameters 
+    // Test getStatusesFromParameters
     //-----------------------------------------------------------------
 
     @Test
@@ -180,7 +180,7 @@ public class TestRasQueryParameters extends RasServletTest{
         // Given...
         Map<String,String[]> mockURLQuery = new HashMap<>();
         mockURLQuery.put("status", new String[] { "building,generating,running" });
-        
+
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(mockURLQuery));
 
         // When...
@@ -235,7 +235,7 @@ public class TestRasQueryParameters extends RasServletTest{
             .isInstanceOf(InternalServletException.class)
             .hasMessageContaining("garbage")
             .hasMessageContaining("GAL5014"); // GAL5014_STATUS_NAME_NOT_RECOGNIZED
-            
+
     }
 
     @Test
@@ -291,7 +291,7 @@ public class TestRasQueryParameters extends RasServletTest{
             .hasMessageContaining("GAL5014"); // GAL5014_STATUS_NAME_NOT_RECOGNIZED
     }
 
-    
+
 
 
     //-----------------------------------------------------------------
@@ -304,7 +304,7 @@ public class TestRasQueryParameters extends RasServletTest{
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
         boolean isAscending = params.isAscending("runname");
-        
+
         assertThat(isAscending).isTrue();
     }
 
@@ -313,9 +313,9 @@ public class TestRasQueryParameters extends RasServletTest{
         Map<String,String[]> map = new HashMap<String,String[]>();
         map.put("sort", new String[] {"runname:"} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        
 
-        Throwable thrown = catchThrowable( () -> { 
+
+        Throwable thrown = catchThrowable( () -> {
             boolean isAscending = params.isAscending("runname");
         });
 
@@ -328,7 +328,7 @@ public class TestRasQueryParameters extends RasServletTest{
         map.put("sort", new String[] {"runname:asc:desc:asc"} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
-        Throwable thrown = catchThrowable( () -> { 
+        Throwable thrown = catchThrowable( () -> {
             boolean isAscending = params.isAscending("runname");
         });
 
@@ -342,7 +342,7 @@ public class TestRasQueryParameters extends RasServletTest{
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
         boolean isAscending = params.isAscending("runname");
-        
+
         assertThat(isAscending).isFalse();
     }
 
@@ -353,7 +353,7 @@ public class TestRasQueryParameters extends RasServletTest{
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
         boolean isAscending = params.isAscending("runname");
-        
+
         assertThat(isAscending).isFalse();
     }
 
@@ -364,7 +364,7 @@ public class TestRasQueryParameters extends RasServletTest{
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
         boolean validateSortValue = params.validateSortValue();
-        
+
         assertThat(validateSortValue).isFalse();
     }
 
@@ -375,7 +375,7 @@ public class TestRasQueryParameters extends RasServletTest{
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
         boolean validateSortValue = params.validateSortValue();
-        
+
         assertThat(validateSortValue).isTrue();
     }
 
@@ -389,7 +389,7 @@ public class TestRasQueryParameters extends RasServletTest{
         RasQueryParameters params = new RasQueryParameters(queryParams);
 
         QueryParameters returnedParameters = params.getGeneralQueryParameters();
-        
+
         assertThat(returnedParameters).isEqualTo(queryParams);
     }
 }
