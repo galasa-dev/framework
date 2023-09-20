@@ -1,4 +1,4 @@
-package dev.galasa.framework.api.cps.internal.mocks;
+package dev.galasa.framework.api.common.mocks;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

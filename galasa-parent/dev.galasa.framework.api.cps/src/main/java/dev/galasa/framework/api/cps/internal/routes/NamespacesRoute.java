@@ -5,7 +5,7 @@
  */
 package dev.galasa.framework.api.cps.internal.routes;
 
-import static dev.galasa.framework.api.cps.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -18,10 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
-import dev.galasa.framework.api.cps.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.cps.internal.verycommon.QueryParameters;
-import dev.galasa.framework.api.cps.internal.verycommon.ResponseBuilder;
-import dev.galasa.framework.api.cps.internal.verycommon.ServletError;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -51,7 +51,7 @@ public class NamespacesRoute extends CPSRoute {
     }
 
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String namespaces = getNamespaces();
 		return getResponseBuilder().buildResponse(response, "application/json", namespaces, HttpServletResponse.SC_OK); 
     }

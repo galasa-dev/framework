@@ -16,7 +16,7 @@ import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.cps.internal.routes.NamespacesRoute;
 import dev.galasa.framework.api.cps.internal.routes.PropertyQueryRoute;
 import dev.galasa.framework.api.cps.internal.routes.PropertyRoute;
-import dev.galasa.framework.api.cps.internal.verycommon.BaseServlet;
+import dev.galasa.framework.api.common.BaseServlet;
 
 import dev.galasa.framework.spi.IFramework;
 

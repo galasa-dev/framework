@@ -43,6 +43,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 /*
@@ -63,7 +64,7 @@ public class RunQueryRoute extends RunsRoute {
 	final static Gson gson = GalasaGsonBuilder.build();
 
 	@Override
-	public HttpServletResponse handleRequest(String pathInfo, QueryParameters generalQueryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+	public HttpServletResponse handleRequest(String pathInfo, QueryParameters generalQueryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
 		RasQueryParameters queryParams = new RasQueryParameters(generalQueryParams);
 		String outputString = retrieveResults(queryParams);
 		return getResponseBuilder().buildResponse(res, "application/json", outputString, HttpServletResponse.SC_OK);

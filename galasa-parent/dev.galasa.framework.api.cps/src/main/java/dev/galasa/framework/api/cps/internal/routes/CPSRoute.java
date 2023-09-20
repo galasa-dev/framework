@@ -14,8 +14,8 @@ import java.util.Set;
 import com.google.gson.Gson;
 
 import dev.galasa.framework.ResourceNameValidator;
-import dev.galasa.framework.api.cps.internal.verycommon.BaseRoute;
-import dev.galasa.framework.api.cps.internal.verycommon.ResponseBuilder;
+import dev.galasa.framework.api.common.BaseRoute;
+import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;

@@ -25,9 +25,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/*
- * Proxy Servlet for the /ras/* endpoints
- */
 public class BaseServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -59,6 +56,18 @@ public class BaseServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         logger.info("BaseServlet: doPost() entered");
+        processRequest(req, res);
+    }
+
+    @Override
+    public void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        logger.info("BaseServlet: doPut() entered");
+        processRequest(req, res);
+    }
+
+    @Override
+    public void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        logger.info("BaseServlet: doDelete() entered");
         processRequest(req, res);
     }
 
@@ -102,7 +111,16 @@ public class BaseServlet extends HttpServlet {
 
                 if (matcher.matches()) {
                     logger.info("BaseServlet: Found a route that matches.");
-                    route.handleRequest(url, queryParameters, res);
+                    String method = req.getMethod();
+                    if (req.getMethod().contains("PUT")){
+                        route.handlePutRequest(url, queryParameters, req, res);
+                    } else if (req.getMethod().contains("POST")){
+                        route.handlePostRequest(url, queryParameters, req, res);
+                    } else if (req.getMethod().contains("DELETE")){
+                        route.handleDeleteRequest(url, queryParameters, req, res);
+                    } else {
+                        route.handleRequest(url, queryParameters, req, res);
+                    }
                     return;
                 }
             }

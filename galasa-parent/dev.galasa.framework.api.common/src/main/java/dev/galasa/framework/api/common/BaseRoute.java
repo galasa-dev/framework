@@ -5,8 +5,18 @@
  */
 package dev.galasa.framework.api.common;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import dev.galasa.framework.spi.FrameworkException;
+
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+
+import java.io.IOException;
 
 public abstract class BaseRoute implements IRoute {
 
@@ -29,4 +39,36 @@ public abstract class BaseRoute implements IRoute {
 		return this.responseBuilder;
 	}
 
+    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, 
+            HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException, FrameworkException {
+        throwMethodNotAllowedException(request, pathInfo);
+        return response;
+    }
+
+    public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters,
+            HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException, FrameworkException {
+        throwMethodNotAllowedException(request, pathInfo);
+        return response;
+    }
+
+    public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
+            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, FrameworkException {
+        throwMethodNotAllowedException(request, pathInfo);
+        return response;
+    }
+
+    public HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters,
+            HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException, FrameworkException {
+        throwMethodNotAllowedException(request, pathInfo);
+        return response;
+    }
+
+    private void throwMethodNotAllowedException(HttpServletRequest request, String pathInfo) throws InternalServletException {
+        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED, pathInfo, request.getMethod());
+        throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);        
+    }
 }

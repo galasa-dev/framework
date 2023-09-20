@@ -5,7 +5,7 @@
  */
 package dev.galasa.framework.api.cps.internal.routes;
 
-import static dev.galasa.framework.api.cps.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -21,10 +21,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.cps.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.cps.internal.verycommon.QueryParameters;
-import dev.galasa.framework.api.cps.internal.verycommon.ResponseBuilder;
-import dev.galasa.framework.api.cps.internal.verycommon.ServletError;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -101,7 +101,7 @@ public class PropertyRoute extends CPSRoute {
      * Handle Get Request
      */
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String propertyName = getPropertyNameFromURL(pathInfo);
         String  property= getProperty(namespace,propertyName);

@@ -74,6 +74,18 @@ paths:
                 type: array
                 items:
                   type: string
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Internal Server Error
           content:
@@ -135,6 +147,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CpsProperty'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Bad Request
           content:
@@ -210,6 +234,18 @@ paths:
                 propertynotfound:
                   value: '[ ]'
                   summary: Property does not exist in namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Bad Request
           content:
@@ -273,6 +309,18 @@ paths:
               schema:
                 type: string
               example: Successfully created property propertyName in namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Bad Request
           content:
@@ -353,6 +401,18 @@ paths:
               schema:
                 type: string
               example: Successfully updated property propertyName in namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Bad Request
           content:
@@ -426,6 +486,18 @@ paths:
               schema:
                 type: string
               example: Successfully deleted property propertyName in namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Bad Request
           content:

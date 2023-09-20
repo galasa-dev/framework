@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
@@ -42,7 +43,7 @@ public class ResultNamesRoute extends RunsRoute {
 	final static Gson gson = GalasaGsonBuilder.build();
 
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String outputString = retrieveResults(new RasQueryParameters(queryParams));
 		return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK);
     }

@@ -30,9 +30,18 @@ public enum ServletErrorMessage {
 
     // GenericErrors...
     GAL5000_GENERIC_API_ERROR                       (5000,"E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."),
-    GAL5404_UNRESOLVED_ENDPOINT_ERROR               (5404,"E: Error occured when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
     GAL5400_BAD_REQUEST                             (5400,"E: Error occured when trying to execute request ''{0}''. Please check your request parameters or report the problem to your Galasa Ecosystem owner."),
-    GAL5401_UNAUTHORIZED                            (5401,"E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again.")
+    GAL5401_UNAUTHORIZED                            (5401,"E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."),
+    GAL5404_UNRESOLVED_ENDPOINT_ERROR               (5404,"E: Error occured when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
+    GAL5405_METHOD_NOT_ALLOWED                      (5405,"E: Error occured when trying to access the endpoint ''{0}''. The method ''{1}'' is not allowed."),
+    GAL5411_NO_REQUEST_BODY                         (5411,"E: Error occured when trying to access the endpoint ''{0}''. The request body is empty."),
+
+    //CPS Namespaces
+    GAL5015_CPS_STORE_ERROR                         (5015,"E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."),
+    GAL5016_CPS_HIDDEN_NAMESPACE_ERROR              (5016,"E: Error occured when trying to access namespace ''{0}''. Namespace ''{0}'' is not available."),
+    GAL5017_INVALID_NAMESPACE_ERROR                 (5017,"E: Error occured when trying to access namespace ''{0}''. The Namespace provided is invalid."),
+    GAL5018_PROPERTY_DOES_NOT_EXIST_ERROR           (5018,"E: Error occured when trying to access property ''{0}''. The property name provided is invalid."),
+    GAL5019_PROPERTY_ALREADY_EXISTS_ERROR           (5019,"E: Error occured when trying to access property ''{0}''. The property name provided already exists in the ''{1}'' namesapce."),
     ;
 
 
