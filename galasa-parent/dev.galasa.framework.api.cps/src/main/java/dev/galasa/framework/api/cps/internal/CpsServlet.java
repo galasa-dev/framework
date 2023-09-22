@@ -31,14 +31,20 @@ import javax.servlet.ServletException;
 public class CpsServlet extends BaseServlet {
 
 	@Reference
-	protected IFramework framework;
+	private IFramework framework;
 
 	private static final long serialVersionUID = 1L;
 
-	protected Log  logger  =  LogFactory.getLog(this.getClass());
-	
-	protected IFileSystem fileSystem = new FileSystem();
+	private Log  logger  =  LogFactory.getLog(this.getClass());
  
+	protected IFramework getFramework() {
+        return this.framework;
+    }
+
+	protected void setFramework(IFramework framework) {
+        this.framework = framework;
+    }
+
 	@Override
 	public void init() throws ServletException {
 		logger.info("CPS Servlet initialising");

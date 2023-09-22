@@ -35,11 +35,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  */
 public class PropertyRoute extends CPSRoute {
 
-    static final Gson gson = GalasaGsonBuilder.build();
-
-    // Define a default filter to accept everything
-    static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
-
+    private static final Gson gson = GalasaGsonBuilder.build();
 
     public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework ) {
 		/* Regex to match endpoints: 
@@ -48,18 +44,14 @@ public class PropertyRoute extends CPSRoute {
 		super(responseBuilder, "/cps/(.*)/properties/(.*)", framework);
 	}
 
-    protected IFramework getFramework() {
-        return super.framework;
-    }
-
     protected String getPropertyNameFromURL(String pathInfo){
         String[] namespace = pathInfo.split("/");
         return namespace[4];
     }
     
-    private Map.Entry<String, String> retrieveProperty(String namespace, String propertyName) throws  FrameworkException {
+    private Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  FrameworkException {
         try{
-           Map<String, String> properties = getAllProperties(namespace);
+            Map<String, String> properties = getAllProperties(namespace);
            for (Map.Entry<String, String> entry : properties.entrySet()) {
                String key = entry.getKey().toString();
                if (key.equals(propertyName)){
@@ -74,11 +66,12 @@ public class PropertyRoute extends CPSRoute {
     }
 
     private boolean checkPropertyExists (String namespace, String propertyName) throws FrameworkException{
-        Map.Entry<String, String> entry = retrieveProperty(namespace, propertyName);
+        Map.Entry<String, String> entry = retrieveSingleProperty(namespace, propertyName);
+        boolean exists = true;
         if( entry  == null){
-            return false;
+            exists = false;
         }
-        return true;
+        return exists;
     }
 
     private void checkRequestHasContent(HttpServletRequest request, String pathInfo) throws InternalServletException{
@@ -101,15 +94,15 @@ public class PropertyRoute extends CPSRoute {
      * Handle Get Request
      */
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String propertyName = getPropertyNameFromURL(pathInfo);
-        String  property= getProperty(namespace,propertyName);
+        String  property= retrieveProperty(namespace,propertyName);
 		return getResponseBuilder().buildResponse(response, "application/json", property, HttpServletResponse.SC_OK); 
     }
 
-    private String getProperty(String namespace, String propertyName) throws FrameworkException {
-        Map.Entry<String, String> entry = retrieveProperty(namespace, propertyName);
+    private String retrieveProperty (String namespace, String propertyName) throws FrameworkException {
+        Map.Entry<String, String> entry = retrieveSingleProperty(namespace, propertyName);
         JsonArray propertyArray = new JsonArray();
         if (entry != null){
             JsonObject cpsProp = new JsonObject();

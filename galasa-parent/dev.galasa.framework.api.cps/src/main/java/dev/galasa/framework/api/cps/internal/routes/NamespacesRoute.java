@@ -33,10 +33,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  */
 public class NamespacesRoute extends CPSRoute {
 
-    static final Gson gson = GalasaGsonBuilder.build();
-
-    // Define a default filter to accept everything
-    static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
+    private static final Gson gson = GalasaGsonBuilder.build();
 
 
     public NamespacesRoute(ResponseBuilder responseBuilder, IFramework framework ) {
@@ -46,24 +43,20 @@ public class NamespacesRoute extends CPSRoute {
 		super(responseBuilder, "/cps\\/?", framework);
 	}
 
-    protected IFramework getFramework() {
-        return super.framework;
-    }
-
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String namespaces = getNamespaces();
 		return getResponseBuilder().buildResponse(response, "application/json", namespaces, HttpServletResponse.SC_OK); 
     }
 
-    protected String getNamespaces() throws InternalServletException {
+    private String getNamespaces() throws InternalServletException {
         logger.debug("Getting the list of namespaces");
         JsonArray namespaceArray = new JsonArray();
         List<String> namespaces;
         try {
             namespaces = getFramework().getConfigurationPropertyService("framework").getCPSNamespaces();
             for (String name : namespaces) {
-                if ( ! hiddenNameSpaces.contains(name) ) {
+                if ( !super.isHiddenNamespace(name) ) {
                     namespaceArray.add(name);
                 }
             }
@@ -72,29 +65,6 @@ public class NamespacesRoute extends CPSRoute {
 			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         return gson.toJson(namespaceArray);
-    }
-
-    @Override
-    public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters,
-            HttpServletRequest request, HttpServletResponse response) throws InternalServletException {
-        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo, request.getMethod());
-        throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Override
-    public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
-            HttpServletRequest request, HttpServletResponse response)
-            throws InternalServletException {
-        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo, request.getMethod()); 
-        throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Override
-    public HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters,
-            HttpServletRequest request, HttpServletResponse response)
-            throws InternalServletException {
-        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo, request.getMethod()); 
-        throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
 }

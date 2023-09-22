@@ -71,7 +71,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
         // Then...
         // We expect data back
         String output = outStream.toString();
-        assertThat(resp.getStatus()==200);
+        assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		checkJsonArrayStructure(output,properties);
@@ -99,9 +99,9 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"GAL5016E: ",
-			"Error occured when trying to access namespace 'dss'. Namespace 'dss' is not available"
+			5017,
+			"GAL5017E: ",
+			"Error occured when trying to access namespace 'dss'. The Namespace provided is invalid"
 		);
     }
 
@@ -283,7 +283,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
         // Then...
         // We expect data back
         String output = outStream.toString();
-        assertThat(resp.getStatus()==200);
+        assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"property1\",\n    \"value\": \"value1\"\n  }\n]");
@@ -308,7 +308,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
         // Then...
         // We expect data back
         String output = outStream.toString();
-        assertThat(resp.getStatus()==200);
+        assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[]");
@@ -333,7 +333,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
         // Then...
         // We expect data back
         String output = outStream.toString();
-        assertThat(resp.getStatus()==200);
+        assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[\n  {\n    \"name\": \".hospitality\",\n    \"value\": \"value3\"\n  },"+
@@ -359,7 +359,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
         // Then...
         // We expect data back
         String output = outStream.toString();
-        assertThat(resp.getStatus()==200);
+        assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[\n  {\n    \"name\": \".charity1\",\n    \"value\": \"value2\"\n  }\n]");
@@ -384,7 +384,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
         // Then...
         // We expect data back
         String output = outStream.toString();
-        assertThat(resp.getStatus()==200);
+        assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[]");
@@ -409,7 +409,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
         // Then...
         // We expect data back
         String output = outStream.toString();
-        assertThat(resp.getStatus()==200);
+        assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"test.property\",\n    \"value\": \"value1\"\n  },"+
@@ -436,7 +436,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
         // Then...
         // We expect data back
         String output = outStream.toString();
-        assertThat(resp.getStatus()==200);
+        assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"property5\",\n    \"value\": \"value5\"\n  }\n]");
@@ -462,7 +462,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
         // Then...
         // We expect data back
         String output = outStream.toString();
-        assertThat(resp.getStatus()==200);
+        assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[]");
@@ -488,7 +488,7 @@ public class TestPropertyQueryRoute extends CpsServletTest{
         // Then...
         // We expect data back
         String output = outStream.toString();
-        assertThat(resp.getStatus()==200);
+        assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[\n  {\n    \"name\": \".charity1\",\n    \"value\": \"value2\"\n  },"+

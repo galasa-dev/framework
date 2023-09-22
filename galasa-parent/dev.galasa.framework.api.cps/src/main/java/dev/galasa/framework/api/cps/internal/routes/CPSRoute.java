@@ -36,9 +36,9 @@ public abstract class CPSRoute extends BaseRoute {
 
     private static final String REDACTED_PROPERTY_VALUE = "********";
 
-    protected final static Set<String> hiddenNameSpaces = new HashSet<>();
+    private final static Set<String> hiddenNamespaces = new HashSet<>();
     static {
-        hiddenNameSpaces.add("dss");
+        hiddenNamespaces.add("dss");
     }
 
     /**
@@ -46,25 +46,29 @@ public abstract class CPSRoute extends BaseRoute {
      *
      * When they are queried, the values are redacted
      */
-    private final static Set<String> writeOnlyNameSpaces = new HashSet<>();
+    private final static Set<String> writeOnlyNamespaces = new HashSet<>();
     static {
-        writeOnlyNameSpaces.add("secure");
+        writeOnlyNamespaces.add("secure");
+    }
+
+        public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework ) {
+        super(responseBuilder, path);
+        this.framework = framework;
+    }
+
+    protected boolean isHiddenNamespace(String namespace){
+        return hiddenNamespaces.contains(namespace);
     }
 
     protected String getProtectedValue(String actualValue , String namespace) {
         String protectedValue ;
-        if (writeOnlyNameSpaces.contains(namespace)) {
+        if (writeOnlyNamespaces.contains(namespace)) {
             // The namespace is protected, write-only, so should not be readable.
             protectedValue = REDACTED_PROPERTY_VALUE;
         } else {
             protectedValue = actualValue ;
         }
         return protectedValue ;
-    }
-
-    public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework ) {
-        super(responseBuilder, path);
-        this.framework = framework;
     }
 
     protected IFramework getFramework() {

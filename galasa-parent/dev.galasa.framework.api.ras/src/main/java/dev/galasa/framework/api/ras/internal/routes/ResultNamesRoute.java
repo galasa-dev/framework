@@ -43,7 +43,7 @@ public class ResultNamesRoute extends RunsRoute {
 	final static Gson gson = GalasaGsonBuilder.build();
 
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String outputString = retrieveResults(new RasQueryParameters(queryParams));
 		return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK);
     }

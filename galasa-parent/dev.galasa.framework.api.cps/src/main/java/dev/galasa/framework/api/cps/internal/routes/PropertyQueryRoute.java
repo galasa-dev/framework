@@ -34,9 +34,8 @@ public class PropertyQueryRoute extends CPSRoute{
         super(responseBuilder, path , framework);
     }
 
-   
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String properties = getNamespaceProperties(namespace, queryParams);
@@ -47,20 +46,16 @@ public class PropertyQueryRoute extends CPSRoute{
         String properties = "";
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespace);
-            if (hiddenNameSpaces.contains(namespace)) {
-            ServletError error = new ServletError(GAL5016_CPS_HIDDEN_NAMESPACE_ERROR, namespace);
+            if (super.isHiddenNamespace(namespace)) {
+            ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR, namespace);
 			throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
             String prefix = queryParams.getSingleString("prefix", null);
             String suffix = queryParams.getSingleString("suffix", null);
             properties = getProperties(namespace, prefix, suffix);
         }catch (FrameworkException f){
-            if (f instanceof InternalServletException){
-                throw f;
-            }else{
                 ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-            }
         }
         return properties;
     }
@@ -104,32 +99,6 @@ public class PropertyQueryRoute extends CPSRoute{
             }
         }
         return filteredProperties;
-    }
-
-
-    @Override
-    public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters,
-            HttpServletRequest request, HttpServletResponse response) throws InternalServletException {
-        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo, request.getMethod());
-        throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
-
-
-    @Override
-    public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
-            HttpServletRequest request, HttpServletResponse response)
-            throws InternalServletException {
-        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo, request.getMethod());
-        throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
-
-
-    @Override
-    public HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters,
-            HttpServletRequest request, HttpServletResponse response)
-            throws InternalServletException {
-        ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo, request.getMethod());
-        throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
 }

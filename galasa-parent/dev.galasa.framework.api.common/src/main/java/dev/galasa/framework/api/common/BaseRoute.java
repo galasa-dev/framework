@@ -39,7 +39,7 @@ public abstract class BaseRoute implements IRoute {
 		return this.responseBuilder;
 	}
 
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, 
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, 
             HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException, FrameworkException {
         throwMethodNotAllowedException(request, pathInfo);

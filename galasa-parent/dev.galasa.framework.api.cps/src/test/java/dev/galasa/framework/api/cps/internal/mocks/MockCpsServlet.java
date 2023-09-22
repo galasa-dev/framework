@@ -18,15 +18,15 @@ public class MockCpsServlet extends CpsServlet implements IServletUnderTest {
 
 	@Override
 	public void setFramework(IFramework framework) {
-		super.framework = framework;
+		super.setFramework(framework);
 	}
 
 	@Override
 	public void setFileSystem(IFileSystem fileSystem) {
-		super.fileSystem = fileSystem;
+		throw new UnsupportedOperationException("Unimplemented method 'setFileSystem'");
 	}
 
 	public IFramework getFramework() {
-		return super.framework;
+		return super.getFramework();
 	}
 }

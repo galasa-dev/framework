@@ -119,7 +119,7 @@ public class BaseServlet extends HttpServlet {
                     } else if (req.getMethod().contains("DELETE")){
                         route.handleDeleteRequest(url, queryParameters, req, res);
                     } else {
-                        route.handleRequest(url, queryParameters, req, res);
+                        route.handleGetRequest(url, queryParameters, req, res);
                     }
                     return;
                 }
