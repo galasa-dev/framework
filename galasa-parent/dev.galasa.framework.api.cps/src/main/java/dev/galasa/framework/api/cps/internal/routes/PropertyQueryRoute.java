@@ -25,7 +25,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class PropertyQueryRoute extends CPSRoute{
 
-    private static final String path = "/cps/(.*)/properties([?]?|[^/])+$";
+    private static final String path = "/cps/([a-zA-Z0-9]+)/properties([?]?|[^/])+$";
 
     public PropertyQueryRoute(ResponseBuilder responseBuilder, IFramework framework) {
         super(responseBuilder, path , framework);

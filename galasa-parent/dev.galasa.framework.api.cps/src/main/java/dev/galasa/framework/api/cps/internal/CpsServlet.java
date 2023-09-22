@@ -11,8 +11,6 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import dev.galasa.framework.FileSystem;
-import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.cps.internal.routes.NamespacesRoute;
 import dev.galasa.framework.api.cps.internal.routes.PropertyQueryRoute;
 import dev.galasa.framework.api.cps.internal.routes.PropertyRoute;

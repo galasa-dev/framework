@@ -23,6 +23,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
@@ -86,6 +87,42 @@ public abstract class CPSRoute extends BaseRoute {
         return framework.getConfigurationPropertyService(namespace).getAllProperties();
     }
 
+    protected boolean checkPropertyExists (String namespace, String propertyName) throws FrameworkException{
+        return retrieveSingleProperty(namespace, propertyName) != null;
+    }
+
+    protected Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  FrameworkException {
+        try{
+            Map<String, String> properties = getAllProperties(namespace);
+           for (Map.Entry<String, String> entry : properties.entrySet()) {
+               String key = entry.getKey().toString();
+               if (key.equals(propertyName)){
+                   return entry;
+               }
+           }
+        }catch (Exception e){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+        return null;
+    }
+
+    protected String getPropertyNameFromURL(String pathInfo) throws InternalServletException{
+        /*
+         * This expects a pathInfo from the cps property endpoint, i.e
+         * /cps/<namespace>/properties/<propertyName>
+         * This means that the minimum length is going to be 5
+         * meaning we should not have an IndexOutOfBoundsException 
+         */
+        try {
+            String[] namespace = pathInfo.split("/");
+            return namespace[4];
+        } catch (Exception e){
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+    }
+    }
+
     protected String getNamespaceFromURL(String pathInfo) throws InternalServletException{
         /*
          * This expects a pathInfo from the cps endpoints, i.e.
@@ -93,7 +130,7 @@ public abstract class CPSRoute extends BaseRoute {
          * /cps/<namespace>/properties
          * /cps/<namespace>/properties?prefix=<prefix>&suffix=<suffix>
          * /cps/<namespace>/properties/<propertyName>
-         * This means that the minimum length is going to be 3 as without the url matches above
+         * This means that the minimum length is going to be 3
          * meaning we should not have an IndexOutOfBoundsException 
          */
         try {

@@ -31,33 +31,12 @@ public class PropertyRoute extends CPSRoute {
 		/* Regex to match endpoints: 
 		*  -> /cps/<namespace>/properties/<propertyName>
 		*/
-		super(responseBuilder, "/cps/(.*)/properties/(.*)", framework);
+		super(responseBuilder, "/cps/([a-zA-Z0-9]+)/properties/([a-zA-Z0-9.]+)", framework);
 	}
 
-    protected String getPropertyNameFromURL(String pathInfo){
-        String[] namespace = pathInfo.split("/");
-        return namespace[4];
-    }
-    
-    private Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  FrameworkException {
-        try{
-            Map<String, String> properties = getAllProperties(namespace);
-           for (Map.Entry<String, String> entry : properties.entrySet()) {
-               String key = entry.getKey().toString();
-               if (key.equals(propertyName)){
-                   return entry;
-               }
-           }
-        }catch (Exception e){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }
-        return null;
-    }
 
-    private boolean checkPropertyExists (String namespace, String propertyName) throws FrameworkException{
-        return retrieveSingleProperty(namespace, propertyName) != null;
-    }
+
+
 
     private void checkRequestHasContent(HttpServletRequest request, String pathInfo) throws InternalServletException{
         boolean valid = false;

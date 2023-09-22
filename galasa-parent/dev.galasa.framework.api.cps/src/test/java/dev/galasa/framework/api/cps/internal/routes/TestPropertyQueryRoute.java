@@ -126,9 +126,10 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"GAL5016E: ",
-			"Error occured when trying to access namespace 'j!ndex'. The namespace provided is invalid"
+			5404,
+			"GAL5404E:",
+			" Error occured when trying to identify the endpoint '/cps/j!ndex/properties'. ",
+			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);
 	}
 

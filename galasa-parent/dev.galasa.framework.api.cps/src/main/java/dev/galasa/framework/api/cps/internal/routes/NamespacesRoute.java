@@ -50,8 +50,8 @@ public class NamespacesRoute extends CPSRoute {
     private String getNamespaces() throws InternalServletException {
         logger.debug("Getting the list of namespaces");
         JsonArray namespaceArray = new JsonArray();
-        List<String> namespaces;
         try {
+            List<String> namespaces;
             namespaces = getFramework().getConfigurationPropertyService("framework").getCPSNamespaces();
             for (String name : namespaces) {
                 if ( !super.isHiddenNamespace(name) ) {
