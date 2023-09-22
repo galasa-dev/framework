@@ -53,7 +53,7 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteGetBadNamespaceReturnsError() throws Exception{
+    public void TestPropertyRouteGETBadNamespaceReturnsError() throws Exception{
 		// Given...
 		setServlet("/cps/error/properties/property1",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -79,7 +79,7 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteWithExistingNamespaceReturnsOk() throws Exception {
+    public void TestPropertyRouteGETWithExistingNamespaceReturnsOk() throws Exception {
         // Given...
         setServlet("/cps/framework/properties/property1", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -103,7 +103,7 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteWithExistingNamespaceDifferentPropertyReturnsOk() throws Exception {
+    public void TestPropertyRouteGETWithExistingNamespaceDifferentPropertyReturnsOk() throws Exception {
         // Given...
         setServlet("/cps/framework/properties/property3", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -127,7 +127,7 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteWithExistingNamespaceBadPropertyNameReturnsEmpty() throws Exception {
+    public void TestPropertyRouteGETWithExistingNamespaceBadPropertyNameReturnsEmpty() throws Exception {
         // Given...
         setServlet("/cps/framework/properties/inproperty", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -148,7 +148,7 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteWithExistingNamespaceIncopmpletePropertyNameReturnsEmpty() throws Exception {
+    public void TestPropertyRouteGETWithExistingNamespaceIncopmpletePropertyNameReturnsEmpty() throws Exception {
         // Given...
         setServlet("/cps/framework/properties/roperty", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();

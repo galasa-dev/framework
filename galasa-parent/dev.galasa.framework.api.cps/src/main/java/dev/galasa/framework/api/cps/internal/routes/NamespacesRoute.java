@@ -8,8 +8,6 @@ package dev.galasa.framework.api.cps.internal.routes;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Path;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -61,7 +59,7 @@ public class NamespacesRoute extends CPSRoute {
                 }
             }
         } catch (ConfigurationPropertyStoreException e) {
-            ServletError error = new ServletError(GAL5015_CPS_STORE_ERROR);
+            ServletError error = new ServletError(GAL5015_INTERNAL_CPS_ERROR);
 			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         return gson.toJson(namespaceArray);

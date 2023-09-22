@@ -117,6 +117,58 @@ public class TestNamespacesRoute extends CpsServletTest{
 		);
     }
 
+	@Test
+	public void TestGetNamespacesWithFrameworkBadPathReturnsError() throws Exception{
+		// Given...
+		setServlet("/cps.","framework",new HashMap<String,String[]>());
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5404,
+			"E: Error occured when trying to identify the endpoint '/cps.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+		);
+    }
+
+	@Test
+	public void TestGetNamespacesWithFrameworkBadPathWithSlashReturnsError() throws Exception{
+		// Given...
+		setServlet("/cps/.","framework",new HashMap<String,String[]>());
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5404,
+			"E: Error occured when trying to identify the endpoint '/cps/.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+		);
+    }
+
 	/*
 	 * TEST - HANDLE PUT REQUEST - should error as this method is not supported by this API end-point
 	 */

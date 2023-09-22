@@ -9,17 +9,11 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Path;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
@@ -27,19 +21,15 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
-
 
 /**
- * An abstract route used by all the Property-related routes.
+ * A route used by all the Property-related Requests.
  */
 public class PropertyRoute extends CPSRoute {
 
-    private static final Gson gson = GalasaGsonBuilder.build();
-
     public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework ) {
 		/* Regex to match endpoints: 
-		*  -> /cps/
+		*  -> /cps/<namespace>/properties/<propertyName>
 		*/
 		super(responseBuilder, "/cps/(.*)/properties/(.*)", framework);
 	}
@@ -59,7 +49,7 @@ public class PropertyRoute extends CPSRoute {
                }
            }
         }catch (Exception e){
-            ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
         return null;
@@ -103,14 +93,7 @@ public class PropertyRoute extends CPSRoute {
 
     private String retrieveProperty (String namespace, String propertyName) throws FrameworkException {
         Map.Entry<String, String> entry = retrieveSingleProperty(namespace, propertyName);
-        JsonArray propertyArray = new JsonArray();
-        if (entry != null){
-            JsonObject cpsProp = new JsonObject();
-            cpsProp.addProperty("name", entry.getKey());
-            cpsProp.addProperty("value", getProtectedValue(entry.getValue(),namespace));
-            propertyArray.add(cpsProp);
-        }
-        return gson.toJson(propertyArray);
+        return buildResponseBody(namespace, entry);
     }
 
     /*
@@ -132,7 +115,7 @@ public class PropertyRoute extends CPSRoute {
         if (!checkPropertyExists(namespace, propertyName)){
             getFramework().getConfigurationPropertyService(namespace).setProperty(propertyName, value);
         }else{
-            ServletError error = new ServletError(GAL5019_PROPERTY_ALREADY_EXISTS_ERROR, propertyName ,namespace);  
+            ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, propertyName ,namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
@@ -157,7 +140,7 @@ public class PropertyRoute extends CPSRoute {
         if (checkPropertyExists(namespace, propertyName)){
             getFramework().getConfigurationPropertyService(namespace).setProperty(propertyName, value);
         }else{
-            ServletError error = new ServletError(GAL5018_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  
+            ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
@@ -180,7 +163,7 @@ public class PropertyRoute extends CPSRoute {
         if (checkPropertyExists(namespace, propertyName)){
             framework.getConfigurationPropertyService(namespace).deleteProperty(propertyName);
         }else{
-            ServletError error = new ServletError(GAL5018_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  
+            ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }

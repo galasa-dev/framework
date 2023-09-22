@@ -13,9 +13,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -47,14 +44,14 @@ public class PropertyQueryRoute extends CPSRoute{
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespace);
             if (super.isHiddenNamespace(namespace)) {
-            ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR, namespace);
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespace);
 			throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
             String prefix = queryParams.getSingleString("prefix", null);
             String suffix = queryParams.getSingleString("suffix", null);
             properties = getProperties(namespace, prefix, suffix);
         }catch (FrameworkException f){
-                ServletError error = new ServletError(GAL5017_INVALID_NAMESPACE_ERROR,namespace);  
+                ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
         return properties;
@@ -71,14 +68,7 @@ public class PropertyQueryRoute extends CPSRoute{
             properties = filterPropertiesBySuffix(properties,suffix);
         }
         
-        JsonArray propertyArray = new JsonArray();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            JsonObject cpsProp = new JsonObject();
-            cpsProp.addProperty("name", entry.getKey());
-            cpsProp.addProperty("value", getProtectedValue(entry.getValue(),namespace));
-            propertyArray.add(cpsProp);
-        }
-        return gson.toJson(propertyArray);
+        return buildResponseBody(namespace, properties);
     }
     
     protected  Map<String, String> filterPropertiesByPrefix( Map<String, String> properties , String prefix){
