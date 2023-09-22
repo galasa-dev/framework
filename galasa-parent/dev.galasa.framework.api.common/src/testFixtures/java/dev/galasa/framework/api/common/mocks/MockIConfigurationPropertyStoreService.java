@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.cps.internal.mocks;
+package dev.galasa.framework.api.common.mocks;
 
 import java.util.ArrayList;
 import java.util.HashMap;

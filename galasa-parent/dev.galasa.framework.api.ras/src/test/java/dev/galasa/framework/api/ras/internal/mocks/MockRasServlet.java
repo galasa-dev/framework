@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.ras.internal.mocks;
 
 import dev.galasa.framework.IFileSystem;
+import dev.galasa.framework.api.common.mocks.IServletUnderTest;
 import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.spi.IFramework;
 

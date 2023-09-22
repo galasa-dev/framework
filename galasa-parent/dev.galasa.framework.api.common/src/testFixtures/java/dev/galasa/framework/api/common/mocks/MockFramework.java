@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal.mocks;
+package dev.galasa.framework.api.common.mocks;
 
 import dev.galasa.framework.spi.Api;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -29,9 +29,15 @@ import javax.validation.constraints.NotNull;
 
 public class MockFramework implements IFramework {
     IResultArchiveStore archiveStore;
+    MockIConfigurationPropertyStoreService cpsService = new MockIConfigurationPropertyStoreService("framework");
 
     public MockFramework(IResultArchiveStore archiveStore) {
         this.archiveStore = archiveStore;
+    }
+
+
+    public MockFramework(IConfigurationPropertyStoreService cpsService){
+        this.cpsService = (MockIConfigurationPropertyStoreService) cpsService;
     }
 
     @Override
@@ -47,7 +53,10 @@ public class MockFramework implements IFramework {
     @Override
     public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
             throws ConfigurationPropertyStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'getConfigurationPropertyService'");
+        if ((!namespace.equals(this.cpsService.getNamespaceInput()))&&(!this.cpsService.getNamespaceInput().equals("empty"))){
+            throw new ConfigurationPropertyStoreException();
+        }
+       return this.cpsService;
     }
 
     @Override
