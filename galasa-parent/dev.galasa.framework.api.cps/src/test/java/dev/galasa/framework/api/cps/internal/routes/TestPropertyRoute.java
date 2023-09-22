@@ -47,8 +47,8 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"GAL5017E: Error occured when trying to access namespace 'namespace1'. The Namespace provided is invalid."
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'namespace1'. The namespace provided is invalid."
 		);
     }
 
@@ -73,8 +73,8 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"GAL5017E: Error occured when trying to access namespace 'error'. The Namespace provided is invalid."
+			5016,
+			"E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
 		);
     }
 
@@ -193,8 +193,8 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"GAL5017E: Error occured when trying to access namespace 'namespace1'. The Namespace provided is invalid."
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'namespace1'. The namespace provided is invalid."
 		);
     }
 
@@ -219,8 +219,8 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"GAL5017E: Error occured when trying to access namespace 'error'. The Namespace provided is invalid."
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
 		);
     }
 
@@ -271,7 +271,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
        checkErrorStructure(
 			outStream.toString(),
-			5019,
+			5018,
 			"E: Error occured when trying to access property 'property5'.",
             " The property name provided already exists in the 'framework' namesapce."
 		);        
@@ -299,8 +299,8 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"GAL5017E: Error occured when trying to access namespace 'framew0rk'. The Namespace provided is invalid."
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'framew0rk'. The namespace provided is invalid."
 		); 
     }
     
@@ -384,8 +384,8 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"GAL5017E: Error occured when trying to access namespace 'namespace1'. The Namespace provided is invalid."
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'namespace1'. The namespace provided is invalid."
 		);
     }
     
@@ -410,8 +410,8 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"GAL5017E: Error occured when trying to access namespace 'error'. The Namespace provided is invalid."
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
 		);
     }
 
@@ -462,7 +462,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
        checkErrorStructure(
 			outStream.toString(),
-			5018,
+			5017,
 			"E: Error occured when trying to access property 'property6'. The property name provided is invalid."
 		);        
     }
@@ -489,8 +489,8 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"E: Error occured when trying to access namespace 'framew0rk'. The Namespace provided is invalid."
+			5016,
+			"E: Error occured when trying to access namespace 'framew0rk'. The namespace provided is invalid."
 		); 
     }
     
@@ -575,8 +575,8 @@ public class TestPropertyRoute extends CpsServletTest{
         
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"GAL5017E: Error occured when trying to access namespace 'namespace1'. The Namespace provided is invalid."
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'namespace1'. The namespace provided is invalid."
         );
     }
         
@@ -602,8 +602,8 @@ public class TestPropertyRoute extends CpsServletTest{
         
 		checkErrorStructure(
             outStream.toString(),
-			5017,
-			"GAL5017E: Error occured when trying to access namespace 'error'. The Namespace provided is invalid."
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
             );
         }
         
@@ -628,7 +628,7 @@ public class TestPropertyRoute extends CpsServletTest{
         
 		checkErrorStructure(
 			outStream.toString(),
-			5018,
+			5017,
 			"E: Error occured when trying to access property 'badproperty'. The property name provided is invalid."
         );
     }

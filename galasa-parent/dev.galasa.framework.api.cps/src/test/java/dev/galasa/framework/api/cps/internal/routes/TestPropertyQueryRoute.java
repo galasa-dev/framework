@@ -99,9 +99,9 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"GAL5017E: ",
-			"Error occured when trying to access namespace 'dss'. The Namespace provided is invalid"
+			5016,
+			"GAL5016E: ",
+			"Error occured when trying to access namespace 'dss'. The namespace provided is invalid"
 		);
     }
 
@@ -126,9 +126,9 @@ public class TestPropertyQueryRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5017,
-			"GAL5017E: ",
-			"Error occured when trying to access namespace 'j!ndex'. The Namespace provided is invalid"
+			5016,
+			"GAL5016E: ",
+			"Error occured when trying to access namespace 'j!ndex'. The namespace provided is invalid"
 		);
 	}
 

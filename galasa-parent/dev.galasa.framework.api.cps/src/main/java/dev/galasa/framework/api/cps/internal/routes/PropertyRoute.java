@@ -56,12 +56,7 @@ public class PropertyRoute extends CPSRoute {
     }
 
     private boolean checkPropertyExists (String namespace, String propertyName) throws FrameworkException{
-        Map.Entry<String, String> entry = retrieveSingleProperty(namespace, propertyName);
-        boolean exists = true;
-        if( entry  == null){
-            exists = false;
-        }
-        return exists;
+        return retrieveSingleProperty(namespace, propertyName) != null;
     }
 
     private void checkRequestHasContent(HttpServletRequest request, String pathInfo) throws InternalServletException{
