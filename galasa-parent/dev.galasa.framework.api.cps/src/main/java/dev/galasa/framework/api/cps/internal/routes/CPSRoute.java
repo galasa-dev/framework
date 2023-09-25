@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
@@ -87,19 +88,51 @@ public abstract class CPSRoute extends BaseRoute {
         return framework.getConfigurationPropertyService(namespace).getAllProperties();
     }
 
+    /**
+     * Returns a boolean value of whether the property has been located in the given namespace.
+     * Hidden namespaces will return a false value as they should not be accessed via the API endpoints
+     * 
+     * @param namespace
+     * @param propertyName
+     * @return boolean
+     * @throws FrameworkException
+     */
     protected boolean checkPropertyExists (String namespace, String propertyName) throws FrameworkException{
         return retrieveSingleProperty(namespace, propertyName) != null;
     }
 
-    protected Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  FrameworkException {
+    protected boolean checkRequestHasContent(HttpServletRequest request) throws InternalServletException{
+        boolean valid = false;
         try{
-            Map<String, String> properties = getAllProperties(namespace);
-           for (Map.Entry<String, String> entry : properties.entrySet()) {
-               String key = entry.getKey().toString();
-               if (key.equals(propertyName)){
-                   return entry;
-               }
-           }
+            if (request.getContentLength() >0){
+                valid = true;
+            }
+        }catch (NullPointerException e ){
+            //Catch the NullPointerException (empty request body) to throw error in if 
+        }  
+        return valid;
+    }
+
+    /**
+     * Returns a single property from a given namespace.
+     * If the namespace provided is hidden, does not exist or has no matching property, it returns null
+     * If the namespace provided does not match any existing namepsaces an exception will be thrown
+     * @param namespace
+     * @param propertyName
+     * @return Map.Entry<String, String> 
+     * @throws FrameworkException
+     */
+    protected Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  InternalServletException {
+        try{
+            if (!isHiddenNamespace(namespace)){
+                Map<String, String> properties = getAllProperties(namespace);
+                for (Map.Entry<String, String> entry : properties.entrySet()) {
+                    String key = entry.getKey().toString();
+                    if (key.equals(propertyName)){
+                        return entry;
+                    }
+                }
+            }
         }catch (Exception e){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);

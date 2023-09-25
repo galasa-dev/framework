@@ -34,26 +34,6 @@ public class PropertyRoute extends CPSRoute {
 		super(responseBuilder, "/cps/([a-zA-Z0-9]+)/properties/([a-zA-Z0-9.]+)", framework);
 	}
 
-
-
-
-
-    private void checkRequestHasContent(HttpServletRequest request, String pathInfo) throws InternalServletException{
-        boolean valid = false;
-        try{
-            if (request.getContentLength() >0){
-                valid = true;
-            }
-        }catch (NullPointerException e ){
-            //Catch the NullPointerException (empty request body) 
-            //Exception is thrown by the if below
-        }  
-        if (!valid){
-            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
-            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
-        }
-    }
-
     /*
      * Handle Get Request
      */
@@ -78,7 +58,11 @@ public class PropertyRoute extends CPSRoute {
             throws  IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String property = getPropertyNameFromURL(pathInfo);
-        checkRequestHasContent(request, pathInfo);
+        if (!checkRequestHasContent(request)){
+            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
+            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
+        }
+        
         String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
         setProperty(namespace, property, value);
         String responseBody = String.format("Successfully created property %s in %s",property, namespace);
@@ -103,7 +87,10 @@ public class PropertyRoute extends CPSRoute {
             throws  IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String property = getPropertyNameFromURL(pathInfo);
-        checkRequestHasContent(request, pathInfo);
+        if (!checkRequestHasContent(request)){
+            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
+            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
+        }
         String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
         updateProperty(namespace, property, value);
         String responseBody = String.format("Successfully updated property %s in %s",property, namespace);
