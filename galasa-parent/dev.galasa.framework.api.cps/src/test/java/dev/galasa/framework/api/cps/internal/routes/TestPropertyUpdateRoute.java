@@ -91,7 +91,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
         Map<String, String> properties = new HashMap<String,String>();
-        properties.put("property1", "value1");
+        properties.put("framework.property1", "value1");
 
         // Then...
         // We expect data back
@@ -115,7 +115,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
         Map<String, String> properties = new HashMap<String,String>();
-        properties.put("property1", "********");
+        properties.put("secure.property1", "********");
 
         // Then...
         // We expect data back
@@ -166,7 +166,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
         Map<String, String> properties = new HashMap<String,String>();
-        properties.put("property3", "value3");
+        properties.put("framework.property3", "value3");
 
         // Then...
         // We expect data back

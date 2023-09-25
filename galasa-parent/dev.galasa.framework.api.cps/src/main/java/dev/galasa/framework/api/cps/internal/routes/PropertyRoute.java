@@ -70,7 +70,7 @@ public class PropertyRoute extends CPSRoute{
         Map<String, String> properties = getAllProperties(namespace);
        
         if (prefix != null){
-            properties = filterPropertiesByPrefix(properties,prefix);
+            properties = filterPropertiesByPrefix(namespace, properties,prefix);
         }
         if (suffix != null){
             properties = filterPropertiesBySuffix(properties,suffix);
@@ -79,10 +79,10 @@ public class PropertyRoute extends CPSRoute{
         return buildResponseBody(namespace, properties);
     }
     
-    protected  Map<String, String> filterPropertiesByPrefix( Map<String, String> properties , String prefix){
+    protected  Map<String, String> filterPropertiesByPrefix(String namespace, Map<String, String> properties , String prefix){
         Map<String, String> filteredProperties = new HashMap<String,String>();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
-            if (entry.getKey().toString().startsWith(prefix)){
+            if (entry.getKey().toString().startsWith(namespace + "."+prefix)){
                 filteredProperties.put(entry.getKey(), entry.getValue());
             }
         }

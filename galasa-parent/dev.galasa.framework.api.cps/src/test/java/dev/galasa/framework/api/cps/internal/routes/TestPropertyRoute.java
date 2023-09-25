@@ -10,7 +10,6 @@ import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.framework;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +55,8 @@ public class TestPropertyRoute extends CpsServletTest{
     @Test
     public void TestPropertyQueryWithExistingNamespaceReturnsOk() throws Exception {
         // Given...
-        setServlet("/cps/framework/properties", "framework", new HashMap<String,String[]>());
+		String namespace = "framework";
+        setServlet("/cps/framework/properties", namespace, new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -66,11 +66,11 @@ public class TestPropertyRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
         Map<String, String> properties = new HashMap<String,String>();
-        properties.put("property1", "value1");
-        properties.put("property2", "value2");
-        properties.put("property3", "value3");
-        properties.put("property4", "value4");
-        properties.put("property5", "value5");
+        properties.put(namespace+".property1", "value1");
+        properties.put(namespace+".property2", "value2");
+        properties.put(namespace+".property3", "value3");
+        properties.put(namespace+".property4", "value4");
+        properties.put(namespace+".property5", "value5");
 
         // Then...
         // We expect data back
@@ -85,7 +85,8 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
     public void TestPropertyQueryWithProtectedNamespaceReturnsOk() throws Exception {
         // Given...
-        setServlet("/cps/secure/properties", "secure", new HashMap<String,String[]>());
+		String namespace = "secure";
+        setServlet("/cps/secure/properties", namespace, new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -95,11 +96,11 @@ public class TestPropertyRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
         Map<String, String> properties = new HashMap<String,String>();
-        properties.put("property1", "********");
-        properties.put("property2", "********");
-        properties.put("property3", "********");
-        properties.put("property4", "********");
-        properties.put("property5", "********");
+        properties.put(namespace+".property1", "********");
+        properties.put(namespace+".property2", "********");
+        properties.put(namespace+".property3", "********");
+        properties.put(namespace+".property4", "********");
+        properties.put(namespace+".property5", "********");
 
         // Then...
         // We expect data back
@@ -235,18 +236,20 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
 	public void TestGetPropertiesWithPrefixNoMatchReturnsEmpty() {
 		//Given...
+		String namespace = "framework";
 		String prefix  = "crate";
 		Map<String, String> expectedProperties = new HashMap<String,String>();
 
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("property2", "value2");
-		properties.put("property3", "value3");
-		properties.put("property4", "value4");
-		properties.put("property5", "value5");
-		properties.put("property6", "value6");
+		properties.put(namespace+".property1","value1");
+		properties.put(namespace+".property2", "value2");
+		properties.put(namespace+".property3", "value3");
+		properties.put(namespace+".property4", "value4");
+		properties.put(namespace+".property5", "value5");
+		properties.put(namespace+".property6", "value6");
 
 		//When...
-		Map<String, String> results = new PropertyRoute(null,null).filterPropertiesByPrefix(properties, prefix);
+		Map<String, String> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, properties, prefix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
@@ -255,19 +258,20 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
 	public void TestGetPropertiesWithPrefixReturnsOneRecord() {
 		//Given...
+		String namespace = "framework";
 		String prefix  = "pre";
 		Map<String, String> expectedProperties = new HashMap<String,String>();
-		expectedProperties.put("preperty1", "value1");
+		expectedProperties.put(namespace+".preperty1", "value1");
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("property2", "value2");
-		properties.put("property3", "value3");
-		properties.put("property4", "value4");
-		properties.put("property5", "value5");
-		properties.put("property6", "value6");
+		properties.put(namespace+".property2", "value2");
+		properties.put(namespace+".property3", "value3");
+		properties.put(namespace+".property4", "value4");
+		properties.put(namespace+".property5", "value5");
+		properties.put(namespace+".property6", "value6");
 		properties.putAll(expectedProperties);
 
 		//When...
-		Map<String, String> results = new PropertyRoute(null,null).filterPropertiesByPrefix(properties, prefix);
+		Map<String, String> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, properties, prefix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
@@ -276,23 +280,24 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
 	public void TestGetPropertiesWithPrefixReturnsFiveRecord() {
 		//Given...
+		String namespace ="framework";
 		String prefix  = ".";
 		Map<String, String> expectedProperties = new HashMap<String,String>();
-		expectedProperties.put(".property", "value1");
-		expectedProperties.put(".charity", "value2");
-		expectedProperties.put(".hospitality", "value3");
-		expectedProperties.put(".aunty", "value4");
-		expectedProperties.put(".empty", "value5");
+		expectedProperties.put(namespace+"..property", "value1");
+		expectedProperties.put(namespace+"..charity", "value2");
+		expectedProperties.put(namespace+"..hospitality", "value3");
+		expectedProperties.put(namespace+"..aunty", "value4");
+		expectedProperties.put(namespace+"..empty", "value5");
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("property2", "value6");
-		properties.put("property3", "value7");
-		properties.put("property4", "value8");
-		properties.put("property5", "value9");
-		properties.put("property6", "value10");
+		properties.put(namespace+".property2", "value6");
+		properties.put(namespace+".property3", "value7");
+		properties.put(namespace+".property4", "value8");
+		properties.put(namespace+".property5", "value9");
+		properties.put(namespace+".property6", "value10");
 		properties.putAll(expectedProperties);
 
 		//When...
-		Map<String, String> results = new PropertyRoute(null,null).filterPropertiesByPrefix(properties, prefix);
+		Map<String, String> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, properties, prefix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
@@ -320,7 +325,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"property1\",\n    \"value\": \"value1\"\n  }\n]");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"framework.property1\",\n    \"value\": \"value1\"\n  }\n]");
     }
 
 	@Test
@@ -370,8 +375,8 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \".hospitality\",\n    \"value\": \"value3\"\n  },"+
-			"\n  {\n    \"name\": \"test.property\",\n    \"value\": \"value1\"\n  },\n  {\n    \"name\": \"test.empty\",\n    \"value\": \"value5\"\n  }\n]");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi.test.property\",\n    \"value\": \"value1\"\n  },"+
+			"\n  {\n    \"name\": \"multi..hospitality\",\n    \"value\": \"value3\"\n  },\n  {\n    \"name\": \"multi.test.empty\",\n    \"value\": \"value5\"\n  }\n]");
     }
 
 	@Test
@@ -396,7 +401,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \".charity1\",\n    \"value\": \"value2\"\n  }\n]");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi..charity1\",\n    \"value\": \"value2\"\n  }\n]");
     }
 
 	@Test
@@ -446,8 +451,8 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"test.property\",\n    \"value\": \"value1\"\n  },"+
-			"\n  {\n    \"name\": \"test.empty\",\n    \"value\": \"value5\"\n  },\n  {\n    \"name\": \"test.aunty5\",\n    \"value\": \"value4\"\n  }\n]" );
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi.test.property\",\n    \"value\": \"value1\"\n  },"+
+			"\n  {\n    \"name\": \"multi.test.aunty5\",\n    \"value\": \"value4\"\n  },\n  {\n    \"name\": \"multi.test.empty\",\n    \"value\": \"value5\"\n  }\n]" );
     }
 
 	@Test
@@ -473,7 +478,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"property5\",\n    \"value\": \"value5\"\n  }\n]");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"framework.property5\",\n    \"value\": \"value5\"\n  }\n]");
     }
 
 	@Test
@@ -525,8 +530,8 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \".charity1\",\n    \"value\": \"value2\"\n  },"+
-			"\n  {\n    \"name\": \".lecture101\",\n    \"value\": \"value101\"\n  }\n]");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi..lecture101\",\n    \"value\": \"value101\"\n  },"+
+			"\n  {\n    \"name\": \"multi..charity1\",\n    \"value\": \"value2\"\n  }\n]");
     }
 
 	/*

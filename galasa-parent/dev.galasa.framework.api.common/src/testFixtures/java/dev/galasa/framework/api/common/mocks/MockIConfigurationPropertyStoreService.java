@@ -24,18 +24,18 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
     public MockIConfigurationPropertyStoreService(@NotNull String namespace) {
         this.namespaceInput = namespace;
         if (this.namespaceInput == "multi"){
-            this.properties.put("test.property", "value1");
-            this.properties.put(".charity1", "value2");
-            this.properties.put(".lecture101", "value101");
-            this.properties.put(".hospitality", "value3");
-            this.properties.put("test.aunty5", "value4");
-            this.properties.put("test.empty", "value5");
+            this.properties.put("multi.test.property", "value1");
+            this.properties.put("multi..charity1", "value2");
+            this.properties.put("multi..lecture101", "value101");
+            this.properties.put("multi..hospitality", "value3");
+            this.properties.put("multi.test.aunty5", "value4");
+            this.properties.put("multi.test.empty", "value5");
         }else{
-            this.properties.put("property1", "value1");
-            this.properties.put("property2", "value2");
-            this.properties.put("property3", "value3");
-            this.properties.put("property4", "value4");
-            this.properties.put("property5", "value5");
+            this.properties.put(namespace+".property1", "value1");
+            this.properties.put(namespace+".property2", "value2");
+            this.properties.put(namespace+".property3", "value3");
+            this.properties.put(namespace+".property4", "value4");
+            this.properties.put(namespace+".property5", "value5");
         }
 	}
 
@@ -59,12 +59,12 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
 
     @Override
     public void setProperty(@NotNull String name, @NotNull String value) throws ConfigurationPropertyStoreException {
-       this.properties.put(name,value);
+       this.properties.put(this.namespaceInput+"."+name,value);
     }
 
     @Override
     public void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException {
-       this.properties.remove(name);
+       this.properties.remove(this.namespaceInput+"."+name);
     }
 
     @Override

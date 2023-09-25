@@ -135,7 +135,7 @@ public abstract class CPSRoute extends BaseRoute {
             Map<String, String> properties = getAllProperties(namespace);
             for (Map.Entry<String, String> entry : properties.entrySet()) {
                 String key = entry.getKey().toString();
-                if (key.equals(propertyName)){
+                if (key.equals(namespace+"."+propertyName)){
                     return entry;
                 }
             }
