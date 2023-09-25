@@ -5,129 +5,139 @@
  */
 package dev.galasa.framework.api.cps.internal.routes;
 
-import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
-/**
- * A route used by all the Property-related Requests.
- */
-public class PropertyRoute extends CPSRoute {
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
-    public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework ) {
-		/* Regex to match endpoints: 
-		*  -> /cps/<namespace>/properties/<propertyName>
-		*/
-		super(responseBuilder, "/cps/([a-zA-Z0-9]+)/properties/([a-zA-Z0-9.]+)", framework);
-	}
+public class PropertyRoute extends CPSRoute{
 
-    /*
-     * Handle Get Request
-     */
-    @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
-        String namespace = getNamespaceFromURL(pathInfo);
-        String propertyName = getPropertyNameFromURL(pathInfo);
-        String  property= retrieveProperty(namespace,propertyName);
-		return getResponseBuilder().buildResponse(response, "application/json", property, HttpServletResponse.SC_OK); 
-    }
+    private static final String path = "/cps/([a-zA-Z0-9]+)/properties([?]?|[^/])+$";
 
-    private String retrieveProperty (String namespace, String propertyName) throws FrameworkException {
-        Map.Entry<String, String> entry = retrieveSingleProperty(namespace, propertyName);
-        return buildResponseBody(namespace, entry);
+    public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework) {
+        super(responseBuilder, path , framework);
     }
 
     /*
-     * Handle Put Request
+     * Property Query
      */
     @Override
-    public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
-            throws  IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
+            throws ServletException, IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
-        String property = getPropertyNameFromURL(pathInfo);
-        if (!checkRequestHasContent(request)){
-            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
-            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
+        String properties = getNamespaceProperties(namespace, queryParams);
+        return getResponseBuilder().buildResponse(response, "application/json", properties, HttpServletResponse.SC_OK); 
+    }
+
+    private String getNamespaceProperties(String namespace, QueryParameters queryParams) throws FrameworkException{
+        String properties = "";
+         try {
+            nameValidator.assertNamespaceCharPatternIsValid(namespace);
+            if (super.isHiddenNamespace(namespace)) {
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespace);
+			throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            }
+            String prefix = queryParams.getSingleString("prefix", null);
+            String suffix = queryParams.getSingleString("suffix", null);
+            properties = getProperties(namespace, prefix, suffix);
+        }catch (FrameworkException f){
+                ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+        return properties;
+    }
+    
+    
+    private String getProperties(String namespace, String prefix, String suffix) throws ConfigurationPropertyStoreException {
+        Map<String, String> properties = getAllProperties(namespace);
+       
+        if (prefix != null){
+            properties = filterPropertiesByPrefix(properties,prefix);
+        }
+        if (suffix != null){
+            properties = filterPropertiesBySuffix(properties,suffix);
         }
         
-        String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-        setProperty(namespace, property, value);
-        String responseBody = String.format("Successfully created property %s in %s",property, namespace);
-        return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_CREATED); 
+        return buildResponseBody(namespace, properties);
+    }
+    
+    protected  Map<String, String> filterPropertiesByPrefix( Map<String, String> properties , String prefix){
+        Map<String, String> filteredProperties = new HashMap<String,String>();
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            if (entry.getKey().toString().startsWith(prefix)){
+                filteredProperties.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return filteredProperties;
     }
 
-    private void setProperty(String namespace, String propertyName, String value) throws FrameworkException {
-        if (!checkPropertyExists(namespace, propertyName)){
-            getFramework().getConfigurationPropertyService(namespace).setProperty(propertyName, value);
-        }else{
-            ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, propertyName ,namespace);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+    protected  Map<String, String> filterPropertiesBySuffix( Map<String, String> properties , String suffix){
+        Map<String, String> filteredProperties = new HashMap<String,String>();
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            if (entry.getKey().toString().endsWith(suffix)){
+                filteredProperties.put(entry.getKey(), entry.getValue());
+            }
         }
+        return filteredProperties;
     }
 
     /*
-     * Handle Post Request
+     * Property Create
      */
     @Override
     public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response)
             throws  IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
-        String property = getPropertyNameFromURL(pathInfo);
         if (!checkRequestHasContent(request)){
             ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
             throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
         }
-        String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-        updateProperty(namespace, property, value);
-        String responseBody = String.format("Successfully updated property %s in %s",property, namespace);
+        Map.Entry<String,String> property = getPropertyFromRequestBody(request);
+        setProperty(namespace, property );
+        String responseBody = String.format("Successfully created property %s in %s",property.getKey(), namespace);
         return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_CREATED); 
     }
 
-    private void updateProperty(String namespace, String propertyName, String value) throws FrameworkException {
-        if (checkPropertyExists(namespace, propertyName)){
-            getFramework().getConfigurationPropertyService(namespace).setProperty(propertyName, value);
-        }else{
-            ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }
-    }
-
-    /*
-     * Handle Delete Request
+    /**
+     * Returns an entry of <propertyName, propertyValue> from the request body that should be encoded in UTF-8 format
+     * @param request
+     * @return Map.Entry<String,String> 
+     * @throws IOException
      */
-    public HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters,
-            HttpServletRequest request, HttpServletResponse response)
-            throws FrameworkException {
-        String namespace = getNamespaceFromURL(pathInfo);
-        String property = getPropertyNameFromURL(pathInfo);
-        deleteProperty(namespace, property);
-        String responseBody = String.format("Successfully deleted property %s in %s",property, namespace);
-        return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_OK);
+    private Map.Entry<String,String> getPropertyFromRequestBody (HttpServletRequest request) throws IOException{
+        String body = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
+        JsonElement jsonElement = JsonParser.parseString(body);
+        String propertyName = jsonElement.getAsJsonObject().get("name").getAsString();
+        String propertyValue = jsonElement.getAsJsonObject().get("value").getAsString();
+        return Map.entry(propertyName,propertyValue);
     }
 
+    private void setProperty(String namespace, Map.Entry<String,String> property) throws FrameworkException {
 
-    private void deleteProperty(String namespace, String propertyName) throws FrameworkException {
-        if (checkPropertyExists(namespace, propertyName)){
-            framework.getConfigurationPropertyService(namespace).deleteProperty(propertyName);
+        if (!checkPropertyExists(namespace, property.getKey())){
+            getFramework().getConfigurationPropertyService(namespace).setProperty(property.getKey(), property.getValue());
         }else{
-            ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  
+            ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.getKey() ,namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
-
-
 }

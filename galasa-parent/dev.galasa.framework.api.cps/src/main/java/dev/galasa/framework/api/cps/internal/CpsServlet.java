@@ -12,8 +12,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.api.cps.internal.routes.NamespacesRoute;
-import dev.galasa.framework.api.cps.internal.routes.PropertyQueryRoute;
 import dev.galasa.framework.api.cps.internal.routes.PropertyRoute;
+import dev.galasa.framework.api.cps.internal.routes.PropertyUpdateRoute;
 import dev.galasa.framework.api.common.BaseServlet;
 
 import dev.galasa.framework.spi.IFramework;
@@ -50,7 +50,7 @@ public class CpsServlet extends BaseServlet {
 		super.init();
 		
 		addRoute(new NamespacesRoute(getResponseBuilder(),framework));
-		addRoute(new PropertyQueryRoute(getResponseBuilder(),framework));
+		addRoute(new PropertyUpdateRoute(getResponseBuilder(),framework));
 		addRoute(new PropertyRoute(getResponseBuilder(),framework));
 
 	}

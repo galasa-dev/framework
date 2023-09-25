@@ -69,6 +69,10 @@ public abstract class CPSRoute extends BaseRoute {
         return hiddenNamespaces.contains(namespace);
     }
 
+    protected boolean isWriteOnlyNamespace(String namespace){
+        return writeOnlyNamespaces.contains(namespace);
+    }
+
     protected String getProtectedValue(String actualValue , String namespace) {
         String protectedValue ;
         if (writeOnlyNamespaces.contains(namespace)) {
@@ -123,14 +127,16 @@ public abstract class CPSRoute extends BaseRoute {
      * @throws FrameworkException
      */
     protected Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  InternalServletException {
+        if (isHiddenNamespace(namespace)){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
         try{
-            if (!isHiddenNamespace(namespace)){
-                Map<String, String> properties = getAllProperties(namespace);
-                for (Map.Entry<String, String> entry : properties.entrySet()) {
-                    String key = entry.getKey().toString();
-                    if (key.equals(propertyName)){
-                        return entry;
-                    }
+            Map<String, String> properties = getAllProperties(namespace);
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                String key = entry.getKey().toString();
+                if (key.equals(propertyName)){
+                    return entry;
                 }
             }
         }catch (Exception e){

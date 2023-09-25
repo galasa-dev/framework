@@ -111,7 +111,6 @@ public class BaseServlet extends HttpServlet {
 
                 if (matcher.matches()) {
                     logger.info("BaseServlet: Found a route that matches.");
-                    String method = req.getMethod();
                     if (req.getMethod().contains("PUT")){
                         route.handlePutRequest(url, queryParameters, req, res);
                     } else if (req.getMethod().contains("POST")){

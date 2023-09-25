@@ -118,9 +118,9 @@ public class CpsServletTest {
         }
     }
 
-	protected boolean checkNewPropertyInNamespace(String propertyName, String propertyValue) throws Exception{
+	protected boolean checkNewPropertyInNamespace(String namespace, String propertyName, String propertyValue) throws Exception{
 		boolean found = false;
-		Map<String,String> properties = this.servlet.getFramework().getConfigurationPropertyService("framework").getAllProperties();
+		Map<String,String> properties = this.servlet.getFramework().getConfigurationPropertyService(namespace).getAllProperties();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String key = entry.getKey().toString();
 			String value =entry.getValue().toString();
