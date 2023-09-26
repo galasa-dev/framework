@@ -55,10 +55,14 @@ paths:
 ##################################################################################
 # CPS API
 ##################################################################################
-  /cps/namespace:
+  #--------------------------------------
+  # List all known Namespaces in CPS, excluding hidden namespaces
+  #--------------------------------------
+  /cps:
     get:
-      operationId: getCpsNamespaces
-      summary: Get CPS Namespaces
+      operationId: getAllCpsNamespaces
+      summary: Get all known CPS Namespaces
+      description: Returns a list of all Namespaces in the Configuration Property Store 
       tags:
       - Configuration Property Store API
       responses:
@@ -87,22 +91,54 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JsonError'
-  /cps/namespace/{namespace}:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+                cpserror: 
+                  value: 
+                    error_code: 5015
+                    error_message: "GAL5015E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+  #--------------------------------------
+  # List all properties for a given Namespace in CPS
+  # Create a new property
+  #--------------------------------------
+  /cps/{namespace}/properties:
     get:
-      operationId: getCpsNamespaceProperties
-      summary: Get all properties for a namepace
-      tags:
+      operationId: queryCpsNamespaceProperties
+      summary: Get all CPS namespace properties
+      description: Returns a list of all Properties in the given namespace within the Configuration Property Store 
+      tags: 
       - Configuration Property Store API
       parameters:
-        - name: namespace
-          in: path
-          description: |
+      - name: namespace
+        in: path
+        description: |
             Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
             and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
-          required: true
-          schema:
-            type: string
+        required: true
+        schema:
+          type: string
+      - name: prefix
+        in: query
+        description: |
+          Property Prefix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
+      - name: suffix
+        in: query
+        description: |
+          Property suffix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: Array of CPS Properties
@@ -112,12 +148,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CpsProperty'
-        '400':
-          description: The namespace/prefix/suffix uses invalid characters or is badly formed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -130,89 +160,35 @@ paths:
                     error_code: 5401
                     error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespacerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. Namespace 'xyz' is not available."
+                  summary: An error occured when trying to retrieve the CPS namespaces
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JsonError'
-  /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
-    get:
-      operationId: getCpsNamespaceCascadeProperty
-      summary: Get cascade CPS property
-      tags:
-      - Configuration Property Store API
-      parameters:
-      - name: namespace
-        in: path
-        description: |
-            Property Namespace. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
-        required: true
-        schema:
-          type: string
-      - name: prefix
-        in: path
-        description: |
-          Property Prefix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-        required: true
-        schema:
-          type: string
-      - name: suffix
-        in: path
-        description: |
-          Property suffix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-        required: true
-        schema:
-          type: string
-      - name: infixes
-        in: query
-        description: |
-          Property infixes. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-        schema:
-          type: array
-          items:
-            type: string
-      responses:
-        '200':
-          description: CPS Property
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CpsProperty'
-        '401':
-          description: Unauthorized as valid authentication has not been provided
-          content:
-            application/json:
-              schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                unauthorizederror:
+                genericerror:
                   value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-  /cps/namespace/{namespace}/property/{property}:
-    put:
-      operationId: putCpsNamespaceProperty
-      summary: Put new CPS Property
-      description: |
-        Searches multiple places in the property store for the first property matching the namespace,
-        prefix and suffix, and as many of the leading infix strings as possible.
-        This results in a value which is the most specific, given a sparsely populated hierarchical
-        structure of property names.
-        Over-rides of values (if present) are returned in preference to the normal stored value
-        of a property.
-      tags:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+    post:
+      operationId: createCpsProperty
+      summary: Create a new CPS property
+      description: Create a new property with the supplied value in the given Namespace within the Configuration Property Store.
+      tags: 
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -223,28 +199,26 @@ paths:
         required: true
         schema:
           type: string
-      - name: property
-        in: path
-        description: |
-          Property Name.
-          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-        required: true
-        schema:
-          type: string
       requestBody:
         required: true
+        description: The value of the property being created.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CpsProperty'
+              type: object
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
       responses:
         '200':
-          description: CPS Property
+          description: Action Message
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CpsProperty'
+                type: string
+              example: Successfully created property propertyName in namespace
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -257,12 +231,300 @@ paths:
                     error_code: 5401
                     error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+                existingpropertyerror:
+                  value:
+                    error_code: 5018
+                    error_message: "GAL5018E: Error occured when trying to access property 'propertyName'. The property name provided already exists in the 'framework' namespace."
+                  summary: An error occured because the property already exists
+        '411':
+          description: Content Length Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                nocontenterror:
+                  value:
+                    error_code: 5411
+                    error_message: "GAL5411E: Error occured when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
+                  summary: An error occured when no value was supplied in the request body
         '500':
           description: Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+  #--------------------------------------
+  # Read, Update and Delete a CPS property
+  #--------------------------------------
+  /cps/{namespace}/properties/{propertyName}:
+    get:
+      operationId: getCpsProperty
+      summary: Get single CPS property
+      description: Returns a property, value pair that matches the full propertyName in the given Namespace within the Configuration Property Store.
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name. 
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CpsProperty'
+              examples:
+                propertyexists:
+                  value:
+                    name: propertyName
+                    value: propertyValue
+                  summary: Property Found in namespace
+                propertynotfound:
+                  value: '[ ]'
+                  summary: Property does not exist in namespace
+                propertyexistsinwriteonlynamespace:
+                  value:
+                    name: propertyName
+                    value: "********"
+                  summary: Property found in write only namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidnamespaceerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+    put:
+      operationId: updateCpsProperty
+      summary: Update existing CPS property
+      description: Update an existing property in a given namepace in the Configuration Properties Store.
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name. 
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: The value of the property being created.
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Action Message
+          content:
+            application/json:
+              schema:
+                type: string
+              example: Successfully updated property propertyName in namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+                newpropertyerror:
+                  value:
+                    error_code: 5017
+                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
+                  summary: An error occured because the property does not exist
+        '411':
+          description: Content Length Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                nocontenterror:
+                  value:
+                    error_code: 5411
+                    error_message: "GAL5411E: Error occured when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
+                  summary: An error occured when no value was supplied in the request body
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+    delete:
+      operationId: deleteCpsProperty
+      summary: Delete existing CPS property
+      description: Delete an existing property in a given namepace in the Configuration Properties Store.
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name. 
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Action Message
+          content:
+            application/json:
+              schema:
+                type: string
+              example: Successfully deleted property propertyName in namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+                newpropertyerror:
+                  value:
+                    error_code: 5017
+                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
+                  summary: An error occured because the property does not exist
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+              
 ##################################################################################
 # RAS API
 ##################################################################################
@@ -548,7 +810,7 @@ paths:
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
                   summary: An error occured when trying to retrieve a specific run  using a runId
         '500':
-          description: Internal Server
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -558,7 +820,7 @@ paths:
                   value:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying access the endpoint
+                  summary: An error occured when trying to access the endpoint
                 runerror:
                   value:
                     error_code: 5003
@@ -715,7 +977,7 @@ paths:
                   value:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying access the endpoint
+                  summary: An error occured when trying to access the endpoint
 
 
   #--------------------------------------
@@ -784,7 +1046,7 @@ paths:
                   value:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying access the endpoint
+                  summary: An error occured when trying to access the endpoint
                 locatingerror:
                   value:
                     error_code: 5008

@@ -10,6 +10,8 @@ import dev.galasa.framework.spi.IRunResult;
 
 import java.io.PrintWriter;
 
+import dev.galasa.framework.api.common.mocks.IServletUnderTest;
+import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;

@@ -3,11 +3,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal.mocks;
+package dev.galasa.framework.api.cps.internal.mocks;
 
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.common.mocks.IServletUnderTest;
-import dev.galasa.framework.api.ras.internal.RasServlet;
+import dev.galasa.framework.api.cps.internal.CpsServlet;
 import dev.galasa.framework.spi.IFramework;
 
 /** 
@@ -15,15 +15,19 @@ import dev.galasa.framework.spi.IFramework;
  * adding any extra code to the production servlet class. The framework field is protected scope, 
  * so a subclass can do the injection instead of the injection framework.
  */
-public class MockRasServlet extends RasServlet implements IServletUnderTest {
+public class MockCpsServlet extends CpsServlet implements IServletUnderTest {
 
 	@Override
 	public void setFramework(IFramework framework) {
-		super.framework = framework;
+		super.setFramework(framework);
 	}
 
 	@Override
 	public void setFileSystem(IFileSystem fileSystem) {
-		super.fileSystem = fileSystem;
+		throw new UnsupportedOperationException("Unimplemented method 'setFileSystem'");
+	}
+
+	public IFramework getFramework() {
+		return super.getFramework();
 	}
 }

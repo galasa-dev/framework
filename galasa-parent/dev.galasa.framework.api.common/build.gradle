@@ -15,6 +15,9 @@ dependencies {
     testFixturesImplementation 'javax.servlet:javax.servlet-api:3.1.0'
     testFixturesImplementation 'org.assertj:assertj-core:3.16.1'
     testFixturesImplementation 'com.google.code.gson:gson:2.8.9'
+    testFixturesImplementation(project(':dev.galasa.framework'))
+    testFixturesImplementation 'javax.validation:validation-api:2.0.1.Final'
+
 }
 
 // Note: These values are consumed by the parent build process

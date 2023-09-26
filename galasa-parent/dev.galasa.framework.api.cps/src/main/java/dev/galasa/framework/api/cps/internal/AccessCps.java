@@ -43,7 +43,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  * 
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-        "osgi.http.whiteboard.servlet.pattern=/cps/*" }, name = "Galasa CPS")
+        "osgi.http.whiteboard.servlet.pattern=/cpsapis/*" }, name = "Galasa CPS")
 public class AccessCps extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
