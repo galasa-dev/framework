@@ -391,7 +391,7 @@ paths:
             schema:
               type: string
       responses:
-        '201':
+        '200':
           description: Action Message
           content:
             application/json:
@@ -524,7 +524,221 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
-              
+##################################################################################
+# Deprecated CPS API
+##################################################################################
+  /cps/namespace:
+    get:
+      operationId: getCpsNamespaces
+      deprecated: true
+      summary: Get CPS Namespaces
+      tags:
+      - Configuration Property Store API
+      responses:
+        '200':
+          description: Array of CPS Namespaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /cps/namespace/{namespace}:
+    get:
+      operationId: getCpsNamespaceProperties
+      deprecated: true
+      summary: Get all properties for a namepace
+      tags:
+      - Configuration Property Store API
+      parameters:
+        - name: namespace
+          in: path
+          description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of CPS Properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CpsProperty'
+        '400':
+          description: The namespace/prefix/suffix uses invalid characters or is badly formed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
+    get:
+      operationId: getCpsNamespaceCascadeProperty
+      deprecated: true
+      summary: Get cascade CPS property
+      tags:
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: prefix
+        in: path
+        description: |
+          Property Prefix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      - name: suffix
+        in: path
+        description: |
+          Property suffix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      - name: infixes
+        in: query
+        description: |
+          Property infixes. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CpsProperty'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+  /cps/namespace/{namespace}/property/{property}:
+    put:
+      operationId: putCpsNamespaceProperty
+      deprecated: true
+      summary: Put new CPS Property
+      description: |
+        Searches multiple places in the property store for the first property matching the namespace,
+        prefix and suffix, and as many of the leading infix strings as possible.
+        This results in a value which is the most specific, given a sparsely populated hierarchical
+        structure of property names.
+        Over-rides of values (if present) are returned in preference to the normal stored value
+        of a property.
+      tags:
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: property
+        in: path
+        description: |
+          Property Name.
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CpsProperty'
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CpsProperty'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
 ##################################################################################
 # RAS API
 ##################################################################################
