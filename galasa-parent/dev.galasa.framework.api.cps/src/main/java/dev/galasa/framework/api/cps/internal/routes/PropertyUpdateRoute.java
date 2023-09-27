@@ -65,8 +65,8 @@ public class PropertyUpdateRoute extends CPSRoute {
         
         String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
         updateProperty(namespace, property, value);
-        String responseBody = String.format("Successfully created property %s in %s",property, namespace);
-        return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_CREATED); 
+        String responseBody = String.format("Successfully updated property %s in %s",property, namespace);
+        return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_OK); 
     }
 
     private void updateProperty(String namespace, String propertyName, String value) throws FrameworkException {

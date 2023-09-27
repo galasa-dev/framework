@@ -294,10 +294,10 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // Then...
         Integer status = resp.getStatus();
         String output = outStream.toString();
-        assertThat(status).isEqualTo(201);
+        assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(output).isEqualTo("Successfully created property property5 in framework");
+        assertThat(output).isEqualTo("Successfully updated property property5 in framework");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
     }
 
@@ -320,10 +320,10 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // Then...
         Integer status = resp.getStatus();
         String output = outStream.toString();
-        assertThat(status).isEqualTo(201);
+        assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(output).isEqualTo("Successfully created property property5 in secure");
+        assertThat(output).isEqualTo("Successfully updated property property5 in secure");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
     }
 

@@ -391,7 +391,7 @@ paths:
             schema:
               type: string
       responses:
-        '201':
+        '200':
           description: Action Message
           content:
             application/json:
