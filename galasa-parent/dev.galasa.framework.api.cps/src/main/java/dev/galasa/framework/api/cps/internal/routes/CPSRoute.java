@@ -150,12 +150,12 @@ public abstract class CPSRoute extends BaseRoute {
         /*
          * This expects a pathInfo from the cps property endpoint, i.e
          * /cps/<namespace>/properties/<propertyName>
-         * This means that the minimum length is going to be 5
+         * This means that the minimum length is going to be 4
          * meaning we should not have an IndexOutOfBoundsException 
          */
         try {
             String[] namespace = pathInfo.split("/");
-            return namespace[4];
+            return namespace[3];
         } catch (Exception e){
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
@@ -169,12 +169,12 @@ public abstract class CPSRoute extends BaseRoute {
          * /cps/<namespace>/properties
          * /cps/<namespace>/properties?prefix=<prefix>&suffix=<suffix>
          * /cps/<namespace>/properties/<propertyName>
-         * This means that the minimum length is going to be 3
+         * This means that the minimum length is going to be 2
          * meaning we should not have an IndexOutOfBoundsException 
          */
         try {
             String[] namespace = pathInfo.split("/");
-            return namespace[2];
+            return namespace[1];
         } catch (Exception e){
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);

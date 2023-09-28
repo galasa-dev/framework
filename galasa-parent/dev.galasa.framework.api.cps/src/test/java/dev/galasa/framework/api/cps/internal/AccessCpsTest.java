@@ -40,11 +40,6 @@ public class AccessCpsTest {
     }
 
     @Test
-    public void malformedGetUrlReturnsBadRequestError() throws Exception {
-        getUsingBadUrl("/badUrl");
-    }
-
-    @Test
     public void malformedPutUrlReturnsBadRequestError() throws Exception {
         // Given...
 
@@ -86,7 +81,7 @@ public class AccessCpsTest {
         LogCapturingAccessCps servlet = new LogCapturingAccessCps();
         servlet.framework = mockFramework ;
 
-        HttpServletRequest request = new MockHttpRequest("/namespace");
+        HttpServletRequest request = new MockHttpRequest("");
 
         MockHttpResponse response = new MockHttpResponse();
 
@@ -109,12 +104,12 @@ public class AccessCpsTest {
 
     @Test
     public void getNamespacesDoesNotListDSSNoTrailingSlash() throws Exception {
-        getNamespacesDoesNotListDSS("/namespace");
+        getNamespacesDoesNotListDSS("");
     }
 
     @Test
     public void getNamespacesDoesNotListDSSWithTrailingSlash() throws Exception {
-        getNamespacesDoesNotListDSS("/namespace/");
+        getNamespacesDoesNotListDSS("/");
     }
 
     public void getNamespacesDoesNotListDSS(String path) throws Exception {
@@ -187,7 +182,7 @@ public class AccessCpsTest {
         LogCapturingAccessCps servlet = new LogCapturingAccessCps();
         servlet.framework = mockFramework ;
 
-        HttpServletRequest request = new MockHttpRequest("/namespace/namespaceUsing$invalid£characters");
+        HttpServletRequest request = new MockHttpRequest("/namespaceUsing$invalid£characters");
 
         MockHttpResponse response = new MockHttpResponse();
 
@@ -206,13 +201,8 @@ public class AccessCpsTest {
     }
 
     @Test
-    public void getUsingPartOfNamespaceLiteralShouldFailBadUrl() throws Exception {
-        getUsingBadUrl("/namespa");
-    }
-
-    @Test
     public void getUsingBadlySpeltPrefixShouldFailBadUrl() throws Exception {
-        getUsingBadUrl("/namespace/myValidNamespace/prefi");
+        getUsingBadUrl("/myValidNamespace/prefi");
     }
 
     @Test
@@ -263,7 +253,7 @@ public class AccessCpsTest {
         LogCapturingAccessCps servlet = new LogCapturingAccessCps();
         servlet.framework = mockFramework ;
 
-        HttpServletRequest request = new MockHttpRequest("/namespace/dss");
+        HttpServletRequest request = new MockHttpRequest("/dss");
 
         MockHttpResponse response = new MockHttpResponse();
 
@@ -315,7 +305,7 @@ public class AccessCpsTest {
         LogCapturingAccessCps servlet = new LogCapturingAccessCps();
         servlet.framework = mockFramework ;
 
-        HttpServletRequest request = new MockHttpRequest("/namespace/notdss");
+        HttpServletRequest request = new MockHttpRequest("/notdss");
 
         MockHttpResponse response = new MockHttpResponse();
 
@@ -377,7 +367,7 @@ public class AccessCpsTest {
         LogCapturingAccessCps servlet = new LogCapturingAccessCps();
         servlet.framework = mockFramework ;
 
-        MockHttpRequest request = new MockHttpRequest("/namespace/notdssbutvalid/property/myprop");
+        MockHttpRequest request = new MockHttpRequest("/notdssbutvalid/property/myprop");
         request.setBody(
                 "{\n"+
                 "  \"name\":\"myprop\",\n"+
@@ -432,7 +422,7 @@ public class AccessCpsTest {
         LogCapturingAccessCps servlet = new LogCapturingAccessCps();
         servlet.framework = mockFramework ;
 
-        MockHttpRequest request = new MockHttpRequest("/namespace/dss/property/myprop");
+        MockHttpRequest request = new MockHttpRequest("/dss/property/myprop");
         request.setBody(
                 "{\n"+
                         "  \"name\":\"myprop\",\n"+
@@ -484,7 +474,7 @@ public class AccessCpsTest {
         LogCapturingAccessCps servlet = new LogCapturingAccessCps();
         servlet.framework = mockFramework ;
 
-        HttpServletRequest request = new MockHttpRequest("/namespace/secure");
+        HttpServletRequest request = new MockHttpRequest("/secure");
 
         MockHttpResponse response = new MockHttpResponse();
 
@@ -547,7 +537,7 @@ public class AccessCpsTest {
         LogCapturingAccessCps servlet = new LogCapturingAccessCps();
         servlet.framework = mockFramework ;
 
-        String path = MessageFormat.format( "/namespace/oknamespace/prefix/{0}/suffix/{1}",prefix,suffix);
+        String path = MessageFormat.format( "/oknamespace/prefix/{0}/suffix/{1}",prefix,suffix);
         String query = "infix=a";
         HttpServletRequest request = new MockHttpRequest(path,query);
 

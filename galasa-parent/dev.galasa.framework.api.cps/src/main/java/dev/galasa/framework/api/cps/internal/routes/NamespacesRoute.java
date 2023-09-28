@@ -38,7 +38,7 @@ public class NamespacesRoute extends CPSRoute {
 		/* Regex to match endpoints: 
 		*  -> /cps/
 		*/
-		super(responseBuilder, "/cps\\/?", framework);
+		super(responseBuilder, "\\/?", framework);
 	}
 
     @Override
