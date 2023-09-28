@@ -30,7 +30,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class PropertyRoute extends CPSRoute{
 
-    private static final String path = "/([a-zA-Z0-9]+)/properties([?]?|[^/])+$";
+    private static final String path = "\\/([a-zA-Z0-9]+)/properties([?]?|[^/])+$";
 
     public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework) {
         super(responseBuilder, path , framework);

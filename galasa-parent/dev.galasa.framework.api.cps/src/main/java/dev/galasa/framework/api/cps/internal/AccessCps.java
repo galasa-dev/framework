@@ -43,7 +43,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  * 
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-        "osgi.http.whiteboard.servlet.pattern=/cps/namespace*" }, name = "Galasa CPS")
+        "osgi.http.whiteboard.servlet.pattern=/cps/namespace/*" }, name = "Galasa CPS")
 public class AccessCps extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -59,10 +59,10 @@ public class AccessCps extends HttpServlet {
     // validation of object names later in the code.
     // That way we can centralise the validation to share it between various
     // parts of the ecosystem which do a similar job.
-    private static final Pattern pattern1 = Pattern.compile("/namespace/?");
-    private static final Pattern pattern2 = Pattern.compile("/namespace/([^/]*)/?");
-    private static final Pattern pattern3 = Pattern.compile("/namespace/([^/]*)/prefix/([^/]*)/suffix/([^/]*)/?");
-    private static final Pattern pattern4 = Pattern.compile("/namespace/([^/]*)/property/([^/]*)/?");
+    private static final Pattern pattern1 = Pattern.compile("/?");
+    private static final Pattern pattern2 = Pattern.compile("/([^/]*)/?");
+    private static final Pattern pattern3 = Pattern.compile("/([^/]*)/prefix/([^/]*)/suffix/([^/]*)/?");
+    private static final Pattern pattern4 = Pattern.compile("/([^/]*)/property/([^/]*)/?");
 
     @Reference
     public IFramework framework; // NOSONAR
@@ -96,6 +96,7 @@ public class AccessCps extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+        logger.info(req.getPathInfo());
         try {
             resp.setHeader("Content-Type", "application/json");
 
