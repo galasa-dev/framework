@@ -28,7 +28,7 @@ public class TestPropertyRoute extends CpsServletTest{
     @Test
     public void TestPropertyQueryNoFrameworkReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps/namespace1/properties",null ,new HashMap<String,String[]>());
+		setServlet("/namespace1/properties",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -56,7 +56,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyQueryWithExistingNamespaceReturnsOk() throws Exception {
         // Given...
 		String namespace = "framework";
-        setServlet("/cps/framework/properties", namespace, new HashMap<String,String[]>());
+        setServlet("/framework/properties", namespace, new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -86,7 +86,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyQueryWithProtectedNamespaceReturnsOk() throws Exception {
         // Given...
 		String namespace = "secure";
-        setServlet("/cps/secure/properties", namespace, new HashMap<String,String[]>());
+        setServlet("/secure/properties", namespace, new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -115,7 +115,7 @@ public class TestPropertyRoute extends CpsServletTest{
     @Test
     public void TestPropertyQueryHiddenNamespaceReturnsError() throws Exception {
         // Given...
-		setServlet("/cps/dss/properties", "dss" ,new HashMap<String,String[]>());
+		setServlet("/dss/properties", "dss" ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -142,7 +142,7 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
     public void TestPropertyQueryInvalidNamespaceReturnsError() throws Exception {
         // Given...
-		setServlet("/cps/j!ndex/properties", "framework" ,new HashMap<String,String[]>());
+		setServlet("/j!ndex/properties", "framework" ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -162,7 +162,7 @@ public class TestPropertyRoute extends CpsServletTest{
 			outStream.toString(),
 			5404,
 			"GAL5404E:",
-			" Error occured when trying to identify the endpoint '/cps/j!ndex/properties'. ",
+			" Error occured when trying to identify the endpoint '/j!ndex/properties'. ",
 			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);
 	}
@@ -309,7 +309,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("suffix", new String[] {"1"});
 
-        setServlet("/cps/framework/properties?suffix=1", "framework", params);
+        setServlet("/framework/properties?suffix=1", "framework", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -334,7 +334,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("suffix", new String[] {"mickey"});
 
-        setServlet("/cps/framework/properties?suffix=mickey", "framework", params);
+        setServlet("/framework/properties?suffix=mickey", "framework", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -359,7 +359,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("suffix", new String[] {"ty"});
 
-        setServlet("/cps/multi/properties?suffix=mickey", "multi", params);
+        setServlet("/multi/properties?suffix=mickey", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -385,7 +385,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("prefix", new String[] {".char"});
 
-        setServlet("/cps/multi/properties?prefix=.char", "multi", params);
+        setServlet("/multi/properties?prefix=.char", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -410,7 +410,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("prefix", new String[] {"goof"});
 
-        setServlet("/cps/framework/properties?prefix=goof", "framework", params);
+        setServlet("/framework/properties?prefix=goof", "framework", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -435,7 +435,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("prefix", new String[] {"test"});
 
-        setServlet("/cps/multi/properties?prefix=test", "multi", params);
+        setServlet("/multi/properties?prefix=test", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -462,7 +462,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		params.put("prefix", new String[] {"prop"});
 		params.put("suffix", new String[] {"5"});
 
-        setServlet("/cps/framework/properties?prefix=prop&suffix=5", "framework", params);
+        setServlet("/framework/properties?prefix=prop&suffix=5", "framework", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -488,7 +488,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		params.put("prefix", new String[] {"hello"});
 		params.put("suffix", new String[] {"world"});
 
-        setServlet("/cps/framework/properties?prefix=hellosuffix=world", "framework", params);
+        setServlet("/framework/properties?prefix=hellosuffix=world", "framework", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -514,7 +514,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		params.put("prefix", new String[] {"."});
 		params.put("suffix", new String[] {"1"});
 
-        setServlet("/cps/multi/properties?prefix=.&suffix=1", "multi", params);
+        setServlet("/multi/properties?prefix=.&suffix=1", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -540,7 +540,7 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
 	public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixAndSuffixPUTRequestsReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps/multi/properties?prefix=.&suffix=1","multi",null, "PUT");
+		setServlet("/multi/properties?prefix=.&suffix=1","multi",null, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -559,7 +559,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/cps/multi/properties?prefix=.&suffix=1'. The method 'PUT' is not allowed."
+			"E: Error occured when trying to access the endpoint '/multi/properties?prefix=.&suffix=1'. The method 'PUT' is not allowed."
 		);
     }
 
@@ -569,7 +569,7 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
 	public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixAndSuffixDELETERequestsReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps/multi/properties?prefix=.&suffix=1","multi",null, "DELETE");
+		setServlet("/multi/properties?prefix=.&suffix=1","multi",null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -588,7 +588,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/cps/multi/properties?prefix=.&suffix=1'. The method 'DELETE' is not allowed."
+			"E: Error occured when trying to access the endpoint '/multi/properties?prefix=.&suffix=1'. The method 'DELETE' is not allowed."
 		);
     }
 
@@ -598,7 +598,7 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
     public void TestPropertyRoutePOSTNoFrameworkReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps/namespace1/properties",null ,"{name: property ,value: value }", "POST");
+		setServlet("/namespace1/properties",null ,"{name: property ,value: value }", "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -624,7 +624,7 @@ public class TestPropertyRoute extends CpsServletTest{
     @Test
     public void TestPropertyRoutePOSTBadNamespaceReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps/error/properties",null ,"{name: property ,value: value }", "POST");
+		setServlet("/error/properties",null ,"{name: property ,value: value }", "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -655,7 +655,7 @@ public class TestPropertyRoute extends CpsServletTest{
         String value = "value6";
 		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
 		String requestBody = requestJson.toString();
-		setServlet("/cps/framework/properties", namespace, requestBody , "POST");
+		setServlet("/framework/properties", namespace, requestBody , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -683,7 +683,7 @@ public class TestPropertyRoute extends CpsServletTest{
         String value = "value6";
 		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
 		String requestBody = requestJson.toString();
-		setServlet("/cps/secure/properties", namespace, requestBody , "POST");
+		setServlet("/secure/properties", namespace, requestBody , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -710,7 +710,7 @@ public class TestPropertyRoute extends CpsServletTest{
         String value = "value6";
 		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
 		String requestBody = requestJson.toString();
-		setServlet("/cps/dss/properties", "framework", requestBody , "POST");
+		setServlet("/dss/properties", "framework", requestBody , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -739,7 +739,7 @@ public class TestPropertyRoute extends CpsServletTest{
         String value = "value6";
 		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
 		String requestBody = requestJson.toString();
-        setServlet("/cps/framework/properties", "framework", requestBody, "POST");
+        setServlet("/framework/properties", "framework", requestBody, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -769,7 +769,7 @@ public class TestPropertyRoute extends CpsServletTest{
         String value = "value6";
 		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
 		String requestBody = requestJson.toString();
-        setServlet("/cps/framew0rk/properties", "framework", requestBody, "POST");
+        setServlet("/framew0rk/properties", "framework", requestBody, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -795,7 +795,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteWithNamespaceNoRequestBodyPOSTNewPropertyReturnsError() throws Exception {
         // Given...
 		String requestBody = "";
-        setServlet("/cps/framew0rk/properties", "framework", requestBody, "POST");
+        setServlet("/framew0rk/properties", "framework", requestBody, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -813,7 +813,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5411,
-            "E: Error occured when trying to access the endpoint '/cps/framew0rk/properties'.",
+            "E: Error occured when trying to access the endpoint '/framew0rk/properties'.",
             " The request body is empty."
 		); 
     }
@@ -822,7 +822,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteWithNamespaceNullRequestBodyPOSTNewPropertyReturnsError() throws Exception {
         // Given...
 		String requestBody = null;
-        setServlet("/cps/framework/properties", "framework", requestBody, "POST");
+        setServlet("/framework/properties", "framework", requestBody, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -840,7 +840,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5411,
-            "E: Error occured when trying to access the endpoint '/cps/framework/properties'.",
+            "E: Error occured when trying to access the endpoint '/framework/properties'.",
             " The request body is empty."
 		); 
     }

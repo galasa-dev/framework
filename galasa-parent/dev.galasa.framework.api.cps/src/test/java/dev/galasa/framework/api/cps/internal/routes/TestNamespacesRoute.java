@@ -24,7 +24,7 @@ public class TestNamespacesRoute extends CpsServletTest{
     @Test
     public void TestGetNamespacesNoFrameworkReturnsError () throws Exception{
 		// Given...
-		setServlet("/cps",null ,new HashMap<String,String[]>());
+		setServlet("",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -51,7 +51,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesWithFrameworkNoDataReturnsOk() throws Exception{
 		// Given...
-		setServlet("/cps/","empty",new HashMap<String,String[]>());
+		setServlet("/","empty",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -71,7 +71,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
 		// Given...
-		setServlet("/cps","framework",new HashMap<String,String[]>());
+		setServlet("","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -93,7 +93,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesWithFrameworkNullNamespacesReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps","error",new HashMap<String,String[]>());
+		setServlet("","error",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -120,7 +120,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesWithFrameworkBadPathReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps.","framework",new HashMap<String,String[]>());
+		setServlet(".","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -139,14 +139,14 @@ public class TestNamespacesRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"E: Error occured when trying to identify the endpoint '/cps.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"E: Error occured when trying to identify the endpoint '.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);
     }
 
 	@Test
 	public void TestGetNamespacesWithFrameworkBadPathWithSlashReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps/.","framework",new HashMap<String,String[]>());
+		setServlet("/.","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -165,7 +165,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"E: Error occured when trying to identify the endpoint '/cps/.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"E: Error occured when trying to identify the endpoint '/.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);
     }
 
@@ -175,7 +175,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesPUTRequestReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps","framework", null , "PUT");
+		setServlet("","framework", null , "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -194,7 +194,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/cps'. The method 'PUT' is not allowed."
+			"E: Error occured when trying to access the endpoint ''. The method 'PUT' is not allowed."
 		);
     }
 
@@ -204,7 +204,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesPOSTRequestReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps","framework",null, "POST");
+		setServlet("","framework",null, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -223,7 +223,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/cps'. The method 'POST' is not allowed."
+			"E: Error occured when trying to access the endpoint ''. The method 'POST' is not allowed."
 		);
     }
 
@@ -233,7 +233,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesDELETERequestReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps","framework",null, "DELETE");
+		setServlet("","framework",null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -252,7 +252,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/cps'. The method 'DELETE' is not allowed."
+			"E: Error occured when trying to access the endpoint ''. The method 'DELETE' is not allowed."
 		);
     }
 }

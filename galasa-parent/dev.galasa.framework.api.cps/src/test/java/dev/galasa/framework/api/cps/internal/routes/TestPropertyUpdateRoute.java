@@ -29,7 +29,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteGETNoFrameworkReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps/namespace1/properties/property1",null ,new HashMap<String,String[]>());
+		setServlet("/namespace1/properties/property1",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -55,7 +55,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteGETBadNamespaceReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps/error/properties/property1",null ,new HashMap<String,String[]>());
+		setServlet("/error/properties/property1",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -81,7 +81,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteGETWithExistingNamespaceReturnsOk() throws Exception {
         // Given...
-        setServlet("/cps/framework/properties/property1", "framework", new HashMap<String,String[]>());
+        setServlet("/framework/properties/property1", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -105,7 +105,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	@Test
     public void TestPropertyRouteGETWithProtectedNamespaceReturnsOk() throws Exception {
         // Given...
-        setServlet("/cps/secure/properties/property1", "secure", new HashMap<String,String[]>());
+        setServlet("/secure/properties/property1", "secure", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -129,7 +129,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	@Test
     public void TestPropertyRouteGETWithHiddenNamespaceReturnsError() throws Exception {
         // Given...
-        setServlet("/cps/dss/properties/property1", "framework", new HashMap<String,String[]>());
+        setServlet("/dss/properties/property1", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -156,7 +156,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteGETWithExistingNamespaceDifferentPropertyReturnsOk() throws Exception {
         // Given...
-        setServlet("/cps/framework/properties/property3", "framework", new HashMap<String,String[]>());
+        setServlet("/framework/properties/property3", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -180,7 +180,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteGETWithExistingNamespaceBadPropertyNameReturnsEmpty() throws Exception {
         // Given...
-        setServlet("/cps/framework/properties/inproperty", "framework", new HashMap<String,String[]>());
+        setServlet("/framework/properties/inproperty", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -201,7 +201,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteGETWithExistingNamespaceIncopmpletePropertyNameReturnsEmpty() throws Exception {
         // Given...
-        setServlet("/cps/framework/properties/roperty", "framework", new HashMap<String,String[]>());
+        setServlet("/framework/properties/roperty", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -226,7 +226,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteGetPUTFrameworkReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps/namespace1/properties/property1",null ,"value12", "PUT");
+		setServlet("/namespace1/properties/property1",null ,"value12", "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -252,7 +252,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRoutePUTBadNamespaceReturnsError() throws Exception{
 		// Given...
-		setServlet("/cps/error/properties/property1",null ,"value6", "PUT");
+		setServlet("/error/properties/property1",null ,"value6", "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -281,7 +281,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		String namespace = "framework";
         String propertyName = "property5";
         String value = "value6";
-        setServlet("/cps/framework/properties/"+propertyName, namespace, value, "PUT");
+        setServlet("/framework/properties/"+propertyName, namespace, value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -307,7 +307,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		String namespace = "secure";
         String propertyName = "property5";
         String value = "value6";
-        setServlet("/cps/secure/properties/"+propertyName, namespace, value, "PUT");
+        setServlet("/secure/properties/"+propertyName, namespace, value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -332,7 +332,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // Given...
         String propertyName = "property5";
         String value = "value6";
-        setServlet("/cps/dss/properties/"+propertyName, "framework", value, "PUT");
+        setServlet("/dss/properties/"+propertyName, "framework", value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -361,7 +361,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = "value6";
-        setServlet("/cps/framework/properties/"+propertyName, "framework", value, "PUT");
+        setServlet("/framework/properties/"+propertyName, "framework", value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -388,7 +388,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // Given...
         String propertyName = "property5";
         String value = "value6";
-        setServlet("/cps/framew0rk/properties/"+propertyName, "framework", value, "PUT");
+        setServlet("/framew0rk/properties/"+propertyName, "framework", value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -415,7 +415,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // Given...
         String propertyName = "property5";
         String value = "";
-        setServlet("/cps/framew0rk/properties/"+propertyName, "framework", value, "PUT");
+        setServlet("/framew0rk/properties/"+propertyName, "framework", value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -433,7 +433,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5411,
-            "E: Error occured when trying to access the endpoint '/cps/framew0rk/properties/property5'.",
+            "E: Error occured when trying to access the endpoint '/framew0rk/properties/property5'.",
             " The request body is empty."
 		); 
     }
@@ -443,7 +443,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = null;
-        setServlet("/cps/framework/properties/"+propertyName, "framework", value, "PUT");
+        setServlet("/framework/properties/"+propertyName, "framework", value, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -461,7 +461,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5411,
-            "E: Error occured when trying to access the endpoint '/cps/framework/properties/property6'.",
+            "E: Error occured when trying to access the endpoint '/framework/properties/property6'.",
             " The request body is empty."
 		); 
     }
@@ -473,7 +473,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteDELETENoFrameworkReturnsError() throws Exception{
         // Given...
-		setServlet("/cps/namespace1/properties/property1", null, null, "DELETE");
+		setServlet("/namespace1/properties/property1", null, null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -500,7 +500,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     public void TestPropertyRouteDELETEWithHiddenNamespaceReturnsError() throws Exception {
         // Given...
         String propertyName = "property5";
-        setServlet("/cps/dss/properties/"+propertyName, "framework", null, "DELETE");
+        setServlet("/dss/properties/"+propertyName, "framework", null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -527,7 +527,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteDELETEBadNamespaceReturnsError() throws Exception{
         // Given...
-		setServlet("/cps/error/properties/property1", null, null, "DELETE");
+		setServlet("/error/properties/property1", null, null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -553,7 +553,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteDELETEBadPropertyReturnsError() throws Exception{
         // Given...
-		setServlet("/cps/framework/properties/badproperty", "framework", null, "DELETE");
+		setServlet("/framework/properties/badproperty", "framework", null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -582,7 +582,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		String namespace = "framework";
         String propertyName = "property1";
         String value = "value1";
-		setServlet("/cps/framework/properties/"+propertyName, namespace, null, "DELETE");
+		setServlet("/framework/properties/"+propertyName, namespace, null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -608,7 +608,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		String namespace = "secure";
         String propertyName = "property1";
 		String value = "value1";
-		setServlet("/cps/secure/properties/"+propertyName, namespace, value, "DELETE");
+		setServlet("/secure/properties/"+propertyName, namespace, value, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -626,7 +626,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/cps/secure/properties/property1'. The method 'DELETE' is not allowed."
+			"E: Error occured when trying to access the endpoint '/secure/properties/property1'. The method 'DELETE' is not allowed."
         );
     }
 
@@ -639,7 +639,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		String namespace = "framework";
         String propertyName = "property1";
         String value = "value1";
-		setServlet("/cps/framework/properties/"+propertyName, namespace, value, "POST");
+		setServlet("/framework/properties/"+propertyName, namespace, value, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -658,7 +658,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/cps/framework/properties/property1'. The method 'POST' is not allowed."
+			"E: Error occured when trying to access the endpoint '/framework/properties/property1'. The method 'POST' is not allowed."
 		);
     }
 }
