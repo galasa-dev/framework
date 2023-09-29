@@ -114,7 +114,7 @@ public class PropertyRoute extends CPSRoute{
         Map.Entry<String,String> property = getPropertyFromRequestBody(request);
         setProperty(namespace, property );
         String responseBody = String.format("Successfully created property %s in %s",property.getKey(), namespace);
-        return getResponseBuilder().buildResponse(response, "application/json", responseBody, HttpServletResponse.SC_CREATED); 
+        return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
     }
 
     /**

@@ -215,7 +215,7 @@ paths:
         '200':
           description: Action Message
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
               example: Successfully created property propertyName in namespace
@@ -394,7 +394,7 @@ paths:
         '200':
           description: Action Message
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
               example: Successfully updated property propertyName in namespace
@@ -479,7 +479,7 @@ paths:
         '200':
           description: Action Message
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
               example: Successfully deleted property propertyName in namespace
