@@ -37,7 +37,7 @@ public class TestClassesRoute extends RunsRoute {
 		*  -> /ras/testclasses
 		*  -> /ras/testclasses?
 		*/
-        super(responseBuilder, "\\/testclasses[?]?", framework);
+        super(responseBuilder, "\\/testclasses\\/?", framework);
     }
 
     final static Gson gson = GalasaGsonBuilder.build();

@@ -33,7 +33,7 @@ public class RequestorRoute extends RunsRoute {
 		*  -> /ras/requestors
 		*  -> /ras/requestors?
 		*/
-        super(responseBuilder, "\\/requestors[?]?", framework);
+        super(responseBuilder, "\\/requestors\\/?", framework);
     }
 
     final static Gson gson = GalasaGsonBuilder.build();
