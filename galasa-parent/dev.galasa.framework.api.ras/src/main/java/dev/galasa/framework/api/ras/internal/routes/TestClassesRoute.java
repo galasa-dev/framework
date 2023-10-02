@@ -37,7 +37,7 @@ public class TestClassesRoute extends RunsRoute {
 		*  -> /ras/testclasses
 		*  -> /ras/testclasses?
 		*/
-        super(responseBuilder, "\\/testclasses?", framework);
+        super(responseBuilder, "\\/testclasses[?]?", framework);
     }
 
     final static Gson gson = GalasaGsonBuilder.build();
@@ -47,11 +47,11 @@ public class TestClassesRoute extends RunsRoute {
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
     throws ServletException, IOException, FrameworkException {
         this.sortQueryParameterChecker = new RasQueryParameters(queryParams);
-        String outputString = retrieveTestClasses();
+        String outputString = TestClasses();
         return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }
     
-    private String retrieveTestClasses () throws ResultArchiveStoreException, ServletException {
+    private String TestClasses () throws ResultArchiveStoreException, ServletException, InternalServletException {
 
         List<RasTestClass> classArray = getTestClasses();
 
@@ -62,8 +62,8 @@ public class TestClassesRoute extends RunsRoute {
 				classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
 			}
 		} catch (InternalServletException e) {
-			ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,"testclass");
-			throw new ServletException(error);
+			ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, "testclass");
+			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 		}
 
         /* converting data to json */

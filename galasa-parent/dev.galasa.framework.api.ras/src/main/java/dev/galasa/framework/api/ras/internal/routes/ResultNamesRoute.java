@@ -36,7 +36,7 @@ public class ResultNamesRoute extends RunsRoute {
 		*  -> /ras/resultnames
 		*  -> /ras/resultnames?
 		*/
-		super(responseBuilder, "\\/resultnames?", framework);
+		super(responseBuilder, "\\/resultnames[?]?", framework);
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();

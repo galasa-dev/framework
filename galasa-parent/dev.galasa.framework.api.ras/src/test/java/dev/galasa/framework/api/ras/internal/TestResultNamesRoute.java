@@ -93,7 +93,6 @@ public class TestResultNamesRoute extends RasServletTest{
 		json.add("resultnames", jsonResultsArray);
 		return json.toString();
     }
-
     /*
      * Tests
      */

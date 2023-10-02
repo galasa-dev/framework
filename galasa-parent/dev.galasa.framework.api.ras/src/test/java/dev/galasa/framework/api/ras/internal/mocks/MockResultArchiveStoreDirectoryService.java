@@ -70,6 +70,9 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
         for (IRunResult run : this.getRunsResults){
 			TestStructure testStructure = run.getTestStructure();
 			key = testStructure.getBundle()+"/"+testStructure.getTestName();
+			if (key.equals("ForceException/ForceException")){
+				throw new ResultArchiveStoreException("ForceException result found in run");
+			}
 			if(!tests.containsKey(key)){
 				tests.put(key,new RasTestClass(testStructure.getTestName(), testStructure.getBundle()));
 			}

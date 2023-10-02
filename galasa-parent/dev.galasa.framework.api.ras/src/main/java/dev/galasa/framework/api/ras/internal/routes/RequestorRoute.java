@@ -33,7 +33,7 @@ public class RequestorRoute extends RunsRoute {
 		*  -> /ras/requestors
 		*  -> /ras/requestors?
 		*/
-        super(responseBuilder, "\\/requestors?", framework);
+        super(responseBuilder, "\\/requestors[?]?", framework);
     }
 
     final static Gson gson = GalasaGsonBuilder.build();
@@ -48,18 +48,18 @@ public class RequestorRoute extends RunsRoute {
     }
     
     private String retrieveRequestors(QueryParameters params) throws InternalServletException, ResultArchiveStoreException{
-        List<String> list = getRequestors();
+        List<String> requestorsList = getRequestors();
 
         //sorts list
-			Collections.sort(list);
+			Collections.sort(requestorsList);
             if (params.getSingleString("sort",null) !=null){
 			    if(!sortQueryParameterChecker.isAscending("requestor")) {
-				    Collections.reverse(list);
+				    Collections.reverse(requestorsList);
 			    }
             }
             
         //create json object
-			JsonElement json = new Gson().toJsonTree(list);
+			JsonElement json = new Gson().toJsonTree(requestorsList);
             JsonObject requestors = new JsonObject(); 
 			requestors.add("requestors", json);
             return requestors.toString();
