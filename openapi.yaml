@@ -212,7 +212,7 @@ paths:
                 value:
                   type: string
       responses:
-        '200':
+        '201':
           description: Action Message
           content:
             text/plain:
