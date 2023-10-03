@@ -128,8 +128,9 @@ public class PropertyRoute extends CPSRoute{
     protected  Map<String, String> filterPropertiesByInfix(Map<String, String> properties, List<String> infixes){
         Map<String, String> filteredProperties = new HashMap<String,String>();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
+            String key = entry.getKey();
             for (String infix : infixes){
-				if (entry.getKey().toString().contains(infix)&& !filteredProperties.containsKey(entry.getKey())){
+				if (key.contains(infix)&& !filteredProperties.containsKey(key)){
                     filteredProperties.put(entry.getKey(), entry.getValue());
 	            }
 			}
