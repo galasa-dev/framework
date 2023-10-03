@@ -126,7 +126,7 @@ paths:
       - name: prefix
         in: query
         description: |
-          Property Prefix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          Property Prefix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
             and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: false
         schema:
@@ -134,7 +134,15 @@ paths:
       - name: suffix
         in: query
         description: |
-          Property suffix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          Property suffix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
+      - name: infix
+        in: query
+        description: |
+          Comma-separated list of Property infixes. The first character of each infix must be in the 'a'-'z' or 'A'-'Z' ranges,
           and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: false
         schema:

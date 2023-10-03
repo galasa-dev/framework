@@ -8,6 +8,7 @@ package dev.galasa.framework.api.cps.internal.routes;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -57,7 +58,8 @@ public class PropertyRoute extends CPSRoute{
             }
             String prefix = queryParams.getSingleString("prefix", null);
             String suffix = queryParams.getSingleString("suffix", null);
-            properties = getProperties(namespace, prefix, suffix);
+            List<String> infixes = queryParams.getMultipleString("infix", null);
+            properties = getProperties(namespace, prefix, suffix, infixes);
         }catch (FrameworkException f){
                 ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
@@ -66,7 +68,7 @@ public class PropertyRoute extends CPSRoute{
     }
     
     
-    private String getProperties(String namespace, String prefix, String suffix) throws ConfigurationPropertyStoreException {
+    private String getProperties(String namespace, String prefix, String suffix, List<String> infixes) throws ConfigurationPropertyStoreException {
         Map<String, String> properties = getAllProperties(namespace);
        
         if (prefix != null){
@@ -75,10 +77,21 @@ public class PropertyRoute extends CPSRoute{
         if (suffix != null){
             properties = filterPropertiesBySuffix(properties,suffix);
         }
+        if (infixes != null){
+            properties = filterPropertiesByInfix(properties, infixes);
+        }
         
         return buildResponseBody(namespace, properties);
     }
     
+    /**
+     * Filter a map of provided properties by checking that the properties start with namespace.prefix 
+     * using the supplied paramenters
+     * @param namespace
+     * @param properties
+     * @param prefix
+     * @return Map of Properties starting with the provided prefix
+     */
     protected  Map<String, String> filterPropertiesByPrefix(String namespace, Map<String, String> properties , String prefix){
         Map<String, String> filteredProperties = new HashMap<String,String>();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
@@ -89,12 +102,37 @@ public class PropertyRoute extends CPSRoute{
         return filteredProperties;
     }
 
+    /**
+     * Filter a map of provided properties by checking that the properties end with the supplied prefix
+     * @param properties
+     * @param suffix
+     * @return Map of Properties ending with the provided suffix
+     */
     protected  Map<String, String> filterPropertiesBySuffix( Map<String, String> properties , String suffix){
         Map<String, String> filteredProperties = new HashMap<String,String>();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             if (entry.getKey().toString().endsWith(suffix)){
                 filteredProperties.put(entry.getKey(), entry.getValue());
             }
+        }
+        return filteredProperties;
+    }
+
+    /**
+     * Filter a map of provided properties by checking that the properties contain and match at least of the
+     * supplied infixes 
+     * @param properties
+     * @param infixes
+     * @return Map of Properties containing the at least one of the infixes
+     */
+    protected  Map<String, String> filterPropertiesByInfix(Map<String, String> properties, List<String> infixes){
+        Map<String, String> filteredProperties = new HashMap<String,String>();
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            for (String infix : infixes){
+				if (entry.getKey().toString().contains(infix)&& !filteredProperties.containsKey(entry.getKey())){
+                    filteredProperties.put(entry.getKey(), entry.getValue());
+	            }
+			}
         }
         return filteredProperties;
     }
