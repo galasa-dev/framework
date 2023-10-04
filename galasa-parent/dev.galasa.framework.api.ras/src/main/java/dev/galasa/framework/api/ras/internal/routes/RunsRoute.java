@@ -11,8 +11,10 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
@@ -26,6 +28,7 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 
@@ -91,4 +94,21 @@ public abstract class RunsRoute extends BaseRoute {
         return null;
     }
 
+    protected List<String> getRequestors() throws ResultArchiveStoreException{
+		HashSet<String> requestorSet = new HashSet<>();
+		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+			requestorSet.addAll(directoryService.getRequestors());
+		}
+		//convert to list of strings
+		List<String> requestors = new ArrayList<>(requestorSet);
+		return requestors;
+	}
+
+    protected List<RasTestClass> getTestClasses() throws ResultArchiveStoreException, ServletException{
+        List<RasTestClass> testClasses = new ArrayList<>();
+        for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+            testClasses.addAll(directoryService.getTests());
+        }
+        return testClasses;
+    }
 }
