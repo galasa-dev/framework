@@ -7,10 +7,11 @@ package dev.galasa.framework.api.cps.internal.routes;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
+import dev.galasa.framework.api.cps.internal.commons.PropertyComparator;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -80,10 +82,26 @@ public class PropertyRoute extends CPSRoute{
         if (infixes != null){
             properties = filterPropertiesByInfix(properties, infixes);
         }
-        
-        return buildResponseBody(namespace, properties);
+        Map<String, String> sortedProperties = sortResults(properties, properties.keySet());
+        return buildResponseBody(namespace, sortedProperties);
     }
     
+    /**
+     * 
+     * @param properties
+     * @return Sorted Map of properties
+     */
+    protected Map<String, String> sortResults(Map<String, String> properties, Collection<String> unsorted ) {
+        PropertyComparator comparator = new PropertyComparator();
+        Map<String,String> sorted = new TreeMap<String,String>(comparator);
+
+        for( String key : unsorted ) {
+            sorted.put(key, properties.get(key)); // All properties have value 1. We don't care for testing.
+        }
+
+        return sorted;
+    }
+
     /**
      * Filter a map of provided properties by checking that the properties start with namespace.prefix 
      * using the supplied paramenters
