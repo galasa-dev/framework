@@ -375,8 +375,9 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi.test.property\",\n    \"value\": \"value1\"\n  },"+
-			"\n  {\n    \"name\": \"multi..hospitality\",\n    \"value\": \"value3\"\n  },\n  {\n    \"name\": \"multi.test.empty\",\n    \"value\": \"value5\"\n  }\n]");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi..hospitality\",\n    \"value\": \"value3\"\n  },\n"+
+		"  {\n    \"name\": \"multi.test.empty\",\n    \"value\": \"value5\"\n  },"+"\n" +
+		"  {\n    \"name\": \"multi.test.property\",\n    \"value\": \"value1\"\n  }\n]");
     }
 
 	@Test
@@ -451,8 +452,8 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi.test.property\",\n    \"value\": \"value1\"\n  },"+
-			"\n  {\n    \"name\": \"multi.test.aunty5\",\n    \"value\": \"value4\"\n  },\n  {\n    \"name\": \"multi.test.empty\",\n    \"value\": \"value5\"\n  }\n]" );
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi.test.aunty5\",\n    \"value\": \"value4\"\n  },"+
+			"\n  {\n    \"name\": \"multi.test.empty\",\n    \"value\": \"value5\"\n  },\n  {\n    \"name\": \"multi.test.property\",\n    \"value\": \"value1\"\n  }\n]" );
     }
 
 	@Test
@@ -530,8 +531,149 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi..lecture101\",\n    \"value\": \"value101\"\n  },"+
-			"\n  {\n    \"name\": \"multi..charity1\",\n    \"value\": \"value2\"\n  }\n]");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi..charity1\",\n    \"value\": \"value2\"\n  },"+
+			"\n  {\n    \"name\": \"multi..lecture101\",\n    \"value\": \"value101\"\n  }\n]");
+    }
+
+	@Test
+    public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixSuffixAndInfixReturnsMultipleRecords() throws Exception {
+        // Given...
+		Map <String,String[]> params = new HashMap<String,String[]>();
+		params.put("prefix", new String[] {"test"});
+		params.put("suffix", new String[] {"stream"});
+		params.put("infix", new String[] {"testing"});
+
+        setServlet("/infixes/properties?prefix=test&suffix=stream&infix=testing", "infixes", params);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+
+        // Then...
+        // We expect data back
+        String output = outStream.toString();
+        assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"infixes.test.property.testing.local.stream\",\n    \"value\": \"value3\"\n  },"+
+			"\n  {\n    \"name\": \"infixes.test.property.testing.stream\",\n    \"value\": \"value4\"\n  }\n]");
+    }
+
+	@Test
+    public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixSuffixAndInfixesReturnsMultipleRecordsOK() throws Exception {
+        // Given...
+		Map <String,String[]> params = new HashMap<String,String[]>();
+		params.put("prefix", new String[] {"test"});
+		params.put("suffix", new String[] {"stream"});
+		params.put("infix", new String[] {"testing, local"});
+
+        setServlet("/infixes/properties?prefix=test&suffix=stream&infix=testing,local", "infixes", params);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+
+        // Then...
+        // We expect data back
+        String output = outStream.toString();
+        assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"infixes.test.property.testing.local.stream\",\n    \"value\": \"value3\"\n  },"+
+			"\n  {\n    \"name\": \"infixes.test.property.testing.stream\",\n    \"value\": \"value4\"\n  }\n]");
+    }
+
+	@Test
+    public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixSuffixAndInfixesReturnsMultipleRecords() throws Exception {
+        // Given...
+		Map <String,String[]> params = new HashMap<String,String[]>();
+		params.put("prefix", new String[] {"test"});
+		params.put("suffix", new String[] {"stream"});
+		params.put("infix", new String[] {"property,testing,local"});
+
+        setServlet("/infixes/properties?prefix=test&suffix=stream&infix=property,testing,local", "infixes", params);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+
+        // Then...
+        // We expect data back
+        String output = outStream.toString();
+        assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"infixes.test.property.testing.local.stream\",\n    \"value\": \"value3\"\n  },"+
+			"\n  {\n    \"name\": \"infixes.test.property.testing.stream\",\n    \"value\": \"value4\"\n  },"+
+			"\n  {\n    \"name\": \"infixes.test.aproperty.stream\",\n    \"value\": \"value1\"\n  },"+
+			"\n  {\n    \"name\": \"infixes.test.bproperty.stream\",\n    \"value\": \"value2\"\n  }\n]");
+    }
+
+	@Test
+    public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixSuffixAndInfixWithTwoSegmentsReturnsOk() throws Exception {
+        // Given...
+		Map <String,String[]> params = new HashMap<String,String[]>();
+		params.put("prefix", new String[] {"test"});
+		params.put("suffix", new String[] {"stream"});
+		params.put("infix", new String[] {"property.testing,local"});
+
+        setServlet("/infixes/properties?prefix=test&suffix=stream&infix=property,testing,local", "infixes", params);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+
+        // Then...
+        // We expect data back
+        String output = outStream.toString();
+        assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"infixes.test.property.testing.local.stream\",\n    \"value\": \"value3\"\n  },"+
+			"\n  {\n    \"name\": \"infixes.test.property.testing.stream\",\n    \"value\": \"value4\"\n  }\n]");
+    }
+
+	@Test
+    public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixSuffixAndBadInfixReurnsEmpty() throws Exception {
+        // Given...
+		Map <String,String[]> params = new HashMap<String,String[]>();
+		params.put("prefix", new String[] {"test"});
+		params.put("suffix", new String[] {"stream"});
+		params.put("infix", new String[] {"properties.testing"});
+
+        setServlet("/infixes/properties?prefix=test&suffix=stream&infix=properties.testing", "infixes", params);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+
+        // Then...
+        // We expect data back
+        String output = outStream.toString();
+        assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+		assertThat(output).isEqualTo("[]");
     }
 
 	/*
