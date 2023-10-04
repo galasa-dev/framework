@@ -224,6 +224,10 @@ public class RunQueryRoute extends RunsRoute {
 		if (passedInStatuses != null && !passedInStatuses.isEmpty()){
 			RasSearchCriteriaStatus statusCriteria = new RasSearchCriteriaStatus(passedInStatuses);
 			critList.add(statusCriteria);
+			List<TestRunLifecycleStatus> statuses =  statusCriteria.getStatuses();
+			for (TestRunLifecycleStatus status: statuses){	
+				logger.info(status.toString());
+			}
 		}
 		if (runName != null && !runName.isEmpty()) {
 			RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
@@ -256,7 +260,9 @@ public class RunQueryRoute extends RunsRoute {
 		// Collect all the runs from all the RAS stores into a single list
 		List<IRunResult> runs = new ArrayList<>();
 		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
-			runs.addAll(directoryService.getRuns(criteria));
+			List<IRunResult> rasruns = directoryService.getRuns(criteria);
+			logger.debug(rasruns.stream());
+			runs.addAll(rasruns);
 		}
 
 		// Convert each result to the required format
