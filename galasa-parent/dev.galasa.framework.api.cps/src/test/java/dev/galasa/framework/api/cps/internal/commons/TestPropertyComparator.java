@@ -94,7 +94,12 @@ public class TestPropertyComparator{
         assertThat( comparator.compare("a", "a.a")).isGreaterThan(0);
 
         assertThat( comparator.compare("a", "a")).isEqualTo(0);
+    }
 
+    @Test
+    public void testComparatorwithNull() {
+
+        PropertyComparator comparator = new PropertyComparator();
         assertThat( comparator.compare("a", null)).isLessThan(0);
         assertThat( comparator.compare(null, "a")).isGreaterThan(0);
         assertThat( comparator.compare(null, null)).isEqualTo(0);

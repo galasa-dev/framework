@@ -97,7 +97,7 @@ public class PropertyRoute extends CPSRoute{
         Map<String,String> sorted = new TreeMap<String,String>(comparator);
 
         for( String key : unsortedKeys ) {
-            sorted.put(key, properties.get(key)); // All properties have value 1. We don't care for testing.
+            sorted.put(key, properties.get(key));
         }
 
         return sorted;
@@ -150,7 +150,7 @@ public class PropertyRoute extends CPSRoute{
             String key = entry.getKey();
             for (String infix : infixes){
 				if (key.contains(infix)&& !filteredProperties.containsKey(key)){
-                    filteredProperties.put(entry.getKey(), entry.getValue());
+                    filteredProperties.put(key, entry.getValue());
 	            }
 			}
         }

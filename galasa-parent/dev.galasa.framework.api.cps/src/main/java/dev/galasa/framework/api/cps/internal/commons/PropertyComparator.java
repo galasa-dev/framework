@@ -27,7 +27,7 @@ public class PropertyComparator implements Comparator<String>, Serializable {
                 result = 0;
             } else {
                 // a less important than b
-                result = +1;
+                result = 1;
             }
         } else {
             if (b==null) {
