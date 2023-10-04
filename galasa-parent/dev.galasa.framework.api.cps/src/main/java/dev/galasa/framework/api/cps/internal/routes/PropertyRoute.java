@@ -82,20 +82,21 @@ public class PropertyRoute extends CPSRoute{
         if (infixes != null){
             properties = filterPropertiesByInfix(properties, infixes);
         }
-        Map<String, String> sortedProperties = sortResults(properties, properties.keySet());
+        Map<String, String> sortedProperties = sortResults(properties);
         return buildResponseBody(namespace, sortedProperties);
     }
     
     /**
-     * 
+     * Sort the properties provided by key 
      * @param properties
      * @return Sorted Map of properties
      */
-    protected Map<String, String> sortResults(Map<String, String> properties, Collection<String> unsorted ) {
+    protected Map<String, String> sortResults(Map<String, String> properties){
+        Collection<String> unsortedKeys = properties.keySet();
         PropertyComparator comparator = new PropertyComparator();
         Map<String,String> sorted = new TreeMap<String,String>(comparator);
 
-        for( String key : unsorted ) {
+        for( String key : unsortedKeys ) {
             sorted.put(key, properties.get(key)); // All properties have value 1. We don't care for testing.
         }
 
