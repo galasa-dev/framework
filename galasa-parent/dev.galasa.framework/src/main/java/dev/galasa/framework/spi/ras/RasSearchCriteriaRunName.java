@@ -21,18 +21,18 @@ public class RasSearchCriteriaRunName implements IRasSearchCriteria {
 	public boolean criteriaMatched(@NotNull TestStructure structure) {
 
 		if(structure == null) {
-			return Boolean.FALSE;	
+			return false;	
 		}
 
 		if(runNames != null) {
 			for(String runName : runNames) {
 				if(runName.equals(structure.getRunName())) {
-					return Boolean.TRUE;
+					return true;
 				}
 			}
 		}
 
-		return Boolean.FALSE;
+		return false;
 	}
 
 

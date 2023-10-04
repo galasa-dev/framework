@@ -20,12 +20,18 @@ public class RasSearchCriteriaStatus implements IRasSearchCriteria {
    
    @Override
    public boolean criteriaMatched(@NotNull TestStructure structure) {
-      
-      for(TestRunLifecycleStatus status : statuses) {
-            if(status.toString().equals(structure.getStatus())){
-               return true;
-            }
+      if(structure == null) {
+			return false;	
+		}
+
+      if (statuses != null){
+         for(TestRunLifecycleStatus status : statuses) {
+               if(status.toString().equals(structure.getStatus())){
+                  return true;
+               }
+         }
       }
+      
       return false;
    }
    

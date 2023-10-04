@@ -10,14 +10,6 @@ plugins {
 // It is also read by other build scrips as required.
 version = "0.30.0"
 
-repositories {
-    gradlePluginPortal()
-    mavenCentral()
-    maven {
-        url "https://development.galasa.dev/main/maven-repo/obr/"
-    }
-    mavenLocal()
-}
 
 dependencies {
     // We need the swagger generator to generate API documentation from the openapi.yaml file
@@ -57,6 +49,14 @@ gradle.taskGraph.afterTask { Task task, TaskState state ->
 allprojects {
    tasks.withType(Javadoc) {
       options.addStringOption('Xdoclint:none', '-quiet')
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        maven {
+            url "https://development.galasa.dev/main/maven-repo/obr/"
+        }
+        mavenLocal()
+    }
    }
 }
 

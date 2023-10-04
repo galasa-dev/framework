@@ -127,7 +127,7 @@ public class RunQueryRoute extends RunsRoute {
 		String testName = queryParams.getTestName();
 		String bundle = queryParams.getBundle();
 		List<String> result = queryParams.getResultsFromParameters(getResultNames());
-		List<TestRunLifecycleStatus> status = queryParams.getStatusesFromParameters();
+		List<TestRunLifecycleStatus> statuses = queryParams.getStatusesFromParameters();
 		String runName = queryParams.getRunName();
 
 		Instant to = queryParams.getToTime();
@@ -136,7 +136,7 @@ public class RunQueryRoute extends RunsRoute {
 		// from will error if no runname is specified as it is a mandatory field
 		Instant from = getWorkingFromValue(queryParams, noQueryFrom);
 
-		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,status,to, from, runName);
+		List<IRasSearchCriteria> criteria = getCriteria(requestor, testName, bundle, result, statuses, to, from, runName);
 		return criteria ;
 	}
 

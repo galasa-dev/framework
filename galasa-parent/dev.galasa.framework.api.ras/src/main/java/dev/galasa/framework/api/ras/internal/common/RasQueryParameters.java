@@ -38,99 +38,79 @@ public class RasQueryParameters {
 
 
     // make func to validate status values
-    public List<TestRunLifecycleStatus> getStatusesFromParameters () throws InternalServletException{
-		// status values received from the query
-		List<String> queryStatuses = generalQueryParams.getMultipleString("status", null);
-
-		if (queryStatuses != null){
-			List<TestRunLifecycleStatus> returnStatuses = new ArrayList<TestRunLifecycleStatus>();
-			for (String status : queryStatuses){
-				String statusUppercase = status.toUpperCase();
-				if (TestRunLifecycleStatus.isStatusValid(statusUppercase)) {
-					returnStatuses.add(TestRunLifecycleStatus.valueOf(statusUppercase));
-				} else {
-					ServletError error = new ServletError(GAL5014_STATUS_NAME_NOT_RECOGNIZED, status, TestRunLifecycleStatus.getAllAsStringList().toString());
-					throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-				}
-			}
-			return returnStatuses;
-		}
-
-		return new ArrayList<TestRunLifecycleStatus>();
-	}
-
-
-
+    
+    
+    
     public int getPageNumber() throws InternalServletException {
         int pageNumber = generalQueryParams.getSingleInt("page", DEFAULT_PAGE_NUMBER);
         return pageNumber;
     }
-
+    
     public int getPageSize() throws InternalServletException {
         return generalQueryParams.getSingleInt("size", DEFAULT_NUMBER_RECORDS_PER_PAGE);
     }
-
+    
     public Instant getToTime() throws InternalServletException {
         return generalQueryParams.getSingleInstant("to", null);
     }
-
+    
     public Instant getFromTime() throws InternalServletException {
         return generalQueryParams.getSingleInstant("from", null);
     }
-
+    
     public String getRequestor() throws InternalServletException {
         return generalQueryParams.getSingleString("requestor", null);
     }
-
+    
     public String getTestName() throws InternalServletException {
         return generalQueryParams.getSingleString("testname", null);
     }
-
+    
     public String getBundle() throws InternalServletException {
         return generalQueryParams.getSingleString("bundle", null);
     }
-
+    
     public String getRunName() throws InternalServletException {
         return generalQueryParams.getSingleString("runname", null);
     }
-
+    
     public String getSortValue() throws InternalServletException {
         return getSortValue(null);
     }
-
+    
     public String getSortValue(String defaultValue) throws InternalServletException {
         return generalQueryParams.getSingleString("sort",defaultValue);
     }
     public List<String> getRunIds( ) {
         return generalQueryParams.getMultipleString("runId", new ArrayList<String>());
     }
-
+    
     public boolean checkFromTimeOrRunNamePresent() throws InternalServletException {
         return generalQueryParams.checkAtLeastOneQueryParameterPresent("from", "runname");
     }
-
+    
     public int getSize(){
         return generalQueryParams.getSize();
     }
-
-
+    
+    
     public List<String> getResultsFromParameters (@NotNull List<String> rasResults) throws InternalServletException{
-		// Create map for the lowercase values of all results to ensure we can compare accurately
+        // Create map for the lowercase values of all results to ensure we can compare accurately
 		Map<String,String> resultNames = new HashMap<String,String>();
 		for (String result :rasResults){
-			resultNames.put(result.toLowerCase(), result);
+            resultNames.put(result.toLowerCase(), result);
 		}
 		// Return the Results from the URL Query
 		List<String> queryResults = generalQueryParams.getMultipleString("result", null);
 		// Check the results against the map
 		if (queryResults != null){
-			List<String> returnResults = new ArrayList<String>();
+            List<String> returnResults = new ArrayList<String>();
 			for (String result: queryResults){
-				String matched = resultNames.get(result.toLowerCase());
+                String matched = resultNames.get(result.toLowerCase());
 				if (matched != null) {
-					returnResults.add(matched);
+                    returnResults.add(matched);
 				} else {
-					ServletError error = new ServletError(GAL5013_RESULT_NAME_NOT_RECOGNIZED, result, rasResults.toString());
+                    ServletError error = new ServletError(GAL5013_RESULT_NAME_NOT_RECOGNIZED, result, rasResults.toString());
 					throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 				}
 			}
@@ -138,7 +118,28 @@ public class RasQueryParameters {
 		}
 		return null;
 	}
+    
+    public List<TestRunLifecycleStatus> getStatusesFromParameters () throws InternalServletException{
+        // status values received from the query
+        List<String> queryStatuses = generalQueryParams.getMultipleString("status", null);
 
+        if (queryStatuses != null){
+            List<TestRunLifecycleStatus> returnStatuses = new ArrayList<TestRunLifecycleStatus>();
+            for (String status : queryStatuses){
+                String statusUppercase = status.toUpperCase();
+                if (TestRunLifecycleStatus.isStatusValid(statusUppercase)) {
+                    returnStatuses.add(TestRunLifecycleStatus.valueOf(statusUppercase));
+                } else {
+                    ServletError error = new ServletError(GAL5014_STATUS_NAME_NOT_RECOGNIZED, status, TestRunLifecycleStatus.getAllAsStringList().toString());
+                    throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+                }
+            }
+            return returnStatuses;
+        }
+
+        return new ArrayList<TestRunLifecycleStatus>();
+    }
+    
     public QueryParameters getGeneralQueryParameters() {
         return this.generalQueryParams;
     }

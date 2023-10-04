@@ -21,18 +21,18 @@ public class RasSearchCriteriaBundle implements IRasSearchCriteria {
    public boolean criteriaMatched(@NotNull TestStructure structure) {
       
       if(structure == null) {
-         return Boolean.FALSE;   
+         return false;   
      }
       
      if(bundles != null) {
         for(String bundle : bundles) {
             if(bundle.equals(structure.getBundle())){
-                return Boolean.TRUE;
+                return true;
             }
         }
     }
      
-     return Boolean.FALSE;
+     return false;
       
    }
 
