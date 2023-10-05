@@ -27,8 +27,8 @@ public class TestRASSearchCriteriaStatus {
         return searchCriteria;
     }
 
-    /* 
-	*TESTS 
+    /*
+	*TESTS
 	*/
     
     @Test
@@ -76,5 +76,16 @@ public class TestRASSearchCriteriaStatus {
         boolean criteriaMatched = searchCriteria.criteriaMatched(testStructure);
         //Then ...
         Assert.assertEquals(criteriaMatched, false);
-    } 
+    }
+
+    @Test
+    public void TestMultipleCriteriaReturnsAsStringArray(){
+        //Given ...
+        RasSearchCriteriaStatus searchCriteria = setupRasSearchCriteriaStatus();
+        String[] expectedStatuses = {"finished","building","generating","running","rundone","up","started","provstart","ending"};
+        //When ...
+        String[] returnedStatuses = searchCriteria.getStatusesAStrings();
+        //Then ...
+        Assert.assertArrayEquals(returnedStatuses, expectedStatuses);
+    }
 }

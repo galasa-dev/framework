@@ -3,9 +3,12 @@
  */
 package dev.galasa.framework.spi.ras;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
+
+import org.apache.logging.log4j.core.config.plugins.util.ResolverUtil.Test;
 
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -31,6 +34,14 @@ public class RasSearchCriteriaStatus implements IRasSearchCriteria {
    
 
    public List<TestRunLifecycleStatus> getStatuses() {
-       return this.statuses;
+      return this.statuses;
+   }
+
+   public String[] getStatusesAStrings() {
+      List<String> statuseStrings = new ArrayList<String>();
+      for (TestRunLifecycleStatus status : this.statuses){
+         statuseStrings.add(status.toString());
+      }
+      return statuseStrings.toArray(new String[0]);
    }
 }
