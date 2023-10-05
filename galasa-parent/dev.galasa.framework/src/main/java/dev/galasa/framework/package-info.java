@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-
 /**
  * Galasa Framework - Framework setup routines
  */
