@@ -8,8 +8,6 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.logging.log4j.core.config.plugins.util.ResolverUtil.Test;
-
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
