@@ -29,17 +29,16 @@ public class RasSearchCriteriaStatus implements IRasSearchCriteria {
       }
       return false;
    }
-   
 
    public List<TestRunLifecycleStatus> getStatuses() {
       return this.statuses;
    }
 
-   public String[] getStatusesAStrings() {
-      List<String> statuseStrings = new ArrayList<String>();
+   public String[] getStatusesAsStrings() {
+      List<String> statusesStrings = new ArrayList<String>();
       for (TestRunLifecycleStatus status : this.statuses){
-         statuseStrings.add(status.toString());
+         statusesStrings.add(status.toString());
       }
-      return statuseStrings.toArray(new String[0]);
+      return statusesStrings.toArray(new String[0]);
    }
 }
