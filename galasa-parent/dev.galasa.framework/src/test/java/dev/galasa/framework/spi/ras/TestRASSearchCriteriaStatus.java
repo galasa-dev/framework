@@ -86,7 +86,7 @@ public class TestRASSearchCriteriaStatus {
         RasSearchCriteriaStatus searchCriteria = setupRasSearchCriteriaStatus();
         String[] expectedStatuses = {"finished","building","generating","running","rundone","up","started","provstart","ending"};
         //When ...
-        String[] returnedStatuses = searchCriteria.getStatusesAStrings();
+        String[] returnedStatuses = searchCriteria.getStatusesAsStrings();
         //Then ...
         Assert.assertArrayEquals(returnedStatuses, expectedStatuses);
     }
