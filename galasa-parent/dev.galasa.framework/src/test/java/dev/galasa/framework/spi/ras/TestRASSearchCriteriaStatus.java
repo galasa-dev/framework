@@ -1,5 +1,7 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.spi.ras; 
 
@@ -27,8 +29,8 @@ public class TestRASSearchCriteriaStatus {
         return searchCriteria;
     }
 
-    /* 
-	*TESTS 
+    /*
+	*TESTS
 	*/
     
     @Test
@@ -76,5 +78,16 @@ public class TestRASSearchCriteriaStatus {
         boolean criteriaMatched = searchCriteria.criteriaMatched(testStructure);
         //Then ...
         Assert.assertEquals(criteriaMatched, false);
-    } 
+    }
+
+    @Test
+    public void TestMultipleCriteriaReturnsAsStringArray(){
+        //Given ...
+        RasSearchCriteriaStatus searchCriteria = setupRasSearchCriteriaStatus();
+        String[] expectedStatuses = {"finished","building","generating","running","rundone","up","started","provstart","ending"};
+        //When ...
+        String[] returnedStatuses = searchCriteria.getStatusesAsStrings();
+        //Then ...
+        Assert.assertArrayEquals(returnedStatuses, expectedStatuses);
+    }
 }

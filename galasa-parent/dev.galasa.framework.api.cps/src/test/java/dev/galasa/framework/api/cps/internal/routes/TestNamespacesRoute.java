@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-
 package dev.galasa.framework.api.cps.internal.routes;
 import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;

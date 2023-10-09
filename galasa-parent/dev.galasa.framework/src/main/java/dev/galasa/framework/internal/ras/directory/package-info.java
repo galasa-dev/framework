@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-
 /**
  * Galasa Framework - Local Directory Result Archive Store internal code
  */
