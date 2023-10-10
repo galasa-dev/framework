@@ -1,4 +1,5 @@
 -snapshot ${tstamp}
 Bundle-Name: Galasa API Authentication microservices
+Export-Package: !dev.galasa.framework.api.Authentication.internal*;dev.galasa.framework.api.Authentication*;
 Import-Package: dev.galasa.framework.api.common,\
                 *

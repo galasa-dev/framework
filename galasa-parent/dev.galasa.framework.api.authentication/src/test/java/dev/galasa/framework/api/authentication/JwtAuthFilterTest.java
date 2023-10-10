@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.authentication.internal.JwtAuthFilter;
+import dev.galasa.framework.api.authentication.JwtAuthFilter;
 import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.Environment;
