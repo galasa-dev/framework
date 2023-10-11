@@ -40,6 +40,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String payload;
     private String method = "GET"; 
 
+    public MockHttpServletRequest(String pathInfo) {
+        this.pathInfo = pathInfo;
+    }
+    
     public MockHttpServletRequest(Map<String, String[]> parameterMap) {
         this.parameterMap = parameterMap;
     }

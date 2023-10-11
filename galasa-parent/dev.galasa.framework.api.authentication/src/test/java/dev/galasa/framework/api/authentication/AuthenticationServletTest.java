@@ -17,7 +17,6 @@ import javax.servlet.ServletOutputStream;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.authentication.AuthenticationServlet;
 import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.Environment;

@@ -3,7 +3,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.cps.internal;
+package dev.galasa.framework.api.runs;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -11,24 +14,18 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import dev.galasa.framework.api.cps.internal.routes.NamespacesRoute;
-import dev.galasa.framework.api.cps.internal.routes.PropertyRoute;
-import dev.galasa.framework.api.cps.internal.routes.PropertyUpdateRoute;
 import dev.galasa.framework.api.common.BaseServlet;
-
+import dev.galasa.framework.api.runs.routes.GroupRunsRoute;
 import dev.galasa.framework.spi.IFramework;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-
 /*
- * Proxy Servlet for the /cps/* endpoints
- */
+* Proxy servlet for /runs/* endpoints
+*/
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-"osgi.http.whiteboard.servlet.pattern=/cps/*" }, name = "Galasa CPS microservice")
-public class CpsServlet extends BaseServlet {
+"osgi.http.whiteboard.servlet.pattern=/runs/*" }, name = "Galasa CPS microservice")
+public class RunsServlet extends BaseServlet {
 
-	@Reference
+    @Reference
 	private IFramework framework;
 
 	private static final long serialVersionUID = 1L;
@@ -45,14 +42,9 @@ public class CpsServlet extends BaseServlet {
 
 	@Override
 	public void init() throws ServletException {
-		logger.info("CPS Servlet initialising");
+		logger.info("Schedule Runs Servlet initialising");
 
 		super.init();
-		
-		addRoute(new NamespacesRoute(getResponseBuilder(),framework));
-		addRoute(new PropertyUpdateRoute(getResponseBuilder(),framework));
-		addRoute(new PropertyRoute(getResponseBuilder(),framework));
-
+		addRoute(new GroupRunsRoute(getResponseBuilder(), framework));
 	}
-
 }

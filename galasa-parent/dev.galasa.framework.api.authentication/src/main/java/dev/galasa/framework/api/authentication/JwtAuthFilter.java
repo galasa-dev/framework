@@ -6,8 +6,6 @@
 package dev.galasa.framework.api.authentication;
 
 import java.io.IOException;
-import java.util.StringTokenizer;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;

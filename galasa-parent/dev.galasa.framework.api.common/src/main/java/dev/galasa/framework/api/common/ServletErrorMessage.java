@@ -36,11 +36,14 @@ public enum ServletErrorMessage {
     GAL5405_METHOD_NOT_ALLOWED                      (5405,"E: Error occured when trying to access the endpoint ''{0}''. The method ''{1}'' is not allowed."),
     GAL5411_NO_REQUEST_BODY                         (5411,"E: Error occured when trying to access the endpoint ''{0}''. The request body is empty."),
 
-    //CPS Namespaces
+    //CPS Namespaces...
     GAL5015_INTERNAL_CPS_ERROR                      (5015,"E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."),
     GAL5016_INVALID_NAMESPACE_ERROR                 (5016,"E: Error occured when trying to access namespace ''{0}''. The namespace provided is invalid."),
     GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR           (5017,"E: Error occured when trying to access property ''{0}''. The property name provided is invalid."),
     GAL5018_PROPERTY_ALREADY_EXISTS_ERROR           (5018,"E: Error occured when trying to access property ''{0}''. The property name provided already exists in the ''{1}'' namespace."),
+    
+    //Schedule Runs...
+    GAL5019_UNABLE_TO_RETRIEVE_RUNS                 (5019, "E: Unable to retrieve runs for Run Group: ''{0}''.")
     ;
 
 
