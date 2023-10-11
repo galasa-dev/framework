@@ -6,9 +6,6 @@
 package dev.galasa.framework.api.authentication.internal;
 
 import java.io.IOException;
-import java.security.Principal;
-import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.servlet.Filter;
@@ -20,47 +17,35 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.AlgorithmMismatchException;
-import com.auth0.jwt.exceptions.InvalidClaimException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.SignatureVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.SystemEnvironment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 
-//@Component(service = Filter.class, scope = ServiceScope.PROTOTYPE, property = {
-//        "osgi.http.whiteboard.filter.pattern=/*" }, configurationPid = {
-//                "dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa JWT Auth")
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+
+@Component(service = Filter.class, scope = ServiceScope.PROTOTYPE, property = {
+        "osgi.http.whiteboard.filter.pattern=/*" }, name = "Galasa JWT Auth")
 public class JwtAuthFilter implements Filter {
 
-    private final Log     logger                  = LogFactory.getLog(getClass());
-    private static String SECRET_KEY              = "framework.jwt.secret";
+    private final Log logger = LogFactory.getLog(getClass());
 
-    private Properties    configurationProperties = new Properties();
+    private ResponseBuilder responseBuilder = new ResponseBuilder();
 
-    @Activate
-    void activate(Map<String, Object> properties) {
-        synchronized (configurationProperties) {
-            String secret = (String) properties.get(SECRET_KEY);
-            if (secret != null) {
-                this.configurationProperties.put(SECRET_KEY, secret);
-            } else {
-                this.configurationProperties.remove(SECRET_KEY);
-            }
-        }
-    }
+    protected Environment env = new SystemEnvironment();
+
+    protected OidcProvider oidcProvider;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        oidcProvider = new OidcProvider(env.getenv("GALASA_DEX_ISSUER"));
+        logger.info("Galasa JWT Auth Filter initialised");
     }
 
     @Override
@@ -75,77 +60,54 @@ public class JwtAuthFilter implements Filter {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         HttpServletResponse servletResponse = (HttpServletResponse) response;
 
-        if ("/auth".equals(servletRequest.getServletPath())) { // dont do this for the auth url
+        // Do not apply the filter to the /auth endpoint and only force galasactl to authenticate
+        if ((servletRequest.getServletPath()).equals("/auth") || !"galasactl".equalsIgnoreCase(servletRequest.getHeader("Galasa-Application"))) {
             chain.doFilter(request, response);
             return;
         }
 
-        Principal principal = servletRequest.getUserPrincipal();
-        if (principal != null) { // already authenticated
-            chain.doFilter(request, response);
-            return;
-        }
+        String errorString = "";
+        int httpStatusCode = HttpServletResponse.SC_OK;
 
-        String authorization = servletRequest.getHeader("Authorization");
-        if (authorization == null) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        StringTokenizer st = new StringTokenizer(authorization);
-        if (!st.hasMoreTokens()) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        String bearer = st.nextToken();
-        if (!"bearer".equalsIgnoreCase(bearer)) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        if (!st.hasMoreTokens()) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        String sJwt = st.nextToken();
-        Algorithm algorithm = Algorithm.HMAC256(this.configurationProperties.getProperty(SECRET_KEY));
-
-        JWTVerifier verifier = JWT.require(algorithm).withIssuer("galasa").build();
         try {
-            DecodedJWT jwt = verifier.verify(sJwt);
+            String sJwt = getBearerTokenFromAuthHeader(servletRequest);
+            if (sJwt != null) {
 
-            String subject = jwt.getSubject();
-            String role = jwt.getClaim("role").asString();
+                // Only allow the request through the filter if the provided JWT is valid
+                if (oidcProvider.isJwtValid(sJwt)) {
+                    chain.doFilter(request, response);
+                    return;
+                }
+            }
 
-            JwtRequestWrapper wrapper = new JwtRequestWrapper(subject, role, servletRequest);
+            // Throw an unauthorized exception
+            ServletError error = new ServletError(GAL5401_UNAUTHORIZED);
+            throw new InternalServletException(error, HttpServletResponse.SC_UNAUTHORIZED);
 
-            chain.doFilter(wrapper, servletResponse);
-            return;
-        } catch (AlgorithmMismatchException e) {
-            chain.doFilter(request, response);
-            invalidAuth(servletRequest, servletResponse, "Incorrect Algorithim " + e);
-            return;
-        } catch (SignatureVerificationException e) {
-            chain.doFilter(request, response);
-            invalidAuth(servletRequest, servletResponse, "Non valid signature " + e);
-        } catch (TokenExpiredException e) {
-            chain.doFilter(request, response);
-            invalidAuth(servletRequest, servletResponse, "Jwt has expired " + e);
-        } catch (InvalidClaimException e) {
-            chain.doFilter(request, response);
-            invalidAuth(servletRequest, servletResponse, "Invalid Claims " + e);
+        } catch (InternalServletException e) {
+            errorString = e.getMessage();
+            httpStatusCode = e.getHttpFailureCode();
+        } catch (Exception e) {
+            errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
+            httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
-        // chain.doFilter(servletRequest, servletResponse);
+        responseBuilder.buildResponse(servletResponse, "application/json", errorString, httpStatusCode);
     }
 
-    private void invalidAuth(HttpServletRequest servletRequest, HttpServletResponse servletResponse, String jwtResponse)
-            throws IOException {
-        servletResponse.setContentType("text/plain");
-        servletResponse.addHeader("WWW-Authenticate", "Bearer realm=\"Galasa\""); // *** Ability to set the realm
-        servletResponse.getWriter().write(jwtResponse);
-        return;
+    // Gets the JWT from a given request's Authorization header, returning null if it does not have one
+    private String getBearerTokenFromAuthHeader(HttpServletRequest servletRequest) {
+        String sJwt = null;
+        String authorization = servletRequest.getHeader("Authorization");
+        if (authorization != null) {
+            StringTokenizer st = new StringTokenizer(authorization);
+            if (st.hasMoreTokens()) {
+                String bearer = st.nextToken();
+                if (bearer.equalsIgnoreCase("bearer") && st.hasMoreTokens()) {
+                    sJwt = st.nextToken();
+                }
+            }
+        }
+        return sJwt;
     }
 
     @Override

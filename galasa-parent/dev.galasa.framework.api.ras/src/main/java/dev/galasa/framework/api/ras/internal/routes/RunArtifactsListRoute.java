@@ -5,7 +5,7 @@
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,22 +15,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
-import dev.galasa.framework.api.ras.internal.verycommon.*;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsJson;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsProperties;
 import dev.galasa.framework.api.ras.internal.common.IRunRootArtifact;
 import dev.galasa.framework.api.ras.internal.common.RunLogArtifact;
 import dev.galasa.framework.api.ras.internal.common.StructureJsonArtifact;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
-import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
-import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
@@ -47,8 +47,8 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
     private List<IRunRootArtifact> rootArtifacts = new ArrayList<>();
 
     public RunArtifactsListRoute(
-        ResponseBuilder responseBuilder, 
-        IFileSystem fileSystem, 
+        ResponseBuilder responseBuilder,
+        IFileSystem fileSystem,
         IFramework framework
     ) {
         //  Regex to match endpoint: /ras/runs/{runId}/artifacts
@@ -62,7 +62,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
     }
 
     @Override
-    public HttpServletResponse handleRequest(String pathInfo, QueryParameters queryParams, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
         Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);

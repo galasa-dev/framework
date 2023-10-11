@@ -7,21 +7,23 @@ package dev.galasa.framework.api.ras.internal.mocks;
 
 import java.util.List;
 
+import dev.galasa.framework.api.common.mocks.IServletUnderTest;
+import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.spi.IRunResult;
 
 public class MockRasServletEnvironment extends MockServletBaseEnvironment {
 
-	public MockRasServletEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest){ 
+	public MockRasServletEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest) {
     	super(mockInpResults, mockRequest, new MockResultArchiveStoreDirectoryService(mockInpResults));
 	}
 
-	public MockRasServletEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockFileSystem mockFileSystem ){ 
+	public MockRasServletEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockFileSystem mockFileSystem ) {
 		super(mockInpResults, mockRequest, mockFileSystem);
 	}
 
-	public MockRasServletEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ){ 
+	public MockRasServletEnvironment(List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ) {
 		super(mockInpResults, mockRequest, rasStore);
 	}
 

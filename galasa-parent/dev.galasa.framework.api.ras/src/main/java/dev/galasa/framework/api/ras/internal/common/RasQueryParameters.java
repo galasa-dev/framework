@@ -1,5 +1,7 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.ras.internal.common;
 
@@ -13,10 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.TestRunLifecycleStatus;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
-import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.common.ServletError;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 
 public class RasQueryParameters {
@@ -41,7 +43,7 @@ public class RasQueryParameters {
     public List<TestRunLifecycleStatus> getStatusesFromParameters () throws InternalServletException{
 		// status values received from the query
 		List<String> queryStatuses = generalQueryParams.getMultipleString("status", null);
-		
+
 		if (queryStatuses != null){
 			List<TestRunLifecycleStatus> returnStatuses = new ArrayList<TestRunLifecycleStatus>();
 			for (String status : queryStatuses){
@@ -84,23 +86,23 @@ public class RasQueryParameters {
 
     public String getTestName() throws InternalServletException {
         return generalQueryParams.getSingleString("testname", null);
-    } 
+    }
 
     public String getBundle() throws InternalServletException {
         return generalQueryParams.getSingleString("bundle", null);
-    } 
+    }
 
     public String getRunName() throws InternalServletException {
         return generalQueryParams.getSingleString("runname", null);
-    } 
+    }
 
     public String getSortValue() throws InternalServletException {
         return getSortValue(null);
-    } 
+    }
 
     public String getSortValue(String defaultValue) throws InternalServletException {
         return generalQueryParams.getSingleString("sort",defaultValue);
-    } 
+    }
     public List<String> getRunIds( ) {
         return generalQueryParams.getMultipleString("runId", new ArrayList<String>());
     }

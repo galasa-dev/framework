@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.mocks.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -92,9 +93,8 @@ public class TestResultNamesRoute extends RasServletTest{
 		json.add("resultnames", jsonResultsArray);
 		return json.toString();
     }
-
     /*
-     * Tests 
+     * Tests
      */
 
     @Test
@@ -159,7 +159,7 @@ public class TestResultNamesRoute extends RasServletTest{
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
-    
+
     @Test
 	public void testResultNamesWithTenTestsFiveResultsReturnsOK() throws Exception {
 		//Given..

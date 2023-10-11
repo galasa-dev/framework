@@ -8,7 +8,7 @@ package dev.galasa.framework.api.ras.internal;
 import org.junit.Test;
 
 import dev.galasa.framework.api.ras.internal.mocks.MockRasServletEnvironment;
-import dev.galasa.framework.api.ras.internal.mocks.MockHttpServletRequest;
+import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockPath;
 import dev.galasa.framework.spi.IRunResult;
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class TestRunArtifactsDownloadServlet extends RasServletTest {
-	
+
 	@Before
 	public void setUp() {
 		mockFileSystem = new MockFileSystem();
@@ -40,12 +40,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/" + artifactPath);
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -58,7 +58,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		// }
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 5008, "GAL5008E", artifactPath, runName);
-	
+
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -74,12 +74,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/artifacts" + artifactPath);
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -92,7 +92,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		// }
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 5009, "GAL5009E", artifactPath, runName);
-	
+
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -108,12 +108,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/artifacts" + artifactPath);
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -126,7 +126,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		// }
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 5009, "GAL5009E", artifactPath, runName);
-	
+
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -141,12 +141,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/artifacts" + artifactPath);
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -159,7 +159,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		// }
 		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
-	
+
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -176,12 +176,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/" + artifactPath);
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -206,12 +206,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/artifacts" + artifactPath);
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -220,7 +220,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		// Expecting:
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 5009, "GAL5009E", artifactPath, runName);
-	
+
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
@@ -239,12 +239,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/artifacts" + artifactPath.toString());
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -271,12 +271,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/artifacts" + artifactPath.toString());
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -304,12 +304,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files" + artifactPath);
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -337,12 +337,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files" + artifactPath);
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
@@ -366,12 +366,12 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files" + artifactPath);
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
-		
+
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		
+
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);

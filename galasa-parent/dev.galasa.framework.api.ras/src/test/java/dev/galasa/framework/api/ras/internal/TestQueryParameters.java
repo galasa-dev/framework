@@ -11,15 +11,14 @@ import java.util.*;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.QueryParameters;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.QueryParameters;
 
 import static org.assertj.core.api.Assertions.*;
 
 
 public class TestQueryParameters extends RasServletTest {
-    
+
 
     //-----------------------------------------------------------------
     // When the query parameter is a List of Strings
@@ -284,7 +283,7 @@ public class TestQueryParameters extends RasServletTest {
             .isInstanceOf(InternalServletException.class)
             .hasMessageContaining("died")
             .hasMessageContaining("GAL5001") // GAL5001_INVALID_DATE_TIME_FIELD
-            
+
         ;
     }
 

@@ -701,4 +701,4 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                 + this.framework.getConfidentialTextService().getClass().getName());
 
     }
-}   
+}

@@ -5,28 +5,30 @@
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
-import static dev.galasa.framework.api.ras.internal.verycommon.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 
-import dev.galasa.framework.api.ras.internal.verycommon.*;
-import dev.galasa.framework.api.ras.internal.verycommon.BaseRoute;
-import dev.galasa.framework.api.ras.internal.verycommon.InternalServletException;
-import dev.galasa.framework.api.ras.internal.verycommon.ResponseBuilder;
-import dev.galasa.framework.api.ras.internal.verycommon.ServletError;
+import dev.galasa.framework.api.common.BaseRoute;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.ResultNames;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 
@@ -53,7 +55,7 @@ public abstract class RunsRoute extends BaseRoute {
 
     protected List<String> getResultNames () throws InternalServletException{
 		List<String> resultsList = new ArrayList<>();
-    
+
 		try {
 			for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
                 List<String> results = directoryService.getResultNames();
@@ -92,4 +94,21 @@ public abstract class RunsRoute extends BaseRoute {
         return null;
     }
 
+    protected List<String> getRequestors() throws ResultArchiveStoreException{
+		HashSet<String> requestorSet = new HashSet<>();
+		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+			requestorSet.addAll(directoryService.getRequestors());
+		}
+		//convert to list of strings
+		List<String> requestors = new ArrayList<>(requestorSet);
+		return requestors;
+	}
+
+    protected List<RasTestClass> getTestClasses() throws ResultArchiveStoreException, ServletException{
+        List<RasTestClass> testClasses = new ArrayList<>();
+        for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+            testClasses.addAll(directoryService.getTests());
+        }
+        return testClasses;
+    }
 }
