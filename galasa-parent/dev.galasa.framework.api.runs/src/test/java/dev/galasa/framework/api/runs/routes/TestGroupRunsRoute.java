@@ -29,6 +29,10 @@ public class TestGroupRunsRoute extends RunsServletTest {
 		this.runs.add(new MockIRun( runName, runType, requestor, test, runStatus, bundle, testClass, groupName));
     }
 
+    /*
+     * GET Requests
+     */
+
     @Test
     public void TestGetRunsNoFrameworkReturnsError() throws Exception {
         //Given...
@@ -189,10 +193,181 @@ public class TestGroupRunsRoute extends RunsServletTest {
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
 
-// Framework not there
-// valid groupName
-// invalid groupName
-// empty groupname - error
-// 
+    /*
+     * POST requests
+     */
+    
+    @Test
+    public void TestPostRunsNoFrameworkReturnsError() throws Exception {
+        //Given...
+        setServlet("group", null, null, "POST");
+        MockRunsServlet servlet = getServlet();
+        HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+
+        //When...
+        servlet.init();
+		servlet.doPost(req,resp);
+
+        //Then...
+        assertThat(resp.getStatus()).isEqualTo(500);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5000,
+			"GAL5000E: ",
+			"Error occured when trying to access the endpoint"
+		);
+    }
+
+    @Test
+    public void TestPostRunsWithNoBodyReturnsError() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String value = "";
+        setServlet(groupName, groupName, value, "POST");
+;		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(411);
+
+		checkErrorStructure(
+			outStream.toString(),
+			5411, "GAL5411E: Error occured when trying to access the endpoint 'valid'. The request body is empty."
+		);
+    }
+
+    @Test
+    public void TestPostRunsWithInvalidBodyReturnsError() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String value = "Invalid";
+        setServlet(groupName, groupName, value, "POST");
+;		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(400);
+
+		checkErrorStructure(
+			outStream.toString(),
+			5020, "GAL5020E: Error occured when trying to translate the payload into a run."
+		);
+    }
+
+    @Test
+    public void TestPostRunsWithBadBodyReturnsError() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String payload = "{\"classNames\": [\"badClassName\"]," +
+        "\"requestorType\": \"requestorType\"," +
+        "\"requestor\": \"user1\"," +
+        "\"testStream\": \"this is a test stream\"," +
+        "\"obr\": \"this.obr\","+
+        "\"mavenRepository\": \"this.maven.repo\"," +
+        "\"sharedEnvironmentPhase\": \"envPhase\"," +
+        "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
+        "\"overrides\": {}" +
+        "\"trace\": true }";
+        
+        setServlet(groupName, groupName, payload, "POST");
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+			outStream.toString(),
+			5020, "E: Error occured when trying to translate the payload into a run."
+		);
+    }
+
+    @Test
+    public void TestPostRunsWithValidBodyBadEnvPhaseReturnsError() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String payload = "{\"classNames\": [\"Class/name\"]," +
+        "\"requestorType\": \"requestorType\"," +
+        "\"requestor\": \"user1\"," +
+        "\"testStream\": \"this is a test stream\"," +
+        "\"obr\": \"this.obr\","+
+        "\"mavenRepository\": \"this.maven.repo\"," +
+        "\"sharedEnvironmentPhase\": \"envPhase\"," +
+        "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
+        "\"overrides\": {}," +
+        "\"trace\": true }";
+        
+        setServlet(groupName, groupName, payload, "POST");
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(500);
+        checkErrorStructure(
+			outStream.toString(),
+			5022, "E: Error occured trying parse the shared environment phase."
+		);
+    }
+
+    @Test
+    public void TestPostRunsWithValidBodyReturnsOK() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String payload = "{\"classNames\": [\"Class/name\"]," +
+        "\"requestorType\": \"requestorType\"," +
+        "\"requestor\": \"user1\"," +
+        "\"testStream\": \"this is a test stream\"," +
+        "\"obr\": \"this.obr\","+
+        "\"mavenRepository\": \"this.maven.repo\"," +
+        "\"sharedEnvironmentPhase\": \"SharedEnvironmentPhase.BUILD\"," +
+        "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
+        "\"overrides\": {}," +
+        "\"trace\": true }";
+        
+        setServlet(groupName, groupName, payload, "POST");
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(200);
+        checkErrorStructure(
+			outStream.toString(),
+			5022, "E: Error occured trying parse the shared environment phase."
+		);
+    }
 
 }
