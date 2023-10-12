@@ -46,6 +46,9 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
 
     @Override
     public @NotNull List<IRun> getAllGroupedRuns(@NotNull String groupName) throws FrameworkException {
+        if(groupName.equals("invalid")){
+            return null;
+        }
        return this.runs;
     }
 

@@ -8,7 +8,6 @@ package dev.galasa.framework.api.runs;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,7 +27,6 @@ import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockIFrameworkRuns;
-import dev.galasa.framework.api.common.mocks.MockIRun;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
 import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
 import dev.galasa.framework.spi.IFramework;
@@ -74,7 +72,35 @@ public class RunsServletTest extends BaseServletTest {
 	return this.resp;
 	}
 
-    
+	protected String generateExpectedJson(List<IRun> runs, String complete) {
+        String expectedJson = "{\n  \"complete\": "+complete+",\n  \"runs\": [\n    ";
+		for (int r= 0; r< runs.size(); r++ ) {
+            String runString ="";
+			if (r > 0) {
+					runString += ",\n    ";
+			}
+			runString += "{\n      \"name\": \""+runs.get(r).getName()+"\",\n"+
+                "      \"heartbeat\": \"2023-10-12T12:16:49.832925Z\",\n"+
+                "      \"type\": \""+runs.get(r).getType()+"\",\n"+
+                "      \"group\": \""+runs.get(r).getGroup()+"\",\n"+
+                "      \"test\": \""+runs.get(r).getTestClassName()+"\",\n"+
+                "      \"bundleName\": \""+runs.get(r).getTestBundleName()+"\",\n"+
+                "      \"testName\": \""+runs.get(r).getTest()+"\",\n"+
+                "      \"status\": \""+runs.get(r).getStatus()+"\",\n"+
+                "      \"result\": \"Passed\",\n"+
+                "      \"queued\": \"2023-10-12T12:16:49.832925Z\",\n"+
+                "      \"finished\": \"2023-10-12T12:16:49.832925Z\",\n"+
+                "      \"waitUntil\": \"2023-10-12T12:16:49.832925Z\",\n"+
+                "      \"requestor\": \""+runs.get(r).getRequestor()+"\",\n"+
+                "      \"isLocal\": false,\n"+
+                "      \"isTraceEnabled\": false,\n"+
+                "      \"rasRunId\": \"cdb-"+runs.get(r).getName()+"\"\n    }";
+				
+				expectedJson += runString;
+        }
+        expectedJson += "\n  ]\n}";
+        return expectedJson;
+    }
 
 	@Override
 	protected void checkJsonArrayStructure(String jsonString, Map<String, String> jsonFieldsToCheck) throws Exception {

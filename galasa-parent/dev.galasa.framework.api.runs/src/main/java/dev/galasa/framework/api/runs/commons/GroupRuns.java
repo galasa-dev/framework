@@ -8,6 +8,7 @@ package dev.galasa.framework.api.runs.commons;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.api.runs.ScheduleStatus;
@@ -22,11 +23,12 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class GroupRuns extends BaseRoute {
 
-    private IFramework framework;
+    protected IFramework framework;
     
 
     public GroupRuns(ResponseBuilder responseBuilder, String path, IFramework framework) {
         super(responseBuilder, path);
+        this.framework = framework;
     }
 
     protected List<IRun> getRuns(String groupName) throws InternalServletException {
@@ -40,7 +42,7 @@ public class GroupRuns extends BaseRoute {
         return runs;
     }
 
-    protected ScheduleStatus serializeRuns(List<IRun> runs) {
+    protected ScheduleStatus serializeRuns(@NotNull List<IRun> runs) {
        
         ScheduleStatus status = new ScheduleStatus();
         boolean complete = true;

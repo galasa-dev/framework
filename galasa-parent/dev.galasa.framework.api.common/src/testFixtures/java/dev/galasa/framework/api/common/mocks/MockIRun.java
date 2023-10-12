@@ -21,12 +21,20 @@ public class MockIRun implements IRun{
                          */
     private String runName;
     private String runType;
+    private Instant heartbeat = Instant.parse("2023-10-12T12:16:49.832925Z");
+    private Instant queued = Instant.parse("2023-10-12T12:16:49.832925Z");
+    private Instant finished = Instant.parse("2023-10-12T12:16:49.832925Z");
+    private Instant waitUntil = Instant.parse("2023-10-12T12:16:49.832925Z");
     private String requestor;
     private String test;
     private String runStatus;
     private String bundle; 
     private String testClass;
     private String groupName;
+    private String stream;
+    private String repo;
+    private String obr;
+    private String result = "Passed";
 
     
     public MockIRun(String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName){
@@ -47,8 +55,7 @@ public class MockIRun implements IRun{
 
     @Override
     public Instant getHeartbeat() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getHeartbeat'");
+        return this.heartbeat;
     }
 
     @Override
@@ -73,8 +80,7 @@ public class MockIRun implements IRun{
 
     @Override
     public String getStream() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getStream'");
+        return this.stream;
     }
 
     @Override
@@ -99,61 +105,52 @@ public class MockIRun implements IRun{
 
     @Override
     public Instant getQueued() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getQueued'");
+        return this.queued;
     }
 
     @Override
     public String getRepository() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRepository'");
+        return this.repo;
     }
 
     @Override
     public String getOBR() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOBR'");
+        return this.obr;
     }
 
     @Override
     public boolean isTrace() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isTrace'");
+        return false;
     }
 
     @Override
     public Instant getFinished() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFinished'");
+        return this.finished;
     }
 
     @Override
     public Instant getWaitUntil() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getWaitUntil'");
+        return this.waitUntil;
     }
 
     @Override
     public Run getSerializedRun() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSerializedRun'");
+        return new Run(runName, heartbeat, runType, groupName, testClass, bundle, test, runStatus, result, queued,
+                finished, waitUntil, requestor, stream, repo, obr, false, false, "cdb-"+runName);
     }
 
     @Override
     public String getResult() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getResult'");
+        return this.result;
     }
 
     @Override
     public boolean isSharedEnvironment() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isSharedEnvironment'");
+        return false;
     }
 
     @Override
     public String getGherkin() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getGherkin'");
     }
     
