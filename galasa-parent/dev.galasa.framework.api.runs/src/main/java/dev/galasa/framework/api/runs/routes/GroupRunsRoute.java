@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 
+import dev.galasa.framework.api.authentication.Authorization;
 import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -52,7 +53,8 @@ public class GroupRunsRoute extends GroupRuns{
     throws ServletException, IOException, FrameworkException {
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
-        ScheduleStatus sheduleStatus = scheduleRun(scheduleRequest, groupName);
+        String requestor = new Authorization(request).getUser();
+        ScheduleStatus sheduleStatus = scheduleRun(scheduleRequest, groupName, requestor);
         return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(sheduleStatus), HttpServletResponse.SC_CREATED);
     }
 

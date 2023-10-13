@@ -31,10 +31,6 @@ public class RunsServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
 
 	private Log  logger  =  LogFactory.getLog(this.getClass());
- 
-	protected IFramework getFramework() {
-        return this.framework;
-    }
 
 	protected void setFramework(IFramework framework) {
         this.framework = framework;

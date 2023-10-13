@@ -13,6 +13,7 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.SystemEnvironment;
@@ -20,16 +21,15 @@ import dev.galasa.framework.api.authentication.internal.OidcProvider;
 
 public class Authorization {
 
-    private Environment env = new SystemEnvironment();
     protected DecodedJWT decodedJwt;
-    protected OidcProvider oidcProvider = new OidcProvider(env.getenv("GALASA_DEX_ISSUER"));
     private  String jwt;
 
     public Authorization (HttpServletRequest req) {
-        this.jwt = getBearerTokenFromAuthHeader(req);}
+        this.jwt = getBearerTokenFromAuthHeader(req);
+    }
 
     public void decodeJwt() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException{
-        this.decodedJwt = oidcProvider.decodeJwt(jwt);
+        this.decodedJwt = JWT.decode(jwt);
     }
 
     // Gets the JWT from a given request's Authorization header, returning null if it does not have one
@@ -49,6 +49,9 @@ public class Authorization {
     }
 
     public String getUser() {
+        if (decodedJwt == null){
+            return null;
+        }
         return decodedJwt.getSubject();
     }
 }

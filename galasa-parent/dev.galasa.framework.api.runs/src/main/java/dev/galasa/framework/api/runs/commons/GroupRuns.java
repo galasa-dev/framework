@@ -90,7 +90,7 @@ public class GroupRuns extends BaseRoute {
         return scheduleRequest;
     }
 
-     public ScheduleStatus scheduleRun(ScheduleRequest request, String groupName) throws ServletException, IOException, InternalServletException {
+    public ScheduleStatus scheduleRun(ScheduleRequest request, String groupName, String jwtRequestor) throws ServletException, IOException, InternalServletException {
             
         ScheduleStatus status = new ScheduleStatus();
         status.setComplete(false);
@@ -109,8 +109,11 @@ public class GroupRuns extends BaseRoute {
                 }
             }
 
+            if(jwtRequestor == null){
+                jwtRequestor = request.getRequestor(); 
+            }
             try {
-                IRun newRun = framework.getFrameworkRuns().submitRun(request.getRequestorType(), request.getRequestor(), bundle, testClass,
+                IRun newRun = framework.getFrameworkRuns().submitRun(request.getRequestorType(), jwtRequestor, bundle, testClass,
                         groupName, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
                         request.isTrace(), request.getOverrides(), 
                         senvPhase, 

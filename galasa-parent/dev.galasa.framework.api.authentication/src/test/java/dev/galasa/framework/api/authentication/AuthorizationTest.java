@@ -45,7 +45,6 @@ public class AuthorizationTest {
         
         public MockAuthorization (HttpServletRequest req) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException{
             super(req);
-            super.oidcProvider = new MockOidcProvider("http://dummy-issuer");
             super.decodeJwt();
         }
     }
