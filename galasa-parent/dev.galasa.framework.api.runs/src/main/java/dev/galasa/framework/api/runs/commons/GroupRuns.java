@@ -70,14 +70,6 @@ public class GroupRuns extends BaseRoute {
         return status;
     }
 
-    protected boolean checkRequestHasContent(HttpServletRequest request) throws InternalServletException{
-        if (request.getContentLength() < 1){
-            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY, request.getPathInfo());
-            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
-        }
-        return true;
-    }
-
     protected ScheduleRequest getScheduleRequestfromRequest(HttpServletRequest request) throws InternalServletException{
         ScheduleRequest scheduleRequest;
         try{
@@ -122,7 +114,7 @@ public class GroupRuns extends BaseRoute {
                 
                 status.getRuns().add(newRun.getSerializedRun());
             } catch (FrameworkException fe) {
-                ServletError error = new ServletError(GAL5021_UNABLE_TO_SUMBIT_RUNS, className);  
+                ServletError error = new ServletError(GAL5021_UNABLE_TO_SUBMIT_RUNS, className);  
                 throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         }

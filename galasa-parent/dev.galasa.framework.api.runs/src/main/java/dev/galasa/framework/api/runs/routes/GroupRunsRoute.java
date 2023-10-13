@@ -54,8 +54,8 @@ public class GroupRunsRoute extends GroupRuns{
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
         String requestor = new Authorization(request).getUser();
-        ScheduleStatus sheduleStatus = scheduleRun(scheduleRequest, groupName, requestor);
-        return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(sheduleStatus), HttpServletResponse.SC_CREATED);
+        ScheduleStatus scheduleStatus = scheduleRun(scheduleRequest, groupName, requestor);
+        return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(scheduleStatus), HttpServletResponse.SC_CREATED);
     }
 
 }

@@ -217,7 +217,19 @@ public class TestGroupRunsRoute extends RunsServletTest {
     @Test
     public void TestPostRunsNoFrameworkReturnsError() throws Exception {
         //Given...
-        setServlet("group", null, null, "POST");
+        String payload = "{\"classNames\": [\"Class/name\"]," +
+        "\"requestorType\": \"requestorType\"," +
+        "\"requestor\": \"user1\"," +
+        "\"testStream\": \"this is a test stream\"," +
+        "\"obr\": \"this.obr\","+
+        "\"mavenRepository\": \"this.maven.repo\"," +
+        "\"sharedEnvironmentPhase\": \"BUILD\"," +
+        "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
+        "\"overrides\": {}," +
+        "\"trace\": true }";
+        
+
+        setServlet("group", null, payload, "POST");
         MockRunsServlet servlet = getServlet();
         HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();

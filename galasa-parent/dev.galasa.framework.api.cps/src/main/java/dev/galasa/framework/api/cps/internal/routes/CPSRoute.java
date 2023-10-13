@@ -105,18 +105,6 @@ public abstract class CPSRoute extends BaseRoute {
         return retrieveSingleProperty(namespace, propertyName) != null;
     }
 
-    protected boolean checkRequestHasContent(HttpServletRequest request) throws InternalServletException{
-        boolean valid = false;
-        try{
-            if (request.getContentLength() >0){
-                valid = true;
-            }
-        }catch (NullPointerException e ){
-            //Catch the NullPointerException (empty request body) to throw error in if 
-        }  
-        return valid;
-    }
-
     /**
      * Returns a single property from a given namespace.
      * If the namespace provided is hidden, does not exist or has no matching property, it returns null

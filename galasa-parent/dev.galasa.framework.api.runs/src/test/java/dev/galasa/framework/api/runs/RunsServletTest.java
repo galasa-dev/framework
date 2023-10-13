@@ -18,10 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -115,30 +111,6 @@ public class RunsServletTest extends BaseServletTest {
         }
         expectedJson += "\n  ]\n}";
         return expectedJson;
-    }
-
-	@Override
-	protected void checkJsonArrayStructure(String jsonString, Map<String, String> jsonFieldsToCheck) throws Exception {
-
-		JsonElement jsonElement = JsonParser.parseString(jsonString);
-		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
-
-		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray).isNotNull().as("Json parsed is not a json array.");
-
-        // Go through the map of provided fields and check if any of the objects in the JSON array
-        // contain a matching key-value entry.
-        for (Entry<String, String> entry : jsonFieldsToCheck.entrySet()) {
-            boolean fieldMatches = false;
-
-            for (JsonElement element : jsonArray) {
-                JsonObject jsonObject = element.getAsJsonObject();
-                if (jsonObject.get("name").getAsString().equals(entry.getKey()) && jsonObject.get("value").getAsString().equals(entry.getValue()) ) {
-                    fieldMatches = true;
-                }
-            }
-            assertThat(fieldMatches).isTrue();
-        }
     }
 
     protected String generatePayload(String[] classNames, String requestorType, String requestor, String testStream, String groupName, String overrideExpectedRequestor){
