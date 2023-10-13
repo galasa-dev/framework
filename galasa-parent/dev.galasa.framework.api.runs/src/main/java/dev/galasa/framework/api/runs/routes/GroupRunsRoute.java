@@ -52,9 +52,8 @@ public class GroupRunsRoute extends GroupRuns{
     throws ServletException, IOException, FrameworkException {
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
-        scheduleRun(scheduleRequest, groupName);
-        String responseBody = String.format("Successfully created run(s) in %s", groupName);
-        return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_CREATED);
+        ScheduleStatus sheduleStatus = scheduleRun(scheduleRequest, groupName);
+        return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(sheduleStatus), HttpServletResponse.SC_CREATED);
     }
 
 }

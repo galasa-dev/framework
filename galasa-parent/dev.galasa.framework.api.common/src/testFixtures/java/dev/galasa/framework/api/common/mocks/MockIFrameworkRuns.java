@@ -28,25 +28,24 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
 
     @Override
     public @NotNull List<IRun> getActiveRuns() throws FrameworkException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getActiveRuns'");
     }
 
     @Override
     public @NotNull List<IRun> getQueuedRuns() throws FrameworkException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getQueuedRuns'");
     }
 
     @Override
     public @NotNull List<IRun> getAllRuns() throws FrameworkException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAllRuns'");
     }
 
     @Override
     public @NotNull List<IRun> getAllGroupedRuns(@NotNull String groupName) throws FrameworkException {
         if(groupName.equals("invalid")){
+            throw new FrameworkException("exceptioninvalid group");
+        }else if (groupName.equals("nullgroup")){
             return null;
         }
        return this.runs;
@@ -54,7 +53,6 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
 
     @Override
     public @NotNull Set<String> getActiveRunNames() throws FrameworkException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getActiveRunNames'");
     }
 
@@ -63,25 +61,24 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
             String mavenRepository, String obr, String stream, boolean local, boolean trace, Properties overrides,
             SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language)
             throws FrameworkException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'submitRun'");
+            if (stream.equals("null")){
+                throw new FrameworkException(null, language, null, local, trace);
+            }
+        return new MockIRun("runname"+testName, type, requestor, testName, sharedEnvironmentRunName, bundleName, language, groupName);
     }
 
     @Override
     public boolean delete(String runname) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
 
     @Override
     public IRun getRun(String runname) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getRun'");
     }
 
     @Override
     public boolean reset(String runname) throws DynamicStatusStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'reset'");
     }
 }

@@ -8,6 +8,7 @@ package dev.galasa.framework.api.runs;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,6 +28,7 @@ import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockIFrameworkRuns;
+import dev.galasa.framework.api.common.mocks.MockIRun;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
 import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
 import dev.galasa.framework.spi.IFramework;
@@ -41,6 +43,8 @@ public class RunsServletTest extends BaseServletTest {
 	MockRunsServlet servlet;
 	HttpServletRequest req;
 	HttpServletResponse resp;
+    protected List<IRun> runs = new ArrayList<IRun>();
+
 
 	protected void setServlet(String path, String groupName, List<IRun> runs){
         this.servlet = new MockRunsServlet();
@@ -72,6 +76,10 @@ public class RunsServletTest extends BaseServletTest {
 	return this.resp;
 	}
 
+    protected void addRun(String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName){
+		this.runs.add(new MockIRun( runName, runType, requestor, test, runStatus, bundle, testClass, groupName));
+    }
+
 	protected String generateExpectedJson(List<IRun> runs, String complete) {
         String expectedJson = "{\n  \"complete\": "+complete+",\n  \"runs\": [\n    ";
 		for (int r= 0; r< runs.size(); r++ ) {
@@ -85,9 +93,11 @@ public class RunsServletTest extends BaseServletTest {
                 "      \"group\": \""+runs.get(r).getGroup()+"\",\n"+
                 "      \"test\": \""+runs.get(r).getTestClassName()+"\",\n"+
                 "      \"bundleName\": \""+runs.get(r).getTestBundleName()+"\",\n"+
-                "      \"testName\": \""+runs.get(r).getTest()+"\",\n"+
-                "      \"status\": \""+runs.get(r).getStatus()+"\",\n"+
-                "      \"result\": \"Passed\",\n"+
+                "      \"testName\": \""+runs.get(r).getTest()+"\",\n";
+            if (!runs.get(r).getStatus().equals("submitted")){
+                runString +="      \"status\": \""+runs.get(r).getStatus()+"\",\n";
+            }
+            runString +="      \"result\": \"Passed\",\n"+
                 "      \"queued\": \"2023-10-12T12:16:49.832925Z\",\n"+
                 "      \"finished\": \"2023-10-12T12:16:49.832925Z\",\n"+
                 "      \"waitUntil\": \"2023-10-12T12:16:49.832925Z\",\n"+
@@ -126,18 +136,18 @@ public class RunsServletTest extends BaseServletTest {
         }
     }
 
-	protected boolean checkNewPropertyInNamespace(String namespace, String propertyName, String propertyValue) throws Exception{
-		boolean found = false;
-		Map<String,String> properties = this.servlet.getFramework().getConfigurationPropertyService(namespace).getAllProperties();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            String key = entry.getKey().toString();
-			String value =entry.getValue().toString();
-            if (key.equals(namespace+"."+propertyName) && value.equals(propertyValue)){
-				found = true;
-            }
-        }
-		return found;
-	}
-
+    protected String generatePayload(String[] classNames, String requestorType, String requestor, String testStream, String groupName){
+        String payload = "{\"classNames\": [\""+classNames[0]+"\"]," +
+        "\"requestorType\": \""+requestorType+"\"," +
+        "\"requestor\": \""+requestor+"\"," +
+        "\"testStream\": \""+testStream+"\"," +
+        "\"obr\": \"this.obr\","+
+        "\"mavenRepository\": \"this.maven.repo\"," +
+        "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
+        "\"overrides\": {}," +
+        "\"trace\": true }";
+        addRun( "runnamename", requestorType, requestor, "name", "submitted", classNames[0].split("/")[0], "java", groupName);
+        return payload;
+    }
     
 }

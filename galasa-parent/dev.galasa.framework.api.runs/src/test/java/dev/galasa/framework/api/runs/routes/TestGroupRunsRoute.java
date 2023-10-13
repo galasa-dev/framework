@@ -7,27 +7,17 @@ package dev.galasa.framework.api.runs.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.common.mocks.MockIRun;
 import dev.galasa.framework.api.runs.RunsServletTest;
 import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
-import dev.galasa.framework.spi.IRun;
 
 public class TestGroupRunsRoute extends RunsServletTest {
 
-    List<IRun> runs = new ArrayList<IRun>();
-
-    protected void addRun(String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName){
-		this.runs.add(new MockIRun( runName, runType, requestor, test, runStatus, bundle, testClass, groupName));
-    }
 
     /*
      * GET Requests
@@ -75,11 +65,35 @@ public class TestGroupRunsRoute extends RunsServletTest {
         servlet.doGet(req, resp);
 
         // Then...
-        assertThat(resp.getStatus()).isEqualTo(500);
+        assertThat(resp.getStatus()).isEqualTo(404);
 
 		checkErrorStructure(
 			outStream.toString(),
 			5019, "E: Unable to retrieve runs for Run Group: 'invalid'."
+		);
+    }
+
+    @Test
+    public void TestGetRunsWithValidGroupNameWithNullRunsReturnsError() throws Exception {
+        // Given...
+        // /runs/empty is an empty runs set and should return an error as runs can not be null
+		String groupName = "nullgroup";
+        setServlet(groupName, groupName, this.runs);
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(500);
+
+		checkErrorStructure(
+			outStream.toString(),
+			5019, "E: Unable to retrieve runs for Run Group: 'nullgroup'."
 		);
     }
 
@@ -151,7 +165,6 @@ public class TestGroupRunsRoute extends RunsServletTest {
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
 
-
      @Test
     public void TestGetRunsWithValidGroupNameMultipleWithFinishedRunReturnsCompleteFalse() throws Exception {
         // Given...
@@ -163,9 +176,9 @@ public class TestGroupRunsRoute extends RunsServletTest {
                "bundle2", "testClass2", groupName);
         addRun("name3", "type3", "requestor3", "test3", "FINISHED",
                "bundle3", "testClass3", groupName);
-        addRun("name4", "type4", "requestor4", "test4", "BUILDING",
+        addRun("name4", "type4", "requestor4", "test4", "UP",
                "bundle4", "testClass4", groupName);
-        addRun("name5", "type6", "requestor5", "test5", "BUILDING",
+        addRun("name5", "type6", "requestor5", "test5", "DISCARDED",
                "bundle5", "testClass6", groupName);
         addRun("name6", "type6", "requestor6", "test6", "BUILDING",
                "bundle6", "testClass6", groupName);
@@ -341,16 +354,8 @@ public class TestGroupRunsRoute extends RunsServletTest {
     public void TestPostRunsWithValidBodyReturnsOK() throws Exception {
         // Given...
 		String groupName = "valid";
-        String payload = "{\"classNames\": [\"Class/name\"]," +
-        "\"requestorType\": \"requestorType\"," +
-        "\"requestor\": \"user1\"," +
-        "\"testStream\": \"this is a test stream\"," +
-        "\"obr\": \"this.obr\","+
-        "\"mavenRepository\": \"this.maven.repo\"," +
-        "\"sharedEnvironmentPhase\": \"SharedEnvironmentPhase.BUILD\"," +
-        "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
-        "\"overrides\": {}," +
-        "\"trace\": true }";
+        String[] classes = new String[]{"Class/name"};
+        String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName);
         
         setServlet(groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -363,10 +368,33 @@ public class TestGroupRunsRoute extends RunsServletTest {
         servlet.doPost(req, resp);
 
         // Then...
-        assertThat(resp.getStatus()).isEqualTo(200);
+        String expectedJson = generateExpectedJson(runs, "false");
+        assertThat(resp.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+    }
+
+    @Test
+    public void TestPostRunsWithEmptyDetailsBodyReturnsError() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String[] classes = new String[]{"Class/name"};
+        String payload = generatePayload(classes, "requestorType", "user1", null, groupName);
+        
+        setServlet(groupName, groupName, payload, "POST");
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(500);
         checkErrorStructure(
 			outStream.toString(),
-			5022, "E: Error occured trying parse the shared environment phase."
+			5021, "E: Error occured when trying to submit run 'Class/name'."
 		);
     }
 
