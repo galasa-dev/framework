@@ -18,7 +18,6 @@ import com.google.gson.JsonObject;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
 
 public class OidcProviderTest {
