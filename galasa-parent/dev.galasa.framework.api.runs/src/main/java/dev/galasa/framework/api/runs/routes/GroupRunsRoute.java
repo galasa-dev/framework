@@ -21,7 +21,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.runs.commons.GroupRuns;
+import dev.galasa.framework.api.runs.common.GroupRuns;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRun;
@@ -34,6 +34,9 @@ public class GroupRunsRoute extends GroupRuns{
 
 
     public GroupRunsRoute(ResponseBuilder responseBuilder, IFramework framework) {
+        /* Regex to match endpoints: 
+		*  -> /runs/{GroupID}
+		*/
         super(responseBuilder, "[a-zA-Z0-9_]*", framework);
     }
 

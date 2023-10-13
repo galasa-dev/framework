@@ -12,13 +12,6 @@ import dev.galasa.framework.spi.IRun;
 
 public class MockIRun implements IRun{
 
-    /* IRun newRun = framework.getFrameworkRuns().submitRun(request.getRequestorType(), request.getRequestor(), bundle, testClass,
-                        groupName, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
-                        request.isTrace(), request.getOverrides(), 
-                        senvPhase, 
-                        request.getSharedEnvironmentRunName(),
-                        "java");
-                         */
     private String runName;
     private String runType;
     private Instant heartbeat = Instant.parse("2023-10-12T12:16:49.832925Z");

@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.runs.commons;
+package dev.galasa.framework.api.runs.common;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -74,7 +74,7 @@ public class GroupRuns extends BaseRoute {
         ScheduleRequest scheduleRequest;
         try{
             String payload = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-            scheduleRequest = (ScheduleRequest) gson.fromJson(payload,ScheduleRequest.class);
+            scheduleRequest = gson.fromJson(payload,ScheduleRequest.class);
         } catch(Exception e) {
             ServletError error = new ServletError(GAL5020_UNABLE_TO_CONVERT_TO_SCHEDULE_REQUEST);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
