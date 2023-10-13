@@ -14,12 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
 import static org.assertj.core.api.Assertions.*;
 
-import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 
 public class AuthorizationTest {
@@ -27,25 +23,11 @@ public class AuthorizationTest {
     /*
      * Create a mock OIDC to overwrite in the MockAuthorization
      */
-    class MockOidcProvider extends OidcProvider {
-
-        public MockOidcProvider(String issuerUrl) throws IOException, InterruptedException {
-            super(issuerUrl);
-        }
-
-        @Override
-        public DecodedJWT decodeJwt(String jwt) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException{
-            DecodedJWT decodedJwt = JWT.decode(jwt);
-        return decodedJwt;
-        }
-    }
-
 
     class MockAuthorization extends Authorization{
         
         public MockAuthorization (HttpServletRequest req) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException{
             super(req);
-            super.decodeJwt();
         }
     }
     
