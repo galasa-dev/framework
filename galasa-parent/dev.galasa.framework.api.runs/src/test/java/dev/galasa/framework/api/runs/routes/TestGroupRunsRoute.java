@@ -351,6 +351,40 @@ public class TestGroupRunsRoute extends RunsServletTest {
     }
 
     @Test
+    public void TestPostRunsWithValidBodyGoodEnvPhaseReturnsOK() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String payload = "{\"classNames\": [\"Class/name\"]," +
+        "\"requestorType\": \"requestorType\"," +
+        "\"requestor\": \"user1\"," +
+        "\"testStream\": \"this is a test stream\"," +
+        "\"obr\": \"this.obr\","+
+        "\"mavenRepository\": \"this.maven.repo\"," +
+        "\"sharedEnvironmentPhase\": \"BUILD\"," +
+        "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
+        "\"overrides\": {}," +
+        "\"trace\": true }";
+        addRun("runnamename", "requestorType", "user1", "name", "submitted",
+               "Class", "java", groupName);
+        
+        setServlet(groupName, groupName, payload, "POST");
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(201);
+        String expectedJson = generateExpectedJson(runs, "false");
+        assertThat(resp.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+    }
+
+    @Test
     public void TestPostRunsWithValidBodyReturnsOK() throws Exception {
         // Given...
 		String groupName = "valid";
@@ -398,4 +432,26 @@ public class TestGroupRunsRoute extends RunsServletTest {
 		);
     }
 
+     @Test
+    public void TestPostRunsWithValidBodyAndMultipleClassesReturnsOK() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String[] classes = new String[]{"Class1/name", "Class2/name"};
+        String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName);
+        
+        setServlet(groupName, groupName, payload, "POST");
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        String expectedJson = generateExpectedJson(runs, "false");
+        assertThat(resp.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+    }
 }

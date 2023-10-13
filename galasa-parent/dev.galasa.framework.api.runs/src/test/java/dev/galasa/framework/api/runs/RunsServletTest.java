@@ -137,17 +137,24 @@ public class RunsServletTest extends BaseServletTest {
     }
 
     protected String generatePayload(String[] classNames, String requestorType, String requestor, String testStream, String groupName){
-        String payload = "{\"classNames\": [\""+classNames[0]+"\"]," +
-        "\"requestorType\": \""+requestorType+"\"," +
-        "\"requestor\": \""+requestor+"\"," +
-        "\"testStream\": \""+testStream+"\"," +
-        "\"obr\": \"this.obr\","+
-        "\"mavenRepository\": \"this.maven.repo\"," +
-        "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
-        "\"overrides\": {}," +
-        "\"trace\": true }";
-        addRun( "runnamename", requestorType, requestor, "name", "submitted", classNames[0].split("/")[0], "java", groupName);
+        String classes ="";
+        for (String className : classNames){
+            addRun( "runnamename", requestorType, requestor, "name", "submitted", className.split("/")[0], "java", groupName);
+            classes += "\""+className+"\",";
+        }
+        classes = classes.substring(0, classes.length()-1);
+        String payload = "{\"classNames\": ["+classes+"]," +
+            "\"requestorType\": \""+requestorType+"\"," +
+            "\"requestor\": \""+requestor+"\"," +
+            "\"testStream\": \""+testStream+"\"," +
+            "\"obr\": \"this.obr\","+
+            "\"mavenRepository\": \"this.maven.repo\"," +
+            "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
+            "\"overrides\": {}," +
+            "\"trace\": true }";
+            
         return payload;
     }
     
 }
+
