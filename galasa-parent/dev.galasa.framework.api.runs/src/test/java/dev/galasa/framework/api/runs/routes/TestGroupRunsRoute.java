@@ -7,6 +7,8 @@ package dev.galasa.framework.api.runs.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Map;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +19,8 @@ import dev.galasa.framework.api.runs.RunsServletTest;
 import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
 
 public class TestGroupRunsRoute extends RunsServletTest {
+    private String jwt ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0UmVxdWVzdG9yIiwibmFtZSI6IkphY2sgU2tlbGxpbmd0b24iLCJpYXQiOjE1MTYyMzkwMjJ9.9guecP5KTZwHsa3mZyYr23j2wdOaeTqZUl84h4oRSd0";
+    private Map<String, String> headerMap = Map.of("Authorization", "Bearer "+jwt,"Galasa-Application","galasactl");
 
 
     /*
@@ -389,7 +393,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class/name"};
-        String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName);
+        String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, null);
         
         setServlet(groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -412,7 +416,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class/name"};
-        String payload = generatePayload(classes, "requestorType", "user1", null, groupName);
+        String payload = generatePayload(classes, "requestorType", "user1", null, groupName, null);
         
         setServlet(groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -432,14 +436,99 @@ public class TestGroupRunsRoute extends RunsServletTest {
 		);
     }
 
-     @Test
+    @Test
     public void TestPostRunsWithValidBodyAndMultipleClassesReturnsOK() throws Exception {
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
-        String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName);
+        String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, null);
         
         setServlet(groupName, groupName, payload, "POST");
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        String expectedJson = generateExpectedJson(runs, "false");
+        assertThat(resp.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+    }
+
+    /*
+     * Authorization Tests
+     */
+
+    @Test
+    public void TestPostRunsWithValidBodyGoodEnvPhaseAndJWTReturnsOKWithRequestorFromJWT() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String payload = "{\"classNames\": [\"Class/name\"]," +
+        "\"requestorType\": \"requestorType\"," +
+        "\"requestor\": \"user1\"," +
+        "\"testStream\": \"this is a test stream\"," +
+        "\"obr\": \"this.obr\","+
+        "\"mavenRepository\": \"this.maven.repo\"," +
+        "\"sharedEnvironmentPhase\": \"BUILD\"," +
+        "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
+        "\"overrides\": {}," +
+        "\"trace\": true }";
+
+        addRun("runnamename", "requestorType", "testRequestor", "name", "submitted",
+               "Class", "java", groupName);
+        
+        setServlet(groupName, groupName, payload, "POST", headerMap);
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(201);
+        String expectedJson = generateExpectedJson(runs, "false");
+        assertThat(resp.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+    }
+
+    @Test
+    public void TestPostRunsWithValidBodyAndJWTReturnsOKWithRequestorFromJWT() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String[] classes = new String[]{"Class/name"};
+        String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, "testRequestor");
+        
+        setServlet(groupName, groupName, payload, "POST", headerMap);
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        String expectedJson = generateExpectedJson(runs, "false");
+        assertThat(resp.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+    }
+
+    @Test
+    public void TestPostRunsWithValidBodyAndMultipleClassesReturnsWithRequestorFromJWT() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String[] classes = new String[]{"Class1/name", "Class2/name"};
+        String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, "testRequestor");
+        
+        setServlet(groupName, groupName, payload, "POST", headerMap);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();

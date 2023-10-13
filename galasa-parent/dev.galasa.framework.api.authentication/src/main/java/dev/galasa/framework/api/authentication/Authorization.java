@@ -6,18 +6,12 @@
 
 package dev.galasa.framework.api.authentication;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import dev.galasa.framework.api.common.Environment;
-import dev.galasa.framework.api.common.SystemEnvironment;
-import dev.galasa.framework.api.authentication.internal.OidcProvider;
 
 public class Authorization {
 
@@ -25,10 +19,14 @@ public class Authorization {
     private  String jwt;
 
     public Authorization (HttpServletRequest req) {
-        this.jwt = getBearerTokenFromAuthHeader(req);
+        String galasaHeader = req.getHeader("Galasa-Application");
+        if (galasaHeader != null){
+            this.jwt = getBearerTokenFromAuthHeader(req);        
+            decodeJwt();
+        }
     }
 
-    public void decodeJwt() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException{
+    public void decodeJwt() {
         this.decodedJwt = JWT.decode(jwt);
     }
 

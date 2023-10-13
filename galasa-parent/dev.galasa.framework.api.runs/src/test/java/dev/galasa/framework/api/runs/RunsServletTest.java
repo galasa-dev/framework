@@ -64,6 +64,11 @@ public class RunsServletTest extends BaseServletTest {
 		this.req = new MockHttpServletRequest(path, value, method);
 	}
 
+    protected void setServlet(String path, String groupName, String value, String method, Map<String, String> headerMap){
+		setServlet(path, groupName, null);
+		this.req = new MockHttpServletRequest(path, value, method, headerMap);
+	}
+
 	protected MockRunsServlet getServlet(){
 		return this.servlet;
 	}
@@ -136,8 +141,11 @@ public class RunsServletTest extends BaseServletTest {
         }
     }
 
-    protected String generatePayload(String[] classNames, String requestorType, String requestor, String testStream, String groupName){
+    protected String generatePayload(String[] classNames, String requestorType, String requestor, String testStream, String groupName, String overrideExpectedRequestor){
         String classes ="";
+        if (overrideExpectedRequestor !=null){
+            requestor = overrideExpectedRequestor;
+        }
         for (String className : classNames){
             addRun( "runnamename", requestorType, requestor, "name", "submitted", className.split("/")[0], "java", groupName);
             classes += "\""+className+"\",";
