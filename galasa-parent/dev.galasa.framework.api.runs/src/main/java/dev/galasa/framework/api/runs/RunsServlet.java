@@ -26,15 +26,12 @@ import dev.galasa.framework.spi.IFramework;
 public class RunsServlet extends BaseServlet {
 
     @Reference
-	private IFramework framework;
+	protected IFramework framework;
 
 	private static final long serialVersionUID = 1L;
 
 	private Log  logger  =  LogFactory.getLog(this.getClass());
 
-	protected void setFramework(IFramework framework) {
-        this.framework = framework;
-    }
 
 	@Override
 	public void init() throws ServletException {

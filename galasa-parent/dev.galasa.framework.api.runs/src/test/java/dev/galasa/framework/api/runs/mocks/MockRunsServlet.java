@@ -11,10 +11,10 @@ import dev.galasa.framework.api.runs.RunsServlet;
 import dev.galasa.framework.spi.IFramework;
 
 public class MockRunsServlet extends RunsServlet implements IServletUnderTest {
-    
+
 	@Override
 	public void setFramework(IFramework framework) {
-		super.setFramework(framework);
+		super.framework = framework;
 	}
 
 	@Override
