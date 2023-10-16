@@ -5,13 +5,10 @@
  */
 package dev.galasa.framework.api.runs;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;

@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 
-import dev.galasa.framework.api.authentication.Authorization;
+import dev.galasa.framework.api.authentication.JwtWrapper;
 import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -54,9 +54,18 @@ public class GroupRunsRoute extends GroupRuns{
     
     public HttpServletResponse handlePostRequest(String groupName, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
     throws ServletException, IOException, FrameworkException {
+        String requestor;
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
-        String requestor = new Authorization(request).getUser();
+        try{
+            requestor = new JwtWrapper(request).getUserName();
+        }catch(Exception e){
+            /* If no JWT is present the try block will through an exception
+             * Currently this process should work without a jwt however when authentication 
+             * is enforced this catch should throw an exception
+             */
+            requestor = null;
+        }
         ScheduleStatus scheduleStatus = scheduleRun(scheduleRequest, groupName, requestor);
         return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(scheduleStatus), HttpServletResponse.SC_CREATED);
     }

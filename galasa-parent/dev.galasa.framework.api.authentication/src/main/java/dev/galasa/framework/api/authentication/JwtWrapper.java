@@ -9,25 +9,22 @@ package dev.galasa.framework.api.authentication;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-public class Authorization {
+public class JwtWrapper {
 
     protected DecodedJWT decodedJwt;
-    private  String jwt;
 
-    public Authorization (HttpServletRequest req) {
-        String galasaHeader = req.getHeader("Galasa-Application");
-        if (galasaHeader != null){
-            this.jwt = getBearerTokenFromAuthHeader(req);        
-            decodeJwt();
-        }
+    public JwtWrapper (HttpServletRequest req) {
+        this.decodedJwt= decodeJwt(getBearerTokenFromAuthHeader(req));
     }
 
-    public void decodeJwt() {
-        this.decodedJwt = JWT.decode(jwt);
+
+    public DecodedJWT decodeJwt(@NotNull String jwt) {
+        return JWT.decode(jwt);
     }
 
     // Gets the JWT from a given request's Authorization header, returning null if it does not have one
@@ -46,7 +43,7 @@ public class Authorization {
         return sJwt;
     }
 
-    public String getUser() {
+    public String getUserName() {
         if (decodedJwt == null){
             return null;
         }

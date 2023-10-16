@@ -18,15 +18,15 @@ import static org.assertj.core.api.Assertions.*;
 
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 
-public class AuthorizationTest {
+public class jwtWrapperTest {
 
     /*
-     * Create a mock OIDC to overwrite in the MockAuthorization
+     * Create a mock OIDC to overwrite in the MockJwtWrapper
      */
 
-    class MockAuthorization extends Authorization{
+    class MockJwtWrapper extends JwtWrapper{
         
-        public MockAuthorization (HttpServletRequest req) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException{
+        public MockJwtWrapper (HttpServletRequest req) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException{
             super(req);
         }
     }
@@ -55,8 +55,8 @@ public class AuthorizationTest {
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
         
         // When...
-        Authorization auth = new MockAuthorization(req);
-        String user = auth.getUser();
+        JwtWrapper auth = new MockJwtWrapper(req);
+        String user = auth.getUserName();
         
         // Then...
         assertThat(user).isEqualTo("validUserID");
@@ -70,7 +70,7 @@ public class AuthorizationTest {
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
         
         // When...
-        Throwable thrown = catchThrowable( () -> {new MockAuthorization(req);});
+        Throwable thrown = catchThrowable( () -> {new MockJwtWrapper(req);});
         
         // Then...
         assertThat(thrown).isNotNull();
@@ -86,7 +86,7 @@ public class AuthorizationTest {
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
         
         // When...
-        Throwable thrown = catchThrowable( () -> {new MockAuthorization(req);});
+        Throwable thrown = catchThrowable( () -> {new MockJwtWrapper(req);});
         
         // Then...
         assertThat(thrown).isNotNull();
@@ -102,7 +102,7 @@ public class AuthorizationTest {
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
         
         // When...
-        Throwable thrown = catchThrowable( () -> {new MockAuthorization(req);});
+        Throwable thrown = catchThrowable( () -> {new MockJwtWrapper(req);});
         
         // Then...
         assertThat(thrown).isNotNull();

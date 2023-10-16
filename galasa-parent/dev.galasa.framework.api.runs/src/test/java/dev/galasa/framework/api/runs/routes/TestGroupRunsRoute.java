@@ -125,9 +125,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
     public void TestGetRunsWithValidGroupNameReturnsOk() throws Exception {
         // Given...
 		String groupName = "framework";
-        //String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName
-        addRun("name1", "type1", "requestor1", "test1", "FINISHED",
-               "bundle1", "testClass1", groupName);
+        addRun("name1", "type1", "requestor1", "test1", "FINISHED","bundle1", "testClass1", groupName);
         setServlet(groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -148,11 +146,8 @@ public class TestGroupRunsRoute extends RunsServletTest {
     public void TestGetRunsWithValidGroupNameReturnsMultiple() throws Exception {
         // Given...
 		String groupName = "framework";
-        //String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName
-        addRun("name1", "type1", "requestor1", "test1", "BUILDING",
-               "bundle1", "testClass1", groupName);
-        addRun("name2", "type2", "requestor2", "test2", "BUILDING",
-               "bundle2", "testClass2", groupName);
+        addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName);
+        addRun("name2", "type2", "requestor2", "test2", "BUILDING","bundle2", "testClass2", groupName);
         setServlet(groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -173,27 +168,16 @@ public class TestGroupRunsRoute extends RunsServletTest {
     public void TestGetRunsWithValidGroupNameMultipleWithFinishedRunReturnsCompleteFalse() throws Exception {
         // Given...
 		String groupName = "framework";
-        //String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName
-        addRun("name1", "type1", "requestor1", "test1", "BUILDING",
-               "bundle1", "testClass1", groupName);
-        addRun("name2", "type2", "requestor2", "test2", "BUILDING",
-               "bundle2", "testClass2", groupName);
-        addRun("name3", "type3", "requestor3", "test3", "FINISHED",
-               "bundle3", "testClass3", groupName);
-        addRun("name4", "type4", "requestor4", "test4", "UP",
-               "bundle4", "testClass4", groupName);
-        addRun("name5", "type6", "requestor5", "test5", "DISCARDED",
-               "bundle5", "testClass6", groupName);
-        addRun("name6", "type6", "requestor6", "test6", "BUILDING",
-               "bundle6", "testClass6", groupName);
-        addRun("name7", "type7", "requestor7", "test7", "BUILDING",
-               "bundle7", "testClass7", groupName);
-        addRun("name8", "type8", "requestor8", "test8", "BUILDING",
-               "bundle8", "testClass8", groupName);
-        addRun("name9", "type9", "requestor9", "test9", "BUILDING",
-               "bundle9", "testClass9", groupName);
-        addRun("name10", "type10", "requestor10", "test10", "BUILDING",
-               "bundle10", "testClass10", groupName);
+        addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName);
+        addRun("name2", "type2", "requestor2", "test2", "BUILDING","bundle2", "testClass2", groupName);
+        addRun("name3", "type3", "requestor3", "test3", "FINISHED","bundle3", "testClass3", groupName);
+        addRun("name4", "type4", "requestor4", "test4", "UP","bundle4", "testClass4", groupName);
+        addRun("name5", "type6", "requestor5", "test5", "DISCARDED","bundle5", "testClass6", groupName);
+        addRun("name6", "type6", "requestor6", "test6", "BUILDING","bundle6", "testClass6", groupName);
+        addRun("name7", "type7", "requestor7", "test7", "BUILDING","bundle7", "testClass7", groupName);
+        addRun("name8", "type8", "requestor8", "test8", "BUILDING","bundle8", "testClass8", groupName);
+        addRun("name9", "type9", "requestor9", "test9", "BUILDING","bundle9", "testClass9", groupName);
+        addRun("name10", "type10", "requestor10", "test10", "BUILDING","bundle10", "testClass10", groupName);
         setServlet(groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();

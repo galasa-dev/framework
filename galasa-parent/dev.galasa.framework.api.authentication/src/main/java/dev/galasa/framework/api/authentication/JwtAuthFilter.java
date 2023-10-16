@@ -69,7 +69,7 @@ public class JwtAuthFilter implements Filter {
         int httpStatusCode = HttpServletResponse.SC_OK;
 
         try {
-            String sJwt = Authorization.getBearerTokenFromAuthHeader(servletRequest);
+            String sJwt = JwtWrapper.getBearerTokenFromAuthHeader(servletRequest);
             if (sJwt != null) {
 
                 // Only allow the request through the filter if the provided JWT is valid
