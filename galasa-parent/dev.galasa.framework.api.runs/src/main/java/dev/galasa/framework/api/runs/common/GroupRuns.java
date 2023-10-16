@@ -57,9 +57,8 @@ public class GroupRuns extends BaseRoute {
         ScheduleStatus status = new ScheduleStatus();
         boolean complete = true;
         for (IRun run : runs) {
-            if (!"FINISHED".equalsIgnoreCase(run.getStatus()) &&
-                    !"UP".equalsIgnoreCase(run.getStatus()) &&
-                    !"DISCARDED".equalsIgnoreCase(run.getStatus())) {
+            ScheduleRunCompleteStatus runstatus = ScheduleRunCompleteStatus.getFromString(run.getStatus());
+            if (runstatus ==null) {
                 complete = false;
             }
 
@@ -88,8 +87,8 @@ public class GroupRuns extends BaseRoute {
         status.setComplete(false);
             
         for (String className : request.getClassNames()) {
-            String bundle = className.split("/")[0];
-            String testClass = className.split("/")[1];
+            // className is in format bundle/testClass
+            String[] classNameSplit = className.split("/");
 
             SharedEnvironmentPhase senvPhase = null;
             if (request.getSharedEnvironmentPhase() != null) {
@@ -105,7 +104,7 @@ public class GroupRuns extends BaseRoute {
                 jwtRequestor = request.getRequestor(); 
             }
             try {
-                IRun newRun = framework.getFrameworkRuns().submitRun(request.getRequestorType(), jwtRequestor, bundle, testClass,
+                IRun newRun = framework.getFrameworkRuns().submitRun(request.getRequestorType(), jwtRequestor, classNameSplit[0], classNameSplit[1],
                         groupName, request.getMavenRepository(), request.getObr(), request.getTestStream(), false,
                         request.isTrace(), request.getOverrides(), 
                         senvPhase, 
