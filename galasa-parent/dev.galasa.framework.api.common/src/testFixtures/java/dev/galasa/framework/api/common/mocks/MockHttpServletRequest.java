@@ -71,11 +71,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public MockHttpServletRequest(String pathInfo, String content, String method, Map<String, String> headerMap) {
-        this.pathInfo = pathInfo;
-        this.payload = content;
-        this.method = method;
+        this(pathInfo,content,method);
         this.headerMap = headerMap;
-        this.inputStream = new MockServletInputStream(content);
     }
 
     @Override

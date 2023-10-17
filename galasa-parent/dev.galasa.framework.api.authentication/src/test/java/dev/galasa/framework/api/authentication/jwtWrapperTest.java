@@ -10,8 +10,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
@@ -20,16 +18,6 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 
 public class jwtWrapperTest {
 
-    /*
-     * Create a mock OIDC to overwrite in the MockJwtWrapper
-     */
-
-    class MockJwtWrapper extends JwtWrapper{
-        
-        public MockJwtWrapper (HttpServletRequest req) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException{
-            super(req);
-        }
-    }
     
     String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2YWxpZFVzZXJJRCIsIm5hbWUiOiJVc2VyIE5hbWUiLCJpYXQiOjE1MTYyMzkwMjJ9.UvI3VPNyTJuql6vU3ES0zsvlXdiJYzkjIRhNahD3yd8";
     /* mockJwt Contents
@@ -55,7 +43,7 @@ public class jwtWrapperTest {
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
         
         // When...
-        JwtWrapper auth = new MockJwtWrapper(req);
+        JwtWrapper auth = new JwtWrapper(req);
         String user = auth.getUserName();
         
         // Then...
@@ -70,7 +58,7 @@ public class jwtWrapperTest {
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
         
         // When...
-        Throwable thrown = catchThrowable( () -> {new MockJwtWrapper(req);});
+        Throwable thrown = catchThrowable( () -> {new JwtWrapper(req);});
         
         // Then...
         assertThat(thrown).isNotNull();
@@ -86,7 +74,7 @@ public class jwtWrapperTest {
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
         
         // When...
-        Throwable thrown = catchThrowable( () -> {new MockJwtWrapper(req);});
+        Throwable thrown = catchThrowable( () -> {new JwtWrapper(req);});
         
         // Then...
         assertThat(thrown).isNotNull();
@@ -102,7 +90,7 @@ public class jwtWrapperTest {
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
         
         // When...
-        Throwable thrown = catchThrowable( () -> {new MockJwtWrapper(req);});
+        Throwable thrown = catchThrowable( () -> {new JwtWrapper(req);});
         
         // Then...
         assertThat(thrown).isNotNull();

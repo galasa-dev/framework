@@ -22,7 +22,7 @@ import dev.galasa.framework.spi.IFramework;
 * Proxy servlet for /runs/* endpoints
 */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-"osgi.http.whiteboard.servlet.pattern=/runs/*" }, name = "Galasa CPS microservice")
+"osgi.http.whiteboard.servlet.pattern=/runs/*" }, name = "Galasa Schedule Runs microservice")
 public class RunsServlet extends BaseServlet {
 
     @Reference
@@ -31,7 +31,6 @@ public class RunsServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
 
 	private Log  logger  =  LogFactory.getLog(this.getClass());
-
 
 	@Override
 	public void init() throws ServletException {
