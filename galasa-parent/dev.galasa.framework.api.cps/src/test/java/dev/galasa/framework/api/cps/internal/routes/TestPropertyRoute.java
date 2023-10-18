@@ -817,6 +817,174 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
 	@Test
+    public void TestPropertyRouteNamespaceWithMiddleCapitalLetterPOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "camelCase";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/camelCase/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(201);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).isEqualTo("Successfully created property property in camelCase");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+    }
+
+	@Test
+    public void TestPropertyRouteNamespaceBeginningWithCapitalLetterPOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "NotCamelcase";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/NotCamelcase/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(201);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).isEqualTo("Successfully created property property in NotCamelcase");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+    }
+
+	@Test
+    public void TestPropertyRouteNamespaceEndingWithCapitalLetterPOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "notcamelcasE";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/notcamelcasE/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(201);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).isEqualTo("Successfully created property property in notcamelcasE");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+    }
+
+	@Test
+    public void TestPropertyRouteNamespaceWithNumberAtMiddlePOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "camel3Case";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/camel3Case/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(201);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).isEqualTo("Successfully created property property in camel3Case");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+    }
+
+	@Test
+    public void TestPropertyRouteNamespaceEndingWithNumberAtStartPOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "camelCase3";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/camelCase3/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(201);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).isEqualTo("Successfully created property property in camelCase3");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+    }
+
+	@Test
+    public void TestPropertyRouteNamespaceWithMultipleNumbersPOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "c4ame6lCas5e8";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/c4ame6lCas5e8/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(201);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).isEqualTo("Successfully created property property in c4ame6lCas5e8");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+    }
+
+	@Test
     public void TestPropertyRouteWithProtectedNamespacePOSTNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "secure";

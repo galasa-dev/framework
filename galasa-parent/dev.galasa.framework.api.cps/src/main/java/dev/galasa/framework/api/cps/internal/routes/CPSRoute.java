@@ -7,9 +7,7 @@ package dev.galasa.framework.api.cps.internal.routes;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -89,9 +87,10 @@ public abstract class CPSRoute extends BaseRoute {
      * @param namespaceName
      * @param propertyName
      * @return Map.Entry of String, String 
+     * @throws ConfigurationPropertyStoreException
      * @throws FrameworkException
      */
-    protected Map.Entry<String, String> retrieveSingleProperty(String namespaceName, String propertyName) throws  InternalServletException {
+    protected Map.Entry<String, String> retrieveSingleProperty(String namespaceName, String propertyName) throws  InternalServletException, ConfigurationPropertyStoreException {
         Namespace namespace = new Namespace(namespaceName);
         if (namespace.isHiddenNamespace()){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace.getName());  
