@@ -22,7 +22,7 @@ repositories {
 dependencies {
     // We need the swagger generator to generate API documentation from the openapi.yaml file
     // https://mvnrepository.com/artifact/io.swagger.codegen.v3/swagger-codegen-cli
-    implementation 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
+    compileOnly 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
 }
 
 subprojects {
@@ -249,13 +249,45 @@ def myReleaseYaml = artifacts.add('release_metadata', file(overallManifestFilePa
 // Publish the release.yaml as a maven artifact.
 // Note: The maven co-ordinates are versioned using the version for this bundle.
 publishing {
+   
     publications {
-        maven(MavenPublication) {
-            // Publish the component manifest/release.yaml
+
+        // Publish the component manifest/release.yaml
+        publishReleaseManifestYaml(MavenPublication) {
             artifact myReleaseYaml
-            artifactId "dev.galasa.framework.manifest"
-            groupId 'dev.galasa'
-            version version
+
+            pom {
+                name = "Manifest for framework bundle versions"
+                artifactId = "dev.galasa.framework.manifest"
+                groupId = 'dev.galasa'
+                version = version
+                description = "Conveys bundle version information to OBR builds."
+                licenses {
+                    license {
+                        name = 'Eclipse Public License - v 2.0'
+                        url = 'https://www.eclipse.org/legal/epl-2.0/t'
+                    }
+                }
+                url = 'https://galasa.dev'
+                developers {
+                    developer {
+                        name = 'Galasa Developer'
+                        email = 'galasadelivery@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:://github.com/galasa-dev/framework'
+                    developerConnection = 'scm:git:git:://github.com/galasa-dev/framework'
+                    url = 'https://github.com/galasa-dev/framework'
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/galasa-dev/projectmanagement/issues'
+                }
+            }
+
         }
     }
     repositories {
