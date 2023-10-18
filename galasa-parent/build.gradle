@@ -4,6 +4,7 @@ plugins {
     id 'dev.galasa.githash' version '0.15.0' apply false
     id 'jacoco'
     id 'maven-publish'
+    id 'signing'
 }
 
 // Note: The following line is changed by the set-version.sh script.
@@ -17,6 +18,14 @@ repositories {
         url "https://development.galasa.dev/main/maven-repo/obr/"
     }
     mavenLocal()
+}
+
+signing {
+    sign publishing.publications
+}
+
+tasks.withType(Sign) {
+    onlyIf { isMainOrRelease.toBoolean() }
 }
 
 dependencies {
