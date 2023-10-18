@@ -8,6 +8,7 @@ package dev.galasa.framework.api.cps.internal.routes;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -44,20 +45,20 @@ public class NamespacesRoute extends CPSRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
-        String namespaces = getNamespaces();
+        String namespaces = getNamespaces(req.getRequestURI());
 		return getResponseBuilder().buildResponse(response, "application/json", namespaces, HttpServletResponse.SC_OK); 
     }
 
-    private String getNamespaces() throws InternalServletException {
+    private String getNamespaces(String url) throws InternalServletException {
         logger.debug("Getting the list of namespaces");
-        JsonArray namespaceArray = new JsonArray();
+        List<Namespace> namespaceArray = new ArrayList<Namespace>();
         try {
             List<String> namespaces;
             namespaces = getFramework().getConfigurationPropertyService("framework").getCPSNamespaces();
             for (String name : namespaces) {
-                Namespace namespace = new Namespace(name);
+                Namespace namespace = new Namespace(name, url);
                 if ( !namespace.isHiddenNamespace() ) {
-                    namespaceArray.add(name);
+                    namespaceArray.add(namespace);
                 }
             }
         } catch (ConfigurationPropertyStoreException e) {

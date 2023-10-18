@@ -24,6 +24,12 @@ public class Namespace {
         }
     }
 
+    public Namespace(String namespace, String propertiesUrl){
+        this(namespace);
+        this.propertiesUrl = propertiesUrl+this.name+"/properties";
+    }
+
+
     private static final String REDACTED_PROPERTY_VALUE = "********";
 
     private static final Set<String> hiddenNamespaces = new HashSet<>();
@@ -70,7 +76,5 @@ public class Namespace {
     public String getNamespaceType(){
         return this.type.toString();
     }
-
-
 
 }

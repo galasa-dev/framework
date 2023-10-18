@@ -340,7 +340,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     @Override
     public String getRequestURI() {
-        throw new UnsupportedOperationException("Unimplemented method 'getRequestURI'");
+        return "http://mock.galasa.server/cps/"+this.pathInfo;
     }
 
     @Override
