@@ -3,7 +3,7 @@ plugins {
     id 'biz.aQute.bnd.builder' version '5.3.0' apply false
     id 'dev.galasa.githash' version '0.15.0' apply false
     id 'jacoco'
-    id 'maven-publish'
+    // id 'maven-publish'
 }
 
 // Note: The following line is changed by the set-version.sh script.
@@ -248,58 +248,59 @@ def myReleaseYaml = artifacts.add('release_metadata', file(overallManifestFilePa
 
 // Publish the release.yaml as a maven artifact.
 // Note: The maven co-ordinates are versioned using the version for this bundle.
-publishing {
+// Commenting out for now.
+// publishing {
    
-    publications {
+//     publications {
 
-        // Publish the component manifest/release.yaml
-        publishReleaseManifestYaml(MavenPublication) {
-            artifact myReleaseYaml
+//         // Publish the component manifest/release.yaml
+//         publishReleaseManifestYaml(MavenPublication) {
+//             artifact myReleaseYaml
 
-            pom {
-                name = "Manifest for framework bundle versions"
-                artifactId = "dev.galasa.framework.manifest"
-                groupId = 'dev.galasa'
-                version = version
-                description = "Conveys bundle version information to OBR builds."
-                licenses {
-                    license {
-                        name = 'Eclipse Public License - v 2.0'
-                        url = 'https://www.eclipse.org/legal/epl-2.0/t'
-                    }
-                }
-                url = 'https://galasa.dev'
-                developers {
-                    developer {
-                        name = 'Galasa Developer'
-                        email = 'galasadelivery@ibm.com'
-                        organization = 'IBM'
-                        organizationUrl = 'https://www.ibm.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git:://github.com/galasa-dev/framework'
-                    developerConnection = 'scm:git:git:://github.com/galasa-dev/framework'
-                    url = 'https://github.com/galasa-dev/framework'
-                }
-                issueManagement {
-                    system = 'GitHub'
-                    url = 'https://github.com/galasa-dev/projectmanagement/issues'
-                }
-            }
+//             pom {
+//                 name = "Manifest for framework bundle versions"
+//                 artifactId = "dev.galasa.framework.manifest"
+//                 groupId = 'dev.galasa'
+//                 version = version
+//                 description = "Conveys bundle version information to OBR builds."
+//                 licenses {
+//                     license {
+//                         name = 'Eclipse Public License - v 2.0'
+//                         url = 'https://www.eclipse.org/legal/epl-2.0/t'
+//                     }
+//                 }
+//                 url = 'https://galasa.dev'
+//                 developers {
+//                     developer {
+//                         name = 'Galasa Developer'
+//                         email = 'galasadelivery@ibm.com'
+//                         organization = 'IBM'
+//                         organizationUrl = 'https://www.ibm.com'
+//                     }
+//                 }
+//                 scm {
+//                     connection = 'scm:git:git:://github.com/galasa-dev/framework'
+//                     developerConnection = 'scm:git:git:://github.com/galasa-dev/framework'
+//                     url = 'https://github.com/galasa-dev/framework'
+//                 }
+//                 issueManagement {
+//                     system = 'GitHub'
+//                     url = 'https://github.com/galasa-dev/projectmanagement/issues'
+//                 }
+//             }
 
-        }
-    }
-    repositories {
-        maven {
-            url  = "$targetMaven"
+//         }
+//     }
+//     repositories {
+//         maven {
+//             url  = "$targetMaven"
         
-            if ("$targetMaven".startsWith('http')) {
-                credentials {
-                    username System.getenv('MAVENUSERNAME')
-                    password System.getenv('MAVENPASSWORD')
-                }
-            }
-        }
-    }
-}
+//             if ("$targetMaven".startsWith('http')) {
+//                 credentials {
+//                     username System.getenv('MAVENUSERNAME')
+//                     password System.getenv('MAVENPASSWORD')
+//                 }
+//             }
+//         }
+//     }
+// }
