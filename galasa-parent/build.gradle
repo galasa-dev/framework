@@ -254,7 +254,6 @@ publishing {
 
         // Publish the component manifest/release.yaml
         publishReleaseManifestYaml(MavenPublication) {
-            from components.java
             artifact myReleaseYaml
 
             pom {
