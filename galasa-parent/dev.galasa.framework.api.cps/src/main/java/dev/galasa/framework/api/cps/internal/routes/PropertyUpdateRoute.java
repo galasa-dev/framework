@@ -19,6 +19,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.cps.internal.common.Namespace;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
@@ -45,8 +46,9 @@ public class PropertyUpdateRoute extends CPSRoute {
 		return getResponseBuilder().buildResponse(response, "application/json", property, HttpServletResponse.SC_OK); 
     }
 
-    private String retrieveProperty (String namespace, String propertyName) throws FrameworkException {
-        Map.Entry<String, String> entry = retrieveSingleProperty(namespace, propertyName);
+    private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
+        Namespace namespace = new Namespace(namespaceName);
+        Map.Entry<String, String> entry = retrieveSingleProperty(namespace.getName(), propertyName);
         return buildResponseBody(namespace, entry);
     }
 
@@ -84,14 +86,14 @@ public class PropertyUpdateRoute extends CPSRoute {
     public HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response)
             throws FrameworkException {
-        String namespace = getNamespaceFromURL(pathInfo);
+        Namespace namespace = new Namespace(getNamespaceFromURL(pathInfo));
         String property = getPropertyNameFromURL(pathInfo);
-        if (isWriteOnlyNamespace(namespace)){
+        if (namespace.isSecureNamespace()){
             ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo,request.getMethod());  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
-        deleteProperty(namespace, property);
-        String responseBody = String.format("Successfully deleted property %s in %s",property, namespace);
+        deleteProperty(namespace.getName(), property);
+        String responseBody = String.format("Successfully deleted property %s in %s",property, namespace.getName());
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK);
     }
 
