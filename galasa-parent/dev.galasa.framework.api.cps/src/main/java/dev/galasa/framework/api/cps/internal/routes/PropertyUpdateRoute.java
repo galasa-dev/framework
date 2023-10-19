@@ -88,10 +88,6 @@ public class PropertyUpdateRoute extends CPSRoute {
             throws FrameworkException {
         Namespace namespace = new Namespace(getNamespaceFromURL(pathInfo));
         String property = getPropertyNameFromURL(pathInfo);
-        if (namespace.isSecureNamespace()){
-            ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo,request.getMethod());  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }
         deleteProperty(namespace.getName(), property);
         String responseBody = String.format("Successfully deleted property %s in %s",property, namespace.getName());
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK);

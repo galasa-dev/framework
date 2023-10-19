@@ -73,7 +73,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
+                  $ref: '#/components/schemas/Namespace'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -1737,6 +1737,16 @@ components:
           type: string
         result:
           type: string
+    Namespace:
+      type: object
+      properties:
+        name:
+          type: string
+        properties_url: 
+          type: string
+        type: 
+          type: string
+
 
     # Structures used by the listing of the available artifacts endpoint.
     ArtifactIndex:
