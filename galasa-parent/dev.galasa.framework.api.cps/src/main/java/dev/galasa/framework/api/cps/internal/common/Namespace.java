@@ -5,22 +5,21 @@
  */
 package dev.galasa.framework.api.cps.internal.common;
 
-import java.util.HashSet;
-import java.util.Set;
+import dev.galasa.framework.api.cps.internal.routes.CPSRoute;
 
 public class Namespace {
 
    
     private String name;
     private String propertiesUrl;
-    private NamespaceType type;
+    private String type;
 
     public Namespace(String namespace){
         this.name = namespace;
-        if (isSecureNamespace()){
-            this.type= NamespaceType.SECURE;
+        if (CPSRoute.isSecureNamespace(namespace)){
+            this.type= NamespaceType.SECURE.toString();
         }else{
-            this.type=NamespaceType.NORMAL;
+            this.type=NamespaceType.NORMAL.toString();
         }
     }
 
@@ -30,41 +29,6 @@ public class Namespace {
     }
 
 
-    private static final String REDACTED_PROPERTY_VALUE = "********";
-
-    private static final Set<String> hiddenNamespaces = new HashSet<>();
-    static {
-        hiddenNamespaces.add("dss");
-    }
-
-    /**
-     * Some namespaces are able to be set, but cannot be queried.
-     *
-     * When they are queried, the values are redacted
-     */
-    private static final Set<String> secureNamespaces = new HashSet<>();
-    static {
-        secureNamespaces.add("secure");
-    }
-
-    public boolean isHiddenNamespace(){
-        return hiddenNamespaces.contains(this.name);
-    }
-    
-    public boolean isSecureNamespace(){
-        return secureNamespaces.contains(this.name);
-    }
-    
-    public String getProtectedValue(String actualValue) {
-        String protectedValue ;
-        if (secureNamespaces.contains(this.name)) {
-            // The namespace is protected, write-only, so should not be readable.
-            protectedValue = REDACTED_PROPERTY_VALUE;
-        } else {
-            protectedValue = actualValue ;
-        }
-        return protectedValue ;
-    }
     public String getName(){
         return this.name;
     }
@@ -74,7 +38,7 @@ public class Namespace {
     }
 
     public String getNamespaceType(){
-        return this.type.toString();
+        return this.type;
     }
 
 }

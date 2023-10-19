@@ -49,7 +49,7 @@ public class PropertyUpdateRoute extends CPSRoute {
     private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
         Namespace namespace = new Namespace(namespaceName);
         Map.Entry<String, String> entry = retrieveSingleProperty(namespace.getName(), propertyName);
-        return buildResponseBody(namespace, entry);
+        return buildResponseBody(namespaceName, entry);
     }
 
     /*

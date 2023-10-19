@@ -7,11 +7,12 @@ package dev.galasa.framework.api.cps.internal.routes;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import dev.galasa.framework.api.cps.internal.common.Namespace;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -42,10 +43,46 @@ public abstract class CPSRoute extends BaseRoute {
 
     protected IFramework framework;
 
+    private static final String REDACTED_PROPERTY_VALUE = "********";
+
+    private static final Set<String> hiddenNamespaces = new HashSet<>();
+    static {
+        hiddenNamespaces.add("dss");
+    }
+
+    /**
+     * Some namespaces are able to be set, but cannot be queried.
+     *
+     * When they are queried, the values are redacted
+     */
+    private static final Set<String> secureNamespaces = new HashSet<>();
+    static {
+        secureNamespaces.add("secure");
+    }
+
     public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework ) {
-        super(responseBuilder, path);
-        this.framework = framework;
+    super(responseBuilder, path);
+    this.framework = framework;
+    }
+
+    protected boolean isHiddenNamespace(String namespace){
+        return hiddenNamespaces.contains(namespace);
+    }
+
+    public static boolean isSecureNamespace(String namespace){
+        return secureNamespaces.contains(namespace);
+    }
+
+    protected String getProtectedValue(String actualValue , String namespace) {
+        String protectedValue ;
+        if (secureNamespaces.contains(namespace)) {
+            // The namespace is protected, write-only, so should not be readable.
+            protectedValue = REDACTED_PROPERTY_VALUE;
+        } else {
+            protectedValue = actualValue ;
         }
+        return protectedValue ;
+    }
 
     protected IFramework getFramework() {
         return this.framework;
@@ -84,28 +121,26 @@ public abstract class CPSRoute extends BaseRoute {
      * Returns a single property from a given namespace.
      * If the namespace provided is hidden, does not exist or has no matching property, it returns null
      * If the namespace provided does not match any existing namepsaces an exception will be thrown
-     * @param namespaceName
+     * @param namespace
      * @param propertyName
-     * @return Map.Entry of String, String 
-     * @throws ConfigurationPropertyStoreException
+     * @return Map.Entry<String, String> 
      * @throws FrameworkException
      */
-    protected Map.Entry<String, String> retrieveSingleProperty(String namespaceName, String propertyName) throws  InternalServletException, ConfigurationPropertyStoreException {
-        Namespace namespace = new Namespace(namespaceName);
-        if (namespace.isHiddenNamespace()){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+    protected Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  InternalServletException {
+        if (isHiddenNamespace(namespace)){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
         try{
-            Map<String, String> properties = getAllProperties(namespaceName);
+            Map<String, String> properties = getAllProperties(namespace);
             for (Map.Entry<String, String> entry : properties.entrySet()) {
                 String key = entry.getKey().toString();
-                if (key.equals(namespaceName+"."+propertyName)){
+                if (key.equals(namespace+"."+propertyName)){
                     return entry;
                 }
             }
         }catch (Exception e){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
         return null;
@@ -146,7 +181,7 @@ public abstract class CPSRoute extends BaseRoute {
         }
     }
 
-    protected String buildResponseBody(Namespace namespace, Map<String, String> properties){
+    protected String buildResponseBody(String namespace, Map<String, String> properties){
         /*
          * Builds a json array object from a Map of properties
          */
@@ -154,13 +189,13 @@ public abstract class CPSRoute extends BaseRoute {
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             JsonObject cpsProp = new JsonObject();
             cpsProp.addProperty("name", entry.getKey());
-            cpsProp.addProperty("value", namespace.getProtectedValue(entry.getValue()));
+            cpsProp.addProperty("value", getProtectedValue(entry.getValue(),namespace));
             propertyArray.add(cpsProp);
         }
         return gson.toJson(propertyArray);
     }
 
-    protected String buildResponseBody(Namespace namespace, Map.Entry<String, String> entry){
+    protected String buildResponseBody(String namespace, Map.Entry<String, String> entry){
         /*
          * Builds a json array object from a single Map.Entry containing a property
          */
@@ -168,7 +203,7 @@ public abstract class CPSRoute extends BaseRoute {
         if (entry != null){
             JsonObject cpsProp = new JsonObject();
             cpsProp.addProperty("name", entry.getKey());
-            cpsProp.addProperty("value", namespace.getProtectedValue(entry.getValue()));
+            cpsProp.addProperty("value", getProtectedValue(entry.getValue(),namespace));
             propertyArray.add(cpsProp);
         }
         return gson.toJson(propertyArray);

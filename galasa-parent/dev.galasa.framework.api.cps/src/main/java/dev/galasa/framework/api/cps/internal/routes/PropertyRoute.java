@@ -56,7 +56,7 @@ public class PropertyRoute extends CPSRoute{
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
             Namespace namespace = new Namespace(namespaceName);
-            if (namespace.isHiddenNamespace()) {
+            if (isHiddenNamespace(namespaceName)) {
                 ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespaceName);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
@@ -85,7 +85,7 @@ public class PropertyRoute extends CPSRoute{
             properties = filterPropertiesByInfix(properties, infixes);
         }
         Map<String, String> sortedProperties = sortResults(properties);
-        return buildResponseBody(namespace, sortedProperties);
+        return buildResponseBody(namespace.getName(), sortedProperties);
     }
     
     /**
