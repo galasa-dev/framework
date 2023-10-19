@@ -15,7 +15,7 @@ package dev.galasa.framework.api.cps.internal.common;
             this.value = type;
         }
 
-        protected static NamespaceType getfromString(String typeAsString){
+        public static NamespaceType getfromString(String typeAsString){
             NamespaceType match = null;
             for (NamespaceType type : NamespaceType.values()){
                 if (type.toString().equalsIgnoreCase(typeAsString)){

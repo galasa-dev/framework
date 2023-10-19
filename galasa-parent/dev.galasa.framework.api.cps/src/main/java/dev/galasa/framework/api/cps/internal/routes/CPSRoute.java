@@ -93,19 +93,19 @@ public abstract class CPSRoute extends BaseRoute {
     protected Map.Entry<String, String> retrieveSingleProperty(String namespaceName, String propertyName) throws  InternalServletException, ConfigurationPropertyStoreException {
         Namespace namespace = new Namespace(namespaceName);
         if (namespace.isHiddenNamespace()){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace.getName());  
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
         try{
-            Map<String, String> properties = getAllProperties(namespace.getName());
+            Map<String, String> properties = getAllProperties(namespaceName);
             for (Map.Entry<String, String> entry : properties.entrySet()) {
                 String key = entry.getKey().toString();
-                if (key.equals(namespace.getName()+"."+propertyName)){
+                if (key.equals(namespaceName+"."+propertyName)){
                     return entry;
                 }
             }
         }catch (Exception e){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace.getName());  
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
         return null;
