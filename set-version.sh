@@ -161,4 +161,7 @@ cp $temp_dir/framework-parent-build.gradle $BASEDIR/galasa-parent/build.gradle
 update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml
 cp $temp_dir/release.yaml ${BASEDIR}/release.yaml
 
-# Copy the temp files back to where they belong...
+
+## Update the openapi file
+cat ${BASEDIR}/openapi.yaml | sed "s/^[ ]*version[ ]*:.*/  version : \"$component_version\"/1" > $temp_dir/openapi.yaml
+cp $temp_dir/openapi.yaml ${BASEDIR}/openapi.yaml
