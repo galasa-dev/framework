@@ -118,8 +118,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -202,8 +202,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -294,8 +294,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -377,8 +377,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -469,8 +469,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -580,8 +580,8 @@ paths:
         - name: namespace
           in: path
           description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
           required: true
           schema:
             type: string
@@ -702,8 +702,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string

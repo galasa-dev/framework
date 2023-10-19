@@ -36,9 +36,9 @@ public class Framework implements IFramework {
 
     private final static Log                   logger           = LogFactory.getLog(Framework.class);
 
-    private static final Pattern               namespacePattern = Pattern.compile("[a-zA-Z0-9]+");
+    private static final Pattern               namespacePattern = Pattern.compile("[a-z0-9]+");
     private static final String                ERROR_MESSAGE_TEMPLATE_NAMESPACE_INVALID_CHARACTERS =
-        "Invalid namespace '%s'. Valid namespaces are 1 or more characters of 'a'-'z', 'A'-'Z' and '0'-'9'.";
+        "Invalid namespace '%s'. Valid namespaces are 1 or more characters of 'a'-'z' and '0'-'9'.";
 
     private Properties                         overrideProperties;
     private final Properties                   recordProperties = new Properties();

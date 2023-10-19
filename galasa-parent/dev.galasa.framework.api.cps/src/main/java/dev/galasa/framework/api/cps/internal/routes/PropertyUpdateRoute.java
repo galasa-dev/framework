@@ -32,7 +32,7 @@ public class PropertyUpdateRoute extends CPSRoute {
 		/* Regex to match endpoints: 
 		*  -> /cps/<namespace>/properties/<propertyName>
 		*/
-		super(responseBuilder, "\\/([a-zA-Z0-9]+)/properties/([a-zA-Z0-9.]+)", framework);
+		super(responseBuilder, "\\/([a-z0-9]+)/properties/([a-zA-Z0-9.]+)", framework);
 	}
 
     /*
