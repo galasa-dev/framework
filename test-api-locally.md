@@ -34,9 +34,11 @@ Open the file and paste the below in replacing `${HOME}` with the fully qualifie
 Please note that the version numbers in these commmands will need to be updated to the next version number of Galasa in order to work with your changes.
 
 ```shell
-alias galasaapi='java -jar ~/.m2/repository/dev/galasa/galasa-boot/0.30.0/galasa-boot-0.30.0.jar --api --localmaven file://${HOME}/.m2/repository/ --remotemaven https://development.galasa.dev/ --obr mvn:dev.galasa/dev.galasa.uber.obr/0.30.0/obr ;'
+export GALASA_OBR_VERSION=0.31.0
+export GALASA_BOOT_JAR_VERSION=0.30.0
+alias galasaapi='java -jar ~/.m2/repository/dev/galasa/galasa-boot/${GALASA_BOOT_JAR_VERSION}/galasa-boot-${GALASA_BOOT_JAR_VERSION}.jar --api --localmaven file://${HOME}/.m2/repository/ --remotemaven https://development.galasa.dev/ --obr mvn:dev.galasa/dev.galasa.uber.obr/${GALASA_OBR_VERSION}/obr ;'
 
-alias galasatest='java -jar ~/.m2/repository/dev/galasa/galasa-boot/0.30.0/galasa-boot-0.30.0.jar --api --localmaven file://${HOME}/.m2/repository/ --remotemaven https://development.galasa.dev/  --obr mvn:dev.galasa/dev.galasa.uber.obr/0.30.0/obr  --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr --test dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount;'
+alias galasatest='java -jar ~/.m2/repository/dev/galasa/galasa-boot/${GALASA_BOOT_JAR_VERSION}/galasa-boot-${GALASA_BOOT_JAR_VERSION}.jar --api --localmaven file://${HOME}/.m2/repository/ --remotemaven https://development.galasa.dev/  --obr mvn:dev.galasa/dev.galasa.uber.obr/${GALASA_OBR_VERSION}/obr  --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr --test dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount;'
 
 ```
 
