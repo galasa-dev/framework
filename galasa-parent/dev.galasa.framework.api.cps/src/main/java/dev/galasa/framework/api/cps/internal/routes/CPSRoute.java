@@ -23,6 +23,7 @@ import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.cps.internal.common.NamespaceType;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -68,6 +69,15 @@ public abstract class CPSRoute extends BaseRoute {
     protected boolean isHiddenNamespace(String namespace){
         return hiddenNamespaces.contains(namespace);
     }
+
+    protected String getNamespaceType(String namespace){
+        String type = NamespaceType.NORMAL.toString();
+        if (CPSRoute.isSecureNamespace(namespace)){
+            type= NamespaceType.SECURE.toString();
+        }
+        return type;
+    }
+    
 
     public static boolean isSecureNamespace(String namespace){
         return secureNamespaces.contains(namespace);

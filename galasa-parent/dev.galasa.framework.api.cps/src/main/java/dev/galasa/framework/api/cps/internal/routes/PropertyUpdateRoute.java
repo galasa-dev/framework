@@ -19,7 +19,6 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.cps.internal.common.Namespace;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
@@ -47,8 +46,7 @@ public class PropertyUpdateRoute extends CPSRoute {
     }
 
     private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
-        Namespace namespace = new Namespace(namespaceName);
-        Map.Entry<String, String> entry = retrieveSingleProperty(namespace.getName(), propertyName);
+        Map.Entry<String, String> entry = retrieveSingleProperty(namespaceName, propertyName);
         return buildResponseBody(namespaceName, entry);
     }
 
@@ -86,10 +84,10 @@ public class PropertyUpdateRoute extends CPSRoute {
     public HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response)
             throws FrameworkException {
-        Namespace namespace = new Namespace(getNamespaceFromURL(pathInfo));
+        String namespace = getNamespaceFromURL(pathInfo);
         String property = getPropertyNameFromURL(pathInfo);
-        deleteProperty(namespace.getName(), property);
-        String responseBody = String.format("Successfully deleted property %s in %s",property, namespace.getName());
+        deleteProperty(namespace, property);
+        String responseBody = String.format("Successfully deleted property %s in %s",property, namespace);
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK);
     }
 

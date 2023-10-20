@@ -24,7 +24,6 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.cps.internal.common.Namespace;
 import dev.galasa.framework.api.cps.internal.common.PropertyComparator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -55,7 +54,6 @@ public class PropertyRoute extends CPSRoute{
         String properties = "";
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
-            Namespace namespace = new Namespace(namespaceName);
             if (isHiddenNamespace(namespaceName)) {
                 ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespaceName);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
@@ -63,7 +61,7 @@ public class PropertyRoute extends CPSRoute{
             String prefix = queryParams.getSingleString("prefix", null);
             String suffix = queryParams.getSingleString("suffix", null);
             List<String> infixes = queryParams.getMultipleString("infix", null);
-            properties = getProperties(namespace, prefix, suffix, infixes);
+            properties = getProperties(namespaceName, prefix, suffix, infixes);
         }catch (FrameworkException f){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
@@ -72,11 +70,11 @@ public class PropertyRoute extends CPSRoute{
     }
     
     
-    private String getProperties(Namespace namespace, String prefix, String suffix, List<String> infixes) throws ConfigurationPropertyStoreException {
-        Map<String, String> properties = getAllProperties(namespace.getName());
+    private String getProperties(String namespace, String prefix, String suffix, List<String> infixes) throws ConfigurationPropertyStoreException {
+        Map<String, String> properties = getAllProperties(namespace);
        
         if (prefix != null){
-            properties = filterPropertiesByPrefix(namespace.getName(), properties,prefix);
+            properties = filterPropertiesByPrefix(namespace, properties,prefix);
         }
         if (suffix != null){
             properties = filterPropertiesBySuffix(properties,suffix);
@@ -85,7 +83,7 @@ public class PropertyRoute extends CPSRoute{
             properties = filterPropertiesByInfix(properties, infixes);
         }
         Map<String, String> sortedProperties = sortResults(properties);
-        return buildResponseBody(namespace.getName(), sortedProperties);
+        return buildResponseBody(namespace, sortedProperties);
     }
     
     /**

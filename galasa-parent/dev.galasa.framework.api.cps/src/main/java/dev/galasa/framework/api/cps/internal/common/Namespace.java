@@ -5,8 +5,6 @@
  */
 package dev.galasa.framework.api.cps.internal.common;
 
-import dev.galasa.framework.api.cps.internal.routes.CPSRoute;
-
 public class Namespace {
 
    
@@ -14,17 +12,13 @@ public class Namespace {
     private String propertiesUrl;
     private String type;
 
-    public Namespace(String namespace){
+    public Namespace(String namespace, String namespaceType){
         this.name = namespace;
-        if (CPSRoute.isSecureNamespace(namespace)){
-            this.type= NamespaceType.SECURE.toString();
-        }else{
-            this.type=NamespaceType.NORMAL.toString();
-        }
+        this.type = namespaceType;
     }
 
-    public Namespace(String namespace, String propertiesUrl){
-        this(namespace);
+    public Namespace(String namespace, String namespaceType, String propertiesUrl){
+        this(namespace, namespaceType);
         this.propertiesUrl = propertiesUrl+this.name+"/properties";
     }
 
