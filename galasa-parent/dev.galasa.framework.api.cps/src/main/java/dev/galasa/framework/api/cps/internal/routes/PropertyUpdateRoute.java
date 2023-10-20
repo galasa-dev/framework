@@ -31,7 +31,7 @@ public class PropertyUpdateRoute extends CPSRoute {
 		/* Regex to match endpoints: 
 		*  -> /cps/<namespace>/properties/<propertyName>
 		*/
-		super(responseBuilder, "\\/([a-zA-Z0-9]+)/properties/([a-zA-Z0-9.]+)", framework);
+		super(responseBuilder, "\\/([a-z0-9]+)/properties/([a-zA-Z0-9.]+)", framework);
 	}
 
     /*
@@ -45,9 +45,9 @@ public class PropertyUpdateRoute extends CPSRoute {
 		return getResponseBuilder().buildResponse(response, "application/json", property, HttpServletResponse.SC_OK); 
     }
 
-    private String retrieveProperty (String namespace, String propertyName) throws FrameworkException {
-        Map.Entry<String, String> entry = retrieveSingleProperty(namespace, propertyName);
-        return buildResponseBody(namespace, entry);
+    private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
+        Map.Entry<String, String> entry = retrieveSingleProperty(namespaceName, propertyName);
+        return buildResponseBody(namespaceName, entry);
     }
 
     /*
@@ -86,10 +86,6 @@ public class PropertyUpdateRoute extends CPSRoute {
             throws FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String property = getPropertyNameFromURL(pathInfo);
-        if (isWriteOnlyNamespace(namespace)){
-            ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED,pathInfo,request.getMethod());  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }
         deleteProperty(namespace, property);
         String responseBody = String.format("Successfully deleted property %s in %s",property, namespace);
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK);

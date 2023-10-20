@@ -20,11 +20,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-import dev.galasa.framework.api.cps.internal.commons.PropertyComparator;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.cps.internal.common.PropertyComparator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -33,7 +33,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class PropertyRoute extends CPSRoute{
 
-    private static final String path = "\\/([a-zA-Z0-9]+)/properties([?]?|[^/])+$";
+    private static final String path = "\\/([a-z0-9]+)/properties([?]?|[^/])+$";
 
     public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework) {
         super(responseBuilder, path , framework);
@@ -50,21 +50,21 @@ public class PropertyRoute extends CPSRoute{
         return getResponseBuilder().buildResponse(response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
 
-    private String getNamespaceProperties(String namespace, QueryParameters queryParams) throws FrameworkException{
+    private String getNamespaceProperties(String namespaceName, QueryParameters queryParams) throws FrameworkException{
         String properties = "";
          try {
-            nameValidator.assertNamespaceCharPatternIsValid(namespace);
-            if (super.isHiddenNamespace(namespace)) {
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespace);
-			throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
+            if (isHiddenNamespace(namespaceName)) {
+                ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespaceName);
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
             String prefix = queryParams.getSingleString("prefix", null);
             String suffix = queryParams.getSingleString("suffix", null);
             List<String> infixes = queryParams.getMultipleString("infix", null);
-            properties = getProperties(namespace, prefix, suffix, infixes);
+            properties = getProperties(namespaceName, prefix, suffix, infixes);
         }catch (FrameworkException f){
-                ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
-                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
         return properties;
     }

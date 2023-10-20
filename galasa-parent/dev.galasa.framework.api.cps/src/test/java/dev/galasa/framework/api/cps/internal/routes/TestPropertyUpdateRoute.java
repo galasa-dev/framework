@@ -618,15 +618,11 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		servlet.doDelete(req,resp);
         
 		// Then...
-		// We expect an error back, because the API server couldn't find any Etcd store to RouteInteger status = resp.getStatus();
-        assertThat(resp.getStatus()).isEqualTo(404);
-		assertThat(resp.getContentType()).isEqualTo("application/json");
+		String output = outStream.toString();
+        assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		checkErrorStructure(
-			outStream.toString(),
-			5405,
-			"E: Error occured when trying to access the endpoint '/secure/properties/property1'. The method 'DELETE' is not allowed."
-        );
+		assertThat(output).isEqualTo("Successfully deleted property property1 in secure");
     }
 
 	/*
