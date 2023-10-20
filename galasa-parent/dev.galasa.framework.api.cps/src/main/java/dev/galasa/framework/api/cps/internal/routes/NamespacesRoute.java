@@ -9,6 +9,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -54,6 +55,7 @@ public class NamespacesRoute extends CPSRoute {
         try {
             List<String> namespaces;
             namespaces = getFramework().getConfigurationPropertyService("framework").getCPSNamespaces();
+            Collections.sort(namespaces);
             for (String name : namespaces) {
                 Namespace namespace = new Namespace(name, getNamespaceType(name), url);
                 if (!isHiddenNamespace(name) ) {

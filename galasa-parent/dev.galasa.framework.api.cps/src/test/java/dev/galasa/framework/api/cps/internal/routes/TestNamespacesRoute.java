@@ -84,8 +84,10 @@ public class TestNamespacesRoute extends CpsServletTest{
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(outStream.toString()).isEqualTo("[\n  "+
-		"{\n    \"name\": \"nampespace1\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace1/properties\",\n    \"type\": \"normal\"\n  },\n"+
+		assertThat(outStream.toString()).isEqualTo("[\n"+
+		"  {\n    \"name\": \"anamespace\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/anamespace/properties\",\n    \"type\": \"normal\"\n  },\n"+
+		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/framework/properties\",\n    \"type\": \"normal\"\n  },\n"+
+		"  {\n    \"name\": \"nampespace1\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace1/properties\",\n    \"type\": \"normal\"\n  },\n"+
 		"  {\n    \"name\": \"nampespace2\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace2/properties\",\n    \"type\": \"normal\"\n  },\n"+
 		"  {\n    \"name\": \"nampespace3\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace3/properties\",\n    \"type\": \"normal\"\n  },\n"+
 		"  {\n    \"name\": \"nampespace4\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace4/properties\",\n    \"type\": \"normal\"\n  },\n"+

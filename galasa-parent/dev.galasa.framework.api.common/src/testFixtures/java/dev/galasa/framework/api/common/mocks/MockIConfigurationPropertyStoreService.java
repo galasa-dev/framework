@@ -97,11 +97,13 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
             cpsList.add("nampespace1");
             cpsList.add("nampespace2");
             cpsList.add("nampespace3");
+            cpsList.add("anamespace");
             cpsList.add("nampespace4");
             cpsList.add("nampespace5");
             cpsList.add("nampespace6");
             cpsList.add("nampespace7");
             cpsList.add("secure");
+            cpsList.add("framework");
         }
         return cpsList;
     }
