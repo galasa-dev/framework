@@ -165,10 +165,7 @@ public class PropertyRoute extends CPSRoute{
             HttpServletRequest request, HttpServletResponse response)
             throws  IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
-        if (!checkRequestHasContent(request)){
-            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
-            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
-        }
+        checkRequestHasContent(request);
         Map.Entry<String,String> property = getPropertyFromRequestBody(request);
         setProperty(namespace, property );
         String responseBody = String.format("Successfully created property %s in %s",property.getKey(), namespace);

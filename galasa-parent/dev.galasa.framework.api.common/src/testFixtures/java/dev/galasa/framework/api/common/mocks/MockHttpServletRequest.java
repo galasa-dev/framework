@@ -40,6 +40,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String payload;
     private String method = "GET"; 
 
+    public MockHttpServletRequest(String pathInfo) {
+        this.pathInfo = pathInfo;
+    }
+    
     public MockHttpServletRequest(Map<String, String[]> parameterMap) {
         this.parameterMap = parameterMap;
     }
@@ -59,11 +63,16 @@ public class MockHttpServletRequest implements HttpServletRequest {
         this.pathInfo = pathInfo;
     }
 
-    public MockHttpServletRequest( String pathInfo, String content, String method) {
+    public MockHttpServletRequest(String pathInfo, String content, String method) {
         this.pathInfo = pathInfo;
         this.payload = content;
         this.method = method;
         this.inputStream = new MockServletInputStream(content);
+    }
+
+    public MockHttpServletRequest(String pathInfo, String content, String method, Map<String, String> headerMap) {
+        this(pathInfo,content,method);
+        this.headerMap = headerMap;
     }
 
     @Override

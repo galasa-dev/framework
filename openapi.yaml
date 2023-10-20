@@ -1378,7 +1378,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TestRunRequest'
       responses:
-        '200':
+        '201':
           description: Test Submitted
           content:
             application/json:

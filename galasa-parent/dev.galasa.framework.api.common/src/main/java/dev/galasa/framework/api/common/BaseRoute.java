@@ -71,4 +71,20 @@ public abstract class BaseRoute implements IRoute {
         ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED, pathInfo, request.getMethod());
         throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);        
     }
+
+    protected boolean checkRequestHasContent(HttpServletRequest request) throws InternalServletException{
+        boolean valid = false;
+        try{
+            if (request.getContentLength() >0){
+                valid = true;
+            }
+        }catch (NullPointerException e ){
+            //Catch the NullPointerException (empty request body) to throw error in if 
+        }  
+        if (!valid){
+            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY, request.getPathInfo());
+            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
+        }
+        return valid;
+    }
 }
