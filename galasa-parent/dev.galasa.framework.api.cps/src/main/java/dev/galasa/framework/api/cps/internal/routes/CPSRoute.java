@@ -120,7 +120,7 @@ public abstract class CPSRoute extends BaseRoute {
      * If the namespace provided does not match any existing namepsaces an exception will be thrown
      * @param namespace
      * @param propertyName
-     * @return Map.Entry<String, String> 
+     * @return Map.Entry of String, String
      * @throws FrameworkException
      */
     protected Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  InternalServletException {
