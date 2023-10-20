@@ -817,6 +817,189 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
 	@Test
+    public void TestPropertyRouteNamespaceWithMiddleCapitalLetterPOSTNewPropertyReturnsError() throws Exception {
+        // Given...
+		String namespace = "camelCase";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/camelCase/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5404,
+			"Error occured when trying to identify the endpoint '/camelCase/properties'. "+
+			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+		);
+    }
+
+	@Test
+    public void TestPropertyRouteNamespaceBeginningWithCapitalLetterPOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "NotCamelcase";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/NotCamelcase/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5404,
+			"Error occured when trying to identify the endpoint '/NotCamelcase/properties'. "+
+			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+		);     
+    }
+
+	@Test
+    public void TestPropertyRouteNamespaceEndingWithCapitalLetterPOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "notcamelcasE";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/notcamelcasE/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5404,
+			"Error occured when trying to identify the endpoint '/notcamelcasE/properties'. "+
+			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+		);   
+    }
+
+	@Test
+    public void TestPropertyRouteNamespaceWithNumberAtMiddlePOSTNewPropertyReturnsError() throws Exception {
+        // Given...
+		String namespace = "camel3Case";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/camel3Case/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5404,
+			"Error occured when trying to identify the endpoint '/camel3Case/properties'. "+
+			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+		);      
+    }
+
+	@Test
+    public void TestPropertyRouteNamespaceEndingWithNumberAtStartPOSTNewPropertyReturnsError() throws Exception {
+        // Given...
+		String namespace = "camelCase3";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/camelCase3/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5404,
+			"Error occured when trying to identify the endpoint '/camelCase3/properties'. "+
+			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+		);         
+    }
+
+	@Test
+    public void TestPropertyRouteNamespaceWithMultipleNumbersPOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "c4ame6lcas5e8";
+        String propertyName = "property";
+        String value = "value";
+		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String requestBody = requestJson.toString();
+		setServlet("/c4ame6lcas5e8/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(201);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).isEqualTo("Successfully created property property in c4ame6lcas5e8");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+    }
+
+	@Test
     public void TestPropertyRouteWithProtectedNamespacePOSTNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "secure";

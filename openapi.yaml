@@ -7,7 +7,7 @@
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
-  version: 0.28.0
+  version : "0.31.0"
   description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
   contact:
     url: https://galasa.dev/support
@@ -73,7 +73,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
+                  $ref: '#/components/schemas/Namespace'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -118,8 +118,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -202,8 +202,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -294,8 +294,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -377,8 +377,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -469,8 +469,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -580,8 +580,8 @@ paths:
         - name: namespace
           in: path
           description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
           required: true
           schema:
             type: string
@@ -702,8 +702,8 @@ paths:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
@@ -1737,6 +1737,16 @@ components:
           type: string
         result:
           type: string
+    Namespace:
+      type: object
+      properties:
+        name:
+          type: string
+        properties_url: 
+          type: string
+        type: 
+          type: string
+
 
     # Structures used by the listing of the available artifacts endpoint.
     ArtifactIndex:

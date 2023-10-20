@@ -22,6 +22,7 @@ import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.cps.internal.common.NamespaceType;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -54,9 +55,9 @@ public abstract class CPSRoute extends BaseRoute {
      *
      * When they are queried, the values are redacted
      */
-    private static final Set<String> writeOnlyNamespaces = new HashSet<>();
+    private static final Set<String> secureNamespaces = new HashSet<>();
     static {
-        writeOnlyNamespaces.add("secure");
+        secureNamespaces.add("secure");
     }
 
     public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework ) {
@@ -68,13 +69,22 @@ public abstract class CPSRoute extends BaseRoute {
         return hiddenNamespaces.contains(namespace);
     }
 
-    protected boolean isWriteOnlyNamespace(String namespace){
-        return writeOnlyNamespaces.contains(namespace);
+    protected String getNamespaceType(String namespace){
+        String type = NamespaceType.NORMAL.toString();
+        if (CPSRoute.isSecureNamespace(namespace)){
+            type= NamespaceType.SECURE.toString();
+        }
+        return type;
+    }
+    
+
+    public static boolean isSecureNamespace(String namespace){
+        return secureNamespaces.contains(namespace);
     }
 
     protected String getProtectedValue(String actualValue , String namespace) {
         String protectedValue ;
-        if (writeOnlyNamespaces.contains(namespace)) {
+        if (secureNamespaces.contains(namespace)) {
             // The namespace is protected, write-only, so should not be readable.
             protectedValue = REDACTED_PROPERTY_VALUE;
         } else {
