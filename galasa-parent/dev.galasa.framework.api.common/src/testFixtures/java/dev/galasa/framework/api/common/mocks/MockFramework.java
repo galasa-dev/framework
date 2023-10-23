@@ -29,12 +29,16 @@ import javax.validation.constraints.NotNull;
 
 public class MockFramework implements IFramework {
     IResultArchiveStore archiveStore;
+    IFrameworkRuns frameworkRuns;
     MockIConfigurationPropertyStoreService cpsService = new MockIConfigurationPropertyStoreService("framework");
 
     public MockFramework(IResultArchiveStore archiveStore) {
         this.archiveStore = archiveStore;
     }
 
+    public MockFramework(IFrameworkRuns frameworkRuns){
+        this.frameworkRuns = frameworkRuns;
+    }
 
     public MockFramework(IConfigurationPropertyStoreService cpsService){
         this.cpsService = (MockIConfigurationPropertyStoreService) cpsService;
@@ -102,7 +106,7 @@ public class MockFramework implements IFramework {
 
     @Override
     public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
-        throw new UnsupportedOperationException("Unimplemented method 'getFrameworkRuns'");
+        return this.frameworkRuns;
     }
 
     @Override

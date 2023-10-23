@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.authentication;
+package dev.galasa.framework.api.authentication.internal;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,7 +18,6 @@ import com.google.gson.JsonObject;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
 
 public class OidcProviderTest {

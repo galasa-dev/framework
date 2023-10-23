@@ -22,7 +22,7 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 /*
- * Proxy Servlet for the /ras/* endpoints
+ * Proxy Servlet for the /cps/* endpoints
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
 "osgi.http.whiteboard.servlet.pattern=/cps/*" }, name = "Galasa CPS microservice")
