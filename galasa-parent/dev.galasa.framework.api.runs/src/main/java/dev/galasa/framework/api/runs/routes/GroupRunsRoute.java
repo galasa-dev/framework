@@ -37,12 +37,12 @@ public class GroupRunsRoute extends GroupRuns{
         /* Regex to match endpoints: 
 		*  -> /runs/{GroupID}
 		*/
-        super(responseBuilder, "[a-zA-Z0-9_\\-]*", framework);
+        super(responseBuilder, "\\/[a-zA-Z0-9_\\-]*", framework);
     }
 
     public HttpServletResponse handleGetRequest(String groupName, QueryParameters queryParams, HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException, FrameworkException{
-        List<IRun> runs = getRuns(groupName);
+        List<IRun> runs = getRuns(groupName.substring(1));
         if (runs != null){
             ScheduleStatus serializedRuns = serializeRuns(runs);
             return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(serializedRuns), HttpServletResponse.SC_OK);
@@ -66,7 +66,7 @@ public class GroupRunsRoute extends GroupRuns{
              */
             requestor = null;
         }
-        ScheduleStatus scheduleStatus = scheduleRun(scheduleRequest, groupName, requestor);
+        ScheduleStatus scheduleStatus = scheduleRun(scheduleRequest, groupName.substring(1), requestor);
         return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(scheduleStatus), HttpServletResponse.SC_CREATED);
     }
 
