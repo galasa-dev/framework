@@ -30,7 +30,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
     @Test
     public void TestGetRunsNoFrameworkReturnsError() throws Exception {
         //Given...
-        setServlet("group", null, null);
+        setServlet("/group", null, null);
         MockRunsServlet servlet = getServlet();
         HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -58,7 +58,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Given...
         // /runs/empty is an empty runs set and should return an error as runs can not be null
 		String groupName = "invalid";
-        setServlet(groupName, groupName, this.runs);
+        setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -82,7 +82,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Given...
         // /runs/empty is an empty runs set and should return an error as runs can not be null
 		String groupName = "nullgroup";
-        setServlet(groupName, groupName, this.runs);
+        setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -97,7 +97,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
 
 		checkErrorStructure(
 			outStream.toString(),
-			5019, "E: Unable to retrieve runs for Run Group: 'nullgroup'."
+			5019, "E: Unable to retrieve runs for Run Group: '/nullgroup'."
 		);
     }
 
@@ -106,7 +106,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Given...
         // /runs/empty is an empty runs set and should return an error as runs can not be null
 		String groupName = "empty";
-        setServlet(groupName, groupName, this.runs);
+        setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -126,7 +126,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Given...
 		String groupName = "framework";
         addRun("name1", "type1", "requestor1", "test1", "FINISHED","bundle1", "testClass1", groupName);
-        setServlet(groupName, groupName, this.runs);
+        setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -148,7 +148,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
 		String groupName = "framework";
         addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName);
         addRun("name2", "type2", "requestor2", "test2", "BUILDING","bundle2", "testClass2", groupName);
-        setServlet(groupName, groupName, this.runs);
+        setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -178,7 +178,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         addRun("name8", "type8", "requestor8", "test8", "BUILDING","bundle8", "testClass8", groupName);
         addRun("name9", "type9", "requestor9", "test9", "BUILDING","bundle9", "testClass9", groupName);
         addRun("name10", "type10", "requestor10", "test10", "BUILDING","bundle10", "testClass10", groupName);
-        setServlet(groupName, groupName, this.runs);
+        setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -209,7 +209,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         addRun("name8", "type8", "requestor8", "test8", "BUILDING","bundle8", "testClass8", groupName);
         addRun("name9", "type9", "requestor9", "test9", "BUILDING","bundle9", "testClass9", groupName);
         addRun("name10", "type10", "requestor10", "test10", "BUILDING","bundle10", "testClass10", groupName);
-        setServlet(groupName, groupName, this.runs);
+        setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -243,7 +243,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         "\"trace\": true }";
         
 
-        setServlet("group", null, payload, "POST");
+        setServlet("/group", null, payload, "POST");
         MockRunsServlet servlet = getServlet();
         HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -271,7 +271,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Given...
 		String groupName = "valid";
         String value = "";
-        setServlet(groupName, groupName, value, "POST");
+        setServlet("/"+groupName, groupName, value, "POST");
 ;		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -286,7 +286,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
 
 		checkErrorStructure(
 			outStream.toString(),
-			5411, "GAL5411E: Error occured when trying to access the endpoint 'valid'. The request body is empty."
+			5411, "GAL5411E: Error occured when trying to access the endpoint '/valid'. The request body is empty."
 		);
     }
 
@@ -295,7 +295,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Given...
 		String groupName = "valid";
         String value = "Invalid";
-        setServlet(groupName, groupName, value, "POST");
+        setServlet("/"+groupName, groupName, value, "POST");
 ;		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -329,7 +329,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         "\"overrides\": {}" +
         "\"trace\": true }";
         
-        setServlet(groupName, groupName, payload, "POST");
+        setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -362,7 +362,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         "\"overrides\": {}," +
         "\"trace\": true }";
         
-        setServlet(groupName, groupName, payload, "POST");
+        setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -397,7 +397,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         addRun("runnamename", "requestorType", "user1", "name", "submitted",
                "Class", "java", groupName);
         
-        setServlet(groupName, groupName, payload, "POST");
+        setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -421,7 +421,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         String[] classes = new String[]{"Class/name"};
         String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, null);
         
-        setServlet(groupName, groupName, payload, "POST");
+        setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -444,7 +444,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         String[] classes = new String[]{"Class/name"};
         String payload = generatePayload(classes, "requestorType", "user1", null, groupName, null);
         
-        setServlet(groupName, groupName, payload, "POST");
+        setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -469,7 +469,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         String[] classes = new String[]{"Class1/name", "Class2/name"};
         String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, null);
         
-        setServlet(groupName, groupName, payload, "POST");
+        setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -492,7 +492,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         String[] classes = new String[]{"Class1/name", "Class2/name"};
         String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, null);
         
-        setServlet(groupName, groupName, payload, "POST");
+        setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -530,7 +530,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         addRun("runnamename", "requestorType", "testRequestor", "name", "submitted",
                "Class", "java", groupName);
         
-        setServlet(groupName, groupName, payload, "POST", headerMap);
+        setServlet("/"+groupName, groupName, payload, "POST", headerMap);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -554,7 +554,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         String[] classes = new String[]{"Class/name"};
         String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, "testRequestor");
         
-        setServlet(groupName, groupName, payload, "POST", headerMap);
+        setServlet("/"+groupName, groupName, payload, "POST", headerMap);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -577,7 +577,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         String[] classes = new String[]{"Class1/name", "Class2/name"};
         String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, "testRequestor");
         
-        setServlet(groupName, groupName, payload, "POST", headerMap);
+        setServlet("/"+groupName, groupName, payload, "POST", headerMap);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -600,7 +600,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         String[] classes = new String[]{"Class1/name", "Class2/name"};
         String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, "testRequestor");
         
-        setServlet(groupName, groupName, payload, "POST", headerMap);
+        setServlet("/"+groupName, groupName, payload, "POST", headerMap);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
