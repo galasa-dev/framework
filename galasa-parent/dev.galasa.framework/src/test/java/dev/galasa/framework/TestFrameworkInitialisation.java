@@ -15,6 +15,7 @@ import dev.galasa.framework.mocks.MockCredentialsStore;
 import dev.galasa.framework.mocks.MockCredentialsStoreRegistration;
 import dev.galasa.framework.mocks.MockDSSRegistration;
 import dev.galasa.framework.mocks.MockDSSStore;
+import dev.galasa.framework.mocks.MockEnvironment;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.mocks.MockLog;
@@ -80,6 +81,8 @@ public class TestFrameworkInitialisation {
         MockRASStoreService mockRASStoreService = addMockRASToMockServiceRegistry(services, bundle);
         MockCredentialsStore mockCredentialsStore = addMockCredentialsStoreToMockServiceRegistry(services, bundle);
         MockConfidentialTextStore mockConfidentialTextStore = addMockConfidentialTextServiceToMockServiceRegistry(services, bundle);
+        MockEnvironment mockEnv = new MockEnvironment();
+
 
         // When...
         FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation( 
@@ -88,7 +91,8 @@ public class TestFrameworkInitialisation {
             isTestrun,
             logger,
             bundleContext,
-            mockFileSystem);
+            mockFileSystem,
+            mockEnv);
 
         // Then...
         assertThat(mockFramework.getConfidentialTextService()).isEqualTo(mockConfidentialTextStore);
@@ -177,7 +181,7 @@ public class TestFrameworkInitialisation {
         Properties overrideProperties = new Properties();
         boolean isTestrun = true ;
         Log logger = new MockLog();
-//        MockEnvironment mockEnv = new MockEnvironment();
+        MockEnvironment mockEnv = new MockEnvironment();
 
         Map<String,MockServiceReference<?>> services = new HashMap<String,MockServiceReference<?>>();
         
@@ -194,9 +198,9 @@ public class TestFrameworkInitialisation {
                 overrideProperties, 
                 isTestrun,
                 logger, 
-//                mockEnv,
                 bundleContext,
-                mockFileSystem);
+                mockFileSystem,
+                mockEnv);
             fail("There is no CPS service configured on purpose, there should have been an error thrown!");
         } catch( Exception ex ) {
             assertThat(ex)
@@ -216,7 +220,8 @@ public class TestFrameworkInitialisation {
         Properties overrideProperties = new Properties();
         boolean isTestrun = true ;
         Log logger = new MockLog();
-//        MockEnvironment mockEnv = new MockEnvironment();
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setProperty("user.home","/home");
 
         Map<String,MockServiceReference<?>> services = new HashMap<String,MockServiceReference<?>>();
 
@@ -240,9 +245,9 @@ public class TestFrameworkInitialisation {
                 overrideProperties, 
                 isTestrun,
                 logger, 
-//                mockEnv,
                 bundleContext,
-                mockFileSystem);
+                mockFileSystem,
+                mockEnv);
             fail("There is no CPS service configured on purpose, there should have been an error thrown!");
         } catch( Exception ex ) {
             assertThat(ex)
@@ -301,11 +306,11 @@ public class TestFrameworkInitialisation {
         
         // A fresh file system...
         MockFileSystem fs = new MockFileSystem();
-//        MockEnvironment mockEnv = new MockEnvironment();
-//        // The user home... which should be ignored if GALASA_HOME is set.
-//        mockEnv.setProperty("user.home","/myuser2/home");
-//        // The value we expect to be used...
-//        mockEnv.setProperty("GALASA_HOME","/myoverriddenhome");
+    //    MockEnvironment mockEnv = new MockEnvironment();
+    //    // The user home... which should be ignored if GALASA_HOME is set.
+    //    mockEnv.setProperty("user.home","/myuser2/home");
+    //    // The value we expect to be used...
+    //    mockEnv.setProperty("GALASA_HOME","/myoverriddenhome");
 
         // When...
         URI uri = frameworkInit.locateDynamicStatusStore(
