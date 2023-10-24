@@ -37,7 +37,7 @@ public class GroupRunsRoute extends GroupRuns{
         /* Regex to match endpoints: 
 		*  -> /runs/{GroupID}
 		*/
-        super(responseBuilder, "[a-zA-Z0-9_\\-]*", framework);
+        super(responseBuilder, "\\/[a-zA-Z0-9_\\-]*", framework);
     }
 
     public HttpServletResponse handleGetRequest(String groupName, QueryParameters queryParams, HttpServletRequest request, HttpServletResponse response)
