@@ -58,7 +58,7 @@ paths:
   #--------------------------------------
   # List all known Namespaces in CPS, excluding hidden namespaces
   #--------------------------------------
-  /cps:
+  /cps/:
     get:
       operationId: getAllCpsNamespaces
       summary: Get all known CPS Namespaces
@@ -1742,7 +1742,7 @@ components:
       properties:
         name:
           type: string
-        properties_url: 
+        propertiesUrl: 
           type: string
         type: 
           type: string
