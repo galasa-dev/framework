@@ -13,7 +13,8 @@ The galasa API service will still run if none of these applications is installed
 
 ### 1.1 CouchDB
 
-The current version of CouchDB that is used by Galasa is version 2.3.1 which can be downloaded [here](https://couchdb.apache.org/#download)
+The current version of CouchDB that is used by Galasa is version 2.3.1 which can be downloaded [here](https://couchdb.apache.org/#download).
+
 Alternatively you can downlaod it from the [archive](http://archive.apache.org/dist/couchdb/binary/)
 
 Once you have installed CouchDB you will need to create a username and password in order to authorise tranactions with the database. Keep this in mind as you will need it to view and access the database.
@@ -68,6 +69,14 @@ Please note that if you make future runs against a galasa ecosystem you will nee
 
 ```shell
 framework.resultarchive.store=couchdb:http://127.0.0.1:5984
+```
+
+When the local API server is started for the first time, you will also need to supply this property into the CPS API in order for galasa to pick it up.
+
+To do this run the command below using `galasactl`.
+
+```shell
+galasactl properties set --namespace framework --name resultarchive.store --value "http://127.0.0.1:5984"
 ```
 
 #### bootstrap.properties
