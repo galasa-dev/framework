@@ -7,7 +7,6 @@ package dev.galasa.boot;
 
 import static org.assertj.core.api.Assertions.*;
 
-import dev.galasa.boot.Launcher;
 import dev.galasa.boot.mocks.MockEnvironment;
 
 import org.junit.Test;
@@ -24,8 +23,5 @@ public class TestGalasaHome {
         String home = l.getGalasaHome(mockEnv);
 
         assertThat(home).isEqualTo("/Users/hobbit/galasa_home_dir/");
-        
-
-
     }
 }
