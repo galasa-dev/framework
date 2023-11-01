@@ -18,6 +18,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 import dev.galasa.framework.FileSystem;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.common.BaseServlet;
+import dev.galasa.framework.api.resources.routes.ResourcesRoute;
 import dev.galasa.framework.spi.IFramework;
 /*
  * Proxy Servlet for the /resources/* endpoints
@@ -41,7 +42,7 @@ public class ResourcesServlet extends BaseServlet {
 
 		super.init();
 
-		//addRoute(new RunDetailsRoute(getResponseBuilder(),framework));
+		addRoute(new ResourcesRoute(getResponseBuilder(),framework));
 
 	}
 

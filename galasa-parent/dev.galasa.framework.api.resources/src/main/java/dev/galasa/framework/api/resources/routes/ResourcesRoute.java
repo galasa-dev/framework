@@ -45,4 +45,6 @@ public class ResourcesRoute  extends BaseRoute{
         checkRequestHasContent(request);
         return response;
     }
+
+    
 }
