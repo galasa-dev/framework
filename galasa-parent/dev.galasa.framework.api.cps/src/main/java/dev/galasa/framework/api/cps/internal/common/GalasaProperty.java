@@ -5,8 +5,6 @@
  */
 package dev.galasa.framework.api.cps.internal.common;
 
-import java.util.List;
-
 public class GalasaProperty {
     String apiVersion = "v1alpha1";
     final String kind = "GalasaProperty"; 
