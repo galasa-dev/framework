@@ -47,6 +47,25 @@ public class TestGalasaProperty {
     }
 
     @Test
+    public void TestGalasaPropertyFromString(){
+        //Given...
+        String namespace = "mynamespace";
+        String propertyName = "new.property.name";
+        String propertyValue = "randomValue123";
+        String fullPropertyName = namespace+"."+propertyName;
+        
+        //When...
+        GalasaProperty property = new GalasaProperty(fullPropertyName, propertyValue);
+        
+        //Then...
+        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.apiVersion).isEqualTo("v1alpha1");
+        assertThat(property.metadata.namespace).isEqualTo(namespace);
+        assertThat(property.metadata.name).isEqualTo(propertyName);
+        assertThat(property.data.value).isEqualTo(propertyValue);
+    }
+
+    @Test
     public void TestGalasaPropertyCustomApiVersion(){
         //Given...
         String apiVersion = "randomApi";
@@ -72,6 +91,23 @@ public class TestGalasaProperty {
         String propertyName = "random.property.name";
         String propertyValue = "randomValue123";
         GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
+        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "v1alpha1");
+        
+        //When...
+        String jsonString = gson.toJson(property);
+
+        //Then...
+        assertThat(jsonString).isEqualTo(expectJson);
+    }
+
+    @Test
+    public void TestGalasaPropertyFromStringInJSONFormat(){
+        //Given...
+        String namespace = "randomnamespace";
+        String propertyName = "random.property.name";
+        String propertyValue = "randomValue123";
+        String fullPropertyName = namespace+"."+propertyName;
+        GalasaProperty property = new GalasaProperty(fullPropertyName, propertyValue);
         String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "v1alpha1");
         
         //When...

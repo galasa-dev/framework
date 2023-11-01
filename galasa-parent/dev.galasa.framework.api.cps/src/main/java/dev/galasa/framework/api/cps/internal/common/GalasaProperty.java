@@ -29,12 +29,18 @@ public class GalasaProperty {
         }
     }
 
-    public GalasaProperty (String namespace,String propertyName,String propertyValue){
+    public GalasaProperty (String completeCPSname, String propertyValue){
+        String[] name = completeCPSname.split("[.]", 2);
+        this.metadata = new Metadata(name[0],name[1]);
+        this.data = new Data(propertyValue);
+    }
+
+    public GalasaProperty (String namespace, String propertyName, String propertyValue){
         this.metadata = new Metadata(namespace, propertyName);
         this.data = new Data(propertyValue);
     }
 
-    public GalasaProperty (String namespace,String propertyName,String propertyValue,String apiVersion){
+    public GalasaProperty (String namespace, String propertyName, String propertyValue, String apiVersion){
         this(namespace, propertyName, propertyValue);
         this.apiVersion = apiVersion;
     }
