@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.authentication.internal;
+package dev.galasa.framework.api.authentication;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +24,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;

@@ -99,7 +99,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.cps
-    version: 0.25.0
+    version: 0.30.0
     obr: true
     isolated: true
     codecoverage: true
@@ -117,7 +117,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.runs
-    version: 0.25.0
+    version: 0.31.0
     obr: true
     isolated: true
     codecoverage: true

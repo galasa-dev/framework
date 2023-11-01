@@ -45,7 +45,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         Properties overrideProperties
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
         this(bootstrapProperties, overrideProperties, false, null, 
-        getBundleContext() , new FileSystem() );
+        getBundleContext() , new FileSystem() , new SystemEnvironment());
     }
 
 
@@ -55,7 +55,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         boolean testrun
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
         this(bootstrapProperties, overrideProperties, testrun, null, 
-        getBundleContext() , new FileSystem());
+        getBundleContext() , new FileSystem(), new SystemEnvironment());
     }
 
 
@@ -66,14 +66,62 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         Log initLogger
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
         this(bootstrapProperties, overrideProperties, testrun, initLogger, 
-        getBundleContext(), new FileSystem());
+        getBundleContext(), new FileSystem(), new SystemEnvironment());
     }
+
 
 
     private static BundleContext getBundleContext() {
         return FrameworkUtil.getBundle(FrameworkInitialisation.class).getBundleContext();
     }
 
+    /**
+     * Obtain the location of the galasa home directory
+     * @return a String representing the location of the users Galasa home directory
+     */
+    public String getGalasaHome(Environment env) {
+        // 1st: If GALASA_HOME is set as a system property then use that,
+        // 2nd: If GALASA_HOME is set as a system environment variable, then use that.
+        // 3rd: otherwise we use the calling users' home folder.
+        String GALASA_HOME = "GALASA_HOME";
+        String home = env.getProperty(GALASA_HOME);
+        if( (home == null) || (home.trim().isEmpty())) {
+            home = env.getenv(GALASA_HOME);
+            if( (home == null) || (home.trim().isEmpty())) {
+                home = env.getProperty(USER_HOME)+"/.galasa";
+                logger.info("System property "+USER_HOME+" used to set value of home location.");
+            } else {
+                logger.info("Environment variable GALASA_HOME used to set value of home location.");
+            }
+        } else {
+            logger.info("System property GALASA_HOME used to set value of home location.");
+            // The system property value may be surrounded by " characters.
+            // If so, strip them off.
+            // We allow this because a path with strings in would be split
+            // into separate system properties otherwise.
+            home = stripLeadingAndTrailingQuotes(home);
+        }
+        logger.info("Galasa home location is "+home);
+
+        return home;
+    }
+
+    /**
+     * String the first double-quote and the last double-quote off
+     * the begining and end of a string.
+     * @param input
+     * @return The stripped (or unaltered) string.
+     */
+    String stripLeadingAndTrailingQuotes(String input ) {
+        String output = input ;
+        if (output.startsWith("\"")) {
+            output = output.replaceFirst("\"", "");
+        }
+        if (output.endsWith("\"")) {
+            output = output.substring(0,output.length()-1);
+        }
+        return output;
+    }
 
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
@@ -81,24 +129,28 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         boolean testrun,
         Log initLogger,
         BundleContext bundleContext , 
-        IFileSystem fileSystem
+        IFileSystem fileSystem,
+        Environment env
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
 
         this.bootstrapProperties = bootstrapProperties;
         this.fileSystem = fileSystem;
-
-        //load galasa home from the bootstrap
-        this.galasaHome = bootstrapProperties.getProperty("framework.galasa.home");
-
-        // *** Copy the the bootstrap properties to the override properties so that they
-        // are available to the managers
-        overrideProperties.putAll(bootstrapProperties);
 
         if (initLogger == null) {
             logger = LogFactory.getLog(this.getClass());
         } else {
             logger = initLogger;
         }
+
+        //load galasa home from the bootstrap
+        this.galasaHome = bootstrapProperties.getProperty("framework.galasa.home");
+        if (this.galasaHome == null) {
+            this.galasaHome = getGalasaHome(env);
+        }
+
+        // *** Copy the the bootstrap properties to the override properties so that they
+        // are available to the managers
+        overrideProperties.putAll(bootstrapProperties);
 
         logger.info("Initialising the Galasa Framework");
 
