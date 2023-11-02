@@ -155,7 +155,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CpsProperty'
+                  $ref: '#/components/schemas/GalasaProperty'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -316,7 +316,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CpsProperty'
+                  $ref: '#/components/schemas/GalasaProperty'
               examples:
                 propertyexists:
                   value:
@@ -593,7 +593,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CpsProperty'
+                  $ref: '#/components/schemas/GalasaProperty'
         '400':
           description: The namespace/prefix/suffix uses invalid characters or is badly formed.
           content:
@@ -665,7 +665,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CpsProperty'
+                $ref: '#/components/schemas/GalasaProperty'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -728,7 +728,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CpsProperty'
+                $ref: '#/components/schemas/GalasaProperty'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -1521,6 +1521,25 @@ components:
           description: The fully-qualified property name, including the 'namespace'.
         value:
           type: string
+    GalasaProperty:
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+        metadata:
+          properties:
+            namespace:
+              type: string
+              description: The namespace the property resides in
+            name:
+              type: string
+              description: The name of the property
+        data:
+          properties:
+            value:
+              type: string
+              description: The value of the property
     JsonError:
       properties:
         error:
