@@ -7,6 +7,7 @@ package dev.galasa.framework.api.cps.internal;
 
 import com.google.gson.*;
 
+import dev.galasa.framework.api.cps.internal.common.GalasaProperty;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -21,6 +22,8 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -75,7 +78,7 @@ public class CpsServletTest extends BaseServletTest {
 	}
 
 	@Override
-	protected void checkJsonArrayStructure(String jsonString, Map<String, String> jsonFieldsToCheck) throws Exception {
+	protected void checkJsonArrayStructure(String jsonString, Map<String, String> properties) throws Exception {
 
 		JsonElement jsonElement = JsonParser.parseString(jsonString);
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
@@ -83,14 +86,25 @@ public class CpsServletTest extends BaseServletTest {
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
 		assertThat(jsonArray).isNotNull().as("Json parsed is not a json array.");
 
-        // Go through the map of provided fields and check if any of the objects in the JSON array
-        // contain a matching key-value entry.
-        for (Entry<String, String> entry : jsonFieldsToCheck.entrySet()) {
+		List<GalasaProperty> expectedProperties = new ArrayList<GalasaProperty>();
+		for (Entry<String, String> entry : properties.entrySet()) {
+			expectedProperties.add( new GalasaProperty(entry));
+		}
+
+		List<GalasaProperty> jsonProperties = new ArrayList<GalasaProperty>();
+		for (JsonElement element : jsonArray) {
+			String expected = element.toString();
+            jsonProperties.add(gson.fromJson(expected, GalasaProperty.class));
+		}
+		
+        // Go through the list of expected Galasa Properties and 
+		// json properties (which have been converted into Galasa Properties)
+		// and check if any of the elements contain a matching key-value entry.
+        for (GalasaProperty property : expectedProperties) {
             boolean fieldMatches = false;
 
-            for (JsonElement element : jsonArray) {
-                JsonObject jsonObject = element.getAsJsonObject();
-                if (jsonObject.get("name").getAsString().equals(entry.getKey()) && jsonObject.get("value").getAsString().equals(entry.getValue()) ) {
+            for (GalasaProperty returned : jsonProperties) {
+                if ((property.metadata.name.equals(returned.metadata.name))&&(property.data.value.equals(returned.data.value))) {
                     fieldMatches = true;
                 }
             }
@@ -111,14 +125,28 @@ public class CpsServletTest extends BaseServletTest {
 		return found;
 	}
 
-	protected String generateExpectedJson(String namespace, String propertyName, String propertyValue, String apiVersion){
-        return "[\n  {\n    \"apiVersion\": \""+apiVersion+"\",\n"+
+	private String generatePropertyJSON(String namespace, String propertyName, String propertyValue, String apiVersion){
+		return "{\n    \"apiVersion\": \""+apiVersion+"\",\n"+
         "    \"kind\": \"GalasaProperty\",\n"+
         "    \"metadata\": {\n"+
         "      \"namespace\": \""+namespace+"\",\n"+
         "      \"name\": \""+propertyName+"\"\n"+
         "    },\n"+
         "    \"data\": {\n"+
-        "      \"value\": \""+propertyValue+"\"\n    }\n  }\n]";
+        "      \"value\": \""+propertyValue+"\"\n    }\n  }";
+	}
+
+	protected String generateExpectedJson(String namespace, String propertyName, String propertyValue, String apiVersion){
+        return "[\n  "+generatePropertyJSON(namespace, propertyName, propertyValue, apiVersion)+"\n]";
+    }
+
+	protected String generateExpectedJson(Map<String, String> properties){
+		String results ="";
+		for (Map.Entry<String,String> entry : properties.entrySet()){
+			// Key Value namesapce.propertyname value value
+			String[] splitName = entry.getKey().split("[.]", 2);
+			results += generatePropertyJSON(splitName[0], splitName[1],entry.getValue(),"v1alpha1");
+		} 
+        return "[\n  "+results+"\n]";
     }
 }

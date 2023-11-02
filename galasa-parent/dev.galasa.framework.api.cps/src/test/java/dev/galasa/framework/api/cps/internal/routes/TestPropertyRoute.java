@@ -317,6 +317,8 @@ public class TestPropertyRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put("framework.property1", "value1");
 
         // Then...
         // We expect data back
@@ -324,7 +326,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"framework.property1\",\n    \"value\": \"value1\"\n  }\n]");
+		checkJsonArrayStructure(output,properties);
     }
 
 	@Test
@@ -367,16 +369,17 @@ public class TestPropertyRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put("multi..hospitality", "value3");
+		properties.put("multi.test.empty", "value5");
+		properties.put("multi.test.property", "value1");
         // Then...
         // We expect data back
         String output = outStream.toString();
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi..hospitality\",\n    \"value\": \"value3\"\n  },\n"+
-		"  {\n    \"name\": \"multi.test.empty\",\n    \"value\": \"value5\"\n  },"+"\n" +
-		"  {\n    \"name\": \"multi.test.property\",\n    \"value\": \"value1\"\n  }\n]");
+		checkJsonArrayStructure(output,properties);
     }
 
 	@Test
@@ -389,11 +392,13 @@ public class TestPropertyRoute extends CpsServletTest{
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
-        ServletOutputStream outStream = resp.getOutputStream();	
+        ServletOutputStream outStream = resp.getOutputStream();
 
         // When...
         servlet.init();
         servlet.doGet(req, resp);
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put("multi..charity1", "value2");
 
         // Then...
         // We expect data back
@@ -401,7 +406,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi..charity1\",\n    \"value\": \"value2\"\n  }\n]");
+		checkJsonArrayStructure(output,properties);
     }
 
 	@Test
@@ -444,6 +449,10 @@ public class TestPropertyRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put("multi.test.aunty5", "value4");
+		properties.put("multi.test.empty", "value5");
+		properties.put("multi.test.property", "value1");
 
         // Then...
         // We expect data back
@@ -451,8 +460,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi.test.aunty5\",\n    \"value\": \"value4\"\n  },"+
-			"\n  {\n    \"name\": \"multi.test.empty\",\n    \"value\": \"value5\"\n  },\n  {\n    \"name\": \"multi.test.property\",\n    \"value\": \"value1\"\n  }\n]" );
+		checkJsonArrayStructure(output,properties);
     }
 
 	@Test
@@ -471,6 +479,8 @@ public class TestPropertyRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put("framework.property5", "value5");
 
         // Then...
         // We expect data back
@@ -478,7 +488,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"framework.property5\",\n    \"value\": \"value5\"\n  }\n]");
+		checkJsonArrayStructure(output,properties);
     }
 
 	@Test
@@ -523,16 +533,18 @@ public class TestPropertyRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put("multi..charity1", "value2");
+		properties.put("multi..lecture101", "value101");
 
-        // Then...
+		// Then...
         // We expect data back
         String output = outStream.toString();
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"multi..charity1\",\n    \"value\": \"value2\"\n  },"+
-			"\n  {\n    \"name\": \"multi..lecture101\",\n    \"value\": \"value101\"\n  }\n]");
-    }
+		checkJsonArrayStructure(output,properties);
+	}
 
 	@Test
     public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixSuffixAndInfixReturnsMultipleRecords() throws Exception {
@@ -551,6 +563,9 @@ public class TestPropertyRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put("infixes.test.property.testing.local.stream", "value3");
+		properties.put("infixes.test.property.testing.stream", "value4");
 
         // Then...
         // We expect data back
@@ -558,8 +573,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"infixes.test.property.testing.local.stream\",\n    \"value\": \"value3\"\n  },"+
-			"\n  {\n    \"name\": \"infixes.test.property.testing.stream\",\n    \"value\": \"value4\"\n  }\n]");
+		checkJsonArrayStructure(output,properties);
     }
 
 	@Test
@@ -579,6 +593,9 @@ public class TestPropertyRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put("infixes.test.property.testing.local.stream", "value3");
+		properties.put("infixes.test.property.testing.stream", "value4");
 
         // Then...
         // We expect data back
@@ -586,8 +603,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"infixes.test.property.testing.local.stream\",\n    \"value\": \"value3\"\n  },"+
-			"\n  {\n    \"name\": \"infixes.test.property.testing.stream\",\n    \"value\": \"value4\"\n  }\n]");
+		checkJsonArrayStructure(output,properties);
     }
 
 	@Test
@@ -607,6 +623,11 @@ public class TestPropertyRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put("infixes.test.property.testing.local.stream", "value3");
+		properties.put("infixes.test.property.testing.stream", "value4");
+		properties.put("infixes.test.aproperty.stream", "value1");
+		properties.put("infixes.test.bproperty.stream", "value2");
 
         // Then...
         // We expect data back
@@ -614,10 +635,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"infixes.test.property.testing.local.stream\",\n    \"value\": \"value3\"\n  },"+
-			"\n  {\n    \"name\": \"infixes.test.property.testing.stream\",\n    \"value\": \"value4\"\n  },"+
-			"\n  {\n    \"name\": \"infixes.test.aproperty.stream\",\n    \"value\": \"value1\"\n  },"+
-			"\n  {\n    \"name\": \"infixes.test.bproperty.stream\",\n    \"value\": \"value2\"\n  }\n]");
+		checkJsonArrayStructure(output,properties);
     }
 
 	@Test
@@ -637,6 +655,9 @@ public class TestPropertyRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
+		Map<String, String> properties = new HashMap<String,String>();
+		properties.put("infixes.test.property.testing.local.stream", "value3");
+		properties.put("infixes.test.property.testing.stream", "value4");
 
         // Then...
         // We expect data back
@@ -644,8 +665,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("[\n  {\n    \"name\": \"infixes.test.property.testing.local.stream\",\n    \"value\": \"value3\"\n  },"+
-			"\n  {\n    \"name\": \"infixes.test.property.testing.stream\",\n    \"value\": \"value4\"\n  }\n]");
+		checkJsonArrayStructure(output,properties);
     }
 
 	@Test

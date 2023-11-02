@@ -320,7 +320,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).isEqualTo("Successfully updated property property5 in secure");
-        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();
     }
 
 	@Test

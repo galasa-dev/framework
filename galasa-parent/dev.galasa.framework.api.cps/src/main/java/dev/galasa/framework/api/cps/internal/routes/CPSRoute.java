@@ -186,10 +186,8 @@ public abstract class CPSRoute extends BaseRoute {
          */
         JsonArray propertyArray = new JsonArray();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
-            JsonObject cpsProp = new JsonObject();
-            cpsProp.addProperty("name", entry.getKey());
-            cpsProp.addProperty("value", getProtectedValue(entry.getValue(),namespace));
-            propertyArray.add(cpsProp);
+            GalasaProperty property = new GalasaProperty(entry.getKey(),getProtectedValue(entry.getValue(),namespace));
+            propertyArray.add(property.toJSON());
         }
         return gson.toJson(propertyArray);
     }

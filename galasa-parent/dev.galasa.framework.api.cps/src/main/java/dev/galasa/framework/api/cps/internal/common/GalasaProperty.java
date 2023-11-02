@@ -15,14 +15,14 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 public class GalasaProperty {
     static final Gson gson = GalasaGsonBuilder.build();
     
-    String apiVersion = "v1alpha1";
+    public String apiVersion = "v1alpha1";
     final String kind = "GalasaProperty"; 
-    GalsaaPropertyMetadata metadata ;
-    GalasaPropertyData data;
+    public GalsaaPropertyMetadata metadata ;
+    public GalasaPropertyData data;
     
     public class GalsaaPropertyMetadata {
-        String namespace;
-        String name;
+        public String namespace;
+        public String name;
         
         public GalsaaPropertyMetadata (String namespace, String name){
             this.namespace = namespace;
@@ -31,7 +31,7 @@ public class GalasaProperty {
     }
 
     public class GalasaPropertyData {
-        String value;
+        public String value;
         
         public GalasaPropertyData (String propertyValue){
             this.value = propertyValue;
