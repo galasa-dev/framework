@@ -111,4 +111,14 @@ public class CpsServletTest extends BaseServletTest {
 		return found;
 	}
 
+	protected String generateExpectedJson(String namespace, String propertyName, String propertyValue, String apiVersion){
+        return "[\n  {\n    \"apiVersion\": \""+apiVersion+"\",\n"+
+        "    \"kind\": \"GalasaProperty\",\n"+
+        "    \"metadata\": {\n"+
+        "      \"namespace\": \""+namespace+"\",\n"+
+        "      \"name\": \""+propertyName+"\"\n"+
+        "    },\n"+
+        "    \"data\": {\n"+
+        "      \"value\": \""+propertyValue+"\"\n    }\n  }\n]";
+    }
 }

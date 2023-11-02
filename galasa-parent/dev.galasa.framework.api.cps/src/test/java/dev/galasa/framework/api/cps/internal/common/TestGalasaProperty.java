@@ -13,6 +13,8 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Map;
+
 public class TestGalasaProperty {
     
     static final Gson gson = GalasaGsonBuilder.build();
@@ -66,6 +68,26 @@ public class TestGalasaProperty {
     }
 
     @Test
+    public void TestGalasaPropertyFromMapEntry(){
+        //Given...
+        String namespace = "mynamespace";
+        String propertyName = "new.property.name";
+        String propertyValue = "randomValue123";
+        String fullPropertyName = namespace+"."+propertyName;
+        Map.Entry<String, String> entry = Map.entry(fullPropertyName, propertyValue);
+        
+        //When...
+        GalasaProperty property = new GalasaProperty(entry);
+        
+        //Then...
+        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.apiVersion).isEqualTo("v1alpha1");
+        assertThat(property.metadata.namespace).isEqualTo(namespace);
+        assertThat(property.metadata.name).isEqualTo(propertyName);
+        assertThat(property.data.value).isEqualTo(propertyValue);
+    }
+
+    @Test
     public void TestGalasaPropertyCustomApiVersion(){
         //Given...
         String apiVersion = "randomApi";
@@ -94,7 +116,7 @@ public class TestGalasaProperty {
         String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "v1alpha1");
         
         //When...
-        String jsonString = gson.toJson(property);
+        String jsonString = gson.toJson(property.toJSON());
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);
@@ -111,7 +133,25 @@ public class TestGalasaProperty {
         String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "v1alpha1");
         
         //When...
-        String jsonString = gson.toJson(property);
+        String jsonString = gson.toJson(property.toJSON());
+
+        //Then...
+        assertThat(jsonString).isEqualTo(expectJson);
+    }
+
+    @Test
+    public void TestGalasaPropertyFromMapEntryInJSONFormat(){
+        //Given...
+        String namespace = "randomnamespace";
+        String propertyName = "random.property.name";
+        String propertyValue = "randomValue123";
+        String fullPropertyName = namespace+"."+propertyName;
+        Map.Entry<String, String> propertyEntry =  Map.entry(fullPropertyName, propertyValue);
+        GalasaProperty property = new GalasaProperty(propertyEntry);
+        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "v1alpha1");
+        
+        //When...
+        String jsonString = gson.toJson(property.toJSON());
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);
@@ -128,7 +168,7 @@ public class TestGalasaProperty {
         String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, apiVersion);
         
         //When...
-        String jsonString = gson.toJson(property);
+        String jsonString = gson.toJson(property.toJSON());
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);

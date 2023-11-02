@@ -89,8 +89,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-        Map<String, String> properties = new HashMap<String,String>();
-        properties.put("framework.property1", "value1");
+		String expectedJson = generateExpectedJson("framework", "property1", "value1", "v1alpha1");
 
         // Then...
         // We expect data back
@@ -98,7 +97,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		checkJsonArrayStructure(output,properties);
+		assertThat(output).isEqualTo(expectedJson);
     }
 
 	@Test
@@ -113,8 +112,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-        Map<String, String> properties = new HashMap<String,String>();
-        properties.put("secure.property1", "********");
+		String expectedJson = generateExpectedJson("secure", "property1", "********", "v1alpha1");
 
         // Then...
         // We expect data back
@@ -122,7 +120,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		checkJsonArrayStructure(output,properties);
+		assertThat(output).isEqualTo(expectedJson);
     }
 
 	@Test
@@ -164,8 +162,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-        Map<String, String> properties = new HashMap<String,String>();
-        properties.put("framework.property3", "value3");
+		String expectedJson = generateExpectedJson("framework", "property3", "value3", "v1alpha1");
 
         // Then...
         // We expect data back
@@ -173,7 +170,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		checkJsonArrayStructure(output,properties);
+		assertThat(output).isEqualTo(expectedJson);
     }
 
     @Test

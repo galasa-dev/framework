@@ -19,6 +19,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.cps.internal.common.GalasaProperty;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
@@ -41,13 +42,17 @@ public class PropertyUpdateRoute extends CPSRoute {
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String propertyName = getPropertyNameFromURL(pathInfo);
-        String  property= retrieveProperty(namespace,propertyName);
+        String property = retrieveProperty(namespace,propertyName);
 		return getResponseBuilder().buildResponse(response, "application/json", property, HttpServletResponse.SC_OK); 
     }
 
     private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
+        GalasaProperty property = null;
         Map.Entry<String, String> entry = retrieveSingleProperty(namespaceName, propertyName);
-        return buildResponseBody(namespaceName, entry);
+        if (entry != null){
+            property = new GalasaProperty(entry);
+        }
+        return buildResponseBody(property);
     }
 
     /*

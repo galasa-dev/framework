@@ -5,43 +5,61 @@
  */
 package dev.galasa.framework.api.cps.internal.common;
 
+import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+
 public class GalasaProperty {
+    static final Gson gson = GalasaGsonBuilder.build();
+    
     String apiVersion = "v1alpha1";
     final String kind = "GalasaProperty"; 
-    Metadata metadata ;
-    Data data;
+    GalsaaPropertyMetadata metadata ;
+    GalasaPropertyData data;
     
-    public class Metadata {
+    public class GalsaaPropertyMetadata {
         String namespace;
         String name;
         
-        public Metadata (String namespace, String name){
+        public GalsaaPropertyMetadata (String namespace, String name){
             this.namespace = namespace;
             this.name = name;
         }
     }
 
-    public class Data {
+    public class GalasaPropertyData {
         String value;
         
-        public Data (String propertyValue){
+        public GalasaPropertyData (String propertyValue){
             this.value = propertyValue;
         }
     }
 
     public GalasaProperty (String completeCPSname, String propertyValue){
         String[] name = completeCPSname.split("[.]", 2);
-        this.metadata = new Metadata(name[0],name[1]);
-        this.data = new Data(propertyValue);
+        this.metadata = new GalsaaPropertyMetadata(name[0],name[1]);
+        this.data = new GalasaPropertyData(propertyValue);
+    }
+
+    public GalasaProperty (Map.Entry<String, String> propertyEntry){
+        this(propertyEntry.getKey(),propertyEntry.getValue());
     }
 
     public GalasaProperty (String namespace, String propertyName, String propertyValue){
-        this.metadata = new Metadata(namespace, propertyName);
-        this.data = new Data(propertyValue);
+        this.metadata = new GalsaaPropertyMetadata(namespace, propertyName);
+        this.data = new GalasaPropertyData(propertyValue);
     }
 
     public GalasaProperty (String namespace, String propertyName, String propertyValue, String apiVersion){
         this(namespace, propertyName, propertyValue);
         this.apiVersion = apiVersion;
+    }
+
+    public JsonObject toJSON() {
+        String jsonstring = gson.toJson(this);
+        return gson.fromJson(jsonstring, JsonObject.class);
     }
 }

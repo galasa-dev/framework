@@ -22,6 +22,7 @@ import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.cps.internal.common.GalasaProperty;
 import dev.galasa.framework.api.cps.internal.common.NamespaceType;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -133,7 +134,8 @@ public abstract class CPSRoute extends BaseRoute {
             for (Map.Entry<String, String> entry : properties.entrySet()) {
                 String key = entry.getKey().toString();
                 if (key.equals(namespace+"."+propertyName)){
-                    return entry;
+                    // Return the key and the redacted value if the namespace is secure, otherwise return the key and value
+                    return Map.entry(entry.getKey(),getProtectedValue(entry.getValue(),namespace));
                 }
             }
         }catch (Exception e){
@@ -206,4 +208,14 @@ public abstract class CPSRoute extends BaseRoute {
         return gson.toJson(propertyArray);
     }
 
+    protected String buildResponseBody(GalasaProperty property){
+        /*
+         * Builds a json array object from a single GalasaProperty containing a property
+         */
+        JsonArray propertyArray = new JsonArray();
+        if (property != null){
+            propertyArray.add(property.toJSON());
+        }
+        return gson.toJson(propertyArray);
+    }
 }
