@@ -6,7 +6,6 @@
 package dev.galasa.framework.api.cps.internal.routes;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -166,31 +165,9 @@ public class PropertyRoute extends CPSRoute{
         checkRequestHasContent(request);
         GalasaProperty property = getPropertyFromRequestBody(request);
         checkNamespaceExists(namespace);
-        setProperty(property);
+        setProperty(property, false);
         String responseBody = String.format("Successfully created property %s in %s",property.metadata.name, namespace);
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
     }
 
-    /**
-     * Returns an GalasaProperty from the request body that should be encoded in UTF-8 format
-     * @param request
-     * @return GalasaProperty 
-     * @throws IOException
-     * @throws InternalServletException
-     */
-    private GalasaProperty getPropertyFromRequestBody (HttpServletRequest request) throws IOException, InternalServletException{
-        String body = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-        return getGalasaPropertyfromJsonString(body);
-    }
-
-    private void setProperty(GalasaProperty property) throws FrameworkException {
-        if (property !=null){
-            if (!checkGalasaPropertyExists(property)){
-                getFramework().getConfigurationPropertyService(property.metadata.namespace).setProperty(property.metadata.name, property.data.value);
-            }else{
-                ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.metadata.name, property.metadata.namespace);  
-                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-            }
-        }
-    }
 }

@@ -5,13 +5,17 @@
  */
 package dev.galasa.framework.api.cps.internal.routes;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -171,6 +175,34 @@ public abstract class CPSRoute extends BaseRoute {
         return null;
     }
 
+    /**
+     * Attempts to update or create a Galasa Property based on the boolean parameter
+     * @param property The GalasaProperty to be actioned
+     * @param updateProperty Boolean flag indicating if the action to be performed is an update
+     * @throws FrameworkException
+     */
+    protected void setProperty(@NotNull GalasaProperty property, boolean updateProperty) throws FrameworkException {
+        boolean propExists = checkGalasaPropertyExists(property);
+        /*
+         * Logic Table to Determine actions
+         * Create Property - The property must not already Exist i.e. propExists == false, updateProperty == false
+         * Update Property - The property must exist i.e. propExists == true, updateProperty == true
+         * Therefore setting updateProperty to false will force a create property path,
+         * whilst setting updateProperty to true will force an update property path
+         */
+        if (propExists == updateProperty){
+            getFramework().getConfigurationPropertyService(property.metadata.namespace).setProperty(property.metadata.name, property.data.value);
+        }else{
+            if (propExists){
+                ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.metadata.name, property.metadata.namespace);  
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            }else{
+                ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR, property.metadata.name);  
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            }
+        }
+    }
+
     protected String getPropertyNameFromURL(String pathInfo) throws InternalServletException{
         /*
          * This expects a pathInfo from the cps property endpoint, i.e
@@ -207,6 +239,18 @@ public abstract class CPSRoute extends BaseRoute {
     }
 
     /**
+     * Returns an GalasaProperty from the request body that should be encoded in UTF-8 format
+     * @param request
+     * @return GalasaProperty 
+     * @throws IOException
+     * @throws InternalServletException
+     */
+    protected GalasaProperty getPropertyFromRequestBody (HttpServletRequest request) throws IOException, InternalServletException{
+        String body = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
+        return getGalasaPropertyfromJsonString(body);
+    }
+
+    /**
      * This function casts a json String into a GalasaProperty so that it can be used by the framework.
      * The property Json Structure should match the GalasaProperty Structure, otherwise an exception will be thrown
      * 
@@ -215,10 +259,14 @@ public abstract class CPSRoute extends BaseRoute {
      * @throws InternalServletException
      */
     public GalasaProperty getGalasaPropertyfromJsonString (String jsonString) throws InternalServletException{
-        GalasaProperty property;
+        GalasaProperty property = null;
+        boolean valid = false;
         try {
             property = gson.fromJson(jsonString, GalasaProperty.class);
-        }catch (Exception e){
+            valid = property.isValid();
+        }catch (Exception e){}
+        
+        if(!valid){
             ServletError error = new ServletError(GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY, jsonString);  
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }

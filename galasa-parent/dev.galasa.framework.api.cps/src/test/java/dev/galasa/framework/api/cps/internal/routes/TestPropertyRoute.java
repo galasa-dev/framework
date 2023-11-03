@@ -760,7 +760,11 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
     public void TestPropertyRoutePOSTNoFrameworkReturnsError() throws Exception{
 		// Given...
-		setServlet("/namespace1/properties",null ,"{name: property ,value: value }", "POST");
+		String namespace = "framework";
+        String propertyName = "property6";
+        String value = "value6";
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		setServlet("/namespace1/properties",null ,propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -786,7 +790,11 @@ public class TestPropertyRoute extends CpsServletTest{
     @Test
     public void TestPropertyRoutePOSTBadNamespaceReturnsError() throws Exception{
 		// Given...
-		setServlet("/error/properties",null ,"{name: property ,value: value }", "POST");
+		String namespace = "framework";
+        String propertyName = "property6";
+        String value = "value6";
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		setServlet("/error/properties",null ,propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();

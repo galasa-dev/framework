@@ -46,6 +46,7 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isValid()).isTrue();
     }
 
     @Test
@@ -65,6 +66,7 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isValid()).isTrue();
     }
 
     @Test
@@ -85,6 +87,7 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isValid()).isTrue();
     }
 
     @Test
@@ -104,6 +107,7 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isValid()).isTrue();
     }
 
     @Test
@@ -120,6 +124,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);
+        assertThat(property.isValid()).isTrue();
     }
 
     @Test
@@ -137,6 +142,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);
+        assertThat(property.isValid()).isTrue();
     }
 
     @Test
@@ -155,6 +161,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);
+        assertThat(property.isValid()).isTrue();
     }
 
     @Test
@@ -172,5 +179,27 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);
+        assertThat(property.isValid()).isTrue();
+    }
+
+    @Test
+    public void TestGalasaPropertyNoDataIsInvalid(){
+        //Given...
+        String apiVersion = null;
+        String namespace = null;
+        String propertyName = null;
+        String propertyValue = null;
+        
+        //When...
+        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue, apiVersion);
+        
+
+        //Then...
+        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.apiVersion).isEqualTo(null);
+        assertThat(property.metadata.namespace).isEqualTo(namespace);
+        assertThat(property.metadata.name).isEqualTo(propertyName);
+        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isValid()).isFalse();
     }
 }

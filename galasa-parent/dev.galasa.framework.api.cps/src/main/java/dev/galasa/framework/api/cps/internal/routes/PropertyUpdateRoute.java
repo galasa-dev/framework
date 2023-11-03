@@ -62,26 +62,15 @@ public class PropertyUpdateRoute extends CPSRoute {
     public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
             throws  IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
-        String property = getPropertyNameFromURL(pathInfo);
-        if (!checkRequestHasContent(request)){
-            ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY,pathInfo);  
-            throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
-        }
-        
+        String name = getPropertyNameFromURL(pathInfo);
+        checkRequestHasContent(request);
         String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-        updateProperty(namespace, property, value);
-        String responseBody = String.format("Successfully updated property %s in %s",property, namespace);
+        GalasaProperty property = new GalasaProperty(namespace, name, value);
+        setProperty(property, true);
+        String responseBody = String.format("Successfully updated property %s in %s",name, namespace);
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK); 
     }
 
-    private void updateProperty(String namespace, String propertyName, String value) throws FrameworkException {
-        if (checkPropertyExists(namespace, propertyName)){
-            getFramework().getConfigurationPropertyService(namespace).setProperty(propertyName, value);
-        }else{
-            ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }
-    }
 
     /*
      * Handle Delete Request

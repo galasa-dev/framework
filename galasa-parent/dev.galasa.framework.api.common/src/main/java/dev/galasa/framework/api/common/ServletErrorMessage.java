@@ -49,7 +49,7 @@ public enum ServletErrorMessage {
     GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE(5022, "E: Error occured trying parse the shared environment phase."),
 
     //Galasa Property...
-    GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY        (5023, "E: Error occured trying cast to GalasaProperty.")
+    GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY        (5023, "E: Error occured trying to cast ''{0}'' to GalasaProperty.")
     ;
 
 

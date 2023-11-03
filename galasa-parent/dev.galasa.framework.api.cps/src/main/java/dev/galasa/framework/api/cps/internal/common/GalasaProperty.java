@@ -16,7 +16,7 @@ public class GalasaProperty {
     static final Gson gson = GalasaGsonBuilder.build();
     
     public String apiVersion = "v1alpha1";
-    final String kind = "GalasaProperty"; 
+    public final String kind = "GalasaProperty"; 
     public GalsaaPropertyMetadata metadata ;
     public GalasaPropertyData data;
     
@@ -61,5 +61,9 @@ public class GalasaProperty {
     public JsonObject toJSON() {
         String jsonstring = gson.toJson(this);
         return gson.fromJson(jsonstring, JsonObject.class);
+    }
+
+    public boolean isValid() {
+        return this.metadata.name != null && this.metadata.namespace != null && this.data.value != null;
     }
 }
