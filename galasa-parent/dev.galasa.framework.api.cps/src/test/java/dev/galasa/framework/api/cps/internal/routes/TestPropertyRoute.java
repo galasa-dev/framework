@@ -24,6 +24,7 @@ import com.google.gson.JsonParser;
 
 
 public class TestPropertyRoute extends CpsServletTest{
+
     @Test
     public void TestPropertyQueryNoFrameworkReturnsError() throws Exception{
 		// Given...
@@ -814,9 +815,8 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "framework";
         String propertyName = "property6";
         String value = "value6";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
-		String requestBody = requestJson.toString();
-		setServlet("/framework/properties", namespace, requestBody , "POST");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		setServlet("/framework/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -842,9 +842,8 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "camelCase";
         String propertyName = "property";
         String value = "value";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
-		String requestBody = requestJson.toString();
-		setServlet("/camelCase/properties", namespace, requestBody , "POST");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		setServlet("/camelCase/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -868,14 +867,13 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRouteNamespaceBeginningWithCapitalLetterPOSTNewPropertyReturnsSuccess() throws Exception {
+    public void TestPropertyRouteNamespaceBeginningWithCapitalLetterPOSTNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "NotCamelcase";
         String propertyName = "property";
         String value = "value";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
-		String requestBody = requestJson.toString();
-		setServlet("/NotCamelcase/properties", namespace, requestBody , "POST");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		setServlet("/NotCamelcase/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -899,14 +897,13 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRouteNamespaceEndingWithCapitalLetterPOSTNewPropertyReturnsSuccess() throws Exception {
+    public void TestPropertyRouteNamespaceEndingWithCapitalLetterPOSTNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "notcamelcasE";
         String propertyName = "property";
         String value = "value";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
-		String requestBody = requestJson.toString();
-		setServlet("/notcamelcasE/properties", namespace, requestBody , "POST");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		setServlet("/notcamelcasE/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -935,9 +932,8 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "camel3Case";
         String propertyName = "property";
         String value = "value";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
-		String requestBody = requestJson.toString();
-		setServlet("/camel3Case/properties", namespace, requestBody , "POST");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		setServlet("/camel3Case/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -966,9 +962,8 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "camelCase3";
         String propertyName = "property";
         String value = "value";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
-		String requestBody = requestJson.toString();
-		setServlet("/camelCase3/properties", namespace, requestBody , "POST");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		setServlet("/camelCase3/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -997,7 +992,8 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "c4ame6lcas5e8";
         String propertyName = "property";
         String value = "value";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		JsonElement requestJson = JsonParser.parseString(propertyJSON);
 		String requestBody = requestJson.toString();
 		setServlet("/c4ame6lcas5e8/properties", namespace, requestBody , "POST");
 		MockCpsServlet servlet = getServlet();
@@ -1025,7 +1021,8 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "secure";
         String propertyName = "property6";
         String value = "value6";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		JsonElement requestJson = JsonParser.parseString(propertyJSON);
 		String requestBody = requestJson.toString();
 		setServlet("/secure/properties", namespace, requestBody , "POST");
 		MockCpsServlet servlet = getServlet();
@@ -1052,9 +1049,8 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = "value6";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
-		String requestBody = requestJson.toString();
-		setServlet("/dss/properties", "framework", requestBody , "POST");
+		String propertyJSON = generatePropertyJSON("dss", propertyName, value, "v1alpha1");
+		setServlet("/dss/properties", "framework", propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -1081,9 +1077,8 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property5";
         String value = "value6";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
-		String requestBody = requestJson.toString();
-        setServlet("/framework/properties", "framework", requestBody, "POST");
+		String propertyJSON = generatePropertyJSON("framework", propertyName, value, "v1alpha1");
+        setServlet("/framework/properties", "framework", propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -1111,9 +1106,8 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = "value6";
-		JsonElement requestJson = JsonParser.parseString(String.format("{name: %s ,value: %s }",propertyName,value));
-		String requestBody = requestJson.toString();
-        setServlet("/framew0rk/properties", "framework", requestBody, "POST");
+		String propertyJSON = generatePropertyJSON("", propertyName, value, "v1alpha1");
+        setServlet("/framew0rk/properties", "framework", propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();

@@ -17,13 +17,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.cps.internal.common.GalasaProperty;
 import dev.galasa.framework.api.cps.internal.common.PropertyComparator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -166,33 +164,33 @@ public class PropertyRoute extends CPSRoute{
             throws  IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         checkRequestHasContent(request);
-        Map.Entry<String,String> property = getPropertyFromRequestBody(request);
-        setProperty(namespace, property );
-        String responseBody = String.format("Successfully created property %s in %s",property.getKey(), namespace);
+        GalasaProperty property = getPropertyFromRequestBody(request);
+        checkNamespaceExists(namespace);
+        setProperty(property);
+        String responseBody = String.format("Successfully created property %s in %s",property.metadata.name, namespace);
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
     }
 
     /**
-     * Returns an entry of <propertyName, propertyValue> from the request body that should be encoded in UTF-8 format
+     * Returns an GalasaProperty from the request body that should be encoded in UTF-8 format
      * @param request
-     * @return Map.Entry<String,String> 
+     * @return GalasaProperty 
      * @throws IOException
+     * @throws InternalServletException
      */
-    private Map.Entry<String,String> getPropertyFromRequestBody (HttpServletRequest request) throws IOException{
+    private GalasaProperty getPropertyFromRequestBody (HttpServletRequest request) throws IOException, InternalServletException{
         String body = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-        JsonElement jsonElement = JsonParser.parseString(body);
-        String propertyName = jsonElement.getAsJsonObject().get("name").getAsString();
-        String propertyValue = jsonElement.getAsJsonObject().get("value").getAsString();
-        return Map.entry(propertyName,propertyValue);
+        return getGalasaPropertyfromJsonString(body);
     }
 
-    private void setProperty(String namespace, Map.Entry<String,String> property) throws FrameworkException {
-
-        if (!checkPropertyExists(namespace, property.getKey())){
-            getFramework().getConfigurationPropertyService(namespace).setProperty(property.getKey(), property.getValue());
-        }else{
-            ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.getKey() ,namespace);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+    private void setProperty(GalasaProperty property) throws FrameworkException {
+        if (property !=null){
+            if (!checkGalasaPropertyExists(property)){
+                getFramework().getConfigurationPropertyService(property.metadata.namespace).setProperty(property.metadata.name, property.data.value);
+            }else{
+                ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.metadata.name, property.metadata.namespace);  
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            }
         }
     }
 }

@@ -102,6 +102,21 @@ public abstract class CPSRoute extends BaseRoute {
         return framework.getConfigurationPropertyService(namespace).getAllProperties();
     }
 
+    protected  boolean checkNamespaceExists(String namespace) throws ConfigurationPropertyStoreException, InternalServletException {
+        boolean valid = false;
+        try{
+            if (getAllProperties(namespace).size() > 0){
+                valid = true;
+            }
+        }catch (Exception e ){
+            //Catch the Exception (namespace is invalid) to throw error in if 
+        }  
+        if (!valid){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+        return valid;
+    }
     /**
      * Returns a boolean value of whether the property has been located in the given namespace.
      * Hidden namespaces will return a false value as they should not be accessed via the API endpoints
@@ -113,6 +128,17 @@ public abstract class CPSRoute extends BaseRoute {
      */
     protected boolean checkPropertyExists (String namespace, String propertyName) throws FrameworkException{
         return retrieveSingleProperty(namespace, propertyName) != null;
+    }
+
+    /** 
+     * Returns a boolean value of whether the property has been located in the given namespace.
+     * Hidden namespaces will return a false value as they should not be accessed via the API endpoints
+     * @param property
+     * @return boolean
+     * @throws FrameworkException
+     */
+    protected boolean checkGalasaPropertyExists (GalasaProperty property) throws FrameworkException{
+        return retrieveSingleProperty(property.metadata.namespace, property.metadata.name) != null;
     }
 
     /**
@@ -178,6 +204,25 @@ public abstract class CPSRoute extends BaseRoute {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
+    }
+
+    /**
+     * This function casts a json String into a GalasaProperty so that it can be used by the framework.
+     * The property Json Structure should match the GalasaProperty Structure, otherwise an exception will be thrown
+     * 
+     * @param jsonString
+     * @return GalasaProperty
+     * @throws InternalServletException
+     */
+    public GalasaProperty getGalasaPropertyfromJsonString (String jsonString) throws InternalServletException{
+        GalasaProperty property;
+        try {
+            property = gson.fromJson(jsonString, GalasaProperty.class);
+        }catch (Exception e){
+            ServletError error = new ServletError(GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY, jsonString);  
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        return property;
     }
 
     protected String buildResponseBody(String namespace, Map<String, String> properties){

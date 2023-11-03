@@ -46,7 +46,10 @@ public enum ServletErrorMessage {
     GAL5019_UNABLE_TO_RETRIEVE_RUNS                 (5019, "E: Unable to retrieve runs for Run Group: ''{0}''."),
     GAL5020_UNABLE_TO_CONVERT_TO_SCHEDULE_REQUEST   (5020, "E: Error occured when trying to translate the payload into a run."),
     GAL5021_UNABLE_TO_SUBMIT_RUNS                   (5021, "E: Error occured when trying to submit run ''{0}''."),
-    GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE(5022, "E: Error occured trying parse the shared environment phase.")
+    GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE(5022, "E: Error occured trying parse the shared environment phase."),
+
+    //Galasa Property...
+    GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY        (5023, "E: Error occured trying cast to GalasaProperty.")
     ;
 
 

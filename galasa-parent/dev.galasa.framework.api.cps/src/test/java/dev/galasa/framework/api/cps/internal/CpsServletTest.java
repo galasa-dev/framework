@@ -125,7 +125,7 @@ public class CpsServletTest extends BaseServletTest {
 		return found;
 	}
 
-	private String generatePropertyJSON(String namespace, String propertyName, String propertyValue, String apiVersion){
+	protected String generatePropertyJSON(String namespace, String propertyName, String propertyValue, String apiVersion){
 		return "{\n    \"apiVersion\": \""+apiVersion+"\",\n"+
         "    \"kind\": \"GalasaProperty\",\n"+
         "    \"metadata\": {\n"+
