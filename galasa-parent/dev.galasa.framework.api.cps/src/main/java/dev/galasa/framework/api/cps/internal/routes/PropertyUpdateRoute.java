@@ -48,7 +48,7 @@ public class PropertyUpdateRoute extends CPSRoute {
 
     private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
         GalasaProperty property = null;
-        Map.Entry<String, String> entry = retrieveSingleProperty(namespaceName, propertyName);
+        Map.Entry<String, String> entry = propertyActions.retrieveSingleProperty(namespaceName, propertyName);
         if (entry != null){
             property = new GalasaProperty(entry);
         }
@@ -66,7 +66,7 @@ public class PropertyUpdateRoute extends CPSRoute {
         checkRequestHasContent(request);
         String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
         GalasaProperty property = new GalasaProperty(namespace, name, value);
-        setProperty(property, true);
+        propertyActions.setProperty(property, true);
         String responseBody = String.format("Successfully updated property %s in %s",name, namespace);
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK); 
     }
@@ -87,7 +87,7 @@ public class PropertyUpdateRoute extends CPSRoute {
 
 
     private void deleteProperty(String namespace, String propertyName) throws FrameworkException {
-        if (checkPropertyExists(namespace, propertyName)){
+        if (propertyActions.checkPropertyExists(namespace, propertyName)){
             framework.getConfigurationPropertyService(namespace).deleteProperty(propertyName);
         }else{
             ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  

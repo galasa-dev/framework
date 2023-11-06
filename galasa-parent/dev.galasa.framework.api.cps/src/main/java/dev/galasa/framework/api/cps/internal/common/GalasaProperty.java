@@ -63,6 +63,10 @@ public class GalasaProperty {
         return gson.fromJson(jsonstring, JsonObject.class);
     }
 
+    public String getApiVersion(){
+        return this.apiVersion;
+    }
+
     public boolean isValid() {
         return this.metadata.name != null && this.metadata.namespace != null && this.data.value != null;
     }
