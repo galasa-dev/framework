@@ -1114,7 +1114,7 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = "value6";
-		String propertyJSON = generatePropertyJSON("", propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON("notframew0rk", propertyName, value, "v1alpha1");
         setServlet("/framew0rk/properties", "framework", propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -1134,6 +1134,34 @@ public class TestPropertyRoute extends CpsServletTest{
 			outStream.toString(),
 			5016,
 			"GAL5016E: Error occured when trying to access namespace 'framew0rk'. The namespace provided is invalid."
+		); 
+    }
+
+	@Test
+    public void TestPropertyRouteWithDifferentNamespacePOSTNewPropertyReturnsError() throws Exception {
+        // Given...
+        String propertyName = "property6";
+        String value = "value6";
+		String propertyJSON = generatePropertyJSON("empty", propertyName, value, "v1alpha1");
+        setServlet("/framework/properties", "framework", propertyJSON, "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(400);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5028,
+			"GAL5028E: Error occured when comparing namespaces. The property namespace 'empty' does not match the request namespace 'framework'."
 		); 
     }
     

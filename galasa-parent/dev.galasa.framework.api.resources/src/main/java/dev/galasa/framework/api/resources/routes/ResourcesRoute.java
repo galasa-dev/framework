@@ -16,7 +16,6 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -106,7 +105,7 @@ public class ResourcesRoute  extends BaseRoute{
         }
     }
     
-public void processGalasaProperty (JsonObject resource, String action) throws InternalServletException{
+    public void processGalasaProperty (JsonObject resource, String action) throws InternalServletException{
         String apiversion = resource.get("apiversion").toString();
         if (apiversion.equals(new GalasaProperty(null, null).getApiVersion())){
             try{

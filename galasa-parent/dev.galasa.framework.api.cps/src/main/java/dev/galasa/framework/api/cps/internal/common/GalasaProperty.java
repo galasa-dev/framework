@@ -17,14 +17,14 @@ public class GalasaProperty {
     
     public String apiVersion = "v1alpha1";
     public final String kind = "GalasaProperty"; 
-    public GalsaaPropertyMetadata metadata ;
+    public GalasaPropertyMetadata metadata ;
     public GalasaPropertyData data;
     
-    public class GalsaaPropertyMetadata {
+    public class GalasaPropertyMetadata {
         public String namespace;
         public String name;
         
-        public GalsaaPropertyMetadata (String namespace, String name){
+        public GalasaPropertyMetadata (String namespace, String name){
             this.namespace = namespace;
             this.name = name;
         }
@@ -40,7 +40,7 @@ public class GalasaProperty {
 
     public GalasaProperty (String completeCPSname, String propertyValue){
         String[] name = completeCPSname.split("[.]", 2);
-        this.metadata = new GalsaaPropertyMetadata(name[0],name[1]);
+        this.metadata = new GalasaPropertyMetadata(name[0],name[1]);
         this.data = new GalasaPropertyData(propertyValue);
     }
 
@@ -49,7 +49,7 @@ public class GalasaProperty {
     }
 
     public GalasaProperty (String namespace, String propertyName, String propertyValue){
-        this.metadata = new GalsaaPropertyMetadata(namespace, propertyName);
+        this.metadata = new GalasaPropertyMetadata(namespace, propertyName);
         this.data = new GalasaPropertyData(propertyValue);
     }
 
@@ -67,7 +67,23 @@ public class GalasaProperty {
         return this.apiVersion;
     }
 
-    public boolean isValid() {
-        return this.metadata.name != null && this.metadata.namespace != null && this.data.value != null;
+    public boolean isPropertyNameValid(){
+        return this.metadata.name != null && !this.metadata.name.isBlank();
+    }
+
+    public boolean isPropertyNameSpaceValid(){
+        return this.metadata.namespace != null && !this.metadata.namespace.isBlank();
+    }
+
+    public boolean isPropertyValueValid(){
+        return this.data.value != null && !this.data.value.isBlank();
+    }
+
+    public boolean isPropertyApiVersionValid(){
+        return this.apiVersion != null && !this.apiVersion.isBlank();
+    }
+
+    public boolean isPropertyValid() {
+        return isPropertyApiVersionValid() && isPropertyNameSpaceValid() && isPropertyNameValid() && isPropertyValueValid();
     }
 }

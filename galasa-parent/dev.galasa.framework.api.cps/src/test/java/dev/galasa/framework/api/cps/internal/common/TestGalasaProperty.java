@@ -46,7 +46,7 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isValid()).isTrue();
+        assertThat(property.isPropertyValid()).isTrue();
     }
 
     @Test
@@ -66,7 +66,7 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isValid()).isTrue();
+        assertThat(property.isPropertyValid()).isTrue();
     }
 
     @Test
@@ -87,7 +87,7 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isValid()).isTrue();
+        assertThat(property.isPropertyValid()).isTrue();
     }
 
     @Test
@@ -107,7 +107,7 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isValid()).isTrue();
+        assertThat(property.isPropertyValid()).isTrue();
     }
 
     @Test
@@ -124,7 +124,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);
-        assertThat(property.isValid()).isTrue();
+        assertThat(property.isPropertyValid()).isTrue();
     }
 
     @Test
@@ -142,7 +142,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);
-        assertThat(property.isValid()).isTrue();
+        assertThat(property.isPropertyValid()).isTrue();
     }
 
     @Test
@@ -161,7 +161,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);
-        assertThat(property.isValid()).isTrue();
+        assertThat(property.isPropertyValid()).isTrue();
     }
 
     @Test
@@ -179,7 +179,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(jsonString).isEqualTo(expectJson);
-        assertThat(property.isValid()).isTrue();
+        assertThat(property.isPropertyValid()).isTrue();
     }
 
     @Test
@@ -200,6 +200,6 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isValid()).isFalse();
+        assertThat(property.isPropertyValid()).isFalse();
     }
 }

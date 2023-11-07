@@ -23,7 +23,6 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.cps.internal.common.GalasaProperty;
 import dev.galasa.framework.api.cps.internal.common.PropertyActions;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 

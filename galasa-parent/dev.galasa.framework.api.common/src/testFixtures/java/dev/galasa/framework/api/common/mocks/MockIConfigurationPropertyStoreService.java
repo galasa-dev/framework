@@ -36,6 +36,8 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
             this.properties.put(namespace+".test.property.testing.local.stream", "value3");
             this.properties.put(namespace+".test.property.testing.stream", "value4");
             this.properties.put(namespace+".test.stream", "value5");
+        }else if (this.namespaceInput == "empty"){
+            //add no properties
         }else{
             this.properties.put(namespace+".property1", "value1");
             this.properties.put(namespace+".property2", "value2");

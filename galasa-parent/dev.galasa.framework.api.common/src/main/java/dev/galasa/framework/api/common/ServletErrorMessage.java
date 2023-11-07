@@ -41,7 +41,8 @@ public enum ServletErrorMessage {
     GAL5016_INVALID_NAMESPACE_ERROR                 (5016,"E: Error occured when trying to access namespace ''{0}''. The namespace provided is invalid."),
     GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR           (5017,"E: Error occured when trying to access property ''{0}''. The property name provided is invalid."),
     GAL5018_PROPERTY_ALREADY_EXISTS_ERROR           (5018,"E: Error occured when trying to access property ''{0}''. The property name provided already exists in the ''{1}'' namespace."),
-    
+    GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR (5028,"E: Error occured when comparing namespaces. The property namespace ''{0}'' does not match the request namespace ''{1}''."),
+
     //Schedule Runs...
     GAL5019_UNABLE_TO_RETRIEVE_RUNS                 (5019, "E: Unable to retrieve runs for Run Group: ''{0}''."),
     GAL5020_UNABLE_TO_CONVERT_TO_SCHEDULE_REQUEST   (5020, "E: Error occured when trying to translate the payload into a run."),
@@ -50,7 +51,7 @@ public enum ServletErrorMessage {
 
     //Galasa Property...
     GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY        (5023, "E: Error occured trying to cast ''{0}'' to GalasaProperty."),
-    GAL5024_INVALID_GALASAPROPERTY                  (5024, "E: Error occured because the Galasa Property is invalid. The ''{0}'' field should not be '{1}''"),
+    GAL5024_INVALID_GALASAPROPERTY                  (5024, "E: Error occured because the Galasa Property is invalid. The ''{0}'' field should not be ''{1}''."),
 
     //Resources APIs...
     GAL5025_UNSUPPORTED_ACTION                      (5025, "E: Error occurred when trying to apply resources. Action ''{0}'' supplied is not supported. Supported actions are: create, apply and update."),

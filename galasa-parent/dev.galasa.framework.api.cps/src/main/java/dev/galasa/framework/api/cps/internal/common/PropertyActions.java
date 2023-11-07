@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
@@ -29,11 +28,13 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class PropertyActions {
 
-    private static final Set<String> validActions = Set.of("apply","update");
+    private static final Set<String> updateActions = Set.of("apply","update");
+
     static final Gson gson = GalasaGsonBuilder.build();
+    
     IFramework framework;
 
-        private static final String REDACTED_PROPERTY_VALUE = "********";
+    private static final String REDACTED_PROPERTY_VALUE = "********";
 
     private static final Set<String> hiddenNamespaces = new HashSet<>();
     static {
@@ -60,23 +61,21 @@ public class PropertyActions {
 
 
     public boolean isPropertyValid(GalasaProperty property) throws InternalServletException {
-        if (!property.isValid()){
-            ServletError error = null;
-            if (!property.metadata.name.isEmpty()){
-                error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"name",property.metadata.name);
-            }
-            if (!property.metadata.namespace.isEmpty()){
-                error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"namespace",property.metadata.namespace);
-            }
-            if (!property.data.value.isEmpty()){
-                error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"value",property.data.value);
-            };
-            if (!property.apiVersion.isEmpty()){
-                error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"apiVersion",property.apiVersion);
-            };
-            if (error != null){
-                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
+        ServletError error = null;
+        if (!property.isPropertyNameValid()){
+            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"name",property.metadata.name);
+        }
+        if (!property.isPropertyNameSpaceValid()){
+            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"namespace",property.metadata.namespace);
+        }
+        if (!property.isPropertyValueValid()){
+            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"value",property.data.value);
+        }
+        if (!property.isPropertyApiVersionValid()){
+            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"apiVersion",property.apiVersion);
+        }
+        if (error != null){
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         return true;
     }
@@ -85,16 +84,16 @@ public class PropertyActions {
         return hiddenNamespaces.contains(namespace);
     }
 
+    public static boolean isSecureNamespace(String namespace){
+        return secureNamespaces.contains(namespace);
+    }
+
     public String getNamespaceType(String namespace){
         String type = NamespaceType.NORMAL.toString();
         if (PropertyActions.isSecureNamespace(namespace)){
-            type= NamespaceType.SECURE.toString();
+            type = NamespaceType.SECURE.toString();
         }
         return type;
-    }
-    
-    public static boolean isSecureNamespace(String namespace){
-        return secureNamespaces.contains(namespace);
     }
 
     public Map<String, String> getAllProperties(String namespace) throws ConfigurationPropertyStoreException {
@@ -121,8 +120,19 @@ public class PropertyActions {
      * @return boolean
      * @throws FrameworkException
      */
-    public boolean checkPropertyExists (String namespace, String propertyName) throws FrameworkException{
+    public boolean checkPropertyExists (String namespace, String propertyName) throws InternalServletException{
         return retrieveSingleProperty(namespace, propertyName) != null;
+    }
+
+    /** 
+     * Returns a boolean value of whether the property has been located in the given namespace.
+     * Hidden namespaces will return a false value as they should not be accessed via the API endpoints
+     * @param property
+     * @return boolean
+     * @throws FrameworkException
+     */
+    protected boolean checkGalasaPropertyExists (GalasaProperty property) throws InternalServletException{
+        return checkPropertyExists(property.metadata.namespace, property.metadata.name);
     }
 
     /**
@@ -132,7 +142,7 @@ public class PropertyActions {
      * @param namespace
      * @param propertyName
      * @return Map.Entry of String, String
-     * @throws FrameworkException
+     * @throws InternalServletException
      */
     public Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  InternalServletException {
         if (isHiddenNamespace(namespace)){
@@ -155,26 +165,6 @@ public class PropertyActions {
         return null;
     }
 
-    /** 
-     * Returns a boolean value of whether the property has been located in the given namespace.
-     * Hidden namespaces will return a false value as they should not be accessed via the API endpoints
-     * @param property
-     * @return boolean
-     * @throws FrameworkException
-     */
-    protected boolean checkGalasaPropertyExists (GalasaProperty property) throws InternalServletException{
-        return retrieveSingleProperty(property.metadata.namespace, property.metadata.name) != null;
-    }
-
-
-    public void setGalasaProperty (GalasaProperty property, String action) throws FrameworkException{
-        boolean updateProperty = false;
-            if (property.isValid() && validActions.contains(action)&& checkGalasaPropertyExists(property)){
-                updateProperty = true;
-            }
-            setProperty(property, updateProperty);
-    }
-
     /**
      * Attempts to update or create a Galasa Property based on the boolean parameter
      * @param property The GalasaProperty to be actioned
@@ -192,17 +182,29 @@ public class PropertyActions {
          */
         if (propExists == updateProperty){
             getFramework().getConfigurationPropertyService(property.metadata.namespace).setProperty(property.metadata.name, property.data.value);
+        }else if (propExists){
+            ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.metadata.name, property.metadata.namespace);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }else{
-            if (propExists){
-                ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.metadata.name, property.metadata.namespace);  
-                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-            }else{
-                ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR, property.metadata.name);  
-                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-            }
+            ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR, property.metadata.name);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
+    public void setGalasaProperty (GalasaProperty property, String action) throws FrameworkException{
+        boolean updateProperty = false;
+        if (isPropertyValid(property) && updateActions.contains(action)){
+            if ((checkGalasaPropertyExists(property) || action.equals("update"))){
+                updateProperty = true;
+            }
+        }
+        setProperty(property, updateProperty);
+    }
+
+    public boolean checkPropertyNamespaceMatchesURLNamespace(@NotNull GalasaProperty property , @NotNull String namespace){
+        return namespace.toLowerCase().trim().equals(property.metadata.namespace.toLowerCase().trim());
+
+    }
      /**
      * Returns an GalasaProperty from the request body that should be encoded in UTF-8 format
      * @param request
@@ -228,7 +230,7 @@ public class PropertyActions {
         boolean valid = false;
         try {
             property = gson.fromJson(jsonString, GalasaProperty.class);
-            valid = property.isValid();
+            valid = property.isPropertyValid();
         }catch (Exception e){}
         
         if(!valid){

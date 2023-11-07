@@ -35,6 +35,14 @@ public class ResourcesServlet extends BaseServlet {
 	protected Log  logger  =  LogFactory.getLog(this.getClass());
 
 	protected IFileSystem fileSystem = new FileSystem();
+	
+	protected IFramework getFramework() {
+        return this.framework;
+    }
+
+	protected void setFramework(IFramework framework) {
+        this.framework = framework;
+    }
 
 	@Override
 	public void init() throws ServletException {
