@@ -747,6 +747,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+
+##################################################################################
+# Resources API
+##################################################################################
+  /resources/:
+    post:
+      operationId: setEcosystemResources
+      summary: Upload Resources to the ecosystem
+      description: This API endpoint allows multiple resources to be supplied in a single request to create and/or update in the ecosystem.
+      tags:
+       - Resources API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resources'
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  type: string
+              examples: 
+                singleError: 
+                  value: ["GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."]
+                multipleErrors:
+                  value: ["GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid.","GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."]
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+
+
 ##################################################################################
 # RAS API
 ##################################################################################
@@ -1550,6 +1609,15 @@ components:
           type: integer
         error_message:
           type: string
+    Resources:
+      properties:
+        action:
+          type: string
+        data:
+          type: array
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/GalasaProperty'
     TestRuns:
       properties:
         complete:

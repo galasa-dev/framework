@@ -763,7 +763,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "framework";
         String propertyName = "property6";
         String value = "value6";
-		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/namespace1/properties",null ,propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -793,7 +793,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "framework";
         String propertyName = "property6";
         String value = "value6";
-		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/error/properties",null ,propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -823,7 +823,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "framework";
         String propertyName = "property6";
         String value = "value6";
-		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/framework/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -850,7 +850,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "camelCase";
         String propertyName = "property";
         String value = "value";
-		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/camelCase/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -880,7 +880,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "NotCamelcase";
         String propertyName = "property";
         String value = "value";
-		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/NotCamelcase/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -910,7 +910,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "notcamelcasE";
         String propertyName = "property";
         String value = "value";
-		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/notcamelcasE/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -940,7 +940,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "camel3Case";
         String propertyName = "property";
         String value = "value";
-		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/camel3Case/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -970,7 +970,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "camelCase3";
         String propertyName = "property";
         String value = "value";
-		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/camelCase3/properties", namespace, propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -1000,7 +1000,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "c4ame6lcas5e8";
         String propertyName = "property";
         String value = "value";
-		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		JsonElement requestJson = JsonParser.parseString(propertyJSON);
 		String requestBody = requestJson.toString();
 		setServlet("/c4ame6lcas5e8/properties", namespace, requestBody , "POST");
@@ -1029,7 +1029,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		String namespace = "secure";
         String propertyName = "property6";
         String value = "value6";
-		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		JsonElement requestJson = JsonParser.parseString(propertyJSON);
 		String requestBody = requestJson.toString();
 		setServlet("/secure/properties", namespace, requestBody , "POST");
@@ -1057,7 +1057,7 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = "value6";
-		String propertyJSON = generatePropertyJSON("dss", propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON("dss", propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/dss/properties", "framework", propertyJSON , "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -1085,7 +1085,7 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property5";
         String value = "value6";
-		String propertyJSON = generatePropertyJSON("framework", propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON("framework", propertyName, value, "galasa-dev/v1alpha1");
         setServlet("/framework/properties", "framework", propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -1114,7 +1114,7 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = "value6";
-		String propertyJSON = generatePropertyJSON("notframew0rk", propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON("notframew0rk", propertyName, value, "galasa-dev/v1alpha1");
         setServlet("/framew0rk/properties", "framework", propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -1142,7 +1142,7 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property6";
         String value = "value6";
-		String propertyJSON = generatePropertyJSON("empty", propertyName, value, "v1alpha1");
+		String propertyJSON = generatePropertyJSON("empty", propertyName, value, "galasa-dev/v1alpha1");
         setServlet("/framework/properties", "framework", propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();

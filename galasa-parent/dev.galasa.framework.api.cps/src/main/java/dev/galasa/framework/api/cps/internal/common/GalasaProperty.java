@@ -15,7 +15,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 public class GalasaProperty {
     static final Gson gson = GalasaGsonBuilder.build();
     
-    public String apiVersion = "v1alpha1";
+    public String apiVersion = "galasa-dev/v1alpha1";
     public final String kind = "GalasaProperty"; 
     public GalasaPropertyMetadata metadata ;
     public GalasaPropertyData data;

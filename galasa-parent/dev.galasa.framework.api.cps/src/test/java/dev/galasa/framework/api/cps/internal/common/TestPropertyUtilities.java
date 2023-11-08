@@ -35,7 +35,7 @@ public class TestPropertyUtilities{
     }
 
     private String generateGalasaPropertyJson(String namespace, String propertyName, String propertyValue){
-        return "{\n  \"apiVersion\": \"v1alpha1\",\n"+
+        return "{\n  \"apiVersion\": \"galasa-dev/v1alpha1\",\n"+
         "  \"kind\": \"GalasaProperty\",\n"+
         "  \"metadata\": {\n"+
         "    \"namespace\": \""+namespace+"\",\n"+

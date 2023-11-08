@@ -42,7 +42,7 @@ public class TestGalasaProperty {
         
         //Then...
         assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.apiVersion).isEqualTo("v1alpha1");
+        assertThat(property.apiVersion).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
@@ -62,7 +62,7 @@ public class TestGalasaProperty {
         
         //Then...
         assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.apiVersion).isEqualTo("v1alpha1");
+        assertThat(property.apiVersion).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
@@ -83,7 +83,7 @@ public class TestGalasaProperty {
         
         //Then...
         assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.apiVersion).isEqualTo("v1alpha1");
+        assertThat(property.apiVersion).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
@@ -117,7 +117,7 @@ public class TestGalasaProperty {
         String propertyName = "random.property.name";
         String propertyValue = "randomValue123";
         GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
-        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "v1alpha1");
+        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "galasa-dev/v1alpha1");
         
         //When...
         String jsonString = gson.toJson(property.toJSON());
@@ -135,7 +135,7 @@ public class TestGalasaProperty {
         String propertyValue = "randomValue123";
         String fullPropertyName = namespace+"."+propertyName;
         GalasaProperty property = new GalasaProperty(fullPropertyName, propertyValue);
-        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "v1alpha1");
+        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "galasa-dev/v1alpha1");
         
         //When...
         String jsonString = gson.toJson(property.toJSON());
@@ -154,7 +154,7 @@ public class TestGalasaProperty {
         String fullPropertyName = namespace+"."+propertyName;
         Map.Entry<String, String> propertyEntry =  Map.entry(fullPropertyName, propertyValue);
         GalasaProperty property = new GalasaProperty(propertyEntry);
-        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "v1alpha1");
+        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "galasa-dev/v1alpha1");
         
         //When...
         String jsonString = gson.toJson(property.toJSON());
@@ -216,7 +216,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
@@ -236,7 +236,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
@@ -256,7 +256,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
@@ -276,7 +276,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
@@ -296,7 +296,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
@@ -316,7 +316,7 @@ public class TestGalasaProperty {
 
         //Then...
         assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);

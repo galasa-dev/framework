@@ -88,7 +88,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-		String expectedJson = generateExpectedJson("framework", "property1", "value1", "v1alpha1");
+		String expectedJson = generateExpectedJson("framework", "property1", "value1", "galasa-dev/v1alpha1");
 
         // Then...
         // We expect data back
@@ -111,7 +111,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-		String expectedJson = generateExpectedJson("secure", "property1", "********", "v1alpha1");
+		String expectedJson = generateExpectedJson("secure", "property1", "********", "galasa-dev/v1alpha1");
 
         // Then...
         // We expect data back
@@ -161,7 +161,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-		String expectedJson = generateExpectedJson("framework", "property3", "value3", "v1alpha1");
+		String expectedJson = generateExpectedJson("framework", "property3", "value3", "galasa-dev/v1alpha1");
 
         // Then...
         // We expect data back

@@ -36,7 +36,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = generatePropertyJSON(namespace, propertyname, value, "v1alpha1");
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
@@ -59,7 +59,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = generatePropertyJSON(namespace, propertyname, value, "v1alpha1");
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
@@ -84,7 +84,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = generatePropertyJSON("", propertyname, value, "v1alpha1");
+        String jsonString = generatePropertyJSON("", propertyname, value, "galasa-dev/v1alpha1");
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
@@ -109,7 +109,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = generatePropertyJSON(namespace, propertyname, value, "v1alpha1");
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
@@ -158,7 +158,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = "{\"apiVersion\":\"v1alpha1\","+namespace+"."+propertyname+":"+value+"}";
+        String jsonString = "{\"apiVersion\":\"galasa-dev/v1alpha1\","+namespace+"."+propertyname+":"+value+"}";
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
@@ -206,7 +206,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = "[{\"kind\":\"GalasaProperty\",\"apiVersion\":\"v1alpha1\","+namespace+"."+propertyname+":"+value+"}]";
+        String jsonString = "[{\"kind\":\"GalasaProperty\",\"apiVersion\":\"galasa-dev/v1alpha1\","+namespace+"."+propertyname+":"+value+"}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
@@ -252,7 +252,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = generateArrayJson(namespace,propertyname,value,"v1alpha1");
+        String jsonString = generateArrayJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
@@ -275,7 +275,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = generateRequestJson(action, namespace,propertyname,value,"v1alpha1");
+        String jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
         resourcesRoute.processRequest(jsonString);
@@ -297,7 +297,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = generateRequestJson(action, namespace,propertyname,value,"v1alpha1");
+        String jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
         resourcesRoute.processRequest(jsonString);
@@ -319,7 +319,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = generateRequestJson(action, namespace,propertyname,value,"v1alpha1");
+        String jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
         resourcesRoute.processRequest(jsonString);
@@ -341,7 +341,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = generateRequestJson(action, namespace,propertyname,value,"v1alpha1");
+        String jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
         Throwable thrown = catchThrowable(() -> {
@@ -364,7 +364,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String propertyname = "propertyname";
         String value = "value";
         String action = "apply";
-		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"v1alpha1");
+		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
 		setServlet("/", namespace, propertyJSON , "POST");
 		MockResourcesServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -389,7 +389,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String propertyname = "propertyname";
         String value = "value";
         String action = "create";
-		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"v1alpha1");
+		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
 		setServlet("/", namespace, propertyJSON , "POST");
 		MockResourcesServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -414,7 +414,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String propertyname = "propertyname";
         String value = "value";
         String action = "update";
-		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"v1alpha1");
+		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
 		setServlet("/", namespace, propertyJSON , "POST");
 		MockResourcesServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -443,7 +443,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String value = "value6";
         String propertynametwo = "propertyname";
         String valuetwo = "value";
-        String apiVersion = "v1alpha1";
+        String apiVersion = "galasa-dev/v1alpha1";
         String action = "apply";
         String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
         String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
@@ -473,7 +473,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String propertyname = "property1";
         String value = "newvalue";
         String action = "apply";
-		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"v1alpha1");
+		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
 		setServlet("/", namespace, propertyJSON , "POST");
 		MockResourcesServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -498,7 +498,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String propertyname = "property1";
         String value = "newvalue";
         String action = "create";
-		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"v1alpha1");
+		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
 		setServlet("/", namespace, propertyJSON , "POST");
 		MockResourcesServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -526,7 +526,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String propertyname = "property1";
         String value = "newvalue";
         String action = "update";
-		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"v1alpha1");
+		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
 		setServlet("/", namespace, propertyJSON , "POST");
 		MockResourcesServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -552,7 +552,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String value = "value6";
         String propertynametwo = "property1";
         String valuetwo = "newvalue";
-        String apiVersion = "v1alpha1";
+        String apiVersion = "galasa-dev/v1alpha1";
         String action = "apply";
         String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
         String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
@@ -583,7 +583,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String value = "value6";
         String propertynametwo = "property1";
         String valuetwo = "newvalue";
-        String apiVersion = "v1alpha1";
+        String apiVersion = "galasa-dev/v1alpha1";
         String action = "apply";
         String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
         String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);

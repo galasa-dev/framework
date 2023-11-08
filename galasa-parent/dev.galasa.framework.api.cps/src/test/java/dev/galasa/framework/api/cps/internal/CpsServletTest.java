@@ -145,7 +145,7 @@ public class CpsServletTest extends BaseServletTest {
 		for (Map.Entry<String,String> entry : properties.entrySet()){
 			// Key Value namesapce.propertyname value value
 			String[] splitName = entry.getKey().split("[.]", 2);
-			results += generatePropertyJSON(splitName[0], splitName[1],entry.getValue(),"v1alpha1");
+			results += generatePropertyJSON(splitName[0], splitName[1],entry.getValue(),"galasa-dev/v1alpha1");
 		} 
         return "[\n  "+results+"\n]";
     }
