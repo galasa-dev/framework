@@ -21,7 +21,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.cps.internal.common.GalasaProperty;
-import dev.galasa.framework.api.cps.internal.common.PropertyActions;
+import dev.galasa.framework.api.cps.internal.common.PropertyUtilities;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -41,14 +41,14 @@ public abstract class CPSRoute extends BaseRoute {
 
     protected IFramework framework;
 
-    protected PropertyActions propertyActions;
+    protected PropertyUtilities propertyUtility;
 
 
 
     public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework ) {
     super(responseBuilder, path);
     this.framework = framework;
-    this.propertyActions = new PropertyActions(framework);
+    this.propertyUtility = new PropertyUtilities(framework);
     }
 
     protected IFramework getFramework() {
@@ -60,7 +60,7 @@ public abstract class CPSRoute extends BaseRoute {
     protected  boolean checkNamespaceExists(String namespace) throws ConfigurationPropertyStoreException, InternalServletException {
         boolean valid = false;
         try{
-            if (propertyActions.getAllProperties(namespace).size() > 0){
+            if (propertyUtility.getAllProperties(namespace).size() > 0){
                 valid = true;
             }
         }catch (Exception e ){
@@ -114,7 +114,7 @@ public abstract class CPSRoute extends BaseRoute {
          */
         JsonArray propertyArray = new JsonArray();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
-            GalasaProperty property = new GalasaProperty(entry.getKey(),propertyActions.getProtectedValue(entry.getValue(),namespace));
+            GalasaProperty property = new GalasaProperty(entry.getKey(),propertyUtility.getProtectedValue(entry.getValue(),namespace));
             propertyArray.add(property.toJSON());
         }
         return gson.toJson(propertyArray);
@@ -128,7 +128,7 @@ public abstract class CPSRoute extends BaseRoute {
         if (entry != null){
             JsonObject cpsProp = new JsonObject();
             cpsProp.addProperty("name", entry.getKey());
-            cpsProp.addProperty("value", propertyActions.getProtectedValue(entry.getValue(),namespace));
+            cpsProp.addProperty("value", propertyUtility.getProtectedValue(entry.getValue(),namespace));
             propertyArray.add(cpsProp);
         }
         return gson.toJson(propertyArray);

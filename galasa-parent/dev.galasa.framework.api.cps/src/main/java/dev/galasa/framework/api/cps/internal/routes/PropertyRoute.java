@@ -51,7 +51,7 @@ public class PropertyRoute extends CPSRoute{
         String properties = "";
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
-            if (propertyActions.isHiddenNamespace(namespaceName)) {
+            if (propertyUtility.isHiddenNamespace(namespaceName)) {
                 ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespaceName);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
@@ -68,7 +68,7 @@ public class PropertyRoute extends CPSRoute{
     
     
     private String getProperties(String namespace, String prefix, String suffix, List<String> infixes) throws ConfigurationPropertyStoreException {
-        Map<String, String> properties = propertyActions.getAllProperties(namespace);
+        Map<String, String> properties = propertyUtility.getAllProperties(namespace);
        
         if (prefix != null){
             properties = filterPropertiesByPrefix(namespace, properties,prefix);
@@ -163,13 +163,13 @@ public class PropertyRoute extends CPSRoute{
             throws  IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         checkRequestHasContent(request);
-        GalasaProperty property = propertyActions.getPropertyFromRequestBody(request);
+        GalasaProperty property = propertyUtility.getPropertyFromRequestBody(request);
         checkNamespaceExists(namespace);
-        if(!propertyActions.checkPropertyNamespaceMatchesURLNamespace(property, namespace)){
+        if(!propertyUtility.checkPropertyNamespaceMatchesURLNamespace(property, namespace)){
             ServletError error = new ServletError(GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR,property.metadata.namespace, namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
-        propertyActions.setProperty(property, false);
+        propertyUtility.setProperty(property, false);
         String responseBody = String.format("Successfully created property %s in %s",property.metadata.name, namespace);
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
     }

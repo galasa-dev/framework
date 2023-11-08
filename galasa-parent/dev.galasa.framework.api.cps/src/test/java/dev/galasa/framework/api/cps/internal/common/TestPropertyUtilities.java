@@ -24,7 +24,7 @@ import dev.galasa.framework.spi.IFramework;
 import static org.assertj.core.api.Assertions.*;
 
 
-public class TestPropertyActions{
+public class TestPropertyUtilities{
 
     private IFramework getFramework(String namespace){
         
@@ -46,27 +46,27 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidCorrectPropertyStructureReturnsTrue() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidCorrectPropertyStructureReturnsTrue() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework.property.name1","myvalue");
         
         //When...
-        boolean isValid = propertyActions.isPropertyValid(property);
+        boolean isValid = propertyUtility.isPropertyValid(property);
 
         //Then...
         assertThat(isValid).isTrue();
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidMissingNameReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidMissingNameReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework","","propertyvalue");
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -75,14 +75,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidNullNameReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidNullNameReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework",null,"propertyvalue");
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -91,14 +91,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidBlankNameReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidBlankNameReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework","  ","propertyvalue");
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -107,14 +107,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidMissingNamespaceReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidMissingNamespaceReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("","property","propertyvalue");
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -123,14 +123,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidNullNamespaceReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidNullNamespaceReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty(null,"property","propertyvalue");
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -139,14 +139,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidBlankNamespaceReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidBlankNamespaceReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("   ","property","propertyvalue");
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -155,14 +155,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidMissingValueReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidMissingValueReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework","proprtyname","");
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -171,14 +171,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidNullValueReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidNullValueReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework","name",null);
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -187,14 +187,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidBlankValueReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidBlankValueReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework","property","   ");
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -203,14 +203,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidMissingApiVersionReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidMissingApiVersionReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework","name","propertyvalue", "");
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -219,14 +219,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidNullApiVersionReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidNullApiVersionReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework", "property","propertyvalue", null);
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -235,14 +235,14 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsIsPropertyValidBlankApiVersionReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityIsPropertyValidBlankApiVersionReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework","property","propertyvalue", "   ");
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.isPropertyValid(property);
+            propertyUtility.isPropertyValid(property);
         });
         
         //Then...
@@ -251,97 +251,97 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsisHiddenNamespaceNotHiddenNamespaceReturnsFalse(){
+    public void TestpropertyUtilityisHiddenNamespaceNotHiddenNamespaceReturnsFalse(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         
         //When...
-        boolean isHidden = propertyActions.isHiddenNamespace("mynamespace");
+        boolean isHidden = propertyUtility.isHiddenNamespace("mynamespace");
         
         //Then...
         assertThat(isHidden).isFalse();
     }
 
     @Test
-    public void TestPropertyActionsisHiddenNamespaceWithHiddenNamespaceReturnsTrue(){
+    public void TestpropertyUtilityisHiddenNamespaceWithHiddenNamespaceReturnsTrue(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         
         //When...
-        boolean isHidden = propertyActions.isHiddenNamespace("dss");
+        boolean isHidden = propertyUtility.isHiddenNamespace("dss");
         
         //Then...
         assertThat(isHidden).isTrue();
     }
 
     @Test
-    public void TestPropertyActionsIsSecureNamespaceWithNormalNamespaceReturnsFalse(){
+    public void TestpropertyUtilityIsSecureNamespaceWithNormalNamespaceReturnsFalse(){
         //Given...
         String namespace = "mynamespace";
         
         //When...
-        boolean isSecure = PropertyActions.isSecureNamespace(namespace);
+        boolean isSecure = PropertyUtilities.isSecureNamespace(namespace);
         
         //Then...
         assertThat(isSecure).isFalse();
     }
 
     @Test
-    public void TestPropertyActionsIsSecureNamespaceWithSecureNamespaceReturnsTrue(){
+    public void TestpropertyUtilityIsSecureNamespaceWithSecureNamespaceReturnsTrue(){
         //Given...
         String namespace = "secure";
         
         //When...
-        boolean isSecure = PropertyActions.isSecureNamespace(namespace);
+        boolean isSecure = PropertyUtilities.isSecureNamespace(namespace);
         
         //Then...
         assertThat(isSecure).isTrue();
     }
 
     @Test
-    public void TestPropertyActionsGetNameSpaceTypeNormalNamespaceReturnsNormal(){
+    public void TestpropertyUtilityGetNameSpaceTypeNormalNamespaceReturnsNormal(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         
         //When...
-        String namespaceType = propertyActions.getNamespaceType("normal");
+        String namespaceType = propertyUtility.getNamespaceType("normal");
         
         //Then...
         assertThat(namespaceType).isEqualTo("normal");
     }
 
      @Test
-    public void TestPropertyActionsGetNameSpaceTypeSecureNamespaceReturnsSecure(){
+    public void TestpropertyUtilityGetNameSpaceTypeSecureNamespaceReturnsSecure(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("secure"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("secure"));
 
         //When...
-        String namespaceType = propertyActions.getNamespaceType("secure");
+        String namespaceType = propertyUtility.getNamespaceType("secure");
         
         //Then...
         assertThat(namespaceType).isEqualTo("secure");
     }
 
     @Test
-    public void TestPropertyActionsGetAllPropertiesReturnsEmpty() throws ConfigurationPropertyStoreException{
+    public void TestpropertyUtilityGetAllPropertiesReturnsEmpty() throws ConfigurationPropertyStoreException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("empty"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("empty"));
 
         //When...
-        Map<String, String> properties = propertyActions.getAllProperties("empty");
+        Map<String, String> properties = propertyUtility.getAllProperties("empty");
 
         //Then...
         assertThat(properties).isEmpty();
     }
 
     @Test
-    public void TestPropertyActionsGetAllPropertiesReturnsConfigurationStoreException(){
+    public void TestpropertyUtilityGetAllPropertiesReturnsConfigurationStoreException(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.getAllProperties("error");
+            propertyUtility.getAllProperties("error");
         });
         
         //Then...
@@ -350,12 +350,12 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsGetAllPropertiesReturnsProperties() throws ConfigurationPropertyStoreException{
+    public void TestpropertyUtilityGetAllPropertiesReturnsProperties() throws ConfigurationPropertyStoreException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         
         //When...
-        Map<String, String> properties = propertyActions.getAllProperties("framework");
+        Map<String, String> properties = propertyUtility.getAllProperties("framework");
 
         //Then...
         assertThat(properties).isNotEmpty();
@@ -363,86 +363,86 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsGetProtectedValueNormalNamespaceReturnsValue(){
+    public void TestpropertyUtilityGetProtectedValueNormalNamespaceReturnsValue(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
 
         //When...
-        String value = propertyActions.getProtectedValue("mypropertyvalue", "framework");
+        String value = propertyUtility.getProtectedValue("mypropertyvalue", "framework");
 
         //Then...
         assertThat(value).isEqualTo("mypropertyvalue");
     }
 
     @Test
-    public void TestPropertyActionsGetProtectedValueSecureNamespaceReturnsRedactedValue(){
+    public void TestpropertyUtilityGetProtectedValueSecureNamespaceReturnsRedactedValue(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
 
         //When...
-        String value = propertyActions.getProtectedValue("secureValue", "secure");
+        String value = propertyUtility.getProtectedValue("secureValue", "secure");
         
         //Then...
         assertThat(value).isEqualTo("********");
     }
 
     @Test
-    public void TestPropertyActionsCheckPropertyExistsExistingPropertyReturnsTrue() throws InternalServletException{
+    public void TestpropertyUtilityCheckPropertyExistsExistingPropertyReturnsTrue() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
 
         //When...
-        boolean exists = propertyActions.checkPropertyExists("framework","property1");
+        boolean exists = propertyUtility.checkPropertyExists("framework","property1");
 
         //Then...
         assertThat(exists).isTrue();
     }
 
     @Test
-    public void TestPropertyActionsCheckPropertyExistsNewropertyReturnsFalse() throws InternalServletException{
+    public void TestpropertyUtilityCheckPropertyExistsNewropertyReturnsFalse() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
 
         //When...
-        boolean exists = propertyActions.checkPropertyExists("framework","notaproperty");
+        boolean exists = propertyUtility.checkPropertyExists("framework","notaproperty");
 
         //Then...
         assertThat(exists).isFalse();
     }
 
     @Test
-    public void TestPropertyActionsCheckGalasaPropertyExistsExistingPropertyReturnsTrue() throws InternalServletException{
+    public void TestpropertyUtilityCheckGalasaPropertyExistsExistingPropertyReturnsTrue() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework.property1", "value1");
 
         //When...
-        boolean exists = propertyActions.checkGalasaPropertyExists(property);
+        boolean exists = propertyUtility.checkGalasaPropertyExists(property);
 
         //Then...
         assertThat(exists).isTrue();
     }
 
     @Test
-    public void TestPropertyActionsCheckGalasaPropertyExistsNewPropertyReturnsFalse() throws InternalServletException{
+    public void TestpropertyUtilityCheckGalasaPropertyExistsNewPropertyReturnsFalse() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         GalasaProperty property = new GalasaProperty("framework.property10", "value1");
 
         //When...
-        boolean exists = propertyActions.checkGalasaPropertyExists(property);
+        boolean exists = propertyUtility.checkGalasaPropertyExists(property);
 
         //Then...
         assertThat(exists).isFalse();
     }
 
     @Test
-    public void TestPropertyActionsRetrieveSinglePropertyExistingPropertyReturnsProperty() throws InternalServletException{
+    public void TestpropertyUtilityRetrieveSinglePropertyExistingPropertyReturnsProperty() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         
         //When...
-        Map.Entry<String,String> property = propertyActions.retrieveSingleProperty("framework", "property1");
+        Map.Entry<String,String> property = propertyUtility.retrieveSingleProperty("framework", "property1");
 
         //Then...
         assertThat(property.getKey()).isEqualTo("framework.property1");
@@ -450,12 +450,12 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsRetrieveSinglePropertyExistingSecurePropertyReturnsRedactedProperty() throws InternalServletException{
+    public void TestpropertyUtilityRetrieveSinglePropertyExistingSecurePropertyReturnsRedactedProperty() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("secure"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("secure"));
         
         //When...
-        Map.Entry<String, String> property = propertyActions.retrieveSingleProperty("secure", "property1");
+        Map.Entry<String, String> property = propertyUtility.retrieveSingleProperty("secure", "property1");
         
         //Then...
         assertThat(property.getKey()).isEqualTo("secure.property1");
@@ -463,13 +463,13 @@ public class TestPropertyActions{
 }
 
     @Test
-    public void TestPropertyActionsRetrieveSinglePropertyBadNamespaceReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityRetrieveSinglePropertyBadNamespaceReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-           propertyActions.retrieveSingleProperty("error", "property1");
+           propertyUtility.retrieveSingleProperty("error", "property1");
         });
         
         //Then...
@@ -478,13 +478,13 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsRetrieveSinglePropertyNullNamespaceReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityRetrieveSinglePropertyNullNamespaceReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-           propertyActions.retrieveSingleProperty(null, "property1");
+           propertyUtility.retrieveSingleProperty(null, "property1");
         });
         
         //Then...
@@ -493,51 +493,51 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsRetrieveSinglePropertyNullNameReturnsNull() throws InternalServletException{
+    public void TestpropertyUtilityRetrieveSinglePropertyNullNameReturnsNull() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         
         //When...
-        Map.Entry<String,String> property = propertyActions.retrieveSingleProperty("framework", null);
+        Map.Entry<String,String> property = propertyUtility.retrieveSingleProperty("framework", null);
         
         //Then...
         assertThat(property).isNull();
     }
 
     @Test
-    public void TestPropertyActionsRetrievesSingleBadPropertyReturnsNull() throws InternalServletException{
+    public void TestpropertyUtilityRetrievesSingleBadPropertyReturnsNull() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         
         //When...
-        Map.Entry<String, String> property = propertyActions.retrieveSingleProperty("framework", "custardoughnuts");
+        Map.Entry<String, String> property = propertyUtility.retrieveSingleProperty("framework", "custardoughnuts");
 
         //Then...
         assertThat(property).isNull();
     }
 
     @Test
-    public void TestPropertyActionsSetPropertyCreateNewPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
+    public void TestpropertyUtilitySetPropertyCreateNewPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyName = "framework.jindex";
         String propertyValue = "jindexvalue";
         GalasaProperty property = new GalasaProperty(propertyName, propertyValue);
         boolean updateProperty = false;
         
         //When...
-        propertyActions.setProperty(property, updateProperty);
+        propertyUtility.setProperty(property, updateProperty);
 
         //Then...   
-        Map.Entry<String, String> retrievedProperty = propertyActions.retrieveSingleProperty("framework", "jindex");
+        Map.Entry<String, String> retrievedProperty = propertyUtility.retrieveSingleProperty("framework", "jindex");
         assertThat(retrievedProperty.getKey()).isEqualTo(propertyName);
         assertThat(retrievedProperty.getValue()).isEqualTo(propertyValue);
     }
 
     @Test
-    public void TestPropertyActionsSetPropertyCreateExistingPropertyReturnsError(){
+    public void TestpropertyUtilitySetPropertyCreateExistingPropertyReturnsError(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyName = "framework.property1";
         String propertyValue = "value1";
         GalasaProperty property = new GalasaProperty(propertyName, propertyValue);
@@ -545,7 +545,7 @@ public class TestPropertyActions{
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-           propertyActions.setProperty(property, updateProperty);
+           propertyUtility.setProperty(property, updateProperty);
         });
 
         //Then...
@@ -554,9 +554,9 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsSetPropertyUpdateExistingPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
+    public void TestpropertyUtilitySetPropertyUpdateExistingPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyName = "framework.property1";
         String propertyValue = "jindexvalue";
         GalasaProperty property = new GalasaProperty(propertyName, propertyValue);
@@ -564,18 +564,18 @@ public class TestPropertyActions{
         
         
         //When...
-        propertyActions.setProperty(property, updateProperty);
+        propertyUtility.setProperty(property, updateProperty);
 
         //Then...   
-        Map.Entry<String, String> retrievedProperty = propertyActions.retrieveSingleProperty("framework", "property1");
+        Map.Entry<String, String> retrievedProperty = propertyUtility.retrieveSingleProperty("framework", "property1");
         assertThat(retrievedProperty.getKey()).isEqualTo(propertyName);
         assertThat(retrievedProperty.getValue()).isEqualTo(propertyValue);
     }
 
     @Test
-    public void TestPropertyActionsSetPropertyUpdateNewPropertyReturnsError(){
+    public void TestpropertyUtilitySetPropertyUpdateNewPropertyReturnsError(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyName = "framework.random";
         String propertyValue = "value1";
         GalasaProperty property = new GalasaProperty(propertyName, propertyValue);
@@ -583,7 +583,7 @@ public class TestPropertyActions{
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-           propertyActions.setProperty(property, updateProperty);
+           propertyUtility.setProperty(property, updateProperty);
         });
 
         //Then...
@@ -592,27 +592,27 @@ public class TestPropertyActions{
     }
 
 @Test
-    public void TestPropertyActionsSetGalasaPropertyCreateNewPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
+    public void TestpropertyUtilitySetGalasaPropertyCreateNewPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyName = "framework.jindex";
         String propertyValue = "jindexvalue";
         GalasaProperty property = new GalasaProperty(propertyName, propertyValue);
         String action = "create";
         
         //When...
-        propertyActions.setGalasaProperty(property, action);
+        propertyUtility.setGalasaProperty(property, action);
 
         //Then...   
-        Map.Entry<String, String> retrievedProperty = propertyActions.retrieveSingleProperty("framework", "jindex");
+        Map.Entry<String, String> retrievedProperty = propertyUtility.retrieveSingleProperty("framework", "jindex");
         assertThat(retrievedProperty.getKey()).isEqualTo(propertyName);
         assertThat(retrievedProperty.getValue()).isEqualTo(propertyValue);
     }
 
     @Test
-    public void TestPropertyActionsSetGalasaPropertyCreateExistingPropertyReturnsError(){
+    public void TestpropertyUtilitySetGalasaPropertyCreateExistingPropertyReturnsError(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyName = "framework.property1";
         String propertyValue = "value1";
         GalasaProperty property = new GalasaProperty(propertyName, propertyValue);
@@ -620,7 +620,7 @@ public class TestPropertyActions{
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-           propertyActions.setGalasaProperty(property, action);
+           propertyUtility.setGalasaProperty(property, action);
         });
 
         //Then...
@@ -629,9 +629,9 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsSetGalasaPropertyUpdateExistingPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
+    public void TestpropertyUtilitySetGalasaPropertyUpdateExistingPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyName = "framework.property1";
         String propertyValue = "jindexvalue";
         GalasaProperty property = new GalasaProperty(propertyName, propertyValue);
@@ -639,18 +639,18 @@ public class TestPropertyActions{
         
         
         //When...
-        propertyActions.setGalasaProperty(property, action);
+        propertyUtility.setGalasaProperty(property, action);
 
         //Then...   
-        Map.Entry<String, String> retrievedProperty = propertyActions.retrieveSingleProperty("framework", "property1");
+        Map.Entry<String, String> retrievedProperty = propertyUtility.retrieveSingleProperty("framework", "property1");
         assertThat(retrievedProperty.getKey()).isEqualTo(propertyName);
         assertThat(retrievedProperty.getValue()).isEqualTo(propertyValue);
     }
 
     @Test
-    public void TestPropertyActionsSetGalasaPropertyUpdateNewPropertyReturnsError(){
+    public void TestpropertyUtilitySetGalasaPropertyUpdateNewPropertyReturnsError(){
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyName = "framework.random";
         String propertyValue = "value1";
         GalasaProperty property = new GalasaProperty(propertyName, propertyValue);
@@ -658,7 +658,7 @@ public class TestPropertyActions{
         
         //When...
         Throwable thrown = catchThrowable(() -> {
-           propertyActions.setGalasaProperty(property, action);
+           propertyUtility.setGalasaProperty(property, action);
         });
 
         //Then...
@@ -667,9 +667,9 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsSetGalasaPropertyApplyExistingPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
+    public void TestpropertyUtilitySetGalasaPropertyApplyExistingPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyName = "framework.property1";
         String propertyValue = "jindexvalue";
         GalasaProperty property = new GalasaProperty(propertyName, propertyValue);
@@ -677,18 +677,18 @@ public class TestPropertyActions{
         
         
         //When...
-        propertyActions.setGalasaProperty(property, action);
+        propertyUtility.setGalasaProperty(property, action);
 
         //Then...   
-        Map.Entry<String, String> retrievedProperty = propertyActions.retrieveSingleProperty("framework", "property1");
+        Map.Entry<String, String> retrievedProperty = propertyUtility.retrieveSingleProperty("framework", "property1");
         assertThat(retrievedProperty.getKey()).isEqualTo(propertyName);
         assertThat(retrievedProperty.getValue()).isEqualTo(propertyValue);
     }
 
     @Test
-    public void TestPropertyActionsSetGalasaPropertyApplyNewPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
+    public void TestpropertyUtilitySetGalasaPropertyApplyNewPropertyReturnsSuccess() throws InternalServletException, FrameworkException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyName = "framework.randomproperty";
         String propertyValue = "jindexvalue";
         GalasaProperty property = new GalasaProperty(propertyName, propertyValue);
@@ -696,36 +696,36 @@ public class TestPropertyActions{
         
         
         //When...
-        propertyActions.setGalasaProperty(property, action);
+        propertyUtility.setGalasaProperty(property, action);
 
         //Then...   
-        Map.Entry<String, String> retrievedProperty = propertyActions.retrieveSingleProperty("framework", "randomproperty");
+        Map.Entry<String, String> retrievedProperty = propertyUtility.retrieveSingleProperty("framework", "randomproperty");
         assertThat(retrievedProperty.getKey()).isEqualTo(propertyName);
         assertThat(retrievedProperty.getValue()).isEqualTo(propertyValue);
     }
 
     @Test
-    public void TestPropertyActionsGetGalasaPropertyFromJsonStringReturnsProperty() throws InternalServletException{
+    public void TestpropertyUtilityGetGalasaPropertyFromJsonStringReturnsProperty() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyJson = generateGalasaPropertyJson("framework","newproperty","newvalue");
 
         //When...
-        GalasaProperty property = propertyActions.getGalasaPropertyfromJsonString(propertyJson);
+        GalasaProperty property = propertyUtility.getGalasaPropertyfromJsonString(propertyJson);
 
         //Then...
         assertThat(property.isPropertyValid()).isTrue();
     }
 
     @Test
-    public void TestPropertyActionsGetGalasaPropertyFromJsonStringBadStringReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityGetGalasaPropertyFromJsonStringBadStringReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyJson = generateGalasaPropertyJson("","","");
 
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.getGalasaPropertyfromJsonString(propertyJson);
+            propertyUtility.getGalasaPropertyfromJsonString(propertyJson);
         });
 
         //Then...
@@ -734,29 +734,29 @@ public class TestPropertyActions{
     }
 
     @Test
-    public void TestPropertyActionsGetPropertyFromRequestBodyReturnsProperty() throws InternalServletException, IOException{
+    public void TestpropertyUtilityGetPropertyFromRequestBodyReturnsProperty() throws InternalServletException, IOException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyJson = generateGalasaPropertyJson("framework","newproperty","newvalue");
         HttpServletRequest request =  new MockHttpServletRequest("", propertyJson, "POST");
 
         //When...
-        GalasaProperty property = propertyActions.getPropertyFromRequestBody(request);
+        GalasaProperty property = propertyUtility.getPropertyFromRequestBody(request);
 
         //Then...
         assertThat(property.isPropertyValid()).isTrue();
     }
 
     @Test
-    public void TestPropertyActionsGetPropertyFromRequestBodyBadBodyReturnsError() throws InternalServletException{
+    public void TestpropertyUtilityGetPropertyFromRequestBodyBadBodyReturnsError() throws InternalServletException{
         //Given...
-        PropertyActions propertyActions = new PropertyActions(getFramework("framework"));
+        PropertyUtilities propertyUtility = new PropertyUtilities(getFramework("framework"));
         String propertyJson = generateGalasaPropertyJson("","","");
         HttpServletRequest request =  new MockHttpServletRequest("", propertyJson, "POST");
 
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyActions.getPropertyFromRequestBody(request);
+            propertyUtility.getPropertyFromRequestBody(request);
         });
 
         //Then...

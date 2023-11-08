@@ -26,7 +26,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
-public class PropertyActions {
+public class PropertyUtilities {
 
     private static final Set<String> updateActions = Set.of("apply","update");
 
@@ -51,7 +51,7 @@ public class PropertyActions {
         secureNamespaces.add("secure");
     }
 
-    public PropertyActions(IFramework framework){
+    public PropertyUtilities(IFramework framework){
         this.framework = framework;
     }
 
@@ -90,7 +90,7 @@ public class PropertyActions {
 
     public String getNamespaceType(String namespace){
         String type = NamespaceType.NORMAL.toString();
-        if (PropertyActions.isSecureNamespace(namespace)){
+        if (PropertyUtilities.isSecureNamespace(namespace)){
             type = NamespaceType.SECURE.toString();
         }
         return type;

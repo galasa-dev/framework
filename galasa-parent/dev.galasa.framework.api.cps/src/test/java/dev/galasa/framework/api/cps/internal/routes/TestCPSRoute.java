@@ -33,7 +33,7 @@ public class TestCPSRoute extends CpsServletTest {
 
         //When...
         Throwable thrown = catchThrowable( () -> {
-           cpsRoute.propertyActions.setProperty(property, updateProperty);
+           cpsRoute.propertyUtility.setProperty(property, updateProperty);
         });
 
         //Then...
@@ -49,7 +49,7 @@ public class TestCPSRoute extends CpsServletTest {
 
         //When...
         Throwable thrown = catchThrowable( () -> {
-           cpsRoute.propertyActions.setProperty(property, updateProperty);
+           cpsRoute.propertyUtility.setProperty(property, updateProperty);
         });
 
         //Then...
@@ -66,7 +66,7 @@ public class TestCPSRoute extends CpsServletTest {
 
         //When...
         Throwable thrown = catchThrowable( () -> {
-           cpsRoute.propertyActions.setProperty(property, updateProperty);
+           cpsRoute.propertyUtility.setProperty(property, updateProperty);
         });
 
         //Then...
@@ -82,7 +82,7 @@ public class TestCPSRoute extends CpsServletTest {
 
         //When...
         Throwable thrown = catchThrowable( () -> {
-           cpsRoute.propertyActions.setProperty(property, updateProperty);
+           cpsRoute.propertyUtility.setProperty(property, updateProperty);
         });
 
         //Then...
@@ -99,7 +99,7 @@ public class TestCPSRoute extends CpsServletTest {
 
         //When...
         Throwable thrown = catchThrowable( () -> {
-           cpsRoute.propertyActions.setProperty(property, updateProperty);
+           cpsRoute.propertyUtility.setProperty(property, updateProperty);
         });
 
         //Then...
@@ -177,7 +177,7 @@ public class TestCPSRoute extends CpsServletTest {
         String jsonString = generatePropertyJSON(namespace, name, value, "v1alpha1");
 
         //When...
-        GalasaProperty property = cpsRoute.propertyActions.getGalasaPropertyfromJsonString(jsonString);
+        GalasaProperty property = cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
 
         //Then...
         assertThat(property.metadata.name).isEqualTo(name);
@@ -204,7 +204,7 @@ public class TestCPSRoute extends CpsServletTest {
 
         //When...
         Throwable thrown = catchThrowable( () -> {
-            cpsRoute.propertyActions.getGalasaPropertyfromJsonString(jsonString);
+            cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
         });
 
         //Then...
@@ -230,7 +230,7 @@ public class TestCPSRoute extends CpsServletTest {
 
         //When...
         Throwable thrown = catchThrowable( () -> {
-            cpsRoute.propertyActions.getGalasaPropertyfromJsonString(jsonString);
+            cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
         });
 
         //Then...
@@ -256,7 +256,7 @@ public class TestCPSRoute extends CpsServletTest {
 
         //When...
         Throwable thrown = catchThrowable( () -> {
-            cpsRoute.propertyActions.getGalasaPropertyfromJsonString(jsonString);
+            cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
         });
 
         //Then...
@@ -273,7 +273,7 @@ public class TestCPSRoute extends CpsServletTest {
 
         //When...
         Throwable thrown = catchThrowable( () -> {
-            cpsRoute.propertyActions.getGalasaPropertyfromJsonString(jsonString);
+            cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
         });
 
         //Then...
@@ -290,7 +290,7 @@ public class TestCPSRoute extends CpsServletTest {
 
         //When...
         Throwable thrown = catchThrowable( () -> {
-            cpsRoute.propertyActions.getGalasaPropertyfromJsonString(jsonString);
+            cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
         });
 
         //Then...

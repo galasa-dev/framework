@@ -28,7 +28,7 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.cps.internal.common.GalasaProperty;
-import dev.galasa.framework.api.cps.internal.common.PropertyActions;
+import dev.galasa.framework.api.cps.internal.common.PropertyUtilities;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -41,12 +41,12 @@ public class ResourcesRoute  extends BaseRoute{
     private List<ServletError> errors = new ArrayList<ServletError>();
 
     private IFramework framework;
-    PropertyActions propertyActions;
+    PropertyUtilities propertyUtility;
 
     public ResourcesRoute(ResponseBuilder responseBuilder,  IFramework framework ) {
         super(responseBuilder, "\\/?");
         this.framework = framework;
-         this.propertyActions = new PropertyActions(framework);
+         this.propertyUtility = new PropertyUtilities(framework);
     }
 
     protected IFramework getFramework() {
@@ -110,8 +110,8 @@ public class ResourcesRoute  extends BaseRoute{
         if (apiversion.equals(new GalasaProperty(null, null).getApiVersion())){
             try{
                 GalasaProperty property = gson.fromJson(resource, GalasaProperty.class);
-                if (propertyActions.isPropertyValid(property)){
-                    propertyActions.setGalasaProperty(property, action);
+                if (propertyUtility.isPropertyValid(property)){
+                    propertyUtility.setGalasaProperty(property, action);
                 }
             }catch (FrameworkException f){
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR, f.getMessage());

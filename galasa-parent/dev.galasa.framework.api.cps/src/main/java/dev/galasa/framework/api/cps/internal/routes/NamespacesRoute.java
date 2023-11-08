@@ -57,8 +57,8 @@ public class NamespacesRoute extends CPSRoute {
             namespaces = getFramework().getConfigurationPropertyService("framework").getCPSNamespaces();
             Collections.sort(namespaces);
             for (String name : namespaces) {
-                Namespace namespace = new Namespace(name, propertyActions.getNamespaceType(name), url);
-                if (!propertyActions.isHiddenNamespace(name) ) {
+                Namespace namespace = new Namespace(name, propertyUtility.getNamespaceType(name), url);
+                if (!propertyUtility.isHiddenNamespace(name) ) {
                     namespaceArray.add(namespace);
                 }
             }

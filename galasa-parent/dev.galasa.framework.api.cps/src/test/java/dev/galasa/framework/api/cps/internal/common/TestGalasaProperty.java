@@ -202,4 +202,124 @@ public class TestGalasaProperty {
         assertThat(property.data.value).isEqualTo(propertyValue);
         assertThat(property.isPropertyValid()).isFalse();
     }
+
+    @Test
+    public void TestGalasaPropertyNoDataDefaultApiVersionIsInvalid(){
+        //Given...
+        String namespace = null;
+        String propertyName = null;
+        String propertyValue = null;
+        
+        //When...
+        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
+        
+
+        //Then...
+        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.metadata.namespace).isEqualTo(namespace);
+        assertThat(property.metadata.name).isEqualTo(propertyName);
+        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isPropertyValid()).isFalse();
+    }
+
+    @Test
+    public void TestGalasaPropertyNamespaceOnlyIsInvalid(){
+        //Given...
+        String namespace = "framework";
+        String propertyName = null;
+        String propertyValue = null;
+        
+        //When...
+        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
+        
+
+        //Then...
+        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.metadata.namespace).isEqualTo(namespace);
+        assertThat(property.metadata.name).isEqualTo(propertyName);
+        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isPropertyValid()).isFalse();
+    }
+
+    @Test
+    public void TestGalasaPropertyPartialDataIsInvalid(){
+        //Given...
+        String namespace = "framework";
+        String propertyName = "property";
+        String propertyValue = null;
+        
+        //When...
+        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
+        
+
+        //Then...
+        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.metadata.namespace).isEqualTo(namespace);
+        assertThat(property.metadata.name).isEqualTo(propertyName);
+        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isPropertyValid()).isFalse();
+    }
+
+    @Test
+    public void TestGalasaPropertyNoNamespaceIsInvalid(){
+        //Given...
+        String namespace = null;
+        String propertyName = "property";
+        String propertyValue = "value";
+        
+        //When...
+        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
+        
+
+        //Then...
+        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.metadata.namespace).isEqualTo(namespace);
+        assertThat(property.metadata.name).isEqualTo(propertyName);
+        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isPropertyValid()).isFalse();
+    }
+
+    @Test
+    public void TestGalasaPropertyNoNameIsInvalid(){
+        //Given...
+        String namespace = "framework";
+        String propertyName = "";
+        String propertyValue = "value";
+        
+        //When...
+        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
+        
+
+        //Then...
+        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.metadata.namespace).isEqualTo(namespace);
+        assertThat(property.metadata.name).isEqualTo(propertyName);
+        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isPropertyValid()).isFalse();
+    }
+
+    @Test
+    public void TestGalasaPropertyNoValueIsInvalid(){
+        //Given...
+        String namespace = "framework";
+        String propertyName = "property";
+        String propertyValue = "";
+        
+        //When...
+        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
+        
+
+        //Then...
+        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo("v1alpha1");
+        assertThat(property.metadata.namespace).isEqualTo(namespace);
+        assertThat(property.metadata.name).isEqualTo(propertyName);
+        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.isPropertyValid()).isFalse();
+    }
 }
