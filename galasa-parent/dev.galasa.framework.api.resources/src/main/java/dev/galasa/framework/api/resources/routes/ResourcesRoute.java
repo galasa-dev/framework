@@ -38,41 +38,34 @@ public class ResourcesRoute  extends BaseRoute{
     static final Gson gson = GalasaGsonBuilder.build();
 
     private static final Set<String> validActions = Set.of("apply","create","update");
-    private List<ServletError> errors = new ArrayList<ServletError>();
+    protected List<String> errors = new ArrayList<String>();
 
-    private IFramework framework;
-    PropertyUtilities propertyUtility;
+    private PropertyUtilities propertyUtility;
 
     public ResourcesRoute(ResponseBuilder responseBuilder,  IFramework framework ) {
         super(responseBuilder, "\\/?");
-        this.framework = framework;
          this.propertyUtility = new PropertyUtilities(framework);
-    }
-
-    protected IFramework getFramework() {
-        return this.framework;
     }
 
     @Override
      public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters, 
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {  
-        HttpServletResponse returnResponse;   
         checkRequestHasContent(request);
         String jsonBody = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-        List<ServletError> errorsList = processRequest(jsonBody);
+        List<String> errorsList = processRequest(jsonBody);
         if (errorsList.size() >0){
-            returnResponse = getResponseBuilder().buildResponse(response, "application/json", gson.toJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
+            response = getResponseBuilder().buildResponse(response, "application/json", gson.toJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
         }else{
-            returnResponse = getResponseBuilder().buildResponse(response, "application/json", "", HttpServletResponse.SC_OK);
+            response = getResponseBuilder().buildResponse(response, "application/json", "", HttpServletResponse.SC_OK);
         }
-        return returnResponse;
+        return response;
 
     }
 
-    public List<ServletError> processRequest(String jsonBody) throws InternalServletException{
+    public List<String> processRequest(String jsonBody) throws InternalServletException{
         
         JsonObject body = gson.fromJson(jsonBody, JsonObject.class);
-        String action = body.get("action").toString().toLowerCase().trim();
+        String action = body.get("action").getAsString().toLowerCase().trim();
         if (validActions.contains(action)){
             JsonArray jsonArray = body.get("data").getAsJsonArray();
             processDataArray(jsonArray, action);
@@ -87,18 +80,18 @@ public class ResourcesRoute  extends BaseRoute{
         try{
             for (JsonElement element: jsonArray){
                 JsonObject resource = element.getAsJsonObject();
-                switch (resource.get("kind").toString()){
+                String kind = resource.get("kind").getAsString();
+                switch (kind){
                     case "GalasaProperty":
                         processGalasaProperty(resource,action);
                         break;
                     default:
-                        ServletError error = new ServletError(GAL5026_UNSUPPORTED_RESOURCE_TYPE);
+                        ServletError error = new ServletError(GAL5026_UNSUPPORTED_RESOURCE_TYPE,kind);
                         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
                 }
             }
-
         }catch(InternalServletException s){
-            errors.add(s.getError());
+            errors.add(s.getMessage());
         }catch(Exception e){
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -106,19 +99,21 @@ public class ResourcesRoute  extends BaseRoute{
     }
     
     public void processGalasaProperty (JsonObject resource, String action) throws InternalServletException{
-        String apiversion = resource.get("apiversion").toString();
-        if (apiversion.equals(new GalasaProperty(null, null).getApiVersion())){
+        String apiversion = resource.get("apiVersion").getAsString();
+        if (apiversion.equals(new GalasaProperty(null,null, null).getApiVersion())){
             try{
                 GalasaProperty property = gson.fromJson(resource, GalasaProperty.class);
                 if (propertyUtility.isPropertyValid(property)){
                     propertyUtility.setGalasaProperty(property, action);
                 }
-            }catch (FrameworkException f){
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR, f.getMessage());
+            }catch (InternalServletException i){
+                throw i;
+            }catch (Exception e){
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR, e.getMessage());
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         }else{
-            ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION);
+            ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }

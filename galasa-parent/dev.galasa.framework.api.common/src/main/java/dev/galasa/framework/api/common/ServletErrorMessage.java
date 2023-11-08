@@ -55,8 +55,8 @@ public enum ServletErrorMessage {
 
     //Resources APIs...
     GAL5025_UNSUPPORTED_ACTION                      (5025, "E: Error occurred when trying to apply resources. Action ''{0}'' supplied is not supported. Supported actions are: create, apply and update."),
-    GAL5026_UNSUPPORTED_RESOURCE_TYPE               (5026, "E: Error occured because the resource type is not supported"),
-    GAL5027_UNSUPPORTED_API_VERSION                 (5027, "E: Error occured because the api version is not supported")
+    GAL5026_UNSUPPORTED_RESOURCE_TYPE               (5026, "E: Error occured because the resource type ''{0}'' is not supported."),
+    GAL5027_UNSUPPORTED_API_VERSION                 (5027, "E: Error occured because the api version ''{0}'' is not a supported version.")
     ;
 
 

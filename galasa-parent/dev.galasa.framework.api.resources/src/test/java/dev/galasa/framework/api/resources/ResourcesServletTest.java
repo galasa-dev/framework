@@ -9,27 +9,23 @@ package dev.galasa.framework.api.resources;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
-import dev.galasa.framework.api.cps.internal.common.GalasaProperty;
+
 import dev.galasa.framework.api.resources.mocks.MockResourcesServlet;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -80,42 +76,15 @@ public class ResourcesServletTest extends BaseServletTest {
 	return this.resp;
 	}
 
-	@Override
-	protected void checkJsonArrayStructure(String jsonString, Map<String, String> properties) throws Exception {
+	protected void checkPropertyInNamespace(String namespace, String propertyName, String propertyValue) throws Exception{
+		assertThat(checkProperty(namespace, propertyName, propertyValue)).isTrue();
+	}
+	
+	protected void checkPropertyNotInNamespace(String namespace, String propertyName, String propertyValue) throws Exception{
+		assertThat(checkProperty(namespace, propertyName, propertyValue)).isFalse();
+	}
 
-		JsonElement jsonElement = JsonParser.parseString(jsonString);
-		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
-
-		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray).isNotNull().as("Json parsed is not a json array.");
-
-		List<GalasaProperty> expectedProperties = new ArrayList<GalasaProperty>();
-		for (Entry<String, String> entry : properties.entrySet()) {
-			expectedProperties.add( new GalasaProperty(entry));
-		}
-
-		List<GalasaProperty> jsonProperties = new ArrayList<GalasaProperty>();
-		for (JsonElement element : jsonArray) {
-			String expected = element.toString();
-            jsonProperties.add(gson.fromJson(expected, GalasaProperty.class));
-		}
-		
-        // Go through the list of expected Galasa Properties and 
-		// json properties (which have been converted into Galasa Properties)
-		// and check if any of the elements contain a matching key-value entry.
-        for (GalasaProperty property : expectedProperties) {
-            boolean fieldMatches = false;
-
-            for (GalasaProperty returned : jsonProperties) {
-                if ((property.metadata.name.equals(returned.metadata.name))&&(property.data.value.equals(returned.data.value))) {
-                    fieldMatches = true;
-                }
-            }
-            assertThat(fieldMatches).isTrue();
-        }
-    }
-
-	protected boolean checkNewPropertyInNamespace(String namespace, String propertyName, String propertyValue) throws Exception{
+	protected boolean checkProperty(String namespace, String propertyName, String propertyValue) throws Exception{
 		boolean found = false;
 		Map<String,String> properties = this.servlet.getFramework().getConfigurationPropertyService(namespace).getAllProperties();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
@@ -126,6 +95,16 @@ public class ResourcesServletTest extends BaseServletTest {
             }
         }
 		return found;
+	}
+
+	protected void checkErrorListContainsError(List<String> errors, String errorMessage){
+		boolean match = false;
+		for (String error: errors){
+			if (error.contains(errorMessage)){
+				match = true;
+			}
+		}
+		assertThat(match).isTrue();
 	}
 
 	protected String generatePropertyJSON(String namespace, String propertyName, String propertyValue, String apiVersion){
@@ -139,8 +118,12 @@ public class ResourcesServletTest extends BaseServletTest {
         "      \"value\": \""+propertyValue+"\"\n    }\n  }";
 	}
 
-	protected String generateExpectedJson(String namespace, String propertyName, String propertyValue, String apiVersion){
+	protected String generateArrayJson(String namespace, String propertyName, String propertyValue, String apiVersion){
         return "[\n  "+generatePropertyJSON(namespace, propertyName, propertyValue, apiVersion)+"\n]";
+    }
+
+		protected String generateRequestJson(String action, String namespace, String propertyName, String propertyValue, String apiVersion){
+        return "{\n \"action\":\""+action+"\", \"data\":"+generateArrayJson(namespace, propertyName, propertyValue, apiVersion)+"\n}";
     }
 
 	protected String generateExpectedJson(Map<String, String> properties){
