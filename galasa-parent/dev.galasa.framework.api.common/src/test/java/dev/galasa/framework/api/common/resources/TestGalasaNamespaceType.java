@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class TestNamespaceType {
+public class TestGalasaNamespaceType {
 
     @Test
     public void TestNamespaceTypeNormalReturnNormal(){

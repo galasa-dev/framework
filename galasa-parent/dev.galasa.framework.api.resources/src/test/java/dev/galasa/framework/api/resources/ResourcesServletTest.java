@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 
 import dev.galasa.framework.api.common.BaseServletTest;
-import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
