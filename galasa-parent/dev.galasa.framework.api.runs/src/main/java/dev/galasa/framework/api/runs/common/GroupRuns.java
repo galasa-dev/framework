@@ -91,11 +91,12 @@ public class GroupRuns extends BaseRoute {
             String[] classNameSplit = className.split("/");
 
             SharedEnvironmentPhase senvPhase = null;
-            if (request.getSharedEnvironmentPhase() != null) {
+            String sharedEnvironmentPhase = request.getSharedEnvironmentPhase();
+            if (sharedEnvironmentPhase != null) {
                 try {
                     senvPhase = SharedEnvironmentPhase.valueOf(request.getSharedEnvironmentPhase());
                 } catch (Throwable t) {
-                    ServletError error = new ServletError(GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE);
+                    ServletError error = new ServletError(GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE,sharedEnvironmentPhase);
                     throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             }

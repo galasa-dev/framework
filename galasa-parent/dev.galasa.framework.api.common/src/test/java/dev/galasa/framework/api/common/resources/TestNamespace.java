@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.cps.internal.common;
+package dev.galasa.framework.api.common.resources;
 
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class TestNamespace {
         //Given...
         String expectedName = "NameSpace1";
         //When...
-        Namespace namespace = new Namespace(expectedName, NamespaceType.NORMAL.toString());
+        GalasaNamespace namespace = new GalasaNamespace(expectedName, GalasaNamespaceType.NORMAL.toString());
         //Then...
         String name = namespace.getName();
         String typeValue = namespace.getNamespaceType();
@@ -32,7 +32,7 @@ public class TestNamespace {
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";
         //When...
-        Namespace namespace = new Namespace(expectedName, NamespaceType.NORMAL.toString(), "/");
+        GalasaNamespace namespace = new GalasaNamespace(expectedName, GalasaNamespaceType.NORMAL.toString(), "/");
         //Then...
         String name = namespace.getName();
         String typeValue = namespace.getNamespaceType();
@@ -47,7 +47,7 @@ public class TestNamespace {
         //Given...
         String expectedName = "secure";
         //When...
-        Namespace namespace = new Namespace(expectedName, NamespaceType.SECURE.toString());
+        GalasaNamespace namespace = new GalasaNamespace(expectedName, GalasaNamespaceType.SECURE.toString());
         //Then...
         String name = namespace.getName();
         String typeValue = namespace.getNamespaceType();
@@ -63,7 +63,7 @@ public class TestNamespace {
         String expectedName = "secure";
         String expectedUrl = "/secure/properties";
         //When...
-        Namespace namespace = new Namespace(expectedName, NamespaceType.SECURE.toString(), "/");
+        GalasaNamespace namespace = new GalasaNamespace(expectedName, GalasaNamespaceType.SECURE.toString(), "/");
         //Then...
         String name = namespace.getName();
         String typeValue = namespace.getNamespaceType();

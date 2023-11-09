@@ -7,7 +7,6 @@ package dev.galasa.framework.api.cps.internal;
 
 import com.google.gson.*;
 
-import dev.galasa.framework.api.cps.internal.common.GalasaProperty;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -15,6 +14,7 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
+import dev.galasa.framework.api.common.resources.GalasaProperty;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;

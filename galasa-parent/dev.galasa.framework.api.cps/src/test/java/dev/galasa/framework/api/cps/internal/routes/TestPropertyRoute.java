@@ -1161,7 +1161,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5028,
-			"GAL5028E: Error occured when comparing namespaces. The property namespace 'empty' does not match the request namespace 'framework'."
+			"GAL5028E: The GalasaProperty namespace 'empty' must match the url namespace 'framework'."
 		); 
     }
     

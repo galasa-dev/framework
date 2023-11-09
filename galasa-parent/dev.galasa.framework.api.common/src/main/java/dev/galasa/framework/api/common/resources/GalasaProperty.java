@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.cps.internal.common;
+package dev.galasa.framework.api.common.resources;
 
 import java.util.Map;
 

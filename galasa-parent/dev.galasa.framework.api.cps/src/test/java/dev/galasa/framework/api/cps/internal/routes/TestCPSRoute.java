@@ -9,7 +9,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.*;
-import dev.galasa.framework.api.cps.internal.common.GalasaProperty;
+import dev.galasa.framework.api.common.resources.GalasaProperty;
 
 import org.junit.Test;
 

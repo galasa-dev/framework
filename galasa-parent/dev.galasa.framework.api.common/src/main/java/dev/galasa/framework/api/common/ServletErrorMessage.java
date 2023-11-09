@@ -41,13 +41,13 @@ public enum ServletErrorMessage {
     GAL5016_INVALID_NAMESPACE_ERROR                 (5016,"E: Error occured when trying to access namespace ''{0}''. The namespace provided is invalid."),
     GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR           (5017,"E: Error occured when trying to access property ''{0}''. The property name provided is invalid."),
     GAL5018_PROPERTY_ALREADY_EXISTS_ERROR           (5018,"E: Error occured when trying to access property ''{0}''. The property name provided already exists in the ''{1}'' namespace."),
-    GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR (5028,"E: Error occured when comparing namespaces. The property namespace ''{0}'' does not match the request namespace ''{1}''."),
+    GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR (5028,"E: The GalasaProperty namespace ''{0}'' must match the url namespace ''{1}''."),
 
     //Schedule Runs...
     GAL5019_UNABLE_TO_RETRIEVE_RUNS                 (5019, "E: Unable to retrieve runs for Run Group: ''{0}''."),
     GAL5020_UNABLE_TO_CONVERT_TO_SCHEDULE_REQUEST   (5020, "E: Error occured when trying to translate the payload into a run."),
     GAL5021_UNABLE_TO_SUBMIT_RUNS                   (5021, "E: Error occured when trying to submit run ''{0}''."),
-    GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE(5022, "E: Error occured trying parse the shared environment phase."),
+    GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE(5022, "E: Error occured trying parse the sharedEnvironmentPhase ''{0}''. Valid options are 'BUILD', 'DISCARD'."),
 
     //Galasa Property...
     GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY        (5023, "E: Error occured trying to cast ''{0}'' to GalasaProperty."),

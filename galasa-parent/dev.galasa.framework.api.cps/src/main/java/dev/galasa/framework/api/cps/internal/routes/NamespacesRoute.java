@@ -21,7 +21,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.cps.internal.common.Namespace;
+import dev.galasa.framework.api.common.resources.GalasaNamespace;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -51,13 +51,13 @@ public class NamespacesRoute extends CPSRoute {
 
     private String getNamespaces(String url) throws InternalServletException {
         logger.debug("Getting the list of namespaces");
-        List<Namespace> namespaceArray = new ArrayList<Namespace>();
+        List<GalasaNamespace> namespaceArray = new ArrayList<GalasaNamespace>();
         try {
             List<String> namespaces;
             namespaces = getFramework().getConfigurationPropertyService("framework").getCPSNamespaces();
             Collections.sort(namespaces);
             for (String name : namespaces) {
-                Namespace namespace = new Namespace(name, propertyUtility.getNamespaceType(name), url);
+                GalasaNamespace namespace = new GalasaNamespace(name, propertyUtility.getNamespaceType(name), url);
                 if (!propertyUtility.isHiddenNamespace(name) ) {
                     namespaceArray.add(namespace);
                 }

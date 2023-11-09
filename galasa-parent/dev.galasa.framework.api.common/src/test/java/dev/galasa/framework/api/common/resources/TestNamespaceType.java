@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.cps.internal.common;
+package dev.galasa.framework.api.common.resources;
 
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ public class TestNamespaceType {
     @Test
     public void TestNamespaceTypeNormalReturnNormal(){
         //Given...
-        NamespaceType namespaceType = NamespaceType.NORMAL;
+        GalasaNamespaceType namespaceType = GalasaNamespaceType.NORMAL;
         //When...
         String typeValue = namespaceType.toString();
         //Then...
@@ -24,7 +24,7 @@ public class TestNamespaceType {
     @Test
     public void TestNamespaceTypeSecureReturnSecure(){
         //Given...
-        NamespaceType namespaceType = NamespaceType.SECURE;
+        GalasaNamespaceType namespaceType = GalasaNamespaceType.SECURE;
         //When...
         String typeValue = namespaceType.toString();
         //Then...
@@ -34,7 +34,7 @@ public class TestNamespaceType {
     @Test
     public void TestNamespaceTypeGetFromStringNormalReturnNormal(){
         //Given...
-        NamespaceType namespaceType = NamespaceType.getfromString("NoRmal");
+        GalasaNamespaceType namespaceType = GalasaNamespaceType.getfromString("NoRmal");
         //When...
         String typeValue = namespaceType.toString();
         //Then...
@@ -44,7 +44,7 @@ public class TestNamespaceType {
     @Test
     public void TestNamespaceTypeGetFromStringSecureReturnSecure(){
         //Given...
-        NamespaceType namespaceType = NamespaceType.getfromString("SecUre");
+        GalasaNamespaceType namespaceType = GalasaNamespaceType.getfromString("SecUre");
         //When...
         String typeValue = namespaceType.toString();
         //Then...

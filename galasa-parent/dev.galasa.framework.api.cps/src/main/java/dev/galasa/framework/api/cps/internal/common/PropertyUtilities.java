@@ -19,6 +19,8 @@ import com.google.gson.Gson;
 
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.GalasaNamespaceType;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -89,9 +91,9 @@ public class PropertyUtilities {
     }
 
     public String getNamespaceType(String namespace){
-        String type = NamespaceType.NORMAL.toString();
+        String type = GalasaNamespaceType.NORMAL.toString();
         if (PropertyUtilities.isSecureNamespace(namespace)){
-            type = NamespaceType.SECURE.toString();
+            type = GalasaNamespaceType.SECURE.toString();
         }
         return type;
     }

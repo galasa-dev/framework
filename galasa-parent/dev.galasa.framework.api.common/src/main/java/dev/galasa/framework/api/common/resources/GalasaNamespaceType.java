@@ -3,21 +3,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.cps.internal.common;
+package dev.galasa.framework.api.common.resources;
  
- public enum NamespaceType{
+ public enum GalasaNamespaceType{
         NORMAL("normal"),
         SECURE("secure")
         ;
         private String value;
 
-        private NamespaceType(String type){
+        private GalasaNamespaceType(String type){
             this.value = type;
         }
 
-        public static NamespaceType getfromString(String typeAsString){
-            NamespaceType match = null;
-            for (NamespaceType type : NamespaceType.values()){
+        public static GalasaNamespaceType getfromString(String typeAsString){
+            GalasaNamespaceType match = null;
+            for (GalasaNamespaceType type : GalasaNamespaceType.values()){
                 if (type.toString().equalsIgnoreCase(typeAsString)){
                     match = type;
                 }
