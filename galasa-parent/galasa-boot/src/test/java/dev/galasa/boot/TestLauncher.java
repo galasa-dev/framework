@@ -34,16 +34,16 @@ public class TestLauncher {
         Properties bootstrap = new Properties();
 
         bootstrap.setProperty("framework.config.store","/this/should/be/ignored.properties");
-        me.setProperty("GALASA_CONFIG_STORE","/Users/hobbit/galasa_home/cps.properties");
+        me.setenv("GALASA_CONFIG_STORE","/Users/hobbit/galasa_home/cps.properties");
 
         bootstrap.setProperty("framework.dynamicstatus.store","/this/should/be/ignored.properties");
-        me.setProperty("GALASA_DYNAMICSTATUS_STORE","/Users/hobbit/galasa_home/dss.properties");
+        me.setenv("GALASA_DYNAMICSTATUS_STORE","/Users/hobbit/galasa_home/dss.properties");
 
         bootstrap.setProperty("framework.resultarchive.store","/this/should/be/ignored/ras");
-        me.setProperty("GALASA_RESULTARCHIVE_STORE","/Users/hobbit/galasa_home/ras");
+        me.setenv("GALASA_RESULTARCHIVE_STORE","/Users/hobbit/galasa_home/ras");
 
         bootstrap.setProperty("framework.credentials.store","/this/should/be/ignored.properties");
-        me.setProperty("GALASA_CREDENTIALS_STORE","/Users/hobbit/galasa_home/creds.properties");
+        me.setenv("GALASA_CREDENTIALS_STORE","/Users/hobbit/galasa_home/creds.properties");
 
         l.setStoresFromEnvironmentVariables(me,bootstrap);
 
@@ -59,13 +59,13 @@ public class TestLauncher {
         MockEnvironment me = new MockEnvironment();
         Properties bootstrap = new Properties();
 
-        me.setProperty("GALASA_CONFIG_STORE","/Users/hobbit/galasa_home/cps.properties");
+        me.setenv("GALASA_CONFIG_STORE","/Users/hobbit/galasa_home/cps.properties");
 
-        me.setProperty("GALASA_DYNAMICSTATUS_STORE","/Users/hobbit/galasa_home/dss.properties");
+        me.setenv("GALASA_DYNAMICSTATUS_STORE","/Users/hobbit/galasa_home/dss.properties");
 
-        me.setProperty("GALASA_RESULTARCHIVE_STORE","/Users/hobbit/galasa_home/ras");
+        me.setenv("GALASA_RESULTARCHIVE_STORE","/Users/hobbit/galasa_home/ras");
 
-        me.setProperty("GALASA_CREDENTIALS_STORE","/Users/hobbit/galasa_home/creds.properties");
+        me.setenv("GALASA_CREDENTIALS_STORE","/Users/hobbit/galasa_home/creds.properties");
 
         l.setStoresFromEnvironmentVariables(me,bootstrap);
 
@@ -104,16 +104,16 @@ public class TestLauncher {
         Properties bootstrap = new Properties();
 
         bootstrap.setProperty("framework.config.store","/this/should/be/ignored.properties");
-        me.setProperty("GALASA_CONFIG_STORE","/Users/hobbit/galasa_home/cps.properties  ");
+        me.setenv("GALASA_CONFIG_STORE","/Users/hobbit/galasa_home/cps.properties  ");
 
         bootstrap.setProperty("framework.dynamicstatus.store","/this/should/be/ignored.properties");
-        me.setProperty("GALASA_DYNAMICSTATUS_STORE","  /Users/hobbit/galasa_home/dss.properties");
+        me.setenv("GALASA_DYNAMICSTATUS_STORE","  /Users/hobbit/galasa_home/dss.properties");
 
         bootstrap.setProperty("framework.resultarchive.store","/this/should/be/ignored/ras");
-        me.setProperty("GALASA_RESULTARCHIVE_STORE"," /Users/hobbit/galasa_home/ras  ");
+        me.setenv("GALASA_RESULTARCHIVE_STORE"," /Users/hobbit/galasa_home/ras  ");
 
         bootstrap.setProperty("framework.credentials.store","/this/should/be/ignored.properties");
-        me.setProperty("GALASA_CREDENTIALS_STORE","/Users/hobbit/galasa_home/creds.properties");
+        me.setenv("GALASA_CREDENTIALS_STORE","/Users/hobbit/galasa_home/creds.properties");
 
         l.setStoresFromEnvironmentVariables(me,bootstrap);
 
