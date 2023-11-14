@@ -9,12 +9,12 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class TestGalasaNamespaceType {
+public class TestVisibility {
 
     @Test
     public void TestNamespaceTypeNormalReturnNormal(){
         //Given...
-        GalasaNamespaceType namespaceType = GalasaNamespaceType.NORMAL;
+        Visibility namespaceType = Visibility.NORMAL;
         //When...
         String typeValue = namespaceType.toString();
         //Then...
@@ -24,7 +24,7 @@ public class TestGalasaNamespaceType {
     @Test
     public void TestNamespaceTypeSecureReturnSecure(){
         //Given...
-        GalasaNamespaceType namespaceType = GalasaNamespaceType.SECURE;
+        Visibility namespaceType = Visibility.SECURE;
         //When...
         String typeValue = namespaceType.toString();
         //Then...
@@ -34,7 +34,7 @@ public class TestGalasaNamespaceType {
     @Test
     public void TestNamespaceTypeGetFromStringNormalReturnNormal(){
         //Given...
-        GalasaNamespaceType namespaceType = GalasaNamespaceType.getfromString("NoRmal");
+        Visibility namespaceType = Visibility.getfromString("NoRmal");
         //When...
         String typeValue = namespaceType.toString();
         //Then...
@@ -44,7 +44,7 @@ public class TestGalasaNamespaceType {
     @Test
     public void TestNamespaceTypeGetFromStringSecureReturnSecure(){
         //Given...
-        GalasaNamespaceType namespaceType = GalasaNamespaceType.getfromString("SecUre");
+        Visibility namespaceType = Visibility.getfromString("SecUre");
         //When...
         String typeValue = namespaceType.toString();
         //Then...

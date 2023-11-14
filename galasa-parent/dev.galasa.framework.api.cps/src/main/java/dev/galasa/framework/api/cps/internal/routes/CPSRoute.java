@@ -20,7 +20,10 @@ import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.CPSFacade;
+import dev.galasa.framework.api.common.resources.GalasaNamespace;
 import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.api.cps.internal.common.PropertyUtilities;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IFramework;
@@ -45,10 +48,10 @@ public abstract class CPSRoute extends BaseRoute {
 
 
 
-    public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework ) {
-    super(responseBuilder, path);
-    this.framework = framework;
-    this.propertyUtility = new PropertyUtilities(framework);
+    public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework) {
+        super(responseBuilder, path);
+        this.framework = framework;
+        this.propertyUtility = new PropertyUtilities(framework);
     }
 
     protected IFramework getFramework() {
@@ -57,23 +60,25 @@ public abstract class CPSRoute extends BaseRoute {
 
     
 
-    protected  boolean checkNamespaceExists(String namespace) throws ConfigurationPropertyStoreException, InternalServletException {
+    protected  boolean checkNamespaceExists(String namespaceName) throws ConfigurationPropertyStoreException, InternalServletException {
         boolean valid = false;
-        try{
-            if (propertyUtility.getAllProperties(namespace).size() > 0){
+        CPSFacade cps = new CPSFacade(framework);
+        GalasaNamespace namespace = cps.getNamespace(namespaceName);
+        try {
+            if (namespace.getProperties().size() > 0) {
                 valid = true;
             }
-        }catch (Exception e ){
+        } catch (Exception e ) {
             //Catch the Exception (namespace is invalid) to throw error in if 
         }  
-        if (!valid){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
+        if (!valid) {
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
         return valid;
     }
 
-    protected String getPropertyNameFromURL(String pathInfo) throws InternalServletException{
+    protected String getPropertyNameFromURL(String pathInfo) throws InternalServletException {
         /*
          * This expects a pathInfo from the cps property endpoint, i.e
          * /cps/<namespace>/properties/<propertyName>
@@ -83,13 +88,13 @@ public abstract class CPSRoute extends BaseRoute {
         try {
             String[] namespace = pathInfo.split("/");
             return namespace[3];
-        } catch (Exception e){
+        } catch (Exception e) {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-    }
+        }
     }
 
-    protected String getNamespaceFromURL(String pathInfo) throws InternalServletException{
+    protected String getNamespaceFromURL(String pathInfo) throws InternalServletException {
         /*
          * This expects a pathInfo from the cps endpoints, i.e.
          * /cps/<namespace>
@@ -102,39 +107,51 @@ public abstract class CPSRoute extends BaseRoute {
         try {
             String[] namespace = pathInfo.split("/");
             return namespace[1];
-        } catch (Exception e){
+        } catch (Exception e) {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
-    protected String buildResponseBody(String namespace, Map<String, String> properties){
+    protected String buildResponseBody(String namespace, Map<String, String> properties) {
         /*
          * Builds a json array object from a Map of properties
          */
         JsonArray propertyArray = new JsonArray();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
-            GalasaProperty property = new GalasaProperty(entry.getKey(),propertyUtility.getProtectedValue(entry.getValue(),namespace));
+            GalasaProperty property = new GalasaProperty(entry.getKey(),entry.getValue());
             propertyArray.add(property.toJSON());
         }
         return gson.toJson(propertyArray);
     }
 
-    protected String buildResponseBody(String namespace, Map.Entry<String, String> entry){
+    protected String buildResponseBody(Map<GalasaPropertyName, GalasaProperty> properties) {
+        /*
+         * Builds a json array object from a Map of properties
+         */
+        JsonArray propertyArray = new JsonArray();
+        for (Map.Entry<GalasaPropertyName, GalasaProperty> entry : properties.entrySet()) {
+            GalasaProperty property = entry.getValue();
+            propertyArray.add(property.toJSON());
+        }
+        return gson.toJson(propertyArray);
+    }
+
+    protected String buildResponseBody(String namespace, Map.Entry<String, String> entry) {
         /*
          * Builds a json array object from a single Map.Entry containing a property
          */
         JsonArray propertyArray = new JsonArray();
-        if (entry != null){
+        if (entry != null) {
             JsonObject cpsProp = new JsonObject();
             cpsProp.addProperty("name", entry.getKey());
-            cpsProp.addProperty("value", propertyUtility.getProtectedValue(entry.getValue(),namespace));
+            cpsProp.addProperty("value", entry.getValue());
             propertyArray.add(cpsProp);
         }
         return gson.toJson(propertyArray);
     }
 
-    protected String buildResponseBody(GalasaProperty property){
+    protected String buildResponseBody(GalasaProperty property) {
         /*
          * Builds a json array object from a single GalasaProperty containing a property
          */

@@ -5,19 +5,20 @@
  */
 package dev.galasa.framework.api.common.resources;
  
- public enum GalasaNamespaceType{
+ public enum Visibility{
         NORMAL("normal"),
-        SECURE("secure")
+        SECURE("secure"),
+        HIDDEN("hidden")
         ;
         private String value;
 
-        private GalasaNamespaceType(String type){
+        private Visibility(String type){
             this.value = type;
         }
 
-        public static GalasaNamespaceType getfromString(String typeAsString){
-            GalasaNamespaceType match = null;
-            for (GalasaNamespaceType type : GalasaNamespaceType.values()){
+        public static Visibility getfromString(String typeAsString){
+            Visibility match = null;
+            for (Visibility type : Visibility.values()){
                 if (type.toString().equalsIgnoreCase(typeAsString)){
                     match = type;
                 }

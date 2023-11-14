@@ -8,7 +8,9 @@ package dev.galasa.framework.api.cps.internal.common;
 import java.io.Serializable;
 import java.util.*;
 
-public class PropertyComparator implements Comparator<String>, Serializable {
+import dev.galasa.framework.api.common.resources.GalasaPropertyName;
+
+public class PropertyComparator implements Comparator<GalasaPropertyName>, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -16,6 +18,10 @@ public class PropertyComparator implements Comparator<String>, Serializable {
     }
 
     @Override
+    public int compare(GalasaPropertyName propA, GalasaPropertyName propB) {
+        return compare(propA.getFullyQualifiedName(), propB.getFullyQualifiedName());
+    }
+
     public int compare(String a, String b) {
 
         int result ;
@@ -66,4 +72,6 @@ public class PropertyComparator implements Comparator<String>, Serializable {
         }
         return result ;
     }
+
+
 }

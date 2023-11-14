@@ -13,6 +13,13 @@ public class InternalServletException extends FrameworkException {
     int httpFailureCode;
 
     public InternalServletException(ServletError servletError, int httpFailureCode ){
+        super(servletError.getMessage());
+        this.servletError = servletError;
+        this.httpFailureCode = httpFailureCode;
+    }
+
+    public InternalServletException(ServletError servletError, int httpFailureCode , Throwable cause){
+        super(servletError.getMessage(),cause);
         this.servletError = servletError;
         this.httpFailureCode = httpFailureCode;
     }

@@ -312,7 +312,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestProcessRequestUpdateActionReturnsOK() throws Exception{
         //Given...
         String namespace = "framework";
-        String propertyname = "property1";
+        String propertyname = "property.1";
         String value = "value";
         String action = "apply";
         setServlet(namespace);
@@ -323,7 +323,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //When...
         resourcesRoute.processRequest(jsonString);
-        List<String> errors = resourcesRoute.errors;
+         List<String> errors = resourcesRoute.errors;
 
         //Then...
         assertThat(errors.size()).isEqualTo(0);
@@ -361,7 +361,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestHandlePOSTwithApplySingleNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyname = "propertyname";
+        String propertyname = "property.name";
         String value = "value";
         String action = "apply";
 		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
@@ -386,7 +386,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestHandlePOSTwithCreateSingleNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyname = "propertyname";
+        String propertyname = "property.name";
         String value = "value";
         String action = "create";
 		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
@@ -411,7 +411,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestHandlePOSTwithUpdateSingleNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyname = "propertyname";
+        String propertyname = "property.name";
         String value = "value";
         String action = "update";
 		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
@@ -439,9 +439,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestHandlePOSTwithApplyMultipleNewPropertiesReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyname = "property6";
+        String propertyname = "property.6";
         String value = "value6";
-        String propertynametwo = "propertyname";
+        String propertynametwo = "property.name";
         String valuetwo = "value";
         String apiVersion = "galasa-dev/v1alpha1";
         String action = "apply";
@@ -470,7 +470,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestHandlePOSTwithApplySingleExistingPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyname = "property1";
+        String propertyname = "property.1";
         String value = "newvalue";
         String action = "apply";
 		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
@@ -495,7 +495,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestHandlePOSTwithCreateSingleExistingPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyname = "property1";
+        String propertyname = "property.1";
         String value = "newvalue";
         String action = "create";
 		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
@@ -523,7 +523,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestHandlePOSTwithUpdateSingleExistingPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyname = "property1";
+        String propertyname = "property.1";
         String value = "newvalue";
         String action = "update";
 		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
@@ -548,9 +548,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestHandlePOSTwithApplyMultipleExistingPropertiesReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyname = "property5";
+        String propertyname = "property.5";
         String value = "value6";
-        String propertynametwo = "property1";
+        String propertynametwo = "property.1";
         String valuetwo = "newvalue";
         String apiVersion = "galasa-dev/v1alpha1";
         String action = "apply";
@@ -579,9 +579,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestHandlePOSTwithApplyMultipleExistingAndNewPropertiesReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyname = "newproperty";
+        String propertyname = "new.property";
         String value = "value6";
-        String propertynametwo = "property1";
+        String propertynametwo = "property.1";
         String valuetwo = "newvalue";
         String apiVersion = "galasa-dev/v1alpha1";
         String action = "apply";

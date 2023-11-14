@@ -100,10 +100,10 @@ public class ResourcesRoute  extends BaseRoute{
     
     public void processGalasaProperty (JsonObject resource, String action) throws InternalServletException{
         String apiversion = resource.get("apiVersion").getAsString();
-        if (apiversion.equals(new GalasaProperty(null,null, null).getApiVersion())){
+        if (apiversion.equals(new GalasaProperty("",null, null).getApiVersion())){
             try{
                 GalasaProperty property = gson.fromJson(resource, GalasaProperty.class);
-                if (propertyUtility.isPropertyValid(property)){
+                if (property.isPropertyValid()){
                     propertyUtility.setGalasaProperty(property, action);
                 }
             }catch (InternalServletException i){

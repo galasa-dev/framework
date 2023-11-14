@@ -7,8 +7,6 @@ package dev.galasa.framework.api.cps.internal.common;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,8 +17,9 @@ import com.google.gson.Gson;
 
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.CPSFacade;
+import dev.galasa.framework.api.common.resources.GalasaNamespace;
 import dev.galasa.framework.api.common.resources.GalasaProperty;
-import dev.galasa.framework.api.common.resources.GalasaNamespaceType;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -35,23 +34,7 @@ public class PropertyUtilities {
     static final Gson gson = GalasaGsonBuilder.build();
     
     IFramework framework;
-
-    private static final String REDACTED_PROPERTY_VALUE = "********";
-
-    private static final Set<String> hiddenNamespaces = new HashSet<>();
-    static {
-        hiddenNamespaces.add("dss");
-    }
-
-    /**
-     * Some namespaces are able to be set, but cannot be queried.
-     *
-     * When they are queried, the values are redacted
-     */
-    private static final Set<String> secureNamespaces = new HashSet<>();
-    static {
-        secureNamespaces.add("secure");
-    }
+    CPSFacade cps;
 
     public PropertyUtilities(IFramework framework){
         this.framework = framework;
@@ -61,57 +44,6 @@ public class PropertyUtilities {
         return this.framework;
     }
 
-
-    public boolean isPropertyValid(GalasaProperty property) throws InternalServletException {
-        ServletError error = null;
-        if (!property.isPropertyNameValid()){
-            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"name",property.metadata.name);
-        }
-        if (!property.isPropertyNameSpaceValid()){
-            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"namespace",property.metadata.namespace);
-        }
-        if (!property.isPropertyValueValid()){
-            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"value",property.data.value);
-        }
-        if (!property.isPropertyApiVersionValid()){
-            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"apiVersion",property.apiVersion);
-        }
-        if (error != null){
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-        return true;
-    }
-
-    public boolean isHiddenNamespace(String namespace){
-        return hiddenNamespaces.contains(namespace);
-    }
-
-    public static boolean isSecureNamespace(String namespace){
-        return secureNamespaces.contains(namespace);
-    }
-
-    public String getNamespaceType(String namespace){
-        String type = GalasaNamespaceType.NORMAL.toString();
-        if (PropertyUtilities.isSecureNamespace(namespace)){
-            type = GalasaNamespaceType.SECURE.toString();
-        }
-        return type;
-    }
-
-    public Map<String, String> getAllProperties(String namespace) throws ConfigurationPropertyStoreException {
-        return framework.getConfigurationPropertyService(namespace).getAllProperties();
-    }
-
-    public String getProtectedValue(String actualValue , String namespace) {
-        String protectedValue ;
-        if (secureNamespaces.contains(namespace)) {
-            // The namespace is protected, write-only, so should not be readable.
-            protectedValue = REDACTED_PROPERTY_VALUE;
-        } else {
-            protectedValue = actualValue ;
-        }
-        return protectedValue ;
-    }
 
     /**
      * Returns a boolean value of whether the property has been located in the given namespace.
@@ -146,25 +78,37 @@ public class PropertyUtilities {
      * @return Map.Entry of String, String
      * @throws InternalServletException
      */
-    public Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  InternalServletException {
-        if (isHiddenNamespace(namespace)){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+    public GalasaProperty retrieveSingleProperty(String namespaceName, String propertyName) throws  InternalServletException {
+        GalasaProperty property;
+        try {
+            cps = new CPSFacade(this.framework);
+        } catch( ConfigurationPropertyStoreException ex ) {
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,ex);
         }
-        try{
-            Map<String, String> properties = getAllProperties(namespace);
-            for (Map.Entry<String, String> entry : properties.entrySet()) {
-                String key = entry.getKey().toString();
-                if (key.equals(namespace+"."+propertyName)){
-                    // Return the key and the redacted value if the namespace is secure, otherwise return the key and value
-                    return Map.entry(entry.getKey(),getProtectedValue(entry.getValue(),namespace));
-                }
-            }
+
+        GalasaNamespace namespace ;
+        try {
+            namespace = cps.getNamespace(namespaceName);
         }catch (Exception e){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND,e);
         }
-        return null;
+        
+        if (namespace.isHidden()){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        } 
+
+        
+        try{
+            property = namespace.getProperty(propertyName);
+        }catch (Exception e){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND,e);
+        }
+        
+        return property;
     }
 
     /**
@@ -183,7 +127,7 @@ public class PropertyUtilities {
          * whilst setting updateProperty to true will force an update property path
          */
         if (propExists == updateProperty){
-            getFramework().getConfigurationPropertyService(property.metadata.namespace).setProperty(property.metadata.name, property.data.value);
+            getFramework().getConfigurationPropertyService(property.metadata.namespace).setProperty(property.metadata.namespace+"."+property.metadata.name, property.data.value);
         }else if (propExists){
             ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.metadata.name, property.metadata.namespace);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
@@ -195,7 +139,7 @@ public class PropertyUtilities {
 
     public void setGalasaProperty (GalasaProperty property, String action) throws FrameworkException{
         boolean updateProperty = false;
-        if (isPropertyValid(property) && updateActions.contains(action)){
+        if (property.isPropertyValid() && updateActions.contains(action)){
             if ((checkGalasaPropertyExists(property) || action.equals("update"))){
                 updateProperty = true;
             }

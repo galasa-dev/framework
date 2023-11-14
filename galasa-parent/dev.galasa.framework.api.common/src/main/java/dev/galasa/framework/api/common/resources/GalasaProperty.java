@@ -7,23 +7,38 @@ package dev.galasa.framework.api.common.resources;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class GalasaProperty {
     static final Gson gson = GalasaGsonBuilder.build();
-    
+
+
+    private static final String REDACTED_PROPERTY_VALUE = "********";
+
     public String apiVersion = "galasa-dev/v1alpha1";
-    public final String kind = "GalasaProperty"; 
+    public final String kind = "GalasaProperty";
     public GalasaPropertyMetadata metadata ;
     public GalasaPropertyData data;
-    
+
+    private GalasaNamespace namespace;
+    private GalasaPropertyName name;
+    private IConfigurationPropertyStoreService store;
+
     public class GalasaPropertyMetadata {
         public String namespace;
         public String name;
-        
+
         public GalasaPropertyMetadata (String namespace, String name){
             this.namespace = namespace;
             this.name = name;
@@ -32,28 +47,43 @@ public class GalasaProperty {
 
     public class GalasaPropertyData {
         public String value;
-        
+
         public GalasaPropertyData (String propertyValue){
             this.value = propertyValue;
         }
     }
 
-    public GalasaProperty (String completeCPSname, String propertyValue){
-        String[] name = completeCPSname.split("[.]", 2);
-        this.metadata = new GalasaPropertyMetadata(name[0],name[1]);
+    public GalasaProperty(IConfigurationPropertyStoreService store, GalasaNamespace namespace, GalasaPropertyName propertyName) {
+        this.namespace = namespace ;
+        this.store = store ;
+        this.name = propertyName;
+        this.metadata = new GalasaPropertyMetadata(namespace.getName(),propertyName.getSimpleName());
+        this.data = new GalasaPropertyData(null);
+    }
+
+    public GalasaProperty(IConfigurationPropertyStoreService store, GalasaNamespace namespace, GalasaPropertyName propertyName, String value) {
+        this(store, namespace,propertyName);
+        this.data = new GalasaPropertyData(value);
+    }
+
+    public GalasaProperty (String completeCPSname, String propertyValue) {
+        String[] nameParts = completeCPSname.split("[.]", 2);
+        String namespaceName = nameParts[0];
+        String propertyName = nameParts[1];
+        this.metadata = new GalasaPropertyMetadata(namespaceName,propertyName);
         this.data = new GalasaPropertyData(propertyValue);
     }
 
-    public GalasaProperty (Map.Entry<String, String> propertyEntry){
+    public GalasaProperty (Map.Entry<String, String> propertyEntry) {
         this(propertyEntry.getKey(),propertyEntry.getValue());
     }
 
-    public GalasaProperty (String namespace, String propertyName, String propertyValue){
+    public GalasaProperty (String namespace, String propertyName, String propertyValue) {
         this.metadata = new GalasaPropertyMetadata(namespace, propertyName);
         this.data = new GalasaPropertyData(propertyValue);
     }
 
-    public GalasaProperty (String namespace, String propertyName, String propertyValue, String apiVersion){
+    public GalasaProperty (String namespace, String propertyName, String propertyValue, String apiVersion) {
         this(namespace, propertyName, propertyValue);
         this.apiVersion = apiVersion;
     }
@@ -63,27 +93,67 @@ public class GalasaProperty {
         return gson.fromJson(jsonstring, JsonObject.class);
     }
 
-    public String getApiVersion(){
+    public String getApiVersion() {
         return this.apiVersion;
     }
 
-    public boolean isPropertyNameValid(){
+    public String getValue() {
+        return this.data.value;
+    }
+
+    public void LoadValueFromStore() throws ConfigurationPropertyStoreException {
+        // load the value from the property store into this property object.
+        // Will be null if the property isn't in the store yet.
+        this.data.value = store.getProperty(name.getLongestPrefix(), name.getShortestSuffix());
+
+        if ( this.data.value != null ) {
+            if ( isSecure() ){
+                this.data.value = REDACTED_PROPERTY_VALUE;
+            }
+        }
+    }
+
+    public boolean existsInStore() {
+        return this.data.value != null;
+    }
+
+    public boolean isSecure() {
+        return this.namespace.isSecure();
+    }
+
+    public boolean isPropertyNameValid() {
         return this.metadata.name != null && !this.metadata.name.isBlank();
     }
 
-    public boolean isPropertyNameSpaceValid(){
+    public boolean isPropertyNameSpaceValid() {
         return this.metadata.namespace != null && !this.metadata.namespace.isBlank();
     }
 
-    public boolean isPropertyValueValid(){
+    public boolean isPropertyValueValid() {
         return this.data.value != null && !this.data.value.isBlank();
     }
 
-    public boolean isPropertyApiVersionValid(){
+    public boolean isPropertyApiVersionValid() {
         return this.apiVersion != null && !this.apiVersion.isBlank();
     }
 
-    public boolean isPropertyValid() {
-        return isPropertyApiVersionValid() && isPropertyNameSpaceValid() && isPropertyNameValid() && isPropertyValueValid();
+    public boolean isPropertyValid() throws InternalServletException {
+        ServletError error = null;
+        if (!this.isPropertyNameValid()){
+            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"name",this.metadata.name);
+        }
+        if (!this.isPropertyNameSpaceValid()){
+            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"namespace",this.metadata.namespace);
+        }
+        if (!this.isPropertyValueValid()){
+            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"value",this.data.value);
+        }
+        if (!this.isPropertyApiVersionValid()){
+            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"apiVersion",this.apiVersion);
+        }
+        if (error != null){
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        return true;
     }
 }

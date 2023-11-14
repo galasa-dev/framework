@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static org.assertj.core.api.Assertions.*;
@@ -31,7 +32,7 @@ public class TestGalasaProperty {
     }
     
     @Test
-    public void TestGalasaPropertyDefaultApiVersion(){
+    public void TestGalasaPropertyDefaultApiVersion() throws InternalServletException{
         //Given...
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
@@ -50,7 +51,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void TestGalasaPropertyFromString(){
+    public void TestGalasaPropertyFromString() throws InternalServletException{
         //Given...
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
@@ -70,7 +71,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void TestGalasaPropertyFromMapEntry(){
+    public void TestGalasaPropertyFromMapEntry() throws InternalServletException{
         //Given...
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
@@ -91,7 +92,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void TestGalasaPropertyCustomApiVersion(){
+    public void TestGalasaPropertyCustomApiVersion() throws InternalServletException{
         //Given...
         String apiVersion = "randomApi";
         String namespace = "randomnamespace";
@@ -111,7 +112,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void TestGalasaPropertyInJSONFormat(){
+    public void TestGalasaPropertyInJSONFormat() throws InternalServletException{
         //Given...
         String namespace = "randomnamespace";
         String propertyName = "random.property.name";
@@ -128,7 +129,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void TestGalasaPropertyFromStringInJSONFormat(){
+    public void TestGalasaPropertyFromStringInJSONFormat() throws InternalServletException{
         //Given...
         String namespace = "randomnamespace";
         String propertyName = "random.property.name";
@@ -146,7 +147,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void TestGalasaPropertyFromMapEntryInJSONFormat(){
+    public void TestGalasaPropertyFromMapEntryInJSONFormat() throws InternalServletException{
         //Given...
         String namespace = "randomnamespace";
         String propertyName = "random.property.name";
@@ -165,7 +166,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void TestGalasaPropertyCustomApiVersionInJSONFormat(){
+    public void TestGalasaPropertyCustomApiVersionInJSONFormat() throws InternalServletException{
         //Given...
         String apiVersion = "randomApi";
         String namespace = "randomnamespace";
@@ -183,7 +184,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void TestGalasaPropertyNoDataIsInvalid(){
+    public void TestGalasaPropertyNoDataIsInvalid() throws InternalServletException{
         //Given...
         String apiVersion = null;
         String namespace = null;
@@ -200,11 +201,16 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isPropertyValid()).isFalse();
+        Throwable thrown = catchThrowable( () -> {
+            assertThat(property.isPropertyValid()).isFalse();
+        });
+
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5024","apiVersion");
     }
 
     @Test
-    public void TestGalasaPropertyNoDataDefaultApiVersionIsInvalid(){
+    public void TestGalasaPropertyNoDataDefaultApiVersionIsInvalid() throws InternalServletException{
         //Given...
         String namespace = null;
         String propertyName = null;
@@ -220,11 +226,16 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isPropertyValid()).isFalse();
+        Throwable thrown = catchThrowable( () -> {
+            assertThat(property.isPropertyValid()).isFalse();
+        });
+
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5024","value");
     }
 
     @Test
-    public void TestGalasaPropertyNamespaceOnlyIsInvalid(){
+    public void TestGalasaPropertyNamespaceOnlyIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = null;
@@ -240,11 +251,16 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isPropertyValid()).isFalse();
+        Throwable thrown = catchThrowable( () -> {
+            assertThat(property.isPropertyValid()).isFalse();
+        });
+
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5024","value");
     }
 
     @Test
-    public void TestGalasaPropertyPartialDataIsInvalid(){
+    public void TestGalasaPropertyPartialDataIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "property";
@@ -260,11 +276,16 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isPropertyValid()).isFalse();
+        Throwable thrown = catchThrowable( () -> {
+            assertThat(property.isPropertyValid()).isFalse();
+        });
+
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5024","value");
     }
 
     @Test
-    public void TestGalasaPropertyNoNamespaceIsInvalid(){
+    public void TestGalasaPropertyNoNamespaceIsInvalid() throws InternalServletException{
         //Given...
         String namespace = null;
         String propertyName = "property";
@@ -280,11 +301,16 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isPropertyValid()).isFalse();
+        Throwable thrown = catchThrowable( () -> {
+            assertThat(property.isPropertyValid()).isFalse();
+        });
+
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5024","namespace");
     }
 
     @Test
-    public void TestGalasaPropertyNoNameIsInvalid(){
+    public void TestGalasaPropertyNoNameIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "";
@@ -300,11 +326,16 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isPropertyValid()).isFalse();
+        Throwable thrown = catchThrowable( () -> {
+            assertThat(property.isPropertyValid()).isFalse();
+        });
+
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5024","name");
     }
 
     @Test
-    public void TestGalasaPropertyNoValueIsInvalid(){
+    public void TestGalasaPropertyNoValueIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "property";
@@ -320,6 +351,11 @@ public class TestGalasaProperty {
         assertThat(property.metadata.namespace).isEqualTo(namespace);
         assertThat(property.metadata.name).isEqualTo(propertyName);
         assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(property.isPropertyValid()).isFalse();
+        Throwable thrown = catchThrowable( () -> {
+            assertThat(property.isPropertyValid()).isFalse();
+        });
+
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5024","value");
     }
 }
