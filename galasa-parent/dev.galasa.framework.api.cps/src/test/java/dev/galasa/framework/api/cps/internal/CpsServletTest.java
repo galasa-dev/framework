@@ -104,7 +104,7 @@ public class CpsServletTest extends BaseServletTest {
             boolean fieldMatches = false;
 
             for (GalasaProperty returned : jsonProperties) {
-                if ((property.metadata.name.equals(returned.metadata.name))&&(property.data.value.equals(returned.data.value))) {
+                if ((property.getName().equals(returned.getName()))&&(property.getValue().equals(returned.getValue()))) {
                     fieldMatches = true;
                 }
             }

@@ -42,11 +42,11 @@ public class TestGalasaProperty {
         GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
         
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.apiVersion).isEqualTo("galasa-dev/v1alpha1");
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         assertThat(property.isPropertyValid()).isTrue();
     }
 
@@ -62,11 +62,11 @@ public class TestGalasaProperty {
         GalasaProperty property = new GalasaProperty(fullPropertyName, propertyValue);
         
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.apiVersion).isEqualTo("galasa-dev/v1alpha1");
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         assertThat(property.isPropertyValid()).isTrue();
     }
 
@@ -83,11 +83,11 @@ public class TestGalasaProperty {
         GalasaProperty property = new GalasaProperty(entry);
         
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.apiVersion).isEqualTo("galasa-dev/v1alpha1");
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         assertThat(property.isPropertyValid()).isTrue();
     }
 
@@ -103,11 +103,11 @@ public class TestGalasaProperty {
         GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue, apiVersion);
         
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.apiVersion).isEqualTo(apiVersion);
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo(apiVersion);
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         assertThat(property.isPropertyValid()).isTrue();
     }
 
@@ -196,11 +196,11 @@ public class TestGalasaProperty {
         
 
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.apiVersion).isEqualTo(null);
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
+        assertThat(property.getApiVersion()).isEqualTo(null);
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         Throwable thrown = catchThrowable( () -> {
             assertThat(property.isPropertyValid()).isFalse();
         });
@@ -221,11 +221,11 @@ public class TestGalasaProperty {
         
 
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
         assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         Throwable thrown = catchThrowable( () -> {
             assertThat(property.isPropertyValid()).isFalse();
         });
@@ -246,11 +246,11 @@ public class TestGalasaProperty {
         
 
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
         assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         Throwable thrown = catchThrowable( () -> {
             assertThat(property.isPropertyValid()).isFalse();
         });
@@ -271,11 +271,11 @@ public class TestGalasaProperty {
         
 
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
         assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         Throwable thrown = catchThrowable( () -> {
             assertThat(property.isPropertyValid()).isFalse();
         });
@@ -296,11 +296,11 @@ public class TestGalasaProperty {
         
 
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
         assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         Throwable thrown = catchThrowable( () -> {
             assertThat(property.isPropertyValid()).isFalse();
         });
@@ -321,11 +321,11 @@ public class TestGalasaProperty {
         
 
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
         assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         Throwable thrown = catchThrowable( () -> {
             assertThat(property.isPropertyValid()).isFalse();
         });
@@ -346,11 +346,11 @@ public class TestGalasaProperty {
         
 
         //Then...
-        assertThat(property.kind).isEqualTo("GalasaProperty");
+        assertThat(property.getKind()).isEqualTo("GalasaProperty");
         assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getName()).isEqualTo(propertyName);
+        assertThat(property.getValue()).isEqualTo(propertyValue);
         Throwable thrown = catchThrowable( () -> {
             assertThat(property.isPropertyValid()).isFalse();
         });

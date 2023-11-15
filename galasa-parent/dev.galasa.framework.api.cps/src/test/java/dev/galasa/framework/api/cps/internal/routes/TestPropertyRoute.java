@@ -98,11 +98,11 @@ public class TestPropertyRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
         Map<String, String> properties = new HashMap<String,String>();
-        properties.put(namespace+".property1", "********");
-        properties.put(namespace+".property2", "********");
-        properties.put(namespace+".property3", "********");
-        properties.put(namespace+".property4", "********");
-        properties.put(namespace+".property5", "********");
+        properties.put(namespace+".property.1", "********");
+        properties.put(namespace+".property.2", "********");
+        properties.put(namespace+".property.3", "********");
+        properties.put(namespace+".property.4", "********");
+        properties.put(namespace+".property.5", "********");
 
         // Then...
         // We expect data back
@@ -183,11 +183,11 @@ public class TestPropertyRoute extends CpsServletTest{
 		String suffix  = "rty1";
 		Map<GalasaPropertyName, CPSProperty> expectedProperties = new HashMap<GalasaPropertyName, CPSProperty>();
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("property2", "value2");
-		properties.put("property3", "value3");
-		properties.put("property4", "value4");
-		properties.put("property5", "value5");
-		properties.put("property6", "value6");
+		properties.put("property.2", "value2");
+		properties.put("property.3", "value3");
+		properties.put("property.4", "value4");
+		properties.put("property.5", "value5");
+		properties.put("property.6", "value6");
 		Map<GalasaPropertyName, CPSProperty> props = getPropertiesFromMap(properties);
 
 		//When...
@@ -202,14 +202,14 @@ public class TestPropertyRoute extends CpsServletTest{
 		//Given...
 		String suffix  = "1";
 		Map<String, String> expectedProperties = new HashMap<String,String>();
+		expectedProperties.put("property.1", "value1");
 		Map<GalasaPropertyName, CPSProperty> expectedProps = getPropertiesFromMap(expectedProperties);
-		expectedProperties.put("property1", "value1");
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("property2", "value2");
-		properties.put("property3", "value3");
-		properties.put("property4", "value4");
-		properties.put("property5", "value5");
-		properties.put("property6", "value6");
+		properties.put("property.2", "value2");
+		properties.put("property.3", "value3");
+		properties.put("property.4", "value4");
+		properties.put("property.5", "value5");
+		properties.put("property.6", "value6");
 		properties.putAll(expectedProperties);
 		Map<GalasaPropertyName, CPSProperty> props = getPropertiesFromMap(properties);
 
@@ -225,17 +225,17 @@ public class TestPropertyRoute extends CpsServletTest{
 		//Given...
 		String suffix  = "ty";
 		Map<String, String> expectedProperties = new HashMap<String,String>();
-		expectedProperties.put("property", "value1");
-		expectedProperties.put("charity", "value2");
-		expectedProperties.put("hospitality", "value3");
-		expectedProperties.put("aunty", "value4");
-		expectedProperties.put("empty", "value5");
+		expectedProperties.put("proper.ty", "value1");
+		expectedProperties.put("chari.ty", "value2");
+		expectedProperties.put("hospitali.ty", "value3");
+		expectedProperties.put("aun.ty", "value4");
+		expectedProperties.put("emp.ty", "value5");
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("property2", "value6");
-		properties.put("property3", "value7");
-		properties.put("property4", "value8");
-		properties.put("property5", "value9");
-		properties.put("property6", "value10");
+		properties.put("property.2", "value6");
+		properties.put("property.3", "value7");
+		properties.put("property.4", "value8");
+		properties.put("property.5", "value9");
+		properties.put("property.6", "value10");
 		properties.putAll(expectedProperties);
 		Map<GalasaPropertyName, CPSProperty> expectedProps = getPropertiesFromMap(expectedProperties);
 		Map<GalasaPropertyName, CPSProperty> props = getPropertiesFromMap(properties);
@@ -632,7 +632,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("prefix", new String[] {"test"});
 		params.put("suffix", new String[] {"stream"});
-		params.put("infix", new String[] {"property,testing,local"});
+		params.put("infix", new String[] {"property.,testing,local"});
 
         setServlet("/infixes/properties?prefix=test&suffix=stream&infix=property,testing,local", "infixes", params);
 		MockCpsServlet servlet = getServlet();
@@ -664,7 +664,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("prefix", new String[] {"test"});
 		params.put("suffix", new String[] {"stream"});
-		params.put("infix", new String[] {"property.testing,local"});
+		params.put("infix", new String[] {"property..testing,local"});
 
         setServlet("/infixes/properties?prefix=test&suffix=stream&infix=property,testing,local", "infixes", params);
 		MockCpsServlet servlet = getServlet();
@@ -780,7 +780,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRoutePOSTNoFrameworkReturnsError() throws Exception{
 		// Given...
 		String namespace = "framework";
-        String propertyName = "property6";
+        String propertyName = "property.6";
         String value = "value6";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/namespace1/properties",null ,propertyJSON, "POST");
@@ -810,7 +810,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRoutePOSTBadNamespaceReturnsError() throws Exception{
 		// Given...
 		String namespace = "framework";
-        String propertyName = "property6";
+        String propertyName = "property.6";
         String value = "value6";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/error/properties",null ,propertyJSON, "POST");
@@ -840,7 +840,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteWithExistingNamespacePOSTNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyName = "property6";
+        String propertyName = "property.6";
         String value = "value6";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/framework/properties", namespace, propertyJSON , "POST");
@@ -867,7 +867,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteNamespaceWithMiddleCapitalLetterPOSTNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "camelCase";
-        String propertyName = "property";
+        String propertyName = "property.";
         String value = "value";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/camelCase/properties", namespace, propertyJSON , "POST");
@@ -897,7 +897,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteNamespaceBeginningWithCapitalLetterPOSTNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "NotCamelcase";
-        String propertyName = "property";
+        String propertyName = "property.";
         String value = "value";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/NotCamelcase/properties", namespace, propertyJSON , "POST");
@@ -927,7 +927,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteNamespaceEndingWithCapitalLetterPOSTNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "notcamelcasE";
-        String propertyName = "property";
+        String propertyName = "property.";
         String value = "value";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/notcamelcasE/properties", namespace, propertyJSON , "POST");
@@ -957,7 +957,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteNamespaceWithNumberAtMiddlePOSTNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "camel3Case";
-        String propertyName = "property";
+        String propertyName = "property.";
         String value = "value";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/camel3Case/properties", namespace, propertyJSON , "POST");
@@ -987,7 +987,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteNamespaceEndingWithNumberAtStartPOSTNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "camelCase3";
-        String propertyName = "property";
+        String propertyName = "property.";
         String value = "value";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/camelCase3/properties", namespace, propertyJSON , "POST");
@@ -1017,7 +1017,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteNamespaceWithMultipleNumbersPOSTNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "c4ame6lcas5e8";
-        String propertyName = "property";
+        String propertyName = "property.";
         String value = "value";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		JsonElement requestJson = JsonParser.parseString(propertyJSON);
@@ -1046,7 +1046,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteWithProtectedNamespacePOSTNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "secure";
-        String propertyName = "property6";
+        String propertyName = "property.6";
         String value = "value6";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		JsonElement requestJson = JsonParser.parseString(propertyJSON);
@@ -1074,7 +1074,7 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
     public void TestPropertyRouteWithHiddenNamespacePOSTNewPropertyReturnsError() throws Exception {
         // Given...
-        String propertyName = "property6";
+        String propertyName = "property.6";
         String value = "value6";
 		String propertyJSON = generatePropertyJSON("dss", propertyName, value, "galasa-dev/v1alpha1");
 		setServlet("/dss/properties", "framework", propertyJSON , "POST");
@@ -1102,7 +1102,7 @@ public class TestPropertyRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteWithExistingNamespacePOSTExistingPropertyReturnsError() throws Exception {
         // Given...
-        String propertyName = "property5";
+        String propertyName = "property.5";
         String value = "value6";
 		String propertyJSON = generatePropertyJSON("framework", propertyName, value, "galasa-dev/v1alpha1");
         setServlet("/framework/properties", "framework", propertyJSON, "POST");
@@ -1123,7 +1123,7 @@ public class TestPropertyRoute extends CpsServletTest{
        checkErrorStructure(
 			outStream.toString(),
 			5018,
-			"E: Error occured when trying to access property 'property5'.",
+			"E: Error occured when trying to access property 'property.5'.",
             " The property name provided already exists in the 'framework' namespace."
 		);        
     }
@@ -1131,7 +1131,7 @@ public class TestPropertyRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteWithErroneousNamespacePOSTNewPropertyReturnsError() throws Exception {
         // Given...
-        String propertyName = "property6";
+        String propertyName = "property.6";
         String value = "value6";
 		String propertyJSON = generatePropertyJSON("notframew0rk", propertyName, value, "galasa-dev/v1alpha1");
         setServlet("/framew0rk/properties", "framework", propertyJSON, "POST");
@@ -1159,7 +1159,7 @@ public class TestPropertyRoute extends CpsServletTest{
 	@Test
     public void TestPropertyRouteWithDifferentNamespacePOSTNewPropertyReturnsError() throws Exception {
         // Given...
-        String propertyName = "property6";
+        String propertyName = "property.6";
         String value = "value6";
 		String propertyJSON = generatePropertyJSON("empty", propertyName, value, "galasa-dev/v1alpha1");
         setServlet("/framework/properties", "framework", propertyJSON, "POST");

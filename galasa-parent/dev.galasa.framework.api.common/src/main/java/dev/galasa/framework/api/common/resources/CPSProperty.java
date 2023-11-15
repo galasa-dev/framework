@@ -75,6 +75,14 @@ public class CPSProperty {
         return this.value;
     }
 
+    public String getOutputValue() {
+        String outputValue  = this.value;
+        if(namespace.getVisibility() == Visibility.SECURE){
+            outputValue = REDACTED_PROPERTY_VALUE;
+        }
+        return outputValue;
+    }
+
     public void LoadValueFromStore() throws ConfigurationPropertyStoreException {
         // load the value from the property store into this property object.
         // Will be null if the property isn't in the store yet.

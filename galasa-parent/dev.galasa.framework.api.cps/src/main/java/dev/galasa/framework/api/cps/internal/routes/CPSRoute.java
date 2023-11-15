@@ -23,6 +23,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
+import dev.galasa.framework.api.common.resources.GalasaProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.api.cps.internal.common.PropertyUtilities;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -132,7 +133,7 @@ public abstract class CPSRoute extends BaseRoute {
         JsonArray propertyArray = new JsonArray();
         for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
             CPSProperty property = entry.getValue();
-            propertyArray.add(property.toJSON());
+            propertyArray.add(new GalasaProperty(property).toJSON());
         }
         return gson.toJson(propertyArray);
     }

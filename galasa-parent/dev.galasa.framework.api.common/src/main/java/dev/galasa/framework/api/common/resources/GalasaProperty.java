@@ -20,10 +20,10 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class GalasaProperty {
     static final Gson gson = GalasaGsonBuilder.build();
 
-    public String apiVersion = "galasa-dev/v1alpha1";
-    public final String kind = "GalasaProperty";
-    public GalasaPropertyMetadata metadata ;
-    public GalasaPropertyData data;
+    private String apiVersion = "galasa-dev/v1alpha1";
+    private final String kind = "GalasaProperty";
+    private GalasaPropertyMetadata metadata ;
+    private GalasaPropertyData data;
 
     public class GalasaPropertyMetadata {
         public String namespace;
@@ -65,10 +65,17 @@ public class GalasaProperty {
         this(namespace, propertyName, propertyValue);
         this.apiVersion = apiVersion;
     }
+    public GalasaProperty (CPSProperty property) {
+        this(property.getNamespace(), property.getName(), property.getOutputValue());
+    }
 
     public JsonObject toJSON() {
         String jsonstring = gson.toJson(this);
         return gson.fromJson(jsonstring, JsonObject.class);
+    }
+
+    public String getKind() {
+        return this.kind;
     }
 
     public String getApiVersion() {
