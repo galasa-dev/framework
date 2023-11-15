@@ -48,7 +48,56 @@ public class TestFrameworkInitialisation {
         return createFrameworkInit(bootstrapProperties);
     }
 
+
+
     public FrameworkInitialisation createFrameworkInit(Properties bootstrapProps) throws Exception {
+        MockEnvironment env = new MockEnvironment();
+        return createFrameworkInit(bootstrapProps,env);
+    }
+
+    @Test
+    public void TestBootstrapConfigPropStorePathIsBasedOffUserHome() throws Exception {
+        Properties bootstrapProperties = new Properties();
+        bootstrapProperties.setProperty("framework.galasa.home","/myuser/home");
+        MockEnvironment env = new MockEnvironment();
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrapProperties, env);
+        assertThat(frameworkInit.getBootstrapConfigurationPropertyStore().getPath()).isEqualTo("/myuser/home/cps.properties");
+    }
+
+    @Test
+    public void TestDSSUriIsBasedOffUserHome() throws Exception {
+        Properties bootstrapProperties = new Properties();
+        bootstrapProperties.setProperty("framework.galasa.home","/myuser/home");
+        MockEnvironment env = new MockEnvironment();
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrapProperties, env);
+        assertThat(frameworkInit.getDynamicStatusStoreUri().getPath()).isEqualTo("/myuser/home/dss.properties");
+    }
+
+    @Test
+    public void TestRasUriIsBasedOffUserHome() throws Exception {
+        Properties bootstrapProperties = new Properties();
+        bootstrapProperties.setProperty("framework.galasa.home","/myuser/home");
+        MockEnvironment env = new MockEnvironment();
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrapProperties, env);
+        
+
+        List<URI> rasUriList = frameworkInit.getResultArchiveStoreUris();
+        
+        assertThat(rasUriList).hasSize(1);
+        assertThat(rasUriList.get(0).getPath()).isEqualTo("/myuser/home/ras");
+    }
+
+    @Test
+    public void TestCredsUriIsBasedOffUserHome() throws Exception {
+        Properties bootstrapProperties = new Properties();
+        bootstrapProperties.setProperty("framework.galasa.home","/myuser/home");
+        MockEnvironment env = new MockEnvironment();
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrapProperties, env);
+        assertThat(frameworkInit.getCredentialsStoreUri().getPath()).isEqualTo("/myuser/home/credentials.properties");
+    }
+
+
+    public FrameworkInitialisation createFrameworkInit(Properties bootstrapProps, MockEnvironment mockEnv ) throws Exception {
         // Given...
         Properties bootstrapProperties = bootstrapProps;
         Properties overrideProperties = new Properties();
@@ -81,8 +130,6 @@ public class TestFrameworkInitialisation {
         MockRASStoreService mockRASStoreService = addMockRASToMockServiceRegistry(services, bundle);
         MockCredentialsStore mockCredentialsStore = addMockCredentialsStoreToMockServiceRegistry(services, bundle);
         MockConfidentialTextStore mockConfidentialTextStore = addMockConfidentialTextServiceToMockServiceRegistry(services, bundle);
-        MockEnvironment mockEnv = new MockEnvironment();
-
 
         // When...
         FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation( 
@@ -101,15 +148,6 @@ public class TestFrameworkInitialisation {
         assertThat(mockFramework.getDynamicStatusStore()).isEqualTo(mockDSSStore);
         assertThat(mockFramework.getCredentialsStore()).isEqualTo(mockCredentialsStore);
         assertThat(mockFramework.getResultArchiveStore()).isEqualTo(mockRASStoreService);
-
-        assertThat(frameworkInitUnderTest.getBootstrapConfigurationPropertyStore().getPath()).isEqualTo("/myuser/home/cps.properties");
-        assertThat(frameworkInitUnderTest.getDynamicStatusStoreUri().getPath()).isEqualTo("/myuser/home/dss.properties");
-
-        List<URI> rasUriList = frameworkInitUnderTest.getResultArchiveStoreUris();
-        
-        assertThat(rasUriList).hasSize(1);
-        assertThat(rasUriList.get(0).getPath()).isEqualTo("/myuser/home/ras");
-        assertThat(frameworkInitUnderTest.getCredentialsStoreUri().getPath()).isEqualTo("/myuser/home/credentials.properties");
 
         //assertThat(bootstrapProperties).isEmpty();
         //assertThat(overrideProperties).isEmpty();
@@ -451,6 +489,25 @@ public class TestFrameworkInitialisation {
         // When...
         List<URI> uriList = frameworkInit.createUriResultArchiveStores(new Properties(),mockCPS);
         assertThat(uriList).contains(URI.create("file:///myuser/home/ras"));
+    }
+
+    @Test
+    public void TestGetGalasaHomePicksUpUserProfileOnWindows() throws Exception {
+        Properties bootstrapProperties = new Properties();
+        MockEnvironment env = new MockEnvironment();
+        env.setenv("USERPROFILE", "myhomevalue");
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrapProperties, env);
+        String home = frameworkInit.getGalasaHome(env);
+        assertThat(home).isEqualTo("myhomevalue/.galasa");
+    }
+
+    @Test
+    public void TestGetGalasaHomeDeaultsToTildaGalasaJustInCase() throws Exception {
+        Properties bootstrapProperties = new Properties();
+        MockEnvironment env = new MockEnvironment();
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrapProperties, env);
+        String home = frameworkInit.getGalasaHome(env);
+        assertThat(home).isEqualTo("~/.galasa");
     }
 
 }
