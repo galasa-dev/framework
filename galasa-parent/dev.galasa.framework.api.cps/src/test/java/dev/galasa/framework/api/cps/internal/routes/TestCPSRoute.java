@@ -172,7 +172,7 @@ public class TestCPSRoute extends CpsServletTest {
         //Given
         CPSRouteTest cpsRoute = new CPSRouteTest();
         String namespace = "namethisspace";
-        String name = "house";
+        String name = "house.structure";
         String value = "building";
         String jsonString = generatePropertyJSON(namespace, name, value, "galasa-dev/v1alpha1");
 
@@ -180,11 +180,9 @@ public class TestCPSRoute extends CpsServletTest {
         CPSProperty property = cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
 
         //Then...
-        assertThat(property.metadata.name).isEqualTo(name);
-        assertThat(property.metadata.namespace).isEqualTo(namespace);
-        assertThat(property.data.value).isEqualTo(value);
-        assertThat(property.kind).isEqualTo("GalasaProperty");
-        assertThat(property.apiVersion).isEqualTo("galasa-dev/v1alpha1");
+        assertThat(property.getName()).isEqualTo(name);
+        assertThat(property.getNamespace()).isEqualTo(namespace);
+        assertThat(property.getValue()).isEqualTo(value);
     }
 
     @Test 

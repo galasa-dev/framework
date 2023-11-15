@@ -75,6 +75,14 @@ public class GalasaProperty {
         return this.apiVersion;
     }
 
+    public String getNamespace() {
+        return this.metadata.namespace;
+    }
+
+    public String getName() {
+        return this.metadata.name;
+    }
+
     public String getValue() {
         return this.data.value;
     }

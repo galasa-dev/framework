@@ -20,6 +20,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
+import dev.galasa.framework.api.common.resources.GalasaProperty;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -66,7 +67,7 @@ public class PropertyUtilities {
      * @throws FrameworkException
      */
     protected boolean checkGalasaPropertyExists (CPSProperty property) throws InternalServletException{
-        return checkPropertyExists(property.metadata.namespace, property.metadata.name);
+        return checkPropertyExists(property.getNamespace(), property.getName());
     }
 
     /**
@@ -127,12 +128,12 @@ public class PropertyUtilities {
          * whilst setting updateProperty to true will force an update property path
          */
         if (propExists == updateProperty){
-            getFramework().getConfigurationPropertyService(property.metadata.namespace).setProperty(property.metadata.namespace+"."+property.metadata.name, property.data.value);
+            getFramework().getConfigurationPropertyService(property.getNamespace()).setProperty(property.getNamespace()+"."+property.getName(), property.getValue());
         }else if (propExists){
-            ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.metadata.name, property.metadata.namespace);  
+            ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.getName(), property.getNamespace());  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }else{
-            ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR, property.metadata.name);  
+            ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR, property.getName());  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
@@ -148,7 +149,7 @@ public class PropertyUtilities {
     }
 
     public boolean checkPropertyNamespaceMatchesURLNamespace(@NotNull CPSProperty property , @NotNull String namespace){
-        return namespace.toLowerCase().trim().equals(property.metadata.namespace.toLowerCase().trim());
+        return namespace.toLowerCase().trim().equals(property.getNamespace().toLowerCase().trim());
 
     }
      /**
@@ -175,8 +176,9 @@ public class PropertyUtilities {
         CPSProperty property = null;
         boolean valid = false;
         try {
-            property = gson.fromJson(jsonString, CPSProperty.class);
-            valid = property.isPropertyValid();
+            GalasaProperty jsonproperty = gson.fromJson(jsonString, GalasaProperty.class);
+            valid = jsonproperty.isPropertyValid();
+            property = new CPSProperty(jsonproperty.getNamespace()+"."+jsonproperty.getName(),jsonproperty.getValue());
         }catch (Exception e){}
         
         if(!valid){
