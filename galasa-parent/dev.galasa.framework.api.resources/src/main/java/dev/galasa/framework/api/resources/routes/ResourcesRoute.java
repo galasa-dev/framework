@@ -27,7 +27,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.cps.internal.common.PropertyUtilities;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -100,9 +100,9 @@ public class ResourcesRoute  extends BaseRoute{
     
     public void processGalasaProperty (JsonObject resource, String action) throws InternalServletException{
         String apiversion = resource.get("apiVersion").getAsString();
-        if (apiversion.equals(new GalasaProperty("",null, null).getApiVersion())){
+        if (apiversion.equals(new CPSProperty("",null, null).getApiVersion())){
             try{
-                GalasaProperty property = gson.fromJson(resource, GalasaProperty.class);
+                CPSProperty property = gson.fromJson(resource, CPSProperty.class);
                 if (property.isPropertyValid()){
                     propertyUtility.setGalasaProperty(property, action);
                 }

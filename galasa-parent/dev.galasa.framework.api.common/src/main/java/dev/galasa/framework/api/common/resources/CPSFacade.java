@@ -16,7 +16,7 @@ import dev.galasa.framework.spi.IFramework;
 
 public class CPSFacade {
 
-    private Map<String,GalasaNamespace> bakedInNamespaceMap = new HashMap<String,GalasaNamespace>();
+    private Map<String,CPSNamespace> bakedInNamespaceMap = new HashMap<String,CPSNamespace>();
     private IFramework framework;
 
     public CPSFacade(IFramework framework) throws ConfigurationPropertyStoreException  {
@@ -31,10 +31,10 @@ public class CPSFacade {
     }
 
     private void addNamespace(String name, Visibility visibility , @NotNull IFramework framework ) throws ConfigurationPropertyStoreException  {
-        bakedInNamespaceMap.put(name, new GalasaNamespace(name,visibility,framework));
+        bakedInNamespaceMap.put(name, new CPSNamespace(name,visibility,framework));
     }
 
-    public Map<String,GalasaNamespace> getNamespaces() throws ConfigurationPropertyStoreException  {
+    public Map<String,CPSNamespace> getNamespaces() throws ConfigurationPropertyStoreException  {
 
         List<String> namespaceNames = framework.getConfigurationPropertyService("framework").getCPSNamespaces();
         for( String name : namespaceNames ) {
@@ -46,10 +46,10 @@ public class CPSFacade {
         return Collections.unmodifiableMap(bakedInNamespaceMap);
     }
 
-    public GalasaNamespace getNamespace(String name) throws ConfigurationPropertyStoreException  {
-        GalasaNamespace namespace = bakedInNamespaceMap.get(name);
+    public CPSNamespace getNamespace(String name) throws ConfigurationPropertyStoreException  {
+        CPSNamespace namespace = bakedInNamespaceMap.get(name);
         if (namespace == null) {
-            new GalasaNamespace(name, Visibility.NORMAL ,this.framework);       
+            new CPSNamespace(name, Visibility.NORMAL ,this.framework);       
         }
         return namespace;
     }

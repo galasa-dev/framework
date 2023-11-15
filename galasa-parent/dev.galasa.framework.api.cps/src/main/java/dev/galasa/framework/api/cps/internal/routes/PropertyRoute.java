@@ -7,7 +7,6 @@ package dev.galasa.framework.api.cps.internal.routes;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +21,8 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
-import dev.galasa.framework.api.common.resources.GalasaNamespace;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.CPSNamespace;
+import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.api.cps.internal.common.PropertyComparator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -56,7 +55,7 @@ public class PropertyRoute extends CPSRoute{
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
             CPSFacade cps = new CPSFacade(framework);
-            GalasaNamespace namespace = cps.getNamespace(namespaceName);
+            CPSNamespace namespace = cps.getNamespace(namespaceName);
             if (namespace.isHidden()) {
                 ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespaceName);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
@@ -73,8 +72,8 @@ public class PropertyRoute extends CPSRoute{
     }
     
     
-    private String getProperties(GalasaNamespace namespace, String prefix, String suffix, List<String> infixes) throws ConfigurationPropertyStoreException {
-        Map<GalasaPropertyName, GalasaProperty> properties = namespace.getProperties();
+    private String getProperties(CPSNamespace namespace, String prefix, String suffix, List<String> infixes) throws ConfigurationPropertyStoreException {
+        Map<GalasaPropertyName, CPSProperty> properties = namespace.getProperties();
         
         if (prefix != null){
             properties = filterPropertiesByPrefix(namespace.getName(), properties,prefix);
@@ -85,7 +84,7 @@ public class PropertyRoute extends CPSRoute{
         if (infixes != null){
             properties = filterPropertiesByInfix(properties, infixes);
         }
-        Map<GalasaPropertyName, GalasaProperty> sortedProperties = sortResults(properties);
+        Map<GalasaPropertyName, CPSProperty> sortedProperties = sortResults(properties);
         return buildResponseBody(sortedProperties);
     }
     
@@ -94,10 +93,10 @@ public class PropertyRoute extends CPSRoute{
      * @param properties
      * @return Sorted Map of properties
      */
-    protected Map<GalasaPropertyName, GalasaProperty> sortResults(Map<GalasaPropertyName, GalasaProperty> properties){
+    protected Map<GalasaPropertyName, CPSProperty> sortResults(Map<GalasaPropertyName, CPSProperty> properties){
         Collection<GalasaPropertyName> unsortedKeys = properties.keySet();
         PropertyComparator comparator = new PropertyComparator();
-        Map<GalasaPropertyName, GalasaProperty> sorted = new TreeMap<GalasaPropertyName, GalasaProperty>(comparator);
+        Map<GalasaPropertyName, CPSProperty> sorted = new TreeMap<GalasaPropertyName, CPSProperty>(comparator);
 
         for( GalasaPropertyName key : unsortedKeys ) {
             sorted.put(key, properties.get(key));
@@ -114,9 +113,9 @@ public class PropertyRoute extends CPSRoute{
      * @param prefix
      * @return Map of Properties starting with the provided prefix
      */
-    protected  Map<GalasaPropertyName, GalasaProperty> filterPropertiesByPrefix(String namespace, Map<GalasaPropertyName, GalasaProperty> properties , String prefix){
-        Map<GalasaPropertyName, GalasaProperty> filteredProperties = new HashMap<GalasaPropertyName, GalasaProperty>();
-        for (Map.Entry<GalasaPropertyName, GalasaProperty> entry : properties.entrySet()) {
+    protected  Map<GalasaPropertyName, CPSProperty> filterPropertiesByPrefix(String namespace, Map<GalasaPropertyName, CPSProperty> properties , String prefix){
+        Map<GalasaPropertyName, CPSProperty> filteredProperties = new HashMap<GalasaPropertyName, CPSProperty>();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
             if (entry.getKey().getFullyQualifiedName().startsWith(namespace + "."+prefix)){
                 filteredProperties.put(entry.getKey(), entry.getValue());
             }
@@ -130,9 +129,9 @@ public class PropertyRoute extends CPSRoute{
      * @param suffix
      * @return Map of Properties ending with the provided suffix
      */
-    protected  Map<GalasaPropertyName, GalasaProperty> filterPropertiesBySuffix( Map<GalasaPropertyName, GalasaProperty> properties , String suffix){
-       Map<GalasaPropertyName, GalasaProperty> filteredProperties = new HashMap<GalasaPropertyName, GalasaProperty>();
-        for (Map.Entry<GalasaPropertyName, GalasaProperty> entry : properties.entrySet()) {
+    protected  Map<GalasaPropertyName, CPSProperty> filterPropertiesBySuffix( Map<GalasaPropertyName, CPSProperty> properties , String suffix){
+       Map<GalasaPropertyName, CPSProperty> filteredProperties = new HashMap<GalasaPropertyName, CPSProperty>();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
             if (entry.getKey().getFullyQualifiedName().endsWith(suffix)){
                 filteredProperties.put(entry.getKey(), entry.getValue());
             }
@@ -147,12 +146,12 @@ public class PropertyRoute extends CPSRoute{
      * @param infixes
      * @return Map of Properties containing the at least one of the infixes
      */
-    protected  Map<GalasaPropertyName, GalasaProperty> filterPropertiesByInfix(Map<GalasaPropertyName, GalasaProperty>properties, List<String> infixes){
-        Map<GalasaPropertyName, GalasaProperty> filteredProperties = new HashMap<GalasaPropertyName, GalasaProperty>();
-        for (Map.Entry<GalasaPropertyName, GalasaProperty> entry : properties.entrySet()) {
-            String key = entry.getKey().getFullyQualifiedName();
+    protected  Map<GalasaPropertyName, CPSProperty> filterPropertiesByInfix(Map<GalasaPropertyName, CPSProperty>properties, List<String> infixes){
+        Map<GalasaPropertyName, CPSProperty> filteredProperties = new HashMap<GalasaPropertyName, CPSProperty>();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
+            GalasaPropertyName key = entry.getKey();
             for (String infix : infixes){
-				if (key.contains(infix)&& !filteredProperties.containsKey(key)){
+				if (key.getFullyQualifiedName().contains(infix)&& !filteredProperties.containsKey(key)){
                     filteredProperties.put(entry.getKey(), entry.getValue());
 	            }
 			}
@@ -169,7 +168,7 @@ public class PropertyRoute extends CPSRoute{
             throws  IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         checkRequestHasContent(request);
-        GalasaProperty property = propertyUtility.getPropertyFromRequestBody(request);
+        CPSProperty property = propertyUtility.getPropertyFromRequestBody(request);
         checkNamespaceExists(namespace);
         if(!propertyUtility.checkPropertyNamespaceMatchesURLNamespace(property, namespace)){
             ServletError error = new ServletError(GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR,property.metadata.namespace, namespace);  

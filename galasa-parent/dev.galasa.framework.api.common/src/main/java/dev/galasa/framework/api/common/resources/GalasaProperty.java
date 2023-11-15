@@ -14,26 +14,16 @@ import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-
 public class GalasaProperty {
     static final Gson gson = GalasaGsonBuilder.build();
-
-
-    private static final String REDACTED_PROPERTY_VALUE = "********";
 
     public String apiVersion = "galasa-dev/v1alpha1";
     public final String kind = "GalasaProperty";
     public GalasaPropertyMetadata metadata ;
     public GalasaPropertyData data;
-
-    private GalasaNamespace namespace;
-    private GalasaPropertyName name;
-    private IConfigurationPropertyStoreService store;
 
     public class GalasaPropertyMetadata {
         public String namespace;
@@ -53,18 +43,6 @@ public class GalasaProperty {
         }
     }
 
-    public GalasaProperty(IConfigurationPropertyStoreService store, GalasaNamespace namespace, GalasaPropertyName propertyName) {
-        this.namespace = namespace ;
-        this.store = store ;
-        this.name = propertyName;
-        this.metadata = new GalasaPropertyMetadata(namespace.getName(),propertyName.getSimpleName());
-        this.data = new GalasaPropertyData(null);
-    }
-
-    public GalasaProperty(IConfigurationPropertyStoreService store, GalasaNamespace namespace, GalasaPropertyName propertyName, String value) {
-        this(store, namespace,propertyName);
-        this.data = new GalasaPropertyData(value);
-    }
 
     public GalasaProperty (String completeCPSname, String propertyValue) {
         String[] nameParts = completeCPSname.split("[.]", 2);
@@ -99,26 +77,6 @@ public class GalasaProperty {
 
     public String getValue() {
         return this.data.value;
-    }
-
-    public void LoadValueFromStore() throws ConfigurationPropertyStoreException {
-        // load the value from the property store into this property object.
-        // Will be null if the property isn't in the store yet.
-        this.data.value = store.getProperty(name.getLongestPrefix(), name.getShortestSuffix());
-
-        if ( this.data.value != null ) {
-            if ( isSecure() ){
-                this.data.value = REDACTED_PROPERTY_VALUE;
-            }
-        }
-    }
-
-    public boolean existsInStore() {
-        return this.data.value != null;
-    }
-
-    public boolean isSecure() {
-        return this.namespace.isSecure();
     }
 
     public boolean isPropertyNameValid() {

@@ -21,8 +21,8 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
-import dev.galasa.framework.api.common.resources.GalasaNamespace;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.CPSNamespace;
+import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.api.cps.internal.common.PropertyUtilities;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -63,7 +63,7 @@ public abstract class CPSRoute extends BaseRoute {
     protected  boolean checkNamespaceExists(String namespaceName) throws ConfigurationPropertyStoreException, InternalServletException {
         boolean valid = false;
         CPSFacade cps = new CPSFacade(framework);
-        GalasaNamespace namespace = cps.getNamespace(namespaceName);
+        CPSNamespace namespace = cps.getNamespace(namespaceName);
         try {
             if (namespace.getProperties().size() > 0) {
                 valid = true;
@@ -119,19 +119,19 @@ public abstract class CPSRoute extends BaseRoute {
          */
         JsonArray propertyArray = new JsonArray();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
-            GalasaProperty property = new GalasaProperty(entry.getKey(),entry.getValue());
+            CPSProperty property = new CPSProperty(entry.getKey(),entry.getValue());
             propertyArray.add(property.toJSON());
         }
         return gson.toJson(propertyArray);
     }
 
-    protected String buildResponseBody(Map<GalasaPropertyName, GalasaProperty> properties) {
+    protected String buildResponseBody(Map<GalasaPropertyName, CPSProperty> properties) {
         /*
          * Builds a json array object from a Map of properties
          */
         JsonArray propertyArray = new JsonArray();
-        for (Map.Entry<GalasaPropertyName, GalasaProperty> entry : properties.entrySet()) {
-            GalasaProperty property = entry.getValue();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
+            CPSProperty property = entry.getValue();
             propertyArray.add(property.toJSON());
         }
         return gson.toJson(propertyArray);
@@ -151,7 +151,7 @@ public abstract class CPSRoute extends BaseRoute {
         return gson.toJson(propertyArray);
     }
 
-    protected String buildResponseBody(GalasaProperty property) {
+    protected String buildResponseBody(CPSProperty property) {
         /*
          * Builds a json array object from a single GalasaProperty containing a property
          */

@@ -5,80 +5,44 @@
  */
 package dev.galasa.framework.api.common.resources;
 
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
+import com.google.gson.Gson;
 
 public class GalasaNamespace {
 
     private String name;
     private String propertiesUrl;
-    private Visibility visibility;
-    private IConfigurationPropertyStoreService propertyStore;
+    private Visibility type;
 
-    protected GalasaNamespace(@NotNull String name, @NotNull Visibility visibility, @NotNull IFramework framework)
-            throws ConfigurationPropertyStoreException {
-        this.name = name;
-        this.visibility = (visibility);
-        this.propertiesUrl = "/"+this.name+"/properties";
-        this.propertyStore = framework.getConfigurationPropertyService(name);
+    private static final Gson gson = GalasaGsonBuilder.build();
+
+    public GalasaNamespace(CPSNamespace namespace){
+        this.name = namespace.getName();
+        this.propertiesUrl = namespace.getPropertiesUrl();
+        this.type = namespace.getVisibility();
     }
 
-    public String getName() {
-        return this.name;
+    public GalasaNamespace(String namespace){
+        GalasaNamespace newNamespace = gson.fromJson(namespace, this.getClass());
+        this.name = newNamespace.getName();
+        this.propertiesUrl = newNamespace.getUrl();
+        this.type = newNamespace.getVisibility();
+    }
+    
+    public String getName(){
+        return name;
     }
 
-    public String getPropertiesUrl() {
-        return this.propertiesUrl;
+    public String getUrl(){
+        return propertiesUrl;
     }
 
-    public Visibility getVisibility() {     
-        return this.visibility;
+    public Visibility getVisibility(){
+        return type;
     }
 
-    public boolean isSecure() {
-        return this.visibility == Visibility.SECURE;
+    public String toJson(){
+        return gson.toJson(this);
     }
-
-    public boolean isHidden() {
-        return this.visibility == Visibility.HIDDEN;
-    }
-
-    public Map<GalasaPropertyName,GalasaProperty> getProperties(){
-        Map<GalasaPropertyName,GalasaProperty> properties = new HashMap<GalasaPropertyName,GalasaProperty>();
-        if (visibility != Visibility.HIDDEN){
-            Map<String,String> cpsProperties = propertyStore.getAllProperties();
-            for (Map.Entry<String,String> property : cpsProperties.entrySet()){
-
-                String propNameWithNamespace = property.getKey();
-                GalasaPropertyName propName = new GalasaPropertyName(propNameWithNamespace);
-
-                GalasaProperty prop = new GalasaProperty(this.propertyStore, this, propName, property.getValue());
-                   
-                properties.put(propName, prop);
-                
-            }
-        }
-        return Collections.unmodifiableMap(properties);
-    }
-
-    public GalasaProperty getProperty(String propertyName) throws ConfigurationPropertyStoreException {
-        GalasaProperty prop = null;
-        if (visibility != Visibility.HIDDEN) {
-            GalasaPropertyName propName = new GalasaPropertyName(this.name, propertyName);
-            prop = new GalasaProperty(this.propertyStore, this, propName);
-            prop.LoadValueFromStore();
-            if (!prop.existsInStore()) {
-                prop = null;
-            }
-        }
-        return prop;
-    }
-
 }

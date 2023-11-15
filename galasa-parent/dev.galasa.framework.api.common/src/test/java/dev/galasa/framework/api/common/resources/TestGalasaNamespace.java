@@ -13,195 +13,84 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import static org.assertj.core.api.Assertions.*;
 import dev.galasa.framework.api.common.mocks.*;
 
-import java.util.Map;
-
 public class TestGalasaNamespace {
 
+    private String getExpectedJson(String expectedName,String expectedUrl,String visibility){
+        return "{\n  \"name\": \""+expectedName+"\",\n  \"propertiesUrl\": \""+expectedUrl+"\",\n  \"type\": \""+visibility+"\"\n}";
+    }
+
     @Test
-    public void TestNamespaceTypeNormalReturnOkNoURL() throws Exception {
+    public void TestGalasaNamespaceCreateNormalNamespaceFromCPSNamespace() throws ConfigurationPropertyStoreException{
         //Given...
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";
         IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
+        CPSNamespace cpsNamespace = new CPSNamespace(expectedName, Visibility.NORMAL, mockFramework);
         //When...
-        GalasaNamespace namespace = new GalasaNamespace(expectedName, Visibility.NORMAL, mockFramework);
+        GalasaNamespace namespace = new GalasaNamespace(cpsNamespace);
         //Then...
-        String name = namespace.getName();
-        Visibility visibility = namespace.getVisibility();
-        String propertiesurl = namespace.getPropertiesUrl();
-        assertThat(name).isEqualTo(expectedName);
-        assertThat(visibility).isEqualTo(Visibility.NORMAL);
-        assertThat(propertiesurl).isEqualTo(expectedUrl);
+        String returnedJson = namespace.toJson();
+        String expectedJson = getExpectedJson(expectedName, expectedUrl, "NORMAL");
+        assertThat(returnedJson).isEqualTo(expectedJson);
+        assertThat(namespace.getName()).isEqualTo(expectedName);
+        assertThat(namespace.getUrl()).isEqualTo(expectedUrl);
+        assertThat(namespace.getVisibility()).isEqualTo(Visibility.NORMAL);
     }
 
     @Test
-    public void TestNamespaceTypeNormalReturnOkWithURL() throws ConfigurationPropertyStoreException{
+    public void TestGalasaNamespaceCreateNormalNamespaceFromJSONString() throws ConfigurationPropertyStoreException{
+        //Given...
+        String expectedName = "NameSpace1";
+        String expectedUrl = "/NameSpace1/properties";
+        String visibility = "NORMAL";
+        String json = getExpectedJson(expectedName, expectedUrl, visibility);
+        //When...
+        GalasaNamespace namespace = new GalasaNamespace(json);
+        //Then...
+        String returnedJson = namespace.toJson();
+        String expectedJson = getExpectedJson(expectedName, expectedUrl, "NORMAL");
+        assertThat(returnedJson).isEqualTo(expectedJson);
+        assertThat(namespace.getName()).isEqualTo(expectedName);
+        assertThat(namespace.getUrl()).isEqualTo(expectedUrl);
+        assertThat(namespace.getVisibility()).isEqualTo(Visibility.NORMAL);
+    }
+
+    @Test
+    public void TestGalasaNamespaceCreateSecureNamespaceFromCPSNamespace() throws ConfigurationPropertyStoreException{
         //Given...
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";
         IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
+        CPSNamespace cpsNamespace = new CPSNamespace(expectedName, Visibility.SECURE, mockFramework);
         //When...
-        GalasaNamespace namespace = new GalasaNamespace(expectedName, Visibility.NORMAL, mockFramework);
+        GalasaNamespace namespace = new GalasaNamespace(cpsNamespace);
         //Then...
-        String name = namespace.getName();
-        Visibility visibility = namespace.getVisibility();
-        String propertiesurl = namespace.getPropertiesUrl();
-        assertThat(name).isEqualTo(expectedName);
-        assertThat(visibility).isEqualTo(Visibility.NORMAL);
-        assertThat(propertiesurl).isEqualTo(expectedUrl);
+        String returnedJson = namespace.toJson();
+        String expectedJson = getExpectedJson(expectedName, expectedUrl, "SECURE");
+        assertThat(returnedJson).isEqualTo(expectedJson);
+        assertThat(namespace.getName()).isEqualTo(expectedName);
+        assertThat(namespace.getUrl()).isEqualTo(expectedUrl);
+        assertThat(namespace.getVisibility()).isEqualTo(Visibility.SECURE);
     }
 
     @Test
-    public void TestNamespaceTypeSecureReturnOkNoURL() throws Exception {
+    public void TestGalasaNamespaceCreateSecureNamespaceFromJSONString() throws ConfigurationPropertyStoreException{
         //Given...
-        String expectedName = "secure";
-        String expectedUrl = "/secure/properties";
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
-        MockFramework mockFramework = new MockFramework(mockCPS);
+        String expectedName = "NameSpace1";
+        String expectedUrl = "/NameSpace1/properties";
+        String visibility = "SECURE";
+        String json = getExpectedJson(expectedName, expectedUrl, visibility);
+        //When...
+        GalasaNamespace namespace = new GalasaNamespace(json);
+        //Then...
+        String returnedJson = namespace.toJson();
+        String expectedJson = getExpectedJson(expectedName, expectedUrl, "SECURE");
+        assertThat(returnedJson).isEqualTo(expectedJson);
+        assertThat(namespace.getName()).isEqualTo(expectedName);
+        assertThat(namespace.getUrl()).isEqualTo(expectedUrl);
+        assertThat(namespace.getVisibility()).isEqualTo(Visibility.SECURE);
+    }
     
-        //When...
-        GalasaNamespace namespace = new GalasaNamespace(expectedName, Visibility.SECURE, mockFramework);
-        //Then...
-        String name = namespace.getName();
-        Visibility visibility = namespace.getVisibility();
-        String propertiesurl = namespace.getPropertiesUrl();
-        assertThat(name).isEqualTo(expectedName);
-        assertThat(visibility).isEqualTo(Visibility.SECURE);
-        assertThat(propertiesurl).isEqualTo(expectedUrl);
-    }
-
-    @Test
-    public void TestNamespaceTypeSecureReturnOkWithURL() throws Exception {
-        //Given...
-        String expectedName = "secure";
-        String expectedUrl = "/secure/properties";
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
-        MockFramework mockFramework = new MockFramework(mockCPS);
-        //When...
-        GalasaNamespace namespace = new GalasaNamespace(expectedName, Visibility.SECURE, mockFramework);
-        //Then...
-        String name = namespace.getName();
-        Visibility visibility = namespace.getVisibility();
-        String propertiesurl = namespace.getPropertiesUrl();
-        assertThat(name).isEqualTo(expectedName);
-        assertThat(visibility).isEqualTo(Visibility.SECURE);
-        assertThat(propertiesurl).isEqualTo(expectedUrl);
-    }
-
-    @Test
-    public void TestSecureNamespaceSaysItsSecure() throws Exception {
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
-        MockFramework mockFramework = new MockFramework(mockCPS);
-        GalasaNamespace namespace = new GalasaNamespace("secure", Visibility.SECURE, mockFramework);
-        assertThat(namespace.isSecure()).isTrue();
-    }
-
-
-    @Test
-    public void TestSecureNamespaceSaysItsNotHidden() throws Exception {
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
-        MockFramework mockFramework = new MockFramework(mockCPS);
-        GalasaNamespace namespace = new GalasaNamespace("secure", Visibility.SECURE, mockFramework);
-        assertThat(namespace.isHidden()).isFalse();
-    }
-
-    @Test
-    public void TestDssNamespaceSaysItsHidden() throws Exception {
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
-        MockFramework mockFramework = new MockFramework(mockCPS);
-        GalasaNamespace namespace = new GalasaNamespace("dss", Visibility.HIDDEN, mockFramework);
-        assertThat(namespace.isHidden()).isTrue();
-    }
-
-    @Test
-    public void TestDssNamespaceSaysItsNotSecure() throws Exception {
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
-        MockFramework mockFramework = new MockFramework(mockCPS);
-        GalasaNamespace namespace = new GalasaNamespace("dss", Visibility.HIDDEN, mockFramework);
-        assertThat(namespace.isSecure()).isFalse();
-    }
-
-    @Test
-    public void TestNamespaceGivesPropertiesFromCPSServiceNormalNamespaceReturnsValue() throws Exception {
-        //Given...
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService("myNamespace");
-        String propertyName = "myNamespace.my.property.a";
-        String propertyValue = "myValue";
-        mockCPS.setProperty(propertyName, propertyValue);
-        MockFramework mockFramework = new MockFramework(mockCPS);
-        GalasaNamespace namespace = new GalasaNamespace("myNamespace", Visibility.NORMAL,mockFramework);
-
-        //When...
-        Map<GalasaPropertyName,GalasaProperty> properties = namespace.getProperties();
-
-        //Then...
-        Visibility visibility = namespace.getVisibility();
-        assertThat(properties.size()).isEqualTo(6);
-        assertThat(visibility).isEqualTo(Visibility.NORMAL);
-    }
-
-    @Test
-    public void TestNamespaceGivesPropertyFromCPSServiceNormalNamespaceReturnsValue() throws Exception {
-        //Given...
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService("myNamespace");
-        String fullPropertyName = "myNamespace.my.property.a";
-        String propertyName = "my.property.a";
-        String propertyValue = "myValue";
-        mockCPS.setProperty(fullPropertyName, propertyValue);
-        MockFramework mockFramework = new MockFramework(mockCPS);
-        GalasaNamespace namespace = new GalasaNamespace("myNamespace", Visibility.NORMAL,mockFramework);
-
-        //When...
-        GalasaProperty property = namespace.getProperty(propertyName);
-
-        //Then...
-        Visibility visibility = namespace.getVisibility();
-        assertThat(property.metadata.namespace).isEqualTo("myNamespace");
-        assertThat(property.metadata.name).isEqualTo(propertyName);
-        assertThat(property.data.value).isEqualTo(propertyValue);
-        assertThat(visibility).isEqualTo(Visibility.NORMAL);
-    }
-
-    @Test
-    public void TestNamespaceGivesPropertiesFromCPSServiceSecureNamespaceReturnsRedactedValue() throws Exception {
-        //Given...
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
-        MockFramework mockFramework = new MockFramework(mockCPS);
-        String propertyName = "myNamespace.my.property.a";
-        String propertyValue = "myValue";
-        mockCPS.setProperty(propertyName, propertyValue);
-        GalasaNamespace namespace = new GalasaNamespace("myNamespace", Visibility.SECURE,mockFramework);
-
-        //When...
-        Map<GalasaPropertyName,GalasaProperty> properties = namespace.getProperties();
-
-        //Then...
-
-        Visibility visibility = namespace.getVisibility();
-        assertThat(properties.size()).isEqualTo(6);
-        assertThat(visibility).isEqualTo(Visibility.SECURE);
-    }
-
-    @Test
-    public void TestNamespaceGivesPropertiesFromCPSServiceSecureNamespaceReturnsNull() throws Exception {
-        //Given...
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
-        String propertyName = "myNamespace.my.property.a";
-        String propertyValue = "myValue";
-        mockCPS.setProperty(propertyName, propertyValue);
-        GalasaPropertyName propName = new GalasaPropertyName(propertyName);
-        MockFramework mockFramework = new MockFramework(mockCPS);
-        GalasaNamespace namespace = new GalasaNamespace("myNamespace", Visibility.HIDDEN,mockFramework);
-
-        //When...
-        Map<GalasaPropertyName,GalasaProperty> properties = namespace.getProperties();
-
-        //Then...
-        GalasaProperty returnedProperty = properties.get(propName);
-        Visibility visibility = namespace.getVisibility();
-        assertThat(returnedProperty).isNull();
-        assertThat(visibility).isEqualTo(Visibility.HIDDEN);
-    }
 }

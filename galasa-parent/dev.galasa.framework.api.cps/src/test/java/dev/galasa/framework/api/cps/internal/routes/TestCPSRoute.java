@@ -9,7 +9,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.*;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.CPSProperty;
 
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class TestCPSRoute extends CpsServletTest {
         //Given...
         
         CPSRouteTest cpsRoute = new CPSRouteTest();
-        GalasaProperty property = new GalasaProperty("framework", "property10", "value");
+        CPSProperty property = new CPSProperty("framework", "property.10", "value");
         boolean updateProperty = false;
 
         //When...
@@ -44,7 +44,7 @@ public class TestCPSRoute extends CpsServletTest {
     public void TestCreateGalasaPropertyWherePropertyAlreadyExistsReturnsError(){
         //Given...
         CPSRouteTest cpsRoute = new CPSRouteTest();
-        GalasaProperty property = new GalasaProperty("framework","property1", "value");
+        CPSProperty property = new CPSProperty("framework","property.1", "value");
         boolean updateProperty = false;
 
         //When...
@@ -61,7 +61,7 @@ public class TestCPSRoute extends CpsServletTest {
     public void TestUpdateGalasaPropertyReturnsSuccess(){
         //Given...
         CPSRouteTest cpsRoute = new CPSRouteTest();
-        GalasaProperty property = new GalasaProperty("framework","property1", "value");
+        CPSProperty property = new CPSProperty("framework","property.1", "value");
         boolean updateProperty = true;
 
         //When...
@@ -77,7 +77,7 @@ public class TestCPSRoute extends CpsServletTest {
     public void TestUpdateGalasaPropertyWherePropertyDoesNotExistReturnsError(){
         //Given...
         CPSRouteTest cpsRoute = new CPSRouteTest();
-        GalasaProperty property = new GalasaProperty("framework","property10", "value");
+        CPSProperty property = new CPSProperty("framework","property.10", "value");
         boolean updateProperty = true;
 
         //When...
@@ -94,7 +94,7 @@ public class TestCPSRoute extends CpsServletTest {
     public void TestUpdateGalasaPropertyWhereGalasaPropertyisNullReturnsError(){
         //Given...
         CPSRouteTest cpsRoute = new CPSRouteTest();
-        GalasaProperty property = null;
+        CPSProperty property = null;
         boolean updateProperty = true;
 
         //When...
@@ -177,7 +177,7 @@ public class TestCPSRoute extends CpsServletTest {
         String jsonString = generatePropertyJSON(namespace, name, value, "galasa-dev/v1alpha1");
 
         //When...
-        GalasaProperty property = cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
+        CPSProperty property = cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
 
         //Then...
         assertThat(property.metadata.name).isEqualTo(name);

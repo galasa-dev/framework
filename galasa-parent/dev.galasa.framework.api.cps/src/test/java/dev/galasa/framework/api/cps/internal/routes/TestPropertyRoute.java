@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.cps.internal.routes;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
@@ -68,11 +68,11 @@ public class TestPropertyRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
         Map<String, String> properties = new HashMap<String,String>();
-        properties.put(namespace+".property1", "value1");
-        properties.put(namespace+".property2", "value2");
-        properties.put(namespace+".property3", "value3");
-        properties.put(namespace+".property4", "value4");
-        properties.put(namespace+".property5", "value5");
+        properties.put(namespace+".property.1", "value1");
+        properties.put(namespace+".property.2", "value2");
+        properties.put(namespace+".property.3", "value3");
+        properties.put(namespace+".property.4", "value4");
+        properties.put(namespace+".property.5", "value5");
 
         // Then...
         // We expect data back
@@ -170,10 +170,10 @@ public class TestPropertyRoute extends CpsServletTest{
 	}
 
 
-	private Map<GalasaPropertyName, GalasaProperty> getPropertiesFromMap (Map<String,String> inputMap){
-		Map<GalasaPropertyName, GalasaProperty> properties = new HashMap<GalasaPropertyName, GalasaProperty>();
+	private Map<GalasaPropertyName, CPSProperty> getPropertiesFromMap (Map<String,String> inputMap){
+		Map<GalasaPropertyName, CPSProperty> properties = new HashMap<GalasaPropertyName, CPSProperty>();
 		for (Map.Entry<String,String> prop: inputMap.entrySet()){
-			properties.put(new GalasaPropertyName(prop.getKey()), new GalasaProperty(prop.getKey(), prop.getValue()));
+			properties.put(new GalasaPropertyName(prop.getKey()), new CPSProperty(prop.getKey(), prop.getValue()));
 		}
 		return properties;
 	}
@@ -181,17 +181,17 @@ public class TestPropertyRoute extends CpsServletTest{
 	public void TestGetPropertiesWithSuffixNoMatchReturnsEmpty() {
 		//Given...
 		String suffix  = "rty1";
-		Map<GalasaPropertyName, GalasaProperty> expectedProperties = new HashMap<GalasaPropertyName, GalasaProperty>();
+		Map<GalasaPropertyName, CPSProperty> expectedProperties = new HashMap<GalasaPropertyName, CPSProperty>();
 		Map<String, String> properties = new HashMap<String,String>();
 		properties.put("property2", "value2");
 		properties.put("property3", "value3");
 		properties.put("property4", "value4");
 		properties.put("property5", "value5");
 		properties.put("property6", "value6");
-		Map<GalasaPropertyName, GalasaProperty> props = getPropertiesFromMap(properties);
+		Map<GalasaPropertyName, CPSProperty> props = getPropertiesFromMap(properties);
 
 		//When...
-		Map<GalasaPropertyName, GalasaProperty> results = new PropertyRoute(null,null).filterPropertiesBySuffix(props, suffix);
+		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null,null).filterPropertiesBySuffix(props, suffix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
@@ -202,7 +202,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		//Given...
 		String suffix  = "1";
 		Map<String, String> expectedProperties = new HashMap<String,String>();
-		Map<GalasaPropertyName, GalasaProperty> expectedProps = getPropertiesFromMap(expectedProperties);
+		Map<GalasaPropertyName, CPSProperty> expectedProps = getPropertiesFromMap(expectedProperties);
 		expectedProperties.put("property1", "value1");
 		Map<String, String> properties = new HashMap<String,String>();
 		properties.put("property2", "value2");
@@ -211,10 +211,10 @@ public class TestPropertyRoute extends CpsServletTest{
 		properties.put("property5", "value5");
 		properties.put("property6", "value6");
 		properties.putAll(expectedProperties);
-		Map<GalasaPropertyName, GalasaProperty> props = getPropertiesFromMap(properties);
+		Map<GalasaPropertyName, CPSProperty> props = getPropertiesFromMap(properties);
 
 		//When...
-		Map<GalasaPropertyName,GalasaProperty> results = new PropertyRoute(null,null).filterPropertiesBySuffix(props, suffix);
+		Map<GalasaPropertyName,CPSProperty> results = new PropertyRoute(null,null).filterPropertiesBySuffix(props, suffix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProps);
@@ -237,11 +237,11 @@ public class TestPropertyRoute extends CpsServletTest{
 		properties.put("property5", "value9");
 		properties.put("property6", "value10");
 		properties.putAll(expectedProperties);
-		Map<GalasaPropertyName, GalasaProperty> expectedProps = getPropertiesFromMap(expectedProperties);
-		Map<GalasaPropertyName, GalasaProperty> props = getPropertiesFromMap(properties);
+		Map<GalasaPropertyName, CPSProperty> expectedProps = getPropertiesFromMap(expectedProperties);
+		Map<GalasaPropertyName, CPSProperty> props = getPropertiesFromMap(properties);
 
 		//When...
-		Map<GalasaPropertyName, GalasaProperty> results = new PropertyRoute(null,null).filterPropertiesBySuffix(props, suffix);
+		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null,null).filterPropertiesBySuffix(props, suffix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProps);
@@ -252,7 +252,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		//Given...
 		String namespace = "framework";
 		String prefix  = "crate";
-		Map<GalasaPropertyName, GalasaProperty> expectedProperties = new HashMap<GalasaPropertyName, GalasaProperty>();
+		Map<GalasaPropertyName, CPSProperty> expectedProperties = new HashMap<GalasaPropertyName, CPSProperty>();
 
 		Map<String, String> properties = new HashMap<String,String>();
 		properties.put(namespace+".property1","value1");
@@ -261,10 +261,10 @@ public class TestPropertyRoute extends CpsServletTest{
 		properties.put(namespace+".property4", "value4");
 		properties.put(namespace+".property5", "value5");
 		properties.put(namespace+".property6", "value6");
-		Map<GalasaPropertyName, GalasaProperty> props = getPropertiesFromMap(properties);
+		Map<GalasaPropertyName, CPSProperty> props = getPropertiesFromMap(properties);
 
 		//When...
-		Map<GalasaPropertyName, GalasaProperty> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, props, prefix);
+		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, props, prefix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProperties);
@@ -284,11 +284,11 @@ public class TestPropertyRoute extends CpsServletTest{
 		properties.put(namespace+".property5", "value5");
 		properties.put(namespace+".property6", "value6");
 		properties.putAll(expectedProperties);
-		Map<GalasaPropertyName, GalasaProperty> expectedProps = getPropertiesFromMap(expectedProperties);
-		Map<GalasaPropertyName, GalasaProperty> props = getPropertiesFromMap(properties);
+		Map<GalasaPropertyName, CPSProperty> expectedProps = getPropertiesFromMap(expectedProperties);
+		Map<GalasaPropertyName, CPSProperty> props = getPropertiesFromMap(properties);
 
 		//When...
-		Map<GalasaPropertyName, GalasaProperty> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, props, prefix);
+		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, props, prefix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProps);
@@ -312,11 +312,11 @@ public class TestPropertyRoute extends CpsServletTest{
 		properties.put(namespace+".property5", "value9");
 		properties.put(namespace+".property6", "value10");
 		properties.putAll(expectedProperties);
-		Map<GalasaPropertyName, GalasaProperty> expectedProps = getPropertiesFromMap(expectedProperties);
-		Map<GalasaPropertyName, GalasaProperty> props = getPropertiesFromMap(properties);
+		Map<GalasaPropertyName, CPSProperty> expectedProps = getPropertiesFromMap(expectedProperties);
+		Map<GalasaPropertyName, CPSProperty> props = getPropertiesFromMap(properties);
 
 		//When...
-		Map<GalasaPropertyName, GalasaProperty> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, props, prefix);
+		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, props, prefix);
 		
 		//Then...
 		assertThat(results).isEqualTo(expectedProps);

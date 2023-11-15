@@ -213,12 +213,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                value:
-                  type: string
+              $ref: '#/components/schemas/GalasaProperty'
       responses:
         '201':
           description: Action Message
@@ -320,16 +315,26 @@ paths:
               examples:
                 propertyexists:
                   value:
-                    name: propertyName
-                    value: propertyValue
+                    apiVersion: galasa-dev/v1alpha1
+                    kind: GalasaProperty
+                    metadata:
+                      namespace: propertyNamespace
+                      name: my.property.name
+                    data:
+                      value: my.property.value
                   summary: Property Found in namespace
                 propertynotfound:
                   value: '[ ]'
                   summary: Property does not exist in namespace
                 propertyexistsinwriteonlynamespace:
                   value:
-                    name: propertyName
-                    value: "********"
+                    apiVersion: galasa-dev/v1alpha1
+                    kind: GalasaProperty
+                    metadata:
+                      namespace: propertyNamespace
+                      name: my.property.name
+                    data:
+                      value: '*********'
                   summary: Property found in write only namespace
         '401':
           description: Unauthorized as valid authentication has not been provided
@@ -397,7 +402,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/GalasaProperty'
       responses:
         '200':
           description: Action Message

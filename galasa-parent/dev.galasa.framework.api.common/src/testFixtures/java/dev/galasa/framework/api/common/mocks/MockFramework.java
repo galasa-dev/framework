@@ -57,6 +57,9 @@ public class MockFramework implements IFramework {
     @Override
     public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
             throws ConfigurationPropertyStoreException {
+            if(this.cpsService.namespaceInput.equalsIgnoreCase("error")){
+                throw new ConfigurationPropertyStoreException();
+            }
        return this.cpsService;
     }
 

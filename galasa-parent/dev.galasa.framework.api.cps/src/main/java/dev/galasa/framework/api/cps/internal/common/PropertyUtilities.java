@@ -18,8 +18,8 @@ import com.google.gson.Gson;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
-import dev.galasa.framework.api.common.resources.GalasaNamespace;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.CPSNamespace;
+import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -65,7 +65,7 @@ public class PropertyUtilities {
      * @return boolean
      * @throws FrameworkException
      */
-    protected boolean checkGalasaPropertyExists (GalasaProperty property) throws InternalServletException{
+    protected boolean checkGalasaPropertyExists (CPSProperty property) throws InternalServletException{
         return checkPropertyExists(property.metadata.namespace, property.metadata.name);
     }
 
@@ -78,8 +78,8 @@ public class PropertyUtilities {
      * @return Map.Entry of String, String
      * @throws InternalServletException
      */
-    public GalasaProperty retrieveSingleProperty(String namespaceName, String propertyName) throws  InternalServletException {
-        GalasaProperty property;
+    public CPSProperty retrieveSingleProperty(String namespaceName, String propertyName) throws  InternalServletException {
+        CPSProperty property;
         try {
             cps = new CPSFacade(this.framework);
         } catch( ConfigurationPropertyStoreException ex ) {
@@ -87,7 +87,7 @@ public class PropertyUtilities {
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,ex);
         }
 
-        GalasaNamespace namespace ;
+        CPSNamespace namespace ;
         try {
             namespace = cps.getNamespace(namespaceName);
         }catch (Exception e){
@@ -117,7 +117,7 @@ public class PropertyUtilities {
      * @param updateProperty Boolean flag indicating if the action to be performed is an update
      * @throws FrameworkException
      */
-    public void setProperty(@NotNull GalasaProperty property, boolean updateProperty) throws FrameworkException, InternalServletException {
+    public void setProperty(@NotNull CPSProperty property, boolean updateProperty) throws FrameworkException, InternalServletException {
         boolean propExists = checkGalasaPropertyExists(property);
         /*
          * Logic Table to Determine actions
@@ -137,7 +137,7 @@ public class PropertyUtilities {
         }
     }
 
-    public void setGalasaProperty (GalasaProperty property, String action) throws FrameworkException{
+    public void setGalasaProperty (CPSProperty property, String action) throws FrameworkException{
         boolean updateProperty = false;
         if (property.isPropertyValid() && updateActions.contains(action)){
             if ((checkGalasaPropertyExists(property) || action.equals("update"))){
@@ -147,7 +147,7 @@ public class PropertyUtilities {
         setProperty(property, updateProperty);
     }
 
-    public boolean checkPropertyNamespaceMatchesURLNamespace(@NotNull GalasaProperty property , @NotNull String namespace){
+    public boolean checkPropertyNamespaceMatchesURLNamespace(@NotNull CPSProperty property , @NotNull String namespace){
         return namespace.toLowerCase().trim().equals(property.metadata.namespace.toLowerCase().trim());
 
     }
@@ -158,7 +158,7 @@ public class PropertyUtilities {
      * @throws IOException
      * @throws InternalServletException
      */
-    public GalasaProperty getPropertyFromRequestBody (HttpServletRequest request) throws IOException, InternalServletException{
+    public CPSProperty getPropertyFromRequestBody (HttpServletRequest request) throws IOException, InternalServletException{
         String body = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
         return getGalasaPropertyfromJsonString(body);
     }
@@ -171,11 +171,11 @@ public class PropertyUtilities {
      * @return GalasaProperty
      * @throws InternalServletException
      */
-    public GalasaProperty getGalasaPropertyfromJsonString (String jsonString) throws InternalServletException{
-        GalasaProperty property = null;
+    public CPSProperty getGalasaPropertyfromJsonString (String jsonString) throws InternalServletException{
+        CPSProperty property = null;
         boolean valid = false;
         try {
-            property = gson.fromJson(jsonString, GalasaProperty.class);
+            property = gson.fromJson(jsonString, CPSProperty.class);
             valid = property.isPropertyValid();
         }catch (Exception e){}
         

@@ -19,8 +19,8 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
-import dev.galasa.framework.api.common.resources.GalasaNamespace;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.CPSNamespace;
+import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
@@ -49,8 +49,8 @@ public class PropertyUpdateRoute extends CPSRoute {
 
     private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
         CPSFacade cps = new CPSFacade(framework);
-        GalasaNamespace namespace = cps.getNamespace(namespaceName);
-        GalasaProperty property = namespace.getProperty(propertyName);
+        CPSNamespace namespace = cps.getNamespace(namespaceName);
+        CPSProperty property = namespace.getProperty(propertyName);
         return buildResponseBody(property);
     }
 
@@ -64,7 +64,7 @@ public class PropertyUpdateRoute extends CPSRoute {
         String name = getPropertyNameFromURL(pathInfo);
         checkRequestHasContent(request);
         String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-        GalasaProperty property = new GalasaProperty(namespace, name, value);
+        CPSProperty property = new CPSProperty(namespace, name, value);
         propertyUtility.setProperty(property, true);
         String responseBody = String.format("Successfully updated property %s in %s",name, namespace);
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK); 

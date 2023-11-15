@@ -8,6 +8,8 @@ package dev.galasa.framework.api.cps.internal.routes;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -21,6 +23,7 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
+import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.GalasaNamespace;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -51,15 +54,21 @@ public class NamespacesRoute extends CPSRoute {
 
     private String getNamespaces(String url) throws InternalServletException {
         logger.debug("Getting the list of namespaces");
-        Map<String, GalasaNamespace> namespaceArray;
+        List<GalasaNamespace> namespaceArray = new ArrayList<GalasaNamespace>();
         try {
             CPSFacade cps = new CPSFacade(framework);
-            namespaceArray = cps.getNamespaces();
+            Map<String, CPSNamespace>  namespaces = cps.getNamespaces();
+            for (Map.Entry<String, CPSNamespace>  namespaceEntry : namespaces.entrySet()){
+                CPSNamespace namespace = namespaceEntry.getValue();
+                if (!namespace.isHidden()){
+                    namespaceArray.add(new GalasaNamespace(namespace));
+                }
+            }
         } catch (ConfigurationPropertyStoreException e) {
             ServletError error = new ServletError(GAL5015_INTERNAL_CPS_ERROR);
 			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-        return gson.toJson(namespaceArray.values());
+        return gson.toJson(namespaceArray);
     }
 
 }

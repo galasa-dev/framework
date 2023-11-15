@@ -27,10 +27,10 @@ public class TestCPSFacade {
         
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
-        Map<String,GalasaNamespace> spaces = facade.getNamespaces();
+        Map<String,CPSNamespace> spaces = facade.getNamespaces();
 
         assertThat(spaces).containsKeys("framework");
-        GalasaNamespace ns = spaces.get("framework");
+        CPSNamespace ns = spaces.get("framework");
         assertThat(ns.getName()).isEqualTo("framework");
         assertThat(ns.getVisibility()).isEqualTo(Visibility.NORMAL);
     }
@@ -41,11 +41,11 @@ public class TestCPSFacade {
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
-        Map<String,GalasaNamespace> spaces = facade.getNamespaces();
+        Map<String,CPSNamespace> spaces = facade.getNamespaces();
 
 
         assertThat(spaces).containsKeys("dss");
-        GalasaNamespace ns = spaces.get("dss");
+        CPSNamespace ns = spaces.get("dss");
         assertThat(ns.getName()).isEqualTo("dss");
         assertThat(ns.getVisibility()).isEqualTo(Visibility.HIDDEN);
     }
@@ -56,10 +56,10 @@ public class TestCPSFacade {
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
-        Map<String,GalasaNamespace> spaces = facade.getNamespaces();
+        Map<String,CPSNamespace> spaces = facade.getNamespaces();
 
         assertThat(spaces).containsKeys("secure");
-        GalasaNamespace ns = spaces.get("secure");
+        CPSNamespace ns = spaces.get("secure");
         assertThat(ns.getName()).isEqualTo("secure");
         assertThat(ns.getVisibility()).isEqualTo(Visibility.SECURE);
     }
@@ -73,10 +73,10 @@ public class TestCPSFacade {
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
         
-        Map<String,GalasaNamespace> spaces = facade.getNamespaces();
+        Map<String,CPSNamespace> spaces = facade.getNamespaces();
 
         assertThat(spaces).containsKeys("myNamespace");
-        GalasaNamespace ns = spaces.get("myNamespace");
+        CPSNamespace ns = spaces.get("myNamespace");
         assertThat(ns.getName()).isEqualTo("myNamespace");
         assertThat(ns.getVisibility()).isEqualTo(Visibility.NORMAL);
     }
@@ -89,10 +89,10 @@ public class TestCPSFacade {
 
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
-        Map<String,GalasaNamespace> spaces = facade.getNamespaces();
+        Map<String,CPSNamespace> spaces = facade.getNamespaces();
 
         assertThat(spaces).containsKeys("secure");
-        GalasaNamespace ns = spaces.get("secure");
+        CPSNamespace ns = spaces.get("secure");
         assertThat(ns.getName()).isEqualTo("secure");
         assertThat(ns.getVisibility()).isEqualTo(Visibility.SECURE);
     }
@@ -102,7 +102,7 @@ public class TestCPSFacade {
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
-        GalasaNamespace ns = facade.getNamespace(name);
+        CPSNamespace ns = facade.getNamespace(name);
         assertThat(ns.isSecure()).isEqualTo(isExpectedToBeSecure);
         assertThat(ns.isHidden()).isEqualTo(isExpectedToBeHidden);
     }

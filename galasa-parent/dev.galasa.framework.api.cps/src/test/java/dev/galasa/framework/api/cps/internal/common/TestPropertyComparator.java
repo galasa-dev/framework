@@ -9,7 +9,7 @@ import java.util.*;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 
 import static org.assertj.core.api.Assertions.*;
@@ -17,12 +17,12 @@ import static org.assertj.core.api.Assertions.*;
 
 public class TestPropertyComparator{
     
-    private Map<GalasaPropertyName, GalasaProperty> sort(Collection<GalasaPropertyName> unsorted ) {
+    private Map<GalasaPropertyName, CPSProperty> sort(Collection<GalasaPropertyName> unsorted ) {
         PropertyComparator comparator = new PropertyComparator();
-        Map<GalasaPropertyName, GalasaProperty> sorted = new TreeMap<GalasaPropertyName, GalasaProperty>(comparator);
+        Map<GalasaPropertyName, CPSProperty> sorted = new TreeMap<GalasaPropertyName, CPSProperty>(comparator);
     
         for( GalasaPropertyName key : unsorted ) {
-            sorted.put(key,new GalasaProperty("1.1", "1.1")); // All properties have value 1. We don't care for testing.
+            sorted.put(key,new CPSProperty("1.1", "1.1")); // All properties have value 1. We don't care for testing.
         }
     
         return sorted;
@@ -35,7 +35,7 @@ public class TestPropertyComparator{
         keys.add(new GalasaPropertyName("a.b.c.d"));
         keys.add(new GalasaPropertyName("a.b.cdefg"));
 
-        Map<GalasaPropertyName, GalasaProperty> results = sort(keys);
+        Map<GalasaPropertyName, CPSProperty> results = sort(keys);
         assertThat(results.size()).isEqualTo(2);
         Iterator<GalasaPropertyName> walker = results.keySet().iterator();
         assertThat(walker.next()).isEqualTo(new GalasaPropertyName("a.b.c.d"));
@@ -50,7 +50,7 @@ public class TestPropertyComparator{
         keys.add(new GalasaPropertyName("a.b.c.d"));
 
 
-        Map<GalasaPropertyName, GalasaProperty>results = sort(keys);
+        Map<GalasaPropertyName, CPSProperty>results = sort(keys);
         assertThat(results.size()).isEqualTo(2);
         Iterator<GalasaPropertyName> walker = results.keySet().iterator();
         assertThat(walker.next()).isEqualTo(new GalasaPropertyName("a.b.c.d"));
@@ -64,7 +64,7 @@ public class TestPropertyComparator{
         keys.add(new GalasaPropertyName("a.b.adefg"));
         keys.add(new GalasaPropertyName("a.b.c.d"));
 
-        Map<GalasaPropertyName, GalasaProperty>results = sort(keys);
+        Map<GalasaPropertyName, CPSProperty>results = sort(keys);
         assertThat(results.size()).isEqualTo(2);
         Iterator<GalasaPropertyName> walker = results.keySet().iterator();
         assertThat(walker.next()).isEqualTo(new GalasaPropertyName("a.b.c.d"));
@@ -78,7 +78,7 @@ public class TestPropertyComparator{
         keys.add(new GalasaPropertyName("a.b.a.d"));
         keys.add(new GalasaPropertyName("a.b.c.d"));
 
-        Map<GalasaPropertyName, GalasaProperty>results = sort(keys);
+        Map<GalasaPropertyName, CPSProperty>results = sort(keys);
         assertThat(results.size()).isEqualTo(2);
         Iterator<GalasaPropertyName> walker = results.keySet().iterator();
         assertThat(walker.next()).isEqualTo(new GalasaPropertyName("a.b.a.d"));
