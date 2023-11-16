@@ -269,7 +269,7 @@ publishing {
                 name = "Manifest for framework bundle versions"
                 artifactId = "dev.galasa.framework.manifest"
                 groupId = 'dev.galasa'
-version = "0.31.0"
+                version = "0.31.0"
                 description = "Conveys bundle version information to OBR builds."
                 licenses {
                     license {
