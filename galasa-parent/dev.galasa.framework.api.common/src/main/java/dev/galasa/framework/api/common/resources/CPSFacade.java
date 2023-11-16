@@ -47,6 +47,7 @@ public class CPSFacade {
     }
 
     public CPSNamespace getNamespace(String name) throws ConfigurationPropertyStoreException  {
+        getNamespaces();
         CPSNamespace namespace = bakedInNamespaceMap.get(name);
         if (namespace == null) {
             new CPSNamespace(name, Visibility.NORMAL ,this.framework);       

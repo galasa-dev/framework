@@ -63,9 +63,9 @@ public abstract class CPSRoute extends BaseRoute {
 
     protected  boolean checkNamespaceExists(String namespaceName) throws ConfigurationPropertyStoreException, InternalServletException {
         boolean valid = false;
-        CPSFacade cps = new CPSFacade(framework);
-        CPSNamespace namespace = cps.getNamespace(namespaceName);
         try {
+            CPSFacade cps = new CPSFacade(framework);
+            CPSNamespace namespace = cps.getNamespace(namespaceName);
             if (namespace.getProperties().size() > 0) {
                 valid = true;
             }

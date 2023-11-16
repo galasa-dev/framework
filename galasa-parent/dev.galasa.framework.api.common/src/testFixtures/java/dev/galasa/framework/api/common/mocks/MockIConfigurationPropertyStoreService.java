@@ -31,9 +31,9 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
         this.namespaceInput = namespace;
         if (this.namespaceInput == "multi"){
             this.properties.put("multi.test.property", "value1");
-            this.properties.put("multi..charity1", "value2");
-            this.properties.put("multi..lecture101", "value101");
-            this.properties.put("multi..hospitality", "value3");
+            this.properties.put("multi.example.charity1", "value2");
+            this.properties.put("multi.example.lecture101", "value101");
+            this.properties.put("multi.example.hospitality", "value3");
             this.properties.put("multi.test.aunty5", "value4");
             this.properties.put("multi.test.empty", "value5");
         }else if (this.namespaceInput == "infixes"){

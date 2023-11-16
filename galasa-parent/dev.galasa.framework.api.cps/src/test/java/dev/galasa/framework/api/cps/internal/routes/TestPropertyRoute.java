@@ -27,6 +27,24 @@ import com.google.gson.JsonParser;
 
 public class TestPropertyRoute extends CpsServletTest{
 
+	private Map<GalasaPropertyName, CPSProperty> getPropertiesFromMap (Map<String,String> inputMap){
+		Map<GalasaPropertyName, CPSProperty> properties = new HashMap<GalasaPropertyName, CPSProperty>();
+		for (Map.Entry<String,String> prop: inputMap.entrySet()){
+			properties.put(new GalasaPropertyName(prop.getKey()), new CPSProperty(prop.getKey(), prop.getValue()));
+		}
+		return properties;
+	}
+
+	private void checkPropertiesMatch(Map<GalasaPropertyName,CPSProperty> results, Map<GalasaPropertyName,CPSProperty> expected){
+		assertThat(results.size()).isEqualTo(expected.size());
+		if (expected.size() > 0){
+			for (Map.Entry<GalasaPropertyName,CPSProperty> prop : expected.entrySet()){
+				GalasaPropertyName expectedKey = prop.getKey();
+				assertThat(results.get(expectedKey)).usingRecursiveComparison().isEqualTo(expected.get(expectedKey));
+			}
+		}
+	}
+
     @Test
     public void TestPropertyQueryNoFrameworkReturnsError() throws Exception{
 		// Given...
@@ -169,14 +187,6 @@ public class TestPropertyRoute extends CpsServletTest{
 		);
 	}
 
-
-	private Map<GalasaPropertyName, CPSProperty> getPropertiesFromMap (Map<String,String> inputMap){
-		Map<GalasaPropertyName, CPSProperty> properties = new HashMap<GalasaPropertyName, CPSProperty>();
-		for (Map.Entry<String,String> prop: inputMap.entrySet()){
-			properties.put(new GalasaPropertyName(prop.getKey()), new CPSProperty(prop.getKey(), prop.getValue()));
-		}
-		return properties;
-	}
 	@Test
 	public void TestGetPropertiesWithSuffixNoMatchReturnsEmpty() {
 		//Given...
@@ -194,7 +204,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null,null).filterPropertiesBySuffix(props, suffix);
 		
 		//Then...
-		assertThat(results).isEqualTo(expectedProperties);
+		checkPropertiesMatch(results, expectedProperties);
 	}
 
 	@Test
@@ -202,14 +212,14 @@ public class TestPropertyRoute extends CpsServletTest{
 		//Given...
 		String suffix  = "1";
 		Map<String, String> expectedProperties = new HashMap<String,String>();
-		expectedProperties.put("property.1", "value1");
+		expectedProperties.put("framework.property.1", "value1");
 		Map<GalasaPropertyName, CPSProperty> expectedProps = getPropertiesFromMap(expectedProperties);
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("property.2", "value2");
-		properties.put("property.3", "value3");
-		properties.put("property.4", "value4");
-		properties.put("property.5", "value5");
-		properties.put("property.6", "value6");
+		properties.put("framework.property.2", "value2");
+		properties.put("framework.property.3", "value3");
+		properties.put("framework.property.4", "value4");
+		properties.put("framework.property.5", "value5");
+		properties.put("framework.property.6", "value6");
 		properties.putAll(expectedProperties);
 		Map<GalasaPropertyName, CPSProperty> props = getPropertiesFromMap(properties);
 
@@ -217,7 +227,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map<GalasaPropertyName,CPSProperty> results = new PropertyRoute(null,null).filterPropertiesBySuffix(props, suffix);
 		
 		//Then...
-		assertThat(results).isEqualTo(expectedProps);
+		checkPropertiesMatch(results, expectedProps);
 	}
 
 	@Test
@@ -244,7 +254,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null,null).filterPropertiesBySuffix(props, suffix);
 		
 		//Then...
-		assertThat(results).isEqualTo(expectedProps);
+		checkPropertiesMatch(results, expectedProps);
 	}
 
 	@Test
@@ -267,7 +277,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, props, prefix);
 		
 		//Then...
-		assertThat(results).isEqualTo(expectedProperties);
+		checkPropertiesMatch(results, expectedProperties);
 	}
 
 	@Test
@@ -291,7 +301,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, props, prefix);
 		
 		//Then...
-		assertThat(results).isEqualTo(expectedProps);
+		checkPropertiesMatch(results, expectedProps);
 	}
 
 	@Test
@@ -319,7 +329,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null,null).filterPropertiesByPrefix(namespace, props, prefix);
 		
 		//Then...
-		assertThat(results).isEqualTo(expectedProps);
+		checkPropertiesMatch(results, expectedProps);
 	}
 
     @Test
@@ -338,7 +348,7 @@ public class TestPropertyRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("framework.property1", "value1");
+		properties.put("framework.property.1", "value1");
 
         // Then...
         // We expect data back
@@ -380,7 +390,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("suffix", new String[] {"ty"});
 
-        setServlet("/multi/properties?suffix=mickey", "multi", params);
+        setServlet("/multi/properties?suffix=ty", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -390,7 +400,7 @@ public class TestPropertyRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("multi..hospitality", "value3");
+		properties.put("multi.example.hospitality", "value3");
 		properties.put("multi.test.empty", "value5");
 		properties.put("multi.test.property", "value1");
         // Then...
@@ -406,9 +416,9 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyQueryWithNamespaceAndURLQueryPrefixReturnsOneRecord() throws Exception {
         // Given...
 		Map <String,String[]> params = new HashMap<String,String[]>();
-		params.put("prefix", new String[] {".char"});
+		params.put("prefix", new String[] {"example.char"});
 
-        setServlet("/multi/properties?prefix=.char", "multi", params);
+        setServlet("/multi/properties?prefix=example.char", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -418,7 +428,7 @@ public class TestPropertyRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("multi..charity1", "value2");
+		properties.put("multi.example.charity1", "value2");
 
         // Then...
         // We expect data back
@@ -500,7 +510,7 @@ public class TestPropertyRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("framework.property5", "value5");
+		properties.put("framework.property.5", "value5");
 
         // Then...
         // We expect data back
@@ -541,10 +551,10 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyQueryWithNamespaceAndURLQueryWithPrefixAndSuffixReturnsMultipleRecords() throws Exception {
         // Given...
 		Map <String,String[]> params = new HashMap<String,String[]>();
-		params.put("prefix", new String[] {"."});
+		params.put("prefix", new String[] {"example"});
 		params.put("suffix", new String[] {"1"});
 
-        setServlet("/multi/properties?prefix=.&suffix=1", "multi", params);
+        setServlet("/multi/properties?prefix=example&suffix=1", "multi", params);
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -554,8 +564,8 @@ public class TestPropertyRoute extends CpsServletTest{
         servlet.init();
         servlet.doGet(req, resp);
 		Map<String, String> properties = new HashMap<String,String>();
-		properties.put("multi..charity1", "value2");
-		properties.put("multi..lecture101", "value101");
+		properties.put("multi.example.charity1", "value2");
+		properties.put("multi.example.lecture101", "value101");
 
 		// Then...
         // We expect data back
@@ -664,7 +674,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		Map <String,String[]> params = new HashMap<String,String[]>();
 		params.put("prefix", new String[] {"test"});
 		params.put("suffix", new String[] {"stream"});
-		params.put("infix", new String[] {"property..testing,local"});
+		params.put("infix", new String[] {"property,testing,local"});
 
         setServlet("/infixes/properties?prefix=test&suffix=stream&infix=property,testing,local", "infixes", params);
 		MockCpsServlet servlet = getServlet();
@@ -859,7 +869,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(status).isEqualTo(201);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(output).isEqualTo("Successfully created property property6 in framework");
+        assertThat(output).isEqualTo("Successfully created property property.6 in framework");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
     }
 
@@ -1017,7 +1027,7 @@ public class TestPropertyRoute extends CpsServletTest{
     public void TestPropertyRouteNamespaceWithMultipleNumbersPOSTNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "c4ame6lcas5e8";
-        String propertyName = "property.";
+        String propertyName = "property.newproperty";
         String value = "value";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
 		JsonElement requestJson = JsonParser.parseString(propertyJSON);
@@ -1038,7 +1048,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(status).isEqualTo(201);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(output).isEqualTo("Successfully created property property in c4ame6lcas5e8");
+        assertThat(output).isEqualTo("Successfully created property property.newproperty in c4ame6lcas5e8");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
     }
 
@@ -1067,7 +1077,7 @@ public class TestPropertyRoute extends CpsServletTest{
         assertThat(status).isEqualTo(201);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(output).isEqualTo("Successfully created property property6 in secure");
+        assertThat(output).isEqualTo("Successfully created property property.6 in secure");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
     }
 
