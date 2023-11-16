@@ -102,14 +102,14 @@ public class TestFrameworkInitialisation {
         assertThat(mockFramework.getCredentialsStore()).isEqualTo(mockCredentialsStore);
         assertThat(mockFramework.getResultArchiveStore()).isEqualTo(mockRASStoreService);
 
-        assertThat(frameworkInitUnderTest.getBootstrapConfigurationPropertyStore().getPath()).isEqualTo("/myuser/home/cps.properties");
-        assertThat(frameworkInitUnderTest.getDynamicStatusStoreUri().getPath()).isEqualTo("/myuser/home/dss.properties");
+        assertThat(frameworkInitUnderTest.getBootstrapConfigurationPropertyStore().getPath()).contains("/myuser/home/cps.properties");
+        assertThat(frameworkInitUnderTest.getDynamicStatusStoreUri().getPath()).contains("/myuser/home/dss.properties");
 
         List<URI> rasUriList = frameworkInitUnderTest.getResultArchiveStoreUris();
         
         assertThat(rasUriList).hasSize(1);
-        assertThat(rasUriList.get(0).getPath()).isEqualTo("/myuser/home/ras");
-        assertThat(frameworkInitUnderTest.getCredentialsStoreUri().getPath()).isEqualTo("/myuser/home/credentials.properties");
+        assertThat(rasUriList.get(0).getPath()).contains("/myuser/home/ras");
+        assertThat(frameworkInitUnderTest.getCredentialsStoreUri().getPath()).contains("/myuser/home/credentials.properties");
 
         //assertThat(bootstrapProperties).isEmpty();
         //assertThat(overrideProperties).isEmpty();
@@ -318,10 +318,17 @@ public class TestFrameworkInitialisation {
 
         // Then...
         assertThat(uri).isNotNull();
-        assertThat(uri.getPath()).isEqualTo("/myuser/home/dss.properties" );
+        assertThat(uri.getPath()).contains("/myuser/home/dss.properties" );
 
         // The empty file system should now have a blank file also.
-        Path expectedPath = Path.of("/myuser/home/dss.properties");
+        String os = System.getProperty("os.name");
+        Path expectedPath;
+        if(os.contains("Windows")) {
+            expectedPath = Path.of("C:/myuser/home/dss.properties");
+        }
+        else {
+            expectedPath = Path.of("/myuser/home/dss.properties");
+        }
         assertThat(fs.exists(expectedPath)).isTrue();
     }
 
@@ -386,10 +393,17 @@ public class TestFrameworkInitialisation {
 
         // Then...
         assertThat(uri).isNotNull();
-        assertThat(uri.getPath()).isEqualTo("/myuser/home/credentials.properties" );
+        assertThat(uri.getPath()).contains("/myuser/home/credentials.properties" );
 
         // The empty file system should now have a blank file also.
-        Path expectedPath = Path.of("/myuser","home","credentials.properties");
+        String os = System.getProperty("os.name");
+        Path expectedPath;
+        if(os.contains("Windows")) {
+            expectedPath = Path.of("C:/myuser","home","credentials.properties");
+        }
+        else {
+            expectedPath = Path.of("/myuser","home","credentials.properties");
+        }
         assertThat(fs.exists(expectedPath)).isTrue();
     }
 
@@ -450,7 +464,14 @@ public class TestFrameworkInitialisation {
 
         // When...
         List<URI> uriList = frameworkInit.createUriResultArchiveStores(new Properties(),mockCPS);
-        assertThat(uriList).contains(URI.create("file:///myuser/home/ras"));
+
+        String os = System.getProperty("os.name");
+        if(os.contains("Windows")) {
+            assertThat(uriList).contains(URI.create("file:///C:/myuser/home/ras"));
+        }
+        else{
+            assertThat(uriList).contains(URI.create("file:///myuser/home/ras"));
+        }
     }
 
 }
