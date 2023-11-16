@@ -158,7 +158,7 @@ public abstract class CPSRoute extends BaseRoute {
          */
         JsonArray propertyArray = new JsonArray();
         if (property != null){
-            propertyArray.add(property.toJSON());
+            propertyArray.add(new GalasaProperty(property).toJSON());
         }
         return gson.toJson(propertyArray);
     }

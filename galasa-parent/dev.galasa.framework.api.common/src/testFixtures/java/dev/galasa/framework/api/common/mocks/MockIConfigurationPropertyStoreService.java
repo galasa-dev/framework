@@ -61,9 +61,9 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
     public @Null String getProperty(@NotNull String prefix, @NotNull String suffix, String... infixes)
             throws ConfigurationPropertyStoreException {
             for (Map.Entry<String,String> property : properties.entrySet()){
-                String key = property.getKey();
+                String key = property.getKey().substring(property.getKey().indexOf(".")+1);
                 String match = prefix+"."+suffix;
-                if (key.contains(match)){
+                if (key.equals(match)){
                     return property.getValue();
                 }
             }
@@ -84,7 +84,7 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
 
     @Override
     public void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException {
-       this.properties.remove(name);
+       this.properties.remove(namespaceInput+"."+name);
     }
 
     @Override

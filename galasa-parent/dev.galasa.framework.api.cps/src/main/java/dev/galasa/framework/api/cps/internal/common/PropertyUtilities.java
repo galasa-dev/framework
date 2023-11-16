@@ -74,7 +74,7 @@ public class PropertyUtilities {
      * Returns a single property from a given namespace.
      * If the namespace provided is hidden, does not exist or has no matching property, it returns null
      * If the namespace provided does not match any existing namepsaces an exception will be thrown
-     * @param namespace
+     * @param namespaceName
      * @param propertyName
      * @return Map.Entry of String, String
      * @throws InternalServletException
