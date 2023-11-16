@@ -58,7 +58,7 @@ note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" 
 function usage {
     h1 "Syntax"
     cat << EOF
-set-version.sh [OPTIONS]
+set-galasa-boot-version.sh [OPTIONS]
 Options are:
 -v | --version xxx : Mandatory. Set the version number to something explicitly. 
     Re-builds the release.yaml based on the contents of sub-projects.
@@ -145,6 +145,8 @@ function update_release_yaml_version {
         fi
 
     done < $source_file > $temp_file
+    cp $temp_file ${source_file}
+    rc=$?; if [[ "${rc}" != "0" ]]; then error "Failed to overwrite new version of $source_file file."; exit 1; fi
 
     success "$source_file updated OK."
 }
@@ -156,4 +158,4 @@ mkdir -p $temp_dir
 update_build_gradle_version $temp_dir
 update_release_yaml_version $temp_dir
 
-warn There is a galasa-boot version in ecliplse/galasa-eclipse-parent/dev.galasa.eclipse/pom.xml that needs to be updated manually.
+warn "There is a galasa-boot version in ecliplse/galasa-eclipse-parent/dev.galasa.eclipse/pom.xml that needs to be updated manually."
