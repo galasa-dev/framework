@@ -128,7 +128,7 @@ public class PropertyUtilities {
          * whilst setting updateProperty to true will force an update property path
          */
         if (propExists == updateProperty){
-            getFramework().getConfigurationPropertyService(property.getNamespace()).setProperty(property.getNamespace()+"."+property.getName(), property.getValue());
+            getFramework().getConfigurationPropertyService(property.getNamespace()).setProperty(property.getName(), property.getValue());
         }else if (propExists){
             ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.getName(), property.getNamespace());  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);

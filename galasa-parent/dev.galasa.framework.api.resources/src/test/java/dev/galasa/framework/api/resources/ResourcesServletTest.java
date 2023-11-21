@@ -89,7 +89,7 @@ public class ResourcesServletTest extends BaseServletTest {
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String key = entry.getKey().toString();
 			String value =entry.getValue().toString();
-            if (key.equals(namespace+"."+propertyName) && value.equals(propertyValue)){
+            if (key.equals(propertyName) && value.equals(propertyValue)){
 				found = true;
             }
         }
