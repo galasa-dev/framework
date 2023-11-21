@@ -649,7 +649,7 @@ public class Launcher {
         String RAS_ENV_VAR = "GALASA_RESULTARCHIVE_STORE";
         String CREDS_ENV_VAR = "GALASA_CREDENTIALS_STORE";
 
-        String cps = env.getProperty(CPS_ENV_VAR);
+        String cps = env.getenv(CPS_ENV_VAR);
 
         if( (cps != null) && (!cps.trim().isEmpty())){
             cps = cps.trim();
@@ -657,21 +657,21 @@ public class Launcher {
             bootstrap.setProperty("framework.config.store",cps);
         }
 
-        String dss = env.getProperty(DSS_ENV_VAR);
+        String dss = env.getenv(DSS_ENV_VAR);
         if( (dss != null) && (!dss.trim().isEmpty())){
             dss = dss.trim();
             logger.info(String.format("Environment variable: %s used to locate DSS location",DSS_ENV_VAR));
             bootstrap.setProperty("framework.dynamicstatus.store",dss);
         }
 
-        String ras = env.getProperty(RAS_ENV_VAR);
+        String ras = env.getenv(RAS_ENV_VAR);
         if( (ras != null) && (!ras.trim().isEmpty())){
             ras = ras.trim();
             logger.info(String.format("Environment variable: %s used to locate RAS location",RAS_ENV_VAR));
             bootstrap.setProperty("framework.resultarchive.store",ras);
         }
 
-        String creds = env.getProperty(CREDS_ENV_VAR);
+        String creds = env.getenv(CREDS_ENV_VAR);
         if( (creds != null) && (!creds.trim().isEmpty())){
             creds = creds.trim();
             logger.info(String.format("Environment variable: %s used to locate credentials store location",CREDS_ENV_VAR));
