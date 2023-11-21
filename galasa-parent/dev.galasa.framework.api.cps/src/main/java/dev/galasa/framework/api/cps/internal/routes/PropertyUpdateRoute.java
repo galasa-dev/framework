@@ -8,7 +8,6 @@ package dev.galasa.framework.api.cps.internal.routes;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +20,6 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
@@ -62,14 +60,11 @@ public class PropertyUpdateRoute extends CPSRoute {
     @Override
     public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
             throws  IOException, FrameworkException {
-        String namespace = getNamespaceFromURL(pathInfo);
+        String namespaceName = getNamespaceFromURL(pathInfo);
         String name = getPropertyNameFromURL(pathInfo);
         checkRequestHasContent(request);
-        String value = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-        CPSProperty property = propertyUtility.getGalasaPropertyfromJsonString(value);
-        propertyUtility.checkPropertyNamespaceMatchesURLNamespace(property, namespace);
-        propertyUtility.setProperty(property, true);
-        String responseBody = String.format("Successfully updated property %s in %s",name, namespace);
+        CPSProperty property = applyPropertyToStore(request, namespaceName, true);
+        String responseBody = String.format("Successfully updated property %s in %s",property.getName(), property.getNamespace());
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK); 
     }
 

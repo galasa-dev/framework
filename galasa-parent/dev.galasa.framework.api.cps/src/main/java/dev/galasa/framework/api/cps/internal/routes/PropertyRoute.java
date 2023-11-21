@@ -166,16 +166,10 @@ public class PropertyRoute extends CPSRoute{
     public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response)
             throws  IOException, FrameworkException {
-        String namespace = getNamespaceFromURL(pathInfo);
+        String namespaceName = getNamespaceFromURL(pathInfo);
         checkRequestHasContent(request);
-        CPSProperty property = propertyUtility.getPropertyFromRequestBody(request);
-        checkNamespaceExists(namespace);
-        if(!propertyUtility.checkPropertyNamespaceMatchesURLNamespace(property, namespace)){
-            ServletError error = new ServletError(GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR,property.getNamespace(), namespace);  
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
-        propertyUtility.setProperty(property, false);
-        String responseBody = String.format("Successfully created property %s in %s",property.getName(), namespace);
+        CPSProperty property = applyPropertyToStore(request, namespaceName, false);
+        String responseBody = String.format("Successfully created property %s in %s",property.getName(), property.getNamespace());
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
     }
 

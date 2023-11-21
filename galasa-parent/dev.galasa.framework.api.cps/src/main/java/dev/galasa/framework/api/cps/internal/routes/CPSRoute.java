@@ -5,10 +5,12 @@
  */
 package dev.galasa.framework.api.cps.internal.routes;
 
+import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
@@ -27,6 +29,7 @@ import dev.galasa.framework.api.common.resources.GalasaProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.api.cps.internal.common.PropertyUtilities;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
@@ -59,7 +62,19 @@ public abstract class CPSRoute extends BaseRoute {
         return this.framework;
     }
 
-    
+    protected CPSProperty applyPropertyToStore (HttpServletRequest request, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
+        GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(request);
+        checkNamespaceExists(namespaceName);
+        CPSFacade cps = new CPSFacade(framework);
+        CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
+        CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
+        if(!propertyUtility.checkPropertyNamespaceMatchesURLNamespace(property, namespaceName)){
+            ServletError error = new ServletError(GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR,property.getNamespace(), namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        property.setPropertyToStore(galasaProperty, isUpdateAction);
+        return property;
+    }
 
     protected  boolean checkNamespaceExists(String namespaceName) throws ConfigurationPropertyStoreException, InternalServletException {
         boolean valid = false;

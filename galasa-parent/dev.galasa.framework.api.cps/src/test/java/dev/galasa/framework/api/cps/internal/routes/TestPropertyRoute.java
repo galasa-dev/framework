@@ -1171,7 +1171,7 @@ public class TestPropertyRoute extends CpsServletTest{
         // Given...
         String propertyName = "property.6";
         String value = "value6";
-		String propertyJSON = generatePropertyJSON("empty", propertyName, value, "galasa-dev/v1alpha1");
+		String propertyJSON = generatePropertyJSON("secure", propertyName, value, "galasa-dev/v1alpha1");
         setServlet("/framework/properties", "framework", propertyJSON, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -1190,7 +1190,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5028,
-			"GAL5028E: The GalasaProperty namespace 'empty' must match the url namespace 'framework'."
+			"GAL5028E: The GalasaProperty namespace 'secure' must match the url namespace 'framework'."
 		); 
     }
     

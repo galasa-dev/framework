@@ -69,14 +69,19 @@ public class CPSNamespace {
     }
 
     public CPSProperty getProperty(String propertyName) throws ConfigurationPropertyStoreException {
+        CPSProperty prop = getPropertyFromStore(propertyName);
+            if (!prop.existsInStore()) {
+                prop = null;
+            }
+            return prop;
+        }
+
+     public CPSProperty getPropertyFromStore(String propertyName) throws ConfigurationPropertyStoreException {
         CPSProperty prop = null;
         if (visibility != Visibility.HIDDEN) {
             GalasaPropertyName propName = new GalasaPropertyName(this.name, propertyName);
             prop = new CPSProperty(this.propertyStore, this, propName);
             prop.LoadValueFromStore();
-            if (!prop.existsInStore()) {
-                prop = null;
-            }
         }
         return prop;
     }

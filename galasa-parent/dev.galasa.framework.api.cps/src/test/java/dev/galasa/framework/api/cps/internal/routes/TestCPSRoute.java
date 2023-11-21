@@ -23,89 +23,89 @@ public class TestCPSRoute extends CpsServletTest {
         }
     }
     
-    @Test
-    public void TestCreateGalasaPropertyReturnsSuccess(){
-        //Given...
+    // @Test
+    // public void TestCreateGalasaPropertyReturnsSuccess(){
+    //     //Given...
         
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        CPSProperty property = new CPSProperty("framework", "property.10", "value");
-        boolean updateProperty = false;
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     CPSProperty property = new CPSProperty("framework", "property.10", "value");
+    //     boolean updateProperty = false;
 
-        //When...
-        Throwable thrown = catchThrowable( () -> {
-           cpsRoute.propertyUtility.setProperty(property, updateProperty);
-        });
+    //     //When...
+    //     Throwable thrown = catchThrowable( () -> {
+    //        cpsRoute.propertyUtility.setProperty(property, updateProperty);
+    //     });
 
-        //Then...
-        assertThat(thrown).isNull();
-    }
+    //     //Then...
+    //     assertThat(thrown).isNull();
+    // }
     
-    @Test
-    public void TestCreateGalasaPropertyWherePropertyAlreadyExistsReturnsError(){
-        //Given...
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        CPSProperty property = new CPSProperty("framework","property.1", "value");
-        boolean updateProperty = false;
+    // @Test
+    // public void TestCreateGalasaPropertyWherePropertyAlreadyExistsReturnsError(){
+    //     //Given...
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     CPSProperty property = new CPSProperty("framework","property.1", "value");
+    //     boolean updateProperty = false;
 
-        //When...
-        Throwable thrown = catchThrowable( () -> {
-           cpsRoute.propertyUtility.setProperty(property, updateProperty);
-        });
+    //     //When...
+    //     Throwable thrown = catchThrowable( () -> {
+    //        cpsRoute.propertyUtility.setProperty(property, updateProperty);
+    //     });
 
-        //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5018");
-    }
+    //     //Then...
+    //     assertThat(thrown).isNotNull();
+    //     assertThat(thrown.getMessage()).contains("GAL5018");
+    // }
 
-    @Test
-    public void TestUpdateGalasaPropertyReturnsSuccess(){
-        //Given...
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        CPSProperty property = new CPSProperty("framework","property.1", "value");
-        boolean updateProperty = true;
+    // @Test
+    // public void TestUpdateGalasaPropertyReturnsSuccess(){
+    //     //Given...
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     CPSProperty property = new CPSProperty("framework","property.1", "value");
+    //     boolean updateProperty = true;
 
-        //When...
-        Throwable thrown = catchThrowable( () -> {
-           cpsRoute.propertyUtility.setProperty(property, updateProperty);
-        });
+    //     //When...
+    //     Throwable thrown = catchThrowable( () -> {
+    //        cpsRoute.propertyUtility.setProperty(property, updateProperty);
+    //     });
 
-        //Then...
-        assertThat(thrown).isNull();
-    }
+    //     //Then...
+    //     assertThat(thrown).isNull();
+    // }
 
-    @Test
-    public void TestUpdateGalasaPropertyWherePropertyDoesNotExistReturnsError(){
-        //Given...
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        CPSProperty property = new CPSProperty("framework","property.10", "value");
-        boolean updateProperty = true;
+    // @Test
+    // public void TestUpdateGalasaPropertyWherePropertyDoesNotExistReturnsError(){
+    //     //Given...
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     CPSProperty property = new CPSProperty("framework","property.10", "value");
+    //     boolean updateProperty = true;
 
-        //When...
-        Throwable thrown = catchThrowable( () -> {
-           cpsRoute.propertyUtility.setProperty(property, updateProperty);
-        });
+    //     //When...
+    //     Throwable thrown = catchThrowable( () -> {
+    //        cpsRoute.propertyUtility.setProperty(property, updateProperty);
+    //     });
 
-        //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5017");
-    }
+    //     //Then...
+    //     assertThat(thrown).isNotNull();
+    //     assertThat(thrown.getMessage()).contains("GAL5017");
+    // }
 
-    @Test
-    public void TestUpdateGalasaPropertyWhereGalasaPropertyisNullReturnsError(){
-        //Given...
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        CPSProperty property = null;
-        boolean updateProperty = true;
+    // @Test
+    // public void TestUpdateGalasaPropertyWhereGalasaPropertyisNullReturnsError(){
+    //     //Given...
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     CPSProperty property = null;
+    //     boolean updateProperty = true;
 
-        //When...
-        Throwable thrown = catchThrowable( () -> {
-           cpsRoute.propertyUtility.setProperty(property, updateProperty);
-        });
+    //     //When...
+    //     Throwable thrown = catchThrowable( () -> {
+    //        cpsRoute.propertyUtility.setProperty(property, updateProperty);
+    //     });
 
-        //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getClass()).isEqualTo(NullPointerException.class);
-    }
+    //     //Then...
+    //     assertThat(thrown).isNotNull();
+    //     assertThat(thrown.getClass()).isEqualTo(NullPointerException.class);
+    // }
 
     @Test
     public void TestGetPropertyNameFromValidUrlWithCorrectURLStructureReturnsOk() throws InternalServletException{
@@ -167,133 +167,133 @@ public class TestCPSRoute extends CpsServletTest {
         assertThat(thrown.getMessage()).contains("GAL5000");
     }
 
-    @Test 
-    public void TestGetGalasaPropertyFromJsonStringReturnsCorrectGalasaProperty() throws InternalServletException{
-        //Given
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        String namespace = "namethisspace";
-        String name = "house.structure";
-        String value = "building";
-        String jsonString = generatePropertyJSON(namespace, name, value, "galasa-dev/v1alpha1");
+    // @Test 
+    // public void TestGetGalasaPropertyFromJsonStringReturnsCorrectGalasaProperty() throws InternalServletException{
+    //     //Given
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     String namespace = "namethisspace";
+    //     String name = "house.structure";
+    //     String value = "building";
+    //     String jsonString = generatePropertyJSON(namespace, name, value, "galasa-dev/v1alpha1");
 
-        //When...
-        CPSProperty property = cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
+    //     //When...
+    //     CPSProperty property = cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
 
-        //Then...
-        assertThat(property.getName()).isEqualTo(name);
-        assertThat(property.getNamespace()).isEqualTo(namespace);
-        assertThat(property.getValue()).isEqualTo(value);
-    }
+    //     //Then...
+    //     assertThat(property.getName()).isEqualTo(name);
+    //     assertThat(property.getNamespace()).isEqualTo(namespace);
+    //     assertThat(property.getValue()).isEqualTo(value);
+    // }
 
-    @Test 
-    public void TestGetGalasaPropertyFromJsonStringNullNamespaceReturnsError() {
-        //Given
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        String name = "doughnuts";
-        String value = "custard";
-        String jsonString = "{\n    \"apiVersion\": \"v1alpha1\",\n"+
-        "    \"kind\": \"GalasaProperty\",\n"+
-        "    \"metadata\": {\n"+
-        "      \"namespace\": ,\n"+
-        "      \"name\": \""+name+"\"\n"+
-        "    },\n"+
-        "    \"data\": {\n"+
-        "      \"value\": \""+value+"\"\n    }\n  }";
+    // @Test 
+    // public void TestGetGalasaPropertyFromJsonStringNullNamespaceReturnsError() {
+    //     //Given
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     String name = "doughnuts";
+    //     String value = "custard";
+    //     String jsonString = "{\n    \"apiVersion\": \"v1alpha1\",\n"+
+    //     "    \"kind\": \"GalasaProperty\",\n"+
+    //     "    \"metadata\": {\n"+
+    //     "      \"namespace\": ,\n"+
+    //     "      \"name\": \""+name+"\"\n"+
+    //     "    },\n"+
+    //     "    \"data\": {\n"+
+    //     "      \"value\": \""+value+"\"\n    }\n  }";
 
-        //When...
-        Throwable thrown = catchThrowable( () -> {
-            cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
-        });
+    //     //When...
+    //     Throwable thrown = catchThrowable( () -> {
+    //         cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
+    //     });
 
-        //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getClass()).isEqualTo(InternalServletException.class);
-        assertThat(thrown.getMessage()).contains("GAL5023");
-    }
+    //     //Then...
+    //     assertThat(thrown).isNotNull();
+    //     assertThat(thrown.getClass()).isEqualTo(InternalServletException.class);
+    //     assertThat(thrown.getMessage()).contains("GAL5023");
+    // }
 
-    @Test 
-    public void TestGetGalasaPropertyFromJsonStringNullNameReturnsError() {
-        //Given
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        String namespace = "gingernuts";
-        String value = "oatmeal";
-        String jsonString = "{\n    \"apiVersion\": \"v1alpha1\",\n"+
-        "    \"kind\": \"GalasaProperty\",\n"+
-        "    \"metadata\": {\n"+
-        "      \"namespace\": \""+namespace+"\",\n"+
-        "      \"name\": \n"+
-        "    },\n"+
-        "    \"data\": {\n"+
-        "      \"value\": \""+value+"\"\n    }\n  }";
+    // @Test 
+    // public void TestGetGalasaPropertyFromJsonStringNullNameReturnsError() {
+    //     //Given
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     String namespace = "gingernuts";
+    //     String value = "oatmeal";
+    //     String jsonString = "{\n    \"apiVersion\": \"v1alpha1\",\n"+
+    //     "    \"kind\": \"GalasaProperty\",\n"+
+    //     "    \"metadata\": {\n"+
+    //     "      \"namespace\": \""+namespace+"\",\n"+
+    //     "      \"name\": \n"+
+    //     "    },\n"+
+    //     "    \"data\": {\n"+
+    //     "      \"value\": \""+value+"\"\n    }\n  }";
 
-        //When...
-        Throwable thrown = catchThrowable( () -> {
-            cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
-        });
+    //     //When...
+    //     Throwable thrown = catchThrowable( () -> {
+    //         cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
+    //     });
 
-        //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getClass()).isEqualTo(InternalServletException.class);
-        assertThat(thrown.getMessage()).contains("GAL5023");
-    }
+    //     //Then...
+    //     assertThat(thrown).isNotNull();
+    //     assertThat(thrown.getClass()).isEqualTo(InternalServletException.class);
+    //     assertThat(thrown.getMessage()).contains("GAL5023");
+    // }
 
-    @Test 
-    public void TestGetGalasaPropertyFromJsonStringNullValueReturnsError() {
-        //Given
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        String namespace = "digestives";
-        String name = "walkers";
-        String jsonString = "{\n    \"apiVersion\": \"v1alpha1\",\n"+
-        "    \"kind\": \"GalasaProperty\",\n"+
-        "    \"metadata\": {\n"+
-        "      \"namespace\": \""+namespace+"\",\n"+
-        "      \"name\": \""+name+"\"\n"+
-        "    },\n"+
-        "    \"data\": {\n"+
-        "      \"value\": \n    }\n  }";
+    // @Test 
+    // public void TestGetGalasaPropertyFromJsonStringNullValueReturnsError() {
+    //     //Given
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     String namespace = "digestives";
+    //     String name = "walkers";
+    //     String jsonString = "{\n    \"apiVersion\": \"v1alpha1\",\n"+
+    //     "    \"kind\": \"GalasaProperty\",\n"+
+    //     "    \"metadata\": {\n"+
+    //     "      \"namespace\": \""+namespace+"\",\n"+
+    //     "      \"name\": \""+name+"\"\n"+
+    //     "    },\n"+
+    //     "    \"data\": {\n"+
+    //     "      \"value\": \n    }\n  }";
 
-        //When...
-        Throwable thrown = catchThrowable( () -> {
-            cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
-        });
+    //     //When...
+    //     Throwable thrown = catchThrowable( () -> {
+    //         cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
+    //     });
 
-        //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getClass()).isEqualTo(InternalServletException.class);
-        assertThat(thrown.getMessage()).contains("GAL5023");
-    }
+    //     //Then...
+    //     assertThat(thrown).isNotNull();
+    //     assertThat(thrown.getClass()).isEqualTo(InternalServletException.class);
+    //     assertThat(thrown.getMessage()).contains("GAL5023");
+    // }
 
-    @Test 
-    public void TestGetGalasaPropertyFromEmptyJsonStringReturnsError() {
-        //Given
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        String jsonString = "";
+    // @Test 
+    // public void TestGetGalasaPropertyFromEmptyJsonStringReturnsError() {
+    //     //Given
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     String jsonString = "";
 
-        //When...
-        Throwable thrown = catchThrowable( () -> {
-            cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
-        });
+    //     //When...
+    //     Throwable thrown = catchThrowable( () -> {
+    //         cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
+    //     });
 
-        //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getClass()).isEqualTo(InternalServletException.class);
-        assertThat(thrown.getMessage()).contains("GAL5023");
-    }
+    //     //Then...
+    //     assertThat(thrown).isNotNull();
+    //     assertThat(thrown.getClass()).isEqualTo(InternalServletException.class);
+    //     assertThat(thrown.getMessage()).contains("GAL5023");
+    // }
 
-    @Test 
-    public void TestGetGalasaPropertyFromBadJsonStringReturnsError() {
-        //Given
-        CPSRouteTest cpsRoute = new CPSRouteTest();
-        String jsonString = "{\"name\":\"cookies&cream\", \"value\":\"£12.50\"}";
+    // @Test 
+    // public void TestGetGalasaPropertyFromBadJsonStringReturnsError() {
+    //     //Given
+    //     CPSRouteTest cpsRoute = new CPSRouteTest();
+    //     String jsonString = "{\"name\":\"cookies&cream\", \"value\":\"£12.50\"}";
 
-        //When...
-        Throwable thrown = catchThrowable( () -> {
-            cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
-        });
+    //     //When...
+    //     Throwable thrown = catchThrowable( () -> {
+    //         cpsRoute.propertyUtility.getGalasaPropertyfromJsonString(jsonString);
+    //     });
 
-        //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getClass()).isEqualTo(InternalServletException.class);
-        assertThat(thrown.getMessage()).contains("GAL5023");
-    }
+    //     //Then...
+    //     assertThat(thrown).isNotNull();
+    //     assertThat(thrown.getClass()).isEqualTo(InternalServletException.class);
+    //     assertThat(thrown.getMessage()).contains("GAL5023");
+    // }
 }

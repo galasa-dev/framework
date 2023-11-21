@@ -15,6 +15,7 @@ import com.google.gson.JsonObject;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
@@ -39,6 +40,10 @@ public class CPSProperty {
     public CPSProperty(IConfigurationPropertyStoreService store, CPSNamespace namespace, GalasaPropertyName propertyName, String value) {
         this(store, namespace,propertyName);
         this.value = value;
+    }
+
+    public CPSProperty(GalasaProperty property){
+        this(property.getNamespace()+"."+property.getName(),property.getValue());
     }
 
     public CPSProperty (String completeCPSname, String propertyValue) {
@@ -92,6 +97,26 @@ public class CPSProperty {
             if ( isSecure() ){
                 this.value = REDACTED_PROPERTY_VALUE;
             }
+        }
+    }
+
+    public void setPropertyToStore(GalasaProperty galasaProperty,boolean updateProperty) throws FrameworkException, InternalServletException {
+        boolean propExists = existsInStore();
+        /*
+         * Logic Table to Determine actions
+         * Create Property - The property must not already Exist i.e. propExists == false, updateProperty == false
+         * Update Property - The property must exist i.e. propExists == true, updateProperty == true
+         * Therefore setting updateProperty to false will force a create property path,
+         * whilst setting updateProperty to true will force an update property path
+         */
+        if (propExists == updateProperty){
+            store.setProperty(this.getName(), galasaProperty.getValue());
+        }else if (propExists){
+            ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, this.getName(), this.getNamespace());  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }else{
+            ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR, this.getName());  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
 

@@ -5,8 +5,11 @@
  */
 package dev.galasa.framework.api.common.resources;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
@@ -129,4 +132,18 @@ public class GalasaProperty {
         }
         return true;
     }
+
+    public static GalasaProperty getPropertyFromRequestBody( HttpServletRequest request) throws IOException, InternalServletException{
+        String jsonString = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
+         GalasaProperty property;
+        try {
+            property = gson.fromJson(jsonString, GalasaProperty.class);
+            property.isPropertyValid(); 
+        }catch (Exception e){
+            ServletError error = new ServletError(GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY, jsonString);  
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        return property;
+    }
+
 }

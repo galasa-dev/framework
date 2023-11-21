@@ -118,25 +118,6 @@ public class PropertyUtilities {
      * @param updateProperty Boolean flag indicating if the action to be performed is an update
      * @throws FrameworkException
      */
-    public void setProperty(@NotNull CPSProperty property, boolean updateProperty) throws FrameworkException, InternalServletException {
-        boolean propExists = checkGalasaPropertyExists(property);
-        /*
-         * Logic Table to Determine actions
-         * Create Property - The property must not already Exist i.e. propExists == false, updateProperty == false
-         * Update Property - The property must exist i.e. propExists == true, updateProperty == true
-         * Therefore setting updateProperty to false will force a create property path,
-         * whilst setting updateProperty to true will force an update property path
-         */
-        if (propExists == updateProperty){
-            getFramework().getConfigurationPropertyService(property.getNamespace()).setProperty(property.getName(), property.getValue());
-        }else if (propExists){
-            ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.getName(), property.getNamespace());  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }else{
-            ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR, property.getName());  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }
-    }
 
     public void setGalasaProperty (CPSProperty property, String action) throws FrameworkException{
         boolean updateProperty = false;
@@ -145,47 +126,11 @@ public class PropertyUtilities {
                 updateProperty = true;
             }
         }
-        setProperty(property, updateProperty);
+       // setProperty(property, updateProperty);
     }
 
     public boolean checkPropertyNamespaceMatchesURLNamespace(@NotNull CPSProperty property , @NotNull String namespace){
         return namespace.toLowerCase().trim().equals(property.getNamespace().toLowerCase().trim());
 
     }
-     /**
-     * Returns an GalasaProperty from the request body that should be encoded in UTF-8 format
-     * @param request
-     * @return GalasaProperty 
-     * @throws IOException
-     * @throws InternalServletException
-     */
-    public CPSProperty getPropertyFromRequestBody (HttpServletRequest request) throws IOException, InternalServletException{
-        String body = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-        return getGalasaPropertyfromJsonString(body);
-    }
-
-    /**
-     * This function casts a json String into a GalasaProperty so that it can be used by the framework.
-     * The property Json Structure should match the GalasaProperty Structure, otherwise an exception will be thrown
-     * 
-     * @param jsonString
-     * @return GalasaProperty
-     * @throws InternalServletException
-     */
-    public CPSProperty getGalasaPropertyfromJsonString (String jsonString) throws InternalServletException{
-        CPSProperty property = null;
-        boolean valid = false;
-        try {
-            GalasaProperty jsonproperty = gson.fromJson(jsonString, GalasaProperty.class);
-            valid = jsonproperty.isPropertyValid();
-            property = new CPSProperty(jsonproperty.getNamespace()+"."+jsonproperty.getName(),jsonproperty.getValue());
-        }catch (Exception e){}
-        
-        if(!valid){
-            ServletError error = new ServletError(GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY, jsonString);  
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
-        return property;
-    }
-    
 }

@@ -234,14 +234,14 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
-		assertThat(resp.getStatus()).isEqualTo(500);
+		assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
-			5000,
-			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'namespace1'. The namespace provided is invalid."
 		);
     }
     
@@ -261,14 +261,14 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
-		assertThat(resp.getStatus()).isEqualTo(500);
+		assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
-			5000,
-			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
 		);
     }
 
@@ -411,7 +411,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5016,
-			"E: Error occured when trying to access namespace 'framework'. The namespace provided is invalid."
+			"E: Error occured when trying to access namespace 'framew0rk'. The namespace provided is invalid."
 		); 
     }
     
