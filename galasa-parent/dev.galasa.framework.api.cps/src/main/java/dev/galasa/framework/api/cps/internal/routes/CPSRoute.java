@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -27,7 +28,6 @@ import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
-import dev.galasa.framework.api.cps.internal.common.PropertyUtilities;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -47,19 +47,74 @@ public abstract class CPSRoute extends BaseRoute {
     static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
 
     protected IFramework framework;
-
-    protected PropertyUtilities propertyUtility;
-
-
+    CPSFacade cps;
 
     public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework) {
         super(responseBuilder, path);
         this.framework = framework;
-        this.propertyUtility = new PropertyUtilities(framework);
     }
 
     protected IFramework getFramework() {
         return this.framework;
+    }
+
+    protected  boolean checkPropertyNamespaceMatchesURLNamespace(@NotNull CPSProperty property , @NotNull String namespace){
+        return namespace.toLowerCase().trim().equals(property.getNamespace().toLowerCase().trim());
+    }
+
+     /**
+     * Returns a boolean value of whether the property has been located in the given namespace.
+     * Hidden namespaces will return a false value as they should not be accessed via the API endpoints
+     * 
+     * @param namespace
+     * @param propertyName
+     * @return boolean
+     * @throws FrameworkException
+     */
+    public boolean checkPropertyExists (String namespace, String propertyName) throws InternalServletException{
+        return retrieveSingleProperty(namespace, propertyName) != null;
+    }
+
+    /**
+     * Returns a single property from a given namespace.
+     * If the namespace provided is hidden, does not exist or has no matching property, it returns null
+     * If the namespace provided does not match any existing namepsaces an exception will be thrown
+     * @param namespaceName
+     * @param propertyName
+     * @return Map.Entry of String, String
+     * @throws InternalServletException
+     */
+    public CPSProperty retrieveSingleProperty(String namespaceName, String propertyName) throws  InternalServletException {
+        CPSProperty property;
+        try {
+            cps = new CPSFacade(this.framework);
+        } catch( ConfigurationPropertyStoreException ex ) {
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,ex);
+        }
+
+        CPSNamespace namespace ;
+        try {
+            namespace = cps.getNamespace(namespaceName);
+        }catch (Exception e){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND,e);
+        }
+        
+        if (namespace.isHidden()){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        } 
+
+        
+        try{
+            property = namespace.getProperty(propertyName);
+        }catch (Exception e){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND,e);
+        }
+        
+        return property;
     }
 
     protected CPSProperty applyPropertyToStore (HttpServletRequest request, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
@@ -68,7 +123,7 @@ public abstract class CPSRoute extends BaseRoute {
         CPSFacade cps = new CPSFacade(framework);
         CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
         CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
-        if(!propertyUtility.checkPropertyNamespaceMatchesURLNamespace(property, namespaceName)){
+        if(!checkPropertyNamespaceMatchesURLNamespace(property, namespaceName)){
             ServletError error = new ServletError(GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR,property.getNamespace(), namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }

@@ -84,7 +84,7 @@ public class PropertyUpdateRoute extends CPSRoute {
 
 
     private void deleteProperty(String namespace, String propertyName) throws FrameworkException {
-        if (propertyUtility.checkPropertyExists(namespace, propertyName)){
+        if (checkPropertyExists(namespace, propertyName)){
             framework.getConfigurationPropertyService(namespace).deleteProperty(propertyName);
         }else{
             ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR,propertyName);  

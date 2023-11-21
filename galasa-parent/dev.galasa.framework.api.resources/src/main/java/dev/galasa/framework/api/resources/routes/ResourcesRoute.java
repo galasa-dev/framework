@@ -27,9 +27,10 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.CPSFacade;
+import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaProperty;
-import dev.galasa.framework.api.cps.internal.common.PropertyUtilities;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -39,13 +40,15 @@ public class ResourcesRoute  extends BaseRoute{
     static final Gson gson = GalasaGsonBuilder.build();
 
     private static final Set<String> validActions = Set.of("apply","create","update");
+    private static final Set<String> updateActions = Set.of("apply","update");
+    
     protected List<String> errors = new ArrayList<String>();
 
-    private PropertyUtilities propertyUtility;
+    private IFramework framework;
 
     public ResourcesRoute(ResponseBuilder responseBuilder,  IFramework framework ) {
         super(responseBuilder, "\\/?");
-         this.propertyUtility = new PropertyUtilities(framework);
+         this.framework = framework;
     }
 
     @Override
@@ -103,10 +106,16 @@ public class ResourcesRoute  extends BaseRoute{
         String apiversion = resource.get("apiVersion").getAsString();
         if (apiversion.equals(new GalasaProperty("",null, null).getApiVersion())){
             try{
-                GalasaProperty jsonproperty = gson.fromJson(resource, GalasaProperty.class);
-                if (jsonproperty.isPropertyValid()){
-                    CPSProperty property = new CPSProperty(jsonproperty.getNamespace()+"."+jsonproperty.getName(),jsonproperty.getValue());
-                    propertyUtility.setGalasaProperty(property, action);
+                GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
+                CPSFacade cps = new CPSFacade(framework);
+                CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
+                if (galasaProperty.isPropertyValid()){
+                    boolean updateProperty = false;
+                    CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
+                    if (updateActions.contains(action) && (property.existsInStore()) || action.equals("update")){
+                        updateProperty = true;
+                    }
+                    property.setPropertyToStore(galasaProperty, updateProperty);
                 }
             }catch (InternalServletException i){
                 throw i;
