@@ -81,8 +81,8 @@ public class ResourcesRoute  extends BaseRoute{
     }
 
     public void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{
-        try{
-            for (JsonElement element: jsonArray){
+        for (JsonElement element: jsonArray){
+                try{
                 JsonObject resource = element.getAsJsonObject();
                 String kind = resource.get("kind").getAsString();
                 switch (kind){
@@ -93,12 +93,12 @@ public class ResourcesRoute  extends BaseRoute{
                         ServletError error = new ServletError(GAL5026_UNSUPPORTED_RESOURCE_TYPE,kind);
                         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
                 }
+            }catch(InternalServletException s){
+                errors.add(s.getMessage());
+            }catch(Exception e){
+                ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
-        }catch(InternalServletException s){
-            errors.add(s.getMessage());
-        }catch(Exception e){
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -107,9 +107,9 @@ public class ResourcesRoute  extends BaseRoute{
         if (apiversion.equals(new GalasaProperty("",null, null).getApiVersion())){
             try{
                 GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
-                CPSFacade cps = new CPSFacade(framework);
-                CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
                 if (galasaProperty.isPropertyValid()){
+                    CPSFacade cps = new CPSFacade(framework);
+                    CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
                     boolean updateProperty = false;
                     CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
                     if (updateActions.contains(action) && (property.existsInStore()) || action.equals("update")){

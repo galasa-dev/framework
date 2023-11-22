@@ -265,6 +265,119 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
+    public void TestProcessDataArrayCreateWithOneExistingRecordJSONReturnsOneError() throws Exception{
+        //Given...
+        String namespace = "framework";
+        String propertyname = "property.name";
+        String value = "value";
+        String propertyNameTwo = "property.1";
+        String valueTwo = "random";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString ="["+ generatePropertyJSON(namespace,propertyname,value,"galasa-dev/v1alpha1");
+        jsonString = jsonString+","+ generatePropertyJSON(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
+        JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
+
+        //When...
+        resourcesRoute.processDataArray(propertyJson, "create");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors.size()).isEqualTo(1);
+        checkPropertyInNamespace(namespace,propertyname,value);
+        checkPropertyNotInNamespace(namespace,propertyNameTwo,valueTwo);
+        assertThat(errors.get(0)).contains("GAL5018E: Error occured when trying to access property 'property.1'. "+
+                "The property name provided already exists in the 'framework' namespace.");
+    }
+
+    @Test
+    public void TestProcessDataArrayCreateWithTwoExistingRecordsJSONReturnsOneError() throws Exception{
+        //Given...
+        String namespace = "framework";
+        String propertyname = "property.1";
+        String value = "value";
+        String propertyNameTwo = "property.2";
+        String valueTwo = "random";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString ="["+ generatePropertyJSON(namespace,propertyname,value,"galasa-dev/v1alpha1");
+        jsonString = jsonString+","+ generatePropertyJSON(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
+        JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
+
+        //When...
+        resourcesRoute.processDataArray(propertyJson, "create");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors.size()).isEqualTo(2);
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+        assertThat(errors.get(0)).contains("GAL5018E: Error occured when trying to access property 'property.1'. "+
+                "The property name provided already exists in the 'framework' namespace.");
+        assertThat(errors.get(1)).contains("GAL5018E: Error occured when trying to access property 'property.2'. "+
+                "The property name provided already exists in the 'framework' namespace.");
+    }
+
+    @Test
+    public void TestProcessDataArrayUpdateWithOneNewRecordJSONReturnsOneError() throws Exception{
+        //Given...
+        String namespace = "framework";
+        String propertyname = "property.name";
+        String value = "value";
+        String propertyNameTwo = "property.1";
+        String valueTwo = "random";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString ="["+ generatePropertyJSON(namespace,propertyname,value,"galasa-dev/v1alpha1");
+        jsonString = jsonString+","+ generatePropertyJSON(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
+        JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
+
+        //When...
+        resourcesRoute.processDataArray(propertyJson, "update");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors.size()).isEqualTo(1);
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+        checkPropertyInNamespace(namespace,propertyNameTwo,valueTwo);
+        assertThat(errors.get(0)).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property name provided is invalid.");
+    }
+
+    @Test
+    public void TestProcessDataArrayUpdateWithTwoNewRecordsJSONReturnsOneError() throws Exception{
+        //Given...
+        String namespace = "framework";
+        String propertyname = "property.name";
+        String value = "value";
+        String propertyNameTwo = "property.name.2";
+        String valueTwo = "random";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString ="["+ generatePropertyJSON(namespace,propertyname,value,"galasa-dev/v1alpha1");
+        jsonString = jsonString+","+ generatePropertyJSON(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
+        JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
+
+        //When...
+        resourcesRoute.processDataArray(propertyJson, "update");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors.size()).isEqualTo(2);
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+        assertThat(errors.get(0)).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property name provided is invalid.");
+        assertThat(errors.get(1)).contains("GAL5017E: Error occured when trying to access property 'property.name.2'. The property name provided is invalid.");
+    }
+
+    @Test
     public void TestProcessRequestApplyActionReturnsOK() throws Exception{
         //Given...
         String namespace = "framework";

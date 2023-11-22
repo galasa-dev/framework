@@ -24,7 +24,7 @@ import dev.galasa.framework.spi.IFramework;
  * Proxy Servlet for the /resources/* endpoints
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-"osgi.http.whiteboard.servlet.pattern=/resources" }, name = "Galasa Resources microservice")
+"osgi.http.whiteboard.servlet.pattern=/resources/*" }, name = "Galasa Resources microservice")
 public class ResourcesServlet extends BaseServlet {
 
 	@Reference
