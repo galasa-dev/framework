@@ -267,8 +267,8 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"GAL5016E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
+			5029,
+			"The GalasaProperty name 'property.1' must match the url namespace 'property1'."
 		);
     }
 
@@ -390,7 +390,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     public void TestPropertyRouteWithErroneousNamespacePUTNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyName = "property5";
+        String propertyName = "property.5";
         String value = "value6";
 		String json = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
         setServlet("/framew0rk/properties/"+propertyName, namespace, json, "PUT");

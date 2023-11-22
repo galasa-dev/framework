@@ -117,6 +117,26 @@ public abstract class CPSRoute extends BaseRoute {
         return property;
     }
 
+
+    protected boolean checkNameMatchesRequest(String name, HttpServletRequest request ) throws ConfigurationPropertyStoreException, InternalServletException {
+        boolean valid = false;
+        String propertyName = "";
+        try {
+            GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(request);
+            propertyName = galasaProperty.getName();
+            if (propertyName.equals(name)) {
+                valid = true;
+            }
+        } catch (Exception e ) {
+            //Catch the Exception (namespace is invalid) to throw error in if 
+        }  
+        if (!valid) {
+            ServletError error = new ServletError(GAL5029_PROPERTY_NAME_DOES_NOT_MATCH_ERROR,propertyName,name );  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+        return valid;
+    }
+
     protected CPSProperty applyPropertyToStore (HttpServletRequest request, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
         GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(request);
         checkNamespaceExists(namespaceName);
@@ -184,18 +204,6 @@ public abstract class CPSRoute extends BaseRoute {
         }
     }
 
-    protected String buildResponseBody(String namespace, Map<String, String> properties) {
-        /*
-         * Builds a json array object from a Map of properties
-         */
-        JsonArray propertyArray = new JsonArray();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            CPSProperty property = new CPSProperty(entry.getKey(),entry.getValue());
-            propertyArray.add(property.toJSON());
-        }
-        return gson.toJson(propertyArray);
-    }
-
     protected String buildResponseBody(Map<GalasaPropertyName, CPSProperty> properties) {
         /*
          * Builds a json array object from a Map of properties
@@ -204,20 +212,6 @@ public abstract class CPSRoute extends BaseRoute {
         for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
             CPSProperty property = entry.getValue();
             propertyArray.add(new GalasaProperty(property).toJSON());
-        }
-        return gson.toJson(propertyArray);
-    }
-
-    protected String buildResponseBody(String namespace, Map.Entry<String, String> entry) {
-        /*
-         * Builds a json array object from a single Map.Entry containing a property
-         */
-        JsonArray propertyArray = new JsonArray();
-        if (entry != null) {
-            JsonObject cpsProp = new JsonObject();
-            cpsProp.addProperty("name", entry.getKey());
-            cpsProp.addProperty("value", entry.getValue());
-            propertyArray.add(cpsProp);
         }
         return gson.toJson(propertyArray);
     }

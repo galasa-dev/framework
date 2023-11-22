@@ -98,7 +98,12 @@ public class GalasaProperty {
     }
 
     public boolean isPropertyNameValid() {
-        return this.metadata.name != null && !this.metadata.name.isBlank();
+        boolean valid;
+        valid = this.metadata.name != null && !this.metadata.name.isBlank();
+        if(valid){
+            valid = this.metadata.name.split("[.]").length >=2;
+        }
+        return valid;
     }
 
     public boolean isPropertyNameSpaceValid() {

@@ -42,6 +42,7 @@ public enum ServletErrorMessage {
     GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR           (5017,"E: Error occured when trying to access property ''{0}''. The property name provided is invalid."),
     GAL5018_PROPERTY_ALREADY_EXISTS_ERROR           (5018,"E: Error occured when trying to access property ''{0}''. The property name provided already exists in the ''{1}'' namespace."),
     GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR (5028,"E: The GalasaProperty namespace ''{0}'' must match the url namespace ''{1}''."),
+    GAL5029_PROPERTY_NAME_DOES_NOT_MATCH_ERROR      (5029,"E: The GalasaProperty name ''{0}'' must match the url namespace ''{1}''."),
 
     //Schedule Runs...
     GAL5019_UNABLE_TO_RETRIEVE_RUNS                 (5019, "E: Unable to retrieve runs for Run Group: ''{0}''."),
