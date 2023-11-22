@@ -62,6 +62,7 @@ public class ResourcesRoute  extends BaseRoute{
         }else{
             response = getResponseBuilder().buildResponse(response, "application/json", "", HttpServletResponse.SC_OK);
         }
+        errors.clear();
         return response;
 
     }
