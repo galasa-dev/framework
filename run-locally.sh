@@ -116,7 +116,7 @@ boot_jar_name=$(ls ${BOOT_FOLDER}/galasa-boot-*.jar | grep -v "sources" | grep -
 info "Boot jar is at ${BOOT_FOLDER}/${boot_jar_name}"
 
 # Work out where the locally-build-OBR is held...
-OBR_VERSION="0.30.0"
+OBR_VERSION="0.31.0"
 
 M2_PATH=~/.m2
 
