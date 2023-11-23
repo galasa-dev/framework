@@ -15,7 +15,7 @@ configurations {
 
 }
 
-version = "0.29.0"
+version = '0.31.0'
 
 jar {
     manifest {
@@ -59,3 +59,17 @@ dependencies {
     bundleDependency project (':dev.galasa.framework.maven.repository.spi')
     
 }
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file 
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = false
+ext.includeInMVP          = true
+ext.includeInIsolated     = false
+ext.includeInBOM          = false
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = false
+

@@ -38,6 +38,8 @@ Here are the system properties which the framework understands:
 - `GALASA_HOME` - holds the path which should be used in preference to the `${HOME}/.galasa` location. Optional. This setting overrides 
 the environment variable of the same name, which in turn overrides the default of `${HOME}/.galasa` if not specified. 
 
+## Testing locally
+See [test-api-locally.md](./test-api-locally.md) for instructions on how to set up your environment to test the API locally.
 
 ## License
 

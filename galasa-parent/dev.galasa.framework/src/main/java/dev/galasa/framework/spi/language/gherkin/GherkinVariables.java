@@ -1,7 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
  */
-package main.java.dev.galasa.framework.spi.language.gherkin;
+package dev.galasa.framework.spi.language.gherkin;
 
 import java.util.ArrayList;
 import java.util.HashMap;

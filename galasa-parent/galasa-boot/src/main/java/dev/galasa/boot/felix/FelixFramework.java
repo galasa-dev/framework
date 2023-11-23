@@ -1,5 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.boot.felix;
 
@@ -10,7 +12,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,9 +56,7 @@ public class FelixFramework {
     private Bundle obrBundle;
 
     private RepositoryAdmin repositoryAdmin;
-    
-    private final SecureRandom random = new SecureRandom();
-    
+        
     private File felixCache;
 
     /**
@@ -73,11 +72,10 @@ public class FelixFramework {
      * @throws ClassNotFoundException
      */
     public void buildFramework(List<String> bundleRepositories, Properties boostrapProperties, URL localMavenRepo,
-            List<URL> remoteMavenRepos) throws LauncherException, ClassNotFoundException {
+            List<URL> remoteMavenRepos, String galasaHome) throws LauncherException, ClassNotFoundException {
         logger.debug("Building Felix Framework...");
 
-        String felixCacheDirectory = System.getProperty("user.home");
-        File galasaDirectory = new File(felixCacheDirectory, ".galasa");
+        File galasaDirectory = new File(galasaHome);
         String cacheDirectory = "felix-cache";
         
         this.felixCache = new File(galasaDirectory, cacheDirectory);

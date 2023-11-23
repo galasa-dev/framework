@@ -1,10 +1,13 @@
 #
 # Copyright contributors to the Galasa project
 #
+# SPDX-License-Identifier: EPL-2.0
+#
+
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
-  version: 0.28.0
+  version : "0.31.0"
   description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
   contact:
     url: https://galasa.dev/support
@@ -17,16 +20,527 @@ servers:
         default: localhost
       port:
         default: "8080"
-
+security:
+  - JwtAuth : []
 paths:
 ##################################################################################
+# Authentication API
+##################################################################################
+  /auth:
+    post:
+      operationId: postAuthenticate
+      summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
+      tags:
+      - Authentication API
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthProperties'
+      responses:
+        '200':
+          description: Returns a JSON Object containing a JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+##################################################################################
 # CPS API
+##################################################################################
+  #--------------------------------------
+  # List all known Namespaces in CPS, excluding hidden namespaces
+  #--------------------------------------
+  /cps/:
+    get:
+      operationId: getAllCpsNamespaces
+      summary: Get all known CPS Namespaces
+      description: Returns a list of all Namespaces in the Configuration Property Store 
+      tags:
+      - Configuration Property Store API
+      responses:
+        '200':
+          description: Array of CPS Namespaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Namespace'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+                cpserror: 
+                  value: 
+                    error_code: 5015
+                    error_message: "GAL5015E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+  #--------------------------------------
+  # List all properties for a given Namespace in CPS
+  # Create a new property
+  #--------------------------------------
+  /cps/{namespace}/properties:
+    get:
+      operationId: queryCpsNamespaceProperties
+      summary: Get all CPS namespace properties
+      description: Returns a list of all Properties in the given namespace within the Configuration Property Store 
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: prefix
+        in: query
+        description: |
+          Property Prefix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
+      - name: suffix
+        in: query
+        description: |
+          Property suffix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
+      - name: infix
+        in: query
+        description: |
+          Comma-separated list of Property infixes. The first character of each infix must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Array of CPS Properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CpsProperty'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespacerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. Namespace 'xyz' is not available."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+    post:
+      operationId: createCpsProperty
+      summary: Create a new CPS property
+      description: Create a new property with the supplied value in the given Namespace within the Configuration Property Store.
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: The value of the property being created.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
+      responses:
+        '201':
+          description: Action Message
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Successfully created property propertyName in namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+                existingpropertyerror:
+                  value:
+                    error_code: 5018
+                    error_message: "GAL5018E: Error occured when trying to access property 'propertyName'. The property name provided already exists in the 'framework' namespace."
+                  summary: An error occured because the property already exists
+        '411':
+          description: Content Length Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                nocontenterror:
+                  value:
+                    error_code: 5411
+                    error_message: "GAL5411E: Error occured when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
+                  summary: An error occured when no value was supplied in the request body
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+  #--------------------------------------
+  # Read, Update and Delete a CPS property
+  #--------------------------------------
+  /cps/{namespace}/properties/{propertyName}:
+    get:
+      operationId: getCpsProperty
+      summary: Get single CPS property
+      description: Returns a property, value pair that matches the full propertyName in the given Namespace within the Configuration Property Store.
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name. 
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CpsProperty'
+              examples:
+                propertyexists:
+                  value:
+                    name: propertyName
+                    value: propertyValue
+                  summary: Property Found in namespace
+                propertynotfound:
+                  value: '[ ]'
+                  summary: Property does not exist in namespace
+                propertyexistsinwriteonlynamespace:
+                  value:
+                    name: propertyName
+                    value: "********"
+                  summary: Property found in write only namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidnamespaceerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+    put:
+      operationId: updateCpsProperty
+      summary: Update existing CPS property
+      description: Update an existing property in a given namepace in the Configuration Properties Store.
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name. 
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: The value of the property being created.
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: Action Message
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Successfully updated property propertyName in namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+                newpropertyerror:
+                  value:
+                    error_code: 5017
+                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
+                  summary: An error occured because the property does not exist
+        '411':
+          description: Content Length Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                nocontenterror:
+                  value:
+                    error_code: 5411
+                    error_message: "GAL5411E: Error occured when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
+                  summary: An error occured when no value was supplied in the request body
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+    delete:
+      operationId: deleteCpsProperty
+      summary: Delete existing CPS property
+      description: Delete an existing property in a given namepace in the Configuration Properties Store.
+      tags: 
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name. 
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Action Message
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Successfully deleted property propertyName in namespace
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror: 
+                  value: 
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+                newpropertyerror:
+                  value:
+                    error_code: 5017
+                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
+                  summary: An error occured because the property does not exist
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+##################################################################################
+# Deprecated CPS API
 ##################################################################################
   /cps/namespace:
     get:
       operationId: getCpsNamespaces
+      deprecated: true
       summary: Get CPS Namespaces
-      tags: 
+      tags:
       - Configuration Property Store API
       responses:
         '200':
@@ -37,6 +551,18 @@ paths:
                 type: array
                 items:
                   type: string
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Internal Server Error
           content:
@@ -46,15 +572,16 @@ paths:
   /cps/namespace/{namespace}:
     get:
       operationId: getCpsNamespaceProperties
+      deprecated: true
       summary: Get all properties for a namepace
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
         - name: namespace
           in: path
           description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
           required: true
           schema:
             type: string
@@ -73,6 +600,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Internal Server Error
           content:
@@ -82,8 +621,9 @@ paths:
   /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
     get:
       operationId: getCpsNamespaceCascadeProperty
+      deprecated: true
       summary: Get cascade CPS property
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -126,6 +666,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CpsProperty'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -135,29 +687,30 @@ paths:
   /cps/namespace/{namespace}/property/{property}:
     put:
       operationId: putCpsNamespaceProperty
+      deprecated: true
       summary: Put new CPS Property
       description: |
-        Searches multiple places in the property store for the first property matching the namespace, 
+        Searches multiple places in the property store for the first property matching the namespace,
         prefix and suffix, and as many of the leading infix strings as possible.
-        This results in a value which is the most specific, given a sparsely populated hierarchical 
+        This results in a value which is the most specific, given a sparsely populated hierarchical
         structure of property names.
-        Over-rides of values (if present) are returned in preference to the normal stored value 
+        Over-rides of values (if present) are returned in preference to the normal stored value
         of a property.
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
         in: path
         description: |
-            Property Namespace. First character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
         required: true
         schema:
           type: string
       - name: property
         in: path
         description: |
-          Property Name. 
+          Property Name.
           The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
           and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
@@ -176,6 +729,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CpsProperty'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -185,7 +750,7 @@ paths:
 ##################################################################################
 # RAS API
 ##################################################################################
-  
+
   #--------------------------------------
   # List all known requestors.
   #--------------------------------------
@@ -193,7 +758,7 @@ paths:
     get:
       operationId: getRasRequestors
       summary: Get all known requestors
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: sort
@@ -209,6 +774,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Requestors'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -224,7 +801,7 @@ paths:
     get:
       operationId: getRasResultNames
       summary: Get all the known result names
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: sort
@@ -240,6 +817,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResultNames'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -256,49 +845,60 @@ paths:
       operationId: getRasSearchRuns
       summary: Get Runs from Query
       description: |
-        API endpoint to query the Result Archive Store (RAS) for a (possibly sorted) 
+        API endpoint to query the Result Archive Store (RAS) for a (possibly sorted)
         list of runs based on the given search criteria.
 
-        The results returned are paginated, in that the number of desired records per page can be 
-        set, and if there are more test run records to retrieve, requests can be made for 
+        The results returned are paginated, in that the number of desired records per page can be
+        set, and if there are more test run records to retrieve, requests can be made for
         successive pages of results using the same query parameters, but varying the 'page' value.
 
-        Note: When querying multiple pages of results, tests may complete, or be started between 
-        successive calls to this endpoint. When the 'to' field is not used, no timeframe 
-        limit is specified in the query, so results retrieved in later pages may contain 
+        Note: When querying multiple pages of results, tests may complete, or be started between
+        successive calls to this endpoint. When the 'to' field is not used, no timeframe
+        limit is specified in the query, so results retrieved in later pages may contain
         test runs which were already retrieved in previous pages of the same query critera.
 
         Invalid query parameters are ignored. For example: a 'cache-buster' parameter.
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: sort
           in: query
           description: |
-            Sorts the returned runs based on the sort field. 
+            Sorts the returned runs based on the sort field.
             Supports sorting fields 'to','result' and 'testclass'.
 
             Use '{FIELD-NAME}:asc' to sort in ascending order.
             Use '{FIELD-NAME}:desc' to sort in descending order.
 
             You can use multiple instances of this query parameter, or specify
-            multiple sort orders using one query parameter, and a comma-separated 
+            multiple sort orders using one query parameter, and a comma-separated
             list of sort orders.
           required: true
-          schema: 
+          schema:
             type: string
           examples:
             single:
               value: result:asc
             multiple:
-              value: result:asc,testclass:desc  
+              value: result:asc,testclass:desc
         - name: result
           in: query
           description: |
             Result Status for the run. Commonly queried values: 'EnvFail','Passed','Failed'
+            Multiple values can be used in the query for example: 'EnvFail,Passed,Failed'.
+            Values are case insensitive. For example 'PASSED' and 'passED' will both be valid.
           schema:
             type: string
           example: Passed
+        - name: status
+          in: query
+          description: |
+            Test run lifecycle status. Current possibles: 'finished','building','generating','running','rundone','up','started','provstart','ending'. These are not case sensitive.
+            Multiple values can be used in the query for example: 'finished,running,started'.
+            Values are case insensitive. For example 'FINISHED' and 'finiSHed' will both be valid.
+          schema:
+            type: string
+          example: running
         - name: bundle
           in: query
           description: |
@@ -316,17 +916,17 @@ paths:
           in: query
           description: |
             Retrieve runs that started at a time after this date and time.
-            
+
             The only scenario in which from can be omitted is when a runname has been supplied
           schema:
             type: string
             format: date-time
-          example: '2023-04-11T09:42:06.589180Z' 
+          example: '2023-04-11T09:42:06.589180Z'
         - name: to
           in: query
           description: |
             Retrieve runs that ended at a date and time prior to this date and time value.
-            If you specify this parameter, only test runs which have completed will be returned. 
+            If you specify this parameter, only test runs which have completed will be returned.
             Tests currently in-flight will not be visible.
           schema:
             type: string
@@ -337,16 +937,16 @@ paths:
           description: The full test name (package + short test name)
           schema:
             type: string
-          example: dev.galasa.inttests.simbank.local.mvp.SimBankLocalJava11UbuntuMvp   
+          example: dev.galasa.inttests.simbank.local.mvp.SimBankLocalJava11UbuntuMvp
         - name: page
           in: query
           description: |
-            Causes a specific page in the available results to be returned. 
+            Causes a specific page in the available results to be returned.
             The first page is page 1.
             If omitted, then page 1 is returned.
           schema:
             type: integer
-          example: 2  
+          example: 2
         - name: size
           in: query
           description: |
@@ -358,7 +958,7 @@ paths:
         - name: runId
           in: query
           description: |
-            The ID for a specific test run as seen by the RAS. 
+            The ID for a specific test run as seen by the RAS.
             This number is unique across the system, so using this field you can expect
             one or zero test runs in the first page.
           schema:
@@ -407,127 +1007,18 @@ paths:
                     error_code: 5006
                     error_message: "GAL5006E: Error parsing the query parameters. Duplicate instances of query parameter 'size' found in the request URL. Expecting only one."
                   summary: An error occured parsing duplicate parameter
-        '404':
-          description: Not Found
+        '401':
+          description: Unauthorized as valid authentication has not been provided
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                runiderror:
+                unauthorizederror:
                   value:
-                    error_code: 5002
-                    error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
-                  summary: An error occured when trying to retrieve a specific run  using a runId
-        '500':
-          description: Internal Server
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying access the endpoint
-                runerror: 
-                  value: 
-                    error_code: 5003
-                    error_message: "GAL5003E: Error retrieving runs. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to retireve the runs
-                pageerror:
-                  value: 
-                    error_code: 5004
-                    error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to return a results page
- 
- 
-  #--------------------------------------
-  # Retrieve a single Run.
-  #--------------------------------------
-  /ras/runs/{runid}:
-    get:
-      operationId: getRasRunById
-      summary: Get Run by ID
-      tags: 
-      - Result Archive Store API
-      parameters:
-        - name: runid
-          in: path
-          description: Run Id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Run Data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Run'
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-
-
-  #--------------------------------------
-  # Retrieve Run Log.
-  #--------------------------------------
-  /ras/runs/{runid}/runlog:
-    get:
-      operationId: getRasRunLog
-      summary: Get Run Log
-      tags: 
-      - Result Archive Store API
-      parameters:
-        - name: runid
-          in: path
-          description: Run Id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Run Data
-          content:
-            text/plain:
-              schema:
-                type: string
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-
-
-  #--------------------------------------
-  # List the artifacts available.
-  #--------------------------------------
-  /ras/runs/{runid}/artifacts:
-    get:
-      operationId: getRasRunArtifactList
-      summary: Get the available Run artifacts which can be downloaded.
-      tags: 
-      - Result Archive Store API
-      parameters:
-        - name: runid
-          in: path
-          description: Run Id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The list of artifacts was returned.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ArtifactIndex'
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Not Found
           content:
@@ -550,8 +1041,165 @@ paths:
                 genericerror:
                   value:
                     error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa EcoSystem owner."
-                  summary: An error occured when trying access the endpoint
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+                runerror:
+                  value:
+                    error_code: 5003
+                    error_message: "GAL5003E: Error retrieving runs. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to retireve the runs
+                pageerror:
+                  value:
+                    error_code: 5004
+                    error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to return a results page
+
+
+  #--------------------------------------
+  # Retrieve a single Run.
+  #--------------------------------------
+  /ras/runs/{runid}:
+    get:
+      operationId: getRasRunById
+      summary: Get Run by ID
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+
+
+  #--------------------------------------
+  # Retrieve Run Log.
+  #--------------------------------------
+  /ras/runs/{runid}/runlog:
+    get:
+      operationId: getRasRunLog
+      summary: Get Run Log
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Data
+          content:
+            text/plain:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+
+
+  #--------------------------------------
+  # List the artifacts available.
+  #--------------------------------------
+  /ras/runs/{runid}/artifacts:
+    get:
+      operationId: getRasRunArtifactList
+      summary: Get the available Run artifacts which can be downloaded.
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The list of artifacts was returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactIndex'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runiderror:
+                  value:
+                    error_code: 5002
+                    error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
+                  summary: An error occured when trying to retrieve a specific run  using a runId
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
 
 
   #--------------------------------------
@@ -561,7 +1209,7 @@ paths:
     get:
       operationId: getRasRunArtifactByPath
       summary: Download Artifact for a given runid by artifactPath
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: runid
@@ -585,6 +1233,18 @@ paths:
                 type: string
                 format: binary
               example: attachment; filename="cps.properties"
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '404':
           description: Not Found
           content:
@@ -607,8 +1267,8 @@ paths:
                 genericerror:
                   value:
                     error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa EcoSystem owner."
-                  summary: An error occured when trying access the endpoint
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
                 locatingerror:
                   value:
                     error_code: 5008
@@ -619,7 +1279,7 @@ paths:
                     error_code: 5009
                     error_message: "GAL5009E: Error retrieving artifact  '/framework/cps_record.properties' for run with identifier 'U116'."
                   summary: An error occured when trying to retrieve the artifact
-                
+
 
 
   #--------------------------------------
@@ -629,12 +1289,12 @@ paths:
     get:
       operationId: getRasTestclasses
       summary: Get all the known test classes
-      tags: 
+      tags:
       - Result Archive Store API
       parameters:
         - name: sort
           in: query
-          description: Provide Sorting 
+          description: Provide Sorting
           required: false
           schema:
             type: string
@@ -642,9 +1302,21 @@ paths:
         '200':
           description: TestClasses
           content:
-            application/json:  
+            application/json:
              schema:
                 $ref: '#/components/schemas/TestClasses'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Error
           content:
@@ -659,7 +1331,7 @@ paths:
     get:
       summary: Get group runs
       operationId: getRunsGroup
-      tags: 
+      tags:
       - Runs API
       parameters:
         - name: groupId
@@ -675,10 +1347,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestRuns'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
     post:
       summary: Sumbit test runs
       operationId: postSubmitTestRuns
-      tags: 
+      tags:
       - Runs API
       parameters:
         - name: groupId
@@ -694,12 +1378,24 @@ paths:
             schema:
               $ref: '#/components/schemas/TestRunRequest'
       responses:
-        '200':
+        '201':
           description: Test Submitted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestRuns'
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
 ##################################################################################
 # WebUI API
 ##################################################################################
@@ -707,7 +1403,7 @@ paths:
     get:
       operationId: getWebuiWorklist
       summary: Get the users Worklist
-      tags: 
+      tags:
         - WebUI Worklist API
       responses:
         '200':
@@ -726,19 +1422,19 @@ paths:
     put:
       operationId: addWebuiWorklistRunId
       summary: Add RAS runId to Worklist
-      tags: 
+      tags:
         - WebUI Worklist API
-      parameters: 
+      parameters:
         - name: runId
           in: query
           description: Run ID
           required: true
           schema:
             type: string
-      responses: 
+      responses:
         '200':
           description: Run added to Worklist and updated Worklist returned
-          content: 
+          content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Worklist'
@@ -751,7 +1447,7 @@ paths:
 
     delete:
       operationId: deleteWebuiWorklistRunId
-      tags: 
+      tags:
         - WebUI Worklist API
       summary: Remove RAS runId from Worklist
       parameters:
@@ -764,7 +1460,7 @@ paths:
       responses:
         '200':
           description: Run removed from Worklist and updated Worklist returned
-          content: 
+          content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Worklist'
@@ -781,7 +1477,7 @@ paths:
     get:
       operationId: getEcosystemBootstrap
       summary: Contact the Galasa ecosystem
-      tags: 
+      tags:
         - Bootstrap API
       responses:
         '200':
@@ -802,6 +1498,22 @@ paths:
 ##################################################################################
 components:
   schemas:
+    AuthProperties:
+      properties:
+        client_id:
+          type: string
+          description: The ID of a Galasa client that is being authenticated.
+        secret:
+          type: string
+          description: The secret for the client that is being authenticated.
+        refresh_token:
+          type: string
+          description: The refresh token to be exchanged for a JWT.
+    TokenResponse:
+      properties:
+        jwt:
+          type: string
+          description: A JSON Web Token to use when authenticating to a Galasa ecosystem.
     CpsProperty:
       properties:
         name:
@@ -963,12 +1675,12 @@ components:
       properties:
         testclasses:
           type: array
-          items: 
+          items:
             $ref: '#/components/schemas/TestClass'
     TestClass:
       type: object
       properties:
-        testclass: 
+        testclass:
            type: string
         bundle:
            type: string
@@ -1010,7 +1722,7 @@ components:
       properties:
         worklistItems:
           type: array
-          items: 
+          items:
             $ref: '#/components/schemas/WorklistItem'
     WorklistItem:
       type: object
@@ -1025,11 +1737,21 @@ components:
           type: string
         result:
           type: string
-    
-    # Structures used by the listing of the available artifacts endpoint. 
+    Namespace:
+      type: object
+      properties:
+        name:
+          type: string
+        propertiesUrl: 
+          type: string
+        type: 
+          type: string
+
+
+    # Structures used by the listing of the available artifacts endpoint.
     ArtifactIndex:
       type: array
-      items: 
+      items:
         $ref: '#/components/schemas/ArtifactIndexEntry'
       uniqueItems: true
 
@@ -1046,3 +1768,11 @@ components:
           type: string
           format: uri
           readOnly: true
+##################################################################################
+# Security Schemas
+##################################################################################
+  securitySchemes:
+    JwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

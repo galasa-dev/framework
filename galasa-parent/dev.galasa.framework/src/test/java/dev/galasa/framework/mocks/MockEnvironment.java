@@ -1,11 +1,13 @@
 /*
- * Copyright contributors to the Galasa project 
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.mocks;
 
 import java.util.*;
 
-import dev.galasa.framework.Environment;
+import dev.galasa.framework.spi.Environment;
 
 /**
  * An implementation of the Environment interface which allows code to get
@@ -43,7 +45,5 @@ public class MockEnvironment implements Environment {
     public String getProperty(String propertyName) {
         return this.sysProps.get(propertyName);
     }
-
-
     
 }

@@ -1,5 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework;
 
@@ -47,6 +49,7 @@ import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
+
 
 /**
  * Run the supplied test class
@@ -109,7 +112,7 @@ public class GherkinTestRunner {
 
         //*** Load the overrides if present
         try {
-            String prefix = "run." + run.getName() + ".override.";
+            String prefix = getDSSKeyString("override.");
             Map<String, String> runOverrides = dss.getPrefix(prefix);
             for(Entry<String, String> entry : runOverrides.entrySet()) {
                 String key = entry.getKey().substring(prefix.length());
@@ -147,7 +150,7 @@ public class GherkinTestRunner {
                 //*** TODO remove above code in 0.9.0
             } catch (Exception e) {
                 logger.error("Unable to load stream " + stream + " settings", e);
-                updateStatus("finished", "finished");
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 frameworkInitialisation.shutdownFramework();
                 return;
             }
@@ -174,7 +177,7 @@ public class GherkinTestRunner {
                 }
             } catch (MalformedURLException e) {
                 logger.error("Unable to add remote maven repository " + testRepository, e);
-                updateStatus("finished", "finished");
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 frameworkInitialisation.shutdownFramework();
                 return;
             }
@@ -192,7 +195,7 @@ public class GherkinTestRunner {
                 }
             } catch (Exception e) {
                 logger.error("Unable to load specified OBR " + testOBR, e);
-                updateStatus("finished", "finished");
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 frameworkInitialisation.shutdownFramework();
                 return;
             }
@@ -202,7 +205,7 @@ public class GherkinTestRunner {
             BundleManagement.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
         } catch (Exception e) {
             logger.error("Unable to load the managers obr", e);
-            updateStatus("finished", "finished");
+            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
             frameworkInitialisation.shutdownFramework();
             return;
         }
@@ -227,7 +230,7 @@ public class GherkinTestRunner {
             DssUtils.incrementMetric(dss, "metrics.runs.automated");
         }
 
-        updateStatus("started", "started");
+        updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
         // *** Initialise the Managers ready for the test run
         TestRunManagers managers = null;
@@ -255,7 +258,7 @@ public class GherkinTestRunner {
             
             
             stopHeartbeat();
-            updateStatus("finished", "finished");
+            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
             frameworkInitialisation.shutdownFramework();
             throw new TestRunException("Not all methods in test are registered to a Manager");
         }
@@ -263,7 +266,7 @@ public class GherkinTestRunner {
         try {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
                 stopHeartbeat();
-                updateStatus("finished", "finished");
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 frameworkInitialisation.shutdownFramework();
                 return; // TODO handle ignored classes
             }
@@ -278,7 +281,7 @@ public class GherkinTestRunner {
             this.runOk = false;
         }
 
-        updateStatus("ending", null);
+        updateStatus(TestRunLifecycleStatus.ENDING, null);
         managers.endOfTestRun();
 
         boolean markedWaiting = false;
@@ -288,7 +291,7 @@ public class GherkinTestRunner {
             logger.info("Placing queue on the waiting list");
             markedWaiting = true;
         } else {
-            updateStatus("finished", "finished");
+            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
         }
 
         stopHeartbeat();
@@ -322,7 +325,7 @@ public class GherkinTestRunner {
         }
 
         try {
-            updateStatus("generating", null);
+            updateStatus(TestRunLifecycleStatus.GENERATING, null);
             logger.info("Starting Provision Generate phase");
             managers.provisionGenerate();
         } catch (Exception e) { 
@@ -347,7 +350,7 @@ public class GherkinTestRunner {
 
         try {
             try {
-                updateStatus("building", null);
+                updateStatus(TestRunLifecycleStatus.BUILDING, null);
                 logger.info("Starting Provision Build phase");
                 managers.provisionBuild();
             } catch (FrameworkException e) {
@@ -381,7 +384,7 @@ public class GherkinTestRunner {
 
         try {
             try {
-                updateStatus("provstart", null);
+                updateStatus(TestRunLifecycleStatus.PROVSTART, null);
                 logger.info("Starting Provision Start phase");
                 managers.provisionStart();
             } catch (FrameworkException e) {
@@ -412,12 +415,12 @@ public class GherkinTestRunner {
             return;
         }
 
-        updateStatus("running", null);
+        updateStatus(TestRunLifecycleStatus.RUNNING, null);
         try {
             logger.info("Running the test class");
             testObject.runTestMethods(managers);
         } finally {
-            updateStatus("rundone", null);
+            updateStatus(TestRunLifecycleStatus.RUNDONE, null);
         }
 
     }
@@ -449,8 +452,8 @@ public class GherkinTestRunner {
         until = until.plus(totalDelay, ChronoUnit.SECONDS);
 
         HashMap<String, String> properties = new HashMap<>();
-        properties.put("run." + run.getName() + ".status", "waiting");
-        properties.put("run." + run.getName() + ".wait.until", until.toString());
+        properties.put(getDSSKeyString("status"), "waiting");
+        properties.put(getDSSKeyString("wait.until"), until.toString());
         try {
             this.dss.put(properties);
         } catch (DynamicStatusStoreException e) {
@@ -458,20 +461,21 @@ public class GherkinTestRunner {
         }
     }
 
-    private void updateStatus(String status, String timestamp) throws TestRunException {
+    private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
+        Instant time = Instant.now();
 
-        this.testStructure.setStatus(status);
-        if ("finished".equals(status)) {
+        this.testStructure.setStatus(status.toString());
+        if (status == TestRunLifecycleStatus.FINISHED) {
             updateResult();
-            this.testStructure.setEndTime(Instant.now());
+            this.testStructure.setEndTime(time);
         }
 
         writeTestStructure();
 
         try {
-            this.dss.put("run." + run.getName() + ".status", status);
+            this.dss.put(getDSSKeyString("status"), status.toString());
             if (timestamp != null) {
-                this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
+                this.dss.put(getDSSKeyString(timestamp), time.toString());
             }
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update status", e);
@@ -483,7 +487,7 @@ public class GherkinTestRunner {
             if (this.testStructure.getResult() == null) {
                 this.testStructure.setResult("UNKNOWN");
             }
-            this.dss.put("run." + run.getName() + ".result", this.testStructure.getResult());
+            this.dss.put(getDSSKeyString("result"), this.testStructure.getResult());
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update result", e);
         }
@@ -501,7 +505,7 @@ public class GherkinTestRunner {
         }
 
         try {
-            dss.delete("run." + run.getName() + ".heartbeat");
+            dss.delete(getDSSKeyString("heartbeat"));
         } catch (DynamicStatusStoreException e) {
             logger.error("Unable to delete heartbeat", e);
         }
@@ -573,6 +577,11 @@ public class GherkinTestRunner {
         } catch (Exception e) {
             logger.error("Failed to save the recorded properties", e);
         }
+    }
+
+    // method to replace repeating "run." + run.getName() + "."... where ... is the key suffix to be passed
+    private String getDSSKeyString(String keySuffix){
+        return "run." + run.getName() + "." + keySuffix;
     }
 
 }

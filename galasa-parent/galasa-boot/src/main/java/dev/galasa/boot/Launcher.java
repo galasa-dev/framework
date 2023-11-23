@@ -1,5 +1,7 @@
 /*
  * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.boot;
 
@@ -71,8 +73,6 @@ public class Launcher {
     private static final String     DRY_RUN_OPTION            = "dryrun";
     private static final String     SETUPECO_OPTION           = "setupeco";
     private static final String     VALIDATEECO_OPTION        = "validateeco";
-    
-
 
     private static final String     USER_HOME                 = "user.home";
 
@@ -86,9 +86,11 @@ public class Launcher {
     private String                  gherkinName;
     private String                  filePath;
 
+    private String                  galasaHome;
+
     private FelixFramework          felixFramework;
 
-    private Properties              boostrapProperties;
+    private Properties              bootstrapProperties;
     private Properties              overridesProperties;
 
     private boolean                 testRun;
@@ -110,6 +112,8 @@ public class Launcher {
 
     private URL                     localMavenRepo;
     private List<URL>               remoteMavenRepos          = new ArrayList<>();
+
+    public Environment              env                       = new SystemEnvironment();
 
     /**
      * Launcher main method
@@ -135,6 +139,10 @@ public class Launcher {
      * @throws Exception
      */
     protected void launch(String[] args) throws LauncherException, InterruptedException {
+
+        validateJavaLevel(env);
+
+        this.galasaHome = getGalasaHome(env);
 
         felixFramework = new FelixFramework();
 
@@ -165,31 +173,31 @@ public class Launcher {
                     overridesProperties.setProperty("framework.run.gherkintest", this.gherkinName);
                 }
 
-                felixFramework.runTest(boostrapProperties, overridesProperties);
+                felixFramework.runTest(bootstrapProperties, overridesProperties);
             } else if (resourceManagement) {
                 logger.debug("Resource Management");
-                felixFramework.runResourceManagement(boostrapProperties, overridesProperties, bundles, metrics, health);
+                felixFramework.runResourceManagement(bootstrapProperties, overridesProperties, bundles, metrics, health);
             } else if (k8sController) {
                 logger.debug("Kubernetes Controller");
-                felixFramework.runK8sController(boostrapProperties, overridesProperties, bundles, metrics, health);
+                felixFramework.runK8sController(bootstrapProperties, overridesProperties, bundles, metrics, health);
             } else if (dockerController) {
                 logger.debug("Docker Controller");
-                felixFramework.runDockerController(boostrapProperties, overridesProperties, bundles, metrics, health);
+                felixFramework.runDockerController(bootstrapProperties, overridesProperties, bundles, metrics, health);
             } else if (metricsServer) {
                 logger.debug("Metrics Server");
-                felixFramework.runMetricsServer(boostrapProperties, overridesProperties, bundles, metrics, health);
+                felixFramework.runMetricsServer(bootstrapProperties, overridesProperties, bundles, metrics, health);
             } else if (api) {
                 logger.debug("Web API Server");
-                felixFramework.runWebApiServer(boostrapProperties, overridesProperties, bundles, metrics, health);
+                felixFramework.runWebApiServer(bootstrapProperties, overridesProperties, bundles, metrics, health);
             } else if (backupCPS) {
                 logger.debug("Back Up CPS Properties");
-                felixFramework.runBackupCPS(boostrapProperties, overridesProperties, filePath);
+                felixFramework.runBackupCPS(bootstrapProperties, overridesProperties, filePath);
             } else if (restoreCPS) {
-                felixFramework.runRestoreCPS(boostrapProperties, overridesProperties, filePath, dryRun);
+                felixFramework.runRestoreCPS(bootstrapProperties, overridesProperties, filePath, dryRun);
             } else if (setupEco) {
-                felixFramework.runSetupEcosystem(boostrapProperties, overridesProperties);
+                felixFramework.runSetupEcosystem(bootstrapProperties, overridesProperties);
             } else if (validateEco) {
-                felixFramework.runValidateEcosystem(boostrapProperties, overridesProperties);
+                felixFramework.runValidateEcosystem(bootstrapProperties, overridesProperties);
             }
 
         } catch (LauncherException e) {
@@ -207,8 +215,8 @@ public class Launcher {
     private void buildFramework() throws LauncherException {
         logger.debug("Launching Framework...");
         try {
-            felixFramework.buildFramework(bundleRepositories, this.boostrapProperties, localMavenRepo,
-                    remoteMavenRepos);
+            felixFramework.buildFramework(bundleRepositories, this.bootstrapProperties, localMavenRepo,
+                    remoteMavenRepos, galasaHome);
         } catch (Exception e) {
             throw new LauncherException("Unable to create and initialize Felix framework", e);
         }
@@ -282,7 +290,8 @@ public class Launcher {
             }
         }
 
-        checkForBoostrap(commandLine);
+        checkForBootstrap(commandLine);
+        setStoresFromEnvironmentVariables(env,bootstrapProperties);
         checkForOverrides(commandLine);
         checkForBundles(commandLine);
         checkForMetricsPort(commandLine);
@@ -435,7 +444,7 @@ public class Launcher {
         } else {
             try {
                 this.localMavenRepo = new File(
-                        System.getProperty(USER_HOME) + File.separator + ".m2" + File.separator + "repository").toURI()
+                        env.getProperty(USER_HOME) + File.separator + ".m2" + File.separator + "repository").toURI()
                                 .toURL();
             } catch (MalformedURLException e) {
                 logger.error("internal error", e);
@@ -468,12 +477,12 @@ public class Launcher {
 
     /**
      * Retrieve the bootstrap URI from the command line and load the properties
-     * file. If the the option is not provided, the default is
-     * ~/.galasa/boostrap.properties which will be created if it does not exist.
+     * file. If the the option is not provided, getGalasaHome is called to provide a path
+     * which will be created if it does not exist.
      * 
      * @param commandLine - The command line instance
      */
-    private void checkForBoostrap(CommandLine commandLine) {
+    private void checkForBootstrap(CommandLine commandLine) {
         URI bootstrapUri = null;
         if (commandLine.hasOption(BOOTSTRAP_OPTION)) {
             String uri = commandLine.getOptionValue(BOOTSTRAP_OPTION);
@@ -484,7 +493,7 @@ public class Launcher {
                 commandLineError(null);
             }
         } else {
-            Path path = Paths.get(System.getProperty(USER_HOME), ".galasa", "bootstrap.properties");
+            Path path = Paths.get(this.galasaHome, "bootstrap.properties");
             try {
                 if (!path.toFile().exists()) {
                     if (!path.getParent().toFile().exists()) {
@@ -504,8 +513,10 @@ public class Launcher {
             bootstrapConnection.setConnectTimeout(30000);
             bootstrapConnection.setReadTimeout(30000);
             try (InputStream is = bootstrapConnection.getInputStream()) {
-                boostrapProperties = new Properties();
-                boostrapProperties.load(is);
+                bootstrapProperties = new Properties();
+                bootstrapProperties.load(is);
+                bootstrapProperties.setProperty("framework.galasa.home",galasaHome);
+
             }
         } catch (IOException e) {
             logger.error("Unable to load bootstrap properties", e);
@@ -514,9 +525,9 @@ public class Launcher {
     }
 
     /**
-     * Retrieve the bootsrap URI from the command line and load the properties file.
-     * If the the option is not provided, the default is
-     * ~/.galasa/boostrap.properties. It will not be created if it does not exist
+     * Retrieve the overrides URI from the command line and load the overrides file.
+     * If the the option is not provided,
+     * If the the option is not provided, getGalasaHome is called to provide a path
      * 
      * @param commandLine - The command line instance
      */
@@ -531,7 +542,7 @@ public class Launcher {
                 commandLineError(null);
             }
         } else {
-            Path path = Paths.get(System.getProperty(USER_HOME), ".galasa", "overrides.properties");
+            Path path = Paths.get(this.galasaHome, "overrides.properties");
             if (!path.toFile().exists()) {
                 this.overridesProperties = new Properties();
                 return;
@@ -560,5 +571,111 @@ public class Launcher {
                 "\nExample test run arguments: --obr infra.obr --obr test.obr --test test.bundle/test.package.TestClass\n"
                         + "Example Resource Management arguments: --obr infra.obr --obr test.obr --resourcemanagement");
         System.exit(-1);
+    }
+
+    public void validateJavaLevel(Environment env) throws LauncherException{
+        String version = env.getProperty("java.version");
+        logger.trace("Checking version of Java, found: " + version);
+        if(version == null || version.isEmpty()){
+            logger.error("Unable to determine Java version - will exit");
+            throw new LauncherException("Unable to determine Java version - will exit");
+        }
+
+        if(version.startsWith("11")){
+            logger.trace("Java version 11 validated");
+            return;
+        }
+
+        logger.error("Galasa requires Java 11, we found: " + version + " will exit");
+        throw new LauncherException("Galasa requires Java 11, we found: " + version + " will exit");
+    }
+    
+    /**
+     * Obtain the location of the galasa home directory
+     * @return a String representing the location of the users Galasa home directory
+     */
+    public String getGalasaHome(Environment env) {
+        // 1st: If GALASA_HOME is set as a system property then use that,
+        // 2nd: If GALASA_HOME is set as a system environment variable, then use that.
+        // 3rd: otherwise we use the calling users' home folder.
+        String GALASA_HOME = "GALASA_HOME";
+        String home = env.getProperty(GALASA_HOME);
+        if( (home == null) || (home.trim().isEmpty())) {
+            home = env.getenv(GALASA_HOME);
+            if( (home == null) || (home.trim().isEmpty())) {
+                home = env.getProperty(USER_HOME)+"/.galasa";
+                logger.info("System property "+USER_HOME+" used to set value of home location.");
+            } else {
+                logger.info("Environment variable GALASA_HOME used to set value of home location.");
+            }
+        } else {
+            logger.info("System property GALASA_HOME used to set value of home location.");
+            // The system property value may be surrounded by " characters.
+            // If so, strip them off.
+            // We allow this because a path with strings in would be split
+            // into separate system properties otherwise.
+            home = stripLeadingAndTrailingQuotes(home);
+        }
+        logger.info("Galasa home location is "+home);
+
+        return home;
+    }
+
+    /**
+     * String the first double-quote and the last double-quote off
+     * the begining and end of a string.
+     * @param input
+     * @return The stripped (or unaltered) string.
+     */
+    String stripLeadingAndTrailingQuotes(String input ) {
+        String output = input ;
+        if (output.startsWith("\"")) {
+            output = output.replaceFirst("\"", "");
+        }
+        if (output.endsWith("\"")) {
+            output = output.substring(0,output.length()-1);
+        }
+        return output;
+    }
+
+
+    /**
+     * Read a set of environment variables that will override the values of the CPS, RAS, DSS and Creds store
+     * if these are set then they override the value in the bootstrap   
+     */
+    public void setStoresFromEnvironmentVariables(Environment env, Properties bootstrap) {
+        String CPS_ENV_VAR = "GALASA_CONFIG_STORE";
+        String DSS_ENV_VAR = "GALASA_DYNAMICSTATUS_STORE";
+        String RAS_ENV_VAR = "GALASA_RESULTARCHIVE_STORE";
+        String CREDS_ENV_VAR = "GALASA_CREDENTIALS_STORE";
+
+        String cps = env.getenv(CPS_ENV_VAR);
+
+        if( (cps != null) && (!cps.trim().isEmpty())){
+            cps = cps.trim();
+            logger.info(String.format("Environment variable: %s used to locate CPS location",CPS_ENV_VAR));
+            bootstrap.setProperty("framework.config.store",cps);
+        }
+
+        String dss = env.getenv(DSS_ENV_VAR);
+        if( (dss != null) && (!dss.trim().isEmpty())){
+            dss = dss.trim();
+            logger.info(String.format("Environment variable: %s used to locate DSS location",DSS_ENV_VAR));
+            bootstrap.setProperty("framework.dynamicstatus.store",dss);
+        }
+
+        String ras = env.getenv(RAS_ENV_VAR);
+        if( (ras != null) && (!ras.trim().isEmpty())){
+            ras = ras.trim();
+            logger.info(String.format("Environment variable: %s used to locate RAS location",RAS_ENV_VAR));
+            bootstrap.setProperty("framework.resultarchive.store",ras);
+        }
+
+        String creds = env.getenv(CREDS_ENV_VAR);
+        if( (creds != null) && (!creds.trim().isEmpty())){
+            creds = creds.trim();
+            logger.info(String.format("Environment variable: %s used to locate credentials store location",CREDS_ENV_VAR));
+            bootstrap.setProperty("framework.credentials.store",creds);
+        }
     }
 }
