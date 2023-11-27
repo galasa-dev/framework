@@ -7,6 +7,7 @@ package dev.galasa.framework.spi.language.gherkin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,7 +19,7 @@ public class GherkinVariables {
 
     private ArrayList<String> columns = new ArrayList<>();
 
-    public HashMap<String, ArrayList<String>> variables = new HashMap<>();
+    public Map<String, ArrayList<String>> variables = new HashMap<>();
 
     public void processHeaderLine(String headerLine) {
         ArrayList<String>elements = splitExampleData(headerLine);
@@ -48,10 +49,15 @@ public class GherkinVariables {
         return bits;
     }
 
-    public HashMap<String,ArrayList<String>> getVariables(){
+    // TODO: Explain why this isn't private ?
+    public Map<String,ArrayList<String>> getVariables(){
         return this.variables;
     }
 
+    /**
+     * @return The count of data 'rows' which were parsed/set into this GherkinVariables object.
+     * For example: A table with 1 row of content causes a result of 1 to be returned.
+     */
     public int getNumberOfInstances() {
         try {
             return variables.entrySet().iterator().next().getValue().size();
@@ -60,7 +66,18 @@ public class GherkinVariables {
         }
     }
 
-    public HashMap<String,Object> getVariableInstance(int instance) {
+    // TODO: Explain why these are not Map<String,String> as everything else is typed this way
+    /**
+     * Gets the map of variable instances. ie: A 'row' of data values, whcih can be accessed
+     * from the map using the column header in the Gherkin table.
+     * @param instance The instance number. zero-based. Instance 0 corresponds to the first line of the 
+     * Gherkin table data.
+     * @return A map, such that the key is the trimmed-string of the column header in the Gherkin table, and 
+     * that the object is the value of that table item.
+     * @throws IndexOutOfBoundsException when the instance parameter specified exceeds the number of data rows in the 
+     * Gherkin table (where the first row has an index of 0).
+     */
+    public Map<String,Object> getVariableInstance(int instance) {
         HashMap<String,Object> result = new HashMap<>();
         for(String key : this.variables.keySet()) {
             result.put(key, this.variables.get(key).get(instance));
@@ -68,7 +85,7 @@ public class GherkinVariables {
         return result;
     }
 
-    public HashMap<String,Object> getVariablesOriginal(){
+    public Map<String,Object> getVariablesOriginal(){
         HashMap<String, Object> result = new HashMap<>();
         for(String s : getVariables().keySet()) {
             result.put(s, getVariables().get(s));
