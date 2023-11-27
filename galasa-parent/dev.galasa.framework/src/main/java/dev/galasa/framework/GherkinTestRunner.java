@@ -92,6 +92,7 @@ public class GherkinTestRunner {
 
         // *** Initialise the framework services
         FrameworkInitialisation frameworkInitialisation = null;
+
         try {
             frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, true);
             cps = frameworkInitialisation.getFramework().getConfigurationPropertyService("framework");

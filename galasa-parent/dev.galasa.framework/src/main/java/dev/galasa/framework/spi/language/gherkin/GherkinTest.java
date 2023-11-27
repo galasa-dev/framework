@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,14 +37,17 @@ public class GherkinTest {
     private final static Pattern featurePattern = Pattern.compile("Feature:(.*)");
     private final static Pattern scenarioPattern = Pattern.compile("Scenario:(.*)");
 
+    private final static Pattern examplesPattern = Pattern.compile("Examples:");
+
     private List<GherkinMethod> methods;
     private URI gherkinUri;
     private TestStructure testStructure;
     private Result result;
-    private Map<String, Object> variables;
+    private GherkinVariables variables;
 
     private String testName;
     private List<String> comments;
+
 
     // Logger statics
     public static final String  LOG_STARTING   = "Starting";
@@ -54,10 +55,16 @@ public class GherkinTest {
     public static final String  LOG_START_LINE = "\n" + StringUtils.repeat("-", 23) + " ";
     public static final String  LOG_ASTERS     = StringUtils.repeat("*", 100);
 
+    enum Section {
+        FEATURE,
+        SCENARIO,
+        EXAMPLE,
+    }
+
     public GherkinTest(IRun run, TestStructure testStructure) throws TestRunException {
         this.methods = new ArrayList<>();
         this.comments = new ArrayList<>();
-        this.variables = new HashMap<>();
+        this.variables = new GherkinVariables();
         this.testStructure = testStructure;
 
         try {
@@ -67,6 +74,8 @@ public class GherkinTest {
                 File gherkinFile = new File(gherkinUri);
                 List<String> lines = IOUtils.readLines(new FileReader(gherkinFile));
                 GherkinMethod currentMethod = null;
+                Section currentSection = Section.FEATURE;
+                boolean exampleHeaderLineProcessed = false;
 
                 for(String line : lines) {
                     line = line.trim();
@@ -74,25 +83,54 @@ public class GherkinTest {
                         continue;
                     }
 
+                    //handle features
                     Matcher featureMatch = featurePattern.matcher(line);
                     if (featureMatch.matches()) {
+                        currentSection = Section.FEATURE;
                         this.testName = featureMatch.group(1).trim();
                         continue;
                     }
+
+                    //handle scenarios
                     Matcher scenarioMatch = scenarioPattern.matcher(line);
                     if (scenarioMatch.matches()) {
+                        currentSection = Section.SCENARIO;
                         if(currentMethod != null) {
                             methods.add(currentMethod);
                         }
                         currentMethod = new GherkinMethod(scenarioMatch.group(1).trim(), testName);
                         continue;
                     }
-                    if(currentMethod != null) {
-                        currentMethod.addStatement(line);
-                    } else {
-                        this.comments.add(line);
+
+                    //handles examples
+                    Matcher exampleMatch = examplesPattern.matcher(line);
+                    if(exampleMatch.matches()) {
+                        currentSection = Section.EXAMPLE;
+                        //stash the previous currentMethod
+                        methods.add(currentMethod);
+                        continue;
                     }
 
+                    //We are not in a heading, so work out where we are and process the line
+                    //scenario lines
+                    if(currentSection == Section.SCENARIO) {
+                        currentMethod.addStatement(line);
+                        continue;
+                    }
+
+                    //example lines
+                    if(currentSection == Section.EXAMPLE) {
+                        if(exampleHeaderLineProcessed) {
+                            variables.processDataLine(line);
+                        } else {
+                            variables.processHeaderLine(line);
+                            exampleHeaderLineProcessed = true;
+                        }
+                    }
+
+                    if(currentSection != Section.FEATURE && currentSection!= Section.SCENARIO && currentSection != Section.EXAMPLE) {
+                        this.comments.add(line);
+                    }
                 }
                 if(currentMethod != null) {
                     methods.add(currentMethod);
@@ -164,7 +202,10 @@ public class GherkinTest {
         }
 
         for (GherkinMethod method : this.methods) {
-            method.invoke(managers, this.variables);
+            if(this.variables.getNumberOfInstances() >= 1){
+                method.invoke(managers, this.variables.getVariableInstance(1));
+            }
+            method.invoke(managers, this.variables.getVariablesOriginal());
             if(method.fullStop()) {
                 break;
             }
