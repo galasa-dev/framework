@@ -154,7 +154,7 @@ cp $temp_dir/framework-settings.gradle $BASEDIR/galasa-parent/dev.galasa.framewo
 
 # The parent project also needs to know the version, as it builds the release.yaml file
 # which must have that version also.
-cat $BASEDIR/galasa-parent/build.gradle | sed "s/^[ ]*version[ ]*=.*/version = \"$component_version\"/1" > $temp_dir/framework-parent-build.gradle
+cat $BASEDIR/galasa-parent/build.gradle | sed "s/version[ ]*=.*/version = \"$component_version\"/1" > $temp_dir/framework-parent-build.gradle
 cp $temp_dir/framework-parent-build.gradle $BASEDIR/galasa-parent/build.gradle
 
 
@@ -167,8 +167,8 @@ cat ${BASEDIR}/openapi.yaml | sed "s/^[ ]*version[ ]*:.*/  version : \"$componen
 cp $temp_dir/openapi.yaml ${BASEDIR}/openapi.yaml
 
 
-cat ${BASEDIR}/openapi.yaml | sed "s/^[ ]*version[ ]*:.*/  version : \"$component_version\"/1" > $temp_dir/openapi.yaml
-cp $temp_dir/openapi.yaml ${BASEDIR}/openapi.yaml
-
 cat ${BASEDIR}/test-api-locally.md | sed "s/^[ ]*export[ ]+GALASA_OBR_VERSION[ ]*=[ ]*.*$/export GALASA_OBR_VERSION=\"$component_version\"/1" > $temp_dir/test-api-locally.md 
 cp $temp_dir/test-api-locally.md  ${BASEDIR}/test-api-locally.md 
+
+cat ${BASEDIR}/run-locally.sh| sed "s/^OBR_VERSION[ ]*=[ ]*.*$/OBR_VERSION=\"0.31.0\"/1" > $temp_dir/run-locally.sh
+cp $temp_dir/run-locally.sh  ${BASEDIR}/run-locally.sh

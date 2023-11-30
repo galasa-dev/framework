@@ -45,7 +45,5 @@ public class MockEnvironment implements Environment {
     public String getProperty(String propertyName) {
         return this.sysProps.get(propertyName);
     }
-
-
     
 }

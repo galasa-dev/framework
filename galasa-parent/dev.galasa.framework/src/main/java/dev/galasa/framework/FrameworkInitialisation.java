@@ -88,8 +88,23 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         if( (home == null) || (home.trim().isEmpty())) {
             home = env.getenv(GALASA_HOME);
             if( (home == null) || (home.trim().isEmpty())) {
-                home = env.getProperty(USER_HOME)+"/.galasa";
-                logger.info("System property "+USER_HOME+" used to set value of home location.");
+                String userHome = env.getProperty(USER_HOME);
+                if ( userHome != null ) {
+                    logger.info("System property "+USER_HOME+" ("+userHome+") used to set value of home location.");
+                    home = userHome + "/.galasa";
+                } else {
+                    // On windows, the USERPROFILE environment variable will be set to C:/User/Name or similar.
+                    String userProfile = env.getenv("USERPROFILE");
+                    if (userProfile != null) {
+                        logger.info("System property USERPROFILE ("+userProfile+") used to set value of home location.");
+                        home = userProfile + "/.galasa";
+                    } else {
+                        // Just in case, fall back on a trusty default.
+                        logger.info("Defaulting home to ~/.galasa");
+                        home = "~/.galasa";
+                    }
+                }
+                
             } else {
                 logger.info("Environment variable GALASA_HOME used to set value of home location.");
             }

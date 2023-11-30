@@ -116,7 +116,7 @@ boot_jar_name=$(ls ${BOOT_FOLDER}/galasa-boot-*.jar | grep -v "sources" | grep -
 info "Boot jar is at ${BOOT_FOLDER}/${boot_jar_name}"
 
 # Work out where the locally-build-OBR is held...
-OBR_VERSION="0.30.0"
+OBR_VERSION="0.31.0"
 
 M2_PATH=~/.m2
 
@@ -139,7 +139,7 @@ function set_up_bootstrap {
     h1 "Setting up the bootstrap to refer to the prod ecosystem"
     galasactl local init
     echo >> ${GALASA_HOME}/bootstrap.properties
-    echo "framework.config.store=etcd:http://galasa-cicsk8s.hursley.ibm.com:32189" >> ${GALASA_HOME}/bootstrap.properties
+    echo "framework.config.store=etcd:http://galasa-galasa-prod.cicsk8s.hursley.ibm.com:32189" >> ${GALASA_HOME}/bootstrap.properties
     echo "framework.extra.bundles=dev.galasa.cps.etcd,dev.galasa.ras.couchdb,dev.galasa.phoenix2.manager" >> ${GALASA_HOME}/bootstrap.properties
 }
 
