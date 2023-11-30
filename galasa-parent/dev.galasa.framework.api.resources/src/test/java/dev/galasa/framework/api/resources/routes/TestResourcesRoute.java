@@ -144,7 +144,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5027E: Error occured because the api version '' is not a supported version.");
+        assertThat(thrown.getMessage()).contains("GAL5027E: Error occured because the api version '' is not a supported version. Currently the ecosystem accepts the 'galasa-dev/v1alpha1' api version.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 

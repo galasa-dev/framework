@@ -16,7 +16,6 @@ import javax.validation.constraints.NotNull;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import dev.galasa.framework.ResourceNameValidator;
 import dev.galasa.framework.api.common.BaseRoute;

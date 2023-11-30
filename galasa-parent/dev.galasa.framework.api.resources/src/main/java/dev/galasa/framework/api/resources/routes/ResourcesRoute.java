@@ -105,15 +105,25 @@ public class ResourcesRoute  extends BaseRoute{
     
     public void processGalasaProperty (JsonObject resource, String action) throws InternalServletException{
         String apiversion = resource.get("apiVersion").getAsString();
-        if (apiversion.equals(new GalasaProperty("",null, null).getApiVersion())){
+        String expectedApiVersion = new GalasaProperty("",null, null).getApiVersion();
+        if (apiversion.equals(expectedApiVersion)){
             try{
                 GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
                 if (galasaProperty.isPropertyValid()){
                     CPSFacade cps = new CPSFacade(framework);
                     CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
-                    boolean updateProperty = false;
                     CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
-                    if (updateActions.contains(action) && (property.existsInStore()) || action.equals("update")){
+                    /*
+                    * The logic below is used to determine if the XNOR in property.setPropertyToStore will action the request or error
+                    * Logic Table to Determine actions
+                    * If the action is equal to "update" (force update) the updateProperty is set to true (update property,
+                    * will error if the property does not exist in CPS)
+                    * If the action is either "update" or "apply" and the property exists in CPS the updateProperty is set to true (update property)
+                    * If the action is equal to "apply" and the property does not exist in CPS the updateProperty is set to false (create property)
+                    * If the action is equal to "create" (force create) the updateProperty is set to false (create property, will error if the property exists in CPS)
+                    */
+                    boolean updateProperty = false;
+                    if ((updateActions.contains(action) && property.existsInStore()) || action.equals("update")){
                         updateProperty = true;
                     }
                     property.setPropertyToStore(galasaProperty, updateProperty);
@@ -125,7 +135,7 @@ public class ResourcesRoute  extends BaseRoute{
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         }else{
-            ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion);
+            ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion, expectedApiVersion);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }

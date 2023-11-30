@@ -51,13 +51,13 @@ public enum ServletErrorMessage {
     GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE(5022, "E: Error occured trying parse the sharedEnvironmentPhase ''{0}''. Valid options are 'BUILD', 'DISCARD'."),
 
     //Galasa Property...
-    GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY        (5023, "E: Error occured trying to cast ''{0}'' to GalasaProperty."),
-    GAL5024_INVALID_GALASAPROPERTY                  (5024, "E: Error occured because the Galasa Property is invalid. The ''{0}'' field should not be ''{1}''."),
+    GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY        (5023, "E: Error occured trying to cast ''{0}'' to GalasaProperty. Please check the format and try again."),
+    GAL5024_INVALID_GALASAPROPERTY                  (5024, "E: Error occured because the Galasa Property is invalid. The ''{0}'' field ''{1}'' is not structured properly."),
 
     //Resources APIs...
     GAL5025_UNSUPPORTED_ACTION                      (5025, "E: Error occurred when trying to apply resources. Action ''{0}'' supplied is not supported. Supported actions are: create, apply and update."),
     GAL5026_UNSUPPORTED_RESOURCE_TYPE               (5026, "E: Error occured because the resource type ''{0}'' is not supported."),
-    GAL5027_UNSUPPORTED_API_VERSION                 (5027, "E: Error occured because the api version ''{0}'' is not a supported version.")
+    GAL5027_UNSUPPORTED_API_VERSION                 (5027, "E: Error occured because the api version ''{0}'' is not a supported version. Currently the ecosystem accepts the ''{1}'' api version.")
     ;
 
 
