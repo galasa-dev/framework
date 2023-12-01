@@ -104,10 +104,10 @@ public class ResourcesRoute  extends BaseRoute{
     }
     
     public void processGalasaProperty (JsonObject resource, String action) throws InternalServletException{
-        String apiversion = resource.get("apiVersion").getAsString();
-        String expectedApiVersion = new GalasaProperty("",null, null).getApiVersion();
-        if (apiversion.equals(expectedApiVersion)){
-            try{
+        try{
+            String apiversion = resource.get("apiVersion").getAsString();
+            String expectedApiVersion = new GalasaProperty("",null, null).getApiVersion();
+            if (apiversion.equals(expectedApiVersion)){
                 GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
                 if (galasaProperty.isPropertyValid()){
                     CPSFacade cps = new CPSFacade(framework);
@@ -128,15 +128,20 @@ public class ResourcesRoute  extends BaseRoute{
                     }
                     property.setPropertyToStore(galasaProperty, updateProperty);
                 }
-            }catch (InternalServletException i){
-                throw i;
-            }catch (Exception e){
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR, e.getMessage());
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }else{
+                ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion, expectedApiVersion);
+                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
-        }else{
-            ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion, expectedApiVersion);
+        }catch (InternalServletException i){
+            throw i;
+        }catch (NullPointerException n){
+            // Null Pointer exception caused by bad Key Names in JSON i.e. apiversion instead of apiVersion
+            ServletError error = new ServletError(GAL5400_BAD_REQUEST,resource.toString());
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+
+        }catch (Exception e){
+        ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR, e.getMessage());
+        throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 }

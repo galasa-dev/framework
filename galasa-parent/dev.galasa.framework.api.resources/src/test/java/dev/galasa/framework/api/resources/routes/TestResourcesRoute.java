@@ -168,7 +168,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner.");
+        assertThat(thrown.getMessage()).contains("GAL5400E: Error occured when trying to execute request ",". Please check your request parameters or report the problem to your Galasa Ecosystem owner.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -215,7 +215,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size() > 0).isTrue();
-        checkErrorListContainsError(errors,"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner.");
+        checkErrorListContainsError(errors,"GAL5400E: Error occured when trying to execute request ");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
