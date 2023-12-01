@@ -83,7 +83,7 @@ public class ResourcesRoute  extends BaseRoute{
 
     public void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{
         for (JsonElement element: jsonArray){
-                try{
+            try{
                 JsonObject resource = element.getAsJsonObject();
                 String kind = resource.get("kind").getAsString();
                 switch (kind){
