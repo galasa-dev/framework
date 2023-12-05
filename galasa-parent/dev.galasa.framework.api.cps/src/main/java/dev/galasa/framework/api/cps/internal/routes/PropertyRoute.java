@@ -33,10 +33,15 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class PropertyRoute extends CPSRoute{
 
-    private static final String path = "\\/([a-z0-9]+)/properties([?]?|[^/])+$";
+    /*
+     * Regex to match:
+     *  -> cps/<namespace_id>/properties/
+     *  -> cps/<namespace_id>/properties?<query>
+     */
+    static final String ROUTE_REGEX = "\\/([a-z0-9]+)/properties([?]?|[^/])+$";
 
     public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework) {
-        super(responseBuilder, path , framework);
+        super(responseBuilder, ROUTE_REGEX , framework);
     }
 
     /*

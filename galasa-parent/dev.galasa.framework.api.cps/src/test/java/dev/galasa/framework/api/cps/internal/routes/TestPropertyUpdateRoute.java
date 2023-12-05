@@ -12,6 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -656,4 +658,103 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 			"E: Error occured when trying to access the endpoint '/framework/properties/property1'. The method 'POST' is not allowed."
 		);
     }
+
+	/*
+	 * REGEX TESTS
+	 */
+	@Test
+	public void TestPropertyUpdateRouteRegexWellFormedMatchMatches() throws Exception {
+		String testInput = "/doughnuts/properties/headache";
+
+		Pattern pattern = Pattern.compile(PropertyUpdateRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isTrue();
+	}
+
+	@Test
+	public void TestPropertyUpdateRouteRegexWithJargonAtStartDoesntMatch() throws Exception {
+		String testInput = "JARGON/hotchocolate/properties/fair";
+
+		Pattern pattern = Pattern.compile(PropertyUpdateRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestPropertyUpdateRouteRegexWithJargonAtEndMatches() throws Exception {
+		String testInput = "/coffee/properties/amazing";
+
+		Pattern pattern = Pattern.compile(PropertyUpdateRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isTrue();
+	}
+
+	@Test
+	public void TestPropertyUpdateRouteRegexMissingSlashAtStartDoesntMatch() throws Exception {
+		String testInput = "hotchocolate/properties/devil";
+
+		Pattern pattern = Pattern.compile(PropertyUpdateRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestPropertyUpdateRouteRegexMissingSecondSlashDoesntMatch() throws Exception {
+		String testInput = "/hotchocolateproperties/rose";
+
+		Pattern pattern = Pattern.compile(PropertyUpdateRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestPropertyUpdateRouteRegexMissingThirdSlashDoesntMatch() throws Exception {
+		String testInput = "/hotchocolate/propertiesthistle";
+
+		Pattern pattern = Pattern.compile(PropertyUpdateRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestPropertyUpdateRouteRegexJargonMiddleSectionDoesntMatch() throws Exception {
+		String testInput = "/hotchocolate/JARGON/animal";
+
+		Pattern pattern = Pattern.compile(PropertyUpdateRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestPropertyUpdateRouteRegexWithJargonDoesntMatch() throws Exception {
+		String testInput = "JARGON";
+
+		Pattern pattern = Pattern.compile(PropertyUpdateRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
 }

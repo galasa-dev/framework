@@ -35,12 +35,13 @@ public class NamespacesRoute extends CPSRoute {
 
     private static final Gson gson = GalasaGsonBuilder.build();
 
+    static final String ROUTE_REGEX = "\\/?";
 
     public NamespacesRoute(ResponseBuilder responseBuilder, IFramework framework ) {
 		/* Regex to match endpoints: 
 		*  -> /cps/
 		*/
-		super(responseBuilder, "\\/?", framework);
+		super(responseBuilder, ROUTE_REGEX, framework);
 	}
 
     @Override

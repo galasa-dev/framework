@@ -27,11 +27,13 @@ import dev.galasa.framework.spi.IFramework;
  */
 public class PropertyUpdateRoute extends CPSRoute {
 
+    /* Regex to match endpoints: 
+    *  -> /cps/<namespace>/properties/<propertyName>
+    */
+    static final String ROUTE_REGEX = "\\/([a-z0-9]+)/properties/([a-zA-Z0-9.]+)";
+
     public PropertyUpdateRoute(ResponseBuilder responseBuilder, IFramework framework ) {
-		/* Regex to match endpoints: 
-		*  -> /cps/<namespace>/properties/<propertyName>
-		*/
-		super(responseBuilder, "\\/([a-z0-9]+)/properties/([a-zA-Z0-9.]+)", framework);
+		super(responseBuilder, ROUTE_REGEX, framework);
 	}
 
     /*

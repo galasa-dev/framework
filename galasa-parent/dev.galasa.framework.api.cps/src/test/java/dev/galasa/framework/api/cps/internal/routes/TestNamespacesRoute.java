@@ -11,6 +11,8 @@ import dev.galasa.framework.api.cps.internal.routes.TestNamespacesRoute;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -263,4 +265,43 @@ public class TestNamespacesRoute extends CpsServletTest{
 			"E: Error occured when trying to access the endpoint ''. The method 'DELETE' is not allowed."
 		);
     }
+
+	/*
+	 * REGEX TESTS
+	 */
+	@Test
+	public void TestNamespacesRouteRegexEmptyMatchMatches() throws Exception {
+		String testInput = "";
+
+		Pattern pattern = Pattern.compile(NamespacesRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isTrue();
+	}
+
+	@Test
+	public void TestNamespacesRouteRegexWithSlashMatches() throws Exception {
+		String testInput = "/";
+
+		Pattern pattern = Pattern.compile(NamespacesRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isTrue();
+	}
+
+	@Test
+	public void TestNamespacesRouteRegexWithJargonDoesntMatch() throws Exception {
+		String testInput = "JARGON";
+
+		Pattern pattern = Pattern.compile(NamespacesRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
 }

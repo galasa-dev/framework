@@ -12,6 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -1168,4 +1170,116 @@ public class TestPropertyRoute extends CpsServletTest{
             " The request body is empty."
 		); 
     }
+
+
+	/*
+	 * REGEX TESTS
+	 */
+	@Test
+	public void TestPropertyRouteRegexWellFormedMatchMatches() throws Exception {
+		String testInput = "/doughnuts/properties";
+
+		Pattern pattern = Pattern.compile(PropertyRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isTrue();
+	}
+
+	@Test
+	public void TestPropertyRouteRegexWithEndQuestionMarkMatches() throws Exception {
+		String testInput = "/cookies/properties?";
+
+		Pattern pattern = Pattern.compile(PropertyRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isTrue();
+	}
+
+	@Test
+	public void TestPropertyRouteRegexWithJargonAtStartDoesntMatch() throws Exception {
+		String testInput = "JARGON/hotchocolate/properties";
+
+		Pattern pattern = Pattern.compile(PropertyRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestPropertyRouteRegexWithJargonAtEndMatches() throws Exception {
+		String testInput = "/coffee/properties?JARGON";
+
+		Pattern pattern = Pattern.compile(PropertyRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isTrue();
+	}
+
+	@Test
+	public void TestPropertyRouteRegexMissingSlashAtStartDoesntMatch() throws Exception {
+		String testInput = "hotchocolate/properties";
+
+		Pattern pattern = Pattern.compile(PropertyRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestPropertyRouteRegexMissingSecondSlashDoesntMatch() throws Exception {
+		String testInput = "/hotchocolateproperties";
+
+		Pattern pattern = Pattern.compile(PropertyRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestPropertyRouteRegexWithSlashAtEndDoesntMatch() throws Exception {
+		String testInput = "/hotchocolate/properties/";
+
+		Pattern pattern = Pattern.compile(PropertyRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestPropertyRouteRegexWithSlashAfterQuestionMarkDoesntMatch() throws Exception {
+		String testInput = "/hotchocolate/properties?/";
+
+		Pattern pattern = Pattern.compile(PropertyRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestPropertyRouteRegexWithJargonDoesntMatch() throws Exception {
+		String testInput = "JARGON";
+
+		Pattern pattern = Pattern.compile(PropertyRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
 }
