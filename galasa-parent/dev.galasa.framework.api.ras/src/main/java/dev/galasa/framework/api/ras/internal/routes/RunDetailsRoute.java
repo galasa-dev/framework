@@ -34,12 +34,12 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  */
 public class RunDetailsRoute extends RunsRoute {
 
-
+   static final String ROUTE_REGEX = "\\/runs\\/([A-z0-9.\\-=]+)\\/?";
    static final Gson gson = GalasaGsonBuilder.build();
 
    public RunDetailsRoute(ResponseBuilder responseBuilder, IFramework framework) {
       //  Regex to match endpoint: /ras/runs/{runid}
-      super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/?", framework);
+      super(responseBuilder, ROUTE_REGEX, framework);
    }
 
    @Override

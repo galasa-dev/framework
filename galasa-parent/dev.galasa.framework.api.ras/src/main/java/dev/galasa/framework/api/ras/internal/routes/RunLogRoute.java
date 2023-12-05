@@ -29,9 +29,11 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
  */
 public class RunLogRoute extends RunsRoute {
 
+    public static final String ROUTE_REGEX = "\\/runs\\/([A-z0-9.\\-=]+)\\/runlog\\/?";
+
     public RunLogRoute(ResponseBuilder responseBuilder, IFramework framework) {
         //  Regex to match endpoint: /ras/runs/{runid}/runlog
-        super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/runlog\\/?", framework);
+        super(responseBuilder, ROUTE_REGEX, framework);
     }
 
     @Override

@@ -3,15 +3,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
+import dev.galasa.framework.api.ras.internal.RasServlet;
+import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.mocks.MockRasServletEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
@@ -153,5 +154,138 @@ public class TestRunLogRoute extends RasServletTest {
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+	}
+
+	/*
+	* REGEX TESTS
+	*/
+	@Test
+	public void TestRunLogRouteRegexWithGenericExpectedInput() throws Exception {
+
+		String testInput = "/runs/TEST123/runlog";
+
+		Pattern pattern = Pattern.compile(RunLogRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isTrue();
+	}
+
+	@Test
+	public void TestRunLogRouteRegexWithMissingInitialSlashDoesntMatch() throws Exception {
+
+		String testInput = "runs/OHNO123/runlog";
+
+		Pattern pattern = Pattern.compile(RunLogRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestRunLogRouteRegexWithJargonFirstSection() throws Exception {
+
+		String testInput = "/thisisjargon/OHNO456/runlog";
+
+		Pattern pattern = Pattern.compile(RunLogRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestRunLogRouteRegexWithJargonLastSection() throws Exception {
+
+		String testInput = "/runs/OHNO789/morejargon";
+
+		Pattern pattern = Pattern.compile(RunLogRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestRunLogRouteRegexWithSlashOnEndWorks() throws Exception {
+
+		String testInput = "/runs/TEST456/runlog/";
+
+		Pattern pattern = Pattern.compile(RunLogRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isTrue();
+	}
+
+	@Test
+	public void TestRunLogRouteRegexWithMissingSecondSlashDoesntMatch() throws Exception {
+
+		String testInput = "/runsOHNO111/runlog";
+
+		Pattern pattern = Pattern.compile(RunLogRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestRunLogRouteRegexWithMissingThirdSlashDoesntMatch() throws Exception {
+
+		String testInput = "/runs/OHNO112runlog";
+
+		Pattern pattern = Pattern.compile(RunLogRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestRunLogRouteRegexWithCompleteJargonButSlashesDoesntMatch() throws Exception {
+
+		String testInput = "/gszjnkjasfdfd/alkjdfg/asdkadg";
+
+		Pattern pattern = Pattern.compile(RunLogRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestRunLogRouteRegexWithJargonAtStartDoesntMatch() throws Exception {
+
+		String testInput = "JARGON/runs/OHNO113/runlog";
+
+		Pattern pattern = Pattern.compile(RunLogRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestRunLogRouteRegexWithJargonAtEndDoesntMatch() throws Exception {
+
+		String testInput = "/runs/OHNO114/runlog/MOAR_JARGON";
+
+		Pattern pattern = Pattern.compile(RunLogRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
 	}
 }
