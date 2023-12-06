@@ -133,7 +133,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	* REGEX TESTS
 	*/
 	@Test
-	public void TestRunLogRouteRegexWithGenericExpectedInput() throws Exception {
+	public void TestRunDetailsRouteRegexWithGenericExpectedInput() throws Exception {
 
 		String testInput = "/runs/TEST123";
 
@@ -146,7 +146,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestRunLogRouteRegexWithMissingInitialSlashDoesntMatch() throws Exception {
+	public void TestRunDetailsRouteRegexWithMissingInitialSlashDoesntMatch() throws Exception {
 
 		String testInput = "runs/WHOOPSIE123";
 
@@ -159,7 +159,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestRunLogRouteRegexWithAdditionalLastSlashMatches() throws Exception {
+	public void TestRunDetailsRouteRegexWithAdditionalLastSlashMatches() throws Exception {
 
 		String testInput = "/runs/TEST456/";
 
@@ -172,7 +172,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestRunLogRouteRegexWithJargonAtStartDoesntMatch() throws Exception {
+	public void TestRunDetailsRouteRegexWithJargonAtStartDoesntMatch() throws Exception {
 
 		String testInput = "tinsie_bit_of_jargon/runs/WHOOPSIE456/";
 
@@ -185,7 +185,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestRunLogRouteRegexWithJargonFirstSectionDoesntMatch() throws Exception {
+	public void TestRunDetailsRouteRegexWithJargonFirstSectionDoesntMatch() throws Exception {
 
 		String testInput = "/tad_more_jargon/WHOOPSIE789/";
 
@@ -198,7 +198,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestRunLogRouteRegexWithMissingSecondSlashDoesntMatch() throws Exception {
+	public void TestRunDetailsRouteRegexWithMissingSecondSlashDoesntMatch() throws Exception {
 
 		String testInput = "/runsWHOOPSIE111/";
 
@@ -211,7 +211,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestRunLogRouteRegexWithPureJargonDoesntMatch() throws Exception {
+	public void TestRunDetailsRouteRegexWithPureJargonDoesntMatch() throws Exception {
 
 		String testInput = "THIS_IS_JARGON";
 

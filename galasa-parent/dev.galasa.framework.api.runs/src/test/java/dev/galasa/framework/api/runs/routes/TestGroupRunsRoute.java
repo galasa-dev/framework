@@ -8,6 +8,8 @@ package dev.galasa.framework.api.runs.routes;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -615,4 +617,60 @@ public class TestGroupRunsRoute extends RunsServletTest {
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
+
+    /*
+	* REGEX TESTS
+	*/
+	@Test
+	public void TestGroupRunsRouteRegexWithGenericExpectedInput() throws Exception {
+
+		String testInput = "/TEST123";
+
+		Pattern pattern = Pattern.compile(GroupRunsRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isTrue();
+	}
+
+	@Test
+	public void TestGroupRunsRouteRegexWithMissingInitialSlashDoesntMatch() throws Exception {
+
+		String testInput = "WHOOPSIE123";
+
+		Pattern pattern = Pattern.compile(GroupRunsRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestGroupRunsRouteRegexWithAdditionalLastSlashDoesntMatch() throws Exception {
+
+		String testInput = "/WHOOSPIE234/";
+
+		Pattern pattern = Pattern.compile(GroupRunsRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
+	@Test
+	public void TestGroupRunsRouteRegexWithJargonAtStartDoesntMatch() throws Exception {
+
+		String testInput = "tinsie_bit_of_jargon/WHOOPSIE456/";
+
+		Pattern pattern = Pattern.compile(GroupRunsRoute.ROUTE_REGEX);
+
+		Matcher matcher = pattern.matcher(testInput);
+		boolean matchFound = matcher.matches();
+
+		assertThat(matchFound).isFalse();
+	}
+
 }

@@ -32,12 +32,13 @@ public class GroupRunsRoute extends GroupRuns{
 
     private final Gson gson = GalasaGsonBuilder.build();
 
+    /* Regex to match endpoints: 
+    *  -> /runs/{GroupID}
+    */
+    static final String ROUTE_REGEX = "\\/[a-zA-Z0-9_\\-]*";
 
     public GroupRunsRoute(ResponseBuilder responseBuilder, IFramework framework) {
-        /* Regex to match endpoints: 
-		*  -> /runs/{GroupID}
-		*/
-        super(responseBuilder, "\\/[a-zA-Z0-9_\\-]*", framework);
+        super(responseBuilder, ROUTE_REGEX, framework);
     }
 
     public HttpServletResponse handleGetRequest(String groupName, QueryParameters queryParams, HttpServletRequest request, HttpServletResponse response)
