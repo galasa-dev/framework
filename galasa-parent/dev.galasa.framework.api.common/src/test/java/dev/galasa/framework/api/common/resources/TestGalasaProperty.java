@@ -7,27 +7,12 @@ package dev.galasa.framework.api.common.resources;
 
 import org.junit.Test;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static org.assertj.core.api.Assertions.*;
 
 public class TestGalasaProperty {
     
-    static final Gson gson = GalasaGsonBuilder.build();
-
-    private String generateExpectedJson(String namespace, String propertyName, String propertyValue, String apiVersion){
-        return "{\n  \"apiVersion\": \""+apiVersion+"\",\n"+
-        "  \"kind\": \"GalasaProperty\",\n"+
-        "  \"metadata\": {\n"+
-        "    \"namespace\": \""+namespace+"\",\n"+
-        "    \"name\": \""+propertyName+"\"\n"+
-        "  },\n"+
-        "  \"data\": {\n"+
-        "    \"value\": \""+propertyValue+"\"\n  }\n}";
-    }
     
     @Test
     public void TestGalasaPropertyDefaultApiVersion() throws InternalServletException{
