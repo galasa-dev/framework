@@ -129,27 +129,25 @@ public class CpsServletTest extends BaseServletTest {
 	}
 
 	protected String generatePropertyJSON(String namespace, String propertyName, String propertyValue, String apiVersion){
-		return "{\n    \"apiVersion\": \""+apiVersion+"\",\n"+
-        "    \"kind\": \"GalasaProperty\",\n"+
-        "    \"metadata\": {\n"+
-        "      \"namespace\": \""+namespace+"\",\n"+
-        "      \"name\": \""+propertyName+"\"\n"+
-        "    },\n"+
-        "    \"data\": {\n"+
-        "      \"value\": \""+propertyValue+"\"\n    }\n  }";
+		return gson.toJson(new GalasaProperty(namespace, propertyName, propertyValue, apiVersion));
 	}
 
+	protected GalasaProperty generateProperty(String namespace, String propertyName, String propertyValue, String apiVersion){
+		return new GalasaProperty(namespace, propertyName, propertyValue, apiVersion);
+	}
 	protected String generateExpectedJson(String namespace, String propertyName, String propertyValue, String apiVersion){
-        return "[\n  "+generatePropertyJSON(namespace, propertyName, propertyValue, apiVersion)+"\n]";
+		List<GalasaProperty> results = new ArrayList<GalasaProperty>();
+		results.add(generateProperty(namespace, propertyName, propertyValue, apiVersion));
+        return gson.toJson(results);
     }
 
 	protected String generateExpectedJson(Map<String, String> properties){
-		String results ="";
+		List<GalasaProperty> results = new ArrayList<GalasaProperty>();
 		for (Map.Entry<String,String> entry : properties.entrySet()){
 			// Key Value namesapce.propertyname value value
 			String[] splitName = entry.getKey().split("[.]", 2);
-			results += generatePropertyJSON(splitName[0], splitName[1],entry.getValue(),"galasa-dev/v1alpha1");
+			results.add(generateProperty(splitName[0], splitName[1],entry.getValue(),"galasa-dev/v1alpha1"));
 		} 
-        return "[\n  "+results+"\n]";
+        return gson.toJson(results);
     }
 }
