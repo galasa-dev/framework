@@ -10,6 +10,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -39,8 +40,8 @@ public class ResourcesRoute  extends BaseRoute{
 
     static final Gson gson = GalasaGsonBuilder.build();
 
-    private static final Set<String> validActions = Set.of("apply","create","update");
-    private static final Set<String> updateActions = Set.of("apply","update");
+    private static final Set<String> validActions = Collections.unmodifiableSet(Set.of("apply","create","update"));
+    private static final Set<String> updateActions = Collections.unmodifiableSet(Set.of("apply","update"));
     
     protected List<String> errors = new ArrayList<String>();
 
