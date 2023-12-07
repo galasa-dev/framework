@@ -778,13 +778,20 @@ paths:
             application/json:
               schema:
                 type: array
-                items: 
-                  type: string
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/APIError'
               examples: 
                 singleError: 
-                  value: ["GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."]
+                  value:
+                  - error_code: 5017
+                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
                 multipleErrors:
-                  value: ["GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid.","GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."]
+                  value:
+                  - error_code: 5017
+                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
+                  - error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -1595,15 +1602,19 @@ components:
           properties:
             namespace:
               type: string
-              description: The namespace the property resides in
+              description: |
+                Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+                and following characters can be 'a'-'z' or '0'-'9'
             name:
               type: string
-              description: The name of the property
+              description: |
+                Property Name. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+                and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         data:
           properties:
             value:
               type: string
-              description: The value of the property
+              description: The value of the property, maximum length of approximately 1,500,000 characters
     JsonError:
       properties:
         error:
@@ -1618,8 +1629,10 @@ components:
       properties:
         action:
           type: string
+          enum: ["apply","create","update"]
         data:
           type: array
+          description: An array of Galasa Resources that should contain one or more entrys matching any of the schemas outlined
           items:
             anyOf:
               - $ref: '#/components/schemas/GalasaProperty'
