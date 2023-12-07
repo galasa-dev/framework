@@ -69,41 +69,6 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void TestGalasaPropertyInJSONFormat() throws InternalServletException{
-        //Given...
-        String namespace = "randomnamespace";
-        String propertyName = "random.property.name";
-        String propertyValue = "randomValue123";
-        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
-        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, "galasa-dev/v1alpha1");
-        
-        //When...
-        String jsonString = gson.toJson(property.toJSON());
-
-        //Then...
-        assertThat(jsonString).isEqualTo(expectJson);
-        assertThat(property.isPropertyValid()).isTrue();
-    }
-
-    @Test
-    public void TestGalasaPropertyCustomApiVersionInJSONFormat() throws InternalServletException{
-        //Given...
-        String apiVersion = "randomApi";
-        String namespace = "randomnamespace";
-        String propertyName = "random.property.name";
-        String propertyValue = "randomValue123";
-        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue, apiVersion);
-        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue, apiVersion);
-        
-        //When...
-        String jsonString = gson.toJson(property.toJSON());
-
-        //Then...
-        assertThat(jsonString).isEqualTo(expectJson);
-        assertThat(property.isPropertyValid()).isTrue();
-    }
-
-    @Test
     public void TestGalasaPropertyNoDataIsInvalid() throws InternalServletException{
         //Given...
         String apiVersion = null;

@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
@@ -22,8 +21,8 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class GalasaProperty {
     static final Gson gson = GalasaGsonBuilder.build();
 
-    public static final String defaultApiVersion = "galasa-dev/v1alpha1";
-    private String apiVersion = defaultApiVersion;
+    public static final String DEFAULTAPIVERSION = "galasa-dev/v1alpha1";
+    private String apiVersion = DEFAULTAPIVERSION;
     private final String kind = "GalasaProperty";
     private GalasaPropertyMetadata metadata ;
     private GalasaPropertyData data;
@@ -57,11 +56,6 @@ public class GalasaProperty {
     }
     public GalasaProperty (CPSProperty property) {
         this(property.getNamespace(), property.getName(), property.getOutputValue());
-    }
-
-    public JsonObject toJSON() {
-        String jsonstring = gson.toJson(this);
-        return gson.fromJson(jsonstring, JsonObject.class);
     }
 
     public String getKind() {

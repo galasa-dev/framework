@@ -8,6 +8,8 @@ package dev.galasa.framework.api.cps.internal.routes;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -203,10 +205,10 @@ public abstract class CPSRoute extends BaseRoute {
         /*
          * Builds a json array object from a Map of properties
          */
-        JsonArray propertyArray = new JsonArray();
+        List<GalasaProperty> propertyArray = new ArrayList<GalasaProperty>();
         for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
             CPSProperty property = entry.getValue();
-            propertyArray.add(new GalasaProperty(property).toJSON());
+            propertyArray.add(new GalasaProperty(property));
         }
         return gson.toJson(propertyArray);
     }
@@ -215,9 +217,9 @@ public abstract class CPSRoute extends BaseRoute {
         /*
          * Builds a json array object from a single GalasaProperty containing a property
          */
-        JsonArray propertyArray = new JsonArray();
+        List<GalasaProperty> propertyArray = new ArrayList<GalasaProperty>();
         if (property != null){
-            propertyArray.add(new GalasaProperty(property).toJSON());
+            propertyArray.add(new GalasaProperty(property));
         }
         return gson.toJson(propertyArray);
     }
