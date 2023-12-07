@@ -29,15 +29,5 @@ public class TestInternalServletException {
         assertThat(ex).isNotNull();
     }
 
-    // @Test
-    // public void TestSerialisedServletExceptionJsonIsAsExpected() {
-    //     Gson gson = new Gson();
-    //     InternalServletException ex = createException();
-    //     JsonElement jsonElement = gson.toJsonTree(ex);
-    //     JsonObject jsonObject = jsonElement.getAsJsonObject();
-    //     assertThat(jsonObject.isJsonObject()).isTrue();
-    //     JsonPrimitive errorField = jsonObject.getAsJsonPrimitive("error");
-    //     assertThat(errorField).isNotNull();
-    // }
 }
  

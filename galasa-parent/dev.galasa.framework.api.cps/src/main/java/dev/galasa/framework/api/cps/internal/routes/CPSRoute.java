@@ -53,10 +53,6 @@ public abstract class CPSRoute extends BaseRoute {
         this.framework = framework;
     }
 
-    protected IFramework getFramework() {
-        return this.framework;
-    }
-
     protected  boolean checkPropertyNamespaceMatchesURLNamespace(@NotNull CPSProperty property , @NotNull String namespace){
         return namespace.toLowerCase().trim().equals(property.getNamespace().toLowerCase().trim());
     }
