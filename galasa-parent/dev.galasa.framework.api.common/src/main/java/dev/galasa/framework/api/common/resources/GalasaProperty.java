@@ -7,7 +7,6 @@ package dev.galasa.framework.api.common.resources;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +22,8 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class GalasaProperty {
     static final Gson gson = GalasaGsonBuilder.build();
 
-    private String apiVersion = "galasa-dev/v1alpha1";
+    public static final String defaultApiVersion = "galasa-dev/v1alpha1";
+    private String apiVersion = defaultApiVersion;
     private final String kind = "GalasaProperty";
     private GalasaPropertyMetadata metadata ;
     private GalasaPropertyData data;
@@ -44,19 +44,6 @@ public class GalasaProperty {
         public GalasaPropertyData (String propertyValue){
             this.value = propertyValue;
         }
-    }
-
-
-    public GalasaProperty (String completeCPSname, String propertyValue) {
-        String[] nameParts = completeCPSname.split("[.]", 2);
-        String namespaceName = nameParts[0];
-        String propertyName = nameParts[1];
-        this.metadata = new GalasaPropertyMetadata(namespaceName,propertyName);
-        this.data = new GalasaPropertyData(propertyValue);
-    }
-
-    public GalasaProperty (Map.Entry<String, String> propertyEntry) {
-        this(propertyEntry.getKey(),propertyEntry.getValue());
     }
 
     public GalasaProperty (String namespace, String propertyName, String propertyValue) {

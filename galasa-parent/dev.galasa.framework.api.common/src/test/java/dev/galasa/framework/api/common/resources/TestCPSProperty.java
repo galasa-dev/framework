@@ -7,10 +7,7 @@ package dev.galasa.framework.api.common.resources;
 
 import org.junit.Test;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -18,13 +15,7 @@ import java.util.Map;
 
 public class TestCPSProperty {
     
-    static final Gson gson = GalasaGsonBuilder.build();
-
-    private String generateExpectedJson(String namespace, String propertyName, String propertyValue){
-        return "{\n  \"name\": {\n    \"namespaceName\": \""+namespace+"\",\n    \"simpleName\": \""+propertyName+"\"\n  "+
-        "},\n  \"value\": \""+propertyValue+"\"\n}";
-    }
-    
+   
     @Test
     public void TestGalasaPropertyDefaultApiVersion() throws InternalServletException{
         //Given...
@@ -93,77 +84,6 @@ public class TestCPSProperty {
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        assertThat(property.isPropertyValid()).isTrue();
-    }
-
-    @Test
-    public void TestGalasaPropertyInJSONFormat() throws InternalServletException{
-        //Given...
-        String namespace = "randomnamespace";
-        String propertyName = "random.property.name";
-        String propertyValue = "randomValue123";
-        CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue);
-        
-        //When...
-        String jsonString = gson.toJson(property.toJSON());
-
-        //Then...
-        assertThat(jsonString).isEqualTo(expectJson);
-        assertThat(property.isPropertyValid()).isTrue();
-    }
-
-    @Test
-    public void TestGalasaPropertyFromStringInJSONFormat() throws InternalServletException{
-        //Given...
-        String namespace = "randomnamespace";
-        String propertyName = "random.property.name";
-        String propertyValue = "randomValue123";
-        String fullPropertyName = namespace+"."+propertyName;
-        CPSProperty property = new CPSProperty(fullPropertyName, propertyValue);
-        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue);
-        
-        //When...
-        String jsonString = gson.toJson(property.toJSON());
-
-        //Then...
-        assertThat(jsonString).isEqualTo(expectJson);
-        assertThat(property.isPropertyValid()).isTrue();
-    }
-
-    @Test
-    public void TestGalasaPropertyFromMapEntryInJSONFormat() throws InternalServletException{
-        //Given...
-        String namespace = "randomnamespace";
-        String propertyName = "random.property.name";
-        String propertyValue = "randomValue123";
-        String fullPropertyName = namespace+"."+propertyName;
-        Map.Entry<String, String> propertyEntry =  Map.entry(fullPropertyName, propertyValue);
-        CPSProperty property = new CPSProperty(propertyEntry);
-        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue);
-        
-        //When...
-        String jsonString = gson.toJson(property.toJSON());
-
-        //Then...
-        assertThat(jsonString).isEqualTo(expectJson);
-        assertThat(property.isPropertyValid()).isTrue();
-    }
-
-    @Test
-    public void TestGalasaPropertyCustomApiVersionInJSONFormat() throws InternalServletException{
-        //Given...
-        String namespace = "randomnamespace";
-        String propertyName = "random.property.name";
-        String propertyValue = "randomValue123";
-        CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-        String expectJson = generateExpectedJson(namespace, propertyName, propertyValue);
-        
-        //When...
-        String jsonString = gson.toJson(property.toJSON());
-
-        //Then...
-        assertThat(jsonString).isEqualTo(expectJson);
         assertThat(property.isPropertyValid()).isTrue();
     }
 

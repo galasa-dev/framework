@@ -88,7 +88,10 @@ public class CpsServletTest extends BaseServletTest {
 
 		List<GalasaProperty> expectedProperties = new ArrayList<GalasaProperty>();
 		for (Entry<String, String> entry : properties.entrySet()) {
-			expectedProperties.add( new GalasaProperty(entry));
+			String[] nameParts = entry.getKey().split("[.]", 2);
+    	    String namespaceName = nameParts[0];
+    		String propertyName = nameParts[1];
+			expectedProperties.add( new GalasaProperty(namespaceName, propertyName,entry.getValue()));
 		}
 
 		List<GalasaProperty> jsonProperties = new ArrayList<GalasaProperty>();

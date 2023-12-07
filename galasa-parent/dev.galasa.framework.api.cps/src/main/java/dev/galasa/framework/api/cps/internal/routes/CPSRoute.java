@@ -64,7 +64,7 @@ public abstract class CPSRoute extends BaseRoute {
      * @param namespace
      * @param propertyName
      * @return boolean
-     * @throws FrameworkException
+     * @throws InternalServletException
      */
     public boolean checkPropertyExists (String namespace, String propertyName) throws InternalServletException{
         return retrieveSingleProperty(namespace, propertyName) != null;
@@ -123,7 +123,7 @@ public abstract class CPSRoute extends BaseRoute {
                 valid = true;
             }
         } catch (Exception e ) {
-            //Catch the Exception (namespace is invalid) to throw error in if 
+            //Catch the Exception can not convert to GalasaProperty (due to missing data or bad name)
         }  
         if (!valid) {
             ServletError error = new ServletError(GAL5029_PROPERTY_NAME_DOES_NOT_MATCH_ERROR,propertyName,name );  

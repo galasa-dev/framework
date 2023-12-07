@@ -9,20 +9,16 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class CPSProperty {
-    static final Gson gson = GalasaGsonBuilder.build();
 
     private static final String REDACTED_PROPERTY_VALUE = "********";
 
@@ -61,11 +57,6 @@ public class CPSProperty {
     public CPSProperty (String namespace, String propertyName, String propertyValue) {
         this.name = new GalasaPropertyName(namespace, propertyName);
         this.value = propertyValue;
-    }
-
-    public JsonObject toJSON() {
-        String jsonstring = gson.toJson(this);
-        return gson.fromJson(jsonstring, JsonObject.class);
     }
 
     public String getNamespace() {

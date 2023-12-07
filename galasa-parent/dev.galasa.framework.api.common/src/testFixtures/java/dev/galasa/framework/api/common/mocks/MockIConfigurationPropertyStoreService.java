@@ -26,23 +26,22 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
         this("framework");
     }
 
-    // TODO: Each testcase needs to populate the values it wants returned...
     public MockIConfigurationPropertyStoreService(@NotNull String namespace) {
         this.namespaceInput = namespace;
-        if (this.namespaceInput == "multi"){
+        if (this.namespaceInput.equals("multi")){
             this.properties.put("multi.test.property", "value1");
             this.properties.put("multi.example.charity1", "value2");
             this.properties.put("multi.example.lecture101", "value101");
             this.properties.put("multi.example.hospitality", "value3");
             this.properties.put("multi.test.aunty5", "value4");
             this.properties.put("multi.test.empty", "value5");
-        }else if (this.namespaceInput == "infixes"){
+        }else if (this.namespaceInput.equals("infixes")){
             this.properties.put(namespace+".test.aproperty.stream", "value1");
             this.properties.put(namespace+".test.bproperty.stream", "value2");
             this.properties.put(namespace+".test.property.testing.local.stream", "value3");
             this.properties.put(namespace+".test.property.testing.stream", "value4");
             this.properties.put(namespace+".test.stream", "value5");
-        }else if (this.namespaceInput == "empty"){
+        }else if (this.namespaceInput.equals("empty")){
             //add no properties
         } else {
             this.properties.put(namespace+".property.1", "value1");
