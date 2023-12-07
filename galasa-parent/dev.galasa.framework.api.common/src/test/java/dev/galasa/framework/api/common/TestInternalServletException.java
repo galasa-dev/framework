@@ -7,8 +7,6 @@ package dev.galasa.framework.api.common;
 
 import org.junit.Test;
 
-import com.google.gson.*;
-
 import java.net.HttpURLConnection;
 import static org.assertj.core.api.Assertions.*;
 
