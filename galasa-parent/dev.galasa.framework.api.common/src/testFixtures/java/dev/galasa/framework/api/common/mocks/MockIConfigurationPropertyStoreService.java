@@ -21,27 +21,34 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
     protected String namespaceInput;
     Map<String, String> properties = new HashMap<String,String>();
 
+
+    public MockIConfigurationPropertyStoreService() {
+        this("framework");
+    }
+
     public MockIConfigurationPropertyStoreService(@NotNull String namespace) {
         this.namespaceInput = namespace;
-        if (this.namespaceInput == "multi"){
+        if (this.namespaceInput.equals("multi")){
             this.properties.put("multi.test.property", "value1");
-            this.properties.put("multi..charity1", "value2");
-            this.properties.put("multi..lecture101", "value101");
-            this.properties.put("multi..hospitality", "value3");
+            this.properties.put("multi.example.charity1", "value2");
+            this.properties.put("multi.example.lecture101", "value101");
+            this.properties.put("multi.example.hospitality", "value3");
             this.properties.put("multi.test.aunty5", "value4");
             this.properties.put("multi.test.empty", "value5");
-        }else if (this.namespaceInput == "infixes"){
+        }else if (this.namespaceInput.equals("infixes")){
             this.properties.put(namespace+".test.aproperty.stream", "value1");
             this.properties.put(namespace+".test.bproperty.stream", "value2");
             this.properties.put(namespace+".test.property.testing.local.stream", "value3");
             this.properties.put(namespace+".test.property.testing.stream", "value4");
             this.properties.put(namespace+".test.stream", "value5");
-        }else{
-            this.properties.put(namespace+".property1", "value1");
-            this.properties.put(namespace+".property2", "value2");
-            this.properties.put(namespace+".property3", "value3");
-            this.properties.put(namespace+".property4", "value4");
-            this.properties.put(namespace+".property5", "value5");
+        }else if (this.namespaceInput.equals("empty")){
+            //add no properties
+        } else {
+            this.properties.put(namespace+".property.1", "value1");
+            this.properties.put(namespace+".property.2", "value2");
+            this.properties.put(namespace+".property.3", "value3");
+            this.properties.put(namespace+".property.4", "value4");
+            this.properties.put(namespace+".property.5", "value5");
         }
 	}
 
@@ -52,8 +59,14 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
     @Override
     public @Null String getProperty(@NotNull String prefix, @NotNull String suffix, String... infixes)
             throws ConfigurationPropertyStoreException {
-        
-        throw new UnsupportedOperationException("Unimplemented method 'getProperty'");
+            for (Map.Entry<String,String> property : properties.entrySet()){
+                String key = property.getKey().substring(property.getKey().indexOf(".")+1);
+                String match = prefix+"."+suffix;
+                if (key.equals(match)){
+                    return property.getValue();
+                }
+            }
+            return null;
     }
 
     @Override
@@ -65,12 +78,12 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
 
     @Override
     public void setProperty(@NotNull String name, @NotNull String value) throws ConfigurationPropertyStoreException {
-       this.properties.put(this.namespaceInput+"."+name,value);
+       this.properties.put(name,value);
     }
 
     @Override
     public void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException {
-       this.properties.remove(this.namespaceInput+"."+name);
+       this.properties.remove(namespaceInput+"."+name);
     }
 
     @Override
@@ -92,20 +105,13 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
 
     @Override
     public List<String> getCPSNamespaces() {
-        ArrayList<String> cpsList = new ArrayList<String>();
-        if (this.namespaceInput !="empty"){
-            cpsList.add("nampespace1");
-            cpsList.add("nampespace2");
-            cpsList.add("nampespace3");
-            cpsList.add("anamespace");
-            cpsList.add("nampespace4");
-            cpsList.add("nampespace5");
-            cpsList.add("nampespace6");
-            cpsList.add("nampespace7");
-            cpsList.add("secure");
-            cpsList.add("framework");
+        ArrayList<String> namespaces = new ArrayList<String>();
+        for( Map.Entry<String,String> entry : properties.entrySet() ) {
+            String[] parts = entry.getKey().split("[.]");
+            String ns = parts[0];
+            namespaces.add(ns);
         }
-        return cpsList;
+        return namespaces;
     }
     ;
 }

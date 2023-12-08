@@ -6,7 +6,6 @@
 package dev.galasa.framework.api.cps.internal.routes;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -17,13 +16,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.CPSFacade;
+import dev.galasa.framework.api.common.resources.CPSNamespace;
+import dev.galasa.framework.api.common.resources.CPSProperty;
+import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.api.cps.internal.common.PropertyComparator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -54,14 +54,16 @@ public class PropertyRoute extends CPSRoute{
         String properties = "";
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
-            if (isHiddenNamespace(namespaceName)) {
+            CPSFacade cps = new CPSFacade(framework);
+            CPSNamespace namespace = cps.getNamespace(namespaceName);
+            if (namespace.isHidden()) {
                 ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespaceName);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
             String prefix = queryParams.getSingleString("prefix", null);
             String suffix = queryParams.getSingleString("suffix", null);
             List<String> infixes = queryParams.getMultipleString("infix", null);
-            properties = getProperties(namespaceName, prefix, suffix, infixes);
+            properties = getProperties(namespace, prefix, suffix, infixes);
         }catch (FrameworkException f){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
@@ -70,11 +72,11 @@ public class PropertyRoute extends CPSRoute{
     }
     
     
-    private String getProperties(String namespace, String prefix, String suffix, List<String> infixes) throws ConfigurationPropertyStoreException {
-        Map<String, String> properties = getAllProperties(namespace);
-       
+    private String getProperties(CPSNamespace namespace, String prefix, String suffix, List<String> infixes) throws ConfigurationPropertyStoreException {
+        Map<GalasaPropertyName, CPSProperty> properties = namespace.getProperties();
+        
         if (prefix != null){
-            properties = filterPropertiesByPrefix(namespace, properties,prefix);
+            properties = filterPropertiesByPrefix(namespace.getName(), properties,prefix);
         }
         if (suffix != null){
             properties = filterPropertiesBySuffix(properties,suffix);
@@ -82,8 +84,8 @@ public class PropertyRoute extends CPSRoute{
         if (infixes != null){
             properties = filterPropertiesByInfix(properties, infixes);
         }
-        Map<String, String> sortedProperties = sortResults(properties);
-        return buildResponseBody(namespace, sortedProperties);
+        Map<GalasaPropertyName, CPSProperty> sortedProperties = sortResults(properties);
+        return buildResponseBody(sortedProperties);
     }
     
     /**
@@ -91,12 +93,12 @@ public class PropertyRoute extends CPSRoute{
      * @param properties
      * @return Sorted Map of properties
      */
-    protected Map<String, String> sortResults(Map<String, String> properties){
-        Collection<String> unsortedKeys = properties.keySet();
+    protected Map<GalasaPropertyName, CPSProperty> sortResults(Map<GalasaPropertyName, CPSProperty> properties){
+        Collection<GalasaPropertyName> unsortedKeys = properties.keySet();
         PropertyComparator comparator = new PropertyComparator();
-        Map<String,String> sorted = new TreeMap<String,String>(comparator);
+        Map<GalasaPropertyName, CPSProperty> sorted = new TreeMap<GalasaPropertyName, CPSProperty>(comparator);
 
-        for( String key : unsortedKeys ) {
+        for( GalasaPropertyName key : unsortedKeys ) {
             sorted.put(key, properties.get(key));
         }
 
@@ -111,10 +113,10 @@ public class PropertyRoute extends CPSRoute{
      * @param prefix
      * @return Map of Properties starting with the provided prefix
      */
-    protected  Map<String, String> filterPropertiesByPrefix(String namespace, Map<String, String> properties , String prefix){
-        Map<String, String> filteredProperties = new HashMap<String,String>();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            if (entry.getKey().toString().startsWith(namespace + "."+prefix)){
+    protected  Map<GalasaPropertyName, CPSProperty> filterPropertiesByPrefix(String namespace, Map<GalasaPropertyName, CPSProperty> properties , String prefix){
+        Map<GalasaPropertyName, CPSProperty> filteredProperties = new HashMap<GalasaPropertyName, CPSProperty>();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
+            if (entry.getKey().getFullyQualifiedName().startsWith(namespace + "."+prefix)){
                 filteredProperties.put(entry.getKey(), entry.getValue());
             }
         }
@@ -127,10 +129,10 @@ public class PropertyRoute extends CPSRoute{
      * @param suffix
      * @return Map of Properties ending with the provided suffix
      */
-    protected  Map<String, String> filterPropertiesBySuffix( Map<String, String> properties , String suffix){
-        Map<String, String> filteredProperties = new HashMap<String,String>();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            if (entry.getKey().toString().endsWith(suffix)){
+    protected  Map<GalasaPropertyName, CPSProperty> filterPropertiesBySuffix( Map<GalasaPropertyName, CPSProperty> properties , String suffix){
+       Map<GalasaPropertyName, CPSProperty> filteredProperties = new HashMap<GalasaPropertyName, CPSProperty>();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
+            if (entry.getKey().getFullyQualifiedName().endsWith(suffix)){
                 filteredProperties.put(entry.getKey(), entry.getValue());
             }
         }
@@ -144,13 +146,13 @@ public class PropertyRoute extends CPSRoute{
      * @param infixes
      * @return Map of Properties containing the at least one of the infixes
      */
-    protected  Map<String, String> filterPropertiesByInfix(Map<String, String> properties, List<String> infixes){
-        Map<String, String> filteredProperties = new HashMap<String,String>();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            String key = entry.getKey();
+    protected  Map<GalasaPropertyName, CPSProperty> filterPropertiesByInfix(Map<GalasaPropertyName, CPSProperty>properties, List<String> infixes){
+        Map<GalasaPropertyName, CPSProperty> filteredProperties = new HashMap<GalasaPropertyName, CPSProperty>();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
+            GalasaPropertyName key = entry.getKey();
             for (String infix : infixes){
-				if (key.contains(infix)&& !filteredProperties.containsKey(key)){
-                    filteredProperties.put(key, entry.getValue());
+				if (key.getFullyQualifiedName().contains(infix)&& !filteredProperties.containsKey(key)){
+                    filteredProperties.put(entry.getKey(), entry.getValue());
 	            }
 			}
         }
@@ -164,35 +166,11 @@ public class PropertyRoute extends CPSRoute{
     public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response)
             throws  IOException, FrameworkException {
-        String namespace = getNamespaceFromURL(pathInfo);
+        String namespaceName = getNamespaceFromURL(pathInfo);
         checkRequestHasContent(request);
-        Map.Entry<String,String> property = getPropertyFromRequestBody(request);
-        setProperty(namespace, property );
-        String responseBody = String.format("Successfully created property %s in %s",property.getKey(), namespace);
+        CPSProperty property = applyPropertyToStore(request, namespaceName, false);
+        String responseBody = String.format("Successfully created property %s in %s",property.getName(), property.getNamespace());
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
     }
 
-    /**
-     * Returns an entry of <propertyName, propertyValue> from the request body that should be encoded in UTF-8 format
-     * @param request
-     * @return Map.Entry<String,String> 
-     * @throws IOException
-     */
-    private Map.Entry<String,String> getPropertyFromRequestBody (HttpServletRequest request) throws IOException{
-        String body = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
-        JsonElement jsonElement = JsonParser.parseString(body);
-        String propertyName = jsonElement.getAsJsonObject().get("name").getAsString();
-        String propertyValue = jsonElement.getAsJsonObject().get("value").getAsString();
-        return Map.entry(propertyName,propertyValue);
-    }
-
-    private void setProperty(String namespace, Map.Entry<String,String> property) throws FrameworkException {
-
-        if (!checkPropertyExists(namespace, property.getKey())){
-            getFramework().getConfigurationPropertyService(namespace).setProperty(property.getKey(), property.getValue());
-        }else{
-            ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, property.getKey() ,namespace);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }
-    }
 }

@@ -48,7 +48,7 @@ public class TestNamespacesRoute extends CpsServletTest{
     }
 
 	@Test
-	public void TestGetNamespacesWithFrameworkNoDataReturnsOk() throws Exception{
+	public void TestGetNamespacesWithFrameworkNoDataReturnsDefaults() throws Exception{
 		// Given...
 		setServlet("/","empty",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -64,8 +64,10 @@ public class TestNamespacesRoute extends CpsServletTest{
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(outStream.toString()).isEqualTo("[]");
-	}
+		assertThat(outStream.toString()).isEqualTo("[\n"+
+		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
+		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
+		"\n]");	}
 
 	@Test
 	public void TestGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
@@ -85,16 +87,8 @@ public class TestNamespacesRoute extends CpsServletTest{
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(outStream.toString()).isEqualTo("[\n"+
-		"  {\n    \"name\": \"anamespace\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/anamespace/properties\",\n    \"type\": \"normal\"\n  },\n"+
-		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/framework/properties\",\n    \"type\": \"normal\"\n  },\n"+
-		"  {\n    \"name\": \"nampespace1\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace1/properties\",\n    \"type\": \"normal\"\n  },\n"+
-		"  {\n    \"name\": \"nampespace2\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace2/properties\",\n    \"type\": \"normal\"\n  },\n"+
-		"  {\n    \"name\": \"nampespace3\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace3/properties\",\n    \"type\": \"normal\"\n  },\n"+
-		"  {\n    \"name\": \"nampespace4\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace4/properties\",\n    \"type\": \"normal\"\n  },\n"+
-		"  {\n    \"name\": \"nampespace5\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace5/properties\",\n    \"type\": \"normal\"\n  },\n"+
-		"  {\n    \"name\": \"nampespace6\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace6/properties\",\n    \"type\": \"normal\"\n  },\n"+
-		"  {\n    \"name\": \"nampespace7\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/nampespace7/properties\",\n    \"type\": \"normal\"\n  },\n"+
-		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"http://mock.galasa.server/cps/secure/properties\",\n    \"type\": \"secure\"\n  }"+
+		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
+		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
 		"\n]");
 	}
 

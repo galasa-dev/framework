@@ -11,7 +11,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -80,7 +79,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteGETWithExistingNamespaceReturnsOk() throws Exception {
         // Given...
-        setServlet("/framework/properties/property1", "framework", new HashMap<String,String[]>());
+        setServlet("/framework/properties/property.1", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -89,8 +88,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-        Map<String, String> properties = new HashMap<String,String>();
-        properties.put("framework.property1", "value1");
+		String expectedJson = generateExpectedJson("framework", "property.1", "value1", "galasa-dev/v1alpha1");
 
         // Then...
         // We expect data back
@@ -98,13 +96,13 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		checkJsonArrayStructure(output,properties);
+		assertThat(output).isEqualTo(expectedJson);
     }
 
 	@Test
     public void TestPropertyRouteGETWithProtectedNamespaceReturnsOk() throws Exception {
         // Given...
-        setServlet("/secure/properties/property1", "secure", new HashMap<String,String[]>());
+        setServlet("/secure/properties/property.1", "secure", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -113,8 +111,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-        Map<String, String> properties = new HashMap<String,String>();
-        properties.put("secure.property1", "********");
+		String expectedJson = generateExpectedJson("secure", "property.1", "********", "galasa-dev/v1alpha1");
 
         // Then...
         // We expect data back
@@ -122,13 +119,13 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		checkJsonArrayStructure(output,properties);
+		assertThat(output).isEqualTo(expectedJson);
     }
 
 	@Test
     public void TestPropertyRouteGETWithHiddenNamespaceReturnsError() throws Exception {
         // Given...
-        setServlet("/dss/properties/property1", "framework", new HashMap<String,String[]>());
+        setServlet("/dss/properties/property.1", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -155,7 +152,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteGETWithExistingNamespaceDifferentPropertyReturnsOk() throws Exception {
         // Given...
-        setServlet("/framework/properties/property3", "framework", new HashMap<String,String[]>());
+        setServlet("/framework/properties/property.3", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -164,8 +161,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-        Map<String, String> properties = new HashMap<String,String>();
-        properties.put("framework.property3", "value3");
+		String expectedJson = generateExpectedJson("framework", "property.3", "value3", "galasa-dev/v1alpha1");
 
         // Then...
         // We expect data back
@@ -173,13 +169,13 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		checkJsonArrayStructure(output,properties);
+		assertThat(output).isEqualTo(expectedJson);
     }
 
     @Test
     public void TestPropertyRouteGETWithExistingNamespaceBadPropertyNameReturnsEmpty() throws Exception {
         // Given...
-        setServlet("/framework/properties/inproperty", "framework", new HashMap<String,String[]>());
+        setServlet("/framework/properties/in.property", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -200,7 +196,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteGETWithExistingNamespaceIncopmpletePropertyNameReturnsEmpty() throws Exception {
         // Given...
-        setServlet("/framework/properties/roperty", "framework", new HashMap<String,String[]>());
+        setServlet("/framework/properties/roperty.1", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -223,9 +219,10 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
      */
 
     @Test
-    public void TestPropertyRouteGetPUTFrameworkReturnsError() throws Exception{
+    public void TestPropertyRoutePUTFrameworkReturnsError() throws Exception{
 		// Given...
-		setServlet("/namespace1/properties/property1",null ,"value12", "PUT");
+		String json = generatePropertyJSON("namespace1", "property.1", "value12", "galasa-dev/v1alpha1");
+		setServlet("/namespace1/properties/property.1","error" ,json, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -251,7 +248,8 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRoutePUTBadNamespaceReturnsError() throws Exception{
 		// Given...
-		setServlet("/error/properties/property1",null ,"value6", "PUT");
+		String json = generatePropertyJSON("error", "property.1", "value12", "galasa-dev/v1alpha1");
+		setServlet("/error/properties/property1","error" ,json, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -269,8 +267,8 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"GAL5016E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
+			5029,
+			"The GalasaProperty name 'property.1' must match the url namespace 'property1'."
 		);
     }
 
@@ -278,9 +276,10 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     public void TestPropertyRouteWithExistingNamespacePUTExistingPropertyReturnsOK() throws Exception {
         // Given...
 		String namespace = "framework";
-        String propertyName = "property5";
+        String propertyName = "property.5";
         String value = "value6";
-        setServlet("/framework/properties/"+propertyName, namespace, value, "PUT");
+		String json = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
+        setServlet("/framework/properties/"+propertyName, namespace, json, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -296,7 +295,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(output).isEqualTo("Successfully updated property property5 in framework");
+        assertThat(output).isEqualTo("Successfully updated property property.5 in framework");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
     }
 
@@ -304,9 +303,10 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     public void TestPropertyRouteWithProtectedNamespacePUTExistingPropertyReturnsOK() throws Exception {
         // Given...
 		String namespace = "secure";
-        String propertyName = "property5";
+        String propertyName = "property.5";
         String value = "value6";
-        setServlet("/secure/properties/"+propertyName, namespace, value, "PUT");
+		String json = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
+        setServlet("/secure/properties/"+propertyName, namespace, json, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -322,16 +322,18 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(output).isEqualTo("Successfully updated property property5 in secure");
-        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+        assertThat(output).isEqualTo("Successfully updated property property.5 in secure");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();
     }
 
 	@Test
     public void TestPropertyRoutePUTWithHiddenNamespaceReturnsError() throws Exception {
         // Given...
-        String propertyName = "property5";
+		String namespace = "dss";
+        String propertyName = "property.5";
         String value = "value6";
-        setServlet("/dss/properties/"+propertyName, "framework", value, "PUT");
+		String json = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
+        setServlet("/dss/properties/"+propertyName, "framework", json, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -358,9 +360,11 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteWithExistingNamespacePUTNewPropertyReturnsError() throws Exception {
         // Given...
-        String propertyName = "property6";
+		String namespace = "framework";
+        String propertyName = "property.6";
         String value = "value6";
-        setServlet("/framework/properties/"+propertyName, "framework", value, "PUT");
+		String json = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
+        setServlet("/framework/properties/"+propertyName, namespace, json, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -378,16 +382,18 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
        checkErrorStructure(
 			outStream.toString(),
 			5017,
-			"E: Error occured when trying to access property 'property6'. The property name provided is invalid."
+			"E: Error occured when trying to access property 'property.6'. The property name provided is invalid."
 		);        
     }
 
     @Test
     public void TestPropertyRouteWithErroneousNamespacePUTNewPropertyReturnsError() throws Exception {
         // Given...
-        String propertyName = "property5";
+		String namespace = "framework";
+        String propertyName = "property.5";
         String value = "value6";
-        setServlet("/framew0rk/properties/"+propertyName, "framework", value, "PUT");
+		String json = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
+        setServlet("/framew0rk/properties/"+propertyName, namespace, json, "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -484,21 +490,21 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
-		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"GAL5016E: Error occured when trying to access namespace 'namespace1'. The namespace provided is invalid."
+			5000,
+			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
         );
     }
         
 	@Test
     public void TestPropertyRouteDELETEWithHiddenNamespaceReturnsError() throws Exception {
         // Given...
-        String propertyName = "property5";
+        String propertyName = "property.5";
         setServlet("/dss/properties/"+propertyName, "framework", null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -538,21 +544,21 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
-		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         
 		checkErrorStructure(
-            outStream.toString(),
-			5016,
-			"GAL5016E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
-            );
+			outStream.toString(),
+			5000,
+			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+        );
         }
         
     @Test
     public void TestPropertyRouteDELETEBadPropertyReturnsError() throws Exception{
         // Given...
-		setServlet("/framework/properties/badproperty", "framework", null, "DELETE");
+		setServlet("/framework/properties/bad.property", "framework", null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -571,7 +577,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5017,
-			"E: Error occured when trying to access property 'badproperty'. The property name provided is invalid."
+			"E: Error occured when trying to access property 'bad.property'. The property name provided is invalid."
         );
     }
 
@@ -579,7 +585,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     public void TestPropertyRouteDELETEPropertyReturnsOk() throws Exception{
         // Given...
 		String namespace = "framework";
-        String propertyName = "property1";
+        String propertyName = "property.1";
         String value = "value1";
 		setServlet("/framework/properties/"+propertyName, namespace, null, "DELETE");
 		MockCpsServlet servlet = getServlet();
@@ -597,15 +603,15 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(output).isEqualTo("Successfully deleted property property1 in framework");
+        assertThat(output).isEqualTo("Successfully deleted property property.1 in framework");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isFalse(); 
     }
 
 	@Test
-    public void TestPropertyRouteDELETEPropertyinProtectedNamespaceReturnsError() throws Exception{
+    public void TestPropertyRouteDELETEPropertyinProtectedNamespaceReturnOK() throws Exception{
         // Given...
 		String namespace = "secure";
-        String propertyName = "property1";
+        String propertyName = "property.1";
 		String value = "value1";
 		setServlet("/secure/properties/"+propertyName, namespace, value, "DELETE");
 		MockCpsServlet servlet = getServlet();
@@ -622,7 +628,8 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-		assertThat(output).isEqualTo("Successfully deleted property property1 in secure");
+		assertThat(output).isEqualTo("Successfully deleted property property.1 in secure");
+		assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isFalse(); 
     }
 
 	/*

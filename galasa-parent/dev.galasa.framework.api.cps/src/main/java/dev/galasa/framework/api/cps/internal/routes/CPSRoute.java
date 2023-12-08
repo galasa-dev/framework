@@ -5,24 +5,29 @@
  */
 package dev.galasa.framework.api.cps.internal.routes;
 
+import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import dev.galasa.framework.ResourceNameValidator;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.cps.internal.common.NamespaceType;
+import dev.galasa.framework.api.common.resources.CPSFacade;
+import dev.galasa.framework.api.common.resources.CPSNamespace;
+import dev.galasa.framework.api.common.resources.CPSProperty;
+import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -42,75 +47,27 @@ public abstract class CPSRoute extends BaseRoute {
     static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
 
     protected IFramework framework;
+    CPSFacade cps;
 
-    private static final String REDACTED_PROPERTY_VALUE = "********";
-
-    private static final Set<String> hiddenNamespaces = new HashSet<>();
-    static {
-        hiddenNamespaces.add("dss");
+    public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework) {
+        super(responseBuilder, path);
+        this.framework = framework;
     }
 
-    /**
-     * Some namespaces are able to be set, but cannot be queried.
-     *
-     * When they are queried, the values are redacted
-     */
-    private static final Set<String> secureNamespaces = new HashSet<>();
-    static {
-        secureNamespaces.add("secure");
+    protected  boolean checkPropertyNamespaceMatchesURLNamespace(@NotNull CPSProperty property , @NotNull String namespace){
+        return namespace.toLowerCase().trim().equals(property.getNamespace().toLowerCase().trim());
     }
 
-    public CPSRoute(ResponseBuilder responseBuilder, String path , IFramework framework ) {
-    super(responseBuilder, path);
-    this.framework = framework;
-    }
-
-    protected boolean isHiddenNamespace(String namespace){
-        return hiddenNamespaces.contains(namespace);
-    }
-
-    protected String getNamespaceType(String namespace){
-        String type = NamespaceType.NORMAL.toString();
-        if (CPSRoute.isSecureNamespace(namespace)){
-            type= NamespaceType.SECURE.toString();
-        }
-        return type;
-    }
-    
-
-    public static boolean isSecureNamespace(String namespace){
-        return secureNamespaces.contains(namespace);
-    }
-
-    protected String getProtectedValue(String actualValue , String namespace) {
-        String protectedValue ;
-        if (secureNamespaces.contains(namespace)) {
-            // The namespace is protected, write-only, so should not be readable.
-            protectedValue = REDACTED_PROPERTY_VALUE;
-        } else {
-            protectedValue = actualValue ;
-        }
-        return protectedValue ;
-    }
-
-    protected IFramework getFramework() {
-        return this.framework;
-    }
-
-    protected Map<String, String> getAllProperties(String namespace) throws ConfigurationPropertyStoreException {
-        return framework.getConfigurationPropertyService(namespace).getAllProperties();
-    }
-
-    /**
+     /**
      * Returns a boolean value of whether the property has been located in the given namespace.
      * Hidden namespaces will return a false value as they should not be accessed via the API endpoints
      * 
      * @param namespace
      * @param propertyName
      * @return boolean
-     * @throws FrameworkException
+     * @throws InternalServletException
      */
-    protected boolean checkPropertyExists (String namespace, String propertyName) throws FrameworkException{
+    public boolean checkPropertyExists (String namespace, String propertyName) throws InternalServletException{
         return retrieveSingleProperty(namespace, propertyName) != null;
     }
 
@@ -118,32 +75,97 @@ public abstract class CPSRoute extends BaseRoute {
      * Returns a single property from a given namespace.
      * If the namespace provided is hidden, does not exist or has no matching property, it returns null
      * If the namespace provided does not match any existing namepsaces an exception will be thrown
-     * @param namespace
+     * @param namespaceName
      * @param propertyName
      * @return Map.Entry of String, String
-     * @throws FrameworkException
+     * @throws InternalServletException
      */
-    protected Map.Entry<String, String> retrieveSingleProperty(String namespace, String propertyName) throws  InternalServletException {
-        if (isHiddenNamespace(namespace)){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+    public CPSProperty retrieveSingleProperty(String namespaceName, String propertyName) throws  InternalServletException {
+        CPSProperty property;
+        try {
+            cps = new CPSFacade(this.framework);
+        } catch( ConfigurationPropertyStoreException ex ) {
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,ex);
         }
-        try{
-            Map<String, String> properties = getAllProperties(namespace);
-            for (Map.Entry<String, String> entry : properties.entrySet()) {
-                String key = entry.getKey().toString();
-                if (key.equals(namespace+"."+propertyName)){
-                    return entry;
-                }
-            }
+
+        CPSNamespace namespace ;
+        try {
+            namespace = cps.getNamespace(namespaceName);
         }catch (Exception e){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespace);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND,e);
         }
-        return null;
+        
+        if (namespace.isHidden()){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        } 
+
+        
+        try{
+            property = namespace.getProperty(propertyName);
+        }catch (Exception e){
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND,e);
+        }
+        
+        return property;
     }
 
-    protected String getPropertyNameFromURL(String pathInfo) throws InternalServletException{
+
+    protected boolean checkNameMatchesRequest(String name, HttpServletRequest request ) throws ConfigurationPropertyStoreException, InternalServletException {
+        boolean valid = false;
+        String propertyName = "";
+        try {
+            GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(request);
+            propertyName = galasaProperty.getName();
+            if (propertyName.equals(name)) {
+                valid = true;
+            }
+        } catch (Exception e ) {
+            //Catch the Exception can not convert to GalasaProperty (due to missing data or bad name)
+        }  
+        if (!valid) {
+            ServletError error = new ServletError(GAL5029_PROPERTY_NAME_DOES_NOT_MATCH_ERROR,propertyName,name );  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+        return valid;
+    }
+
+    protected CPSProperty applyPropertyToStore (HttpServletRequest request, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
+        GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(request);
+        checkNamespaceExists(namespaceName);
+        CPSFacade cps = new CPSFacade(framework);
+        CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
+        CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
+        if(!checkPropertyNamespaceMatchesURLNamespace(property, namespaceName)){
+            ServletError error = new ServletError(GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR,property.getNamespace(), namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        property.setPropertyToStore(galasaProperty, isUpdateAction);
+        return property;
+    }
+
+    protected  boolean checkNamespaceExists(String namespaceName) throws ConfigurationPropertyStoreException, InternalServletException {
+        boolean valid = false;
+        try {
+            CPSFacade cps = new CPSFacade(framework);
+            CPSNamespace namespace = cps.getNamespace(namespaceName);
+            if (namespace.getProperties().size() > 0) {
+                valid = true;
+            }
+        } catch (Exception e ) {
+            //Catch the Exception (namespace is invalid) to throw error in if 
+        }  
+        if (!valid) {
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+        return valid;
+    }
+
+    protected String getPropertyNameFromURL(String pathInfo) throws InternalServletException {
         /*
          * This expects a pathInfo from the cps property endpoint, i.e
          * /cps/<namespace>/properties/<propertyName>
@@ -153,13 +175,13 @@ public abstract class CPSRoute extends BaseRoute {
         try {
             String[] namespace = pathInfo.split("/");
             return namespace[3];
-        } catch (Exception e){
+        } catch (Exception e) {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-    }
+        }
     }
 
-    protected String getNamespaceFromURL(String pathInfo) throws InternalServletException{
+    protected String getNamespaceFromURL(String pathInfo) throws InternalServletException {
         /*
          * This expects a pathInfo from the cps endpoints, i.e.
          * /cps/<namespace>
@@ -172,38 +194,32 @@ public abstract class CPSRoute extends BaseRoute {
         try {
             String[] namespace = pathInfo.split("/");
             return namespace[1];
-        } catch (Exception e){
+        } catch (Exception e) {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
-    protected String buildResponseBody(String namespace, Map<String, String> properties){
+    protected String buildResponseBody(Map<GalasaPropertyName, CPSProperty> properties) {
         /*
          * Builds a json array object from a Map of properties
          */
-        JsonArray propertyArray = new JsonArray();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            JsonObject cpsProp = new JsonObject();
-            cpsProp.addProperty("name", entry.getKey());
-            cpsProp.addProperty("value", getProtectedValue(entry.getValue(),namespace));
-            propertyArray.add(cpsProp);
+        List<GalasaProperty> propertyArray = new ArrayList<GalasaProperty>();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
+            CPSProperty property = entry.getValue();
+            propertyArray.add(new GalasaProperty(property));
         }
         return gson.toJson(propertyArray);
     }
 
-    protected String buildResponseBody(String namespace, Map.Entry<String, String> entry){
+    protected String buildResponseBody(CPSProperty property) {
         /*
-         * Builds a json array object from a single Map.Entry containing a property
+         * Builds a json array object from a single GalasaProperty containing a property
          */
-        JsonArray propertyArray = new JsonArray();
-        if (entry != null){
-            JsonObject cpsProp = new JsonObject();
-            cpsProp.addProperty("name", entry.getKey());
-            cpsProp.addProperty("value", getProtectedValue(entry.getValue(),namespace));
-            propertyArray.add(cpsProp);
+        List<GalasaProperty> propertyArray = new ArrayList<GalasaProperty>();
+        if (property != null){
+            propertyArray.add(new GalasaProperty(property));
         }
         return gson.toJson(propertyArray);
     }
-
 }

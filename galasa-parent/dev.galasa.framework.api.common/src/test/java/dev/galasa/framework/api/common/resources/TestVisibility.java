@@ -3,18 +3,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.cps.internal.common;
+package dev.galasa.framework.api.common.resources;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class TestNamespaceType {
+public class TestVisibility {
 
     @Test
     public void TestNamespaceTypeNormalReturnNormal(){
         //Given...
-        NamespaceType namespaceType = NamespaceType.NORMAL;
+        Visibility namespaceType = Visibility.NORMAL;
         //When...
         String typeValue = namespaceType.toString();
         //Then...
@@ -24,7 +24,7 @@ public class TestNamespaceType {
     @Test
     public void TestNamespaceTypeSecureReturnSecure(){
         //Given...
-        NamespaceType namespaceType = NamespaceType.SECURE;
+        Visibility namespaceType = Visibility.SECURE;
         //When...
         String typeValue = namespaceType.toString();
         //Then...
@@ -34,7 +34,7 @@ public class TestNamespaceType {
     @Test
     public void TestNamespaceTypeGetFromStringNormalReturnNormal(){
         //Given...
-        NamespaceType namespaceType = NamespaceType.getfromString("NoRmal");
+        Visibility namespaceType = Visibility.getfromString("NoRmal");
         //When...
         String typeValue = namespaceType.toString();
         //Then...
@@ -44,7 +44,7 @@ public class TestNamespaceType {
     @Test
     public void TestNamespaceTypeGetFromStringSecureReturnSecure(){
         //Given...
-        NamespaceType namespaceType = NamespaceType.getfromString("SecUre");
+        Visibility namespaceType = Visibility.getfromString("SecUre");
         //When...
         String typeValue = namespaceType.toString();
         //Then...

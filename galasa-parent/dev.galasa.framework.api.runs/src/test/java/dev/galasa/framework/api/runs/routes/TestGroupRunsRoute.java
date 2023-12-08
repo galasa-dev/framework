@@ -376,7 +376,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         assertThat(resp.getStatus()).isEqualTo(500);
         checkErrorStructure(
 			outStream.toString(),
-			5022, "E: Error occured trying parse the shared environment phase."
+			5022, "GAL5022E: Error occured trying parse the sharedEnvironmentPhase 'envPhase'. Valid options are BUILD, DISCARD."
 		);
     }
 

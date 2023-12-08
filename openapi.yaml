@@ -155,7 +155,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CpsProperty'
+                  $ref: '#/components/schemas/GalasaProperty'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -213,12 +213,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                value:
-                  type: string
+              $ref: '#/components/schemas/GalasaProperty'
       responses:
         '201':
           description: Action Message
@@ -316,20 +311,30 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CpsProperty'
+                  $ref: '#/components/schemas/GalasaProperty'
               examples:
                 propertyexists:
                   value:
-                    name: propertyName
-                    value: propertyValue
+                    apiVersion: galasa-dev/v1alpha1
+                    kind: GalasaProperty
+                    metadata:
+                      namespace: propertyNamespace
+                      name: my.property.name
+                    data:
+                      value: my.property.value
                   summary: Property Found in namespace
                 propertynotfound:
                   value: '[ ]'
                   summary: Property does not exist in namespace
                 propertyexistsinwriteonlynamespace:
                   value:
-                    name: propertyName
-                    value: "********"
+                    apiVersion: galasa-dev/v1alpha1
+                    kind: GalasaProperty
+                    metadata:
+                      namespace: propertyNamespace
+                      name: my.property.name
+                    data:
+                      value: '*********'
                   summary: Property found in write only namespace
         '401':
           description: Unauthorized as valid authentication has not been provided
@@ -397,7 +402,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/GalasaProperty'
       responses:
         '200':
           description: Action Message
@@ -593,7 +598,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CpsProperty'
+                  $ref: '#/components/schemas/GalasaProperty'
         '400':
           description: The namespace/prefix/suffix uses invalid characters or is badly formed.
           content:
@@ -665,7 +670,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CpsProperty'
+                $ref: '#/components/schemas/GalasaProperty'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -728,7 +733,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CpsProperty'
+                $ref: '#/components/schemas/GalasaProperty'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -747,6 +752,72 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+
+##################################################################################
+# Resources API
+##################################################################################
+  /resources/:
+    post:
+      operationId: setEcosystemResources
+      summary: Upload Resources to the ecosystem
+      description: This API endpoint allows multiple resources to be supplied in a single request to create and/or update in the ecosystem.
+      tags:
+       - Resources API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resources'
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/APIError'
+              examples: 
+                singleError: 
+                  value:
+                  - error_code: 5017
+                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
+                multipleErrors:
+                  value:
+                  - error_code: 5017
+                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
+                  - error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+
+
 ##################################################################################
 # RAS API
 ##################################################################################
@@ -1521,6 +1592,29 @@ components:
           description: The fully-qualified property name, including the 'namespace'.
         value:
           type: string
+    GalasaProperty:
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+        metadata:
+          properties:
+            namespace:
+              type: string
+              description: |
+                Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+                and following characters can be 'a'-'z' or '0'-'9'
+            name:
+              type: string
+              description: |
+                Property Name. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+                and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        data:
+          properties:
+            value:
+              type: string
+              description: The value of the property, maximum length of approximately 1,500,000 characters
     JsonError:
       properties:
         error:
@@ -1531,6 +1625,17 @@ components:
           type: integer
         error_message:
           type: string
+    Resources:
+      properties:
+        action:
+          type: string
+          enum: ["apply","create","update"]
+        data:
+          type: array
+          description: An array of Galasa Resources that should contain one or more entrys matching any of the schemas outlined
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/GalasaProperty'
     TestRuns:
       properties:
         complete:

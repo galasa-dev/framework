@@ -41,12 +41,23 @@ public enum ServletErrorMessage {
     GAL5016_INVALID_NAMESPACE_ERROR                 (5016,"E: Error occured when trying to access namespace ''{0}''. The namespace provided is invalid."),
     GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR           (5017,"E: Error occured when trying to access property ''{0}''. The property name provided is invalid."),
     GAL5018_PROPERTY_ALREADY_EXISTS_ERROR           (5018,"E: Error occured when trying to access property ''{0}''. The property name provided already exists in the ''{1}'' namespace."),
-    
+    GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR (5028,"E: The GalasaProperty namespace ''{0}'' must match the url namespace ''{1}''."),
+    GAL5029_PROPERTY_NAME_DOES_NOT_MATCH_ERROR      (5029,"E: The GalasaProperty name ''{0}'' must match the url namespace ''{1}''."),
+
     //Schedule Runs...
     GAL5019_UNABLE_TO_RETRIEVE_RUNS                 (5019, "E: Unable to retrieve runs for Run Group: ''{0}''."),
     GAL5020_UNABLE_TO_CONVERT_TO_SCHEDULE_REQUEST   (5020, "E: Error occured when trying to translate the payload into a run."),
     GAL5021_UNABLE_TO_SUBMIT_RUNS                   (5021, "E: Error occured when trying to submit run ''{0}''."),
-    GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE(5022, "E: Error occured trying parse the shared environment phase.")
+    GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE(5022, "E: Error occured trying parse the sharedEnvironmentPhase ''{0}''. Valid options are 'BUILD', 'DISCARD'."),
+
+    //Galasa Property...
+    GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY        (5023, "E: Error occured trying to cast ''{0}'' to GalasaProperty. Please check the format and try again."),
+    GAL5024_INVALID_GALASAPROPERTY                  (5024, "E: Error occured because the Galasa Property is invalid. The ''{0}'' field ''{1}'' is not structured properly."),
+
+    //Resources APIs...
+    GAL5025_UNSUPPORTED_ACTION                      (5025, "E: Error occurred when trying to apply resources. Action ''{0}'' supplied is not supported. Supported actions are: create, apply and update."),
+    GAL5026_UNSUPPORTED_RESOURCE_TYPE               (5026, "E: Error occured because the resource type ''{0}'' is not supported."),
+    GAL5027_UNSUPPORTED_API_VERSION                 (5027, "E: Error occured because the api version ''{0}'' is not a supported version. Currently the ecosystem accepts the ''{1}'' api version.")
     ;
 
 
