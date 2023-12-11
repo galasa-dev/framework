@@ -1609,12 +1609,16 @@ components:
               type: string
               description: |
                 Property Name. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-                and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+                and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore).
+                The property name is made of 'parts'. Each part must be separated by a period character. There must be 
+                at least two parts in the property name. The last character cannot be a period character.
         data:
           properties:
             value:
               type: string
-              description: The value of the property, maximum length of approximately 1,500,000 characters
+              description: |
+                The value of the property, maximum length of approximately 1,500,000 characters. 
+                It cannot be a blank value.
     JsonError:
       properties:
         error:
