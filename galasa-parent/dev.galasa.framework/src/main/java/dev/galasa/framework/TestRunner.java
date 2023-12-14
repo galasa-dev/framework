@@ -301,9 +301,9 @@ public class TestRunner {
         if (this.runType == RunType.TEST) {
             try {
                 heartbeat = new TestRunHeartbeat(this.framework);
-                logger.debug("starting hearthbeat");
+                logger.debug("starting heartbeat");
                 heartbeat.start();
-                logger.debug("hearthbeat started ok");
+                logger.debug("heartbeat started ok");
             } catch (DynamicStatusStoreException e1) {
                 String msg = "DynamicStatusStoreException Exception caught. "+e1.getMessage()+" Shutting down and Re-throwing.";
                 logger.error(msg);
