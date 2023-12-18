@@ -19,6 +19,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     private int status;
     private String contentType;
     private Map<String,String> headers;
+    private List<Cookie> cookies = new ArrayList<>();
 
     public MockHttpServletResponse() {
         this.outputStream = new MockServletOutputStream();
@@ -32,6 +33,10 @@ public class MockHttpServletResponse implements HttpServletResponse {
         this.headers = new HashMap<String,String>();
     }
 
+    public List<Cookie> getCookies() {
+        return this.cookies;
+    }
+
     @Override
     public String getCharacterEncoding() {
         throw new UnsupportedOperationException("Unimplemented method 'getCharacterEncoding'");
@@ -42,7 +47,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
         return this.contentType;
     }
 
-
+    @Override
     public ServletOutputStream getOutputStream() throws IOException {
       return this.outputStream;
     }
@@ -79,6 +84,18 @@ public class MockHttpServletResponse implements HttpServletResponse {
     @Override
     public void setStatus(int sc) {
         this.status = sc;
+    }
+
+    @Override
+    public void sendRedirect(String location) throws IOException {
+        setStatus(SC_FOUND);
+        outputStream.print(location);
+        outputStream.flush();
+    }
+
+    @Override
+    public void addCookie(Cookie cookie) {
+        cookies.add(cookie);
     }
 
     @Override
@@ -138,11 +155,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     @Override
-    public void addCookie(Cookie cookie) {
-        throw new UnsupportedOperationException("Unimplemented method 'addCookie'");
-    }
-
-    @Override
     public boolean containsHeader(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'containsHeader'");
     }
@@ -175,11 +187,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
     @Override
     public void sendError(int sc) throws IOException {
         throw new UnsupportedOperationException("Unimplemented method 'sendError'");
-    }
-
-    @Override
-    public void sendRedirect(String location) throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'sendRedirect'");
     }
 
     @Override

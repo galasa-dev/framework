@@ -11,9 +11,11 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.AsyncContext;
@@ -39,6 +41,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String pathInfo;
     private String payload;
     private String method = "GET"; 
+    private List<Cookie> cookies = new ArrayList<>();
 
     public MockHttpServletRequest(String pathInfo) {
         this.pathInfo = pathInfo;
@@ -75,6 +78,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
         this.headerMap = headerMap;
     }
 
+    public void addCookie(Cookie cookie) {
+        cookies.add(cookie);
+    }
+
     @Override
     public BufferedReader getReader() throws IOException {
         Reader stringReader = new StringReader(payload);
@@ -102,6 +109,47 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
+    public ServletInputStream getInputStream() throws IOException {
+        return this.inputStream;
+    }
+
+    @Override
+    public int getContentLength() {
+        return this.payload.length();
+    }
+
+    @Override
+    public String getMethod() {
+        return this.method;
+    }
+
+    @Override
+    public String getRequestURI() {
+        return "http://mock.galasa.server/cps/" + this.pathInfo;
+    }
+
+    @Override
+    public String getScheme() {
+        return "http";
+    }
+
+    @Override
+    public String getServerName() {
+        return "mock.galasa.server";
+    }
+
+    @Override
+    public StringBuffer getRequestURL() {
+        String requestUrl = getScheme() + "://" + getServerName() + getPathInfo();
+        return new StringBuffer().append(requestUrl);
+    }
+
+    @Override
+    public Cookie[] getCookies() {
+        return this.cookies.toArray(new Cookie[0]);
+    }
+
+    @Override
     public Object getAttribute(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getAttribute'");
     }
@@ -122,11 +170,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public int getContentLength() {
-        return this.payload.length();
-    }
-
-    @Override
     public long getContentLengthLong() {
         throw new UnsupportedOperationException("Unimplemented method 'getContentLengthLong'");
     }
@@ -134,11 +177,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public String getContentType() {
         throw new UnsupportedOperationException("Unimplemented method 'getContentType'");
-    }
-
-    @Override
-    public ServletInputStream getInputStream() throws IOException {
-        return this.inputStream;
     }
 
     @Override
@@ -159,16 +197,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public String getProtocol() {
         throw new UnsupportedOperationException("Unimplemented method 'getProtocol'");
-    }
-
-    @Override
-    public String getScheme() {
-        throw new UnsupportedOperationException("Unimplemented method 'getScheme'");
-    }
-
-    @Override
-    public String getServerName() {
-        throw new UnsupportedOperationException("Unimplemented method 'getServerName'");
     }
 
     @Override
@@ -283,11 +311,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public Cookie[] getCookies() {
-        throw new UnsupportedOperationException("Unimplemented method 'getCookies'");
-    }
-
-    @Override
     public long getDateHeader(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getDateHeader'");
     }
@@ -305,11 +328,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public int getIntHeader(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getIntHeader'");
-    }
-
-    @Override
-    public String getMethod() {
-        return this.method;
     }
 
     @Override
@@ -345,16 +363,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public String getRequestedSessionId() {
         throw new UnsupportedOperationException("Unimplemented method 'getRequestedSessionId'");
-    }
-
-    @Override
-    public String getRequestURI() {
-        return "http://mock.galasa.server/cps/"+this.pathInfo;
-    }
-
-    @Override
-    public StringBuffer getRequestURL() {
-        throw new UnsupportedOperationException("Unimplemented method 'getRequestURL'");
     }
 
     @Override

@@ -20,9 +20,21 @@ import javax.net.ssl.SSLSession;
 public class MockHttpResponse<T> implements HttpResponse<T> {
 
     private T body;
+    private HttpHeaders headers;
+    private int statusCode;
 
     public MockHttpResponse(T body) {
         this.body = body;
+    }
+
+    public MockHttpResponse(T body, int statusCode) {
+        this.body = body;
+        this.statusCode = statusCode;
+    }
+
+    public MockHttpResponse(T body, HttpHeaders headers) {
+        this.body = body;
+        this.headers = headers;
     }
 
     @Override
@@ -31,8 +43,13 @@ public class MockHttpResponse<T> implements HttpResponse<T> {
     }
 
     @Override
+    public HttpHeaders headers() {
+        return this.headers;
+    }
+
+    @Override
     public int statusCode() {
-        throw new UnsupportedOperationException("Unimplemented method 'statusCode'");
+        return this.statusCode;
     }
 
     @Override
@@ -43,11 +60,6 @@ public class MockHttpResponse<T> implements HttpResponse<T> {
     @Override
     public Optional<HttpResponse<T>> previousResponse() {
         throw new UnsupportedOperationException("Unimplemented method 'previousResponse'");
-    }
-
-    @Override
-    public HttpHeaders headers() {
-        throw new UnsupportedOperationException("Unimplemented method 'headers'");
     }
 
     @Override

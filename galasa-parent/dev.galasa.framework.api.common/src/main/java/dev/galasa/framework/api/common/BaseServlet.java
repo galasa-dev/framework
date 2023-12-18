@@ -96,42 +96,39 @@ public class BaseServlet extends HttpServlet {
 
     private void processRoutes(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException, FrameworkException, InterruptedException {
-        if (routes.size() == 0) {
-            handleRequest(req, res);
-        } else {
-            String url = req.getPathInfo();
-            QueryParameters queryParameters = new QueryParameters(req.getParameterMap());
-
-            for (Map.Entry<String, IRoute> entry : routes.entrySet()) {
-
-                String routePattern = entry.getKey();
-                IRoute route = entry.getValue();
-
-                Matcher matcher = Pattern.compile(routePattern).matcher(url);
-
-                if (matcher.matches()) {
-                    logger.info("BaseServlet: Found a route that matches.");
-                    if (req.getMethod().contains("PUT")){
-                        route.handlePutRequest(url, queryParameters, req, res);
-                    } else if (req.getMethod().contains("POST")){
-                        route.handlePostRequest(url, queryParameters, req, res);
-                    } else if (req.getMethod().contains("DELETE")){
-                        route.handleDeleteRequest(url, queryParameters, req, res);
-                    } else {
-                        route.handleGetRequest(url, queryParameters, req, res);
-                    }
-                    return;
-                }
-            }
-
-            // No matching route was found, throw a 404 error.
-            logger.info("BaseServlet: No matching route found.");
-            ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        String url = req.getPathInfo();
+        if (url == null) {
+            // There is no path information, so this must be a root path (e.g. /cps)
+            url = "";
         }
-    }
 
-    public void handleRequest(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, IOException, FrameworkException, InterruptedException {
+        QueryParameters queryParameters = new QueryParameters(req.getParameterMap());
+
+        for (Map.Entry<String, IRoute> entry : routes.entrySet()) {
+
+            String routePattern = entry.getKey();
+            IRoute route = entry.getValue();
+
+            Matcher matcher = Pattern.compile(routePattern).matcher(url);
+
+            if (matcher.matches()) {
+                logger.info("BaseServlet: Found a route that matches.");
+                if (req.getMethod().contains("PUT")){
+                    route.handlePutRequest(url, queryParameters, req, res);
+                } else if (req.getMethod().contains("POST")){
+                    route.handlePostRequest(url, queryParameters, req, res);
+                } else if (req.getMethod().contains("DELETE")){
+                    route.handleDeleteRequest(url, queryParameters, req, res);
+                } else {
+                    route.handleGetRequest(url, queryParameters, req, res);
+                }
+                return;
+            }
+        }
+
+        // No matching route was found, throw a 404 error.
+        logger.info("BaseServlet: No matching route found.");
+        ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
+        throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
     }
 }
