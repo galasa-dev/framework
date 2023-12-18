@@ -27,6 +27,44 @@ paths:
 # Authentication API
 ##################################################################################
   /auth:
+    get:
+      operationId: getAuthenticate
+      summary: Redirect to authenticate with an upstream OpenID Connect connector.
+      tags:
+      - Authentication API
+      security: []
+      parameters:
+        - name: clientId
+          in: query
+          description: The ID of the client used to authenticate with the upstream connector.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a redirect to the /auth/callback endpoint
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
     post:
       operationId: postAuthenticate
       summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
@@ -46,12 +84,64 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+
+  /auth/callback:
+    get:
+      operationId: getAuthenticateCallback
+      summary: Callback endpoint to be called by an OpenID Connect provider as part of an OAuth 2.0 authorization code flow, returns an authorization code.
+      tags:
+      - Authentication API
+      security: []
+      parameters:
+        - name: code
+          in: query
+          description: The authorization code for the current authentication request.
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: The state parameter associated with the current authentication request, used to mitigate CSRF attacks.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a JSON object containing the authorization code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationCode'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
 ##################################################################################
 # CPS API
 ##################################################################################
@@ -1566,6 +1656,11 @@ paths:
 ##################################################################################
 components:
   schemas:
+    AuthorizationCode:
+      properties:
+        code:
+          type: string
+          description: The authorization code associated with an authentication request.
     AuthProperties:
       properties:
         client_id:
