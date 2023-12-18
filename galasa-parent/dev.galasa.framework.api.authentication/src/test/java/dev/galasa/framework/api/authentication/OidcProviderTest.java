@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.authentication.internal;
+package dev.galasa.framework.api.authentication;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -12,15 +12,24 @@ import static org.mockito.Mockito.when;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
+import java.util.List;
 
+import javax.servlet.http.Cookie;
+
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import org.junit.Test;
 
+import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
+import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 public class OidcProviderTest {
+
+    private static final Gson gson = GalasaGsonBuilder.build();
 
     class MockOidcProvider extends OidcProvider {
 
@@ -30,27 +39,25 @@ public class OidcProviderTest {
         }
     }
 
-    private JsonObject createMockRequestBody(String clientId, String secret, String refreshToken){
-        JsonObject mockRequestBody = new JsonObject();
-        mockRequestBody.addProperty("client_id", clientId);
-        mockRequestBody.addProperty("secret", secret);
-        mockRequestBody.addProperty("refresh_token", refreshToken);
-        return mockRequestBody;
-    }
-
     @Test
     public void testTokenPostWithValidRequestReturnsValidResponse() throws Exception {
         // Given...
-        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("{ \"id_token\": \"this-is-a-jwt\" }");
+        JsonObject mockJwtJson = new JsonObject();
+        mockJwtJson.addProperty("id_token", "this-is-a-jwt");
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockJwtJson));
 
         HttpClient mockHttpClient = mock(HttpClient.class);
         when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
-        JsonObject requestBody = createMockRequestBody("galasa", "abc", "thisisarefreshtoken");
+        String clientId = "galasa";
+        String clientSecret = "abc";
+        String refreshToken = "thisisarefreshtoken";
+
         OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
 
         // When...
-        HttpResponse<String> response = oidcProvider.sendTokenPost(requestBody);
+        HttpResponse<String> response = oidcProvider.sendTokenPost(clientId, clientSecret, refreshToken);
 
         // Then...
         assertThat(response).isNotNull();
@@ -161,5 +168,53 @@ public class OidcProviderTest {
 
         // Then...
         assertThat(result).isFalse();
+    }
+
+    @Test
+    public void testGetOpenIdConfigurationReturnsValidConfig() throws Exception {
+        // Given...
+        JsonObject mockOpenIdConfig = new JsonObject();
+        mockOpenIdConfig.addProperty("authorization_endpoint", "http://my.server/auth");
+        mockOpenIdConfig.addProperty("token_endpoint", "http://my.server/token");
+        mockOpenIdConfig.addProperty("jwks_uri", "http://my.server/keys");
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockOpenIdConfig));
+
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+
+        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
+
+        // When...
+        JsonObject openIdConfig = oidcProvider.getOpenIdConfiguration();
+
+        // Then...
+        assertThat(openIdConfig).isNotNull();
+        assertThat(openIdConfig).isEqualTo(mockOpenIdConfig);
+    }
+
+    @Test
+    public void testAuthorizationGetReturnsValidResponse() throws Exception {
+        // Given...
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("", 302);
+
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+
+        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
+        MockHttpServletResponse mockServletResponse = new MockHttpServletResponse();
+
+        // When...
+        HttpResponse<String> response = oidcProvider.sendAuthorizationGet("my-client-id", "http://my.server/callback", mockServletResponse);
+
+        List<Cookie> responseCookies = mockServletResponse.getCookies();
+        // Then...
+        assertThat(response).isNotNull();
+        assertThat(response).isEqualTo(mockResponse);
+
+        // Ensure the "state" parameter has been set as a cookie
+        assertThat(responseCookies).hasSize(1);
+        assertThat(responseCookies.get(0).getName()).isEqualTo("state");
+
     }
 }

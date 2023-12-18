@@ -8,11 +8,14 @@ package dev.galasa.framework.api.authentication.internal;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -21,6 +24,12 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
+import java.util.Optional;
+
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -46,40 +55,136 @@ public class OidcProvider {
     private static final Gson gson = GalasaGsonBuilder.build();
 
     private String issuerUrl;
+    private String authorizationEndpoint;
+    private String tokenEndpoint;
+    private String jwksUri;
 
     protected HttpClient httpClient = HttpClient.newHttpClient();
 
+    private static final String BEARER_TOKEN_SCOPE = "openid offline_access";
+
     public OidcProvider(String issuerUrl) {
         this.issuerUrl = issuerUrl;
+
+        try {
+            JsonObject openIdConfiguration = getOpenIdConfiguration();
+
+            // The following endpoints are mandatory in OpenID configurations
+            this.authorizationEndpoint = openIdConfiguration.get("authorization_endpoint").getAsString();
+            this.tokenEndpoint = openIdConfiguration.get("token_endpoint").getAsString();
+            this.jwksUri = openIdConfiguration.get("jwks_uri").getAsString();
+        } catch (IOException | InterruptedException e) {
+            logger.error("Unable to obtain issuer's OpenID configuration, setting defaults");
+
+            this.authorizationEndpoint = issuerUrl + "/auth";
+            this.tokenEndpoint = issuerUrl + "/token";
+            this.jwksUri = issuerUrl + "/keys";
+        }
+    }
+
+    public String getIssuer() {
+        return this.issuerUrl;
+    }
+
+    /**
+     * Sends a GET request to an OpenID Connect provider's
+     * /.well-known/openid-configuration endpoint
+     */
+    public JsonObject getOpenIdConfiguration() throws IOException, InterruptedException {
+        String openIdConfigurationUrl = issuerUrl + "/.well-known/openid-configuration";
+        HttpRequest getRequest = HttpRequest.newBuilder().GET().uri(URI.create(openIdConfigurationUrl)).build();
+
+        HttpResponse<String> response = httpClient.send(getRequest, BodyHandlers.ofString());
+        return gson.fromJson(response.body(), JsonObject.class);
+    }
+
+    /**
+     * Gets the URL of the upstream connector to authenticate with (e.g. a
+     * github.com URL to authenticate with an OAuth application in GitHub).
+     */
+    public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpServletResponse response) throws IOException, InterruptedException {
+        HttpResponse<String> authResponse = sendAuthorizationGet(clientId, callbackUrl.toString(), response);
+
+        // Construct the auth URL from the "Location" header in the response from the
+        // OpenID Connect provider
+        URI authUrl = URI.create(issuerUrl);
+        String location = getLocationHeaderFromResponse(authResponse);
+
+        if (location != null) {
+            authUrl = authUrl.resolve(location);
+            HttpRequest getAuthRequest = HttpRequest.newBuilder().GET().uri(authUrl).build();
+            authResponse = httpClient.send(getAuthRequest, BodyHandlers.ofString());
+            return getLocationHeaderFromResponse(authResponse);
+        }
+        return null;
+    }
+
+    /**
+     * Sends a GET request to an OpenID Connect authorization endpoint, returning
+     * the received response.
+     */
+    public HttpResponse<String> sendAuthorizationGet(String clientId, String callbackUrl, HttpServletResponse response) throws IOException, InterruptedException {
+        String state = RandomStringUtils.randomAlphanumeric(32);
+        String queryParams = "?response_type=code"
+            + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
+            + "&redirect_uri=" + callbackUrl
+            + "&scope=" + URLEncoder.encode(BEARER_TOKEN_SCOPE, StandardCharsets.UTF_8)
+            + "&state=" + state;
+
+        // Save the state in a browser cookie for validation later
+        response.addCookie(new Cookie("state", state));
+
+        String authUrl = authorizationEndpoint + queryParams;
+        HttpRequest getAuthRequest = HttpRequest.newBuilder().GET().uri(URI.create(authUrl)).build();
+
+        return httpClient.send(getAuthRequest, BodyHandlers.ofString());
     }
 
     /**
      * Sends a POST request with a given request body to an OpenID Connect /token endpoint, returning the received response.
      */
-    public HttpResponse<String> sendTokenPost(JsonObject requestBody) throws IOException, InterruptedException {
+    public HttpResponse<String> sendTokenPost(String clientId, String clientSecret, String refreshToken) throws IOException, InterruptedException {
 
         StringBuilder sbRequestBody = new StringBuilder();
-        String clientId = requestBody.get("client_id").getAsString();
-        String refreshToken = requestBody.get("refresh_token").getAsString();
-        String secret = requestBody.get("secret").getAsString();
-        String decodedSecret = new String(Base64.getDecoder().decode(secret));
 
         // Convert the request's JSON object to the application/x-www-form-urlencoded content type
         // as required by the /token endpoint.
         sbRequestBody.append("grant_type=refresh_token");
         sbRequestBody.append("&client_id=" + clientId);
-        sbRequestBody.append("&client_secret=" + decodedSecret);
+        sbRequestBody.append("&client_secret=" + clientSecret);
         sbRequestBody.append("&refresh_token=" + refreshToken);
 
         // Create a POST request to the /token endpoint
         HttpRequest postRequest = HttpRequest.newBuilder()
             .POST(BodyPublishers.ofString(sbRequestBody.toString()))
-            .header("Content-type", "application/x-www-form-urlencoded")
-            .uri(URI.create(issuerUrl + "/token"))
+                .header("Content-Type", "application/x-www-form-urlencoded").uri(URI.create(tokenEndpoint))
             .build();
 
-        HttpResponse<String> response = httpClient.send(postRequest, BodyHandlers.ofString());
-        return response;
+        return httpClient.send(postRequest, BodyHandlers.ofString());
+    }
+
+    /**
+     * Sends a POST request with a given request body to an OpenID Connect /token endpoint, returning the received response.
+     */
+    public HttpResponse<String> sendTokenPost(String clientId, String clientSecret, String authCode, String redirectUri) throws IOException, InterruptedException {
+
+        StringBuilder sbRequestBody = new StringBuilder();
+
+        // Convert the request's JSON object to the application/x-www-form-urlencoded content type
+        // as required by the /token endpoint.
+        sbRequestBody.append("grant_type=authorization_code");
+        sbRequestBody.append("&code=" + authCode);
+        sbRequestBody.append("&client_id=" + clientId);
+        sbRequestBody.append("&client_secret=" + clientSecret);
+        sbRequestBody.append("&redirect_uri=" + redirectUri);
+
+        // Create a POST request to the /token endpoint
+        HttpRequest postRequest = HttpRequest.newBuilder()
+            .POST(BodyPublishers.ofString(sbRequestBody.toString()))
+                .header("Content-Type", "application/x-www-form-urlencoded").uri(URI.create(tokenEndpoint))
+            .build();
+
+        return httpClient.send(postRequest, BodyHandlers.ofString());
     }
 
     /**
@@ -89,7 +194,7 @@ public class OidcProvider {
         HttpRequest getRequest = HttpRequest.newBuilder()
             .GET()
             .header("Accept", "application/json")
-            .uri(URI.create(issuer + "/keys"))
+                .uri(URI.create(jwksUri))
             .build();
 
         // Send a GET request to the issuer's /keys endpoint
@@ -124,8 +229,7 @@ public class OidcProvider {
     /**
      * Checks if a given JWT is valid or not
      */
-    public boolean isJwtValid(String jwt)
-            throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException {
+    public boolean isJwtValid(String jwt) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException {
         try {
 
             DecodedJWT decodedJwt = JWT.decode(jwt);
@@ -175,7 +279,17 @@ public class OidcProvider {
         return generatedPublicKey;
     }
 
-    public String getIssuer() {
-        return this.issuerUrl;
+    /**
+     * Returns the value of the "Location" HTTP header in a given HTTP response if
+     * one exists, returns null otherwise.
+     */
+    private String getLocationHeaderFromResponse(HttpResponse<String> response) {
+        HttpHeaders headers = response.headers();
+
+        Optional<String> locationHeader = headers.firstValue("location");
+        if (locationHeader.isPresent()) {
+            return locationHeader.get();
+        }
+        return null;
     }
 }
