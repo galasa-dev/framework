@@ -83,7 +83,12 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
 
     @Override
     public void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException {
-       this.properties.remove(namespaceInput+"."+name);
+        String completeCPSname = namespaceInput+"."+name;
+        if(this.properties.containsKey(completeCPSname)){
+            this.properties.remove(namespaceInput+"."+name);
+        } else {
+            throw new ConfigurationPropertyStoreException("Could not delete key", null);
+        }
     }
 
     @Override

@@ -27,7 +27,7 @@ public class CPSProperty {
     private IConfigurationPropertyStoreService store;
     private String value;
 
-      public CPSProperty(IConfigurationPropertyStoreService store, CPSNamespace namespace, GalasaPropertyName propertyName) {
+    public CPSProperty(IConfigurationPropertyStoreService store, CPSNamespace namespace, GalasaPropertyName propertyName) {
         this.namespace = namespace ;
         this.store = store ;
         this.name = propertyName;
@@ -108,6 +108,15 @@ public class CPSProperty {
         }else{
             ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR, this.getName());  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    public void deletePropertyFromStore() throws InternalServletException{
+        try {
+            store.deleteProperty(this.getName());
+        } catch (ConfigurationPropertyStoreException e) {
+            ServletError error = new ServletError(GAL5030_UNABLE_TO_DELETE_PROPERTY_ERROR, this.getName());  
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 

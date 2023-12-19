@@ -40,7 +40,7 @@ public class ResourcesRoute  extends BaseRoute{
 
     static final Gson gson = GalasaGsonBuilder.build();
 
-    private static final Set<String> validActions = Collections.unmodifiableSet(Set.of("apply","create","update"));
+    private static final Set<String> validActions = Collections.unmodifiableSet(Set.of("apply","create","update", "delete"));
     private static final Set<String> updateActions = Collections.unmodifiableSet(Set.of("apply","update"));
     
     protected List<String> errors = new ArrayList<String>();
@@ -114,6 +114,7 @@ public class ResourcesRoute  extends BaseRoute{
                     CPSFacade cps = new CPSFacade(framework);
                     CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
                     CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
+
                     /*
                     * The logic below is used to determine if the XNOR in property.setPropertyToStore will action the request or error
                     * Logic Table to Determine actions
@@ -123,11 +124,16 @@ public class ResourcesRoute  extends BaseRoute{
                     * If the action is equal to "apply" and the property does not exist in CPS the updateProperty is set to false (create property)
                     * If the action is equal to "create" (force create) the updateProperty is set to false (create property, will error if the property exists in CPS)
                     */
-                    boolean updateProperty = false;
-                    if ((updateActions.contains(action) && property.existsInStore()) || action.equals("update")){
-                        updateProperty = true;
+                    if (action.equals("delete")){
+                        //property.deletePropertyFromStore();
+                    }else{
+                        boolean updateProperty = false;
+                        if ((updateActions.contains(action) && property.existsInStore()) || action.equals("update")){
+                            updateProperty = true;
+                        }
+                        property.setPropertyToStore(galasaProperty, updateProperty);
                     }
-                    property.setPropertyToStore(galasaProperty, updateProperty);
+
                 }
             }else{
                 ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion, expectedApiVersion);

@@ -1633,7 +1633,7 @@ components:
       properties:
         action:
           type: string
-          enum: ["apply","create","update"]
+          enum: ["apply","create","update","delete"]
         data:
           type: array
           description: An array of Galasa Resources that should contain one or more entrys matching any of the schemas outlined
