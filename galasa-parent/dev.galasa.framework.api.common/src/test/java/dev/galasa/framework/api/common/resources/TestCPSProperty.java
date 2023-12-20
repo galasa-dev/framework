@@ -12,15 +12,27 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 public class TestCPSProperty extends BaseServletTest {
     
+    private class MockICPSServiceWithError extends MockIConfigurationPropertyStoreService {
+        protected MockICPSServiceWithError(String namespace){
+            super.namespaceInput= namespace;
+        }
+        
+        @Override
+        public void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException {
+            throw new ConfigurationPropertyStoreException("Could not Delete Key");
+        }
+    }
+
     @Test
     public void TestGalasaPropertyDefaultApiVersion() throws InternalServletException{
         //Given...
@@ -325,7 +337,7 @@ public class TestCPSProperty extends BaseServletTest {
         String propertyNamespace = "random";
         String propertyName = "property.name";
         String propertyValue = "randomValue123";
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService(propertyNamespace);
+        IConfigurationPropertyStoreService mockCPS = new MockICPSServiceWithError(propertyNamespace);
         MockFramework mockFramework = new MockFramework(mockCPS);
         mockCPS.setProperty(propertyNamespace+"."+propertyName, propertyValue);
         //check that the property has been set
@@ -374,7 +386,7 @@ public class TestCPSProperty extends BaseServletTest {
         String invalidNamespace = "random";
         String propertyName = "property.name";
         String propertyValue = "randomValue123";
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService(invalidNamespace);
+        IConfigurationPropertyStoreService mockCPS = new MockICPSServiceWithError(invalidNamespace);
         MockFramework mockFramework = new MockFramework(mockCPS);
         mockCPS.setProperty("validNamespace."+propertyName, propertyValue);
         //check that the property has been set

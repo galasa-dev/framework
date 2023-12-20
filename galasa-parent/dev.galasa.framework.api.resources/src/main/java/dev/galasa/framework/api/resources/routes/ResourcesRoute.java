@@ -60,7 +60,7 @@ public class ResourcesRoute  extends BaseRoute{
         List<String> errorsList = processRequest(jsonBody);
         if (errorsList.size() >0){
             response = getResponseBuilder().buildResponse(response, "application/json", gson.toJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
-        }else{
+        } else {
             response = getResponseBuilder().buildResponse(response, "application/json", "", HttpServletResponse.SC_OK);
         }
         errors.clear();
@@ -75,7 +75,7 @@ public class ResourcesRoute  extends BaseRoute{
         if (validActions.contains(action)){
             JsonArray jsonArray = body.get("data").getAsJsonArray();
             processDataArray(jsonArray, action);
-        }else{
+        } else {
             ServletError error = new ServletError(GAL5025_UNSUPPORTED_ACTION, action);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -84,7 +84,7 @@ public class ResourcesRoute  extends BaseRoute{
 
     public void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{
         for (JsonElement element: jsonArray){
-            try{
+            try {
                 JsonObject resource = element.getAsJsonObject();
                 String kind = resource.get("kind").getAsString();
                 switch (kind){
@@ -95,38 +95,40 @@ public class ResourcesRoute  extends BaseRoute{
                         ServletError error = new ServletError(GAL5026_UNSUPPORTED_RESOURCE_TYPE,kind);
                         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
                 }
-            }catch(InternalServletException s){
+            } catch(InternalServletException s){
                 errors.add(s.getMessage());
-            }catch(Exception e){
+            } catch(Exception e){
                 ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
                 throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         }
     }
     
-    public void processGalasaProperty (JsonObject resource, String action) throws InternalServletException{
+    public void processGalasaProperty(JsonObject resource, String action) throws InternalServletException{
         try{
             String apiversion = resource.get("apiVersion").getAsString();
             String expectedApiVersion = GalasaProperty.DEFAULTAPIVERSION;
-            if (apiversion.equals(expectedApiVersion)){
+            if (apiversion.equals(expectedApiVersion)) {
                 GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
-                if (galasaProperty.isPropertyValid()){
+                if (galasaProperty.isPropertyValid()) {
                     CPSFacade cps = new CPSFacade(framework);
                     CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
                     CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
 
-                    /*
-                    * The logic below is used to determine if the XNOR in property.setPropertyToStore will action the request or error
-                    * Logic Table to Determine actions
-                    * If the action is equal to "update" (force update) the updateProperty is set to true (update property,
-                    * will error if the property does not exist in CPS)
-                    * If the action is either "update" or "apply" and the property exists in CPS the updateProperty is set to true (update property)
-                    * If the action is equal to "apply" and the property does not exist in CPS the updateProperty is set to false (create property)
-                    * If the action is equal to "create" (force create) the updateProperty is set to false (create property, will error if the property exists in CPS)
-                    */
-                    if (action.equals("delete")){
-                        //property.deletePropertyFromStore();
+                    if (action.equals("delete")) {
+                        property.deletePropertyFromStore();
                     }else{
+                        /*
+                        * The logic below is used to determine if the exclusive Not Or condition in property.setPropertyToStore 
+                        * (i.e. "the property exists" must equal to "is this an update action") will action the request or error
+                        *
+                        * Logic Table to Determine actions
+                        * If the action is equal to "update" (force update) the updateProperty is set to true (update property,
+                        * will error if the property does not exist in CPS)
+                        * If the action is either "update" or "apply" and the property exists in CPS the updateProperty is set to true (update property)
+                        * If the action is equal to "apply" and the property does not exist in CPS the updateProperty is set to false (create property)
+                        * If the action is equal to "create" (force create) the updateProperty is set to false (create property, will error if the property exists in CPS)
+                        */
                         boolean updateProperty = false;
                         if ((updateActions.contains(action) && property.existsInStore()) || action.equals("update")){
                             updateProperty = true;
@@ -135,20 +137,19 @@ public class ResourcesRoute  extends BaseRoute{
                     }
 
                 }
-            }else{
+            } else {
                 ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion, expectedApiVersion);
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
-        }catch (InternalServletException i){
+        } catch (InternalServletException i){
             throw i;
-        }catch (NullPointerException n){
+        } catch (NullPointerException n){
             // Null Pointer exception caused by bad Key Names in JSON i.e. apiversion instead of apiVersion
             ServletError error = new ServletError(GAL5400_BAD_REQUEST,resource.toString());
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-
-        }catch (Exception e){
-        ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR, e.getMessage());
-        throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } catch (Exception e){
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR, e.getMessage());
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 }

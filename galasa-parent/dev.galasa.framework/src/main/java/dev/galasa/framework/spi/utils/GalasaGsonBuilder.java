@@ -13,7 +13,7 @@ import com.google.gson.GsonBuilder;
 public class GalasaGsonBuilder {
 
     public static Gson build() {
-        GsonBuilder builder = new GsonBuilder();
+        GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
         builder.registerTypeAdapter(Instant.class, new GsonInstantTypeAdapater());
         return builder.setPrettyPrinting().create();
     }

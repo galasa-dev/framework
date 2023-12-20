@@ -81,7 +81,7 @@ public class CPSNamespace {
         if (visibility != Visibility.HIDDEN) {
             GalasaPropertyName propName = new GalasaPropertyName(this.name, propertyName);
             prop = new CPSProperty(this.propertyStore, this, propName);
-            prop.LoadValueFromStore();
+            prop.loadValueFromStore();
         }
         return prop;
     }

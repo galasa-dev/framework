@@ -719,4 +719,211 @@ public class TestResourcesRoute extends ResourcesServletTest{
         checkPropertyInNamespace(namespace, propertynametwo, valuetwo);
     }
 
+
+    @Test
+    public void TestHandlePOSTwithDeleteSingleExistingPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "property.1";
+        String value = "value1";
+        String action = "delete";
+		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
+		setServlet("/", namespace, propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        assertThat(status).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        checkPropertyNotInNamespace(namespace, propertyname, value);
+    }
+
+    @Test
+    public void TestHandlePOSTwithDeleteMultipleExistingPropertiesReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "property.5";
+        String value = "value5";
+        String propertynametwo = "property.1";
+        String valuetwo = "value1";
+        String apiVersion = "galasa-dev/v1alpha1";
+        String action = "delete";
+        String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
+        String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
+		String propertyJSON = "{\n \"action\":\""+action+"\", \"data\":["+propertyone+","+propertytwo+"]\n}";
+		setServlet("/", namespace, propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        assertThat(status).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        checkPropertyNotInNamespace(namespace, propertyname, value);
+        checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
+    }
+
+    @Test
+    public void TestHandlePOSTwithDeleteSingleNewPropertyReturnsOk() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "property.10";
+        String value = "newvalue";
+        String action = "delete";
+		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
+		setServlet("/", namespace, propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        assertThat(status).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        checkPropertyNotInNamespace(namespace, propertyname, value);
+    }
+
+    @Test
+    public void TestHandlePOSTwithDeleteMultipleNewPropertiesReturnsOk() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "property.53";
+        String value = "value5";
+        String propertynametwo = "property.17";
+        String valuetwo = "value1";
+        String apiVersion = "galasa-dev/v1alpha1";
+        String action = "delete";
+        String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
+        String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
+		String propertyJSON = "{\n \"action\":\""+action+"\", \"data\":["+propertyone+","+propertytwo+"]\n}";
+		setServlet("/", namespace, propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        assertThat(status).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        checkPropertyNotInNamespace(namespace, propertyname, value);
+        checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
+    }
+
+    @Test
+    public void TestHandlePOSTwithDeleteExistingAndNewPropertiesReturnsOk() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "property.5";
+        String value = "value5";
+        String propertynametwo = "property.17";
+        String valuetwo = "value1";
+        String apiVersion = "galasa-dev/v1alpha1";
+        String action = "delete";
+        String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
+        String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
+		String propertyJSON = "{\n \"action\":\""+action+"\", \"data\":["+propertyone+","+propertytwo+"]\n}";
+		setServlet("/", namespace, propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        assertThat(status).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        checkPropertyNotInNamespace(namespace, propertyname, value);
+        checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
+    }
+
+    @Test
+    public void TestHandlePOSTwithDeleteSingleExistingPropertyRaisesExceptionReturnsError() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "property.1";
+        String value = "value1";
+        String action = "delete";
+		String propertyJSON = generateRequestJson(action, namespace, propertyname,value,"galasa-dev/v1alpha1");
+		setServlet("/", null, propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();	
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(400);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).contains("GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        checkPropertyNotInNamespace(namespace, propertyname, value);
+    }
+
+    @Test
+    public void TestHandlePOSTwithDeleteMultipleExistingPropertiesRaisesExceptionsReturnsError() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "property.5";
+        String value = "value5";
+        String propertynametwo = "property.1";
+        String valuetwo = "value1";
+        String apiVersion = "galasa-dev/v1alpha1";
+        String action = "delete";
+        String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
+        String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
+		String propertyJSON = "{\n \"action\":\""+action+"\", \"data\":["+propertyone+","+propertytwo+"]\n}";
+		setServlet("/", null, propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(400);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*"); 
+        assertThat(output).contains("GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        assertThat(output).contains("GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
+        checkPropertyNotInNamespace(namespace, propertyname, value);
+        checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
+    }
+
 }
