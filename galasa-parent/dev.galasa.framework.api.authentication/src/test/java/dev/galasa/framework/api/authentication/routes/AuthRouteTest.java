@@ -7,6 +7,7 @@ package dev.galasa.framework.api.authentication.routes;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +34,7 @@ import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
+import dev.galasa.framework.api.common.mocks.MockHttpSession;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 public class AuthRouteTest extends BaseServletTest {
@@ -124,9 +126,13 @@ public class AuthRouteTest extends BaseServletTest {
         // Given...
         JsonObject responseJson = new JsonObject();
         String dummyJwt = "this-is-a-jwt";
+        String dummyRefreshToken = "this-is-a-refresh-token";
         responseJson.addProperty("id_token", dummyJwt);
+        responseJson.addProperty("refresh_token", dummyRefreshToken);
 
-        HttpResponse<String> mockResponse = new MockHttpResponse<String>(gson.toJson(responseJson));
+        String mockResponseJson = gson.toJson(responseJson);
+
+        HttpResponse<String> mockResponse = new MockHttpResponse<String>(mockResponseJson);
 
         String clientId = "dummy-id";
         String clientSecret = "asecret";
@@ -154,12 +160,15 @@ public class AuthRouteTest extends BaseServletTest {
         // Then...
         // Expecting this json:
         // {
-        // "jwt" : "this-is-a-jwt",
+        //   "jwt": "this-is-a-jwt",
+        //   "refresh_token": "this-is-a-refresh-token",
         // }
-        JsonObject expectedResponseJson = new JsonObject();
-        expectedResponseJson.addProperty("jwt", dummyJwt);
+        JsonObject expectedJsonObject = new JsonObject();
+        expectedJsonObject.addProperty("jwt", dummyJwt);
+        expectedJsonObject.addProperty("refresh_token", dummyRefreshToken);
+
         assertThat(servletResponse.getStatus()).isEqualTo(200);
-        assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedResponseJson));
+        assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJsonObject));
     }
 
     @Test
@@ -167,9 +176,13 @@ public class AuthRouteTest extends BaseServletTest {
         // Given...
         JsonObject responseJson = new JsonObject();
         String dummyJwt = "this-is-a-jwt";
+        String dummyRefreshToken = "this-is-a-refresh-token";
         responseJson.addProperty("id_token", dummyJwt);
+        responseJson.addProperty("refresh_token", dummyRefreshToken);
 
-        HttpResponse<String> mockResponse = new MockHttpResponse<String>(gson.toJson(responseJson));
+        String mockResponseJson = gson.toJson(responseJson);
+
+        HttpResponse<String> mockResponse = new MockHttpResponse<String>(mockResponseJson);
 
         String clientId = "dummy-id";
         String clientSecret = "asecret";
@@ -199,12 +212,15 @@ public class AuthRouteTest extends BaseServletTest {
         // Then...
         // Expecting this json:
         // {
-        // "jwt" : "this-is-a-jwt",
+        //   "jwt": "this-is-a-jwt",
+        //   "refresh_token": "this-is-a-refresh-token",
         // }
-        JsonObject expectedResponseJson = new JsonObject();
-        expectedResponseJson.addProperty("jwt", dummyJwt);
+        JsonObject expectedJsonObject = new JsonObject();
+        expectedJsonObject.addProperty("jwt", dummyJwt);
+        expectedJsonObject.addProperty("refresh_token", dummyRefreshToken);
+
         assertThat(servletResponse.getStatus()).isEqualTo(200);
-        assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedResponseJson));
+        assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJsonObject));
     }
 
     @Test
@@ -276,19 +292,29 @@ public class AuthRouteTest extends BaseServletTest {
     }
 
     @Test
-    public void testAuthGetRequestWithClientIdRedirectsToConnector() throws Exception {
+    public void testAuthGetRequestWithClientIdAndCallbackUrlRedirectsToConnector() throws Exception {
         // Given...
         String redirectLocation = "http://my.connector/auth";
+        String clientId = "my-client";
+        String clientCallbackUrl = "http://my.app";
+
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
-        when(mockOidcProvider.getConnectorRedirectUrl(any(), any(), any())).thenReturn(redirectLocation);
+        when(mockOidcProvider.getConnectorRedirectUrl(eq(clientId), any(), any())).thenReturn(redirectLocation);
         when(mockOidcProvider.getIssuer()).thenReturn("http://dummy.issuer");
 
         MockEnvironment mockEnv = new MockEnvironment();
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
         servlet.setOidcProvider(mockOidcProvider);
 
-        Map<String, String[]> queryParams = Map.of("clientId", new String[] { "my-client" });
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
+
+        Map<String, String[]> queryParams = Map.of(
+            "clientId", new String[] { clientId },
+            "callbackUrl", new String[] { clientCallbackUrl }
+        );
+
+        MockHttpSession mockSession = new MockHttpSession();
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null, mockSession);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
@@ -299,6 +325,7 @@ public class AuthRouteTest extends BaseServletTest {
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(302);
         assertThat(outStream.toString()).isEqualTo(redirectLocation);
+        assertThat((String)mockSession.getAttribute("callbackUrl")).isEqualTo(clientCallbackUrl);
     }
 
     @Test
@@ -318,8 +345,14 @@ public class AuthRouteTest extends BaseServletTest {
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
         servlet.setOidcProvider(mockOidcProvider);
 
-        Map<String, String[]> queryParams = Map.of("clientId", new String[] { "my-client" });
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
+        Map<String, String[]> queryParams = Map.of(
+            "clientId", new String[] { "my-client" },
+            "callbackUrl", new String[] { "http://my.app" }
+        );
+
+        MockHttpSession mockSession = new MockHttpSession();
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null, mockSession);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
@@ -340,6 +373,64 @@ public class AuthRouteTest extends BaseServletTest {
 
     @Test
     public void testAuthGetRequestWithMissingClientIdReturnsBadRequest() throws Exception {
+        // Given...
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+
+        MockEnvironment mockEnv = new MockEnvironment();
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        servlet.setOidcProvider(mockOidcProvider);
+
+        Map<String, String[]> queryParams = Map.of("callbackUrl", new String[] { "http://my.callback.url" });
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5400,
+        // "error_message" : "GAL5400E: Error occured when trying to execute request
+        // "/auth". Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occured when trying to execute request");
+    }
+
+    @Test
+    public void testAuthGetRequestWithMissingCallbackUrlReturnsBadRequest() throws Exception {
+        // Given...
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+
+        MockEnvironment mockEnv = new MockEnvironment();
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        servlet.setOidcProvider(mockOidcProvider);
+
+        Map<String, String[]> queryParams = Map.of("clientId", new String[] { "my-client-id" });
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5400,
+        // "error_message" : "GAL5400E: Error occured when trying to execute request
+        // "/auth". Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occured when trying to execute request");
+    }
+
+    @Test
+    public void testAuthGetRequestWithMissingParamsReturnsBadRequest() throws Exception {
         // Given...
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
 

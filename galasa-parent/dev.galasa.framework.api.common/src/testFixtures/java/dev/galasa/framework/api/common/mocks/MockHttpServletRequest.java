@@ -11,11 +11,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.AsyncContext;
@@ -41,7 +39,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String pathInfo;
     private String payload;
     private String method = "GET"; 
-    private List<Cookie> cookies = new ArrayList<>();
+
+    private MockHttpSession session;
 
     public MockHttpServletRequest(String pathInfo) {
         this.pathInfo = pathInfo;
@@ -54,6 +53,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo) {
         this.parameterMap = parameterMap;
         this.pathInfo = pathInfo;
+    }
+
+    public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo, MockHttpSession session) {
+        this(parameterMap, pathInfo);
+        this.session = session;
     }
 
     public MockHttpServletRequest(String servletPath, Map<String, String> headerMap) {
@@ -76,10 +80,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public MockHttpServletRequest(String pathInfo, String content, String method, Map<String, String> headerMap) {
         this(pathInfo,content,method);
         this.headerMap = headerMap;
-    }
-
-    public void addCookie(Cookie cookie) {
-        cookies.add(cookie);
     }
 
     @Override
@@ -145,8 +145,23 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public Cookie[] getCookies() {
-        return this.cookies.toArray(new Cookie[0]);
+    public HttpSession getSession(boolean create) {
+        if (create && session == null) {
+            session = new MockHttpSession();
+        }
+
+        if (session != null) {
+            return session;
+        }
+        return null;
+    }
+
+    @Override
+    public HttpSession getSession() {
+        if (session == null) {
+            session = new MockHttpSession();
+        }
+        return session;
     }
 
     @Override
@@ -311,6 +326,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
+    public Cookie[] getCookies() {
+        throw new UnsupportedOperationException("Unimplemented method 'getCookies'");
+    }
+
+    @Override
     public long getDateHeader(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getDateHeader'");
     }
@@ -363,16 +383,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public String getRequestedSessionId() {
         throw new UnsupportedOperationException("Unimplemented method 'getRequestedSessionId'");
-    }
-
-    @Override
-    public HttpSession getSession(boolean create) {
-        throw new UnsupportedOperationException("Unimplemented method 'getSession'");
-    }
-
-    @Override
-    public HttpSession getSession() {
-        throw new UnsupportedOperationException("Unimplemented method 'getSession'");
     }
 
     @Override
@@ -429,5 +439,4 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
         throw new UnsupportedOperationException("Unimplemented method 'upgrade'");
     }
-
 }

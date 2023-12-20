@@ -19,7 +19,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
     private int status;
     private String contentType;
     private Map<String,String> headers;
-    private List<Cookie> cookies = new ArrayList<>();
 
     public MockHttpServletResponse() {
         this.outputStream = new MockServletOutputStream();
@@ -31,10 +30,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
         this.writer = writer;
         this.outputStream = outputStream;
         this.headers = new HashMap<String,String>();
-    }
-
-    public List<Cookie> getCookies() {
-        return this.cookies;
     }
 
     @Override
@@ -94,11 +89,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     @Override
-    public void addCookie(Cookie cookie) {
-        cookies.add(cookie);
-    }
-
-    @Override
     public void setCharacterEncoding(String charset) {
         throw new UnsupportedOperationException("Unimplemented method 'setCharacterEncoding'");
     }
@@ -152,6 +142,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
     @Override
     public Locale getLocale() {
         throw new UnsupportedOperationException("Unimplemented method 'getLocale'");
+    }
+
+    @Override
+    public void addCookie(Cookie cookie) {
+        throw new UnsupportedOperationException("Unimplemented method 'addCookie'");
     }
 
     @Override
@@ -224,5 +219,4 @@ public class MockHttpServletResponse implements HttpServletResponse {
     public Collection<String> getHeaderNames() {
         throw new UnsupportedOperationException("Unimplemented method 'getHeaderNames'");
     }
-
 }

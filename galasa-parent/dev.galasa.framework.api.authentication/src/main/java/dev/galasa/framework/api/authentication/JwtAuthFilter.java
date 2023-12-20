@@ -6,6 +6,8 @@
 package dev.galasa.framework.api.authentication;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -43,7 +45,7 @@ public class JwtAuthFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        oidcProvider = new OidcProvider(env.getenv("GALASA_DEX_ISSUER"));
+        oidcProvider = new OidcProvider(env.getenv("GALASA_DEX_ISSUER"), HttpClient.newHttpClient());
         logger.info("Galasa JWT Auth Filter initialised");
     }
 

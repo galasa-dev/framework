@@ -8,6 +8,7 @@ import java.util.Base64;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.JsonObject;
 
@@ -38,18 +39,22 @@ public class AuthRoute extends BaseRoute {
      */
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-            HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, FrameworkException {
+            HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+
+        HttpSession session = request.getSession(true);
         try {
             String clientId = queryParams.getSingleString("clientId", null);
-            String callbackUrl = queryParams.getSingleString("redirectUri", getDefaultRedirectUri(request));
+            String clientCallbackUrl = queryParams.getSingleString("callbackUrl", null);
 
-            if (clientId == null) {
+            // Make sure the required query parameters exist
+            if (clientId == null || clientCallbackUrl == null) {
                 ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
 
-            String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, callbackUrl, response);
+            session.setAttribute("callbackUrl", clientCallbackUrl);
+
+            String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, getApiCallbackUrl(request), session);
             if (authUrl != null) {
                 response.sendRedirect(authUrl);
                 return response;
@@ -59,6 +64,7 @@ public class AuthRoute extends BaseRoute {
             logger.error("GET request to the OpenID Connect provider's authorization endpoint was interrupted.", e);
         }
 
+        session.invalidate();
         ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
         throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
@@ -69,8 +75,7 @@ public class AuthRoute extends BaseRoute {
      */
     @Override
     public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
-            HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, FrameworkException {
+            HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
         // Check that the request body contains the required payload
         TokenPayload requestBodyJson = getRequestBodyAsJson(request);
@@ -83,14 +88,15 @@ public class AuthRoute extends BaseRoute {
             // Send a POST request to Dex's /token endpoint
             JsonObject tokenResponseBodyJson = sendTokenPost(request, requestBodyJson);
 
-            // Return the JWT as the servlet's response
+            // Return the JWT and refresh token as the servlet's response
             String idTokenKey = "id_token";
+            String refreshTokenKey = "refresh_token";
             if (tokenResponseBodyJson.has(idTokenKey)) {
-                JsonObject jwtJson = new JsonObject();
-                jwtJson.add("jwt", tokenResponseBodyJson.get(idTokenKey));
+                JsonObject responseJson = new JsonObject();
+                responseJson.add("jwt", tokenResponseBodyJson.get(idTokenKey));
+                responseJson.add(refreshTokenKey, tokenResponseBodyJson.get(refreshTokenKey));
 
-                String jwtJsonStr = gson.toJson(jwtJson);
-                return getResponseBuilder().buildResponse(response, "application/json", jwtJsonStr,
+                return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(responseJson),
                         HttpServletResponse.SC_OK);
             }
 
@@ -118,14 +124,14 @@ public class AuthRoute extends BaseRoute {
         return gson.fromJson(sbRequestBody.toString(), TokenPayload.class);
     }
 
-    private String getDefaultRedirectUri(HttpServletRequest request) {
+    private String getApiCallbackUrl(HttpServletRequest request) {
         return request.getRequestURL().toString().replace("/auth", "/auth/callback");
     }
 
     /**
      * Sends a POST request to the JWT issuer's /token endpoint and returns the
      * response's body as a JSON object.
-     * 
+     *
      * @param requestBodyJson the request payload containing the required parameters
      *                        for the /token endpoint
      */
@@ -138,11 +144,9 @@ public class AuthRoute extends BaseRoute {
         // so we need to find out what method was used
         HttpResponse<String> tokenResponse = null;
         if (requestBodyJson.getRefreshToken() != null) {
-            tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret,
-                    requestBodyJson.getRefreshToken());
+            tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getRefreshToken());
         } else {
-            tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret,
-                    requestBodyJson.getCode(), getDefaultRedirectUri(request));
+            tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getCode(), getApiCallbackUrl(request));
         }
         return gson.fromJson(tokenResponse.body(), JsonObject.class);
     }

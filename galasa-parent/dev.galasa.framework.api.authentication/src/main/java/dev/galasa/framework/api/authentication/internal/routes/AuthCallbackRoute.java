@@ -8,11 +8,9 @@ package dev.galasa.framework.api.authentication.internal.routes;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.gson.JsonObject;
+import javax.servlet.http.HttpSession;
 
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -36,47 +34,31 @@ public class AuthCallbackRoute extends BaseRoute {
      * later used later in exchange for a JWT and a refresh token.
      */
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-            HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, FrameworkException {
+            HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String authCode = queryParams.getSingleString("code", null);
         String state = queryParams.getSingleString("state", null);
-        
+
         if (state != null && authCode != null) {
-            // Make sure the state parameter is the same as the state that was previously stored in the browser
-            Cookie stateCookie = getCookieByName(request.getCookies(), "state");
-            if (stateCookie != null && state.equals(stateCookie.getValue())) {
+            // Make sure the state parameter is the same as the state that was previously stored in the session
+            HttpSession session = request.getSession();
+            String storedState = (String) session.getAttribute("state");
+            if (storedState != null && state.equals(storedState)) {
 
-                // The state parameter is valid and is no longer needed, so we'll delete it as part of the response
-                deleteCookie(stateCookie, response);
+                // Get the callback URL provided in the original /auth request, appending the
+                // authorization code as a query parameter
+                String clientCallbackUrl = (String) session.getAttribute("callbackUrl");
+                clientCallbackUrl += "?code=" + authCode;
 
-                JsonObject responseJson = new JsonObject();
-                responseJson.addProperty("code", authCode);
-                return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(responseJson), HttpServletResponse.SC_OK);
+                // We don't need the session anymore, so invalidate it
+                session.invalidate();
+
+                // Redirect the user back to the callback URL provided in the original /auth request
+                response.sendRedirect(clientCallbackUrl);
+                return response;
             }
         }
 
         ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-    }
-
-    /**
-     * Returns a cookie that matches a given name, or null if no such cookie exists.
-     * @param cookies the collection of cookies to search through
-     * @param name the name to match
-     */
-    private Cookie getCookieByName(Cookie[] cookies, String name) {
-        Cookie cookieToReturn = null;
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(name)) {
-                cookieToReturn = cookie;
-                break;
-            }
-        }
-        return cookieToReturn;
-    }
-
-    private void deleteCookie(Cookie cookie, HttpServletResponse response) {
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
     }
 }

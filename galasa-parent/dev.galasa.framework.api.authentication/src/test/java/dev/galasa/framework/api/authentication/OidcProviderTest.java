@@ -8,13 +8,17 @@ package dev.galasa.framework.api.authentication;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.List;
-
-import javax.servlet.http.Cookie;
+import java.util.Map;
+import java.util.function.BiPredicate;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -24,44 +28,71 @@ import org.junit.Test;
 
 import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
-import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
+import dev.galasa.framework.api.common.mocks.MockHttpSession;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 public class OidcProviderTest {
 
     private static final Gson gson = GalasaGsonBuilder.build();
 
-    class MockOidcProvider extends OidcProvider {
-
-        public MockOidcProvider(String issuerUrl, HttpClient httpClient) {
-            super(issuerUrl);
-            super.httpClient = httpClient;
-        }
-    }
-
     @Test
-    public void testTokenPostWithValidRequestReturnsValidResponse() throws Exception {
+    public void testTokenPostWithRefreshTokenValidRequestReturnsValidResponse() throws Exception {
         // Given...
         JsonObject mockJwtJson = new JsonObject();
         mockJwtJson.addProperty("id_token", "this-is-a-jwt");
 
-        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockJwtJson));
+        HttpResponse<Object> mockTokenResponse = new MockHttpResponse<Object>(gson.toJson(mockJwtJson));
 
         HttpClient mockHttpClient = mock(HttpClient.class);
-        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
         String clientId = "galasa";
         String clientSecret = "abc";
         String refreshToken = "thisisarefreshtoken";
 
-        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockTokenResponse);
 
         // When...
         HttpResponse<String> response = oidcProvider.sendTokenPost(clientId, clientSecret, refreshToken);
 
         // Then...
         assertThat(response).isNotNull();
-        assertThat(response.body()).isEqualTo(mockResponse.body());
+        assertThat(response.body()).isEqualTo(mockTokenResponse.body());
+    }
+
+    @Test
+    public void testTokenPostWithAuthCodeValidRequestReturnsValidResponse() throws Exception {
+        // Given...
+        JsonObject mockJwtJson = new JsonObject();
+        mockJwtJson.addProperty("id_token", "this-is-a-jwt");
+
+        HttpResponse<Object> mockTokenResponse = new MockHttpResponse<Object>(gson.toJson(mockJwtJson));
+
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockTokenResponse);
+
+        String clientId = "galasa";
+        String clientSecret = "abc";
+        String authCode = "thisisacode";
+        String redirectUri = "http://mock.galasa.server/auth/callback";
+
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockTokenResponse);
+
+        // When...
+        HttpResponse<String> response = oidcProvider.sendTokenPost(clientId, clientSecret, authCode, redirectUri);
+
+        // Then...
+        assertThat(response).isNotNull();
+        assertThat(response.body()).isEqualTo(mockTokenResponse.body());
     }
 
     @Test
@@ -74,9 +105,12 @@ public class OidcProviderTest {
             "]}");
 
         HttpClient mockHttpClient = mock(HttpClient.class);
-        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
 
-        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
         // When...
         JsonArray keys = oidcProvider.getJsonWebKeysFromIssuer(oidcProvider.getIssuer());
@@ -92,9 +126,12 @@ public class OidcProviderTest {
         HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("{}");
 
         HttpClient mockHttpClient = mock(HttpClient.class);
-        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
 
-        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
         // When...
         JsonArray keys = oidcProvider.getJsonWebKeysFromIssuer(oidcProvider.getIssuer());
@@ -117,9 +154,12 @@ public class OidcProviderTest {
         );
 
         HttpClient mockHttpClient = mock(HttpClient.class);
-        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
 
-        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
         // When...
         JsonObject key = oidcProvider.getJsonWebKeyFromIssuerByKeyId(targetKeyId, oidcProvider.getIssuer());
@@ -142,9 +182,12 @@ public class OidcProviderTest {
         );
 
         HttpClient mockHttpClient = mock(HttpClient.class);
-        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
 
-        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
         // When...
         JsonObject key = oidcProvider.getJsonWebKeyFromIssuerByKeyId(targetKeyId, oidcProvider.getIssuer());
@@ -161,7 +204,9 @@ public class OidcProviderTest {
 
         HttpClient mockHttpClient = mock(HttpClient.class);
 
-        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
 
         // When...
         boolean result = oidcProvider.isJwtValid(testJwt);
@@ -183,7 +228,7 @@ public class OidcProviderTest {
         HttpClient mockHttpClient = mock(HttpClient.class);
         when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
-        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
 
         // When...
         JsonObject openIdConfig = oidcProvider.getOpenIdConfiguration();
@@ -199,22 +244,73 @@ public class OidcProviderTest {
         HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("", 302);
 
         HttpClient mockHttpClient = mock(HttpClient.class);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
         when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
-        OidcProvider oidcProvider = new MockOidcProvider("http://dummy-issuer", mockHttpClient);
-        MockHttpServletResponse mockServletResponse = new MockHttpServletResponse();
+        MockHttpSession mockSession = new MockHttpSession();
 
         // When...
-        HttpResponse<String> response = oidcProvider.sendAuthorizationGet("my-client-id", "http://my.server/callback", mockServletResponse);
+        HttpResponse<String> response = oidcProvider.sendAuthorizationGet("my-client-id", "http://my.server/callback", mockSession);
 
-        List<Cookie> responseCookies = mockServletResponse.getCookies();
         // Then...
         assertThat(response).isNotNull();
         assertThat(response).isEqualTo(mockResponse);
 
-        // Ensure the "state" parameter has been set as a cookie
-        assertThat(responseCookies).hasSize(1);
-        assertThat(responseCookies.get(0).getName()).isEqualTo("state");
+        // Ensure the "state" parameter has been set as a session attribute
+        String stateAttribute = (String) mockSession.getAttribute("state");
+        assertThat(stateAttribute).isNotNull();
+        assertThat(stateAttribute).hasSize(32);
+    }
 
+    @Test
+    public void testGetConnectorRedirectUrlWithMissingLocationHeaderReturnsNull() throws Exception {
+        // Given...
+        Map<String, List<String>> headers = new HashMap<>();
+        BiPredicate<String, String> defaultFilter = (a, b) -> true;
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("", HttpHeaders.of(headers, defaultFilter));
+
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+
+        MockHttpSession mockSession = new MockHttpSession();
+
+        // When...
+        String redirectUrl = oidcProvider.getConnectorRedirectUrl("my-client-id", "http://my.server/callback", mockSession);
+
+        // Then...
+        assertThat(redirectUrl).isNull();
+    }
+
+    @Test
+    public void testGetConnectorRedirectUrlWithLocationHeaderReturnsUrl() throws Exception {
+        // Given...
+        Map<String, List<String>> headers = Map.of("location", List.of("http://my.connector/auth"));
+        BiPredicate<String, String> defaultFilter = (a, b) -> true;
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("http://my.issuer/auth", HttpHeaders.of(headers, defaultFilter));
+
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+
+        MockHttpSession mockSession = new MockHttpSession();
+
+        // When...
+        String redirectUrl = oidcProvider.getConnectorRedirectUrl("my-client-id", "http://my.server/callback", mockSession);
+
+        // Then...
+        assertThat(redirectUrl).isNotNull();
     }
 }
