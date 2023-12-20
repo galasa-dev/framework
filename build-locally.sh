@@ -103,7 +103,7 @@ function download_dependencies {
 
 #-------------------------------------------------------------
 function generate_rest_docs {
-    OPENAPI_YAML_FILE="${BASEDIR}/openapi.yaml"
+    OPENAPI_YAML_FILE="${BASEDIR}/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml"
     OUTPUT_DIR="${BASEDIR}/docs/generated/galasaapi"
 
     if [[ "${build_type}" == "clean" ]]; then
@@ -164,13 +164,16 @@ function build_code {
 #-------------------------------------------------------------
 function publish_to_maven {
     h2 "Publishing to local maven repo..."
-    gradle --build-cache --parallel \
+
+    cmd="gradle --build-cache --parallel \
     ${CONSOLE_FLAG} \
-    --warning-mode=all --debug  \
+    --warning-mode=all --debug  --info \
     -Dorg.gradle.java.home=${JAVA_HOME} \
     -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
-    publishToMavenLocal \
-    2>&1 >> ${log_file}
+    publishToMavenLocal"
+    info "Command is $cmd"
+    $cmd 2>&1 >> ${log_file}
+    info "Log information is at ${log_file}"
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
     success "Published OK"
 }
