@@ -40,11 +40,18 @@ paths:
           required: true
           schema:
             type: string
+        - name: callbackUrl
+          in: query
+          description: The URL to return to once the authentication process is complete.
+          required: true
+          schema:
+            type: string
       responses:
-        '200':
-          description: Returns a redirect to the /auth/callback endpoint
-          content:
-            text/plain:
+        '302':
+          description: Returns a redirect to authenticate with the configured connector.
+          headers:
+            location:
+              description: The URL of the configured connector to redirect to.
               schema:
                 type: string
         '400':
@@ -79,7 +86,7 @@ paths:
               $ref: '#/components/schemas/AuthProperties'
       responses:
         '200':
-          description: Returns a JSON Object containing a JWT
+          description: Returns a JSON Object containing a JWT and refresh token
           content:
             application/json:
               schema:
@@ -100,7 +107,7 @@ paths:
   /auth/callback:
     get:
       operationId: getAuthenticateCallback
-      summary: Callback endpoint to be called by an OpenID Connect provider as part of an OAuth 2.0 authorization code flow, returns an authorization code.
+      summary: Callback endpoint used as part of an OAuth 2.0 authorization code flow, redirects to a callback URL with an authorization code as a query parameter.
       tags:
       - Authentication API
       security: []
@@ -118,30 +125,19 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Returns a JSON object containing the authorization code
-          content:
-            application/json:
+        '302':
+          description: Returns a redirect to the callback URL provided in the original /auth request.
+          headers:
+            location:
+              description: The callback URL provided in the original /auth request, with an authorization code appended as a query parameter.
               schema:
-                $ref: '#/components/schemas/AuthorizationCode'
+                type: string
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
 ##################################################################################
 # CPS API
 ##################################################################################
@@ -152,7 +148,7 @@ paths:
     get:
       operationId: getAllCpsNamespaces
       summary: Get all known CPS Namespaces
-      description: Returns a list of all Namespaces in the Configuration Property Store 
+      description: Returns a list of all Namespaces in the Configuration Property Store
       tags:
       - Configuration Property Store API
       responses:
@@ -188,8 +184,8 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
-                cpserror: 
-                  value: 
+                cpserror:
+                  value:
                     error_code: 5015
                     error_message: "GAL5015E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -201,8 +197,8 @@ paths:
     get:
       operationId: queryCpsNamespaceProperties
       summary: Get all CPS namespace properties
-      description: Returns a list of all Properties in the given namespace within the Configuration Property Store 
-      tags: 
+      description: Returns a list of all Properties in the given namespace within the Configuration Property Store
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -265,8 +261,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                namespacerror: 
-                  value: 
+                namespacerror:
+                  value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. Namespace 'xyz' is not available."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -286,7 +282,7 @@ paths:
       operationId: createCpsProperty
       summary: Create a new CPS property
       description: Create a new property with the supplied value in the given Namespace within the Configuration Property Store.
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -331,8 +327,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                namespaceerror: 
-                  value: 
+                namespaceerror:
+                  value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -373,7 +369,7 @@ paths:
       operationId: getCpsProperty
       summary: Get single CPS property
       description: Returns a property, value pair that matches the full propertyName in the given Namespace within the Configuration Property Store.
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -387,7 +383,7 @@ paths:
       - name: propertyName
         in: path
         description: |
-          Property Name. 
+          Property Name.
           The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
           and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
@@ -445,8 +441,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                invalidnamespaceerror: 
-                  value: 
+                invalidnamespaceerror:
+                  value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -466,7 +462,7 @@ paths:
       operationId: updateCpsProperty
       summary: Update existing CPS property
       description: Update an existing property in a given namepace in the Configuration Properties Store.
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -480,7 +476,7 @@ paths:
       - name: propertyName
         in: path
         description: |
-          Property Name. 
+          Property Name.
           The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
           and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
@@ -520,8 +516,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                namespaceerror: 
-                  value: 
+                namespaceerror:
+                  value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -558,7 +554,7 @@ paths:
       operationId: deleteCpsProperty
       summary: Delete existing CPS property
       description: Delete an existing property in a given namepace in the Configuration Properties Store.
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -572,7 +568,7 @@ paths:
       - name: propertyName
         in: path
         description: |
-          Property Name. 
+          Property Name.
           The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
           and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
@@ -605,8 +601,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                namespaceerror: 
-                  value: 
+                namespaceerror:
+                  value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -868,8 +864,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIErrorArray'
-              examples: 
-                singleError: 
+              examples:
+                singleError:
                   value:
                   - error_code: 5017
                     error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
@@ -1656,11 +1652,6 @@ paths:
 ##################################################################################
 components:
   schemas:
-    AuthorizationCode:
-      properties:
-        code:
-          type: string
-          description: The authorization code associated with an authentication request.
     AuthProperties:
       properties:
         client_id:
@@ -1676,7 +1667,10 @@ components:
       properties:
         jwt:
           type: string
-          description: A JSON Web Token to use when authenticating to a Galasa ecosystem.
+          description: A JSON Web Token to use when authenticating with a Galasa ecosystem.
+        refresh_token:
+          type: string
+          description: A refresh token to allow the retrieval of new JWTs when authenticating with a Galasa ecosystem from a client tool.
     CpsProperty:
       properties:
         name:
@@ -1702,14 +1696,14 @@ components:
               description: |
                 Property Name. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
                 and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore).
-                The property name is made of 'parts'. Each part must be separated by a period character. There must be 
+                The property name is made of 'parts'. Each part must be separated by a period character. There must be
                 at least two parts in the property name. The last character cannot be a period character.
         data:
           properties:
             value:
               type: string
               description: |
-                The value of the property, maximum length of approximately 1,500,000 characters. 
+                The value of the property, maximum length of approximately 1,500,000 characters.
                 It cannot be a blank value.
     JsonError:
       properties:
@@ -1949,9 +1943,9 @@ components:
       properties:
         name:
           type: string
-        propertiesUrl: 
+        propertiesUrl:
           type: string
-        type: 
+        type:
           type: string
 
 
