@@ -1,6 +1,7 @@
 plugins {
     id 'biz.aQute.bnd.builder'
     id 'galasa.api.server'
+    id "com.google.protobuf" version "0.9.4"
 
     id 'java'
 }
@@ -15,7 +16,27 @@ dependencies {
 
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'dev.galasa:com.auth0.jwt:4.4.0'
+
+    implementation 'dev.galasa:io.grpc.java:1.60.0'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
+}
+
+protobuf {
+  protoc {
+    artifact = "com.google.protobuf:protoc:3.25.1"
+  }
+  plugins {
+    grpc {
+      artifact = 'io.grpc:protoc-gen-grpc-java:1.60.0'
+    }
+  }
+  generateProtoTasks {
+    all()*.plugins {
+      grpc {}
+    }
+  }
 }
 
 // Note: These values are consumed by the parent build process
