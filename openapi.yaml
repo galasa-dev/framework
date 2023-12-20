@@ -760,7 +760,7 @@ paths:
     post:
       operationId: setEcosystemResources
       summary: Upload Resources to the ecosystem
-      description: This API endpoint allows multiple resources to be supplied in a single request to create and/or update in the ecosystem.
+      description: This API endpoint allows multiple resources to be supplied in a single request to delete, create and/or update in the ecosystem.
       tags:
        - Resources API
       requestBody:
