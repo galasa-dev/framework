@@ -25,9 +25,10 @@ configurations {
 // Validating a single specification
 openApiValidate {
     inputSpec.set("$projectDir/src/main/resources/openapi.yaml")
+    recommend.set(true)
 }
 
-tasks.named('build') { 
+tasks.named('processResources') { 
     dependsOn('openApiValidate') 
 }
 
