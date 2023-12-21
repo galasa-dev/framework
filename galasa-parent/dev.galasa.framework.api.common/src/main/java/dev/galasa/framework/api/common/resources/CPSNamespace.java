@@ -68,7 +68,16 @@ public class CPSNamespace {
         return Collections.unmodifiableMap(properties);
     }
 
+    /**
+     * A method to create a CPSProperty object only if the property already exists in the store
+     * If the property does not exist in the store a null object will be returned
+     * @param propertyName
+     * @return CPSProperty
+     * @throws ConfigurationPropertyStoreException
+     */
     public CPSProperty getProperty(String propertyName) throws ConfigurationPropertyStoreException {
+        // 
+        // without this the property update property API would always try to create properties that do not exist
         CPSProperty prop = getPropertyFromStore(propertyName);
             if (!prop.existsInStore()) {
                 prop = null;
@@ -76,9 +85,18 @@ public class CPSNamespace {
             return prop;
         }
 
-     public CPSProperty getPropertyFromStore(String propertyName) throws ConfigurationPropertyStoreException {
+    /**
+     * A method to create a CPSProperty within the namespace
+     * If the namesapce is hidden, a null property is returned otherwise a property is created.
+     * If the property already exists in the store, the property's value from the store will be loaded into the property as well
+     * If the property does not exist in the store, the property's value will be null
+     * @param propertyName
+     * @return CPSProperty
+     * @throws ConfigurationPropertyStoreException
+     */
+    public CPSProperty getPropertyFromStore(String propertyName) throws ConfigurationPropertyStoreException {
         CPSProperty prop = null;
-        if (visibility != Visibility.HIDDEN) {
+        if (!isHidden()) {
             GalasaPropertyName propName = new GalasaPropertyName(this.name, propertyName);
             prop = new CPSProperty(this.propertyStore, this, propName);
             prop.loadValueFromStore();

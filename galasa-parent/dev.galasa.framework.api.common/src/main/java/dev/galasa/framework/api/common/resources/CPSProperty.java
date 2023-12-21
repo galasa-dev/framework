@@ -78,7 +78,7 @@ public class CPSProperty {
         return outputValue;
     }
 
-    public void loadValueFromStore() throws ConfigurationPropertyStoreException {
+    protected void loadValueFromStore() throws ConfigurationPropertyStoreException {
         // load the value from the property store into this property object.
         // Will be null if the property isn't in the store yet.
         this.value = store.getProperty(name.getLongestPrefix(), name.getShortestSuffix());

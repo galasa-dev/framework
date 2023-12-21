@@ -146,6 +146,7 @@ public class ResourcesRoute  extends BaseRoute{
                     GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
                     CPSFacade cps = new CPSFacade(framework);
                     CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
+                    //getPropertyFromStore() will only return null if the property is in a hidden namespace
                     CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
 
                     if (action.equals("delete")) {

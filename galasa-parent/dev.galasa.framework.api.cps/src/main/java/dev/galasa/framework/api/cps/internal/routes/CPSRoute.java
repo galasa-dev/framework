@@ -103,7 +103,7 @@ public abstract class CPSRoute extends BaseRoute {
 
         
         try{
-            property = namespace.getProperty(propertyName);
+            property = namespace.getPropertyFromStore(propertyName);
         }catch (Exception e){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND,e);
