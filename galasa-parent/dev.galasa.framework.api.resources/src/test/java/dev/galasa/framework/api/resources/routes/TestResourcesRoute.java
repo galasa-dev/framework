@@ -19,13 +19,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.resources.ResourcesServletTest;
 import dev.galasa.framework.api.resources.mocks.MockResourcesServlet;
 import dev.galasa.framework.spi.IFramework;
 
 public class TestResourcesRoute extends ResourcesServletTest{
    
-    
     @Test
     public void TestProcessGalasaPropertyValidPropertyReturnsOK() throws Exception{
         //Given...
@@ -63,13 +63,13 @@ public class TestResourcesRoute extends ResourcesServletTest{
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
-        Throwable thrown = catchThrowable(() -> {
-            resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        });
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
 
         //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
             "name");
         checkPropertyNotInNamespace(namespace,propertyname,value);;
     }
@@ -88,13 +88,13 @@ public class TestResourcesRoute extends ResourcesServletTest{
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
-        Throwable thrown = catchThrowable(() -> {
-            resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        });
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
 
         //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
             "namespace");
         checkPropertyNotInNamespace(namespace,propertyname,value);;
     }
@@ -113,13 +113,13 @@ public class TestResourcesRoute extends ResourcesServletTest{
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
-        Throwable thrown = catchThrowable(() -> {
-            resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        });
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
 
         //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
             "value");
         checkPropertyNotInNamespace(namespace,propertyname,value);;
     }
@@ -162,13 +162,13 @@ public class TestResourcesRoute extends ResourcesServletTest{
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
-        Throwable thrown = catchThrowable(() -> {
-            resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        });
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
 
         //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5400E: Error occured when trying to execute request ",". Please check your request parameters or report the problem to your Galasa Ecosystem owner.");
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5400E: Error occured when trying to execute request ",". Please check your request parameters or report the problem to your Galasa Ecosystem owner.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -293,7 +293,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessDataArrayCreateWithTwoExistingRecordsJSONReturnsOneError() throws Exception{
+    public void TestProcessDataArrayCreateWithTwoExistingRecordsJSONReturnsTwoErrors() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.1";

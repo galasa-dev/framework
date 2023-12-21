@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
@@ -114,11 +113,11 @@ public abstract class CPSRoute extends BaseRoute {
     }
 
 
-    protected boolean checkNameMatchesRequest(String name, HttpServletRequest request ) throws ConfigurationPropertyStoreException, InternalServletException {
+    protected boolean checkNameMatchesRequest(String name, String jsonString ) throws ConfigurationPropertyStoreException, InternalServletException {
         boolean valid = false;
         String propertyName = "";
         try {
-            GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(request);
+            GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(jsonString);
             propertyName = galasaProperty.getName();
             if (propertyName.equals(name)) {
                 valid = true;
@@ -133,8 +132,8 @@ public abstract class CPSRoute extends BaseRoute {
         return valid;
     }
 
-    protected CPSProperty applyPropertyToStore (HttpServletRequest request, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
-        GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(request);
+    protected CPSProperty applyPropertyToStore (String jsonString, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
+        GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(jsonString);
         checkNamespaceExists(namespaceName);
         CPSFacade cps = new CPSFacade(framework);
         CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());

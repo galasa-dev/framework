@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.cps.internal.routes;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -168,7 +170,10 @@ public class PropertyRoute extends CPSRoute{
             throws  IOException, FrameworkException {
         String namespaceName = getNamespaceFromURL(pathInfo);
         checkRequestHasContent(request);
-        CPSProperty property = applyPropertyToStore(request, namespaceName, false);
+        ServletInputStream body = request.getInputStream();
+        String jsonString = new String (body.readAllBytes(),StandardCharsets.UTF_8);
+        body.close();
+        CPSProperty property = applyPropertyToStore(jsonString, namespaceName, false);
         String responseBody = String.format("Successfully created property %s in %s",property.getName(), property.getNamespace());
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
     }

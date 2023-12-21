@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,6 +33,7 @@ import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -56,7 +58,9 @@ public class ResourcesRoute  extends BaseRoute{
      public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters, 
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {  
         checkRequestHasContent(request);
-        String jsonBody = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
+        ServletInputStream body = request.getInputStream();
+        String jsonBody = new String (body.readAllBytes(),StandardCharsets.UTF_8);
+        body.close();
         List<String> errorsList = processRequest(jsonBody);
         if (errorsList.size() >0){
             response = getResponseBuilder().buildResponse(response, "application/json", gson.toJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
@@ -104,20 +108,49 @@ public class ResourcesRoute  extends BaseRoute{
         }
     }
     
+
+    private boolean checkGalasaPropertyJsonStructure(JsonObject propertyJson){
+        List<String> validationErrors = new ArrayList<String>();
+        if (propertyJson.has("apiVersion")&& propertyJson.has("metadata")&&propertyJson.has("data")){
+            String name = propertyJson.get("metadata").getAsJsonObject().get("name").getAsString();
+            String namespace = propertyJson.get("metadata").getAsJsonObject().get("namespace").getAsString();
+            String value = propertyJson.get("data").getAsJsonObject().get("value").getAsString();
+            
+            if (name == null || name.isBlank()) {
+                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, "name", name);
+                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+            }
+            if (namespace == null || namespace.isBlank()) {
+                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, "namespace", namespace);
+                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+            }
+            if (value == null || value.isBlank()) {
+                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, "value", value);
+                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+            }
+        } else {
+            // Caused by bad Key Names in the JSON object i.e. apiversion instead of apiVersion
+            ServletError error = new ServletError(GAL5400_BAD_REQUEST,propertyJson.toString());
+            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+        }
+        errors.addAll(validationErrors);
+        return validationErrors.size() ==0;
+    }
+
     public void processGalasaProperty(JsonObject resource, String action) throws InternalServletException{
-        try{
-            String apiversion = resource.get("apiVersion").getAsString();
-            String expectedApiVersion = GalasaProperty.DEFAULTAPIVERSION;
-            if (apiversion.equals(expectedApiVersion)) {
-                GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
-                if (galasaProperty.isPropertyValid()) {
+        try {
+            if (checkGalasaPropertyJsonStructure(resource)){
+                String apiversion = resource.get("apiVersion").getAsString();
+                String expectedApiVersion = GalasaProperty.DEFAULTAPIVERSION;
+                if (apiversion.equals(expectedApiVersion)) {
+                    GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
                     CPSFacade cps = new CPSFacade(framework);
                     CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
                     CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
 
                     if (action.equals("delete")) {
                         property.deletePropertyFromStore();
-                    }else{
+                    } else {
                         /*
                         * The logic below is used to determine if the exclusive Not Or condition in property.setPropertyToStore 
                         * (i.e. "the property exists" must equal to "is this an update action") will action the request or error
@@ -135,19 +168,12 @@ public class ResourcesRoute  extends BaseRoute{
                         }
                         property.setPropertyToStore(galasaProperty, updateProperty);
                     }
-
+                } else {
+                    ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion, expectedApiVersion);
+                    throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
                 }
-            } else {
-                ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion, expectedApiVersion);
-                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
-        } catch (InternalServletException i){
-            throw i;
-        } catch (NullPointerException n){
-            // Null Pointer exception caused by bad Key Names in JSON i.e. apiversion instead of apiVersion
-            ServletError error = new ServletError(GAL5400_BAD_REQUEST,resource.toString());
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        } catch (Exception e){
+        } catch (ConfigurationPropertyStoreException e){
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR, e.getMessage());
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }

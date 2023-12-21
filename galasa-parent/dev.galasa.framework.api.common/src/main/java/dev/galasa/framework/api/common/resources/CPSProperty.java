@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 
 
@@ -73,7 +72,7 @@ public class CPSProperty {
 
     public String getOutputValue() {
         String outputValue  = this.value;
-        if (namespace.getVisibility() == Visibility.SECURE){
+        if (namespace.isSecure()){
             outputValue = REDACTED_PROPERTY_VALUE;
         }
         return outputValue;
@@ -91,7 +90,7 @@ public class CPSProperty {
         }
     }
 
-    public void setPropertyToStore(GalasaProperty galasaProperty,boolean updateProperty) throws FrameworkException, InternalServletException {
+    public void setPropertyToStore(GalasaProperty galasaProperty,boolean updateProperty) throws ConfigurationPropertyStoreException, InternalServletException {
         boolean propExists = existsInStore();
         /*
          * Logic Table to Determine actions
