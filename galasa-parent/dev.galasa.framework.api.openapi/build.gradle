@@ -2,6 +2,7 @@ plugins {
     id 'biz.aQute.bnd.builder'
     id 'maven-publish'
     id 'galasa.java'
+    id "org.openapi.generator" version "6.6.0"
 }
 
 description = 'Galasa Open API specification'
@@ -19,6 +20,15 @@ repositories {
 
 configurations {
     conf
+}
+
+// Validating a single specification
+openApiValidate {
+    inputSpec.set("$projectDir/src/main/resources/openapi.yaml")
+}
+
+tasks.named('build') { 
+    dependsOn('openApiValidate') 
 }
 
 // Publish the openapi.yaml on it's own as a special artifact.
