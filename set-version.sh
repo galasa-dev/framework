@@ -163,8 +163,8 @@ cp $temp_dir/release.yaml ${BASEDIR}/release.yaml
 
 
 ## Update the openapi file
-cat ${BASEDIR}/openapi.yaml | sed "s/^[ ]*version[ ]*:.*/  version : \"$component_version\"/1" > $temp_dir/openapi.yaml
-cp $temp_dir/openapi.yaml ${BASEDIR}/openapi.yaml
+cat ${BASEDIR}/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml | sed "s/^[ ]*version[ ]*:.*/  version : \"$component_version\"/1" > $temp_dir/openapi.yaml
+cp $temp_dir/openapi.yaml ${BASEDIR}/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml
 
 
 cat ${BASEDIR}/test-api-locally.md | sed "s/^[ ]*export[ ]+GALASA_OBR_VERSION[ ]*=[ ]*.*$/export GALASA_OBR_VERSION=\"$component_version\"/1" > $temp_dir/test-api-locally.md 
