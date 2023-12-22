@@ -777,10 +777,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  allOf:
-                    - $ref: '#/components/schemas/APIError'
+                $ref: '#/components/schemas/APIErrorArray'
               examples: 
                 singleError: 
                   value:
@@ -1623,6 +1620,12 @@ components:
       properties:
         error:
           type: string
+    APIErrorArray:
+        type: array
+        description: An array of API Errors relating to the resources that failed to complete as expected
+        items:
+          allOf:
+            - $ref: '#/components/schemas/APIError'
     APIError:
       properties:
         error_code:
