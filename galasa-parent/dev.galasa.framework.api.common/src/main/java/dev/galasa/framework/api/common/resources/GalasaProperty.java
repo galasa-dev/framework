@@ -6,9 +6,7 @@
 package dev.galasa.framework.api.common.resources;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
@@ -78,53 +76,10 @@ public class GalasaProperty {
         return this.data.value;
     }
 
-    public boolean isPropertyNameValid() {
-        boolean valid;
-        valid = this.metadata.name != null && !this.metadata.name.isBlank();
-        if(valid){
-            valid = this.metadata.name.split("[.]").length >=2;
-        }
-        return valid;
-    }
-
-    public boolean isPropertyNameSpaceValid() {
-        return this.metadata.namespace != null && !this.metadata.namespace.isBlank();
-    }
-
-    public boolean isPropertyValueValid() {
-        return this.data.value != null && !this.data.value.isBlank();
-    }
-
-    public boolean isPropertyApiVersionValid() {
-        return this.apiVersion != null && !this.apiVersion.isBlank();
-    }
-
-    public boolean isPropertyValid() throws InternalServletException {
-        ServletError error = null;
-        if (!this.isPropertyNameValid()){
-            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"name",this.metadata.name);
-        }
-        if (!this.isPropertyNameSpaceValid()){
-            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"namespace",this.metadata.namespace);
-        }
-        if (!this.isPropertyValueValid()){
-            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"value",this.data.value);
-        }
-        if (!this.isPropertyApiVersionValid()){
-            error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"apiVersion",this.apiVersion);
-        }
-        if (error != null){
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-        return true;
-    }
-
-    public static GalasaProperty getPropertyFromRequestBody( HttpServletRequest request) throws IOException, InternalServletException{
-        String jsonString = new String (request.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
+    public static GalasaProperty getPropertyFromRequestBody( String jsonString) throws IOException, InternalServletException{
          GalasaProperty property;
         try {
             property = gson.fromJson(jsonString, GalasaProperty.class);
-            property.isPropertyValid(); 
         }catch (Exception e){
             ServletError error = new ServletError(GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY, jsonString);  
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);

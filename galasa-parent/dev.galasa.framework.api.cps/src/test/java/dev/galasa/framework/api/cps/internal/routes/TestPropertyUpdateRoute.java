@@ -556,13 +556,13 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         }
         
     @Test
-    public void TestPropertyRouteDELETEBadPropertyReturnsError() throws Exception{
+    public void TestPropertyRouteDELETEBadPropertyReturnsErrorOK() throws Exception{
         // Given...
 		setServlet("/framework/properties/bad.property", "framework", null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
-		ServletOutputStream outStream = resp.getOutputStream();	
+		ServletOutputStream outStream = resp.getOutputStream();
         
 		// When...
 		servlet.init();
@@ -570,15 +570,12 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
-		assertThat(resp.getStatus()).isEqualTo(404);
-		assertThat(resp.getContentType()).isEqualTo("application/json");
+		String output = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+		assertThat(output).isEqualTo("Successfully deleted property bad.property in framework");
         
-		checkErrorStructure(
-			outStream.toString(),
-			5017,
-			"E: Error occured when trying to access property 'bad.property'. The property name provided is invalid."
-        );
     }
 
     @Test
