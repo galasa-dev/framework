@@ -585,6 +585,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonError'
   /cps/namespace/{namespace}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getCpsNamespaceProperties
       deprecated: true
@@ -634,6 +636,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonError'
   /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getCpsNamespaceCascadeProperty
       deprecated: true
@@ -700,6 +704,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonError'
   /cps/namespace/{namespace}/property/{property}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     put:
       operationId: putCpsNamespaceProperty
       deprecated: true
@@ -1929,4 +1935,4 @@ components:
       name: ClientApiVersion
       schema:
         type: string
-      required: true
+      required: false
