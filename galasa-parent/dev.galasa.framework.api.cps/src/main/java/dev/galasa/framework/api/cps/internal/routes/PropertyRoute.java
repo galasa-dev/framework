@@ -52,7 +52,7 @@ public class PropertyRoute extends CPSRoute{
         return getResponseBuilder().buildResponse(response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
 
-    private String getNamespaceProperties(String namespaceName, QueryParameters queryParams) throws FrameworkException{
+    private String getNamespaceProperties(String namespaceName, QueryParameters queryParams) throws InternalServletException{
         String properties = "";
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespaceName);

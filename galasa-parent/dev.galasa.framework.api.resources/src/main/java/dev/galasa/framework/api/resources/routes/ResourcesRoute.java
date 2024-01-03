@@ -24,6 +24,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.ResourceNameValidator;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
@@ -34,6 +35,7 @@ import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaProperty;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.FrameworkErrorCode;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -41,6 +43,8 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 public class ResourcesRoute  extends BaseRoute{
 
     static final Gson gson = GalasaGsonBuilder.build();
+
+    static final ResourceNameValidator nameValidator = new ResourceNameValidator();
 
     private static final Set<String> validActions = Collections.unmodifiableSet(Set.of("apply","create","update", "delete"));
     private static final Set<String> updateActions = Collections.unmodifiableSet(Set.of("apply","update"));
@@ -72,7 +76,7 @@ public class ResourcesRoute  extends BaseRoute{
 
     }
 
-    public List<String> processRequest(String jsonBody) throws InternalServletException{
+    protected List<String> processRequest(String jsonBody) throws InternalServletException{
         
         JsonObject body = gson.fromJson(jsonBody, JsonObject.class);
         String action = body.get("action").getAsString().toLowerCase().trim();
@@ -86,7 +90,7 @@ public class ResourcesRoute  extends BaseRoute{
     return errors;
     }
 
-    public void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{
+    protected void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{
         for (JsonElement element: jsonArray){
             try {
                 JsonObject resource = element.getAsJsonObject();
@@ -112,22 +116,55 @@ public class ResourcesRoute  extends BaseRoute{
     private boolean checkGalasaPropertyJsonStructure(JsonObject propertyJson){
         List<String> validationErrors = new ArrayList<String>();
         if (propertyJson.has("apiVersion")&& propertyJson.has("metadata")&&propertyJson.has("data")){
-            String name = propertyJson.get("metadata").getAsJsonObject().get("name").getAsString();
-            String namespace = propertyJson.get("metadata").getAsJsonObject().get("namespace").getAsString();
-            String value = propertyJson.get("data").getAsJsonObject().get("value").getAsString();
+            //Check metadata is not null and contains name and namespace fields in the correct format
+            JsonObject metadata = propertyJson.get("metadata").getAsJsonObject();
+            if (metadata.size() > 0){
+                JsonElement name = metadata.get("name");
+                JsonElement namespace = metadata.get("namespace"); 
+                    /* Use the ResourceNameValidator to check that the name and namesapce are correctly formatted and not null
+                     * 
+                     */
+                    try {
+                        nameValidator.assertPropertyNameCharPatternIsValid(name.getAsString());
+                        if (!name.getAsString().contains(".")){
+                            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,
+                            "Invalid property name. Property name much have at least two parts seperated by a '.' (dot)");
+                            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+                        }
+                    } catch (FrameworkException f){
+                        ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, f.getMessage());
+                        validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+                    }
+
+                    try {
+                        nameValidator.assertNamespaceCharPatternIsValid(namespace.getAsString());
+                    } catch (FrameworkException f){
+                        ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, f.getMessage());
+                        validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+                    }
+            } else {
+                String message = "The 'metadata' field can not be empty. The fields 'name' and 'namespace' are mandaotry for the type GalasaProperty.";
+                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
+                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+            }
             
-            if (name == null || name.isBlank()) {
-                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, "name", name);
+            //Check that data is not null and contains the value field
+            JsonObject data = propertyJson.get("data").getAsJsonObject();
+            if (data.size() > 0){
+                if (data.has("value")){
+                    String value = data.get("value").getAsString();
+                    if (value == null || value.isBlank()) {
+                        String message = "The 'value' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.";
+                        ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
+                        validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+                    }
+                }
+            } else {
+                String message = "The 'data' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.";
+                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
                 validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
             }
-            if (namespace == null || namespace.isBlank()) {
-                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, "namespace", namespace);
-                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-            }
-            if (value == null || value.isBlank()) {
-                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, "value", value);
-                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-            }
+
         } else {
             // Caused by bad Key Names in the JSON object i.e. apiversion instead of apiVersion
             ServletError error = new ServletError(GAL5400_BAD_REQUEST,propertyJson.toString());
@@ -137,7 +174,7 @@ public class ResourcesRoute  extends BaseRoute{
         return validationErrors.size() ==0;
     }
 
-    public void processGalasaProperty(JsonObject resource, String action) throws InternalServletException{
+    protected void processGalasaProperty(JsonObject resource, String action) throws InternalServletException{
         try {
             if (checkGalasaPropertyJsonStructure(resource)){
                 String apiversion = resource.get("apiVersion").getAsString();

@@ -39,13 +39,60 @@ public class TestResourcesRoute extends ResourcesServletTest{
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
-        Throwable thrown = catchThrowable(() -> {
-            resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        });
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
 
         //Then...
-        assertThat(thrown).isNull();
         checkPropertyInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
+    public void TestProcessGalasaPropertyInvalidPropertyNameReturnsError() throws Exception{
+        //Given...
+        String namespace = "framework";
+        String propertyname = "property1!";
+        String value = "myvalue";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
+        JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        //When...
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "Invalid property name. 'property1!' must not contain the '!' character. Allowable characters after the first character are 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), '.' (dot) and '_' (underscore)'");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
+    public void TestProcessGalasaPropertyBadPropertyNameReturnsError() throws Exception{
+        //Given...
+        String namespace = "framework";
+        String propertyname = "property";
+        String value = "myvalue";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
+        JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        //When...
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "Invalid property name. Property name much have at least two parts seperated by a '.' (dot)");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
     @Test
@@ -69,8 +116,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
         assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "name");
-        checkPropertyNotInNamespace(namespace,propertyname,value);;
+            "Invalid property name. Property name is missing or empty.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
     @Test
@@ -94,8 +141,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
         assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "namespace");
-        checkPropertyNotInNamespace(namespace,propertyname,value);;
+            "Invalid namespace. Namespace is empty.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
     @Test
@@ -119,8 +166,64 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
         assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "value");
-        checkPropertyNotInNamespace(namespace,propertyname,value);;
+            "The 'value' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
+    public void TestProcessGalasaPropertyEmptyFieldsReturnsError() throws Exception{
+        //Given...
+        String namespace = "";
+        String propertyname = "";
+        String value = "";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
+        JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        //When...
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(3);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "Invalid property name. Property name is missing or empty.");
+        assertThat(errors.get(1)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "Invalid namespace. Namespace is empty.");
+        assertThat(errors.get(2)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "The 'value' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
+    public void TestProcessGalasaPropertyNoMetadataOrDataReturnsError() throws Exception{
+        //Given...
+        String namespace = "";
+        String propertyname = "";
+        String value = "";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = "{\"apiVersion\": \"galasa-dev/v1alpha1\",\n\"kind\": \"GalasaProperty\",\"metadata\": {},\"data\": {}}";
+        JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        //When...
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(2);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "The 'metadata' field can not be empty. The fields 'name' and 'namespace' are mandaotry for the type GalasaProperty.");
+        assertThat(errors.get(1)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "The 'data' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
     @Test
