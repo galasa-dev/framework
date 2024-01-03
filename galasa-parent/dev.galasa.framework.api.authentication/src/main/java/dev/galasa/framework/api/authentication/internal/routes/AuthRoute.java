@@ -52,6 +52,7 @@ public class AuthRoute extends BaseRoute {
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
 
+            // Store the callback URL in the session to redirect to at the end of the authentication process
             session.setAttribute("callbackUrl", clientCallbackUrl);
 
             String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, getApiCallbackUrl(request), session);

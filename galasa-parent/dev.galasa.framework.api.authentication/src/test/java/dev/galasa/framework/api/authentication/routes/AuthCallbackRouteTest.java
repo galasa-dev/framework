@@ -23,7 +23,6 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpSession;
 
-
 public class AuthCallbackRouteTest extends BaseServletTest {
 
     @Test
@@ -148,6 +147,42 @@ public class AuthCallbackRouteTest extends BaseServletTest {
 
         // Then...
         String expectedRedirectUrl = expectedCallbackUrl + "?code=" + expectedCode;
+        assertThat(servletResponse.getStatus()).isEqualTo(302);
+        assertThat(outStream.toString()).isEqualTo(expectedRedirectUrl);
+    }
+
+    @Test
+    public void testAuthCallbackGetRequestCallbackUrlWithQueryAppendsCodeToQueryParams() throws Exception {
+        // Given...
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        MockEnvironment mockEnv = new MockEnvironment();
+
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        servlet.setOidcProvider(mockOidcProvider);
+
+        String expectedCode = "my-auth-code";
+        String expectedState = "my-state";
+        String expectedCallbackUrl = "http://my.app/browse?page=2";
+
+        Map<String, String[]> queryParams = new HashMap<>();
+        queryParams.put("code", new String[] { expectedCode });
+        queryParams.put("state", new String[] { expectedState });
+
+        MockHttpSession mockSession = new MockHttpSession();
+        mockSession.setAttribute("state", expectedState);
+        mockSession.setAttribute("callbackUrl", expectedCallbackUrl);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback", mockSession);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        String expectedRedirectUrl = expectedCallbackUrl + "&code=" + expectedCode;
         assertThat(servletResponse.getStatus()).isEqualTo(302);
         assertThat(outStream.toString()).isEqualTo(expectedRedirectUrl);
     }

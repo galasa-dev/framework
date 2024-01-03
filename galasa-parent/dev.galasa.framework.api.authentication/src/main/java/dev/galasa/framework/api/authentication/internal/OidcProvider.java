@@ -60,7 +60,7 @@ public class OidcProvider {
 
     private HttpClient httpClient = HttpClient.newHttpClient();
 
-    private static final String BEARER_TOKEN_SCOPE = "openid offline_access";
+    private static final String BEARER_TOKEN_SCOPE = "openid offline_access profile";
 
     public OidcProvider(String issuerUrl, HttpClient httpClient) {
         this.issuerUrl = issuerUrl;

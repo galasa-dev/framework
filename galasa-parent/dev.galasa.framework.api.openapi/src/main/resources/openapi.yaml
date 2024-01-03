@@ -103,7 +103,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
-
   /auth/callback:
     get:
       operationId: getAuthenticateCallback
@@ -138,6 +137,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
+  /auth/clients:
+    post:
+      operationId: postClients
+      summary: Create a new Dex client to authenticate with.
+      tags:
+      - Authentication API
+      security: []
+      responses:
+        '200':
+          description: Returns a JSON Object containing the created client's ID and secret
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DexClient'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
 ##################################################################################
 # CPS API
 ##################################################################################
@@ -1662,7 +1687,18 @@ components:
           description: The secret for the client that is being authenticated.
         refresh_token:
           type: string
-          description: The refresh token to be exchanged for a JWT.
+          description: The refresh token to be exchanged for a JWT, mutually exclusive with "code".
+        code:
+          type: string
+          description: The authorization code to be exchanged for a JWT, mutually exclusive with "refresh_token".
+    DexClient:
+      properties:
+        clientId:
+          type: string
+          description: An alphanumeric string representing the ID of the Dex client.
+        clientSecret:
+          type: string
+          description: An alphanumeric string representing the secret of the Dex client.
     TokenResponse:
       properties:
         jwt:

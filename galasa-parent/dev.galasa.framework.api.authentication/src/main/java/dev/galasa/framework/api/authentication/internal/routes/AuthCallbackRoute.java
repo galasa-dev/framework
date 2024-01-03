@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.authentication.internal.routes;
 
 import java.io.IOException;
+import java.net.URI;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +34,7 @@ public class AuthCallbackRoute extends BaseRoute {
      * authorization code received during the authorization code flow, which can be
      * later used later in exchange for a JWT and a refresh token.
      */
+    @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         String authCode = queryParams.getSingleString("code", null);
@@ -47,7 +49,14 @@ public class AuthCallbackRoute extends BaseRoute {
                 // Get the callback URL provided in the original /auth request, appending the
                 // authorization code as a query parameter
                 String clientCallbackUrl = (String) session.getAttribute("callbackUrl");
-                clientCallbackUrl += "?code=" + authCode;
+                String authCodeQuery = "code=" + authCode;
+
+                // If the callback URL already has query parameters, append to them
+                if (URI.create(clientCallbackUrl).getQuery() != null) {
+                    clientCallbackUrl += "&" + authCodeQuery;
+                } else {
+                    clientCallbackUrl += "?" + authCodeQuery;
+                }
 
                 // We don't need the session anymore, so invalidate it
                 session.invalidate();
