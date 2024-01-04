@@ -14,6 +14,8 @@ dependencies {
     implementation project(':dev.galasa.framework.api.common')
 
     implementation 'dev.galasa:com.auth0.jwt:4.4.0'
+    implementation 'com.auth0:java-jwt:4.4.0'
+    
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
 }
 
