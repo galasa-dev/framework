@@ -57,8 +57,9 @@ public class AuthRoute extends BaseRoute {
 
             String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, getApiCallbackUrl(request), session);
             if (authUrl != null) {
-                response.sendRedirect(authUrl);
-                return response;
+                response.addHeader("Location", authUrl);
+                return getResponseBuilder().buildResponse(response, null, null,
+                        HttpServletResponse.SC_FOUND);
             }
 
         } catch (InterruptedException e) {

@@ -21,10 +21,11 @@ import io.grpc.ManagedChannelBuilder;
  */
 public class DexGrpcClient {
 
-    private String issuerHostname;
+    private DexBlockingStub blockingStub;
 
     public DexGrpcClient(String issuerHostname) {
-        this.issuerHostname = issuerHostname;
+        ManagedChannel channel = ManagedChannelBuilder.forTarget(issuerHostname).usePlaintext().build();
+        this.blockingStub = DexGrpc.newBlockingStub(channel);
     }
 
     /**
@@ -43,10 +44,8 @@ public class DexGrpcClient {
         createClientReqBuilder.setClient(client);
         CreateClientReq createClientReq = createClientReqBuilder.build();
 
-        // Create a channel and blocking stub, then send the request to create the new client
-        ManagedChannel channel = ManagedChannelBuilder.forTarget(issuerHostname).usePlaintext().build();
-        DexBlockingStub dexGrpc = DexGrpc.newBlockingStub(channel);
-        CreateClientResp clientResp = dexGrpc.createClient(createClientReq);
+        // Send the gRPC call to create the new Dex client
+        CreateClientResp clientResp = blockingStub.createClient(createClientReq);
 
         if (clientResp.hasClient()) {
             return clientResp.getClient();

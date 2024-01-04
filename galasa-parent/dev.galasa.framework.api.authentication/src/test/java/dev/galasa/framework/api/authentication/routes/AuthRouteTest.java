@@ -27,6 +27,7 @@ import org.junit.Test;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.common.BaseServletTest;
@@ -66,9 +67,10 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthPostRequestWithEmptyRequestPayloadReturnsBadRequestError() throws Exception {
         // Given...
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "", "POST");
@@ -94,9 +96,10 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthPostRequestWithInvalidRequestPayloadReturnsBadRequestError() throws Exception {
         // Given...
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
         // Payload with a missing "refresh_token" field
@@ -142,8 +145,9 @@ public class AuthRouteTest extends BaseServletTest {
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.sendTokenPost(clientId, decodedSecret, refreshToken)).thenReturn(mockResponse);
 
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
         String payload = buildRequestPayload(clientId, clientSecret, refreshToken, null);
@@ -194,8 +198,9 @@ public class AuthRouteTest extends BaseServletTest {
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.sendTokenPost(clientId, decodedSecret, authCode, redirectUri)).thenReturn(mockResponse);
 
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
         String payload = buildRequestPayload(clientId, clientSecret, null, authCode);
@@ -229,8 +234,9 @@ public class AuthRouteTest extends BaseServletTest {
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.sendTokenPost(any(), any(), any())).thenThrow(new IOException("simulating an unexpected failure!"));
 
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
         String payload = buildRequestPayload("dummy-id", "asecret", "here-is-a-token", null);
@@ -265,8 +271,9 @@ public class AuthRouteTest extends BaseServletTest {
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.sendTokenPost(any(), any(), any())).thenReturn(mockResponse);
 
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
         String payload = buildRequestPayload("dummy-id", "asecret", "here-is-a-token", null);
@@ -302,8 +309,9 @@ public class AuthRouteTest extends BaseServletTest {
         when(mockOidcProvider.getConnectorRedirectUrl(eq(clientId), any(), any())).thenReturn(redirectLocation);
         when(mockOidcProvider.getIssuer()).thenReturn("http://dummy.issuer");
 
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
 
@@ -316,7 +324,6 @@ public class AuthRouteTest extends BaseServletTest {
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null, mockSession);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-        ServletOutputStream outStream = servletResponse.getOutputStream();
 
         // When...
         servlet.init();
@@ -324,7 +331,7 @@ public class AuthRouteTest extends BaseServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(302);
-        assertThat(outStream.toString()).isEqualTo(redirectLocation);
+        assertThat(servletResponse.getHeader("Location")).isEqualTo(redirectLocation);
         assertThat((String)mockSession.getAttribute("callbackUrl")).isEqualTo(clientCallbackUrl);
     }
 
@@ -341,8 +348,9 @@ public class AuthRouteTest extends BaseServletTest {
         when(mockOidcProvider.sendAuthorizationGet(any(), any(), any())).thenReturn(mockResponse);
         when(mockOidcProvider.getIssuer()).thenReturn(mockIssuerUrl);
 
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
         Map<String, String[]> queryParams = Map.of(
@@ -376,8 +384,9 @@ public class AuthRouteTest extends BaseServletTest {
         // Given...
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
 
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
         Map<String, String[]> queryParams = Map.of("callbackUrl", new String[] { "http://my.callback.url" });
@@ -405,8 +414,9 @@ public class AuthRouteTest extends BaseServletTest {
         // Given...
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
 
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
         Map<String, String[]> queryParams = Map.of("clientId", new String[] { "my-client-id" });
@@ -434,8 +444,9 @@ public class AuthRouteTest extends BaseServletTest {
         // Given...
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
 
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
         Map<String, String[]> queryParams = new HashMap<>();
