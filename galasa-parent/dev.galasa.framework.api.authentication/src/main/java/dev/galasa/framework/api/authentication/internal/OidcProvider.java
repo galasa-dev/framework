@@ -24,6 +24,7 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import java.util.Optional;
@@ -41,6 +42,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
@@ -78,7 +80,7 @@ public class OidcProvider {
                 this.tokenEndpoint = openIdConfiguration.get("token_endpoint").getAsString();
                 this.jwksUri = openIdConfiguration.get("jwks_uri").getAsString();
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException | JsonSyntaxException e) {
             logger.error("Unable to obtain issuer's OpenID configuration, using defaults");
         }
     }
@@ -94,7 +96,10 @@ public class OidcProvider {
     public JsonObject getOpenIdConfiguration() throws IOException, InterruptedException {
         String openIdConfigurationUrl = issuerUrl + "/.well-known/openid-configuration";
         HttpResponse<String> response = sendGetRequest(URI.create(openIdConfigurationUrl));
-        return gson.fromJson(response.body(), JsonObject.class);
+        if (response.statusCode() == HttpServletResponse.SC_OK) {
+            return gson.fromJson(response.body(), JsonObject.class);
+        }
+        return null;
     }
 
     /**

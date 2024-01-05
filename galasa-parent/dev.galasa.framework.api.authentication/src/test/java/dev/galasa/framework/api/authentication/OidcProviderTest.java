@@ -223,7 +223,7 @@ public class OidcProviderTest {
         mockOpenIdConfig.addProperty("token_endpoint", "http://my.server/token");
         mockOpenIdConfig.addProperty("jwks_uri", "http://my.server/keys");
 
-        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockOpenIdConfig));
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockOpenIdConfig), 200);
 
         HttpClient mockHttpClient = mock(HttpClient.class);
         when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
@@ -236,6 +236,23 @@ public class OidcProviderTest {
         // Then...
         assertThat(openIdConfig).isNotNull();
         assertThat(openIdConfig).isEqualTo(mockOpenIdConfig);
+    }
+
+    @Test
+    public void testGetOpenIdConfigurationWithErrorResponseReturnsNull() throws Exception {
+        // Given...
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(null, 500);
+
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        // When...
+        JsonObject openIdConfig = oidcProvider.getOpenIdConfiguration();
+
+        // Then...
+        assertThat(openIdConfig).isNull();
     }
 
     @Test
