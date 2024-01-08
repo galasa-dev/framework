@@ -53,13 +53,26 @@ subprojects {
 //----------------------------------------------------------
 // Download the Dex gRPC API .proto file
 //----------------------------------------------------------
-def dexProtoFile = resources.text.fromUri("https://raw.githubusercontent.com/dexidp/dex/v2.37.0/api/v2/api.proto")
-task downloadDexProto(type: Copy) {
-    from dexProtoFile
-    into "$rootDir/dev.galasa.framework.api.authentication/src/main/proto"
-    rename { fileName -> "dex.proto" }
+def protoDirPath = "$rootDir/dev.galasa.framework.api.authentication/src/main/proto"
+def protoDir = new File(protoDirPath)
+def dexProtoFile = new File("$protoDirPath/dex.proto")
+task downloadDexProto() {
+    // If the .proto file already exists, we don't need to do anything
+    if (!dexProtoFile.exists()) {
+
+        // Make sure the proto directory exists so that the protobuf plugin works
+        if (!protoDir.exists()) {
+            protoDir.mkdirs()
+        }
+
+        // Download Dex's api.proto file from GitHub
+        new URL("https://raw.githubusercontent.com/dexidp/dex/v2.37.0/api/v2/api.proto").withInputStream{
+            inputStream -> dexProtoFile.withOutputStream{ outputStream -> outputStream << inputStream }
+        }
+    }
 }
-// The .proto file must be in the codebase before building
+
+// Make sure the .proto file has been downloaded before building the framework
 build.dependsOn downloadDexProto
 
 task downloadDependencies(type: Copy) {

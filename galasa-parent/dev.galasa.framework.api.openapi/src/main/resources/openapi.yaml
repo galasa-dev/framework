@@ -34,15 +34,17 @@ paths:
       - Authentication API
       security: []
       parameters:
-        - name: clientId
+        - name: client_id
           in: query
           description: The ID of the client used to authenticate with the upstream connector.
           required: true
           schema:
             type: string
-        - name: callbackUrl
+        - name: callback_url
           in: query
-          description: The URL to return to once the authentication process is complete.
+          description: |
+            The URL to return to once the authentication process is complete.
+            This should be a URL to a client web application.
           required: true
           schema:
             type: string

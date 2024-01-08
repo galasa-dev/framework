@@ -26,11 +26,13 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class AuthRoute extends BaseRoute {
 
     private OidcProvider oidcProvider;
+    private String externalApiServerUrl;
 
-    public AuthRoute(ResponseBuilder responseBuilder, String path, OidcProvider oidcProvider) {
+    public AuthRoute(ResponseBuilder responseBuilder, String path, OidcProvider oidcProvider, String externalApiServerUrl) {
         // Regex to match endpoint /auth and /auth/
         super(responseBuilder, "\\/?");
         this.oidcProvider = oidcProvider;
+        this.externalApiServerUrl = externalApiServerUrl;
     }
 
     /**
@@ -44,8 +46,8 @@ public class AuthRoute extends BaseRoute {
         logger.info("AuthRoute: handleGetRequest() entered.");
         HttpSession session = request.getSession(true);
         try {
-            String clientId = queryParams.getSingleString("clientId", null);
-            String clientCallbackUrl = queryParams.getSingleString("callbackUrl", null);
+            String clientId = queryParams.getSingleString("client_id", null);
+            String clientCallbackUrl = queryParams.getSingleString("callback_url", null);
 
             // Make sure the required query parameters exist
             if (clientId == null || clientCallbackUrl == null) {
@@ -56,7 +58,7 @@ public class AuthRoute extends BaseRoute {
             // Store the callback URL in the session to redirect to at the end of the authentication process
             session.setAttribute("callbackUrl", clientCallbackUrl);
 
-            String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, getApiCallbackUrl(request), session);
+            String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, getAuthCallbackUrl(), session);
             if (authUrl != null) {
                 logger.info("Redirect URL to upstream connector received: " + authUrl);
 
@@ -137,8 +139,8 @@ public class AuthRoute extends BaseRoute {
         return gson.fromJson(sbRequestBody.toString(), TokenPayload.class);
     }
 
-    private String getApiCallbackUrl(HttpServletRequest request) {
-        return request.getRequestURL().toString().replace("/auth", "/auth/callback");
+    private String getAuthCallbackUrl() {
+        return externalApiServerUrl + "/auth/callback";
     }
 
     /**
@@ -159,7 +161,7 @@ public class AuthRoute extends BaseRoute {
         if (requestBodyJson.getRefreshToken() != null) {
             tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getRefreshToken());
         } else {
-            tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getCode(), getApiCallbackUrl(request));
+            tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getCode(), getAuthCallbackUrl());
         }
         return gson.fromJson(tokenResponse.body(), JsonObject.class);
     }

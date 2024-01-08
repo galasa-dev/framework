@@ -193,10 +193,10 @@ public class AuthRouteTest extends BaseServletTest {
         String decodedSecret = new String(Base64.getDecoder().decode(clientSecret));
         String authCode = "thisisacode";
 
-        String redirectUri = "http://mock.galasa.server/";
+        String callbackUri = "http://api.host/auth/callback";
 
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
-        when(mockOidcProvider.sendTokenPost(clientId, decodedSecret, authCode, redirectUri)).thenReturn(mockResponse);
+        when(mockOidcProvider.sendTokenPost(clientId, decodedSecret, authCode, callbackUri)).thenReturn(mockResponse);
 
         DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
         MockEnvironment mockEnv = new MockEnvironment();
@@ -209,6 +209,7 @@ public class AuthRouteTest extends BaseServletTest {
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
         mockEnv.setenv("GALASA_DEX_ISSUER", "http://dummy.host");
+        mockEnv.setenv("GALASA_EXTERNAL_API_URL", "http://api.host");
 
         // When...
         servlet.init();
@@ -316,8 +317,7 @@ public class AuthRouteTest extends BaseServletTest {
 
 
         Map<String, String[]> queryParams = Map.of(
-            "clientId", new String[] { clientId },
-            "callbackUrl", new String[] { clientCallbackUrl }
+                "client_id", new String[] { clientId }, "callback_url", new String[] { clientCallbackUrl }
         );
 
         MockHttpSession mockSession = new MockHttpSession();
@@ -354,8 +354,7 @@ public class AuthRouteTest extends BaseServletTest {
         servlet.setOidcProvider(mockOidcProvider);
 
         Map<String, String[]> queryParams = Map.of(
-            "clientId", new String[] { "my-client" },
-            "callbackUrl", new String[] { "http://my.app" }
+                "client_id", new String[] { "my-client" }, "callback_url", new String[] { "http://my.app" }
         );
 
         MockHttpSession mockSession = new MockHttpSession();
