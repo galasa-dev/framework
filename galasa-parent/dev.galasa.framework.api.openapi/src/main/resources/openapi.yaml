@@ -778,7 +778,7 @@ paths:
     post:
       operationId: setEcosystemResources
       summary: Upload Resources to the ecosystem
-      description: This API endpoint allows multiple resources to be supplied in a single request to create and/or update in the ecosystem.
+      description: This API endpoint allows multiple resources to be supplied in a single request to delete, create and/or update in the ecosystem.
       tags:
        - Resources API
       requestBody:
@@ -795,10 +795,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  allOf:
-                    - $ref: '#/components/schemas/APIError'
+                $ref: '#/components/schemas/APIErrorArray'
               examples: 
                 singleError: 
                   value:
@@ -1663,6 +1660,12 @@ components:
       properties:
         error:
           type: string
+    APIErrorArray:
+        type: array
+        description: An array of API Errors relating to the resources that failed to complete as expected
+        items:
+          allOf:
+            - $ref: '#/components/schemas/APIError'
     APIError:
       properties:
         error_code:
@@ -1673,7 +1676,7 @@ components:
       properties:
         action:
           type: string
-          enum: ["apply","create","update"]
+          enum: ["apply","create","update","delete"]
         data:
           type: array
           description: An array of Galasa Resources that should contain one or more entrys matching any of the schemas outlined

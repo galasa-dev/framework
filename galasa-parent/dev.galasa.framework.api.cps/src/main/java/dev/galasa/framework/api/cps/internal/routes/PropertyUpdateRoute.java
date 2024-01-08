@@ -8,8 +8,10 @@ package dev.galasa.framework.api.cps.internal.routes;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -63,8 +65,11 @@ public class PropertyUpdateRoute extends CPSRoute {
         String namespaceName = getNamespaceFromURL(pathInfo);
         String name = getPropertyNameFromURL(pathInfo);
         checkRequestHasContent(request);
-        checkNameMatchesRequest(name, request);
-        CPSProperty property = applyPropertyToStore(request, namespaceName, true);
+        ServletInputStream body = request.getInputStream();
+        String jsonString = new String (body.readAllBytes(),StandardCharsets.UTF_8);
+        body.close();
+        checkNameMatchesRequest(name, jsonString);
+        CPSProperty property = applyPropertyToStore(jsonString, namespaceName, true);
         String responseBody = String.format("Successfully updated property %s in %s",property.getName(), property.getNamespace());
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK); 
     }

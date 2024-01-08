@@ -12,8 +12,13 @@ import com.google.gson.GsonBuilder;
 
 public class GalasaGsonBuilder {
 
+    /**
+     * Creates a Gson builder to transform objects to JSON for use on the API endpoints.
+     * HTMLEscaping is disabled as when it is enabled it will tranform special characters to their unicode character references
+     * @return GsonBuilder
+     */
     public static Gson build() {
-        GsonBuilder builder = new GsonBuilder();
+        GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
         builder.registerTypeAdapter(Instant.class, new GsonInstantTypeAdapater());
         return builder.setPrettyPrinting().create();
     }
