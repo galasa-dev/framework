@@ -37,17 +37,24 @@ public class AuthCallbackRoute extends BaseRoute {
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+
+        logger.info("AuthCallbackRoute: handleGetRequest() entered.");
+
         String authCode = queryParams.getSingleString("code", null);
         String state = queryParams.getSingleString("state", null);
 
         if (state != null && authCode != null) {
             // Make sure the state parameter is the same as the state that was previously stored in the session
+            logger.info("Retrieving previous session");
+
             HttpSession session = request.getSession();
             String storedState = (String) session.getAttribute("state");
             if (storedState != null && state.equals(storedState)) {
+                logger.info("State query parameter matches previously-generated state");
 
                 // Get the callback URL provided in the original /auth request, appending the
                 // authorization code as a query parameter
+                logger.info("Retrieving callback URL to client application from session");
                 String clientCallbackUrl = (String) session.getAttribute("callbackUrl");
                 String authCodeQuery = "code=" + authCode;
 
@@ -58,12 +65,15 @@ public class AuthCallbackRoute extends BaseRoute {
                     clientCallbackUrl += "?" + authCodeQuery;
                 }
 
+                logger.info("Callback URL is " + clientCallbackUrl);
+
                 // We don't need the session anymore, so invalidate it
                 session.invalidate();
 
                 // Redirect the user back to the callback URL provided in the original /auth request
-                response.sendRedirect(clientCallbackUrl);
-                return response;
+                response.addHeader("Location", clientCallbackUrl);
+                return getResponseBuilder().buildResponse(response, null, null,
+                        HttpServletResponse.SC_FOUND);
             }
         }
 

@@ -23,11 +23,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Base64.Decoder;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import java.util.Optional;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.logging.Log;
@@ -83,6 +82,10 @@ public class OidcProvider {
         } catch (IOException | InterruptedException | JsonSyntaxException e) {
             logger.error("Unable to obtain issuer's OpenID configuration, using defaults");
         }
+
+        logger.info("Authorization endpoint is " + this.authorizationEndpoint);
+        logger.info("Token endpoint is " + this.tokenEndpoint);
+        logger.info("JWKs endpoint is " + this.jwksUri);
     }
 
     public String getIssuer() {
@@ -108,18 +111,15 @@ public class OidcProvider {
      */
     public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpSession session) throws IOException, InterruptedException {
         HttpResponse<String> authResponse = sendAuthorizationGet(clientId, callbackUrl.toString(), session);
+        String redirectUrl = getLocationHeaderFromResponse(authResponse);
+        logger.info("Redirect URL received from auth request - " + redirectUrl);
 
-        // Construct the auth URL from the "Location" header in the response from the
-        // OpenID Connect provider
-        URI authUrl = URI.create(issuerUrl);
-        String location = getLocationHeaderFromResponse(authResponse);
-
-        if (location != null) {
-            authUrl = authUrl.resolve(location);
-            authResponse = sendGetRequest(authUrl);
-            return getLocationHeaderFromResponse(authResponse);
+        // In case the "Location" header contains a relative URI, get an absolute URI from the response
+        if (redirectUrl != null && redirectUrl.startsWith("/")) {
+            redirectUrl = authResponse.uri().toString();
+            logger.info("Converting redirect URL to absolute URL - " + redirectUrl);
         }
-        return null;
+        return redirectUrl;
     }
 
     /**
@@ -138,6 +138,7 @@ public class OidcProvider {
         session.setAttribute("state", state);
 
         String authUrl = authorizationEndpoint + queryParams;
+        logger.info("sendAuthorizationGet: Request URL is " + authUrl);
         return sendGetRequest(URI.create(authUrl));
     }
 

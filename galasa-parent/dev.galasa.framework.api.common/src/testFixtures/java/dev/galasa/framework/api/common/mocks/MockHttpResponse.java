@@ -22,6 +22,7 @@ public class MockHttpResponse<T> implements HttpResponse<T> {
     private T body;
     private HttpHeaders headers;
     private int statusCode;
+    private URI uri;
 
     public MockHttpResponse(T body) {
         this.body = body;
@@ -35,6 +36,10 @@ public class MockHttpResponse<T> implements HttpResponse<T> {
     public MockHttpResponse(T body, HttpHeaders headers) {
         this.body = body;
         this.headers = headers;
+    }
+
+    public MockHttpResponse(URI uri) {
+        this.uri = uri;
     }
 
     @Override
@@ -53,6 +58,11 @@ public class MockHttpResponse<T> implements HttpResponse<T> {
     }
 
     @Override
+    public URI uri() {
+        return this.uri;
+    }
+
+    @Override
     public HttpRequest request() {
         throw new UnsupportedOperationException("Unimplemented method 'request'");
     }
@@ -65,11 +75,6 @@ public class MockHttpResponse<T> implements HttpResponse<T> {
     @Override
     public Optional<SSLSession> sslSession() {
         throw new UnsupportedOperationException("Unimplemented method 'sslSession'");
-    }
-
-    @Override
-    public URI uri() {
-        throw new UnsupportedOperationException("Unimplemented method 'uri'");
     }
 
     @Override

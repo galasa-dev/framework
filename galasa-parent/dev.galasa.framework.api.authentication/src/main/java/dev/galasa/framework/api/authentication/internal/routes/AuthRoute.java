@@ -41,6 +41,7 @@ public class AuthRoute extends BaseRoute {
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
+        logger.info("AuthRoute: handleGetRequest() entered.");
         HttpSession session = request.getSession(true);
         try {
             String clientId = queryParams.getSingleString("clientId", null);
@@ -57,9 +58,13 @@ public class AuthRoute extends BaseRoute {
 
             String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, getApiCallbackUrl(request), session);
             if (authUrl != null) {
+                logger.info("Redirect URL to upstream connector received: " + authUrl);
+
                 response.addHeader("Location", authUrl);
                 return getResponseBuilder().buildResponse(response, null, null,
                         HttpServletResponse.SC_FOUND);
+            } else {
+                logger.info("Unable to get URL to redirect to upstream connector.");
             }
 
         } catch (InterruptedException e) {
@@ -79,6 +84,8 @@ public class AuthRoute extends BaseRoute {
     public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
+        logger.info("AuthRoute: handlePostRequest() entered.");
+
         // Check that the request body contains the required payload
         TokenPayload requestBodyJson = getRequestBodyAsJson(request);
         if (requestBodyJson == null || !requestBodyJson.isValid()) {
@@ -93,13 +100,17 @@ public class AuthRoute extends BaseRoute {
             // Return the JWT and refresh token as the servlet's response
             String idTokenKey = "id_token";
             String refreshTokenKey = "refresh_token";
-            if (tokenResponseBodyJson.has(idTokenKey)) {
+            if (tokenResponseBodyJson.has(idTokenKey) && tokenResponseBodyJson.has(refreshTokenKey)) {
+                logger.info("Bearer and refresh tokens successfully received from issuer.");
+
                 JsonObject responseJson = new JsonObject();
                 responseJson.add("jwt", tokenResponseBodyJson.get(idTokenKey));
                 responseJson.add(refreshTokenKey, tokenResponseBodyJson.get(refreshTokenKey));
 
                 return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(responseJson),
                         HttpServletResponse.SC_OK);
+            } else {
+                logger.info("Unable to get new bearer and refresh tokens from issuer.");
             }
 
         } catch (InterruptedException e) {

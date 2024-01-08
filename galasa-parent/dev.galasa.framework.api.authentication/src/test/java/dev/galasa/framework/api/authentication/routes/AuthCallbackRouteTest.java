@@ -144,7 +144,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback", mockSession);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-        ServletOutputStream outStream = servletResponse.getOutputStream();
 
         // When...
         servlet.init();
@@ -153,7 +152,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         // Then...
         String expectedRedirectUrl = expectedCallbackUrl + "?code=" + expectedCode;
         assertThat(servletResponse.getStatus()).isEqualTo(302);
-        assertThat(outStream.toString()).isEqualTo(expectedRedirectUrl);
+        assertThat(servletResponse.getHeader("Location")).isEqualTo(expectedRedirectUrl);
     }
 
     @Test
@@ -181,7 +180,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback", mockSession);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-        ServletOutputStream outStream = servletResponse.getOutputStream();
 
         // When...
         servlet.init();
@@ -190,7 +188,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         // Then...
         String expectedRedirectUrl = expectedCallbackUrl + "&code=" + expectedCode;
         assertThat(servletResponse.getStatus()).isEqualTo(302);
-        assertThat(outStream.toString()).isEqualTo(expectedRedirectUrl);
+        assertThat(servletResponse.getHeader("Location")).isEqualTo(expectedRedirectUrl);
     }
 
     @Test
