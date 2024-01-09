@@ -805,21 +805,21 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
-		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"GAL5016E: Error occured when trying to access namespace 'namespace1'. The namespace provided is invalid."
+			5000,
+			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
 		);
     }
 
     @Test
     public void TestPropertyRoutePOSTBadNamespaceReturnsError() throws Exception{
 		// Given...
-		String namespace = "framework";
+		String namespace = "error";
         String propertyName = "property.6";
         String value = "value6";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
@@ -835,14 +835,14 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
-		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"GAL5016E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
+			5000,
+			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
 		);
     }
 
