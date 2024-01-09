@@ -134,9 +134,12 @@ public abstract class CPSRoute extends BaseRoute {
 
     protected CPSProperty applyPropertyToStore (String jsonString, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
         GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(jsonString);
-        checkNamespaceExists(namespaceName);
         CPSFacade cps = new CPSFacade(framework);
         CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
+        if (namespace.isHidden()) {
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
         CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
         if(!checkPropertyNamespaceMatchesURLNamespace(property, namespaceName)){
             ServletError error = new ServletError(GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR,property.getNamespace(), namespaceName);  
