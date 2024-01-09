@@ -24,9 +24,19 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class AuthCallbackRoute extends BaseRoute {
 
-    public AuthCallbackRoute(ResponseBuilder responseBuilder, String path) {
+    private static String externalApiServerUrl;
+
+    public AuthCallbackRoute(ResponseBuilder responseBuilder, String path, String externalApiServerUrl) {
         // Regex to match /auth/callback only
         super(responseBuilder, "\\/callback");
+        AuthCallbackRoute.externalApiServerUrl = externalApiServerUrl;
+    }
+
+    /**
+     * Returns the API server's external URL to this "/auth/callback" route.
+     */
+    public static String getExternalAuthCallbackUrl() {
+        return externalApiServerUrl + "/auth/callback";
     }
 
     /**

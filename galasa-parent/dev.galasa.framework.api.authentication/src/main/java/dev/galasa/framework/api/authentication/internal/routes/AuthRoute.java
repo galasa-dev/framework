@@ -26,13 +26,11 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class AuthRoute extends BaseRoute {
 
     private OidcProvider oidcProvider;
-    private String externalApiServerUrl;
 
-    public AuthRoute(ResponseBuilder responseBuilder, String path, OidcProvider oidcProvider, String externalApiServerUrl) {
+    public AuthRoute(ResponseBuilder responseBuilder, String path, OidcProvider oidcProvider) {
         // Regex to match endpoint /auth and /auth/
         super(responseBuilder, "\\/?");
         this.oidcProvider = oidcProvider;
-        this.externalApiServerUrl = externalApiServerUrl;
     }
 
     /**
@@ -58,7 +56,7 @@ public class AuthRoute extends BaseRoute {
             // Store the callback URL in the session to redirect to at the end of the authentication process
             session.setAttribute("callbackUrl", clientCallbackUrl);
 
-            String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, getAuthCallbackUrl(), session);
+            String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, AuthCallbackRoute.getExternalAuthCallbackUrl(), session);
             if (authUrl != null) {
                 logger.info("Redirect URL to upstream connector received: " + authUrl);
 
@@ -139,10 +137,6 @@ public class AuthRoute extends BaseRoute {
         return gson.fromJson(sbRequestBody.toString(), TokenPayload.class);
     }
 
-    private String getAuthCallbackUrl() {
-        return externalApiServerUrl + "/auth/callback";
-    }
-
     /**
      * Sends a POST request to the JWT issuer's /token endpoint and returns the
      * response's body as a JSON object.
@@ -161,7 +155,7 @@ public class AuthRoute extends BaseRoute {
         if (requestBodyJson.getRefreshToken() != null) {
             tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getRefreshToken());
         } else {
-            tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getCode(), getAuthCallbackUrl());
+            tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getCode(), AuthCallbackRoute.getExternalAuthCallbackUrl());
         }
         return gson.fromJson(tokenResponse.body(), JsonObject.class);
     }
