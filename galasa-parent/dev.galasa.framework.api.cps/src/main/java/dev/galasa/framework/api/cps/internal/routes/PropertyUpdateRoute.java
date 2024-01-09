@@ -69,6 +69,7 @@ public class PropertyUpdateRoute extends CPSRoute {
         String jsonString = new String (body.readAllBytes(),StandardCharsets.UTF_8);
         body.close();
         checkNameMatchesRequest(name, jsonString);
+        checkNamespaceExists(namespaceName);
         CPSProperty property = applyPropertyToStore(jsonString, namespaceName, true);
         String responseBody = String.format("Successfully updated property %s in %s",property.getName(), property.getNamespace());
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK); 

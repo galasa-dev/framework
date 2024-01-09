@@ -46,6 +46,26 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
+    public void TestProcessGalasaPropertyPropertyWithNewNamespaceReturnsOK() throws Exception{
+        //Given...
+        String namespace = "newnamespace";
+        String propertyname = "property.name";
+        String value = "myvalue";
+        setServlet("framework");
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
+        JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        //When...
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+
+        //Then...
+        checkPropertyInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
     public void TestProcessGalasaPropertyInvalidPropertyNameReturnsError() throws Exception{
         //Given...
         String namespace = "framework";

@@ -50,7 +50,7 @@ public class CPSFacade {
         getNamespaces();
         CPSNamespace namespace = bakedInNamespaceMap.get(name);
         if (namespace == null) {
-            new CPSNamespace(name, Visibility.NORMAL ,this.framework);       
+            namespace = new CPSNamespace(name, Visibility.NORMAL ,this.framework);       
         }
         return namespace;
     }

@@ -404,14 +404,14 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         servlet.doPut(req, resp);
 
         // Then...
-        assertThat(resp.getStatus()).isEqualTo(404);
+        assertThat(resp.getStatus()).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"E: Error occured when trying to access namespace 'framew0rk'. The namespace provided is invalid."
+			5028,
+			"GAL5028E: The GalasaProperty namespace 'framework' must match the url namespace 'framew0rk'."
 		); 
     }
     
