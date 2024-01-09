@@ -71,6 +71,56 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
+    public void TestProcessGalasaPropertyPropertyNameWithTrailingDotReturnsError() throws Exception{
+        //Given...
+        String namespace = "framework";
+        String propertyname = "property.name.";
+        String value = "myvalue";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
+        JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        //When...
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "Invalid property name. Property name 'property.name.' can not end with a '.' (dot) seperator.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
+    public void TestProcessGalasaPropertyPropertyNameWithLeadingDotReturnsError() throws Exception{
+        //Given...
+        String namespace = "framework";
+        String propertyname = ".property.name";
+        String value = "myvalue";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
+        JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        //When...
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "Invalid property name. '.property.name' must not start with the '.' character. Allowable first characters are 'a'-'z' or 'A'-'Z'.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
     public void TestProcessGalasaPropertyBadPropertyNameReturnsError() throws Exception{
         //Given...
         String namespace = "framework";
@@ -123,14 +173,14 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessGalasaPropertyMissingPropertyNamespaceReturnsError() throws Exception{
         //Given...
-        String namespace = "framework";
+        String namespace = "";
         String propertyname = "property.name";
         String value = "myvalue";
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         IFramework framework = servlet.getFramework();
         ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
-        String jsonString = generatePropertyJSON("", propertyname, value, "galasa-dev/v1alpha1");
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
@@ -142,6 +192,81 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.size()).isEqualTo(1);
         assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
             "Invalid namespace. Namespace is empty.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
+    public void TestProcessGalasaPropertyBadNamespaceReturnsError() throws Exception{
+        //Given...
+        String namespace = "namespace@";
+        String propertyname = "property.name";
+        String value = "myvalue";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
+        JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        //When...
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "Invalid namespace name. 'namespace@' must not contain the '@' character. Allowable characters after the first character are 'a'-'z', 'A'-'Z', '0'-'9'.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
+    public void TestProcessGalasaPropertyNamespaceWithTrailingDotReturnsError() throws Exception{
+        //Given...
+        String namespace = "namespace.";
+        String propertyname = "property.name";
+        String value = "myvalue";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
+        JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        //When...
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "Invalid namespace name. 'namespace.' must not contain the '.' character. Allowable characters after the first character are 'a'-'z', 'A'-'Z', '0'-'9'.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
+    public void TestProcessGalasaPropertyNamespaceWithLeadingDotReturnsError() throws Exception{
+        //Given...
+        String namespace = ".namespace";
+        String propertyname = "property.name";
+        String value = "myvalue";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = generatePropertyJSON(namespace, propertyname, value, "galasa-dev/v1alpha1");
+        JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
+
+        //When...
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors).isNotNull();
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+            "Invalid namespace name. '.namespace' must not start with the '.' character. Allowable first characters are 'a'-'z' or 'A'-'Z'.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
