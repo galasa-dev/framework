@@ -8,6 +8,7 @@ package dev.galasa.framework.api.resources.routes;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +25,84 @@ import dev.galasa.framework.api.resources.mocks.MockResourcesServlet;
 import dev.galasa.framework.spi.IFramework;
 
 public class TestResourcesRoute extends ResourcesServletTest{
+
+    @Test
+    public void TestPathRegexExpectedPathReturnsTrue(){
+        //Given...
+        String expectedPath = ResourcesRoute.path;
+        String inputPath = "/";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+    @Test
+    public void TestPathRegexEmptyPathReturnsFalse(){
+        //Given...
+        String expectedPath = ResourcesRoute.path;
+        String inputPath = "";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexRandomPathReturnsFalse(){
+        //Given...
+        String expectedPath = ResourcesRoute.path;
+        String inputPath = "/randomString";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+        //Given...
+        String expectedPath = ResourcesRoute.path;
+        String inputPath = "/?";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexNumberPathReturnsFalse(){
+        //Given...
+        String expectedPath = ResourcesRoute.path;
+        String inputPath = "/3";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+        //Given...
+        String expectedPath = ResourcesRoute.path;
+        String inputPath = "//////";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
    
     @Test
     public void TestProcessGalasaPropertyValidPropertyReturnsOK() throws Exception{
@@ -965,7 +1044,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         checkPropertyInNamespace(namespace, propertyname, value);
         checkPropertyInNamespace(namespace, propertynametwo, valuetwo);
     }
-
 
     @Test
     public void TestHandlePOSTwithDeleteSingleExistingPropertyReturnsSuccess() throws Exception {

@@ -45,6 +45,7 @@ public class ResourcesRoute  extends BaseRoute{
 
     static final ResourceNameValidator nameValidator = new ResourceNameValidator();
 
+    protected static final String path = "\\/";
     private static final Set<String> validActions = Collections.unmodifiableSet(Set.of("apply","create","update", "delete"));
     private static final Set<String> updateActions = Collections.unmodifiableSet(Set.of("apply","update"));
     
@@ -53,7 +54,7 @@ public class ResourcesRoute  extends BaseRoute{
     private IFramework framework;
 
     public ResourcesRoute(ResponseBuilder responseBuilder,  IFramework framework ) {
-        super(responseBuilder, "\\/?");
+        super(responseBuilder, path);
          this.framework = framework;
     }
 
