@@ -62,7 +62,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
-            resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        resourcesRoute.processGalasaProperty(propertyJson, "apply");
 
         //Then...
         checkPropertyInNamespace(namespace,propertyname,value);
