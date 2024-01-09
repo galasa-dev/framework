@@ -5,12 +5,17 @@
  */
 package dev.galasa.framework.api.authentication.internal;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * A simple Data Transfer Object to represent the details of a Dex client
  */
 public class DexClient {
 
+    @SerializedName("client_id")
     private String clientId;
+
+    @SerializedName("client_secret")
     private String clientSecret;
 
     public DexClient(String clientId, String clientSecret) {

@@ -1735,10 +1735,10 @@ components:
           description: The authorization code to be exchanged for a JWT, mutually exclusive with "refresh_token".
     DexClient:
       properties:
-        clientId:
+        client_id:
           type: string
           description: An alphanumeric string representing the ID of the Dex client.
-        clientSecret:
+        client_secret:
           type: string
           description: An alphanumeric string representing the secret of the Dex client.
     TokenResponse:

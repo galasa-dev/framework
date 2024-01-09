@@ -98,12 +98,12 @@ public class AuthClientsRouteTest extends BaseServletTest {
         // Then...
         // Expecting this json:
         // {
-        //   "clientId": "my-client-id",
-        //   "clientSecret": "my-client-secret",
+        //   "client_id": "my-client-id",
+        //   "client_secret": "my-client-secret",
         // }
         JsonObject expectedJson = new JsonObject();
-        expectedJson.addProperty("clientId", clientId);
-        expectedJson.addProperty("clientSecret", clientSecret);
+        expectedJson.addProperty("client_id", clientId);
+        expectedJson.addProperty("client_secret", clientSecret);
 
         assertThat(servletResponse.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
