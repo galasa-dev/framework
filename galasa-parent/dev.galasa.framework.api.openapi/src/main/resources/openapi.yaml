@@ -64,6 +64,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required query parameters are missing
         '500':
           description: Internal Server Error
           content:
@@ -101,12 +107,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required body properties are missing
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
   /auth/callback:
     get:
       operationId: getAuthenticateCallback
@@ -141,6 +159,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/auth/callback'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required query parameters are missing
   /auth/clients:
     post:
       operationId: postClients
@@ -149,24 +173,25 @@ paths:
       - Authentication API
       security: []
       responses:
-        '200':
+        '201':
           description: Returns a JSON Object containing the created client's ID and secret
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DexClient'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+
 ##################################################################################
 # CPS API
 ##################################################################################
