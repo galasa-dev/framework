@@ -120,6 +120,49 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     }
 
     @Test
+    public void testAuthCallbackGetRequestWithBadCallbackUrlReturnsError() throws Exception {
+        // Given...
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        MockEnvironment mockEnv = new MockEnvironment();
+
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        servlet.setOidcProvider(mockOidcProvider);
+
+        String expectedCode = "my-auth-code";
+        String expectedState = "my-state";
+        String expectedCallbackUrl = null;
+
+        Map<String, String[]> queryParams = new HashMap<>();
+        queryParams.put("code", new String[] { expectedCode });
+        queryParams.put("state", new String[] { expectedState });
+
+        MockHttpSession mockSession = new MockHttpSession();
+        mockSession.setAttribute("state", expectedState);
+        mockSession.setAttribute("callbackUrl", expectedCallbackUrl);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback", mockSession);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5400,
+        // "error_message" : "GAL5400E: Error occured when trying to execute request
+        // '/auth/callback'. Please check your request parameters or report the problem to your
+        // Galasa Ecosystem owner."
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occured when trying to execute request");
+    }
+
+    @Test
     public void testAuthCallbackGetRequestWithValidStateAndCodeReturnsCode() throws Exception {
         // Given...
         DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);

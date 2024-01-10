@@ -82,10 +82,9 @@ public class OidcProvider {
         } catch (IOException | InterruptedException | JsonSyntaxException e) {
             logger.error("Unable to obtain issuer's OpenID configuration, using defaults");
         }
-
-        logger.info("Authorization endpoint is " + this.authorizationEndpoint);
-        logger.info("Token endpoint is " + this.tokenEndpoint);
-        logger.info("JWKs endpoint is " + this.jwksUri);
+        logger.info("Authorization endpoint is: " + this.authorizationEndpoint);
+        logger.info("Token endpoint is: " + this.tokenEndpoint);
+        logger.info("JWKs endpoint is: " + this.jwksUri);
     }
 
     public String getIssuer() {
@@ -93,8 +92,8 @@ public class OidcProvider {
     }
 
     /**
-     * Sends a GET request to an OpenID Connect provider's
-     * /.well-known/openid-configuration endpoint
+     * Sends a GET request to an OpenID Connect provider's /.well-known/openid-configuration
+     * endpoint and return the JSON response.
      */
     public JsonObject getOpenIdConfiguration() throws IOException, InterruptedException {
         String openIdConfigurationUrl = issuerUrl + "/.well-known/openid-configuration";
@@ -112,12 +111,10 @@ public class OidcProvider {
     public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpSession session) throws IOException, InterruptedException {
         HttpResponse<String> authResponse = sendAuthorizationGet(clientId, callbackUrl.toString(), session);
         String redirectUrl = getLocationHeaderFromResponse(authResponse);
-        logger.info("Redirect URL received from auth request - " + redirectUrl);
 
         // In case the "Location" header contains a relative URI, get an absolute URI from the response
         if (redirectUrl != null && redirectUrl.startsWith("/")) {
             redirectUrl = authResponse.uri().toString();
-            logger.info("Converting redirect URL to absolute URL - " + redirectUrl);
         }
         return redirectUrl;
     }
@@ -138,7 +135,6 @@ public class OidcProvider {
         session.setAttribute("state", state);
 
         String authUrl = authorizationEndpoint + queryParams;
-        logger.info("sendAuthorizationGet: Request URL is " + authUrl);
         return sendGetRequest(URI.create(authUrl));
     }
 

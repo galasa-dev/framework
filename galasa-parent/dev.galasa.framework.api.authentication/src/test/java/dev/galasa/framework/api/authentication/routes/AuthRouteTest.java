@@ -418,7 +418,7 @@ public class AuthRouteTest extends BaseServletTest {
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
         servlet.setOidcProvider(mockOidcProvider);
 
-        Map<String, String[]> queryParams = Map.of("clientId", new String[] { "my-client-id" });
+        Map<String, String[]> queryParams = Map.of("client_id", new String[] { "my-client-id" });
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -449,6 +449,39 @@ public class AuthRouteTest extends BaseServletTest {
         servlet.setOidcProvider(mockOidcProvider);
 
         Map<String, String[]> queryParams = new HashMap<>();
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5400,
+        // "error_message" : "GAL5400E: Error occured when trying to execute request
+        // "/auth". Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occured when trying to execute request");
+    }
+
+    @Test
+    public void testAuthGetRequestWithBadCallbackUrlReturnsBadRequest() throws Exception {
+        // Given...
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+
+        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
+        MockEnvironment mockEnv = new MockEnvironment();
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        servlet.setOidcProvider(mockOidcProvider);
+
+        Map<String, String[]> queryParams = Map.of(
+            "client_id", new String[] { "my-client-id" },
+            "callback_url", new String[] { "!!!not-a-valid-url?!" }
+        );
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();

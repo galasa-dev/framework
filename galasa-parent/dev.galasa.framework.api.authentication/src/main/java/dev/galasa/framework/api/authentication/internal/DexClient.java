@@ -8,7 +8,7 @@ package dev.galasa.framework.api.authentication.internal;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * A simple Data Transfer Object to represent the details of a Dex client
+ * A pojo to represent the details of a Dex client
  */
 public class DexClient {
 

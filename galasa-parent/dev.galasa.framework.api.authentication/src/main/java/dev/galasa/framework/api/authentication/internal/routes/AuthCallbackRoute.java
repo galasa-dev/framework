@@ -54,40 +54,51 @@ public class AuthCallbackRoute extends BaseRoute {
         String state = queryParams.getSingleString("state", null);
 
         if (state != null && authCode != null) {
-            // Make sure the state parameter is the same as the state that was previously stored in the session
-            logger.info("Retrieving previous session");
 
+            // Make sure the state parameter is the same as the state that was previously stored in the session
             HttpSession session = request.getSession();
-            String storedState = (String) session.getAttribute("state");
-            if (storedState != null && state.equals(storedState)) {
+            if (isStateParameterValid(session, state)) {
                 logger.info("State query parameter matches previously-generated state");
 
-                // Get the callback URL provided in the original /auth request, appending the
-                // authorization code as a query parameter
-                logger.info("Retrieving callback URL to client application from session");
                 String clientCallbackUrl = (String) session.getAttribute("callbackUrl");
-                String authCodeQuery = "code=" + authCode;
+                if (clientCallbackUrl != null) {
 
-                // If the callback URL already has query parameters, append to them
-                if (URI.create(clientCallbackUrl).getQuery() != null) {
-                    clientCallbackUrl += "&" + authCodeQuery;
-                } else {
-                    clientCallbackUrl += "?" + authCodeQuery;
+                    // If the callback URL already has query parameters, append to them
+                    String authCodeQuery = "code=" + authCode;
+                    clientCallbackUrl = appendQueryParamToUrl(clientCallbackUrl, authCodeQuery);
+
+                    // We don't need the session anymore, so invalidate it
+                    session.invalidate();
+
+                    // Redirect the user back to the callback URL provided in the original /auth request
+                    response.addHeader("Location", clientCallbackUrl);
+                    return getResponseBuilder().buildResponse(response, null, null,
+                            HttpServletResponse.SC_FOUND);
                 }
-
-                logger.info("Callback URL is " + clientCallbackUrl);
-
-                // We don't need the session anymore, so invalidate it
-                session.invalidate();
-
-                // Redirect the user back to the callback URL provided in the original /auth request
-                response.addHeader("Location", clientCallbackUrl);
-                return getResponseBuilder().buildResponse(response, null, null,
-                        HttpServletResponse.SC_FOUND);
             }
         }
-
         ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+    }
+
+    /**
+     * Checks whether the provided state parameter matches the state parameter that was stored
+     * when initiating an authentication flow.
+     */
+    private boolean isStateParameterValid(HttpSession session, String state) {
+        String storedState = (String) session.getAttribute("state");
+        return storedState != null && state.equals(storedState);
+    }
+
+    /**
+     * Appends a given query parameter to a given URL and returns the resulting URL.
+     */
+    private String appendQueryParamToUrl(String url, String queryParam) {
+        if (URI.create(url).getQuery() != null) {
+            url += "&" + queryParam;
+        } else {
+            url += "?" + queryParam;
+        }
+        return url;
     }
 }

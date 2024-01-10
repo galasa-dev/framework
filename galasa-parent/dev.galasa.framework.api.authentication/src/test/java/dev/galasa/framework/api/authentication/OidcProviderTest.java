@@ -12,6 +12,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
@@ -310,9 +311,10 @@ public class OidcProviderTest {
     @Test
     public void testGetConnectorRedirectUrlWithLocationHeaderReturnsUrl() throws Exception {
         // Given...
-        Map<String, List<String>> headers = Map.of("location", List.of("http://my.connector/auth"));
+        String mockRedirectUrl = "http://my.connector/auth";
+        Map<String, List<String>> headers = Map.of("location", List.of(mockRedirectUrl));
         BiPredicate<String, String> defaultFilter = (a, b) -> true;
-        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("http://my.issuer/auth", HttpHeaders.of(headers, defaultFilter));
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("", HttpHeaders.of(headers, defaultFilter));
 
         HttpClient mockHttpClient = mock(HttpClient.class);
         when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
@@ -329,5 +331,32 @@ public class OidcProviderTest {
 
         // Then...
         assertThat(redirectUrl).isNotNull();
+        assertThat(redirectUrl).isEqualTo(mockRedirectUrl);
+    }
+
+    @Test
+    public void testGetConnectorRedirectUrlWithRelativeLocationHeaderReturnsAbsoluteUrl() throws Exception {
+        // Given...
+        String mockRedirectUrl = "http://my.issuer/auth";
+        Map<String, List<String>> headers = Map.of("location", List.of("/auth"));
+        BiPredicate<String, String> defaultFilter = (a, b) -> true;
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(URI.create(mockRedirectUrl), HttpHeaders.of(headers, defaultFilter));
+
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+
+        MockHttpSession mockSession = new MockHttpSession();
+
+        // When...
+        String redirectUrl = oidcProvider.getConnectorRedirectUrl("my-client-id", "http://my.server/callback", mockSession);
+
+        // Then...
+        assertThat(redirectUrl).isNotNull();
+        assertThat(redirectUrl).isEqualTo(mockRedirectUrl);
     }
 }

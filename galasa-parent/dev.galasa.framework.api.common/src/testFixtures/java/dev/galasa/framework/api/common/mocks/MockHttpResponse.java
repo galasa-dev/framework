@@ -38,8 +38,9 @@ public class MockHttpResponse<T> implements HttpResponse<T> {
         this.headers = headers;
     }
 
-    public MockHttpResponse(URI uri) {
+    public MockHttpResponse(URI uri, HttpHeaders headers) {
         this.uri = uri;
+        this.headers = headers;
     }
 
     @Override

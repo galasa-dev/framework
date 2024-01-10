@@ -2,6 +2,9 @@ package dev.galasa.framework.api.authentication.internal.routes;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.http.HttpResponse;
 import java.util.Base64;
 
@@ -48,7 +51,7 @@ public class AuthRoute extends BaseRoute {
             String clientCallbackUrl = queryParams.getSingleString("callback_url", null);
 
             // Make sure the required query parameters exist
-            if (clientId == null || clientCallbackUrl == null) {
+            if (clientId == null || clientCallbackUrl == null || !isUrlValid(clientCallbackUrl)) {
                 ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
@@ -158,5 +161,17 @@ public class AuthRoute extends BaseRoute {
             tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getCode(), AuthCallbackRoute.getExternalAuthCallbackUrl());
         }
         return gson.fromJson(tokenResponse.body(), JsonObject.class);
+    }
+
+    /**
+     * Checks if a given URL is a valid URL.
+     */
+    private boolean isUrlValid(String url) {
+        try {
+            new URL(url).toURI();
+            return true;
+        } catch (URISyntaxException | MalformedURLException e) {
+            return false;
+        }
     }
 }
