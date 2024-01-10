@@ -8,6 +8,7 @@ package dev.galasa.framework.api.runs.routes;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,126 @@ public class TestGroupRunsRoute extends RunsServletTest {
     private String jwt ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0UmVxdWVzdG9yIiwibmFtZSI6IkphY2sgU2tlbGxpbmd0b24iLCJpYXQiOjE1MTYyMzkwMjJ9.9guecP5KTZwHsa3mZyYr23j2wdOaeTqZUl84h4oRSd0";
     private Map<String, String> headerMap = Map.of("Authorization", "Bearer "+jwt,"Galasa-Application","galasactl");
 
+    /*
+     * Regex Path
+     */
+
+    @Test
+    public void TestPathRegexExpectedPathReturnsTrue(){
+        //Given...
+        String expectedPath = GroupRunsRoute.path;
+        String inputPath = "/correct-ID_1234";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+    @Test
+    public void TestPathRegexLowerCasePathReturnsTrue(){
+        //Given...
+        String expectedPath = GroupRunsRoute.path;
+        String inputPath = "/thisisavalidpath";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+    @Test
+    public void TestPathRegexUpperCasePathReturnsTrue(){
+        //Given...
+        String expectedPath = GroupRunsRoute.path;
+        String inputPath = "/ALLCAPITALS";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+    @Test
+    public void TestPathRegexNumberPathReturnsTrue(){
+        //Given...
+        String expectedPath = GroupRunsRoute.path;
+        String inputPath = "/1234";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+    @Test
+    public void TestPathRegexUnexpectedPathReturnsTrue(){
+        //Given...
+        String expectedPath = GroupRunsRoute.path;
+        String inputPath = "/incorrect-?ID_1234";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexEmptyPathReturnsFalse(){
+        //Given...
+        String expectedPath = GroupRunsRoute.path;
+        String inputPath = "";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexDotPathReturnsFalse(){
+        //Given...
+        String expectedPath = GroupRunsRoute.path;
+        String inputPath = "/random.String";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+        //Given...
+        String expectedPath = GroupRunsRoute.path;
+        String inputPath = "/?";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+        //Given...
+        String expectedPath = GroupRunsRoute.path;
+        String inputPath = "//////";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
 
     /*
      * GET Requests
@@ -194,7 +315,6 @@ public class TestGroupRunsRoute extends RunsServletTest {
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
 
-
     @Test
     public void TestGetRunsWithUUIDGroupNameMultipleWithFinishedRunReturnsCompleteFalse() throws Exception {
         // Given...
@@ -224,6 +344,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         assertThat(resp.getStatus()).isEqualTo(200);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
+
     /*
      * POST requests
      */

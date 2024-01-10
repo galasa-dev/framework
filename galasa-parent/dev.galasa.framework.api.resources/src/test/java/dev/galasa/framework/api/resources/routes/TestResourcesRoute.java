@@ -26,6 +26,10 @@ import dev.galasa.framework.spi.IFramework;
 
 public class TestResourcesRoute extends ResourcesServletTest{
 
+    /*
+     * Regex Path
+     */
+
     @Test
     public void TestPathRegexExpectedPathReturnsTrue(){
         //Given...
@@ -103,6 +107,10 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(matches).isFalse();
     }
+
+    /*
+     * Internal Functions
+     */
    
     @Test
     public void TestProcessGalasaPropertyValidPropertyReturnsOK() throws Exception{
@@ -703,7 +711,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.get(1)).contains("GAL5017E: Error occured when trying to access property 'property.name.2'. The property name provided is invalid.");
     }
 
-    @Test
+    /*
+     * POST Requests
+     */
+
+     @Test
     public void TestProcessRequestApplyActionReturnsOK() throws Exception{
         //Given...
         String namespace = "framework";
