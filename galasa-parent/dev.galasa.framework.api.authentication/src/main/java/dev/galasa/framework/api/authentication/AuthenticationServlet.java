@@ -44,13 +44,7 @@ public class AuthenticationServlet extends BaseServlet {
     public void init() throws ServletException {
         logger.info("Galasa Authentication API initialising");
 
-        if (oidcProvider == null) {
-            oidcProvider = new OidcProvider(env.getenv("GALASA_DEX_ISSUER"), HttpClient.newHttpClient());
-        }
-
-        if (dexGrpcClient == null) {
-            dexGrpcClient = new DexGrpcClient(env.getenv("GALASA_DEX_GRPC_HOSTNAME"));
-        }
+        initialiseDexClients();
 
         String externalApiServerUrl = env.getenv("GALASA_EXTERNAL_API_URL");
 
@@ -59,5 +53,14 @@ public class AuthenticationServlet extends BaseServlet {
         addRoute(new AuthCallbackRoute(getResponseBuilder(), getServletInfo(), externalApiServerUrl));
 
         logger.info("Galasa Authentication API initialised");
+    }
+
+    /**
+     * Initialises the OpenID Connect Provider and Dex gRPC client fields to allow
+     * the authentication servlet to communicate with Dex.
+     */
+    protected void initialiseDexClients() {
+        this.oidcProvider = new OidcProvider(env.getenv("GALASA_DEX_ISSUER"), HttpClient.newHttpClient());
+        this.dexGrpcClient = new DexGrpcClient(env.getenv("GALASA_DEX_GRPC_HOSTNAME"));
     }
 }

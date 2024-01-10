@@ -22,7 +22,8 @@ public class MockAuthenticationServlet extends AuthenticationServlet {
         this.oidcProvider = oidcProvider;
     }
 
-    public void setOidcProvider(OidcProvider oidcProvider) {
-        this.oidcProvider = oidcProvider;
+    @Override
+    protected void initialiseDexClients() {
+        // Do nothing...
     }
 }

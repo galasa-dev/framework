@@ -65,7 +65,7 @@ public class AuthCallbackRoute extends BaseRoute {
 
                     // If the callback URL already has query parameters, append to them
                     String authCodeQuery = "code=" + authCode;
-                    clientCallbackUrl = appendQueryParamToUrl(clientCallbackUrl, authCodeQuery);
+                    clientCallbackUrl = appendQueryParameterToUrl(clientCallbackUrl, authCodeQuery);
 
                     // We don't need the session anymore, so invalidate it
                     session.invalidate();
@@ -93,7 +93,7 @@ public class AuthCallbackRoute extends BaseRoute {
     /**
      * Appends a given query parameter to a given URL and returns the resulting URL.
      */
-    private String appendQueryParamToUrl(String url, String queryParam) {
+    private String appendQueryParameterToUrl(String url, String queryParam) {
         if (URI.create(url).getQuery() != null) {
             url += "&" + queryParam;
         } else {

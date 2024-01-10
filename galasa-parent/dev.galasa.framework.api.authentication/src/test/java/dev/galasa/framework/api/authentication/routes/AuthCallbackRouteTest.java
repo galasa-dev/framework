@@ -34,7 +34,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
-        servlet.setOidcProvider(mockOidcProvider);
 
         Map<String, String[]> queryParams = new HashMap<>();
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
@@ -65,7 +64,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
-        servlet.setOidcProvider(mockOidcProvider);
 
         Map<String, String[]> queryParams = Map.of("state", new String[] { "my-state" });
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
@@ -96,7 +94,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
-        servlet.setOidcProvider(mockOidcProvider);
 
         Map<String, String[]> queryParams = Map.of("code", new String[] { "my-auth-code" });
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
@@ -127,7 +124,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
-        servlet.setOidcProvider(mockOidcProvider);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -170,7 +166,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
-        servlet.setOidcProvider(mockOidcProvider);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -206,7 +201,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
-        servlet.setOidcProvider(mockOidcProvider);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -242,7 +236,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
-        servlet.setOidcProvider(mockOidcProvider);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -283,7 +276,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
-        servlet.setOidcProvider(mockOidcProvider);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -324,7 +316,6 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
-        servlet.setOidcProvider(mockOidcProvider);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
