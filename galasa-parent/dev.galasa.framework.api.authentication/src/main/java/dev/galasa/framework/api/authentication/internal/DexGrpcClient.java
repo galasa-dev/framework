@@ -24,8 +24,7 @@ public class DexGrpcClient {
     private DexBlockingStub blockingStub;
 
     public DexGrpcClient(String issuerHostname) {
-        ManagedChannel channel = ManagedChannelBuilder.forTarget(issuerHostname).usePlaintext().build();
-        this.blockingStub = DexGrpc.newBlockingStub(channel);
+        initialiseBlockingStub(issuerHostname);
     }
 
     /**
@@ -45,11 +44,32 @@ public class DexGrpcClient {
         CreateClientReq createClientReq = createClientReqBuilder.build();
 
         // Send the gRPC call to create the new Dex client
-        CreateClientResp clientResp = blockingStub.createClient(createClientReq);
+        CreateClientResp clientResp = sendCreateClientRequest(createClientReq);
 
         if (clientResp.hasClient()) {
             return clientResp.getClient();
         }
         return null;
+    }
+
+    /**
+     * Initialises a blocking stub to be used when sending requests to Dex's gRPC
+     * API.
+     *
+     * @param issuerHostname the hostname of the Dex issuer to send gRPC requests to
+     */
+    protected void initialiseBlockingStub(String issuerHostname) {
+        ManagedChannel channel = ManagedChannelBuilder.forTarget(issuerHostname).usePlaintext().build();
+        this.blockingStub = DexGrpc.newBlockingStub(channel);
+    }
+
+    /**
+     * Sends a request to create a new Dex client.
+     *
+     * @param createClientReq the request to send
+     * @return the response received from Dex's gRPC API
+     */
+    protected CreateClientResp sendCreateClientRequest(CreateClientReq createClientReq) {
+        return blockingStub.createClient(createClientReq);
     }
 }
