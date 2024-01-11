@@ -132,7 +132,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	public void TestPathRegexExpectedPathWithNumbersReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
-		String inputPath = "/request0rs";
+		String inputPath = "/t3stclass3s";
 
 		//When...
 		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
@@ -145,7 +145,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	public void TestPathRegexLowerCasePathReturnsTrue(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
-		String inputPath = "/requestors";
+		String inputPath = "/testclasses";
 
 		//When...
 		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
@@ -158,7 +158,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
-		String inputPath = "/Requestors";
+		String inputPath = "/Testclasses";
 
 		//When...
 		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
@@ -171,7 +171,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	public void TestPathRegexUpperCasePathReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
-		String inputPath = "/REQUESTORS";
+		String inputPath = "/TESTCLASSES";
 
 		//When...
 		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
@@ -180,96 +180,96 @@ public class TestTestClassesRoute extends RasServletTest{
 		assertThat(matches).isFalse();
 	}
  
-	 @Test
-	 public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
-		 //Given...
-		 String expectedPath = TestClassesRoute.path;
-		 String inputPath = "/0rewustors";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 }
- 
-	 @Test
-	 public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
-		 //Given...
-		 String expectedPath = TestClassesRoute.path;
-		 String inputPath = "/requestors/";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isTrue();
-	 }
- 
-	 @Test
-	 public void TestPathRegexNumberPathReturnsFalse(){
-		 //Given...
-		 String expectedPath = TestClassesRoute.path;
-		 String inputPath = "/requestors1234";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 }
- 
-	 @Test
-	 public void TestPathRegexUnexpectedPathReturnsFalse(){
-		 //Given...
-		 String expectedPath = TestClassesRoute.path;
-		 String inputPath = "/requestor";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 }
- 
-	 @Test
-	 public void TestPathRegexEmptyPathReturnsFalse(){
-		 //Given...
-		 String expectedPath = TestClassesRoute.path;
-		 String inputPath = "";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 }
- 
-	 @Test
-	 public void TestPathRegexSpecialCharacterPathReturnsFalse(){
-		 //Given...
-		 String expectedPath = TestClassesRoute.path;
-		 String inputPath = "/requestors/?";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 }
- 
-	 @Test
-	 public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
-		 //Given...
-		 String expectedPath = TestClassesRoute.path;
-		 String inputPath = "/requestors//////";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 } 
+	@Test
+	public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/0testclasses";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/testclasses/";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+
+	@Test
+	public void TestPathRegexNumberPathReturnsFalse(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/testclasses1234";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexUnexpectedPathReturnsFalse(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/testclass";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexEmptyPathReturnsFalse(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/testclasses/?";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/testclasses//////";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	} 
 
 	/*
 	 * Tests - GET Requests
