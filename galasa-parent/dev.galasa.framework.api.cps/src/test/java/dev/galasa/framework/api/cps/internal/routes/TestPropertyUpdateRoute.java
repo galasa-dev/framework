@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -20,10 +21,183 @@ import org.junit.Test;
 
 public class TestPropertyUpdateRoute extends CpsServletTest{
 
-    
+    /*
+     * Regex Path
+     */
+
+	@Test
+	public void TestPathRegexExpectedPathReturnsTrue(){
+		//Given...
+		String expectedPath = PropertyUpdateRoute.path;
+		String inputPath = "/namespace/properties/property.name.entry";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+
+	@Test
+	public void TestPathRegexExpectedPathWithNumbersReturnsTrue(){
+		//Given...
+		String expectedPath = PropertyUpdateRoute.path;
+		String inputPath = "/namespace/properties/computer01";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+
+	@Test
+	public void TestPathRegexLowerCasePathReturnsTrue(){
+		//Given...
+		String expectedPath = PropertyUpdateRoute.path;
+		String inputPath = "/namespace/properties/thisisavalidpath";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+	
+	@Test
+	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue(){
+		//Given...
+		String expectedPath = PropertyUpdateRoute.path;
+		String inputPath = "/namespace/properties/CAPITAL01.Property";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+
+		
+	@Test
+	public void TestPathRegexUpperCasePathReturnsTrue(){
+		//Given...
+		String expectedPath = PropertyUpdateRoute.path;
+		String inputPath = "/namespace/properties/ALLCAPITALS";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+	@Test
+	public void TestPathRegexExpectedPathWithoutPropertyNameReturnsFalse(){
+		//Given...
+		String expectedPath = PropertyUpdateRoute.path;
+		String inputPath = "/namespace/properties";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+ 
+	 @Test
+	 public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+		 //Given...
+		 String expectedPath = PropertyUpdateRoute.path;
+		 String inputPath = "/namespace/properties/01server";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsFalse(){
+		 //Given...
+		 String expectedPath = PropertyUpdateRoute.path;
+		 String inputPath = "/namespace/properties/propertyname/";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexNumberPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = PropertyUpdateRoute.path;
+		 String inputPath = "/namespace/properties/1234";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexUnexpectedPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = PropertyUpdateRoute.path;
+		 String inputPath = "/namespace/properties/incorrect-?ID_1234";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexEmptyPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = PropertyUpdateRoute.path;
+		 String inputPath = "";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = PropertyUpdateRoute.path;
+		 String inputPath = "/namespace/properties/?";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = PropertyUpdateRoute.path;
+		 String inputPath = "/namespace/properties//////";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 } 
+
     /*
      * TESTS  -- GET requests
      */
+
     @Test
     public void TestPropertyRouteGETNoFrameworkReturnsError() throws Exception{
 		// Given...

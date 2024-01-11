@@ -36,6 +36,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  */
 public class NamespacesRoute extends CPSRoute {
 
+    protected static final String path = "\\/";
     private static final Gson gson = GalasaGsonBuilder.build();
 
 
@@ -43,7 +44,7 @@ public class NamespacesRoute extends CPSRoute {
 		/* Regex to match endpoints: 
 		*  -> /cps/
 		*/
-		super(responseBuilder, "\\/?", framework);
+		super(responseBuilder, path, framework);
 	}
 
     @Override
