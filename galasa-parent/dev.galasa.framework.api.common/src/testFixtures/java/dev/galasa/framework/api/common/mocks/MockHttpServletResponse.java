@@ -73,7 +73,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     @Override
     public void addHeader(String name, String value) {
-        this.headers.put(name,value);
+        this.headers.put(name, value);
     }
 
     @Override
@@ -84,8 +84,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     @Override
     public void sendRedirect(String location) throws IOException {
         setStatus(SC_FOUND);
-        outputStream.print(location);
-        outputStream.flush();
+        addHeader("Location", location);
     }
 
     @Override

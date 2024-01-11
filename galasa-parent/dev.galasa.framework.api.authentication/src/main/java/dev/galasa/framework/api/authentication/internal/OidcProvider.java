@@ -182,7 +182,7 @@ public class OidcProvider {
         HttpRequest getRequest = HttpRequest.newBuilder()
             .GET()
             .header("Accept", "application/json")
-                .uri(URI.create(jwksUri))
+            .uri(URI.create(jwksUri))
             .build();
 
         // Send a GET request to the issuer's /keys endpoint
