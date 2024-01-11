@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.routes;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.RasTestClass;
@@ -17,12 +17,14 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
+import dev.galasa.framework.api.ras.internal.RasServlet;
+import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.mocks.*;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.time.Instant;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -95,6 +97,184 @@ public class TestTestClassesRoute extends RasServletTest{
     /*
      * Tests 
      */
+
+	 /*
+     * Regex Path
+     */
+
+	@Test
+	public void TestPathRegexExpectedPathReturnsTrue(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/testclasses";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+
+	@Test
+	public void TestPathRegexExpectedPathWithQueryReturnsFalse(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/testclasses?requestor=Mickey";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexExpectedPathWithNumbersReturnsFalse(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/request0rs";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexLowerCasePathReturnsTrue(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/requestors";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+	
+	@Test
+	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsFalse(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/Requestors";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+	
+	@Test
+	public void TestPathRegexUpperCasePathReturnsFalse(){
+		//Given...
+		String expectedPath = TestClassesRoute.path;
+		String inputPath = "/REQUESTORS";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+ 
+	 @Test
+	 public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+		 //Given...
+		 String expectedPath = TestClassesRoute.path;
+		 String inputPath = "/0rewustors";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
+		 //Given...
+		 String expectedPath = TestClassesRoute.path;
+		 String inputPath = "/requestors/";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isTrue();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexNumberPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = TestClassesRoute.path;
+		 String inputPath = "/requestors1234";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexUnexpectedPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = TestClassesRoute.path;
+		 String inputPath = "/requestor";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexEmptyPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = TestClassesRoute.path;
+		 String inputPath = "";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = TestClassesRoute.path;
+		 String inputPath = "/requestors/?";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = TestClassesRoute.path;
+		 String inputPath = "/requestors//////";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 } 
+
+	/*
+	 * Tests - GET Requests
+	 */
+
     @Test
 	public void testTestClassesWithOneTestReturnsOK() throws Exception {
 		//Given..

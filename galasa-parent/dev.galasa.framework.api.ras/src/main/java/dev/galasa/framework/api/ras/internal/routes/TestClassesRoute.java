@@ -32,12 +32,14 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class TestClassesRoute extends RunsRoute {
 
-    public TestClassesRoute(ResponseBuilder responseBuilder, String path, IFramework framework) {
+    protected static final String path = "\\/testclasses\\/?";
+
+    public TestClassesRoute(ResponseBuilder responseBuilder, IFramework framework) {
         /* Regex to match endpoints: 
 		*  -> /ras/testclasses
 		*  -> /ras/testclasses?
 		*/
-        super(responseBuilder, "\\/testclasses\\/?", framework);
+        super(responseBuilder, path, framework);
     }
 
     final static Gson gson = GalasaGsonBuilder.build();

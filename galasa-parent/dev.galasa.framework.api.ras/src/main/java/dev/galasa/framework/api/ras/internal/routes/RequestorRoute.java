@@ -28,12 +28,14 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 public class RequestorRoute extends RunsRoute {
 
-    public RequestorRoute(ResponseBuilder responseBuilder, String path, IFramework framework) {
+    protected static final String path = "\\/requestors\\/?";
+
+    public RequestorRoute(ResponseBuilder responseBuilder, IFramework framework) {
         /* Regex to match endpoints: 
 		*  -> /ras/requestors
 		*  -> /ras/requestors?
 		*/
-        super(responseBuilder, "\\/requestors\\/?", framework);
+        super(responseBuilder, path, framework);
     }
 
     final static Gson gson = GalasaGsonBuilder.build();
