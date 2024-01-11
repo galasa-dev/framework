@@ -31,6 +31,7 @@ import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -204,8 +205,8 @@ public class AuthRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
-        mockEnv.setenv("GALASA_DEX_ISSUER", "http://dummy.host");
-        mockEnv.setenv("GALASA_EXTERNAL_API_URL", "http://api.host");
+        mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, "http://dummy.host");
+        mockEnv.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL, "http://api.host");
 
         // When...
         servlet.init();

@@ -22,6 +22,7 @@ import dev.galasa.framework.api.authentication.internal.routes.AuthClientsRoute;
 import dev.galasa.framework.api.authentication.internal.routes.AuthRoute;
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.SystemEnvironment;
 
 /**
@@ -46,7 +47,7 @@ public class AuthenticationServlet extends BaseServlet {
 
         initialiseDexClients();
 
-        String externalApiServerUrl = env.getenv("GALASA_EXTERNAL_API_URL");
+        String externalApiServerUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
 
         addRoute(new AuthRoute(getResponseBuilder(), getServletInfo(), oidcProvider));
         addRoute(new AuthClientsRoute(getResponseBuilder(), getServletInfo(), dexGrpcClient));
@@ -60,7 +61,8 @@ public class AuthenticationServlet extends BaseServlet {
      * the authentication servlet to communicate with Dex.
      */
     protected void initialiseDexClients() {
-        this.oidcProvider = new OidcProvider(env.getenv("GALASA_DEX_ISSUER"), HttpClient.newHttpClient());
-        this.dexGrpcClient = new DexGrpcClient(env.getenv("GALASA_DEX_GRPC_HOSTNAME"));
+        this.oidcProvider = new OidcProvider(env.getenv(EnvironmentVariables.GALASA_DEX_ISSUER),
+                HttpClient.newHttpClient());
+        this.dexGrpcClient = new DexGrpcClient(env.getenv(EnvironmentVariables.GALASA_DEX_GRPC_HOSTNAME));
     }
 }
