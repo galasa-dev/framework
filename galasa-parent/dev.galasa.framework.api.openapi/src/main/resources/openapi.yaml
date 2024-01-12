@@ -779,6 +779,11 @@ paths:
       operationId: getCpsNamespaceCascadeProperty
       deprecated: true
       summary: Get cascade CPS property
+      description: |
+        Searches for a property using namespace, prefix suffix and infixes. 
+        Deprecated in v0.31.0.
+        Use the /cps/{namespace}/properties call instead, using the prefix, suffix and infix query parameters, instead of this call.
+        This call will be removed in a future version of this REST API.
       tags:
       - Configuration Property Store API
       parameters:
@@ -821,7 +826,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GalasaProperty'
+                $ref: '#/components/schemas/CpsProperty'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
