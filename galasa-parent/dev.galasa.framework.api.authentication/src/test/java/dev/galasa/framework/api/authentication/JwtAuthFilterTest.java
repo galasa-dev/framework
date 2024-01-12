@@ -153,6 +153,35 @@ public class JwtAuthFilterTest extends BaseServletTest {
         assertThat(mockResponse.getStatus()).isEqualTo(200);
     }
 
+
+    @Test
+    public void testRequestToDifferentAuthRouteIsProcessedInFilter() throws Exception {
+        // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+        String mockIssuerUrl = "http://dummy-issuer/dex";
+        mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
+
+        String mockJwt = "dummy.jwt.here";
+
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        when(mockOidcProvider.isJwtValid(mockJwt)).thenReturn(true);
+
+        JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
+
+        Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt,
+                                             "Galasa-Application", "galasactl");
+        HttpServletRequest mockRequest = new MockHttpServletRequest("/auth/clients", headers);
+        HttpServletResponse servletResponse = new MockHttpServletResponse();
+
+        FilterChain mockChain = new MockFilterChain();
+
+        // When...
+        authFilter.doFilter(mockRequest, servletResponse, mockChain);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+    }
+
     @Test
     public void testRequestWithInvalidJwtReturnsUnauthorized() throws Exception {
         // Given...

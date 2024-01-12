@@ -45,14 +45,14 @@ public class AuthClientsRoute extends BaseRoute {
         logger.info("handlePostRequest() entered");
 
         Client newDexClient = dexGrpcClient.createClient(AuthCallbackRoute.getExternalAuthCallbackUrl());
-        if (newDexClient != null) {
-            // Marshal into a structure to be returned as JSON
-            DexClient clientToReturn = new DexClient(newDexClient.getId(), newDexClient.getSecret());
-            return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(clientToReturn),
-                    HttpServletResponse.SC_CREATED);
+        if (newDexClient == null) {
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
-        ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-        throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        // Marshal into a structure to be returned as JSON
+        DexClient clientToReturn = new DexClient(newDexClient.getId(), newDexClient.getSecret());
+        return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(clientToReturn),
+                HttpServletResponse.SC_CREATED);
     }
 }

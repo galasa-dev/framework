@@ -167,11 +167,14 @@ public class AuthRoute extends BaseRoute {
      * Checks if a given URL is a valid URL.
      */
     private boolean isUrlValid(String url) {
+        boolean isValid = false;
         try {
             new URL(url).toURI();
-            return true;
+            isValid = true;
+            logger.info("Valid URL provided: '" + url + "'");
         } catch (URISyntaxException | MalformedURLException e) {
-            return false;
+            logger.error("Invalid URL provided: '" + url + "'");
         }
+        return isValid;
     }
 }

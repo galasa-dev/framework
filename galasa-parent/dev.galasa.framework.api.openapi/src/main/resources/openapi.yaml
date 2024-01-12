@@ -171,7 +171,6 @@ paths:
       summary: Create a new Dex client to authenticate with.
       tags:
       - Authentication API
-      security: []
       responses:
         '201':
           description: Returns a JSON Object containing the created client's ID and secret
