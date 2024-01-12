@@ -97,11 +97,17 @@ public class OidcProvider {
      */
     public JsonObject getOpenIdConfiguration() throws IOException, InterruptedException {
         String openIdConfigurationUrl = issuerUrl + "/.well-known/openid-configuration";
+        JsonObject responseJson = null;
+
+        logger.info("Sending GET request to " + openIdConfigurationUrl);
         HttpResponse<String> response = sendGetRequest(URI.create(openIdConfigurationUrl));
         if (response.statusCode() == HttpServletResponse.SC_OK) {
-            return gson.fromJson(response.body(), JsonObject.class);
+            logger.info("OpenID configuration received successfully");
+            responseJson = gson.fromJson(response.body(), JsonObject.class);
+        } else {
+            logger.error("Failed to retrieve OpenID configuration from issuer");
         }
-        return null;
+        return responseJson;
     }
 
     /**
@@ -109,13 +115,17 @@ public class OidcProvider {
      * github.com URL to authenticate with an OAuth application in GitHub).
      */
     public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpSession session) throws IOException, InterruptedException {
+        logger.info("Sending GET request to " + authorizationEndpoint);
+
         HttpResponse<String> authResponse = sendAuthorizationGet(clientId, callbackUrl.toString(), session);
         String redirectUrl = getLocationHeaderFromResponse(authResponse);
 
         // In case the "Location" header contains a relative URI, get an absolute URI from the response
         if (redirectUrl != null && redirectUrl.startsWith("/")) {
+            logger.info("Relative redirect URL found, converting to absolute URL");
             redirectUrl = authResponse.uri().toString();
         }
+        logger.info("Retrieved redirect URL: " + redirectUrl);
         return redirectUrl;
     }
 
@@ -132,6 +142,7 @@ public class OidcProvider {
             + "&state=" + state;
 
         // Save the state in a session for validation later
+        logger.info("Storing state parameter in session");
         session.setAttribute("state", state);
 
         String authUrl = authorizationEndpoint + queryParams;
@@ -152,6 +163,8 @@ public class OidcProvider {
         sbRequestBody.append("&client_secret=" + clientSecret);
         sbRequestBody.append("&refresh_token=" + refreshToken);
 
+        logger.info("Sending POST request to '" + tokenEndpoint + "' for client with ID '" + clientId + "'");
+
         // Create a POST request to the /token endpoint
         return sendPostRequest(sbRequestBody.toString(), "application/x-www-form-urlencoded", URI.create(tokenEndpoint));
     }
@@ -170,6 +183,8 @@ public class OidcProvider {
         sbRequestBody.append("&client_id=" + clientId);
         sbRequestBody.append("&client_secret=" + clientSecret);
         sbRequestBody.append("&redirect_uri=" + redirectUri);
+
+        logger.info("Sending POST request to '" + tokenEndpoint + "' for client with ID '" + clientId + "'");
 
         // Create a POST request to the /token endpoint
         return sendPostRequest(sbRequestBody.toString(), "application/x-www-form-urlencoded", URI.create(tokenEndpoint));
@@ -274,11 +289,13 @@ public class OidcProvider {
     private String getLocationHeaderFromResponse(HttpResponse<String> response) {
         HttpHeaders headers = response.headers();
 
+        String locationHeaderValue = null;
         Optional<String> locationHeader = headers.firstValue("location");
         if (locationHeader.isPresent()) {
-            return locationHeader.get();
+            locationHeaderValue = locationHeader.get();
         }
-        return null;
+        logger.info("'Location' header received from response: " + locationHeaderValue);
+        return locationHeaderValue;
     }
 
     /**

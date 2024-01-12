@@ -5,6 +5,9 @@
  */
 package dev.galasa.framework.api.authentication.internal;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.coreos.dex.api.DexGrpc;
 import com.coreos.dex.api.DexGrpc.DexBlockingStub;
 import com.coreos.dex.api.DexOuterClass.Client;
@@ -20,6 +23,8 @@ import io.grpc.ManagedChannelBuilder;
  * auto-generated Dex gRPC code
  */
 public class DexGrpcClient {
+
+    private final Log logger = LogFactory.getLog(getClass());
 
     private DexBlockingStub blockingStub;
 
@@ -44,12 +49,17 @@ public class DexGrpcClient {
         CreateClientReq createClientReq = createClientReqBuilder.build();
 
         // Send the gRPC call to create the new Dex client
+        logger.info("Creating new Dex client");
         CreateClientResp clientResp = sendCreateClientRequest(createClientReq);
 
+        Client createdClient = null;
         if (clientResp.hasClient()) {
-            return clientResp.getClient();
+            logger.info("Dex client successfully created");
+            createdClient = clientResp.getClient();
+        } else {
+            logger.error("Failed to create new Dex client");
         }
-        return null;
+        return createdClient;
     }
 
     /**

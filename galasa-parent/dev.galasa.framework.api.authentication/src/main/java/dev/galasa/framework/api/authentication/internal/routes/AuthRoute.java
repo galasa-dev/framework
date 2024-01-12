@@ -149,7 +149,7 @@ public class AuthRoute extends BaseRoute {
      */
     private JsonObject sendTokenPost(HttpServletRequest request, TokenPayload requestBodyJson)
             throws IOException, InterruptedException {
-        String secret = requestBodyJson.getEncodedSecret();
+        String secret = requestBodyJson.getSecret();
         String decodedSecret = new String(Base64.getDecoder().decode(secret));
 
         // Refresh tokens and authorization codes can be used in exchange for JWTs,

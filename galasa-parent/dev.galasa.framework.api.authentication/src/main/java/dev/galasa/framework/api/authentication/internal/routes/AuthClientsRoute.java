@@ -41,8 +41,10 @@ public class AuthClientsRoute extends BaseRoute {
     @Override
     public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
-        Client newDexClient = dexGrpcClient.createClient(AuthCallbackRoute.getExternalAuthCallbackUrl());
 
+        logger.info("handlePostRequest() entered");
+
+        Client newDexClient = dexGrpcClient.createClient(AuthCallbackRoute.getExternalAuthCallbackUrl());
         if (newDexClient != null) {
             // Marshal into a structure to be returned as JSON
             DexClient clientToReturn = new DexClient(newDexClient.getId(), newDexClient.getSecret());

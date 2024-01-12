@@ -18,7 +18,7 @@ public class TokenPayload {
     private String clientId;
 
     @SerializedName("secret")
-    private String encodedSecret;
+    private String secret;
 
     @SerializedName("refresh_token")
     private String refreshToken;
@@ -30,8 +30,8 @@ public class TokenPayload {
         return clientId;
     }
 
-    public String getEncodedSecret() {
-        return encodedSecret;
+    public String getSecret() {
+        return secret;
     }
 
     public String getRefreshToken() {
@@ -43,6 +43,6 @@ public class TokenPayload {
     }
 
     public boolean isValid() {
-        return (clientId != null) && (encodedSecret != null) && (refreshToken != null || code != null);
+        return (clientId != null) && (secret != null) && (refreshToken != null || code != null);
     }
 }

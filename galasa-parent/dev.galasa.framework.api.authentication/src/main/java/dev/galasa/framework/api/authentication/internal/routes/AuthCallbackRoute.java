@@ -48,7 +48,7 @@ public class AuthCallbackRoute extends BaseRoute {
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
-        logger.info("AuthCallbackRoute: handleGetRequest() entered.");
+        logger.info("handleGetRequest() entered");
 
         String authCode = queryParams.getSingleString("code", null);
         String state = queryParams.getSingleString("state", null);
@@ -74,7 +74,11 @@ public class AuthCallbackRoute extends BaseRoute {
                     response.addHeader("Location", clientCallbackUrl);
                     return getResponseBuilder().buildResponse(response, null, null,
                             HttpServletResponse.SC_FOUND);
+                } else {
+                    logger.error("Unable to redirect back to the client application (failed to retrieve callback URL from session)");
                 }
+            } else {
+                logger.error("The provided 'state' query parameter does not match the state parameter stored in the session");
             }
         }
         ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
@@ -87,7 +91,7 @@ public class AuthCallbackRoute extends BaseRoute {
      */
     private boolean isStateParameterValid(HttpSession session, String state) {
         String storedState = (String) session.getAttribute("state");
-        return storedState != null && state.equals(storedState);
+        return (storedState != null && state.equals(storedState));
     }
 
     /**
