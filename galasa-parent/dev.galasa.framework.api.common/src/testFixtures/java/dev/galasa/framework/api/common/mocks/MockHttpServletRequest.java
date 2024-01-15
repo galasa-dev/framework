@@ -40,6 +40,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String payload;
     private String method = "GET"; 
 
+    private MockHttpSession session;
+
     public MockHttpServletRequest(String pathInfo) {
         this.pathInfo = pathInfo;
     }
@@ -51,6 +53,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo) {
         this.parameterMap = parameterMap;
         this.pathInfo = pathInfo;
+    }
+
+    public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo, MockHttpSession session) {
+        this(parameterMap, pathInfo);
+        this.session = session;
     }
 
     public MockHttpServletRequest(String servletPath, Map<String, String> headerMap) {
@@ -102,6 +109,62 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
+    public ServletInputStream getInputStream() throws IOException {
+        return this.inputStream;
+    }
+
+    @Override
+    public int getContentLength() {
+        return this.payload.length();
+    }
+
+    @Override
+    public String getMethod() {
+        return this.method;
+    }
+
+    @Override
+    public String getRequestURI() {
+        return "http://mock.galasa.server/cps/" + this.pathInfo;
+    }
+
+    @Override
+    public String getScheme() {
+        return "http";
+    }
+
+    @Override
+    public String getServerName() {
+        return "mock.galasa.server";
+    }
+
+    @Override
+    public StringBuffer getRequestURL() {
+        String requestUrl = getScheme() + "://" + getServerName() + getPathInfo();
+        return new StringBuffer().append(requestUrl);
+    }
+
+    @Override
+    public HttpSession getSession(boolean create) {
+        if (create && session == null) {
+            session = new MockHttpSession();
+        }
+
+        if (session != null) {
+            return session;
+        }
+        return null;
+    }
+
+    @Override
+    public HttpSession getSession() {
+        if (session == null) {
+            session = new MockHttpSession();
+        }
+        return session;
+    }
+
+    @Override
     public Object getAttribute(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getAttribute'");
     }
@@ -122,11 +185,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public int getContentLength() {
-        return this.payload.length();
-    }
-
-    @Override
     public long getContentLengthLong() {
         throw new UnsupportedOperationException("Unimplemented method 'getContentLengthLong'");
     }
@@ -134,11 +192,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public String getContentType() {
         throw new UnsupportedOperationException("Unimplemented method 'getContentType'");
-    }
-
-    @Override
-    public ServletInputStream getInputStream() throws IOException {
-        return this.inputStream;
     }
 
     @Override
@@ -159,16 +212,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public String getProtocol() {
         throw new UnsupportedOperationException("Unimplemented method 'getProtocol'");
-    }
-
-    @Override
-    public String getScheme() {
-        throw new UnsupportedOperationException("Unimplemented method 'getScheme'");
-    }
-
-    @Override
-    public String getServerName() {
-        throw new UnsupportedOperationException("Unimplemented method 'getServerName'");
     }
 
     @Override
@@ -308,11 +351,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
-    public String getMethod() {
-        return this.method;
-    }
-
-    @Override
     public String getPathTranslated() {
         throw new UnsupportedOperationException("Unimplemented method 'getPathTranslated'");
     }
@@ -345,26 +383,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public String getRequestedSessionId() {
         throw new UnsupportedOperationException("Unimplemented method 'getRequestedSessionId'");
-    }
-
-    @Override
-    public String getRequestURI() {
-        return "http://mock.galasa.server/cps/"+this.pathInfo;
-    }
-
-    @Override
-    public StringBuffer getRequestURL() {
-        throw new UnsupportedOperationException("Unimplemented method 'getRequestURL'");
-    }
-
-    @Override
-    public HttpSession getSession(boolean create) {
-        throw new UnsupportedOperationException("Unimplemented method 'getSession'");
-    }
-
-    @Override
-    public HttpSession getSession() {
-        throw new UnsupportedOperationException("Unimplemented method 'getSession'");
     }
 
     @Override
@@ -421,5 +439,4 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
         throw new UnsupportedOperationException("Unimplemented method 'upgrade'");
     }
-
 }

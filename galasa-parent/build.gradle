@@ -11,15 +11,6 @@ plugins {
 // It is also read by other build scrips as required.
 version = "0.31.0"
 
-repositories {
-    gradlePluginPortal()
-    mavenCentral()
-    maven {
-        url "https://development.galasa.dev/main/maven-repo/obr/"
-    }
-    mavenLocal()
-}
-
 signing {
     sign publishing.publications
 }
@@ -34,6 +25,21 @@ dependencies {
     compileOnly 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
 }
 
+allprojects {
+   tasks.withType(Javadoc) {
+      options.addStringOption('Xdoclint:none', '-quiet')
+   }
+
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url "https://development.galasa.dev/main/maven-repo/obr/"
+        }
+    }
+}
+
 subprojects {
     apply plugin: 'jacoco'
     test {
@@ -44,11 +50,35 @@ subprojects {
     }
 }
 
+//----------------------------------------------------------
+// Download the Dex gRPC API .proto file
+//----------------------------------------------------------
+def protoDirPath = "$rootDir/dev.galasa.framework.api.authentication/src/main/proto"
+def protoDir = new File(protoDirPath)
+def dexProtoFile = new File("$protoDirPath/dex.proto")
+task downloadDexProto() {
+    // If the .proto file already exists, we don't need to do anything
+    if (!dexProtoFile.exists()) {
+
+        // Make sure the proto directory exists so that the protobuf plugin works
+        if (!protoDir.exists()) {
+            protoDir.mkdirs()
+        }
+
+        // Download Dex's api.proto file from GitHub
+        new URL("https://raw.githubusercontent.com/dexidp/dex/v2.37.0/api/v2/api.proto").withInputStream{
+            inputStream -> dexProtoFile.withOutputStream{ outputStream -> outputStream << inputStream }
+        }
+    }
+}
+
+// Make sure the .proto file has been downloaded before building the framework
+build.dependsOn downloadDexProto
+
 task downloadDependencies(type: Copy) {
     // Download the dependencies onto the local disk.
     from configurations.compileClasspath
     into 'build/dependencies'
-    dependsOn configurations.compileClasspath
 }
 
 gradle.taskGraph.beforeTask { Task task ->
@@ -63,12 +93,6 @@ gradle.taskGraph.afterTask { Task task, TaskState state ->
     println " -> took " + mins + ( ( 1 == mins ) ? " min " : " mins " ) + sec + ( ( 1 == sec ) ? " sec" : " secs" )
 }
 
-allprojects {
-   tasks.withType(Javadoc) {
-      options.addStringOption('Xdoclint:none', '-quiet')
-   }
-}
-
 //---------------------------------------------------------------
 // We need to gather the release and packaging metadata from each
 // sub-project, to generate a release.yaml document which can act
@@ -76,12 +100,12 @@ allprojects {
 //
 // The OSGi bundles in this project are all in one of two groups:
 // - The 'framework'
-// or 
+// or
 // - The 'api'
 //
 // Each module is examined, and contributes it's metadata to one
 // of two manifest files. Both manifest files are then combined
-// into an overall manifest file ready to be published to a 
+// into an overall manifest file ready to be published to a
 // maven repository.
 //
 // At a later time, the OBR project will draw-down the manifest
@@ -105,7 +129,7 @@ def overallHeader = """#
 #
 #                         WARNING
 #
-# This file is periodically re-generated from the contents of 
+# This file is periodically re-generated from the contents of
 # the repository, so don't make changes here manually please.
 # -----------------------------------------------------------
 
@@ -130,7 +154,7 @@ api:
 
 
 //----------------------------------------------------------
-// Flushes any existing content on the specified path, and 
+// Flushes any existing content on the specified path, and
 // creates a new file, containing the header text.
 //----------------------------------------------------------
 def prepareGeneratedFile(path , header) {
@@ -147,7 +171,7 @@ def prepareGeneratedFile(path , header) {
 }
 
 //----------------------------------------------------------
-// Prepare the overall manifest, and a manifest for each of 
+// Prepare the overall manifest, and a manifest for each of
 // the 'framework' and 'api' collections of bundles.
 //----------------------------------------------------------
 task buildReleaseYamlPrepare() {
@@ -157,7 +181,7 @@ task buildReleaseYamlPrepare() {
         if ( !buildDir.exists() ) {
             buildDir.mkdirs()
         }
-        
+
         prepareGeneratedFile(overallManifestFilePath,overallHeader)
         prepareGeneratedFile(frameworkManifestFilePath,frameworkHeader)
         prepareGeneratedFile(apiManifestFilePath,apiHeader)
@@ -165,7 +189,7 @@ task buildReleaseYamlPrepare() {
 }
 
 //----------------------------------------------------------
-// Allow each subproject to contribute to one of the manifest 
+// Allow each subproject to contribute to one of the manifest
 // collectons.
 //----------------------------------------------------------
 task buildReleaseYamlSubprojects() {
@@ -177,8 +201,8 @@ task buildReleaseYamlSubprojects() {
             // Each sub-project will set the values...
             projectName = '' // The name of the bundle.
             includeInOBR = '' // Is the bundle included in the uber-obr ?
-            includeInMVP = '' 
-            includeInBOM = '' 
+            includeInMVP = ''
+            includeInBOM = ''
             includeInJavadoc = '' // Is the component displayed to users on the public javadoc site ?
             includeInIsolated = '' // Is the component included in the bundles shipped as part of the isolated build ?
             includeInCodeCoverage = ''
@@ -230,8 +254,8 @@ task buildReleaseYamlSubprojects() {
 }
 
 //----------------------------------------------------------
-// Once we've collected all the metadata into either the 
-// 'framework' or 'api' collections of bundle information, 
+// Once we've collected all the metadata into either the
+// 'framework' or 'api' collections of bundle information,
 // Combine them into the 'overall' manifest file.
 //----------------------------------------------------------
 task buildReleaseYamlFinalise() {
@@ -258,7 +282,7 @@ def myReleaseYaml = artifacts.add('release_metadata', file(overallManifestFilePa
 // Publish the release.yaml as a maven artifact.
 // Note: The maven co-ordinates are versioned using the version for this bundle.
 publishing {
-   
+
     publications {
 
         // Publish the component manifest/release.yaml
@@ -302,7 +326,7 @@ publishing {
     repositories {
         maven {
             url  = "$targetMaven"
-        
+
             if ("$targetMaven".startsWith('http')) {
                 credentials {
                     username System.getenv('MAVENUSERNAME')
