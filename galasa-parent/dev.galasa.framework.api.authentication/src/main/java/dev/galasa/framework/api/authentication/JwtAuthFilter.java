@@ -6,6 +6,8 @@
 package dev.galasa.framework.api.authentication;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -43,7 +46,7 @@ public class JwtAuthFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        oidcProvider = new OidcProvider(env.getenv("GALASA_DEX_ISSUER"));
+        oidcProvider = new OidcProvider(env.getenv(EnvironmentVariables.GALASA_DEX_ISSUER), HttpClient.newHttpClient());
         logger.info("Galasa JWT Auth Filter initialised");
     }
 
@@ -60,7 +63,8 @@ public class JwtAuthFilter implements Filter {
         HttpServletResponse servletResponse = (HttpServletResponse) response;
 
         // Do not apply the filter to the /auth endpoint and only force galasactl to authenticate
-        if ((servletRequest.getServletPath()).equals("/auth") || !"galasactl".equalsIgnoreCase(servletRequest.getHeader("Galasa-Application"))) {
+        if ((servletRequest.getServletPath().equals("/auth") && servletRequest.getPathInfo() == null)
+                || !"galasactl".equalsIgnoreCase(servletRequest.getHeader("Galasa-Application"))) {
             chain.doFilter(request, response);
             return;
         }
