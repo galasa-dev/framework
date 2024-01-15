@@ -107,7 +107,7 @@ public class ResourcesRoute  extends BaseRoute{
                 errors.add(s.getMessage());
             } catch(Exception e){
                 ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
             }
         }
     }
@@ -219,7 +219,7 @@ public class ResourcesRoute  extends BaseRoute{
             }
         } catch (ConfigurationPropertyStoreException e){
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR, e.getMessage());
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
     }
 }

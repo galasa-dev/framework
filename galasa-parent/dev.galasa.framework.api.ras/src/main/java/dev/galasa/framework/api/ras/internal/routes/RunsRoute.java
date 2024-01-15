@@ -71,7 +71,7 @@ public abstract class RunsRoute extends BaseRoute {
 		}
         catch(ResultArchiveStoreException r){
             ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE );
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, r);
         }
 
 		Collections.sort(resultsList);

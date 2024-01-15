@@ -157,7 +157,7 @@ public class RasQueryParameters {
                 }
             }catch (Exception e) {
                 ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,sortValue);
-                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
             }
         }
 		return isAscending;

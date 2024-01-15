@@ -61,7 +61,7 @@ public class ResultNamesRoute extends RunsRoute {
 			}
 		} catch (InternalServletException e){
 			ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, "resultnames");
-			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
 		}
 
 		JsonElement json = new Gson().toJsonTree(resultsList);

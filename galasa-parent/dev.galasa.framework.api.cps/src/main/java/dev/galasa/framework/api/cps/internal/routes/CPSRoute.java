@@ -179,7 +179,7 @@ public abstract class CPSRoute extends BaseRoute {
             return namespace[3];
         } catch (Exception e) {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
         }
     }
 
@@ -198,7 +198,7 @@ public abstract class CPSRoute extends BaseRoute {
             return namespace[1];
         } catch (Exception e) {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
         }
     }
 

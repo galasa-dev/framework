@@ -66,7 +66,7 @@ public class PropertyUpdateRoute extends CPSRoute {
             nameValidator.assertPropertyNameCharPatternIsValid(propertyName);
         } catch (FrameworkException f){
             ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, f.getMessage());
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, f);
         }
         CPSFacade cps = new CPSFacade(framework);
         CPSNamespace namespace = cps.getNamespace(namespaceName);

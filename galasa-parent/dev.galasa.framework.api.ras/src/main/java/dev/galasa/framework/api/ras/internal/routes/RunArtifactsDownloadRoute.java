@@ -92,7 +92,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
             runName = run.getTestStructure().getRunName();
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
         }
 
         // Download the artifact that matches the artifact path or starts with "artifacts/"
@@ -108,7 +108,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
             }
         } catch (ResultArchiveStoreException | IOException ex) {
             ServletError error = new ServletError(GAL5009_ERROR_RETRIEVING_ARTIFACT, artifactPath, runName);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex);
         }
         return res;
     }

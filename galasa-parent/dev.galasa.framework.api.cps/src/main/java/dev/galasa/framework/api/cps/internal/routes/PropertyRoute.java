@@ -69,7 +69,7 @@ public class PropertyRoute extends CPSRoute{
             properties = getProperties(namespace, prefix, suffix, infixes);
         }catch (FrameworkException f){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, f);
         }
         return properties;
     }

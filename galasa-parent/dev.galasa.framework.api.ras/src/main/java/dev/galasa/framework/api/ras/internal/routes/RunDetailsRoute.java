@@ -56,7 +56,7 @@ public class RunDetailsRoute extends RunsRoute {
 
       }catch(ResultArchiveStoreException ex){
          ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
-         throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+         throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, ex);
       }
    }
 

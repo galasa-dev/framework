@@ -78,7 +78,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
             run = getRunByRunId(runId);
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
         }
 
         // Build a JSON array of artifacts, then return it as a JSON string
@@ -87,7 +87,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
             artifacts.addAll(getRootArtifacts(run));
         } catch (ResultArchiveStoreException | IOException ex) {
             ServletError error = new ServletError(GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST, runId);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex);
         }
         return gson.toJson(artifacts);
     }
