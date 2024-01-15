@@ -36,6 +36,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  */
 public class NamespacesRoute extends CPSRoute {
 
+    protected static final String path = "\\/";
     private static final Gson gson = GalasaGsonBuilder.build();
 
 
@@ -43,7 +44,7 @@ public class NamespacesRoute extends CPSRoute {
 		/* Regex to match endpoints: 
 		*  -> /cps/
 		*/
-		super(responseBuilder, "\\/?", framework);
+		super(responseBuilder, path, framework);
 	}
 
     @Override
@@ -66,7 +67,7 @@ public class NamespacesRoute extends CPSRoute {
             }
         } catch (ConfigurationPropertyStoreException e) {
             ServletError error = new ServletError(GAL5015_INTERNAL_CPS_ERROR);
-			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
         return gson.toJson(namespaceArray);
     }

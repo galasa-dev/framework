@@ -37,9 +37,11 @@ public class RunDetailsRoute extends RunsRoute {
 
    static final Gson gson = GalasaGsonBuilder.build();
 
+   protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/?";
+
    public RunDetailsRoute(ResponseBuilder responseBuilder, IFramework framework) {
       //  Regex to match endpoint: /ras/runs/{runid}
-      super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/?", framework);
+      super(responseBuilder, path, framework);
    }
 
    @Override
@@ -54,7 +56,7 @@ public class RunDetailsRoute extends RunsRoute {
 
       }catch(ResultArchiveStoreException ex){
          ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
-         throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+         throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, ex);
       }
    }
 

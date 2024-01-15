@@ -30,11 +30,13 @@ import dev.galasa.framework.spi.IFramework;
  */
 public class PropertyUpdateRoute extends CPSRoute {
 
+    protected static final String path = "\\/([a-z][a-z0-9]+)/properties/([a-zA-Z][a-zA-Z0-9\\.\\-\\_]+)" ;
+
     public PropertyUpdateRoute(ResponseBuilder responseBuilder, IFramework framework ) {
 		/* Regex to match endpoints: 
 		*  -> /cps/<namespace>/properties/<propertyName>
 		*/
-		super(responseBuilder, "\\/([a-z0-9]+)/properties/([a-zA-Z0-9.]+)", framework);
+		super(responseBuilder, path, framework);
 	}
 
     /*
@@ -50,6 +52,22 @@ public class PropertyUpdateRoute extends CPSRoute {
     }
 
     private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
+        if (!propertyName.contains(".")){
+            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,
+            "Invalid property name. Property name much have at least two parts seperated by a '.' (dot)");
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        if (propertyName.endsWith(".")){
+            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,
+            "Invalid property name. Property name '"+propertyName+"' can not end with a '.' (dot) seperator.");
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        try {
+            nameValidator.assertPropertyNameCharPatternIsValid(propertyName);
+        } catch (FrameworkException f){
+            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, f.getMessage());
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, f);
+        }
         CPSFacade cps = new CPSFacade(framework);
         CPSNamespace namespace = cps.getNamespace(namespaceName);
         CPSProperty property = namespace.getProperty(propertyName);

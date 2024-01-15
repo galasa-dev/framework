@@ -56,8 +56,8 @@ public class RasServlet extends BaseServlet {
 	   	addRoute(new RunQueryRoute(getResponseBuilder(),framework));
 	   	addRoute(new RunArtifactsDownloadRoute(getResponseBuilder(),fileSystem, framework));
 	   	addRoute(new ResultNamesRoute(getResponseBuilder(),framework));
-		addRoute(new RequestorRoute(getResponseBuilder(), getServletInfo(), framework));
-		addRoute(new TestClassesRoute(getResponseBuilder(), getServletInfo(), framework));
+		addRoute(new RequestorRoute(getResponseBuilder(), framework));
+		addRoute(new TestClassesRoute(getResponseBuilder(), framework));
 	}
 
 }

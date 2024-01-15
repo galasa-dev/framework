@@ -97,7 +97,7 @@ public class QueryParameters {
 				ServletError error = new ServletError(
 					GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER,
 					queryParameterName,paramValueStr);
-				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, ex);
 			}
 		}
 		return returnedValue;
@@ -122,7 +122,7 @@ public class QueryParameters {
 					GAL5001_INVALID_DATE_TIME_FIELD,
 					queryParameterName,paramValueStr
 				);
-				throw new InternalServletException(error, SC_BAD_REQUEST);
+				throw new InternalServletException(error, SC_BAD_REQUEST, ex);
 			}
 		}
 		return returnedValue;

@@ -82,7 +82,7 @@ public class GalasaProperty {
             property = gson.fromJson(jsonString, GalasaProperty.class);
         }catch (Exception e){
             ServletError error = new ServletError(GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY, jsonString);  
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
         }
         return property;
     }
