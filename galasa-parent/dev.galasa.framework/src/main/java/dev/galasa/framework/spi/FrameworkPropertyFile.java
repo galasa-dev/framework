@@ -137,9 +137,13 @@ public class FrameworkPropertyFile implements FileAlterationListener {
         List<String> namespaces = new ArrayList<>();
         observer.checkAndNotify();
         for (Object k : currentProperties.keySet()) {
-            String name = ((String)k).substring(0,((String)k).indexOf("."));
-            if(!namespaces.contains(name)) {
-                namespaces.add(name);
+            int indexOfFirstDot = ((String)k).indexOf(".");
+            // ignore any property without a '.' character inside...
+            if (indexOfFirstDot>=0) {
+                String name = ((String)k).substring(0,indexOfFirstDot);
+                if(!namespaces.contains(name)) {
+                    namespaces.add(name);
+                }
             }
         }
         return namespaces;

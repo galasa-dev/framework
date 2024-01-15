@@ -115,7 +115,7 @@ public class GroupRuns extends BaseRoute {
                 status.getRuns().add(newRun.getSerializedRun());
             } catch (FrameworkException fe) {
                 ServletError error = new ServletError(GAL5021_UNABLE_TO_SUBMIT_RUNS, className);  
-                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,fe);
             }
         }
         return status;
