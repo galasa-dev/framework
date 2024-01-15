@@ -44,6 +44,8 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
 
     static final Gson gson = GalasaGsonBuilder.build();
 
+    protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?";
+
     private List<IRunRootArtifact> rootArtifacts = new ArrayList<>();
 
     public RunArtifactsListRoute(
@@ -52,7 +54,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
         IFramework framework
     ) {
         //  Regex to match endpoint: /ras/runs/{runId}/artifacts
-        super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?", fileSystem, framework);
+        super(responseBuilder, path, fileSystem, framework);
         rootArtifacts = Arrays.asList(
             new RunLogArtifact(),
             new StructureJsonArtifact(),

@@ -120,96 +120,96 @@ public class TestRunLogRoute extends RasServletTest {
 		assertThat(matches).isFalse();
 	}
  
-	 @Test
-	 public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
-		 //Given...
-		 String expectedPath = RunLogRoute.path;
-		 String inputPath = "/runs/cdb-EFGH-5678.run/1runlog";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 }
- 
-	 @Test
-	 public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
-		 //Given...
-		 String expectedPath = RunLogRoute.path;
-		 String inputPath = "/runs/cdb-EFGH-5678.run/runlog/";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isTrue();
-	 }
- 
-	 @Test
-	 public void TestPathRegexNumberPathReturnsFalse(){
-		 //Given...
-		 String expectedPath = RunLogRoute.path;
-		 String inputPath = "/runs/cdb-EFGH-5678.run/runlog1";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 }
- 
-	 @Test
-	 public void TestPathRegexUnexpectedPathReturnsFalse(){
-		 //Given...
-		 String expectedPath = RunLogRoute.path;
-		 String inputPath = "/runs/cdb-EFGH-5678.run/runawaylog";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 }
- 
-	 @Test
-	 public void TestPathRegexEmptyPathReturnsFalse(){
-		 //Given...
-		 String expectedPath = RunLogRoute.path;
-		 String inputPath = "";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 }
- 
-	 @Test
-	 public void TestPathRegexSpecialCharacterPathReturnsFalse(){
-		 //Given...
-		 String expectedPath = RunLogRoute.path;
-		 String inputPath = "/runs/cdb-EFGH-5678.run/runlog/?";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 }
- 
-	 @Test
-	 public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
-		 //Given...
-		 String expectedPath = RunLogRoute.path;
-		 String inputPath = "/runs/cdb-EFGH-5678.run/runlog//////";
- 
-		 //When...
-		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
- 
-		 //Then...
-		 assertThat(matches).isFalse();
-	 } 
+	@Test
+	public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+		//Given...
+		String expectedPath = RunLogRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/1runlog";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
+		//Given...
+		String expectedPath = RunLogRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/runlog/";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+
+	@Test
+	public void TestPathRegexNumberPathReturnsFalse(){
+		//Given...
+		String expectedPath = RunLogRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/runlog1";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexUnexpectedPathReturnsFalse(){
+		//Given...
+		String expectedPath = RunLogRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/runawaylog";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexEmptyPathReturnsFalse(){
+		//Given...
+		String expectedPath = RunLogRoute.path;
+		String inputPath = "";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+		//Given...
+		String expectedPath = RunLogRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/runlog/?";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+		//Given...
+		String expectedPath = RunLogRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/runlog//////";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	} 
 
 	/*
 	 * GET Requests

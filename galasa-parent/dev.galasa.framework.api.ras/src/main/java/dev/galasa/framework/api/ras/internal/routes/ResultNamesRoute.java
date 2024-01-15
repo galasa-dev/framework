@@ -31,12 +31,14 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 public class ResultNamesRoute extends RunsRoute {
 
+	protected static final String path = "\\/resultnames\\/?";
+
 	public ResultNamesRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints: 
 		*  -> /ras/resultnames
 		*  -> /ras/resultnames?
 		*/
-		super(responseBuilder, "\\/resultnames\\/?", framework);
+		super(responseBuilder, path, framework);
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();

@@ -53,12 +53,14 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
 
     static final Gson gson = GalasaGsonBuilder.build();
 
+    protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)";
+
     private Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
 
     public RunArtifactsDownloadRoute(ResponseBuilder responseBuilder, IFileSystem fileSystem, IFramework framework) {
         //  Regex to match endpoint: /ras/runs/{runId}/files/{artifactPath}
         super(responseBuilder,
-              "\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)",
+              path,
               fileSystem,
               framework
         );

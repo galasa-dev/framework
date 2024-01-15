@@ -37,9 +37,11 @@ public class RunDetailsRoute extends RunsRoute {
 
    static final Gson gson = GalasaGsonBuilder.build();
 
+   protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/?";
+
    public RunDetailsRoute(ResponseBuilder responseBuilder, IFramework framework) {
       //  Regex to match endpoint: /ras/runs/{runid}
-      super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/?", framework);
+      super(responseBuilder, path, framework);
    }
 
    @Override
