@@ -277,7 +277,7 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to query
-		assertThat(resp.getStatus()==500);
+		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
@@ -286,6 +286,33 @@ public class TestPropertyRoute extends CpsServletTest{
 			5000,
 			"GAL5000E: ",
 			"Error occured when trying to access the endpoint"
+		);
+    }
+
+	@Test
+    public void TestPropertyQueryBadNamespaceReturnsError() throws Exception{
+		// Given...
+		String namespace = "empty";
+        setServlet("/badnamespace/properties", namespace, new HashMap<String,String[]>());
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to query
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'badnamespace'. The namespace provided is invalid."
 		);
     }
 
