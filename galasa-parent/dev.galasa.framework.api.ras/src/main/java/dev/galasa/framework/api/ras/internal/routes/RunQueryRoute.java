@@ -51,13 +51,15 @@ import javax.validation.constraints.NotNull;
  */
 public class RunQueryRoute extends RunsRoute {
 
+	protected static final String path = "\\/runs\\/?";
+
 	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints:
 		*  -> /ras/runs
 		*  -> /ras/runs/
 		*  -> /ras/runs?{querystring}
 		*/
-		super(responseBuilder, "\\/runs\\/?", framework);
+		super(responseBuilder, path, framework);
 
 	}
 
