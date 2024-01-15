@@ -1522,7 +1522,63 @@ paths:
                     error_message: "GAL5009E: Error retrieving artifact  '/framework/cps_record.properties' for run with identifier 'U116'."
                   summary: An error occured when trying to retrieve the artifact
 
-
+  #--------------------------------------
+  # Update the status of an active test 
+  # run to reset or delete it.
+  #--------------------------------------
+  /ras/runs/{runid}/status:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    put:
+      summary: Update the status of a test run
+      operationId: putRasRunStatusById
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRunStatusRequest'
+      responses:
+        '200':
+          description: Run status updated
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Successfully updated run status for runName
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
 
   #--------------------------------------
   # List all testclasses.
@@ -1642,63 +1698,6 @@ paths:
                     error_code: 5401
                     error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
-  #--------------------------------------
-  # Update the status of an active test 
-  # run to reset or delete it.
-  #--------------------------------------
-  /runs/{runId}/status:
-    parameters:
-      - $ref: '#/components/parameters/ClientApiVersion'
-    put:
-      summary: Update the status of a test run
-      operationId: putRunStatusById
-      tags:
-      - Runs API
-      parameters:
-        - name: runId
-          in: path
-          description: Run Id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRunStatusRequest'
-      responses:
-        '200':
-          description: Run status updated
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: Successfully updated run status for runName
-        '401':
-          description: Unauthorized as valid authentication has not been provided
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
 ##################################################################################
 # WebUI API
 ##################################################################################
