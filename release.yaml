@@ -81,7 +81,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.authentication
-    version: 0.30.0
+    version: 0.31.0
     obr: true
     isolated: true
     codecoverage: true
@@ -93,7 +93,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.common
-    version: 0.30.0
+    version: 0.31.0
     obr: true
     isolated: true
     codecoverage: true
