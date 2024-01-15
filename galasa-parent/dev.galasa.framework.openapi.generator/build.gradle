@@ -1,0 +1,10 @@
+plugins {
+    id 'galasa.framework'
+}
+
+description = 'Galasa openapi yaml generators'
+
+version = '0.31.0'
+
+dependencies {
+}

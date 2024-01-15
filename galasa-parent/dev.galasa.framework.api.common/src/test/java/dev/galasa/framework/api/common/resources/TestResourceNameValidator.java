@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework;
+package dev.galasa.framework.api.common.resources;
 
+import dev.galasa.framework.api.common.resources.ResourceNameValidator;
 import dev.galasa.framework.spi.*;
 
 import org.junit.Test;

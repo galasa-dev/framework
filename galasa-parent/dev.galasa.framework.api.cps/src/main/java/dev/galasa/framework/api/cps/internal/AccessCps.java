@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.ResourceNameValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Activate;
@@ -33,6 +32,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import dev.galasa.framework.api.common.resources.ResourceNameValidator;
 import dev.galasa.framework.spi.*;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 

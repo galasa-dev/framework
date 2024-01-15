@@ -8,6 +8,7 @@ package dev.galasa.framework.api.common.resources;
 import org.junit.Test;
 
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.resources.beans.GalasaProperty;
 
 import static org.assertj.core.api.Assertions.*;
 

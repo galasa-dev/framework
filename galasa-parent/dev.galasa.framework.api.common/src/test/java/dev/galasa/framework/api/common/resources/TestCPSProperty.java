@@ -281,7 +281,7 @@ public class TestCPSProperty extends BaseServletTest {
         CPSProperty property = new CPSProperty(mockCPS, namespace, galasaPropertyName, propertyValue);
 
         //When...
-        String outputValue = property.getOutputValue();
+        String outputValue = property.getPossiblyRedactedValue();
 
         //Then...
         assertThat(outputValue.equals(propertyValue)).isTrue();
@@ -303,7 +303,7 @@ public class TestCPSProperty extends BaseServletTest {
         CPSProperty property = new CPSProperty(mockCPS, namespace, galasaPropertyName, propertyValue);
 
         //When...
-        String outputValue = property.getOutputValue();
+        String outputValue = property.getPossiblyRedactedValue();
 
         //Then...
         assertThat(outputValue.equals("********")).isTrue();

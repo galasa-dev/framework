@@ -24,7 +24,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.ResourceNameValidator;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
@@ -33,7 +32,8 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
+import dev.galasa.framework.api.common.resources.ResourceNameValidator;
+import dev.galasa.framework.api.common.resources.beans.GalasaProperty;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -87,7 +87,7 @@ public class ResourcesRoute  extends BaseRoute{
             ServletError error = new ServletError(GAL5025_UNSUPPORTED_ACTION, action);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
-    return errors;
+        return errors;
     }
 
     protected void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{

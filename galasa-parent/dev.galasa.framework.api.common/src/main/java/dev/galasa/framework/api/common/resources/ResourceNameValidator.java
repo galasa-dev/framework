@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework;
+package dev.galasa.framework.api.common.resources;
 
 import dev.galasa.framework.spi.FrameworkErrorCode;
 import dev.galasa.framework.spi.FrameworkException;
