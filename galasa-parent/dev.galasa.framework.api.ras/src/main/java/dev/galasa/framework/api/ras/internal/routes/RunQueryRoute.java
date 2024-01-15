@@ -51,13 +51,15 @@ import javax.validation.constraints.NotNull;
  */
 public class RunQueryRoute extends RunsRoute {
 
+	protected static final String path = "\\/runs\\/?";
+
 	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints:
 		*  -> /ras/runs
 		*  -> /ras/runs/
 		*  -> /ras/runs?{querystring}
 		*/
-		super(responseBuilder, "\\/runs\\/?", framework);
+		super(responseBuilder, path, framework);
 
 	}
 
@@ -98,7 +100,7 @@ public class RunQueryRoute extends RunsRoute {
 					}
 				} catch (ResultArchiveStoreException e) {
 					ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
-					throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+					throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
 				}
 			}
 
@@ -110,7 +112,7 @@ public class RunQueryRoute extends RunsRoute {
 				runs = getRuns(critList);
 			} catch (Exception e) {
 				ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
-				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
 			}
 		}
 
@@ -175,7 +177,7 @@ public class RunQueryRoute extends RunsRoute {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
 				ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
-				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
 			}
 		}
 		return json;

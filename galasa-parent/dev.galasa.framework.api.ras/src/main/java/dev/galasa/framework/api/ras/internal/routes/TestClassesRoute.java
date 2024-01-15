@@ -65,7 +65,7 @@ public class TestClassesRoute extends RunsRoute {
 			}
 		} catch (InternalServletException e) {
 			ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, "testclass");
-			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
 		}
 
         /* converting data to json */

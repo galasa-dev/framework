@@ -67,7 +67,7 @@ public class NamespacesRoute extends CPSRoute {
             }
         } catch (ConfigurationPropertyStoreException e) {
             ServletError error = new ServletError(GAL5015_INTERNAL_CPS_ERROR);
-			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
         return gson.toJson(namespaceArray);
     }

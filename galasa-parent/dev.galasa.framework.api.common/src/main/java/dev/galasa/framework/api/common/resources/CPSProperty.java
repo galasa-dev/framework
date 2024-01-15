@@ -120,7 +120,7 @@ public class CPSProperty {
             store.deleteProperty(this.getName());
         } catch (ConfigurationPropertyStoreException e) {
             ServletError error = new ServletError(GAL5030_UNABLE_TO_DELETE_PROPERTY_ERROR, this.getName());  
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
     }
 

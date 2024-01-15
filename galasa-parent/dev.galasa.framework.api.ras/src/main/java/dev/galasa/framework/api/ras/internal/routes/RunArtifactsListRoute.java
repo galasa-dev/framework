@@ -44,6 +44,8 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
 
     static final Gson gson = GalasaGsonBuilder.build();
 
+    protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?";
+
     private List<IRunRootArtifact> rootArtifacts = new ArrayList<>();
 
     public RunArtifactsListRoute(
@@ -52,7 +54,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
         IFramework framework
     ) {
         //  Regex to match endpoint: /ras/runs/{runId}/artifacts
-        super(responseBuilder, "\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?", fileSystem, framework);
+        super(responseBuilder, path, fileSystem, framework);
         rootArtifacts = Arrays.asList(
             new RunLogArtifact(),
             new StructureJsonArtifact(),
@@ -76,7 +78,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
             run = getRunByRunId(runId);
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
         }
 
         // Build a JSON array of artifacts, then return it as a JSON string
@@ -85,7 +87,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
             artifacts.addAll(getRootArtifacts(run));
         } catch (ResultArchiveStoreException | IOException ex) {
             ServletError error = new ServletError(GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST, runId);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex);
         }
         return gson.toJson(artifacts);
     }
