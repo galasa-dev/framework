@@ -77,7 +77,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		assertThat(matches).isTrue();
 	}
 
-		
 	@Test
 	public void TestPathRegexUpperCasePathReturnsTrue(){
 		//Given...
@@ -90,6 +89,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		//Then...
 		assertThat(matches).isTrue();
 	}
+	
 	@Test
 	public void TestPathRegexExpectedPathWithoutPropertyNameReturnsFalse(){
 		//Given...
@@ -197,7 +197,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     /*
      * TESTS  -- GET requests
      */
-
     @Test
     public void TestPropertyRouteGETNoFrameworkReturnsError() throws Exception{
 		// Given...
@@ -311,7 +310,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 
         // Then...
         // We expect data back
-        assertThat(resp.getStatus()==500);
+        assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
@@ -386,6 +385,87 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[]");
+    }
+
+	@Test
+    public void TestPropertyRouteGETPropertyNameWithNoDotsReturnsError() throws Exception {
+        // Given...
+        setServlet("/framework/properties/badproperty", "framework", new HashMap<String,String[]>());
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+
+        // Then...
+        // We expect data back
+        assertThat(resp.getStatus()).isEqualTo(400);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5024,
+			"GAL5024E: ",
+			"Error occured because the Galasa Property is invalid. 'Invalid property name. Property name much have at least two parts seperated by a '.' (dot)"
+		);
+    }
+
+	@Test
+    public void TestPropertyRouteGETPropertyNameStartingWithADotReturnsError() throws Exception {
+        // Given...
+        setServlet("/framework/properties/.badproperty", "framework", new HashMap<String,String[]>());
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+
+        // Then...
+        // We expect data back
+        assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5404,
+			"GAL5404E: ",
+			"Error occured when trying to identify the endpoint '/framework/properties/.badproperty'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+		);
+    }
+
+	@Test
+    public void TestPropertyRouteGETPropertyNameWithTrailingDotReturnsError() throws Exception {
+        // Given...
+        setServlet("/framework/properties/badproperty.", "framework", new HashMap<String,String[]>());
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+
+        // Then...
+        // We expect data back
+        assertThat(resp.getStatus()).isEqualTo(400);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5024,
+			"GAL5024E: ",
+			"Error occured because the Galasa Property is invalid. 'Invalid property name. Property name 'badproperty.' can not end with a '.' (dot) seperator."
+		);
     }
 
     /*
@@ -806,6 +886,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	/*
 	 * TEST - HANDLE POST REQUEST - should error as this method is not supported by this API end-point
 	 */
+	
 	@Test
 	public void TestPropertyRoutePOSTPropertyReturnsError() throws Exception{
 		// Given...
