@@ -121,27 +121,20 @@ public class ResourcesRoute  extends BaseRoute{
             if (metadata.size() > 0){
                 JsonElement name = metadata.get("name");
                 JsonElement namespace = metadata.get("namespace"); 
-                    /* Use the ResourceNameValidator to check that the name and namesapce are correctly formatted and not null
-                     * 
-                     */
+                    // Use the ResourceNameValidator to check that the name is correctly formatted and not null
                     try {
-                        String propertyName = name.getAsString();
-                        nameValidator.assertPropertyNameCharPatternIsValid(propertyName);
-                        if (!propertyName.contains(".")){
-                            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,
-                            "Invalid property name. Property name much have at least two parts seperated by a '.' (dot)");
-                            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-                        }
-                        if (propertyName.endsWith(".")){
-                            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,
-                            "Invalid property name. Property name '"+propertyName+"' can not end with a '.' (dot) seperator.");
-                            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-                        }
-                    } catch (FrameworkException f){
-                        ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, f.getMessage());
-                        validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+                        nameValidator.assertPropertyNameCharPatternIsValid(name.getAsString());
+                    } catch (InternalServletException e){
+                        // All ResourceNameValidator error should be added to the list of reasons why the property action has failed
+                        validationErrors.add(e.getMessage());
                     }
-                    nameValidator.assertNamespaceCharPatternIsValid(namespace.getAsString());
+                    // Use the ResourceNameValidator to check that the namesapce is correctly formatted and not null
+                    try {
+                        nameValidator.assertNamespaceCharPatternIsValid(namespace.getAsString());
+                    } catch (InternalServletException e){
+                        // All ResourceNameValidator error should be added to the list of reasons why the property action has failed
+                        validationErrors.add(e.getMessage());
+                    }
 
             } else {
                 String message = "The 'metadata' field can not be empty. The fields 'name' and 'namespace' are mandaotry for the type GalasaProperty.";

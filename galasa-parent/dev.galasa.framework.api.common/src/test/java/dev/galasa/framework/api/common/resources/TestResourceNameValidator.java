@@ -100,16 +100,16 @@ public class TestResourceNameValidator {
 
     @Test
     public void assertPropertyNameIsValid() {
-        assertValidPropertyNameIsOk("a");
-        assertValidPropertyNameIsOk("a0");
+        assertValidPropertyNameIsOk("a.A");
+        assertValidPropertyNameIsOk("a.0");
         assertValidPropertyNameIsOk("a.b.c");
-        assertValidPropertyNameIsOk("a-b-c");
-        assertValidPropertyNameIsOk("a_b_c");
-        assertValidPropertyNameIsOk("A");
-        assertValidPropertyNameIsOk("A0");
+        assertValidPropertyNameIsOk("a.-b-c");
+        assertValidPropertyNameIsOk("a_b_.c");
+        assertValidPropertyNameIsOk("A.a");
+        assertValidPropertyNameIsOk("A.0");
         assertValidPropertyNameIsOk("A.B.C");
-        assertValidPropertyNameIsOk("A_B_C");
-        assertValidPropertyNameIsOk("A-B-C");
+        assertValidPropertyNameIsOk("A_B._C");
+        assertValidPropertyNameIsOk("A-.B-C");
     }
 
     @Test

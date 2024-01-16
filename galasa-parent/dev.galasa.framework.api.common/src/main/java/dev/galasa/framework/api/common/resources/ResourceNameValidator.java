@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.spi.FrameworkErrorCode;
 import dev.galasa.framework.spi.FrameworkException;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
@@ -123,25 +122,31 @@ public class ResourceNameValidator {
             throw new InternalServletException(errorDetails, HttpServletResponse.SC_BAD_REQUEST);
         }
 
+        //Make sure property name has at least one dot separator
+        if (!propertyName.contains(".")){
+            ServletError errorDetails = new ServletError(GAL5043_INVALID_PROPERTY_NAME_NO_DOT_SEPARATOR, propertyName);
+            throw new InternalServletException(errorDetails, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        //Make sure the property name does not end in a dot
+        if (propertyName.endsWith(".")){
+            ServletError error = new ServletError(GAL5044_INVALID_PROPERTY_NAME_TRAILING_DOT, propertyName);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
         for(int charIndex = 0 ; charIndex < propertyName.length() ; charIndex +=1 ) {
             int c = propertyName.charAt(charIndex);
             if (charIndex==0) {
                 // Check the first character.
                 if (propertyValidFirstCharacters.indexOf(c) < 0) {
-                    String messageTemplate = "Invalid property name. '%s' must not start with the '%s' character." +
-                            " Allowable first characters are 'a'-'z' or 'A'-'Z'.";
-                    String message = String.format(messageTemplate, propertyName, Character.toString(c));
-
-                    throw new FrameworkException(FrameworkErrorCode.INVALID_PROPERTY, message);
+                    ServletError errorDetails = new ServletError(GAL5041_INVALID_PROPERTY_NAME_FIRST_CHAR, propertyName, Character.toString(c));
+                    throw new InternalServletException(errorDetails, HttpServletResponse.SC_BAD_REQUEST);
                 }
             } else {
                 // Check a following character.
                 if(propertyValidFollowingCharacters.indexOf(c) < 0 ) {
-                    String messageTemplate = "Invalid property name. '%s' must not contain the '%s' character." +
-                            " Allowable characters after the first character are 'a'-'z', 'A'-'Z', '0'-'9',"+
-                            " '-' (dash), '.' (dot) and '_' (underscore)";
-                    String message = String.format(messageTemplate, propertyName, Character.toString(c));
-                    throw new FrameworkException(FrameworkErrorCode.INVALID_PROPERTY, message);
+                    ServletError errorDetails = new ServletError(GAL5042_INVALID_PROPERTY_NAME_INVALID_CHAR, propertyName, Character.toString(c));
+                    throw new InternalServletException(errorDetails, HttpServletResponse.SC_BAD_REQUEST);
                 }
             }
         }

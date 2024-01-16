@@ -172,8 +172,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid property name. 'property1!' must not contain the '!' character. Allowable characters after the first character are 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), '.' (dot) and '_' (underscore)'");
+        assertThat(errors.get(0)).contains("GAL5043E: Invalid property name. Property name 'property1!' much have at least two parts seperated by a . (dot).");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -197,8 +196,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid property name. Property name 'property.name.' can not end with a '.' (dot) seperator.");
+        assertThat(errors.get(0)).contains("GAL5044E: Invalid property name. Property name 'property.name.' must not end with a . (dot) seperator.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -222,8 +220,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid property name. '.property.name' must not start with the '.' character. Allowable first characters are 'a'-'z' or 'A'-'Z'.");
+        assertThat(errors.get(0)).contains("GAL5041E: Invalid property name. '.property.name' must not start with the '.' character. Allowable first characters are a-z or A-Z.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -247,8 +244,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid property name. Property name much have at least two parts seperated by a '.' (dot)");
+        assertThat(errors.get(0)).contains("GAL5043E: Invalid property name. Property name 'property' much have at least two parts seperated by a . (dot).");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -272,8 +268,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid property name. Property name is missing or empty.");
+        assertThat(errors.get(0)).contains("GAL5040E: Invalid property name. Property name is missing or empty.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -297,8 +292,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid namespace. Namespace is empty.");
+        assertThat(errors.get(0)).contains("GAL5031E: Invalid namespace. Namespace is empty.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -322,8 +316,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid namespace name. 'namespace@' must not contain the '@' character. Allowable characters after the first character are 'a'-'z', 'A'-'Z', '0'-'9'.");
+        assertThat(errors.get(0)).contains("GAL5033E: Invalid namespace name. 'namespace@' must not contain the '@' character. Allowable characters after the first character are a-z, A-Z, 0-9.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -347,8 +340,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid namespace name. 'namespace.' must not contain the '.' character. Allowable characters after the first character are 'a'-'z', 'A'-'Z', '0'-'9'.");
+        assertThat(errors.get(0)).contains("GAL5033E: Invalid namespace name. 'namespace.' must not contain the '.' character. Allowable characters after the first character are a-z, A-Z, 0-9.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -372,8 +364,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid namespace name. '.namespace' must not start with the '.' character. Allowable first characters are 'a'-'z' or 'A'-'Z'.");
+        assertThat(errors.get(0)).contains("GAL5032E: Invalid namespace name. '.namespace' must not start with the '.' character. Allowable first characters are a-z or A-Z.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -422,12 +413,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(3);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid property name. Property name is missing or empty.");
-        assertThat(errors.get(1)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "Invalid namespace. Namespace is empty.");
-        assertThat(errors.get(2)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "The 'value' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.");
+        assertThat(errors.get(0)).contains("GAL5040E: Invalid property name. Property name is missing or empty.");
+        assertThat(errors.get(1)).contains("GAL5031E: Invalid namespace. Namespace is empty.");
+        assertThat(errors.get(2)).contains("GAL5024E: Error occured because the Galasa Property is invalid. 'The 'value' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.'");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 

@@ -64,6 +64,10 @@ public enum ServletErrorMessage {
     GAL5038_INVALID_PROPERTY_NAME_SUFFIX_FIRST_CHAR   (5038, "E: Invalid property name suffix. ''{0}'' must not start with the ''{1}'' character. Allowable first characters are 'a'-'z' or 'A'-'Z'."),
     GAL5039_INVALID_PROPERTY_NAME_SUUFIX_INVALID_CHAR (5039, "E: Invalid property name suffix. ''{0}'' must not contain the ''{1}'' character. Allowable characters after the first character are 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), '.' (dot) and '_' (underscore)."),
     GAL5040_INVALID_PROPERTY_NAME_EMPTY               (5040, "E: Invalid property name. Property name is missing or empty."),
+    GAL5041_INVALID_PROPERTY_NAME_FIRST_CHAR          (5041, "E: Invalid property name. ''{0}'' must not start with the ''{1}'' character. Allowable first characters are 'a'-'z' or 'A'-'Z'."),
+    GAL5042_INVALID_PROPERTY_NAME_INVALID_CHAR        (5042, "E: Invalid property name. ''{0}'' must not contain the ''{1}'' character. Allowable characters after the first character are 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), '.' (dot) and '_' (underscore)"),
+    GAL5043_INVALID_PROPERTY_NAME_NO_DOT_SEPARATOR    (5043, "E: Invalid property name. Property name ''{0}'' much have at least two parts seperated by a '.' (dot)."),
+    GAL5044_INVALID_PROPERTY_NAME_TRAILING_DOT        (5044, "E: Invalid property name. Property name ''{0}'' must not end with a '.' (dot) seperator."),
     
     //Resources APIs...
     GAL5025_UNSUPPORTED_ACTION                        (5025, "E: Error occurred when trying to apply resources. Action ''{0}'' supplied is not supported. Supported actions are: create, apply and update."),
