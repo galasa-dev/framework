@@ -39,7 +39,7 @@ public enum ServletErrorMessage {
     //CPS Namespaces...
     GAL5015_INTERNAL_CPS_ERROR                        (5015,"E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."),
     GAL5016_INVALID_NAMESPACE_ERROR                   (5016,"E: Error occured when trying to access namespace ''{0}''. The namespace provided is invalid."),
-    GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR             (5017,"E: Error occured when trying to access property ''{0}''. The property name provided is invalid."),
+    GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR             (5017,"E: Error occured when trying to access property ''{0}''. The property does not exist."),
     GAL5018_PROPERTY_ALREADY_EXISTS_ERROR             (5018,"E: Error occured when trying to access property ''{0}''. The property name provided already exists in the ''{1}'' namespace."),
     GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR   (5028,"E: The GalasaProperty namespace ''{0}'' must match the url namespace ''{1}''."),
     GAL5029_PROPERTY_NAME_DOES_NOT_MATCH_ERROR        (5029,"E: The GalasaProperty name ''{0}'' must match the url namespace ''{1}''."),

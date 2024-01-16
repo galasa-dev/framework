@@ -668,11 +668,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.size()).isEqualTo(1);
         checkPropertyNotInNamespace(namespace,propertyname,value);
         checkPropertyInNamespace(namespace,propertyNameTwo,valueTwo);
-        assertThat(errors.get(0)).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property name provided is invalid.");
+        assertThat(errors.get(0)).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property does not exist.");
     }
 
     @Test
-    public void TestProcessDataArrayUpdateWithTwoNewRecordsJSONReturnsOneError() throws Exception{
+    public void TestProcessDataArrayUpdateWithTwoNewRecordsJSONReturnsTwoError() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -695,8 +695,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.size()).isEqualTo(2);
         checkPropertyNotInNamespace(namespace,propertyname,value);
         checkPropertyNotInNamespace(namespace,propertyname,value);
-        assertThat(errors.get(0)).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property name provided is invalid.");
-        assertThat(errors.get(1)).contains("GAL5017E: Error occured when trying to access property 'property.name.2'. The property name provided is invalid.");
+        assertThat(errors.get(0)).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property does not exist.");
+        assertThat(errors.get(1)).contains("GAL5017E: Error occured when trying to access property 'property.name.2'. The property does not exist");
     }
 
     /*
@@ -870,7 +870,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(status).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(output).contains("The property name provided is invalid.");
+        assertThat(output).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property does not exist.");
         checkPropertyNotInNamespace(namespace, propertyname, value);
     }
 
