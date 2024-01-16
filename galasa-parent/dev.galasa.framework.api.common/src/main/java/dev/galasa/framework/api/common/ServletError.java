@@ -9,14 +9,16 @@ import java.text.MessageFormat;
 
 import com.google.gson.*;
 
-import dev.galasa.framework.spi.FrameworkException;
-
-public class ServletError extends FrameworkException {
+public class ServletError {
 
     String [] params ;
     ServletErrorMessage template ;
+    String message ;
 
     public ServletError( ServletErrorMessage template , String... params ) {
+
+        String templateString = template.toString();        
+        this.message = MessageFormat.format(templateString, (Object[])params);
 
         this.template = template;
         this.params = params;
@@ -24,17 +26,18 @@ public class ServletError extends FrameworkException {
 
     public String toString() {
 
-        String templateString = template.toString();
-        int templateNumber = template.getTemplateNumber();
-        String message = MessageFormat.format(templateString, (Object[])params);
-
         JsonObject obj = new JsonObject();
+        int templateNumber = template.getTemplateNumber();
         obj.addProperty("error_code", templateNumber);
-		obj.addProperty("error_message", message);
+		obj.addProperty("error_message", this.message);
 
         String renderedJsonMessage = obj.toString();
 
         return renderedJsonMessage ;
+    }
+
+    public String getMessage() {
+        return this.message ;
     }
 
 }

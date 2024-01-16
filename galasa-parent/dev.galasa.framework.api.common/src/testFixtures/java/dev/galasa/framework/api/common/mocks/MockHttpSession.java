@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionContext;
+import javax.servlet.http.*;
 
 public class MockHttpSession implements HttpSession {
 
@@ -97,6 +96,7 @@ public class MockHttpSession implements HttpSession {
         throw new UnsupportedOperationException("Unimplemented method 'isNew'");
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public HttpSessionContext getSessionContext() {
         throw new UnsupportedOperationException("Unimplemented method 'getSessionContext'");
