@@ -23,12 +23,26 @@ public class TestResourceNameValidator {
         assertThat(thrown).isNull();
     }
 
+    private void assertNotValidNamespace(String namespaceToCheck) {
+        Throwable thrown = catchThrowable(() -> {
+            validator.assertNamespaceCharPatternIsValid(namespaceToCheck);
+        });
+
+        assertThat(thrown).isNotNull();
+    }
+
     @Test
     public void testNamespaceCanStartWithLetter() {
         assertValidNamespace("a");
-        assertValidNamespace("A");
+        assertValidNamespace("f");
         assertValidNamespace("z");
-        assertValidNamespace("Z");
+    }
+
+    @Test
+    public void testNamespaceCanNotStartWithUpperCaseLetter() {
+        assertNotValidNamespace("S");
+        assertNotValidNamespace("A");
+        assertNotValidNamespace("H");
     }
 
     @Test
@@ -46,11 +60,19 @@ public class TestResourceNameValidator {
     }
 
     @Test
-    public void testNamespaceCanContinueWithLetter() {
+    public void testNamespaceCanContinueWithLowerCaseLetter() {
         assertValidNamespace("aa");
-        assertValidNamespace("AA");
+        assertValidNamespace("ad");
         assertValidNamespace("zz");
-        assertValidNamespace("ZZ");
+        assertValidNamespace("ze");
+    }
+
+    @Test
+    public void testNamespaceCanNotContinueWithUpperCaseLetter() {
+        assertNotValidNamespace("aA");
+        assertNotValidNamespace("aD");
+        assertNotValidNamespace("zJ");
+        assertNotValidNamespace("zZ");
     }
 
     @Test
@@ -105,16 +127,17 @@ public class TestResourceNameValidator {
         assertValidPropertyNameIsOk("a.b.c");
         assertValidPropertyNameIsOk("a.-b-c");
         assertValidPropertyNameIsOk("a_b_.c");
-        assertValidPropertyNameIsOk("A.a");
-        assertValidPropertyNameIsOk("A.0");
-        assertValidPropertyNameIsOk("A.B.C");
-        assertValidPropertyNameIsOk("A_B._C");
-        assertValidPropertyNameIsOk("A-.B-C");
+
     }
 
     @Test
     public void assertPropertyNameWithInvalidFirstCharCausesError() {
         assertInvalidPropertyNameFirstCharacter("0");
+        assertInvalidPropertyNameFirstCharacter(".a");
+        assertInvalidPropertyNameFirstCharacter("_.0");
+        assertInvalidPropertyNameFirstCharacter("!.B.C");
+        assertInvalidPropertyNameFirstCharacter("~_B._C");
+        assertInvalidPropertyNameFirstCharacter("-.B-C");
     }
 
     private void assertInvalidPropertyNameFirstCharacter(String propertyNameToCheck) {

@@ -18,17 +18,16 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
  */
 public class ResourceNameValidator {
 
-    public static final String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    public static final String digits = "0123456789";
+    static final String lowercaseLetters = "abcdefghijklmnopqrstuvwxyz";
+    static final String capitalLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static final String digits = "0123456789";
 
+    static final String namespaceValidFirstCharacters = lowercaseLetters ;
+    static final String namespaceValidFollowingCharacters = namespaceValidFirstCharacters + digits ;
 
-
-    public static final String namespaceValidFirstCharacters = letters ;
-    public static final String namespaceValidFollowingCharacters = namespaceValidFirstCharacters + digits ;
-
-    public static final String propertyValidFirstCharacters = letters ;
-    public static final String propertySeparators = ".-_";
-    public static final String propertyValidFollowingCharacters = propertyValidFirstCharacters
+    static final String propertyValidFirstCharacters = lowercaseLetters + capitalLetters ;
+    static final String propertySeparators = ".-_";
+    static final String propertyValidFollowingCharacters = propertyValidFirstCharacters
             + digits + propertySeparators ;
 
     public void assertNamespaceCharPatternIsValid(String possibleNamespaceName) throws InternalServletException {
@@ -57,7 +56,6 @@ public class ResourceNameValidator {
             }
         }
     }
-
 
     /**
      * Validate the prefix of a cps property.

@@ -168,19 +168,9 @@ public class AccessCps extends HttpServlet {
         } catch (IOException e) {
             sendServerInternalError(resp, e);
         } catch (FrameworkException e) {
-            switch( e.getErrorCode() ) {
-
-                case INVALID_PROPERTY:
-                case INVALID_NAMESPACE:
-                    sendError(resp, MessageFormat.format("Invalid request: {0}",e.getMessage())
-                            , 400 // Bad request.
-                    );
-                    break;
-
-                case UNKNOWN:
-                default:
-                    sendServerInternalError(resp, e);
-            }
+            sendError(resp, MessageFormat.format("Invalid request: {0}",e.getMessage())
+                    , 400 // Bad request.
+            );
         }
     }
 

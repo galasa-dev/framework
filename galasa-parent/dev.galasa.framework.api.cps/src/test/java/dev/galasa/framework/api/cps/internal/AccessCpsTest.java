@@ -172,8 +172,8 @@ public class AccessCpsTest {
         IFramework mockFramework = new MockFramework() {
             @Override
             public IConfigurationPropertyStoreService getConfigurationPropertyService(String namespace) throws ConfigurationPropertyStoreException {
-                FrameworkException originalCause = new FrameworkException(FrameworkErrorCode.INVALID_NAMESPACE,
-                        "bad namespace characters - for unit testing");
+                FrameworkException originalCause = new FrameworkException(new FrameworkErrorDetailsBase (2,
+                        "bad namespace characters - for unit testing"));
                 throw new ConfigurationPropertyStoreException(originalCause);
             }
         };

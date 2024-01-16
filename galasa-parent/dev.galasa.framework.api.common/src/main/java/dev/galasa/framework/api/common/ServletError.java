@@ -24,7 +24,7 @@ public class ServletError {
         this.params = params;
     }
 
-    public String toString() {
+    public String toJsonString() {
 
         JsonObject obj = new JsonObject();
         int templateNumber = template.getTemplateNumber();

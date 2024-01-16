@@ -86,7 +86,7 @@ public class BaseServlet extends HttpServlet {
             logger.error(errorString, ex);
         } catch (Throwable t) {
             // We didn't expect this failure to arrive. So deliver a generic error message.
-            errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
+            errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toJsonString();
             httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
             logger.error(errorString, t);
         }
