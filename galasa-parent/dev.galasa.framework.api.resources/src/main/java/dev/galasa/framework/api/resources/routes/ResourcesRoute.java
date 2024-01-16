@@ -113,7 +113,7 @@ public class ResourcesRoute  extends BaseRoute{
     }
     
 
-    private boolean checkGalasaPropertyJsonStructure(JsonObject propertyJson){
+    private boolean checkGalasaPropertyJsonStructure(JsonObject propertyJson) throws InternalServletException{
         List<String> validationErrors = new ArrayList<String>();
         if (propertyJson.has("apiVersion")&& propertyJson.has("metadata")&&propertyJson.has("data")){
             //Check metadata is not null and contains name and namespace fields in the correct format
@@ -141,13 +141,8 @@ public class ResourcesRoute  extends BaseRoute{
                         ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, f.getMessage());
                         validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
                     }
+                    nameValidator.assertNamespaceCharPatternIsValid(namespace.getAsString());
 
-                    try {
-                        nameValidator.assertNamespaceCharPatternIsValid(namespace.getAsString());
-                    } catch (FrameworkException f){
-                        ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, f.getMessage());
-                        validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-                    }
             } else {
                 String message = "The 'metadata' field can not be empty. The fields 'name' and 'namespace' are mandaotry for the type GalasaProperty.";
                 ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);

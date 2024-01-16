@@ -32,6 +32,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.resources.ResourceNameValidator;
 import dev.galasa.framework.spi.*;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -124,29 +125,23 @@ public class AccessCps extends HttpServlet {
             }
 
             sendError(resp, "Invalid GET URL - " + req.getPathInfo()
-                     , 400 // Bad Request
+                     , HttpServletResponse.SC_BAD_REQUEST // Bad Request
                      );
 
         } catch (IOException e) {
             sendServerInternalError(resp, e);
-        } catch (FrameworkException e) {
-            switch( e.getErrorCode() ) {
-
-                case INVALID_PROPERTY:
-                case INVALID_NAMESPACE:
-                    {
-                        String message = MessageFormat.format("Invalid request: {0}",e.getMessage());
-                        logger.info(message);
-                        sendError(resp, message
-                            , 400 // Invalid URL
-                            );
-                    }
-                    break;
-
-                case UNKNOWN:
-                default:
-                    sendServerInternalError(resp, e);
-            }
+        } catch (InternalServletException e) {
+            String message = e.getMessage();
+            logger.info(message,e);
+            sendError(resp, message
+                , e.getHttpFailureCode()
+                );
+        } catch(FrameworkException e ) {
+            String message = e.getMessage();
+            logger.info(message,e);
+            sendError(resp, message
+                , HttpServletResponse.SC_BAD_REQUEST
+                );
         }
     }
 
