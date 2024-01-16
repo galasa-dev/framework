@@ -91,7 +91,7 @@ public class JwtAuthFilter implements Filter {
             errorString = e.getMessage();
             httpStatusCode = e.getHttpFailureCode();
         } catch (Exception e) {
-            errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
+            errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toJsonString();
             httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
         responseBuilder.buildResponse(servletResponse, "application/json", errorString, httpStatusCode);

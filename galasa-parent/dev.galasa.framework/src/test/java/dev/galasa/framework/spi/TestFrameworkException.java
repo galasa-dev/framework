@@ -13,57 +13,54 @@ public class TestFrameworkException {
     @Test
     public void testRaisingWithNoCodeResultsInUnknownCodeStored() {
         FrameworkException ex = new FrameworkException();
-        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorCode.UNKNOWN);
+        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorDetailsBase.UNKNOWN);
     }
 
     @Test
     public void testRaisingWithErrorCodeCausesCodeToBeStored() {
-        FrameworkException ex = new FrameworkException(FrameworkErrorCode.INVALID_NAMESPACE);
-        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorCode.INVALID_NAMESPACE);
+        FrameworkException ex = new FrameworkException(new FrameworkErrorDetailsBase(2,"this is a message"));
+        assertThat(ex.getErrorCode()).isEqualTo(2);
     }
 
     @Test
     public void testRaisingWithRandomExceptionCausesUnknownCodeToBeStored() {
         Exception cause = new Exception("random exception for unit tests");
         FrameworkException ex = new FrameworkException(cause);
-        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorCode.UNKNOWN);
+        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorDetailsBase.UNKNOWN);
     }
 
     @Test
     public void testRaisingWithFrameworkExceptionCausesCodeToBeTransferred() {
-        Exception cause = new FrameworkException(FrameworkErrorCode.INVALID_NAMESPACE,
-                "random exception for unit tests");
+        Exception cause = new FrameworkException(new FrameworkErrorDetailsBase(2,"this is a message"));
         FrameworkException ex = new FrameworkException(cause);
-        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorCode.INVALID_NAMESPACE);
+        assertThat(ex.getErrorCode()).isEqualTo(2);
     }
 
     @Test
     public void testRaisingWithMessageAndRandomExceptionCausesUnknownToBeTransferred() {
         Exception cause = new Exception("random exception for unit tests");
         FrameworkException ex = new FrameworkException("exception for unit testing",cause);
-        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorCode.UNKNOWN);
+        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorDetailsBase.UNKNOWN);
     }
 
     @Test
     public void testRaisingWithMessageAndFrameworkExceptionCausesCodeToBeTransferred() {
-        Exception cause = new FrameworkException(FrameworkErrorCode.INVALID_NAMESPACE,
-                "random exception for unit tests");
+        Exception cause = new FrameworkException(new FrameworkErrorDetailsBase(5,"random exception for unit tests"));
         FrameworkException ex = new FrameworkException("exception for unit testing",cause);
-        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorCode.INVALID_NAMESPACE);
+        assertThat(ex.getErrorCode()).isEqualTo(5);
     }
 
     @Test
     public void testRaisingWithLoadsOfParametersAndRandomExceptionCausesUnknownToBeStored() {
         Exception cause = new Exception("random exception for unit tests");
         FrameworkException ex = new FrameworkException("exception for unit testing",cause,true,true);
-        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorCode.UNKNOWN);
+        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorDetailsBase.UNKNOWN);
     }
 
     @Test
     public void testRaisingWithLoadsOfParametersAndFrameworkExceptionCausesCodeToBeTransferred() {
-        Exception cause = new FrameworkException(FrameworkErrorCode.INVALID_NAMESPACE,
-                "random exception for unit tests");
+        Exception cause = new FrameworkException(new FrameworkErrorDetailsBase(2,"random exception for unit tests"));
         FrameworkException ex = new FrameworkException("exception for unit testing",cause,true,true);
-        assertThat(ex.getErrorCode()).isEqualTo(FrameworkErrorCode.INVALID_NAMESPACE);
+        assertThat(ex.getErrorCode()).isEqualTo(2);
     }
 }
