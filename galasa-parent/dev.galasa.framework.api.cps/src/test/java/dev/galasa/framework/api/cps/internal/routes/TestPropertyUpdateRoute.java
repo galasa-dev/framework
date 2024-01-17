@@ -636,7 +636,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
        checkErrorStructure(
 			outStream.toString(),
 			5017,
-			"E: Error occured when trying to access property 'property.6'. The property name provided is invalid."
+			"E: Error occured when trying to access property 'property.6'. The property does not exist."
 		);        
     }
 
