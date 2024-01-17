@@ -8,7 +8,6 @@ package dev.galasa.framework.api.ras.internal.mocks;
 import java.util.*;
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.framework.internal.ras.directory.DirectoryRASRunResult;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;

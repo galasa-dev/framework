@@ -66,7 +66,7 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
             SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language)
             throws FrameworkException {
             if (stream.equals("null")){
-                throw new FrameworkException(null, language, null, local, trace);
+                throw new FrameworkException(language);
             }
         return new MockIRun("runname"+testName, type, requestor, testName, sharedEnvironmentRunName, bundleName, language, groupName);
     }

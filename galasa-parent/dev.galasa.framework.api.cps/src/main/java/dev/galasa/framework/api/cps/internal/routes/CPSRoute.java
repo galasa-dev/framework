@@ -17,7 +17,6 @@ import javax.validation.constraints.NotNull;
 
 import com.google.gson.Gson;
 
-import dev.galasa.framework.ResourceNameValidator;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -25,8 +24,12 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
+import dev.galasa.framework.api.common.resources.ResourceNameValidator;
+import dev.galasa.framework.api.common.resources.beans.GalasaBeanSerialiser;
+import dev.galasa.framework.api.common.resources.beans.GalasaProperty;
+import dev.galasa.framework.api.common.resources.beans.GalasaPropertyMetadata;
+import dev.galasa.framework.api.common.resources.beans.GalasaPropertyData;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
@@ -41,6 +44,8 @@ public abstract class CPSRoute extends BaseRoute {
 
     static final ResourceNameValidator nameValidator = new ResourceNameValidator();
     static final Gson gson = GalasaGsonBuilder.build();
+
+    static final GalasaBeanSerialiser beanSerialiser = new GalasaBeanSerialiser();
 
     // Define a default filter to accept everything
     static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
@@ -117,7 +122,7 @@ public abstract class CPSRoute extends BaseRoute {
         boolean valid = false;
         String propertyName = "";
         try {
-            GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(jsonString);
+            GalasaProperty galasaProperty = beanSerialiser.getPropertyFromJsonString(jsonString);
             propertyName = galasaProperty.getName();
             if (propertyName.equals(name)) {
                 valid = true;
@@ -133,7 +138,7 @@ public abstract class CPSRoute extends BaseRoute {
     }
 
     protected CPSProperty applyPropertyToStore (String jsonString, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
-        GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(jsonString);
+        GalasaProperty galasaProperty = beanSerialiser.getPropertyFromJsonString(jsonString);
         CPSFacade cps = new CPSFacade(framework);
         CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
         if (namespace.isHidden()) {
@@ -179,7 +184,7 @@ public abstract class CPSRoute extends BaseRoute {
             return namespace[3];
         } catch (Exception e) {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
         }
     }
 
@@ -198,7 +203,7 @@ public abstract class CPSRoute extends BaseRoute {
             return namespace[1];
         } catch (Exception e) {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
         }
     }
 
@@ -206,22 +211,32 @@ public abstract class CPSRoute extends BaseRoute {
         /*
          * Builds a json array object from a Map of properties
          */
-        List<GalasaProperty> propertyArray = new ArrayList<GalasaProperty>();
+        List<GalasaProperty> results = new ArrayList<GalasaProperty>();
         for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
             CPSProperty property = entry.getValue();
-            propertyArray.add(new GalasaProperty(property));
+
+            GalasaPropertyMetadata metadata = new GalasaPropertyMetadata( property.getNamespace(), property.getName());
+            GalasaPropertyData data = new GalasaPropertyData( property.getPossiblyRedactedValue());
+            GalasaProperty galasaProperty = new GalasaProperty(metadata,data);
+
+            results.add(galasaProperty);
         }
-        return gson.toJson(propertyArray);
+        return gson.toJson(results);
     }
 
     protected String buildResponseBody(CPSProperty property) {
         /*
          * Builds a json array object from a single GalasaProperty containing a property
          */
-        List<GalasaProperty> propertyArray = new ArrayList<GalasaProperty>();
+        List<GalasaProperty> results = new ArrayList<GalasaProperty>();
         if (property != null){
-            propertyArray.add(new GalasaProperty(property));
+
+            GalasaPropertyMetadata metadata = new GalasaPropertyMetadata( property.getNamespace(), property.getName());
+            GalasaPropertyData data = new GalasaPropertyData( property.getPossiblyRedactedValue());
+            GalasaProperty galasaProperty = new GalasaProperty(metadata,data);
+
+            results.add(galasaProperty);
         }
-        return gson.toJson(propertyArray);
+        return gson.toJson(results);
     }
 }

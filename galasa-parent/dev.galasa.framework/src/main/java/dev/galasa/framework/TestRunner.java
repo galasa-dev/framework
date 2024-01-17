@@ -569,7 +569,7 @@ public class TestRunner {
     }
 
     private void stopEnvironment(TestRunManagers managers) {
-        if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {   
+        if (this.runType != RunType.SHARED_ENVIRONMENT_BUILD) {   
             logger.info("Starting Provision Stop phase");
             managers.provisionStop();
         }

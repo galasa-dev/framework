@@ -35,7 +35,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class PropertyRoute extends CPSRoute{
 
-    private static final String path = "\\/([a-z0-9]+)/properties([?]?|[^/])+$";
+    protected static final String path = "\\/([a-z][a-z0-9]+)/properties([?]?|[^/])+$";
 
     public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework) {
         super(responseBuilder, path , framework);
@@ -49,10 +49,11 @@ public class PropertyRoute extends CPSRoute{
             throws ServletException, IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String properties = getNamespaceProperties(namespace, queryParams);
+        checkNamespaceExists(namespace);
         return getResponseBuilder().buildResponse(response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
 
-    private String getNamespaceProperties(String namespaceName, QueryParameters queryParams) throws FrameworkException{
+    private String getNamespaceProperties(String namespaceName, QueryParameters queryParams) throws InternalServletException{
         String properties = "";
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
@@ -68,7 +69,7 @@ public class PropertyRoute extends CPSRoute{
             properties = getProperties(namespace, prefix, suffix, infixes);
         }catch (FrameworkException f){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, f);
         }
         return properties;
     }

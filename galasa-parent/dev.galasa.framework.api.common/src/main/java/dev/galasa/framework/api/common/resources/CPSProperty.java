@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.beans.GalasaProperty;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 
@@ -62,6 +63,10 @@ public class CPSProperty {
         return this.name.getNamespaceName();
     }
 
+    public String getQualifiedName() {
+        return this.getNamespace()+"."+this.getName();
+    }
+
     public String getName() {
         return this.name.getSimpleName();
     }
@@ -70,7 +75,7 @@ public class CPSProperty {
         return this.value;
     }
 
-    public String getOutputValue() {
+    public String getPossiblyRedactedValue() {
         String outputValue  = this.value;
         if (namespace.isSecure()){
             outputValue = REDACTED_PROPERTY_VALUE;
@@ -115,7 +120,7 @@ public class CPSProperty {
             store.deleteProperty(this.getName());
         } catch (ConfigurationPropertyStoreException e) {
             ServletError error = new ServletError(GAL5030_UNABLE_TO_DELETE_PROPERTY_ERROR, this.getName());  
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
     }
 

@@ -47,7 +47,7 @@ public class GroupRuns extends BaseRoute {
             runs = this.framework.getFrameworkRuns().getAllGroupedRuns(groupName);
         } catch (FrameworkException fe) {
             ServletError error = new ServletError(GAL5019_UNABLE_TO_RETRIEVE_RUNS, groupName);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, fe);
         }
         return runs;
     }
@@ -76,7 +76,7 @@ public class GroupRuns extends BaseRoute {
             scheduleRequest = gson.fromJson(payload,ScheduleRequest.class);
         } catch(Exception e) {
             ServletError error = new ServletError(GAL5020_UNABLE_TO_CONVERT_TO_SCHEDULE_REQUEST);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
         }
         return scheduleRequest;
     }
@@ -97,7 +97,7 @@ public class GroupRuns extends BaseRoute {
                     senvPhase = SharedEnvironmentPhase.valueOf(request.getSharedEnvironmentPhase());
                 } catch (Throwable t) {
                     ServletError error = new ServletError(GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE,sharedEnvironmentPhase);
-                    throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, t);
                 }
             }
 
@@ -115,7 +115,7 @@ public class GroupRuns extends BaseRoute {
                 status.getRuns().add(newRun.getSerializedRun());
             } catch (FrameworkException fe) {
                 ServletError error = new ServletError(GAL5021_UNABLE_TO_SUBMIT_RUNS, className);  
-                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, fe);
             }
         }
         return status;

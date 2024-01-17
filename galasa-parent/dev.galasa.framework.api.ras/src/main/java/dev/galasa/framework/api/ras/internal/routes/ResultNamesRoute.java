@@ -31,12 +31,14 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 public class ResultNamesRoute extends RunsRoute {
 
+	protected static final String path = "\\/resultnames\\/?";
+
 	public ResultNamesRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints: 
 		*  -> /ras/resultnames
 		*  -> /ras/resultnames?
 		*/
-		super(responseBuilder, "\\/resultnames\\/?", framework);
+		super(responseBuilder, path, framework);
 	}
 
 	final static Gson gson = GalasaGsonBuilder.build();
@@ -59,7 +61,7 @@ public class ResultNamesRoute extends RunsRoute {
 			}
 		} catch (InternalServletException e){
 			ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, "resultnames");
-			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
 		}
 
 		JsonElement json = new Gson().toJsonTree(resultsList);

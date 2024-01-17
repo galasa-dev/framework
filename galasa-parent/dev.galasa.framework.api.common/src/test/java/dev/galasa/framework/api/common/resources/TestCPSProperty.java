@@ -34,7 +34,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyDefaultApiVersion() throws InternalServletException{
+    public void TestCPSPropertyDefaultApiVersion() throws InternalServletException{
         //Given...
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
@@ -51,7 +51,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyFromString() throws InternalServletException{
+    public void TestCPSPropertyFromString() throws InternalServletException{
         //Given...
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
@@ -69,7 +69,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyFromMapEntry() throws InternalServletException{
+    public void TestCPSPropertyFromMapEntry() throws InternalServletException{
         //Given...
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
@@ -88,7 +88,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyCustomApiVersion() throws InternalServletException{
+    public void TestCPSPropertyCustomApiVersion() throws InternalServletException{
         //Given...
         String namespace = "randomnamespace";
         String propertyName = "random.property.name";
@@ -105,7 +105,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyNoDataIsInvalid() throws InternalServletException{
+    public void TestCPSPropertyNoDataIsInvalid() throws InternalServletException{
         //Given...
         String namespace = null;
         String propertyName = null;
@@ -128,7 +128,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyNoDataDefaultApiVersionIsInvalid() throws InternalServletException{
+    public void TestCPSPropertyNoDataDefaultApiVersionIsInvalid() throws InternalServletException{
         //Given...
         String namespace = null;
         String propertyName = null;
@@ -151,7 +151,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyNamespaceOnlyIsInvalid() throws InternalServletException{
+    public void TestCPSPropertyNamespaceOnlyIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = null;
@@ -174,7 +174,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyPartialDataIsInvalid() throws InternalServletException{
+    public void TestCPSPropertyPartialDataIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "property";
@@ -197,7 +197,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyNoNamespaceIsInvalid() throws InternalServletException{
+    public void TestCPSPropertyNoNamespaceIsInvalid() throws InternalServletException{
         //Given...
         String namespace = null;
         String propertyName = "property";
@@ -220,7 +220,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyNoNameIsInvalid() throws InternalServletException{
+    public void TestCPSPropertyNoNameIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "";
@@ -243,7 +243,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGalasaPropertyNoValueIsInvalid() throws InternalServletException{
+    public void TestCPSPropertyNoValueIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "property";
@@ -281,7 +281,7 @@ public class TestCPSProperty extends BaseServletTest {
         CPSProperty property = new CPSProperty(mockCPS, namespace, galasaPropertyName, propertyValue);
 
         //When...
-        String outputValue = property.getOutputValue();
+        String outputValue = property.getPossiblyRedactedValue();
 
         //Then...
         assertThat(outputValue.equals(propertyValue)).isTrue();
@@ -303,7 +303,7 @@ public class TestCPSProperty extends BaseServletTest {
         CPSProperty property = new CPSProperty(mockCPS, namespace, galasaPropertyName, propertyValue);
 
         //When...
-        String outputValue = property.getOutputValue();
+        String outputValue = property.getPossiblyRedactedValue();
 
         //Then...
         assertThat(outputValue.equals("********")).isTrue();

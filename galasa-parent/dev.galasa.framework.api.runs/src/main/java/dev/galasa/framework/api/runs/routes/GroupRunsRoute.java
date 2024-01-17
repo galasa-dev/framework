@@ -30,6 +30,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class GroupRunsRoute extends GroupRuns{
 
+    protected static final String path = "\\/[a-zA-Z0-9_\\-]*";
     private final Gson gson = GalasaGsonBuilder.build();
 
 
@@ -37,7 +38,7 @@ public class GroupRunsRoute extends GroupRuns{
         /* Regex to match endpoints: 
 		*  -> /runs/{GroupID}
 		*/
-        super(responseBuilder, "\\/[a-zA-Z0-9_\\-]*", framework);
+        super(responseBuilder, path, framework);
     }
 
     public HttpServletResponse handleGetRequest(String groupName, QueryParameters queryParams, HttpServletRequest request, HttpServletResponse response)
