@@ -40,6 +40,11 @@ public class MockFramework implements IFramework {
         this.frameworkRuns = frameworkRuns;
     }
 
+    public MockFramework(IResultArchiveStore archiveStore, IFrameworkRuns frameworkRuns) {
+        this.archiveStore = archiveStore;
+        this.frameworkRuns = frameworkRuns;
+    }
+
     public MockFramework(IConfigurationPropertyStoreService cpsService){
         this.cpsService = (MockIConfigurationPropertyStoreService) cpsService;
     }

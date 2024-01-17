@@ -63,6 +63,18 @@ public abstract class MockServletBaseEnvironment {
         this.servlet.setFramework(this.mockFramework);
     }
 
+    public MockServletBaseEnvironment(MockFramework mockFramework, List<IRunResult> mockInpResults, MockHttpServletRequest mockRequest, MockResultArchiveStoreDirectoryService rasStore ) {
+        this.setMockInputs(mockInpResults);
+        this.directoryServices = setDirectoryService(rasStore);
+        this.setArchiveStore(new MockArchiveStore(this.directoryServices));
+        this.mockFramework = mockFramework;
+        this.req = mockRequest;
+        this.outStream = new MockServletOutputStream();
+        this.writer = new PrintWriter(this.outStream);
+        this.resp = new MockHttpServletResponse(this.writer, this.outStream);
+        this.servlet = createServlet();
+        this.servlet.setFramework(this.mockFramework);
+    }
 
     public abstract IServletUnderTest createServlet();
 
