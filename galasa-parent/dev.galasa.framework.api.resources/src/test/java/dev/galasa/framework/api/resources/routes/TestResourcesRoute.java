@@ -466,7 +466,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5027E: Error occured because the api version '' is not a supported version. Currently the ecosystem accepts the 'galasa-dev/v1alpha1' api version.");
+        assertThat(thrown.getMessage()).contains("GAL5027E: Error occured. The field apiVersion in the request body is invalid. The value '' is not a supported version." +
+            " Currently the ecosystem accepts the 'galasa-dev/v1alpha1' api version. This could indicate a mis-match between client and server levels." +
+            " Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -560,7 +562,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size() > 0).isTrue();
-        checkErrorListContainsError(errors,"GAL5026E: Error occured because the resource type 'GalasaProperly' is not supported");
+        checkErrorListContainsError(errors,"GAL5026E: Error occured. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
+            " This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level." +
+            " You may have to upgrade/downgrade your client program.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -792,7 +796,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String message = thrown.getMessage();
         checkErrorStructure(message, 
             5025,
-            "GAL5025E: Error occurred when trying to apply resources. Action 'badaction' supplied is not supported. Supported actions are: create, apply and update.");
+            "GAL5025E: Error occured. The field action in the request body is invalid. The action value'badaction' supplied is not supported." +
+                " Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels." +
+                " Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
