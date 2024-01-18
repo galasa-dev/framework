@@ -16,6 +16,7 @@ import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockIFrameworkRuns;
 import dev.galasa.framework.api.common.mocks.MockIRun;
+import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRun;
@@ -46,10 +47,11 @@ public class TestRunDetailsRoute extends RasServletTest {
       "}";
     }
 
-	public String generateStatusUpdateJson(String status) {
+	public String generateStatusUpdateJson(String action, String runName) {
 		return
 		"{\n" +
-	    "  \"status\": \"" + status + "\"\n" +
+	    "  \"action\": \"" +  action + "\",\n" +
+		"  \"runName\": \"" + runName + "\"\n" +
 		"}";
 	}
 
@@ -327,7 +329,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("reset");
+		String content = generateStatusUpdateJson("reset", runName);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -354,14 +356,274 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	@Test
-	public void testRequestToDeleteRunReturnsOK() {
-		
+	public void testRequestToDeleteRunReturnsOK() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
 
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String content = generateStatusUpdateJson("delete", runName);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+		List<IRun> runs = new ArrayList<IRun>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo("Successfully deleted run " + runName);
 	}
 
 	@Test
-	public void testRequestToUpdateRunStatusWithInvalidStatusReturnsError() {
+	public void testRequestToUpdateRunStatusWithInvalidStatusReturnsError() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String content = generateStatusUpdateJson("create", runName);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
+		List<IRun> runs = new ArrayList<IRun>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(400);
+		checkErrorStructure(outStream.toString(), 
+			5045, 
+			"E: Error occured. The field 'action' in the request body is invalid. The 'action' value 'create' supplied is not supported. Supported values are: 'delete' and 'reset'");
+	}	
+
+	@Test
+	public void testRequestToUpdateRunStatusWithDifferentRunIDinURLReturnsError() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String content = generateStatusUpdateJson("reset", "badRun");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+		List<IRun> runs = new ArrayList<IRun>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun("badRun", "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(400);
+		checkErrorStructure(outStream.toString(), 
+			5046, 
+			"E: The 'runName' 'badRun' from the request body does not match the  'runName' 'U123'  associated with the runID in the url 'xx12345xx'.");
+	}
+	
+	@Test
+	public void testRequestToResetRunFailsReturnsError() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String content = generateStatusUpdateJson("reset", runName);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+		List<IRun> runs = new ArrayList<IRun>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
+			@Override
+    		public boolean reset(String runname) throws DynamicStatusStoreException {
+        		throw new DynamicStatusStoreException();
+			}
+		};
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(500);
+		checkErrorStructure(outStream.toString(), 
+			5047, 
+			"E: Error occured when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
+	}
+
+	@Test
+	public void testRequestToDeleteRunFailsReturnsError() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String content = generateStatusUpdateJson("delete", runName);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+		List<IRun> runs = new ArrayList<IRun>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
+			@Override
+			public boolean delete(String runname) throws DynamicStatusStoreException {
+        		throw new DynamicStatusStoreException();
+			}
+		};
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(500);
+		checkErrorStructure(outStream.toString(), 
+			5048, 
+			"E: Error occured when trying to delete the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
+	}
+	
+	@Test
+	public void testRequestToResetRunNoLongerProcessingReturnsError() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String content = generateStatusUpdateJson("reset", runName);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+		List<IRun> runs = new ArrayList<IRun>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
+			@Override
+    		public boolean reset(String runname) throws DynamicStatusStoreException {
+        		return false;
+			}
+		};
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(400);
+		checkErrorStructure(outStream.toString(), 
+			5049, 
+			"E: Error occured when trying to reset the run 'U123'. The run has already completed.");
+	}
+
+	@Test
+	public void testRequestToDeleteRunNoLongerProcessingReturnsError() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String content = generateStatusUpdateJson("delete", runName);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+		List<IRun> runs = new ArrayList<IRun>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
+			@Override
+			public boolean delete(String runname) throws DynamicStatusStoreException {
+        		return false;
+			}
+		};
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(400);
+		checkErrorStructure(outStream.toString(), 
+			5050, 
+			"E: Error occured when trying to delete the run 'U123'. The run has already completed.");
 	}
 
 }

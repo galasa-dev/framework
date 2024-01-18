@@ -18,8 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.ras.internal.common.RunActionJson;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
@@ -69,20 +69,32 @@ public class RunDetailsRoute extends RunsRoute {
       String runName = getRunNameFromRunId(runId);
 
       checkRequestHasContent(request);
-      String status = getUpdatedRunStatusFromRequestBody(request);
+      RunActionJson runAction = getUpdatedRunActionFromRequestBody(request);
+      if (!checkRunNameMatches(runName, runAction.getRunName())) {
+         ServletError error = new ServletError(GAL5046_RUN_NAME_DOES_NOT_MATCH_RUN_ID_IN_URL, runAction.getRunName(), runName, runId);
+         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+      }
+      
+      return getResponseBuilder().buildResponse(response, "text/plain", updateRunStatus(runAction), HttpServletResponse.SC_OK);
+   } 
 
+
+   private String updateRunStatus(RunActionJson runAction) throws InternalServletException {
       String responseBody = "";
-      if (status.equals("reset")) {
+      String action = runAction.getAction();
+      String runName = runAction.getRunName();
+      
+      if (action.equals("reset")) {
          resetRun(runName);
          responseBody = String.format("Successfully reset run %s", runName);
-      } else if (status.equals("delete")) {
+      } else if (action.equals("delete")) {
          deleteRun(runName);
          responseBody = String.format("Successfully deleted run %s", runName);
       } else {
-         // To do - Return error for unknown status 
+         ServletError error = new ServletError(GAL5045_INVALID_STATUS_UPDATE_REQUEST, action);
+         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
-      // To do - Only return if either of the above have been done.
-      return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK); 
+      return responseBody;
    }
 
    public RasRunResult getRunFromFramework(String id) throws ResultArchiveStoreException {
@@ -108,20 +120,47 @@ public class RunDetailsRoute extends RunsRoute {
       return runName;
    }
 
-   private String getUpdatedRunStatusFromRequestBody(HttpServletRequest request) throws IOException {
+   private boolean checkRunNameMatches(String runName, String runNameFromJson) {
+      if (runName.equals(runNameFromJson)){
+         return true;
+      }
+      return false;
+   }
+
+   private RunActionJson getUpdatedRunActionFromRequestBody(HttpServletRequest request) throws IOException {
       ServletInputStream body = request.getInputStream();
       String jsonString = new String(body.readAllBytes(), StandardCharsets.UTF_8);
       body.close();
-      String status = gson.fromJson(jsonString, JsonObject.class).get("status").getAsString();
-      return status;
+      RunActionJson runAction = gson.fromJson(jsonString, RunActionJson.class);
+      return runAction;
    }
 
-   private void resetRun(String runName) throws DynamicStatusStoreException, FrameworkException {
-      framework.getFrameworkRuns().reset(runName);
+   private void resetRun(String runName) throws InternalServletException {
+      boolean isReset = false;
+      try {
+      isReset = framework.getFrameworkRuns().reset(runName);
+      } catch (FrameworkException e){
+         ServletError error = new ServletError(GAL5047_UNABLE_TO_RESET_RUN, runName);
+         throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+      }
+      if (!isReset){
+         ServletError error = new ServletError(GAL5049_UNABLE_TO_RESET_COMPLETED_RUN, runName);
+         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+      }
    }
 
-   private void deleteRun(String runName) throws DynamicStatusStoreException, FrameworkException {
-      framework.getFrameworkRuns().delete(runName);
+   private void deleteRun(String runName) throws InternalServletException {
+      boolean isDeleted = false;
+      try {
+         isDeleted = framework.getFrameworkRuns().delete(runName);
+      } catch (FrameworkException e) {
+         ServletError error = new ServletError(GAL5048_UNABLE_TO_DELETE_RUN, runName);
+         throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+      }
+      if (!isDeleted) {
+         ServletError error = new ServletError(GAL5050_UNABLE_TO_RESET_COMPLETED_RUN, runName);
+         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+      }
    }
 
 }

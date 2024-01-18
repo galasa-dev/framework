@@ -73,7 +73,7 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
 
     @Override
     public boolean delete(String runname) throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        return true;
     }
 
     @Override

@@ -1362,7 +1362,40 @@ paths:
             text/plain:
               schema:
                 type: string
-              example: Successfully updated run status for runName
+              examples:
+                resetRun:
+                  value: Successfully reset run U123
+                  summary: Reset run action success
+                deleteRun:
+                  value: Successfuly deleted run U123
+                  summary: Delete run action success
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidStatusUpdateRequest:
+                  value:
+                    error_code: 5045
+                    error_message: "GAL5045E: Error occured. The field 'status' in the request body is invalid. The 'status' value 'create' supplied is not supported. Supported values are: 'delete' and 'reset'"
+                  summary: An error occured because the status field does not contain an expected action
+                runNameDoesNotMatch:
+                  value:
+                    error_code: 5046
+                    error_message: "GAL5046E: The 'runName' 'badRun' from the request body does not match the  'runName' 'U123'  associated with the runID in the url 'xx12345xx'."
+                  summary: An error occured because the runName in the request body does not match the runName derived from runID in the URL
+                resetRunHasAlreadyComplete:
+                  value:
+                    error_code: 5049
+                    error_message: "GAL5049E: Error occured when trying to reset the run ''{0}''. The run has already completed."
+                  summary: The run in the request has already completed and can not be reset
+                deleteRunHasAlreadyComplete:
+                  value:
+                    error_code: 5050
+                    error_message: "GAL5050E: Error occured when trying to delete the run 'U123'. The run has already completed."
+                  summary: The run in the request has already completed and can not be deleted        
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -1387,7 +1420,16 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
-
+                unableToReset:
+                  value:
+                   error_code: 5047
+                   error_message: "GAL5047E: Error occured when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to action the run reset
+                unableToDelete:
+                  value:
+                    error_code: 5048
+                    error_message: "GAL5048E: Error occured when trying to delete the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to action the run delete
   #--------------------------------------
   # Retrieve Run Log.
   #--------------------------------------
@@ -1963,7 +2005,9 @@ components:
           type: boolean
     UpdateRunStatusRequest:
       properties:
-        status:
+        runName:
+          type: string
+        action:
           type: string
     Requestors:
       type: object
