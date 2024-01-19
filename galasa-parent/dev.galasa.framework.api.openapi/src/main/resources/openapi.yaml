@@ -1386,12 +1386,12 @@ paths:
                     error_code: 5046
                     error_message: "GAL5046E: The 'runName' 'badRun' from the request body does not match the  'runName' 'U123'  associated with the runID in the url 'xx12345xx'."
                   summary: An error occured because the runName in the request body does not match the runName derived from runID in the URL
-                resetRunHasAlreadyComplete:
+                resetRunHasAlreadyCompleted:
                   value:
                     error_code: 5049
                     error_message: "GAL5049E: Error occured when trying to reset the run ''{0}''. The run has already completed."
                   summary: The run in the request has already completed and can not be reset
-                deleteRunHasAlreadyComplete:
+                deleteRunHasAlreadyCompleted:
                   value:
                     error_code: 5050
                     error_message: "GAL5050E: Error occured when trying to delete the run 'U123'. The run has already completed."
@@ -2009,6 +2009,7 @@ components:
           type: string
         action:
           type: string
+          enum: ["reset","delete"]
     Requestors:
       type: object
       properties:

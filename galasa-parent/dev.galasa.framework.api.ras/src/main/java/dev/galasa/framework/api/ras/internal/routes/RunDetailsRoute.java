@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 
 import dev.galasa.framework.api.ras.internal.common.RunActionJson;
+import dev.galasa.framework.api.ras.internal.common.RunActionType;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
@@ -81,19 +82,19 @@ public class RunDetailsRoute extends RunsRoute {
 
    private String updateRunStatus(RunActionJson runAction) throws InternalServletException {
       String responseBody = "";
-      String action = runAction.getAction();
+      RunActionType action = RunActionType.getfromString(runAction.getAction());
       String runName = runAction.getRunName();
       
-      if (action.equals("reset")) {
+      if (action == null) {
+         ServletError error = new ServletError(GAL5045_INVALID_STATUS_UPDATE_REQUEST, runAction.getAction());
+         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+      } else if (action == RunActionType.RESET) {
          resetRun(runName);
          responseBody = String.format("Successfully reset run %s", runName);
-      } else if (action.equals("delete")) {
+      } else if (action == RunActionType.DELETE) {
          deleteRun(runName);
          responseBody = String.format("Successfully deleted run %s", runName);
-      } else {
-         ServletError error = new ServletError(GAL5045_INVALID_STATUS_UPDATE_REQUEST, action);
-         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-      }
+      } 
       return responseBody;
    }
 
@@ -121,10 +122,7 @@ public class RunDetailsRoute extends RunsRoute {
    }
 
    private boolean checkRunNameMatches(String runName, String runNameFromJson) {
-      if (runName.equals(runNameFromJson)){
-         return true;
-      }
-      return false;
+      return runName.equals(runNameFromJson);
    }
 
    private RunActionJson getUpdatedRunActionFromRequestBody(HttpServletRequest request) throws IOException {
@@ -158,7 +156,7 @@ public class RunDetailsRoute extends RunsRoute {
          throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
       }
       if (!isDeleted) {
-         ServletError error = new ServletError(GAL5050_UNABLE_TO_RESET_COMPLETED_RUN, runName);
+         ServletError error = new ServletError(GAL5050_UNABLE_TO_DELETE_COMPLETED_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
    }

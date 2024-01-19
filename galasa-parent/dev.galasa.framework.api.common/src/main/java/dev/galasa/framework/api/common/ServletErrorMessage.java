@@ -27,7 +27,7 @@ public enum ServletErrorMessage {
     GAL5047_UNABLE_TO_RESET_RUN                       (5047, "E: Error occured when trying to reset the run ''{0}''. Report the problem to your Galasa Ecosystem owner."),
     GAL5048_UNABLE_TO_DELETE_RUN                      (5048, "E: Error occured when trying to delete the run ''{0}''. Report the problem to your Galasa Ecosystem owner."),
     GAL5049_UNABLE_TO_RESET_COMPLETED_RUN             (5049, "E: Error occured when trying to reset the run ''{0}''. The run has already completed."),
-    GAL5050_UNABLE_TO_RESET_COMPLETED_RUN             (5050, "E: Error occured when trying to delete the run ''{0}''. The run has already completed."),
+    GAL5050_UNABLE_TO_DELETE_COMPLETED_RUN            (5050, "E: Error occured when trying to delete the run ''{0}''. The run has already completed."),
     
     // RunArtifactsList...
     GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST           (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),
