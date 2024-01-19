@@ -50,8 +50,8 @@ public class TestRunDetailsRoute extends RasServletTest {
 	public String generateStatusUpdateJson(String action, String runName) {
 		return
 		"{\n" +
-	    "  \"action\": \"" +  action + "\",\n" +
-		"  \"runName\": \"" + runName + "\"\n" +
+	    "  \"status\": \"" +  action + "\",\n" +
+		"  \"result\": \"" + runName + "\"\n" +
 		"}";
 	}
 
@@ -329,7 +329,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("reset", runName);
+		String content = generateStatusUpdateJson("queued", runName);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -363,7 +363,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("delete", runName);
+		String content = generateStatusUpdateJson("finished", runName);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -397,7 +397,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("create", runName);
+		String content = generateStatusUpdateJson("submitted", runName);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -422,44 +422,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5045, 
-			"E: Error occured. The field 'action' in the request body is invalid. The 'action' value 'create' supplied is not supported. Supported values are: 'delete' and 'reset'");
-	}	
-
-	@Test
-	public void testRequestToUpdateRunStatusWithDifferentRunIDinURLReturnsError() throws Exception {
-		// Given...
-		String runId = "xx12345xx";
-		String runName = "U123";
-
-		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
-
-		String content = generateStatusUpdateJson("reset", "badRun");
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
-		
-		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
-		runs.add(new MockIRun("badRun", "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
-		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
-		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
-		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
-		directoryServices.add(mockrasService);
-		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
-		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
-
-		RasServlet servlet = mockServletEnvironment.getRasServlet();
-		HttpServletRequest req = mockServletEnvironment.getRequest();
-		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ServletOutputStream outStream = resp.getOutputStream();
-
-		// When...
-		servlet.init();
-		servlet.doPut(req, resp);
-
-		// Then...
-		assertThat(resp.getStatus()).isEqualTo(400);
-		checkErrorStructure(outStream.toString(), 
-			5046, 
-			"E: The 'runName' 'badRun' from the request body does not match the  'runName' 'U123'  associated with the runID in the url 'xx12345xx'.");
+			"E: Error occured. The field 'status' in the request body is invalid. The 'status' value 'submitted' supplied is not supported. Supported values are: 'queued' and 'finished'.");
 	}
 	
 	@Test
@@ -470,7 +433,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("reset", runName);
+		String content = generateStatusUpdateJson("queued", runName);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -511,7 +474,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("delete", runName);
+		String content = generateStatusUpdateJson("finished", runName);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -552,7 +515,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("reset", runName);
+		String content = generateStatusUpdateJson("queued", runName);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -593,7 +556,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("delete", runName);
+		String content = generateStatusUpdateJson("finished", runName);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();

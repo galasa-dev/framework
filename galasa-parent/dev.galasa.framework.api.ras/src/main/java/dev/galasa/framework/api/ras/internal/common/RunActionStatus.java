@@ -5,19 +5,19 @@
  */
 package dev.galasa.framework.api.ras.internal.common;
 
-public enum RunActionType {
-    RESET("reset"),
-    DELETE("delete")
+public enum RunActionStatus {
+    FINISHED("finished"),
+    QUEUED("queued")
     ;
     private String value;
 
-    private RunActionType(String type){
+    private RunActionStatus(String type){
         this.value = type;
     }
 
-    public static RunActionType getfromString(String typeAsString){
-        RunActionType match = null;
-        for (RunActionType type : RunActionType.values()){
+    public static RunActionStatus getfromString(String typeAsString){
+        RunActionStatus match = null;
+        for (RunActionStatus type : RunActionStatus.values()){
             if (type.toString().equalsIgnoreCase(typeAsString)){
                 match = type;
             }

@@ -2,19 +2,19 @@ package dev.galasa.framework.api.ras.internal.common;
 
 public class RunActionJson {
 
-    private String action;
-    private String runName;
+    private String status;
+    private String result;
 
-    public RunActionJson(String action, String runName){
-        this.action = action;
-        this.runName = runName;
+    public RunActionJson(String status, String result){
+        this.status = status;
+        this.result = result;
     }
     
-    public String getAction(){
-        return this.action;
+    public String getStatus(){
+        return this.status;
     }
 
-    public String getRunName(){
-        return this.runName;
+    public String getResult(){
+        return this.result;
     }
 }

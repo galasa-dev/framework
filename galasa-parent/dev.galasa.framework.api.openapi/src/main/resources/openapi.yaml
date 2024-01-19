@@ -2005,11 +2005,12 @@ components:
           type: boolean
     UpdateRunStatusRequest:
       properties:
-        runName:
+        status:
           type: string
-        action:
+          enum: ["queued","finished"]
+        results:
           type: string
-          enum: ["reset","delete"]
+          enum: ["cancelled"]
     Requestors:
       type: object
       properties:

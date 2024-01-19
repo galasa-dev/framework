@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 
 import dev.galasa.framework.api.ras.internal.common.RunActionJson;
-import dev.galasa.framework.api.ras.internal.common.RunActionType;
+import dev.galasa.framework.api.ras.internal.common.RunActionStatus;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
@@ -71,28 +71,24 @@ public class RunDetailsRoute extends RunsRoute {
 
       checkRequestHasContent(request);
       RunActionJson runAction = getUpdatedRunActionFromRequestBody(request);
-      if (!checkRunNameMatches(runName, runAction.getRunName())) {
-         ServletError error = new ServletError(GAL5046_RUN_NAME_DOES_NOT_MATCH_RUN_ID_IN_URL, runAction.getRunName(), runName, runId);
-         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-      }
       
-      return getResponseBuilder().buildResponse(response, "text/plain", updateRunStatus(runAction), HttpServletResponse.SC_OK);
+      return getResponseBuilder().buildResponse(response, "text/plain", updateRunStatus(runName, runAction), HttpServletResponse.SC_OK);
    } 
 
 
-   private String updateRunStatus(RunActionJson runAction) throws InternalServletException {
+   private String updateRunStatus(String runName, RunActionJson runAction) throws InternalServletException {
       String responseBody = "";
-      RunActionType action = RunActionType.getfromString(runAction.getAction());
-      String runName = runAction.getRunName();
+      RunActionStatus status = RunActionStatus.getfromString(runAction.getStatus());
+      String result = runAction.getResult();
       
-      if (action == null) {
-         ServletError error = new ServletError(GAL5045_INVALID_STATUS_UPDATE_REQUEST, runAction.getAction());
+      if (status == null) {
+         ServletError error = new ServletError(GAL5045_INVALID_STATUS_UPDATE_REQUEST, runAction.getStatus());
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-      } else if (action == RunActionType.RESET) {
+      } else if (status == RunActionStatus.QUEUED) {
          resetRun(runName);
          responseBody = String.format("Successfully reset run %s", runName);
-      } else if (action == RunActionType.DELETE) {
-         deleteRun(runName);
+      } else if (status == RunActionStatus.FINISHED) {
+         cancelRun(runName, result);
          responseBody = String.format("Successfully deleted run %s", runName);
       } 
       return responseBody;
@@ -121,10 +117,6 @@ public class RunDetailsRoute extends RunsRoute {
       return runName;
    }
 
-   private boolean checkRunNameMatches(String runName, String runNameFromJson) {
-      return runName.equals(runNameFromJson);
-   }
-
    private RunActionJson getUpdatedRunActionFromRequestBody(HttpServletRequest request) throws IOException {
       ServletInputStream body = request.getInputStream();
       String jsonString = new String(body.readAllBytes(), StandardCharsets.UTF_8);
@@ -147,15 +139,15 @@ public class RunDetailsRoute extends RunsRoute {
       }
    }
 
-   private void deleteRun(String runName) throws InternalServletException {
-      boolean isDeleted = false;
+   private void cancelRun(String runName, String result) throws InternalServletException {
+      boolean isCanceled = false;
       try {
-         isDeleted = framework.getFrameworkRuns().delete(runName);
+         isCanceled = framework.getFrameworkRuns().delete(runName);
       } catch (FrameworkException e) {
          ServletError error = new ServletError(GAL5048_UNABLE_TO_DELETE_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
       }
-      if (!isDeleted) {
+      if (!isCanceled) {
          ServletError error = new ServletError(GAL5050_UNABLE_TO_DELETE_COMPLETED_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
