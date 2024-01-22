@@ -1333,7 +1333,103 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonError'
 
-
+  #--------------------------------------
+  # Update the status of an active test 
+  # run to reset or delete it.
+  #--------------------------------------
+    put:
+      summary: Update the status of a test run
+      operationId: putRasRunStatusById
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRunStatusRequest'
+      responses:
+        '200':
+          description: Run status updated
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                resetRun:
+                  value: Successfully reset run U123
+                  summary: Reset run action success
+                deleteRun:
+                  value: Successfuly deleted run U123
+                  summary: Delete run action success
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidStatusUpdateRequest:
+                  value:
+                    error_code: 5045
+                    error_message: "GAL5045E: Error occured. The field 'status' in the request body is invalid. The 'status' value 'create' supplied is not supported. Supported values are: 'delete' and 'reset'"
+                  summary: An error occured because the status field does not contain an expected action
+                runNameDoesNotMatch:
+                  value:
+                    error_code: 5046
+                    error_message: "GAL5046E: The 'runName' 'badRun' from the request body does not match the  'runName' 'U123'  associated with the runID in the url 'xx12345xx'."
+                  summary: An error occured because the runName in the request body does not match the runName derived from runID in the URL
+                resetRunHasAlreadyCompleted:
+                  value:
+                    error_code: 5049
+                    error_message: "GAL5049E: Error occured when trying to reset the run ''{0}''. The run has already completed."
+                  summary: The run in the request has already completed and can not be reset
+                deleteRunHasAlreadyCompleted:
+                  value:
+                    error_code: 5050
+                    error_message: "GAL5050E: Error occured when trying to delete the run 'U123'. The run has already completed."
+                  summary: The run in the request has already completed and can not be deleted        
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+                unableToReset:
+                  value:
+                   error_code: 5047
+                   error_message: "GAL5047E: Error occured when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to action the run reset
+                unableToDelete:
+                  value:
+                    error_code: 5048
+                    error_message: "GAL5048E: Error occured when trying to delete the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to action the run delete
   #--------------------------------------
   # Retrieve Run Log.
   #--------------------------------------
@@ -1521,64 +1617,6 @@ paths:
                     error_code: 5009
                     error_message: "GAL5009E: Error retrieving artifact  '/framework/cps_record.properties' for run with identifier 'U116'."
                   summary: An error occured when trying to retrieve the artifact
-
-  #--------------------------------------
-  # Update the status of an active test 
-  # run to reset or delete it.
-  #--------------------------------------
-  /ras/runs/{runid}/status:
-    parameters:
-      - $ref: '#/components/parameters/ClientApiVersion'
-    put:
-      summary: Update the status of a test run
-      operationId: putRasRunStatusById
-      tags:
-      - Result Archive Store API
-      parameters:
-        - name: runid
-          in: path
-          description: Run Id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRunStatusRequest'
-      responses:
-        '200':
-          description: Run status updated
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: Successfully updated run status for runName
-        '401':
-          description: Unauthorized as valid authentication has not been provided
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
 
   #--------------------------------------
   # List all testclasses.
@@ -1969,6 +2007,10 @@ components:
       properties:
         status:
           type: string
+          enum: ["queued","finished"]
+        results:
+          type: string
+          enum: ["","cancelled"]
     Requestors:
       type: object
       properties:

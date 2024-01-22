@@ -26,6 +26,10 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
         this.runs = runs;
     }
 
+    public MockIFrameworkRuns(List<IRun> runs) {
+        this.runs = runs;
+    }
+
     @Override
     public @NotNull List<IRun> getActiveRuns() throws FrameworkException {
         throw new UnsupportedOperationException("Unimplemented method 'getActiveRuns'");
@@ -69,7 +73,7 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
 
     @Override
     public boolean delete(String runname) throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        return true;
     }
 
     @Override
@@ -79,6 +83,6 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
 
     @Override
     public boolean reset(String runname) throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'reset'");
+        return true;
     }
 }

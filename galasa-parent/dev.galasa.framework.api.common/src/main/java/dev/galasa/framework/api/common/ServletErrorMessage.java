@@ -21,6 +21,14 @@ public enum ServletErrorMessage {
     GAL5013_RESULT_NAME_NOT_RECOGNIZED                (5013,"E: Error parsing the query parameters. 'result' value ''{0}'' not recognised. Expected result name to match one of the following ''{1}''."),
     GAL5014_STATUS_NAME_NOT_RECOGNIZED                (5014,"E: Error parsing the query parameters. 'status' value ''{0}'' not recognised. Expected status name to match one of the following ''{1}''."),
 
+    // RunsReset/Delete...
+    GAL5045_INVALID_STATUS_UPDATE_REQUEST             (5045, "E: Error occured. The field ''status'' in the request body is invalid. The ''status'' value ''{0}'' supplied is not supported. Supported values are: ''queued'' and ''finished''."),
+    GAL5046_UNABLE_TO_DELETE_RUN_INVALID_RESULT       (5046, "E: Error occured when trying to delete the run ''{0}''. The ''result'' ''{1}' supplied is not supported. Supported values are: ''cancelled''."),
+    GAL5047_UNABLE_TO_RESET_RUN                       (5047, "E: Error occured when trying to reset the run ''{0}''. Report the problem to your Galasa Ecosystem owner."),
+    GAL5048_UNABLE_TO_DELETE_RUN                      (5048, "E: Error occured when trying to delete the run ''{0}''. Report the problem to your Galasa Ecosystem owner."),
+    GAL5049_UNABLE_TO_RESET_COMPLETED_RUN             (5049, "E: Error occured when trying to reset the run ''{0}''. The run has already completed."),
+    GAL5050_UNABLE_TO_DELETE_COMPLETED_RUN            (5050, "E: Error occured when trying to delete the run ''{0}''. The run has already completed."),
+    
     // RunArtifactsList...
     GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST           (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),
 
