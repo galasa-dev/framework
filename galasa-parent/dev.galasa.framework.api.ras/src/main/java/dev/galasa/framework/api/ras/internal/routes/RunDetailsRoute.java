@@ -141,6 +141,10 @@ public class RunDetailsRoute extends RunsRoute {
 
    private void cancelRun(String runName, String result) throws InternalServletException {
       boolean isCanceled = false;
+      if (!result.equalsIgnoreCase("cancelled")){
+         ServletError error = new ServletError(GAL5046_UNABLE_TO_DELETE_RUN_INVALID_RESULT, runName, result);
+         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+      }
       try {
          isCanceled = framework.getFrameworkRuns().delete(runName);
       } catch (FrameworkException e) {

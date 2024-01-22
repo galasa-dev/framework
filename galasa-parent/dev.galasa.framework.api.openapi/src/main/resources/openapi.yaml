@@ -2010,7 +2010,7 @@ components:
           enum: ["queued","finished"]
         results:
           type: string
-          enum: ["cancelled"]
+          enum: ["","cancelled"]
     Requestors:
       type: object
       properties:

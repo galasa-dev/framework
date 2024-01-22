@@ -47,11 +47,11 @@ public class TestRunDetailsRoute extends RasServletTest {
       "}";
     }
 
-	public String generateStatusUpdateJson(String action, String runName) {
+	public String generateStatusUpdateJson(String status, String result) {
 		return
 		"{\n" +
-	    "  \"status\": \"" +  action + "\",\n" +
-		"  \"result\": \"" + runName + "\"\n" +
+	    "  \"status\": \"" +  status + "\",\n" +
+		"  \"result\": \"" + result + "\"\n" +
 		"}";
 	}
 
@@ -321,6 +321,10 @@ public class TestRunDetailsRoute extends RasServletTest {
         assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
+	/*
+	 * PUT Requests
+	 */
+
 	@Test
 	public void testRequestToResetRunReturnsOK() throws Exception {
 		// Given...
@@ -329,7 +333,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("queued", runName);
+		String content = generateStatusUpdateJson("queued", "");
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -363,7 +367,41 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("finished", runName);
+		String content = generateStatusUpdateJson("finished", "cancelled");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+		List<IRun> runs = new ArrayList<IRun>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo("Successfully deleted run " + runName);
+	}
+
+	@Test
+	public void testRequestToDeleteRunCapitalCaseValuesReturnsOK() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String content = generateStatusUpdateJson("FINISHED", "CANCELLED");
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -397,7 +435,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("submitted", runName);
+		String content = generateStatusUpdateJson("submitted", "");
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -433,7 +471,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("queued", runName);
+		String content = generateStatusUpdateJson("queued", "");
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -474,7 +512,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("finished", runName);
+		String content = generateStatusUpdateJson("finished", "cancelled");
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -556,7 +594,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
 
-		String content = generateStatusUpdateJson("finished", runName);
+		String content = generateStatusUpdateJson("finished", "cancelled");
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
@@ -587,6 +625,42 @@ public class TestRunDetailsRoute extends RasServletTest {
 		checkErrorStructure(outStream.toString(), 
 			5050, 
 			"E: Error occured when trying to delete the run 'U123'. The run has already completed.");
+	}
+
+	@Test
+	public void testRequestToDeleteRunBadResultReturnsError() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String content = generateStatusUpdateJson("finished", "deleted");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+		List<IRun> runs = new ArrayList<IRun>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(400);
+		checkErrorStructure(outStream.toString(), 
+			5046, 
+			"E: Error occured when trying to delete the run 'U123'. The 'result' 'deleted supplied is not supported. Supported values are: 'cancelled'.");
 	}
 
 }
