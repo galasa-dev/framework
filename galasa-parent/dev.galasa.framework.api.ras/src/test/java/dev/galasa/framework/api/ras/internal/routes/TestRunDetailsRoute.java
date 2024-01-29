@@ -360,7 +360,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	@Test
-	public void testRequestToDeleteRunReturnsOK() throws Exception {
+	public void testRequestToCancelRunReturnsOK() throws Exception {
 		// Given...
 		String runId = "xx12345xx";
 		String runName = "U123";
@@ -390,11 +390,11 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
-		assertThat(outStream.toString()).isEqualTo("Successfully deleted run " + runName);
+		assertThat(outStream.toString()).isEqualTo("Successfully cancelled run " + runName);
 	}
 
 	@Test
-	public void testRequestToDeleteRunCapitalCaseValuesReturnsOK() throws Exception {
+	public void testRequestToCancelRunCapitalCaseValuesReturnsOK() throws Exception {
 		// Given...
 		String runId = "xx12345xx";
 		String runName = "U123";
@@ -424,7 +424,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
-		assertThat(outStream.toString()).isEqualTo("Successfully deleted run " + runName);
+		assertThat(outStream.toString()).isEqualTo("Successfully cancelled run " + runName);
 	}
 
 	@Test
@@ -505,7 +505,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	@Test
-	public void testRequestToDeleteRunFailsReturnsError() throws Exception {
+	public void testRequestToCancelRunFailsReturnsError() throws Exception {
 		// Given...
 		String runId = "xx12345xx";
 		String runName = "U123";
@@ -542,7 +542,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 
 			5048, 
-			"E: Error occured when trying to delete the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
+			"E: Error occured when trying to cancel the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
 	}
 	
 	@Test
@@ -587,7 +587,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	@Test
-	public void testRequestToDeleteRunNoLongerProcessingReturnsError() throws Exception {
+	public void testRequestToCancelRunNoLongerProcessingReturnsError() throws Exception {
 		// Given...
 		String runId = "xx12345xx";
 		String runName = "U123";
@@ -624,11 +624,11 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5050, 
-			"E: Error occured when trying to delete the run 'U123'. The run has already completed.");
+			"E: Error occured when trying to cancel the run 'U123'. The run has already completed.");
 	}
 
 	@Test
-	public void testRequestToDeleteRunBadResultReturnsError() throws Exception {
+	public void testRequestToCancelRunBadResultReturnsError() throws Exception {
 		// Given...
 		String runId = "xx12345xx";
 		String runName = "U123";
@@ -660,7 +660,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5046, 
-			"E: Error occured when trying to delete the run 'U123'. The 'result' 'deleted supplied is not supported. Supported values are: 'cancelled'.");
+			"E: Error occured when trying to cancel the run 'U123'. The 'result' 'deleted' supplied is not supported. Supported values are: 'cancelled'.");
 	}
 
 }
