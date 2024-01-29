@@ -86,9 +86,11 @@ public class RunDetailsRoute extends RunsRoute {
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       } else if (status == RunActionStatus.QUEUED) {
          resetRun(runName);
+         logger.info("Run reset by external source.");
          responseBody = String.format("Successfully reset run %s", runName);
       } else if (status == RunActionStatus.FINISHED) {
          cancelRun(runName, result);
+         logger.info("Run cancelled by external source.");
          responseBody = String.format("Successfully deleted run %s", runName);
       } 
       return responseBody;

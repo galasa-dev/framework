@@ -1367,7 +1367,7 @@ paths:
                   value: Successfully reset run U123
                   summary: Reset run action success
                 deleteRun:
-                  value: Successfuly deleted run U123
+                  value: Successfully deleted run U123
                   summary: Delete run action success
         '400':
           description: Bad request
@@ -2008,7 +2008,7 @@ components:
         status:
           type: string
           enum: ["queued","finished"]
-        results:
+        result:
           type: string
           enum: ["","cancelled"]
     Requestors:
