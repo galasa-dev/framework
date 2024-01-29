@@ -86,10 +86,12 @@ public class RunDetailsRoute extends RunsRoute {
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       } else if (status == RunActionStatus.QUEUED) {
          resetRun(runName);
+         logger.info("Run reset by external source.");
          responseBody = String.format("Successfully reset run %s", runName);
       } else if (status == RunActionStatus.FINISHED) {
          cancelRun(runName, result);
-         responseBody = String.format("Successfully deleted run %s", runName);
+         logger.info("Run cancelled by external source.");
+         responseBody = String.format("Successfully cancelled run %s", runName);
       } 
       return responseBody;
    }
@@ -142,17 +144,18 @@ public class RunDetailsRoute extends RunsRoute {
    private void cancelRun(String runName, String result) throws InternalServletException {
       boolean isCanceled = false;
       if (!result.equalsIgnoreCase("cancelled")){
-         ServletError error = new ServletError(GAL5046_UNABLE_TO_DELETE_RUN_INVALID_RESULT, runName, result);
+         ServletError error = new ServletError(GAL5046_UNABLE_TO_CANCEL_RUN_INVALID_RESULT, runName, result);
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
       try {
+         // Cancelling a run works by deleting all its entries in the DSS
          isCanceled = framework.getFrameworkRuns().delete(runName);
       } catch (FrameworkException e) {
-         ServletError error = new ServletError(GAL5048_UNABLE_TO_DELETE_RUN, runName);
+         ServletError error = new ServletError(GAL5048_UNABLE_TO_CANCEL_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
       }
       if (!isCanceled) {
-         ServletError error = new ServletError(GAL5050_UNABLE_TO_DELETE_COMPLETED_RUN, runName);
+         ServletError error = new ServletError(GAL5050_UNABLE_TO_CANCEL_COMPLETED_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
    }
