@@ -1335,7 +1335,7 @@ paths:
 
   #--------------------------------------
   # Update the status of an active test 
-  # run to reset or delete it.
+  # run to reset or cancel it.
   #--------------------------------------
     put:
       summary: Update the status of a test run
@@ -1366,9 +1366,9 @@ paths:
                 resetRun:
                   value: Successfully reset run U123
                   summary: Reset run action success
-                deleteRun:
-                  value: Successfully deleted run U123
-                  summary: Delete run action success
+                cancelRun:
+                  value: Successfully cancelled run U123
+                  summary: Cancel run action success
         '400':
           description: Bad request
           content:
@@ -1379,7 +1379,7 @@ paths:
                 invalidStatusUpdateRequest:
                   value:
                     error_code: 5045
-                    error_message: "GAL5045E: Error occured. The field 'status' in the request body is invalid. The 'status' value 'create' supplied is not supported. Supported values are: 'delete' and 'reset'"
+                    error_message: "GAL5045E: Error occured. The field 'status' in the request body is invalid. The 'status' value 'create' supplied is not supported. Supported values are: 'cancel' and 'reset'"
                   summary: An error occured because the status field does not contain an expected action
                 runNameDoesNotMatch:
                   value:
@@ -1391,11 +1391,11 @@ paths:
                     error_code: 5049
                     error_message: "GAL5049E: Error occured when trying to reset the run ''{0}''. The run has already completed."
                   summary: The run in the request has already completed and can not be reset
-                deleteRunHasAlreadyCompleted:
+                cancelRunHasAlreadyCompleted:
                   value:
                     error_code: 5050
-                    error_message: "GAL5050E: Error occured when trying to delete the run 'U123'. The run has already completed."
-                  summary: The run in the request has already completed and can not be deleted        
+                    error_message: "GAL5050E: Error occured when trying to cancel the run 'U123'. The run has already completed."
+                  summary: The run in the request has already completed and can not be cancelled        
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -1425,11 +1425,11 @@ paths:
                    error_code: 5047
                    error_message: "GAL5047E: Error occured when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to action the run reset
-                unableToDelete:
+                unableToCancel:
                   value:
                     error_code: 5048
-                    error_message: "GAL5048E: Error occured when trying to delete the run 'U123'. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to action the run delete
+                    error_message: "GAL5048E: Error occured when trying to cancel the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to action the run cancel
   #--------------------------------------
   # Retrieve Run Log.
   #--------------------------------------
