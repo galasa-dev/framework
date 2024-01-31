@@ -15,7 +15,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -27,7 +26,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class ResultNamesRoute extends RunsRoute {
 
@@ -41,7 +40,7 @@ public class ResultNamesRoute extends RunsRoute {
 		super(responseBuilder, path, framework);
 	}
 
-	final static Gson gson = GalasaGsonBuilder.build();
+	static final GalasaGson gson = new GalasaGson();
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) 
@@ -64,7 +63,7 @@ public class ResultNamesRoute extends RunsRoute {
 			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
 		}
 
-		JsonElement json = new Gson().toJsonTree(resultsList);
+		JsonElement json = gson.toJsonTree(resultsList);
 		JsonObject resultnames = new JsonObject();
 		resultnames.add("resultnames", json);
 		return resultnames.toString();

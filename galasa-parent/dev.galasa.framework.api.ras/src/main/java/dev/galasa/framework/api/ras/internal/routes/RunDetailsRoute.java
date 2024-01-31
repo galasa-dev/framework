@@ -17,8 +17,6 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.api.ras.internal.common.RunActionJson;
 import dev.galasa.framework.api.ras.internal.common.RunActionStatus;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
@@ -32,7 +30,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 /*
  * Implementation to return details for a given run based on its runId.
@@ -41,7 +39,7 @@ public class RunDetailsRoute extends RunsRoute {
 
    private IFramework framework;
 
-   static final Gson gson = GalasaGsonBuilder.build();
+   static final GalasaGson gson = new GalasaGson();
 
    protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/?";
 

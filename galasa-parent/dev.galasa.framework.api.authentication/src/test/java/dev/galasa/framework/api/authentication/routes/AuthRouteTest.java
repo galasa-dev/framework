@@ -24,7 +24,6 @@ import javax.servlet.ServletOutputStream;
 
 import org.junit.Test;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
@@ -37,11 +36,11 @@ import dev.galasa.framework.api.common.mocks.MockHttpResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpSession;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class AuthRouteTest extends BaseServletTest {
 
-    private static final Gson gson = GalasaGsonBuilder.build();
+    private static final GalasaGson gson = new GalasaGson();
 
     private String buildRequestPayload(String clientId, String secret, String refreshToken, String authCode) {
         JsonObject requestPayload = new JsonObject();

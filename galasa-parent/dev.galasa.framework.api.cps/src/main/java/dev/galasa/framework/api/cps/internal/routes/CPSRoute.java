@@ -15,8 +15,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -33,7 +31,7 @@ import dev.galasa.framework.api.common.resources.beans.GalasaPropertyData;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -43,7 +41,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public abstract class CPSRoute extends BaseRoute {
 
     static final ResourceNameValidator nameValidator = new ResourceNameValidator();
-    static final Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
 
     static final GalasaBeanSerialiser beanSerialiser = new GalasaBeanSerialiser();
 

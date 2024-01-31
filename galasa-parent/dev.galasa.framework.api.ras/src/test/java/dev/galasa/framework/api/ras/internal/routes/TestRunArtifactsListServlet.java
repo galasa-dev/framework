@@ -10,7 +10,9 @@ import dev.galasa.framework.spi.IRunResult;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.RasServlet;

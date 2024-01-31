@@ -12,8 +12,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.api.authentication.JwtWrapper;
 import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
@@ -25,13 +23,13 @@ import dev.galasa.framework.api.runs.common.GroupRuns;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class GroupRunsRoute extends GroupRuns{
 
     protected static final String path = "\\/[a-zA-Z0-9_\\-]*";
-    private final Gson gson = GalasaGsonBuilder.build();
+    private final GalasaGson gson = new GalasaGson();
 
 
     public GroupRunsRoute(ResponseBuilder responseBuilder, IFramework framework) {

@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.cps.internal;
-import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import dev.galasa.framework.api.cps.mocks.*;
 import dev.galasa.framework.spi.*;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 // import org.junit.Ignore;
 import org.junit.Test;
 import java.text.*;
@@ -20,7 +19,7 @@ import java.util.*;
 
 public class AccessCpsTest {
 
-    private final Gson gson = GalasaGsonBuilder.build();
+    private final GalasaGson gson = new GalasaGson();
 
 
     /**

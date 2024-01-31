@@ -24,18 +24,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.Answer1;
-
-import com.google.gson.Gson;
 
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.ResultArchiveStoreFileAttributeView;
 
@@ -137,7 +134,7 @@ public class DirectoryRASSTest {
 
         final String json = new String(Files.readAllBytes(pathStructure), "utf-8");
 
-        final Gson gson = new Gson();
+        final GalasaGson gson = new GalasaGson();
         final TestStructure readStructure = gson.fromJson(json, TestStructure.class);
 
         Assert.assertEquals("Test structure data different", writeStructure.getTestName(), readStructure.getTestName());

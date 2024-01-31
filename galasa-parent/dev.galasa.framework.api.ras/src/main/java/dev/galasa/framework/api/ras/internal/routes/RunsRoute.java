@@ -17,8 +17,6 @@ import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -29,7 +27,7 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.RasTestClass;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 
 /**
@@ -37,7 +35,7 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  */
 public abstract class RunsRoute extends BaseRoute {
 
-    static final Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
 
     // Define a default filter to accept everything
     static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };

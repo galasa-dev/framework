@@ -5,7 +5,10 @@
  */
 package dev.galasa.framework.api.common;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import static org.assertj.core.api.Assertions.*;
 

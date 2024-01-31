@@ -10,13 +10,13 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class DirectoryRASRunResult implements IRunResult {
 
@@ -25,7 +25,7 @@ public class DirectoryRASRunResult implements IRunResult {
     private final DirectoryRASFileSystemProvider fileSystemProvider;
     private final String                         id;
 
-    protected DirectoryRASRunResult(Path runDirectory, Gson gson, String id)
+    protected DirectoryRASRunResult(Path runDirectory, GalasaGson gson, String id)
             throws JsonSyntaxException, JsonIOException, IOException {
         this.runDirectory = runDirectory;
         this.id           = id;
