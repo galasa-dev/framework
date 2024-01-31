@@ -8,10 +8,8 @@ package dev.galasa.framework.api.common;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -31,7 +29,7 @@ public class BaseServlet extends HttpServlet {
 
     protected Log logger = LogFactory.getLog(this.getClass());
 
-    static final Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
 
     private final Map<String, IRoute> routes = new HashMap<>();
 

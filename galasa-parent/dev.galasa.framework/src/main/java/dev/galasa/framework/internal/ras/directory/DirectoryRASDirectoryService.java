@@ -23,23 +23,22 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class DirectoryRASDirectoryService implements IResultArchiveStoreDirectoryService {
 
     public final static String ID_PREFIX = "local-";
 
     private final Path baseDirectory;
-    private final Gson gson;
+    private final GalasaGson gson;
 
-    protected DirectoryRASDirectoryService(@NotNull Path baseDirectory, Gson gson) {
+    protected DirectoryRASDirectoryService(@NotNull Path baseDirectory, GalasaGson gson) {
         this.baseDirectory = baseDirectory;
         this.gson = gson;
     }
@@ -159,12 +158,12 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
 
         private final Path                        base;
         private final List<DirectoryRASRunResult> results;
-        private final Gson                        gson;
+        private final GalasaGson                        gson;
         private final Encoder                     encoder;
 
         private final Log                  logger = LogFactory.getLog(ConsumeRuns.class);
 
-        public ConsumeRuns(Path base, List<DirectoryRASRunResult> results, Gson gson) {
+        public ConsumeRuns(Path base, List<DirectoryRASRunResult> results, GalasaGson gson) {
             this.base    = base;
             this.results = results;
             this.gson    = gson;

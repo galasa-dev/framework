@@ -12,10 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -23,7 +21,7 @@ import java.io.IOException;
 
 public abstract class BaseRoute implements IRoute {
 
-    protected static final Gson gson = GalasaGsonBuilder.build();
+    protected static final GalasaGson gson = new GalasaGson();
 
     protected Log logger = LogFactory.getLog(this.getClass());
 

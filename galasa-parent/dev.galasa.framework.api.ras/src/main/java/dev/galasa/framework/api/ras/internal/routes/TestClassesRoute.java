@@ -13,7 +13,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -26,7 +25,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.RasTestClass;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -42,7 +41,7 @@ public class TestClassesRoute extends RunsRoute {
         super(responseBuilder, path, framework);
     }
 
-    final static Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
     private RasQueryParameters sortQueryParameterChecker;
 
     @Override
@@ -69,7 +68,7 @@ public class TestClassesRoute extends RunsRoute {
 		}
 
         /* converting data to json */
-		JsonElement json = new Gson().toJsonTree(classArray);
+		JsonElement json = gson.toJsonTree(classArray);
 		JsonObject testclasses = new JsonObject();
 		testclasses.add("testclasses", json);
         return testclasses.toString();

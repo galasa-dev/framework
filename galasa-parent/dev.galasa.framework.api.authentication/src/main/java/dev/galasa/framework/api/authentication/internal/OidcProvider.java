@@ -37,13 +37,12 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 /**
  * A class that handles communications with an OpenID Connect (OIDC) Provider.
@@ -52,7 +51,7 @@ public class OidcProvider {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private static final Gson gson = GalasaGsonBuilder.build();
+    private static final GalasaGson gson = new GalasaGson();
 
     private String issuerUrl;
     private String authorizationEndpoint;

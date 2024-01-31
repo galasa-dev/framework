@@ -9,7 +9,6 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -30,11 +29,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class TestTestClassesRoute extends RasServletTest{
 
-    final static Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
 
     public List<IRunResult> generateTestData (int resSize){
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
@@ -88,7 +87,7 @@ public class TestTestClassesRoute extends RasServletTest{
         if (reverse == true) {
             testClasses.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
         }
-		JsonElement jsonResultsArray = new Gson().toJsonTree(testClasses);
+		JsonElement jsonResultsArray = gson.toJsonTree(testClasses);
 		JsonObject json = new JsonObject();
 		json.add("testclasses", jsonResultsArray);
 		return json.toString();

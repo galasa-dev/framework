@@ -8,16 +8,14 @@ package dev.galasa.framework.api.ras.internal.common;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class StructureJsonArtifact implements IRunRootArtifact {
 
-    static final Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
 
     @Override
     public byte[] getContent(IRunResult run) throws ResultArchiveStoreException, IOException {
