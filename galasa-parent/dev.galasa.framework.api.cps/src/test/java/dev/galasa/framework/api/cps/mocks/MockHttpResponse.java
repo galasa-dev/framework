@@ -5,9 +5,8 @@
  */
 package dev.galasa.framework.api.cps.mocks;
 
-import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -30,7 +29,7 @@ public class MockHttpResponse implements HttpServletResponse {
     private ByteArrayOutputStream payload = new ByteArrayOutputStream();
     private PrintWriter writer = new PrintWriter(payload);
 
-    private final Gson gson = GalasaGsonBuilder.build();
+    private final GalasaGson gson = new GalasaGson();;
 
     private int statusCode ;
 

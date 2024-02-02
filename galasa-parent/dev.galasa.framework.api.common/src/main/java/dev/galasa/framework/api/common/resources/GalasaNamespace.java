@@ -5,9 +5,7 @@
  */
 package dev.galasa.framework.api.common.resources;
 
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
-
-import com.google.gson.Gson;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class GalasaNamespace {
 
@@ -15,7 +13,7 @@ public class GalasaNamespace {
     private String propertiesUrl;
     private Visibility type;
 
-    private static final Gson gson = GalasaGsonBuilder.build();
+    private static final GalasaGson gson = new GalasaGson();
 
     public GalasaNamespace(CPSNamespace namespace){
         this.name = namespace.getName();

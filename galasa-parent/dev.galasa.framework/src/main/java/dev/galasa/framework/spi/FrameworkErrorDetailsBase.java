@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.spi;
-import com.google.gson.*;
+import com.google.gson.JsonObject;
 public class FrameworkErrorDetailsBase implements FrameworkErrorDetails {
     
 

@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -35,7 +34,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.resources.ResourceNameValidator;
 import dev.galasa.framework.spi.*;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 /**
  * CPS API
@@ -54,7 +53,7 @@ public class AccessCps extends HttpServlet {
     // loading in some circumstances.
     protected Log logger = LogFactory.getLog(getClass());
 
-    private final Gson gson = GalasaGsonBuilder.build();
+    private final GalasaGson gson = new GalasaGson();
 
     // We match on things which are not slash (^/) so we can do finder-grained
     // validation of object names later in the code.

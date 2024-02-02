@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -30,11 +29,11 @@ import org.junit.Test;
 import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpSession;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class OidcProviderTest {
 
-    private static final Gson gson = GalasaGsonBuilder.build();
+    private static final GalasaGson gson = new GalasaGson();
 
     @Test
     public void testTokenPostWithRefreshTokenValidRequestReturnsValidResponse() throws Exception {

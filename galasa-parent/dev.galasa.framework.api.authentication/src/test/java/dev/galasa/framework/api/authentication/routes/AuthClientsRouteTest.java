@@ -16,7 +16,6 @@ import org.junit.Test;
 
 import com.coreos.dex.api.DexOuterClass.Client;
 import com.coreos.dex.api.DexOuterClass.Client.Builder;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
@@ -26,11 +25,11 @@ import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class AuthClientsRouteTest extends BaseServletTest {
 
-    private static final Gson gson = GalasaGsonBuilder.build();
+    private static final GalasaGson gson = new GalasaGson();
 
     private Client createMockClient(String clientId, String clientSecret, String redirectUri) {
         Builder clientBuilder = Client.newBuilder();

@@ -7,7 +7,7 @@ package dev.galasa.framework.api.common;
 
 import java.text.MessageFormat;
 
-import com.google.gson.*;
+import com.google.gson.JsonObject;
 
 public class ServletError {
 

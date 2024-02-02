@@ -10,7 +10,6 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 import org.junit.Test;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -26,7 +25,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class TestRequestorsRoute extends RasServletTest{
 
-    final static Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
 
     public List<IRunResult> generateTestData (int resSize){
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
@@ -72,7 +71,7 @@ public class TestRequestorsRoute extends RasServletTest{
         if (reverse == true) {
             Collections.reverse(requestors);
         }
-		JsonElement jsonResultsArray = new Gson().toJsonTree(requestors);
+		JsonElement jsonResultsArray = gson.toJsonTree(requestors);
 		JsonObject json = new JsonObject();
 		json.add("requestors", jsonResultsArray);
 		return json.toString();

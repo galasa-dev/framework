@@ -7,7 +7,6 @@ package dev.galasa.framework.api.ras.internal.routes;
 
 import org.apache.commons.collections4.ListUtils;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -33,7 +32,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -63,7 +62,7 @@ public class RunQueryRoute extends RunsRoute {
 
 	}
 
-	final static Gson gson = GalasaGsonBuilder.build();
+	static final GalasaGson gson = new GalasaGson();
 
 	@Override
 	public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters generalQueryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
