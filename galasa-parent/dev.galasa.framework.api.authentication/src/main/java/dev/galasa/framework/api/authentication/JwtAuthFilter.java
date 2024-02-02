@@ -46,8 +46,15 @@ public class JwtAuthFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        oidcProvider = new OidcProvider(env.getenv(EnvironmentVariables.GALASA_DEX_ISSUER), HttpClient.newHttpClient());
-        logger.info("Galasa JWT Auth Filter initialised");
+        String dexIssuerUrl = env.getenv(EnvironmentVariables.GALASA_DEX_ISSUER);
+
+        if (dexIssuerUrl != null) {
+            oidcProvider = new OidcProvider(dexIssuerUrl, HttpClient.newHttpClient());
+            logger.info("Galasa JWT Auth Filter initialised");
+        } else {
+            throw new ServletException("Unable to initialise JWT auth filter. Required environment variable '"
+                + EnvironmentVariables.GALASA_DEX_ISSUER + "' has not been set.");
+        }
     }
 
     @Override

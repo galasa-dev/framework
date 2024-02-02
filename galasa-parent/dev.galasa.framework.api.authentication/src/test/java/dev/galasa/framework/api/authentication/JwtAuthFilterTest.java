@@ -77,6 +77,24 @@ public class JwtAuthFilterTest extends BaseServletTest {
     }
 
     @Test
+    public void testFilterInitWithNoIssuerUrlThrowsServletException() throws Exception {
+        // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+
+        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+
+        JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
+
+        // When...
+        Throwable thrown = catchThrowable(() -> {
+            authFilter.init(null);
+        });
+
+        // Then...
+        assertThat(thrown).isInstanceOf(ServletException.class);
+    }
+
+    @Test
     public void testRequestWithBadAuthorizationHeaderReturnsUnauthorized() throws Exception {
         // Given...
         MockEnvironment mockEnv = new MockEnvironment();

@@ -6,15 +6,16 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpResponse;
-import java.util.Base64;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.coreos.dex.api.DexOuterClass.Client;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.authentication.internal.TokenPayload;
 import dev.galasa.framework.api.common.BaseRoute;
@@ -29,11 +30,16 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class AuthRoute extends BaseRoute {
 
     private OidcProvider oidcProvider;
+    private DexGrpcClient dexGrpcClient;
 
-    public AuthRoute(ResponseBuilder responseBuilder, String path, OidcProvider oidcProvider) {
+    private static final String ID_TOKEN_KEY      = "id_token";
+    private static final String REFRESH_TOKEN_KEY = "refresh_token";
+
+    public AuthRoute(ResponseBuilder responseBuilder, String path, OidcProvider oidcProvider, DexGrpcClient dexGrpcClient) {
         // Regex to match endpoint /auth and /auth/
         super(responseBuilder, "\\/?");
         this.oidcProvider = oidcProvider;
+        this.dexGrpcClient = dexGrpcClient;
     }
 
     /**
@@ -91,7 +97,7 @@ public class AuthRoute extends BaseRoute {
 
         // Check that the request body contains the required payload
         TokenPayload requestBodyJson = getRequestBodyAsJson(request);
-        if (requestBodyJson == null || !requestBodyJson.isValid()) {
+        if (requestBodyJson == null || !isTokenPayloadValid(requestBodyJson)) {
             ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -101,14 +107,12 @@ public class AuthRoute extends BaseRoute {
             JsonObject tokenResponseBodyJson = sendTokenPost(request, requestBodyJson);
 
             // Return the JWT and refresh token as the servlet's response
-            String idTokenKey = "id_token";
-            String refreshTokenKey = "refresh_token";
-            if (tokenResponseBodyJson.has(idTokenKey) && tokenResponseBodyJson.has(refreshTokenKey)) {
+            if (tokenResponseBodyJson != null && tokenResponseBodyJson.has(ID_TOKEN_KEY) && tokenResponseBodyJson.has(REFRESH_TOKEN_KEY)) {
                 logger.info("Bearer and refresh tokens successfully received from issuer.");
 
                 JsonObject responseJson = new JsonObject();
-                responseJson.add("jwt", tokenResponseBodyJson.get(idTokenKey));
-                responseJson.add(refreshTokenKey, tokenResponseBodyJson.get(refreshTokenKey));
+                responseJson.add("jwt", tokenResponseBodyJson.get(ID_TOKEN_KEY));
+                responseJson.add(REFRESH_TOKEN_KEY, tokenResponseBodyJson.get(REFRESH_TOKEN_KEY));
 
                 return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(responseJson),
                         HttpServletResponse.SC_OK);
@@ -149,18 +153,28 @@ public class AuthRoute extends BaseRoute {
      */
     private JsonObject sendTokenPost(HttpServletRequest request, TokenPayload requestBodyJson)
             throws IOException, InterruptedException {
-        String secret = requestBodyJson.getSecret();
-        String decodedSecret = new String(Base64.getDecoder().decode(secret));
+        String refreshToken = requestBodyJson.getRefreshToken();
+        String clientId = requestBodyJson.getClientId();
+        Client dexClient = dexGrpcClient.getClient(clientId);
 
-        // Refresh tokens and authorization codes can be used in exchange for JWTs,
-        // so we need to find out what method was used
-        HttpResponse<String> tokenResponse = null;
-        if (requestBodyJson.getRefreshToken() != null) {
-            tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getRefreshToken());
-        } else {
-            tokenResponse = oidcProvider.sendTokenPost(requestBodyJson.getClientId(), decodedSecret, requestBodyJson.getCode(), AuthCallbackRoute.getExternalAuthCallbackUrl());
+        JsonObject response = null;
+        if (dexClient != null) {
+            String clientSecret = dexClient.getSecret();
+
+            // Refresh tokens and authorization codes can be used in exchange for JWTs,
+            // so we need to find out what method was used
+            HttpResponse<String> tokenResponse = null;
+            if (refreshToken != null) {
+                tokenResponse = oidcProvider.sendTokenPost(clientId, clientSecret, refreshToken);
+            } else {
+                tokenResponse = oidcProvider.sendTokenPost(clientId, clientSecret, requestBodyJson.getCode(), AuthCallbackRoute.getExternalAuthCallbackUrl());
+            }
+
+            if (tokenResponse != null) {
+                response = gson.fromJson(tokenResponse.body(), JsonObject.class);
+            }
         }
-        return gson.fromJson(tokenResponse.body(), JsonObject.class);
+        return response;
     }
 
     /**
@@ -176,5 +190,13 @@ public class AuthRoute extends BaseRoute {
             logger.error("Invalid URL provided: '" + url + "'");
         }
         return isValid;
+    }
+
+    /**
+     * Checks if the POST request payload to pass to Dex's /token endpoint contains a client ID and either
+     * a refresh token or an authorization code.
+     */
+    private boolean isTokenPayloadValid(TokenPayload requestPayload) {
+        return (requestPayload.getClientId() != null) && (requestPayload.getRefreshToken() != null || requestPayload.getCode() != null);
     }
 }
