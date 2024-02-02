@@ -36,14 +36,14 @@ public class GalasaGsonBuilder {
         builder.registerTypeAdapter(type, object);
     }
     
-    public void setDateFromat(String pattern){
+    public void setDateFormat(String pattern){
         builder.setDateFormat(pattern);
     }
 
     public GsonBuilder getBuilder(){
         return builder;
     }
-    public Gson getGson() {
+    public Gson getGson(){
         return builder.create();
     }
 
