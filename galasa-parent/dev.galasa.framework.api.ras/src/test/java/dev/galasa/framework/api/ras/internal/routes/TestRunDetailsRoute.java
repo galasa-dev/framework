@@ -355,8 +355,8 @@ public class TestRunDetailsRoute extends RasServletTest {
 		servlet.doPut(req, resp);
 
 		// Then...
-		assertThat(resp.getStatus()).isEqualTo(200);
-		assertThat(outStream.toString()).isEqualTo("Successfully reset run " + runName);
+		assertThat(resp.getStatus()).isEqualTo(202);
+		assertThat(outStream.toString()).isEqualTo("The request to reset run " + runName + " has been received.");
 	}
 
 	@Test
@@ -389,8 +389,8 @@ public class TestRunDetailsRoute extends RasServletTest {
 		servlet.doPut(req, resp);
 
 		// Then...
-		assertThat(resp.getStatus()).isEqualTo(200);
-		assertThat(outStream.toString()).isEqualTo("Successfully cancelled run " + runName);
+		assertThat(resp.getStatus()).isEqualTo(202);
+		assertThat(outStream.toString()).isEqualTo("The request to cancel run " + runName + " has been received.");
 	}
 
 	@Test
@@ -423,8 +423,8 @@ public class TestRunDetailsRoute extends RasServletTest {
 		servlet.doPut(req, resp);
 
 		// Then...
-		assertThat(resp.getStatus()).isEqualTo(200);
-		assertThat(outStream.toString()).isEqualTo("Successfully cancelled run " + runName);
+		assertThat(resp.getStatus()).isEqualTo(202);
+		assertThat(outStream.toString()).isEqualTo("The request to cancel run " + runName + " has been received.");
 	}
 
 	@Test
