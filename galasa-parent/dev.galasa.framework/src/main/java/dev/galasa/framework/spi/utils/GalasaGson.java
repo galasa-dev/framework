@@ -16,7 +16,25 @@ import com.google.gson.stream.JsonReader;
 
 public class GalasaGson {
 
-    static final Gson gson = GalasaGsonBuilder.build();
+    private GalasaGsonBuilder galasaGsonBuilder;
+    private Gson gson;
+
+    public GalasaGson(){
+        galasaGsonBuilder =new GalasaGsonBuilder();
+        gson = galasaGsonBuilder.getGson();
+    }
+    public Gson getGson(){
+        return gson;
+    }
+
+    public GalasaGsonBuilder getGsonBuilder(){
+        return galasaGsonBuilder;
+    }
+
+    public void setGsonBuilder(GalasaGsonBuilder builder){
+        galasaGsonBuilder = builder;
+        gson = galasaGsonBuilder.getGson();
+    }
 
     public String toJson(Object obj){
         return gson.toJson(obj);
