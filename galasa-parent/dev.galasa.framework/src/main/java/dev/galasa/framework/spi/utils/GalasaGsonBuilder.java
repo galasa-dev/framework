@@ -14,22 +14,32 @@ import com.google.gson.GsonBuilder;
 public class GalasaGsonBuilder {
 
     private GsonBuilder builder;
+
+    public GalasaGsonBuilder () {
+        this(true);
+    }
     /**
      * Creates a Gson builder to transform objects to JSON for use on the API endpoints.
      * HTMLEscaping is disabled as when it is enabled it will tranform special characters to their unicode character references
      * @return GsonBuilder
      */
-    public GalasaGsonBuilder () {
+    public GalasaGsonBuilder (boolean setPrettyPrinting) {
         builder = new GsonBuilder()
             .disableHtmlEscaping()
-            .registerTypeAdapter(Instant.class, new GsonInstantTypeAdapater())
-            .setPrettyPrinting();
+            .registerTypeAdapter(Instant.class, new GsonInstantTypeAdapater());
+        if (setPrettyPrinting){
+            builder.setPrettyPrinting();
+        }
     }
 
     public void registerTypeAdapter(Type type, Object object){
         builder.registerTypeAdapter(type, object);
     }
     
+    public void setDateFromat(String pattern){
+        builder.setDateFormat(pattern);
+    }
+
     public GsonBuilder getBuilder(){
         return builder;
     }
