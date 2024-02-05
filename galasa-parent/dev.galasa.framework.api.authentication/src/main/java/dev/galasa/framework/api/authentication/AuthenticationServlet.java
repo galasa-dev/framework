@@ -45,11 +45,14 @@ public class AuthenticationServlet extends BaseServlet {
     public void init() throws ServletException {
         logger.info("Galasa Authentication API initialising");
 
-        initialiseDexClients();
+        // Make sure the relevant environment variables have been set, otherwise the servlet won't be able to talk to Dex
+        String externalApiServerUrl = getRequiredEnvVariable(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
+        String dexIssuerUrl = getRequiredEnvVariable(EnvironmentVariables.GALASA_DEX_ISSUER);
+        String dexGrpcHostname = getRequiredEnvVariable(EnvironmentVariables.GALASA_DEX_GRPC_HOSTNAME);
 
-        String externalApiServerUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
+        initialiseDexClients(dexIssuerUrl, dexGrpcHostname);
 
-        addRoute(new AuthRoute(getResponseBuilder(), getServletInfo(), oidcProvider));
+        addRoute(new AuthRoute(getResponseBuilder(), getServletInfo(), oidcProvider, dexGrpcClient));
         addRoute(new AuthClientsRoute(getResponseBuilder(), getServletInfo(), dexGrpcClient));
         addRoute(new AuthCallbackRoute(getResponseBuilder(), getServletInfo(), externalApiServerUrl));
 
@@ -60,9 +63,20 @@ public class AuthenticationServlet extends BaseServlet {
      * Initialises the OpenID Connect Provider and Dex gRPC client fields to allow
      * the authentication servlet to communicate with Dex.
      */
-    protected void initialiseDexClients() {
-        this.oidcProvider = new OidcProvider(env.getenv(EnvironmentVariables.GALASA_DEX_ISSUER),
-                HttpClient.newHttpClient());
-        this.dexGrpcClient = new DexGrpcClient(env.getenv(EnvironmentVariables.GALASA_DEX_GRPC_HOSTNAME));
+    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname) {
+        this.oidcProvider = new OidcProvider(dexIssuerUrl, HttpClient.newHttpClient());
+        this.dexGrpcClient = new DexGrpcClient(dexGrpcHostname);
+    }
+
+    /**
+     * Gets a given required environment variable, throwing a ServletException if a value has not been set.
+     */
+    private String getRequiredEnvVariable(String envName) throws ServletException {
+        String envValue = env.getenv(envName);
+
+        if (envValue == null) {
+            throw new ServletException("Required environment variable '" + envName + "' has not been set.");
+        }
+        return envValue;
     }
 }

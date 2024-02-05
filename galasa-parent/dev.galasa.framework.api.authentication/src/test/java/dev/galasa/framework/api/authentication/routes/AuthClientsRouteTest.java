@@ -6,21 +6,18 @@
 package dev.galasa.framework.api.authentication.routes;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import javax.servlet.ServletOutputStream;
 
 import org.junit.Test;
 
-import com.coreos.dex.api.DexOuterClass.Client;
-import com.coreos.dex.api.DexOuterClass.Client.Builder;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
+import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -31,24 +28,14 @@ public class AuthClientsRouteTest extends BaseServletTest {
 
     private static final GalasaGson gson = new GalasaGson();
 
-    private Client createMockClient(String clientId, String clientSecret, String redirectUri) {
-        Builder clientBuilder = Client.newBuilder();
-
-        clientBuilder.setId(clientId);
-        clientBuilder.setSecret(clientSecret);
-        clientBuilder.addRedirectUris(redirectUri);
-
-        return clientBuilder.build();
-    }
-
     @Test
     public void testAuthClientsPostRequestWithNoCreatedClientReturnsError() throws Exception {
         // Given...
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         MockEnvironment mockEnv = new MockEnvironment();
+        setRequiredEnvironmentVariables(mockEnv);
 
-        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
-        when(mockDexGrpcClient.createClient(any())).thenReturn(null);
+        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer.url");
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
 
@@ -76,13 +63,13 @@ public class AuthClientsRouteTest extends BaseServletTest {
         // Given...
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         MockEnvironment mockEnv = new MockEnvironment();
+        setRequiredEnvironmentVariables(mockEnv);
 
         String clientId = "my-client-id";
         String clientSecret = "my-client-secret";
         String redirectUri = "http://my.app/callback";
 
-        DexGrpcClient mockDexGrpcClient = mock(DexGrpcClient.class);
-        when(mockDexGrpcClient.createClient(any())).thenReturn(createMockClient(clientId, clientSecret, redirectUri));
+        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer.url", clientId, clientSecret, redirectUri);
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
 
@@ -97,12 +84,10 @@ public class AuthClientsRouteTest extends BaseServletTest {
         // Then...
         // Expecting this json:
         // {
-        //   "client_id": "my-client-id",
-        //   "client_secret": "my-client-secret",
+        // "client_id": "my-client-id",
         // }
         JsonObject expectedJson = new JsonObject();
         expectedJson.addProperty("client_id", clientId);
-        expectedJson.addProperty("client_secret", clientSecret);
 
         assertThat(servletResponse.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
