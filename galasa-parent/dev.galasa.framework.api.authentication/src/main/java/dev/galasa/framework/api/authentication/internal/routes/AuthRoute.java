@@ -161,8 +161,9 @@ public class AuthRoute extends BaseRoute {
         if (dexClient != null) {
             String clientSecret = dexClient.getSecret();
 
-            // Refresh tokens and authorization codes can be used in exchange for JWTs,
-            // so we need to find out what method was used
+            // Refresh tokens and authorization codes can be used in exchange for JWTs.
+            // At this point, we either have a refresh token or an authorization code,
+            // so perform the relevant POST request
             HttpResponse<String> tokenResponse = null;
             if (refreshToken != null) {
                 tokenResponse = oidcProvider.sendTokenPost(clientId, clientSecret, refreshToken);
