@@ -70,7 +70,7 @@ public class RunDetailsRoute extends RunsRoute {
       checkRequestHasContent(request);
       RunActionJson runAction = getUpdatedRunActionFromRequestBody(request);
       
-      return getResponseBuilder().buildResponse(response, "text/plain", updateRunStatus(runName, runAction), HttpServletResponse.SC_OK);
+      return getResponseBuilder().buildResponse(response, "text/plain", updateRunStatus(runName, runAction), HttpServletResponse.SC_ACCEPTED);
    } 
 
 
@@ -85,11 +85,11 @@ public class RunDetailsRoute extends RunsRoute {
       } else if (status == RunActionStatus.QUEUED) {
          resetRun(runName);
          logger.info("Run reset by external source.");
-         responseBody = String.format("Successfully reset run %s", runName);
+         responseBody = String.format("The request to reset run %s has been received.", runName);
       } else if (status == RunActionStatus.FINISHED) {
          cancelRun(runName, result);
          logger.info("Run cancelled by external source.");
-         responseBody = String.format("Successfully cancelled run %s", runName);
+         responseBody = String.format("The request to cancel run %s has been received.", runName);
       } 
       return responseBody;
    }

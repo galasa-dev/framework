@@ -1356,7 +1356,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateRunStatusRequest'
       responses:
-        '200':
+        '202':
           description: Run status updated
           content:
             text/plain:
@@ -1364,10 +1364,10 @@ paths:
                 type: string
               examples:
                 resetRun:
-                  value: Successfully reset run U123
+                  value: The request to reset run U123 has been received.
                   summary: Reset run action success
                 cancelRun:
-                  value: Successfully cancelled run U123
+                  value: The request to cancel run U123 has been received.
                   summary: Cancel run action success
         '400':
           description: Bad request
