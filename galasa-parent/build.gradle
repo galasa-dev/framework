@@ -53,6 +53,7 @@ subprojects {
 //----------------------------------------------------------
 // Download the Dex gRPC API .proto file
 //----------------------------------------------------------
+def dexVersion = "v2.38.0"
 def protoDirPath = "$rootDir/dev.galasa.framework.api.authentication/src/main/proto"
 def protoDir = new File(protoDirPath)
 def dexProtoFile = new File("$protoDirPath/dex.proto")
@@ -66,7 +67,7 @@ task downloadDexProto() {
         }
 
         // Download Dex's api.proto file from GitHub
-        new URL("https://raw.githubusercontent.com/dexidp/dex/v2.37.0/api/v2/api.proto").withInputStream{
+        new URL("https://raw.githubusercontent.com/dexidp/dex/$dexVersion/api/v2/api.proto").withInputStream{
             inputStream -> dexProtoFile.withOutputStream{ outputStream -> outputStream << inputStream }
         }
     }

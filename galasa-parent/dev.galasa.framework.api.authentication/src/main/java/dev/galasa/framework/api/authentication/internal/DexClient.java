@@ -15,19 +15,11 @@ public class DexClient {
     @SerializedName("client_id")
     private String clientId;
 
-    @SerializedName("client_secret")
-    private String clientSecret;
-
-    public DexClient(String clientId, String clientSecret) {
+    public DexClient(String clientId) {
         this.clientId = clientId;
-        this.clientSecret = clientSecret;
     }
 
     public String getClientId() {
         return clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
     }
 }

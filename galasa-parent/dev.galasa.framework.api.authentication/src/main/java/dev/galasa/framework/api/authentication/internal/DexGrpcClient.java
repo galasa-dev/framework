@@ -13,6 +13,8 @@ import com.coreos.dex.api.DexGrpc.DexBlockingStub;
 import com.coreos.dex.api.DexOuterClass.Client;
 import com.coreos.dex.api.DexOuterClass.CreateClientReq;
 import com.coreos.dex.api.DexOuterClass.CreateClientResp;
+import com.coreos.dex.api.DexOuterClass.GetClientReq;
+import com.coreos.dex.api.DexOuterClass.GetClientResp;
 import com.coreos.dex.api.DexOuterClass.CreateClientReq.Builder;
 
 import io.grpc.ManagedChannel;
@@ -63,6 +65,32 @@ public class DexGrpcClient {
     }
 
     /**
+     * Returns a Dex client with a given client ID, or null if no such client exists.
+     *
+     * @param clientId the ID of the client to retrieve
+     */
+    public Client getClient(String clientId) {
+        logger.info("Retrieving Dex client with ID: " + clientId);
+
+        // Build the GetClient request
+        com.coreos.dex.api.DexOuterClass.GetClientReq.Builder getClientReqBuilder = GetClientReq.newBuilder();
+        getClientReqBuilder.setId(clientId);
+
+        // Send the gRPC call to get the Dex client
+        GetClientReq getClientReq = getClientReqBuilder.build();
+        GetClientResp clientResp = sendGetClientRequest(getClientReq);
+
+        Client client = null;
+        if (clientResp.hasClient()) {
+            logger.info("Dex client successfully retrieved");
+            client = clientResp.getClient();
+        } else {
+            logger.error("Failed to get the Dex client with ID: " + clientId);
+        }
+        return client;
+    }
+
+    /**
      * Initialises a blocking stub to be used when sending requests to Dex's gRPC
      * API.
      *
@@ -81,5 +109,15 @@ public class DexGrpcClient {
      */
     protected CreateClientResp sendCreateClientRequest(CreateClientReq createClientReq) {
         return blockingStub.createClient(createClientReq);
+    }
+
+    /**
+     * Sends a request to get a Dex client.
+     *
+     * @param getClientReq the request to send
+     * @return the response received from Dex's gRPC API
+     */
+    protected GetClientResp sendGetClientRequest(GetClientReq getClientReq) {
+        return blockingStub.getClient(getClientReq);
     }
 }

@@ -173,7 +173,7 @@ paths:
       - Authentication API
       responses:
         '201':
-          description: Returns a JSON Object containing the created client's ID and secret
+          description: Returns a JSON Object containing the created client's ID
           content:
             application/json:
               schema:
@@ -1847,9 +1847,6 @@ components:
         client_id:
           type: string
           description: The ID of a Galasa client that is being authenticated.
-        secret:
-          type: string
-          description: The secret for the client that is being authenticated.
         refresh_token:
           type: string
           description: The refresh token to be exchanged for a JWT, mutually exclusive with "code".
@@ -1861,9 +1858,6 @@ components:
         client_id:
           type: string
           description: An alphanumeric string representing the ID of the Dex client.
-        client_secret:
-          type: string
-          description: An alphanumeric string representing the secret of the Dex client.
     TokenResponse:
       properties:
         jwt:
