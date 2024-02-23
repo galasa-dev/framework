@@ -21,7 +21,6 @@ public class GalasaGsonBuilder {
     /**
      * Creates a Gson builder to transform objects to JSON for use on the API endpoints.
      * HTMLEscaping is disabled as when it is enabled it will tranform special characters to their unicode character references
-     * @return GsonBuilder
      */
     public GalasaGsonBuilder (boolean setPrettyPrinting) {
         builder = new GsonBuilder()
