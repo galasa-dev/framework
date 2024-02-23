@@ -194,6 +194,10 @@ function cleaning_up_before_we_start {
         info "Skipping clean phase because this is a delta build."
     else
         h2 "Cleaning..."
+
+        warn "Temporary fix: Remove the dex proto file so we don't use debris from last time."
+        rm -fr ${WORKSPACE_DIR}/galasa-parent/dev.galasa.framework.api.authentication/src/java/dev/galasa/framework/api/authentication/proto/dex.proto
+
         gradle --no-daemon \
         ${CONSOLE_FLAG} \
         --warning-mode=all --debug \
