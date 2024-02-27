@@ -92,6 +92,8 @@ public class TestRunner {
 
     private IFramework                          framework;
 
+    private boolean produceEvents;
+
     /**
      * Run the supplied test class
      * 
@@ -114,6 +116,12 @@ public class TestRunner {
         }
 
         this.framework = frameworkInitialisation.getFramework();
+
+        try {
+            this.produceEvents = produceEventsFeatureFlagIsTrue(this.framework);
+        } catch (ConfigurationPropertyStoreException e) {
+            throw new TestRunException("Problem loading the CPS property for event production.");
+        }
 
         IRun run = this.framework.getTestRun();
         if (run == null) {
@@ -476,6 +484,17 @@ public class TestRunner {
         frameworkInitialisation.shutdownFramework();
     }
 
+    private boolean produceEventsFeatureFlagIsTrue(IFramework framework) throws ConfigurationPropertyStoreException {
+        boolean produceEvents = false;
+        IConfigurationPropertyStoreService cpsFramework = framework.getConfigurationPropertyService("framework");
+        String produceEventsProp = cpsFramework.getProperty("produce", "events");
+        if (!produceEventsProp.equals("") && produceEventsProp != null) {
+            produceEvents = Boolean.parseBoolean(produceEventsProp);
+            logger.debug("CPS property to produce events is set to: " + produceEventsProp);
+        }
+        return produceEvents;
+    }
+
     private void generateEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
         if(isRunOK){
             try {
@@ -631,6 +650,10 @@ public class TestRunner {
     }
 
     private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
+
+        if (this.produceEvents) {
+            logger.debug("Producing a test lifecycle status change event.");
+        }
 
         this.testStructure.setStatus(status.toString());
         if ("finished".equals(status.toString())) {
