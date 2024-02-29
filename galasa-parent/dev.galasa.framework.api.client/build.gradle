@@ -9,7 +9,7 @@ plugins {
 
 description = 'Framework API - REST java client'
 
-version = '0.31.0'
+version = '0.32.0'
 
 dependencies {
     compileOnly project(':dev.galasa.framework.api.openapi')
