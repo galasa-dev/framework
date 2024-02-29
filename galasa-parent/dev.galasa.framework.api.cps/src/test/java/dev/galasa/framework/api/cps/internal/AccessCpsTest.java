@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.cps.internal;
-import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import dev.galasa.framework.api.cps.mocks.*;
 import dev.galasa.framework.spi.*;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 // import org.junit.Ignore;
 import org.junit.Test;
 import java.text.*;
@@ -20,7 +19,7 @@ import java.util.*;
 
 public class AccessCpsTest {
 
-    private final Gson gson = GalasaGsonBuilder.build();
+    private final GalasaGson gson = new GalasaGson();
 
 
     /**
@@ -90,16 +89,16 @@ public class AccessCpsTest {
 
         // Then...
         assertThat(response.getHeader("Content-Type")).isEqualTo("application/json");
-        assertThat(response.getStatus()).isEqualTo(500); // Expect server error.
+        assertThat(response.getStatus()).isEqualTo(400); // Expect server error.
 
         String errorMessage = response.getPayloadAsErrorMessage();
-        assertThat(errorMessage).isEqualTo("Internal server error. Failed on purpose in a unit test");
+        assertThat(errorMessage).isEqualTo("Failed on purpose in a unit test");
 
         // Check that the exception was logged as an error in the log.
         LogRecord errorLogRecord = servlet.getLogger().getFirstLogRecordContainingText("Failed on purpose in a unit test");
         assertThat(errorLogRecord).isNotNull();
         assertThat(errorLogRecord.getCause()).isNotNull().isInstanceOf(ConfigurationPropertyStoreException.class);
-        assertThat(errorLogRecord.getType()).isEqualTo(LogRecordType.ERROR);
+        assertThat(errorLogRecord.getType()).isEqualTo(LogRecordType.INFO);
     }
 
     @Test
@@ -172,8 +171,8 @@ public class AccessCpsTest {
         IFramework mockFramework = new MockFramework() {
             @Override
             public IConfigurationPropertyStoreService getConfigurationPropertyService(String namespace) throws ConfigurationPropertyStoreException {
-                FrameworkException originalCause = new FrameworkException(FrameworkErrorCode.INVALID_NAMESPACE,
-                        "bad namespace characters - for unit testing");
+                FrameworkException originalCause = new FrameworkException(new FrameworkErrorDetailsBase (2,
+                        "bad namespace characters - for unit testing"));
                 throw new ConfigurationPropertyStoreException(originalCause);
             }
         };
@@ -349,7 +348,7 @@ public class AccessCpsTest {
         IConfigurationPropertyStoreService mockPropsStoreService = new MockConfigurationPropertyStoreService() {
             @Override
             public void setProperty(String name, String value) throws ConfigurationPropertyStoreException {
-                assertThat(name).isEqualTo("myprop");
+                assertThat(name).isEqualTo("my.prop");
                 assertThat(value).isEqualTo("myvalue");
             }
         };
@@ -367,10 +366,10 @@ public class AccessCpsTest {
         LogCapturingAccessCps servlet = new LogCapturingAccessCps();
         servlet.framework = mockFramework ;
 
-        MockHttpRequest request = new MockHttpRequest("/notdssbutvalid/property/myprop");
+        MockHttpRequest request = new MockHttpRequest("/notdssbutvalid/property/my.prop");
         request.setBody(
                 "{\n"+
-                "  \"name\":\"myprop\",\n"+
+                "  \"name\":\"my.prop\",\n"+
                 "  \"value\":\"myvalue\"\n"+
                 "}\n");
         MockHttpResponse response = new MockHttpResponse();
@@ -389,7 +388,7 @@ public class AccessCpsTest {
 
         NameValuePair property = gson.fromJson(jReader , NameValuePair.class);
 
-        assertThat(property.name).isEqualTo("myprop");
+        assertThat(property.name).isEqualTo("my.prop");
         assertThat(property.value).isEqualTo("myvalue");
     }
 
@@ -404,7 +403,7 @@ public class AccessCpsTest {
         IConfigurationPropertyStoreService mockPropsStoreService = new MockConfigurationPropertyStoreService() {
             @Override
             public void setProperty(String name, String value) throws ConfigurationPropertyStoreException {
-                assertThat(name).isEqualTo("myprop");
+                assertThat(name).isEqualTo("my.prop");
                 assertThat(value).isEqualTo("myvalue");
             }
         };
@@ -422,10 +421,10 @@ public class AccessCpsTest {
         LogCapturingAccessCps servlet = new LogCapturingAccessCps();
         servlet.framework = mockFramework ;
 
-        MockHttpRequest request = new MockHttpRequest("/dss/property/myprop");
+        MockHttpRequest request = new MockHttpRequest("/dss/property/my.prop");
         request.setBody(
                 "{\n"+
-                        "  \"name\":\"myprop\",\n"+
+                        "  \"name\":\"my.prop\",\n"+
                         "  \"value\":\"myvalue\"\n"+
                         "}\n");
         MockHttpResponse response = new MockHttpResponse();

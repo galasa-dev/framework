@@ -166,6 +166,10 @@ cp $temp_dir/release.yaml ${BASEDIR}/release.yaml
 cat ${BASEDIR}/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml | sed "s/^[ ]*version[ ]*:.*/  version : \"$component_version\"/1" > $temp_dir/openapi.yaml
 cp $temp_dir/openapi.yaml ${BASEDIR}/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml
 
+## and the openapi bundle
+cat $BASEDIR/galasa-parent/dev.galasa.framework.api.openapi/build.gradle | sed "s/^[ ]*version[ ]*=.*/version = \"$component_version\"/1" > $temp_dir/framework-build.gradle
+cp $temp_dir/framework-build.gradle $BASEDIR/galasa-parent/dev.galasa.framework.api.openapi/build.gradle
+
 
 cat ${BASEDIR}/test-api-locally.md | sed "s/^[ ]*export[ ]+GALASA_OBR_VERSION[ ]*=[ ]*.*$/export GALASA_OBR_VERSION=\"$component_version\"/1" > $temp_dir/test-api-locally.md 
 cp $temp_dir/test-api-locally.md  ${BASEDIR}/test-api-locally.md 

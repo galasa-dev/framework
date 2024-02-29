@@ -8,8 +8,10 @@ package dev.galasa.framework.api.cps.internal.routes;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,11 +30,13 @@ import dev.galasa.framework.spi.IFramework;
  */
 public class PropertyUpdateRoute extends CPSRoute {
 
+    protected static final String path = "\\/([a-z][a-z0-9]+)/properties/([a-zA-Z][a-zA-Z0-9\\.\\-\\_]+)" ;
+
     public PropertyUpdateRoute(ResponseBuilder responseBuilder, IFramework framework ) {
 		/* Regex to match endpoints: 
 		*  -> /cps/<namespace>/properties/<propertyName>
 		*/
-		super(responseBuilder, "\\/([a-z0-9]+)/properties/([a-zA-Z0-9.]+)", framework);
+		super(responseBuilder, path, framework);
 	}
 
     /*
@@ -48,6 +52,22 @@ public class PropertyUpdateRoute extends CPSRoute {
     }
 
     private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
+        if (!propertyName.contains(".")){
+            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,
+            "Invalid property name. Property name much have at least two parts seperated by a '.' (dot)");
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        if (propertyName.endsWith(".")){
+            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,
+            "Invalid property name. Property name '"+propertyName+"' can not end with a '.' (dot) seperator.");
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        try {
+            nameValidator.assertPropertyNameCharPatternIsValid(propertyName);
+        } catch (FrameworkException f){
+            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, f.getMessage());
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, f);
+        }
         CPSFacade cps = new CPSFacade(framework);
         CPSNamespace namespace = cps.getNamespace(namespaceName);
         CPSProperty property = namespace.getProperty(propertyName);
@@ -63,8 +83,12 @@ public class PropertyUpdateRoute extends CPSRoute {
         String namespaceName = getNamespaceFromURL(pathInfo);
         String name = getPropertyNameFromURL(pathInfo);
         checkRequestHasContent(request);
-        checkNameMatchesRequest(name, request);
-        CPSProperty property = applyPropertyToStore(request, namespaceName, true);
+        ServletInputStream body = request.getInputStream();
+        String jsonString = new String (body.readAllBytes(),StandardCharsets.UTF_8);
+        body.close();
+        checkNameMatchesRequest(name, jsonString);
+        checkNamespaceExists(namespaceName);
+        CPSProperty property = applyPropertyToStore(jsonString, namespaceName, true);
         String responseBody = String.format("Successfully updated property %s in %s",property.getName(), property.getNamespace());
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK); 
     }

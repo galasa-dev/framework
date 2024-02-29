@@ -15,8 +15,7 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.gson.Gson;
+import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -26,25 +25,40 @@ import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreServ
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
 
 import dev.galasa.framework.api.resources.mocks.MockResourcesServlet;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class ResourcesServletTest extends BaseServletTest {
     
-	static final Gson gson = GalasaGsonBuilder.build();
+	static final GalasaGson gson = new GalasaGson();
 
 	MockResourcesServlet servlet;
 	HttpServletRequest req;
 	HttpServletResponse resp;
 
+	private class MockICPSServiceWithError extends MockIConfigurationPropertyStoreService {
+        protected MockICPSServiceWithError(String namespace){
+            super.namespaceInput= namespace;
+        }
+        
+        @Override
+        public void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException {
+            throw new ConfigurationPropertyStoreException("Could not Delete Key");
+        }
+    }
+
 	protected void setServlet(String namespace){
 		this.servlet = new MockResourcesServlet();
+		IConfigurationPropertyStoreService cpsstore;
 		if (namespace != null){
-			IConfigurationPropertyStoreService cpsstore = new MockIConfigurationPropertyStoreService(namespace);
-			IFramework framework = new MockFramework(cpsstore);
-			this.servlet.setFramework(framework);
+			cpsstore = new MockIConfigurationPropertyStoreService(namespace);
+		} else{
+			cpsstore = new MockICPSServiceWithError("framework");
 		}
+		IFramework framework = new MockFramework(cpsstore);
+		this.servlet.setFramework(framework);
 	}
 	
 	protected void setServlet(String path,String namespace, Map<String, String[]> parameterMap){

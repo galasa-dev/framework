@@ -13,7 +13,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -24,19 +23,21 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class RequestorRoute extends RunsRoute {
 
-    public RequestorRoute(ResponseBuilder responseBuilder, String path, IFramework framework) {
+    protected static final String path = "\\/requestors\\/?";
+
+    public RequestorRoute(ResponseBuilder responseBuilder, IFramework framework) {
         /* Regex to match endpoints: 
 		*  -> /ras/requestors
 		*  -> /ras/requestors?
 		*/
-        super(responseBuilder, "\\/requestors\\/?", framework);
+        super(responseBuilder, path, framework);
     }
 
-    final static Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
     private RasQueryParameters sortQueryParameterChecker;
 
     @Override
@@ -59,7 +60,7 @@ public class RequestorRoute extends RunsRoute {
             }
             
         //create json object
-			JsonElement json = new Gson().toJsonTree(requestorsList);
+			JsonElement json = gson.toJsonTree(requestorsList);
             JsonObject requestors = new JsonObject(); 
 			requestors.add("requestors", json);
             return requestors.toString();

@@ -26,6 +26,10 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
         this.runs = runs;
     }
 
+    public MockIFrameworkRuns(List<IRun> runs) {
+        this.runs = runs;
+    }
+
     @Override
     public @NotNull List<IRun> getActiveRuns() throws FrameworkException {
         throw new UnsupportedOperationException("Unimplemented method 'getActiveRuns'");
@@ -62,14 +66,14 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
             SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language)
             throws FrameworkException {
             if (stream.equals("null")){
-                throw new FrameworkException(null, language, null, local, trace);
+                throw new FrameworkException(language);
             }
         return new MockIRun("runname"+testName, type, requestor, testName, sharedEnvironmentRunName, bundleName, language, groupName);
     }
 
     @Override
     public boolean delete(String runname) throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        return true;
     }
 
     @Override
@@ -79,6 +83,6 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
 
     @Override
     public boolean reset(String runname) throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'reset'");
+        return true;
     }
 }

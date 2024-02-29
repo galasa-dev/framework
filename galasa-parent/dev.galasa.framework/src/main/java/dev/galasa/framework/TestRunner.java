@@ -92,6 +92,8 @@ public class TestRunner {
 
     private IFramework                          framework;
 
+    private boolean produceEvents;
+
     /**
      * Run the supplied test class
      * 
@@ -114,6 +116,12 @@ public class TestRunner {
         }
 
         this.framework = frameworkInitialisation.getFramework();
+
+        try {
+            this.produceEvents = produceEventsFeatureFlagIsTrue();
+        } catch (ConfigurationPropertyStoreException e) {
+            throw new TestRunException("Problem loading the CPS property for event production.");
+        }
 
         IRun run = this.framework.getTestRun();
         if (run == null) {
@@ -476,6 +484,16 @@ public class TestRunner {
         frameworkInitialisation.shutdownFramework();
     }
 
+    private boolean produceEventsFeatureFlagIsTrue() throws ConfigurationPropertyStoreException {
+        boolean produceEvents = false;
+        String produceEventsProp = this.cps.getProperty("produce", "events");
+        if (produceEventsProp != null) {
+            logger.debug("CPS property framework.produce.events was found and is set to: " + produceEventsProp);
+            produceEvents = Boolean.parseBoolean(produceEventsProp);
+        }
+        return produceEvents;
+    }
+
     private void generateEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
         if(isRunOK){
             try {
@@ -569,7 +587,7 @@ public class TestRunner {
     }
 
     private void stopEnvironment(TestRunManagers managers) {
-        if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {   
+        if (this.runType != RunType.SHARED_ENVIRONMENT_BUILD) {   
             logger.info("Starting Provision Stop phase");
             managers.provisionStop();
         }
@@ -631,6 +649,10 @@ public class TestRunner {
     }
 
     private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
+
+        if (this.produceEvents) {
+            logger.debug("Producing a test lifecycle status change event.");
+        }
 
         this.testStructure.setStatus(status.toString());
         if ("finished".equals(status.toString())) {

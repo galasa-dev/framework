@@ -8,11 +8,38 @@ package dev.galasa.framework.api.common.resources;
 import org.junit.Test;
 
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.resources.beans.GalasaProperty;
 
 import static org.assertj.core.api.Assertions.*;
 
 public class TestGalasaProperty {
     
+    private boolean isPropertyNameValid(GalasaProperty property) {
+        boolean valid;
+        valid = property.getName() != null && !property.getName().isBlank();
+        if(valid){
+            valid = property.getName().split("[.]").length >=2;
+        }
+        return valid;
+    }
+
+    private boolean isPropertyNameSpaceValid(GalasaProperty property) {
+        return property.getNamespace() != null && !property.getNamespace().isBlank();
+    }
+
+    private boolean isPropertyValueValid(GalasaProperty property) {
+        return property.getValue() != null && !property.getValue().isBlank();
+    }
+
+    private boolean isPropertyApiVersionValid(GalasaProperty property) {
+        return property.getApiVersion() != null && !property.getApiVersion().isBlank();
+    }
+
+    private boolean isPropertyValid(GalasaProperty property) throws InternalServletException {
+        return isPropertyApiVersionValid(property) && isPropertyNameSpaceValid(property) 
+                && isPropertyNameValid(property) && isPropertyValueValid(property);
+    }
+
     
     @Test
     public void TestGalasaPropertyDefaultApiVersion() throws InternalServletException{
@@ -30,7 +57,7 @@ public class TestGalasaProperty {
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        assertThat(property.isPropertyValid()).isTrue();
+        assertThat(isPropertyValid(property)).isTrue();
     }
 
     @Test
@@ -50,7 +77,7 @@ public class TestGalasaProperty {
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        assertThat(property.isPropertyValid()).isTrue();
+        assertThat(isPropertyValid(property)).isTrue();
     }
 
     @Test
@@ -71,12 +98,7 @@ public class TestGalasaProperty {
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        Throwable thrown = catchThrowable( () -> {
-            assertThat(property.isPropertyValid()).isFalse();
-        });
-
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024","apiVersion");
+        assertThat(isPropertyValid(property)).isFalse();
     }
 
     @Test
@@ -96,12 +118,7 @@ public class TestGalasaProperty {
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        Throwable thrown = catchThrowable( () -> {
-            assertThat(property.isPropertyValid()).isFalse();
-        });
-
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024","value");
+        assertThat(isPropertyValid(property)).isFalse();
     }
 
     @Test
@@ -121,12 +138,7 @@ public class TestGalasaProperty {
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        Throwable thrown = catchThrowable( () -> {
-            assertThat(property.isPropertyValid()).isFalse();
-        });
-
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024","value");
+        assertThat(isPropertyValid(property)).isFalse();
     }
 
     @Test
@@ -146,12 +158,7 @@ public class TestGalasaProperty {
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        Throwable thrown = catchThrowable( () -> {
-            assertThat(property.isPropertyValid()).isFalse();
-        });
-
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024","value");
+        assertThat(isPropertyValid(property)).isFalse();
     }
 
     @Test
@@ -164,19 +171,13 @@ public class TestGalasaProperty {
         //When...
         GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
         
-
         //Then...
         assertThat(property.getKind()).isEqualTo("GalasaProperty");
         assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        Throwable thrown = catchThrowable( () -> {
-            assertThat(property.isPropertyValid()).isFalse();
-        });
-
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024","namespace");
+        assertThat(isPropertyValid(property)).isFalse();
     }
 
     @Test
@@ -189,19 +190,13 @@ public class TestGalasaProperty {
         //When...
         GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
         
-
         //Then...
         assertThat(property.getKind()).isEqualTo("GalasaProperty");
         assertThat(property.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        Throwable thrown = catchThrowable( () -> {
-            assertThat(property.isPropertyValid()).isFalse();
-        });
-
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024","name");
+        assertThat(isPropertyValid(property)).isFalse();
     }
 
     @Test
@@ -212,8 +207,7 @@ public class TestGalasaProperty {
         String propertyValue = "";
         
         //When...
-        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);
-        
+        GalasaProperty property = new GalasaProperty(namespace, propertyName, propertyValue);     
 
         //Then...
         assertThat(property.getKind()).isEqualTo("GalasaProperty");
@@ -221,11 +215,6 @@ public class TestGalasaProperty {
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        Throwable thrown = catchThrowable( () -> {
-            assertThat(property.isPropertyValid()).isFalse();
-        });
-
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024","value");
+        assertThat(isPropertyValid(property)).isFalse();
     }
 }

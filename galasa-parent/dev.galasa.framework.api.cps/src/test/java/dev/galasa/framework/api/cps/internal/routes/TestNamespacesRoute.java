@@ -11,6 +11,7 @@ import dev.galasa.framework.api.cps.internal.routes.TestNamespacesRoute;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -19,11 +20,136 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 
 public class TestNamespacesRoute extends CpsServletTest{
+
+	/*
+     * Regex Path
+     */
+
+    @Test
+    public void TestPathRegexExpectedPathReturnsTrue(){
+        //Given...
+        String expectedPath = NamespacesRoute.path;
+        String inputPath = "/";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+    @Test
+    public void TestPathRegexLowerCasePathReturnsFalse(){
+        //Given...
+        String expectedPath = NamespacesRoute.path;
+        String inputPath = "/thisisapath";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexUpperCasePathReturnsFalse(){
+        //Given...
+        String expectedPath = NamespacesRoute.path;
+        String inputPath = "/ALLCAPITALS";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexNumberPathReturnsFalse(){
+        //Given...
+        String expectedPath = NamespacesRoute.path;
+        String inputPath = "/1234";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexUnexpectedPathReturnsTrue(){
+        //Given...
+        String expectedPath = NamespacesRoute.path;
+        String inputPath = "/incorrect-?ID_1234";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexEmptyPathReturnsFalse(){
+        //Given...
+        String expectedPath = NamespacesRoute.path;
+        String inputPath = "";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexDotPathReturnsFalse(){
+        //Given...
+        String expectedPath = NamespacesRoute.path;
+        String inputPath = "/random.String";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+        //Given...
+        String expectedPath = NamespacesRoute.path;
+        String inputPath = "/?";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+        //Given...
+        String expectedPath = NamespacesRoute.path;
+        String inputPath = "//////";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    /*
+     * GET Requests
+     */
     
     @Test
     public void TestGetNamespacesNoFrameworkReturnsError () throws Exception{
 		// Given...
-		setServlet("",null ,new HashMap<String,String[]>());
+		setServlet("/",null ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -72,7 +198,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
 		// Given...
-		setServlet("","framework",new HashMap<String,String[]>());
+		setServlet("/","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -95,7 +221,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesWithFrameworkNullNamespacesReturnsError() throws Exception{
 		// Given...
-		setServlet("","error",new HashMap<String,String[]>());
+		setServlet("/","error",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -177,7 +303,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesPUTRequestReturnsError() throws Exception{
 		// Given...
-		setServlet("","framework", null , "PUT");
+		setServlet("/","framework", null , "PUT");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -196,7 +322,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint ''. The method 'PUT' is not allowed."
+			"E: Error occured when trying to access the endpoint '/'. The method 'PUT' is not allowed."
 		);
     }
 
@@ -206,7 +332,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesPOSTRequestReturnsError() throws Exception{
 		// Given...
-		setServlet("","framework",null, "POST");
+		setServlet("/","framework",null, "POST");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -225,7 +351,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint ''. The method 'POST' is not allowed."
+			"E: Error occured when trying to access the endpoint '/'. The method 'POST' is not allowed."
 		);
     }
 
@@ -235,7 +361,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 	@Test
 	public void TestGetNamespacesDELETERequestReturnsError() throws Exception{
 		// Given...
-		setServlet("","framework",null, "DELETE");
+		setServlet("/","framework",null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -254,7 +380,7 @@ public class TestNamespacesRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint ''. The method 'DELETE' is not allowed."
+			"E: Error occured when trying to access the endpoint '/'. The method 'DELETE' is not allowed."
 		);
     }
 }

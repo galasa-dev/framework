@@ -42,7 +42,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
         return this.contentType;
     }
 
-
+    @Override
     public ServletOutputStream getOutputStream() throws IOException {
       return this.outputStream;
     }
@@ -73,12 +73,18 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     @Override
     public void addHeader(String name, String value) {
-        this.headers.put(name,value);
+        this.headers.put(name, value);
     }
 
     @Override
     public void setStatus(int sc) {
         this.status = sc;
+    }
+
+    @Override
+    public void sendRedirect(String location) throws IOException {
+        setStatus(SC_FOUND);
+        addHeader("Location", location);
     }
 
     @Override
@@ -178,11 +184,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     @Override
-    public void sendRedirect(String location) throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'sendRedirect'");
-    }
-
-    @Override
     public void setDateHeader(String name, long date) {
         throw new UnsupportedOperationException("Unimplemented method 'setDateHeader'");
     }
@@ -217,5 +218,4 @@ public class MockHttpServletResponse implements HttpServletResponse {
     public Collection<String> getHeaderNames() {
         throw new UnsupportedOperationException("Unimplemented method 'getHeaderNames'");
     }
-
 }

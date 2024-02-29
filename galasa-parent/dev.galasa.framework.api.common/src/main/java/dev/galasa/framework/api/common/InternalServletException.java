@@ -33,6 +33,6 @@ public class InternalServletException extends FrameworkException {
 
     @Override
     public String getMessage() {
-        return servletError.toString();
+        return servletError.toJsonString();
     }
 }

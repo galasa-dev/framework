@@ -33,12 +33,12 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
+
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 /**
  * Basic Test Catalog store
@@ -54,7 +54,7 @@ public class Testcatalogs extends HttpServlet {
 
     private static final Log  logger           = LogFactory.getLog(Testcatalogs.class);
 
-    private final Gson        gson             = new GsonBuilder().setPrettyPrinting().create();
+    private final GalasaGson  gson             = new GalasaGson();
 
     private Path              catalogDirectory;                                                 // NOSONAR
 

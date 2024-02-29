@@ -14,8 +14,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -27,11 +25,11 @@ import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class RunsServletTest extends BaseServletTest {
 
-	static final Gson gson = GalasaGsonBuilder.build();
+	static final GalasaGson gson = new GalasaGson();
 
 	MockRunsServlet servlet;
 	HttpServletRequest req;

@@ -7,7 +7,7 @@ description = 'Galasa Framework'
 
 // Note: The following line is changed by the set-version.sh script.
 // It is also read by other build scrips as required.
-version = "0.31.0"
+version = "0.32.0"
 
 dependencies {
 
@@ -19,10 +19,10 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.1'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
-        
+
     implementation 'org.apache.bcel:bcel:6.7.0'
     implementation 'commons-io:commons-io:2.9.0'
-    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     testImplementation project (':dev.galasa')
 
@@ -31,7 +31,7 @@ dependencies {
 // Note: These values are consumed by the parent build process
 // They indicate which packages of functionality this OSGi bundle should be delivered inside,
 // or referenced from.
-// The settings here are gathered together by the build process to create a release.yaml file 
+// The settings here are gathered together by the build process to create a release.yaml file
 // which gathers-up all the packaging metadata about all the OSGi bundles in this component.
 ext.projectName=project.name
 ext.includeInOBR          = true

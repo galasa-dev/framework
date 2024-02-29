@@ -156,13 +156,12 @@ public class Framework implements IFramework {
      */
     private void validateNamespace(String namespace) throws FrameworkException {
         if (namespace == null) {
-            throw new FrameworkException(FrameworkErrorCode.INVALID_NAMESPACE, "Namespace has not been provided");
+            throw new FrameworkException( "Namespace has not been provided");
         }
 
         final Matcher matcher = namespacePattern.matcher(namespace);
         if (!matcher.matches()) {
-            throw new FrameworkException(FrameworkErrorCode.INVALID_NAMESPACE,
-                                         String.format(ERROR_MESSAGE_TEMPLATE_NAMESPACE_INVALID_CHARACTERS,namespace));
+            throw new FrameworkException( String.format(ERROR_MESSAGE_TEMPLATE_NAMESPACE_INVALID_CHARACTERS,namespace));
 
         }
     }

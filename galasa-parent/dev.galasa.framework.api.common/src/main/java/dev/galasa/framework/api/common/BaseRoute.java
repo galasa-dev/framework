@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -20,15 +21,17 @@ import java.io.IOException;
 
 public abstract class BaseRoute implements IRoute {
 
+    protected static final GalasaGson gson = new GalasaGson();
+
     protected Log logger = LogFactory.getLog(this.getClass());
 
 	private final ResponseBuilder responseBuilder ;
 
     private final String path;
 
-    public BaseRoute(ResponseBuilder responseBuilder , String path) {
+    public BaseRoute(ResponseBuilder responseBuilder, String path) {
         this.path = path;
-		this.responseBuilder = responseBuilder ;
+		this.responseBuilder = responseBuilder;
     }
 
     public String getPath() {
@@ -72,14 +75,14 @@ public abstract class BaseRoute implements IRoute {
         throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);        
     }
 
-    protected boolean checkRequestHasContent(HttpServletRequest request) throws InternalServletException{
+    protected boolean checkRequestHasContent(HttpServletRequest request) throws InternalServletException {
         boolean valid = false;
-        try{
-            if (request.getContentLength() >0){
+        try {
+            if (request.getContentLength() > 0){
                 valid = true;
             }
-        }catch (NullPointerException e ){
-            //Catch the NullPointerException (empty request body) to throw error in if 
+        } catch (NullPointerException e ){
+            // Catch the NullPointerException (empty request body) to throw error in if 
         }  
         if (!valid){
             ServletError error = new ServletError(GAL5411_NO_REQUEST_BODY, request.getPathInfo());

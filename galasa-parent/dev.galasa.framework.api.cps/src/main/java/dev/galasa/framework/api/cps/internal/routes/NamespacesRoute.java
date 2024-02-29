@@ -16,8 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -28,7 +26,7 @@ import dev.galasa.framework.api.common.resources.GalasaNamespace;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 
 /**
@@ -36,14 +34,15 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  */
 public class NamespacesRoute extends CPSRoute {
 
-    private static final Gson gson = GalasaGsonBuilder.build();
+    protected static final String path = "\\/";
+    private static final GalasaGson gson = new GalasaGson();
 
 
     public NamespacesRoute(ResponseBuilder responseBuilder, IFramework framework ) {
 		/* Regex to match endpoints: 
 		*  -> /cps/
 		*/
-		super(responseBuilder, "\\/?", framework);
+		super(responseBuilder, path, framework);
 	}
 
     @Override
@@ -66,7 +65,7 @@ public class NamespacesRoute extends CPSRoute {
             }
         } catch (ConfigurationPropertyStoreException e) {
             ServletError error = new ServletError(GAL5015_INTERNAL_CPS_ERROR);
-			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
         return gson.toJson(namespaceArray);
     }

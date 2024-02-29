@@ -3,16 +3,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.routes;
 
 import dev.galasa.framework.spi.IRunResult;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
+import dev.galasa.framework.api.ras.internal.RasServlet;
+import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.mocks.*;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockPath;
@@ -20,6 +24,7 @@ import dev.galasa.framework.mocks.MockPath;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletOutputStream;
@@ -107,6 +112,170 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	public void setUp() {
 		mockFileSystem = new MockFileSystem();
 	}
+
+	/*
+     * Regex Path
+     */
+
+	@Test
+	public void TestPathRegexExpectedLocalPathReturnsTrue(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/lcl-abcd-1234.run/artifacts";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+
+	@Test
+	public void TestPathRegexExpectedCouchDBPathReturnsTrue(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/cdb-efgh-5678.run/artifacts";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+
+	@Test
+	public void TestPathRegexLowerCasePathReturnsTrue(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/cdbstoredrun/artifacts";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+	
+	@Test
+	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/ABC-DEFG-5678.run/artifacts";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+	
+	@Test
+	public void TestPathRegexUpperCasePathReturnsFalse(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/ARTIFACTS";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+ 
+	@Test
+	public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/1artifacts";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/artifacts/";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+
+	@Test
+	public void TestPathRegexNumberPathReturnsFalse(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/artifacts1";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexUnexpectedPathReturnsFalse(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/artifact";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexEmptyPathReturnsFalse(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/artifacts/?";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+		//Given...
+		String expectedPath = RunArtifactsListRoute.path;
+		String inputPath = "/runs/cdb-EFGH-5678.run/artifacts//////";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	} 
+
+	/*
+	 * GET Requests
+	 */
 
     @Test
 	public void testMultipleArtifactsToListReturnsOKWithArtifacts() throws Exception {
@@ -294,7 +463,6 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
-
 
     @Test
 	public void testNoArtifactsToListGivesRootArtifacts() throws Exception {

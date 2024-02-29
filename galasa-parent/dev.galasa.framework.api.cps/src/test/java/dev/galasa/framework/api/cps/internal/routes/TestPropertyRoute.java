@@ -14,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +46,222 @@ public class TestPropertyRoute extends CpsServletTest{
 		}
 	}
 
+	/*
+     * Regex Path
+     */
+
+    @Test
+    public void TestPathRegexExpectedPathReturnsTrue(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/namespace/properties";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+	@Test
+    public void TestPathRegexExpectedPathWithQueryReturnsTrue(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/namespace/properties?query=rand0m.Values_here-toPa55";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+	@Test
+    public void TestPathRegexExpectedPathWithNumbersReturnsTrue(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/computer01/properties";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+	@Test
+    public void TestPathRegexLowerCasePathReturnsTrue(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/thisisavalidpath/properties";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+	@Test
+	public void TestPathRegexExpectedPathWithTrailingSlashReturnsFalse(){
+		//Given...
+		String expectedPath = PropertyUpdateRoute.path;
+		String inputPath = "/namespace/properties/";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+    @Test
+    public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/NewNamespace/properties";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+	
+	@Test
+    public void TestPathRegexUpperCasePathReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/ALLCAPITALS/properties";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+	@Test
+    public void TestPathRegexExpectedPathWithDotReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/namespace./properties";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+	@Test
+    public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/01server/properties";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+	@Test
+    public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/namespace/properties/";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexNumberPathReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/1234";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexUnexpectedPathReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/incorrect-?ID_1234";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexEmptyPathReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexDotPathReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/random.String";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "/?";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    @Test
+    public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+        //Given...
+        String expectedPath = PropertyRoute.path;
+        String inputPath = "//////";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isFalse();
+    }
+
+    /*
+     * GET Requests
+     */
+
     @Test
     public void TestPropertyQueryNoFrameworkReturnsError() throws Exception{
 		// Given...
@@ -60,7 +277,7 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to query
-		assertThat(resp.getStatus()==500);
+		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
@@ -69,6 +286,33 @@ public class TestPropertyRoute extends CpsServletTest{
 			5000,
 			"GAL5000E: ",
 			"Error occured when trying to access the endpoint"
+		);
+    }
+
+	@Test
+    public void TestPropertyQueryBadNamespaceReturnsError() throws Exception{
+		// Given...
+		String namespace = "empty";
+        setServlet("/badnamespace/properties", namespace, new HashMap<String,String[]>());
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to query
+		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+
+		checkErrorStructure(
+			outStream.toString(),
+			5016,
+			"GAL5016E: Error occured when trying to access namespace 'badnamespace'. The namespace provided is invalid."
 		);
     }
 
@@ -805,21 +1049,21 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
-		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"GAL5016E: Error occured when trying to access namespace 'namespace1'. The namespace provided is invalid."
+			5000,
+			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
 		);
     }
 
     @Test
     public void TestPropertyRoutePOSTBadNamespaceReturnsError() throws Exception{
 		// Given...
-		String namespace = "framework";
+		String namespace = "error";
         String propertyName = "property.6";
         String value = "value6";
 		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
@@ -835,14 +1079,14 @@ public class TestPropertyRoute extends CpsServletTest{
 
 		// Then...
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
-		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"GAL5016E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
+			5000,
+			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
 		);
     }
 
@@ -1053,6 +1297,35 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
 	@Test
+    public void TestPropertyRouteNamespaceWithNewNamespacePOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "newnamespace";
+        String propertyName = "property.newproperty";
+        String value = "value";
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
+		JsonElement requestJson = JsonParser.parseString(propertyJSON);
+		String requestBody = requestJson.toString();
+		setServlet("/newnamespace/properties", "framework", requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(201);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).isEqualTo("Successfully created property property.newproperty in newnamespace");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+    }
+
+	@Test
     public void TestPropertyRouteWithProtectedNamespacePOSTNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "secure";
@@ -1155,14 +1428,14 @@ public class TestPropertyRoute extends CpsServletTest{
         servlet.doPost(req, resp);
 
         // Then...
-        assertThat(resp.getStatus()).isEqualTo(404);
+        assertThat(resp.getStatus()).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
-			5016,
-			"GAL5016E: Error occured when trying to access namespace 'framew0rk'. The namespace provided is invalid."
+			5028,
+			"GAL5028E: The GalasaProperty namespace 'notframew0rk' must match the url namespace 'framew0rk'."
 		); 
     }
 

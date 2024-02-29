@@ -11,7 +11,7 @@ package dev.galasa.framework.spi;
  * exception instance.
  *
  * Error codes can be explicitly set when the exception is created, or will default to
- * {@link FrameworkErrorCode#UNKNOWN}, or to the same error code from the cause (when that cause is also a
+ * {@link FrameworkErrorDetailsBase#UNKNOWN}, or to the same error code from the cause (when that cause is also a
  * {@link FrameworkException}.
  *
  * This allows one type of FrameworkException to wrap another, and the original cause error code will
@@ -21,25 +21,24 @@ package dev.galasa.framework.spi;
 public class FrameworkException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    private FrameworkErrorCode errorCode ;
+    private FrameworkErrorDetails errorDetails ;
+
+    public static final boolean ENABLE_SUPRESSION_FALSE = false;
+    public static final boolean WRITEABLE_STACK_TRACE_TRUE = true;
+    private static final Throwable NO_CAUSE = null;
+    private static final String UNKNOWN_MESSAGE = "Unknown";
 
     public FrameworkException() {
-        this(FrameworkErrorCode.UNKNOWN);
+        this( new FrameworkErrorDetailsBase(FrameworkErrorDetailsBase.UNKNOWN, UNKNOWN_MESSAGE) , NO_CAUSE, ENABLE_SUPRESSION_FALSE, WRITEABLE_STACK_TRACE_TRUE );
     }
 
+    public FrameworkException(FrameworkErrorDetails errorDetails) {
+        this(errorDetails, NO_CAUSE, ENABLE_SUPRESSION_FALSE, WRITEABLE_STACK_TRACE_TRUE );
 
-    public FrameworkException(FrameworkErrorCode code) {
-        super();
-        this.errorCode = code ;
     }
 
     public FrameworkException(String message) {
-        this(FrameworkErrorCode.UNKNOWN , message);
-    }
-
-    public FrameworkException(FrameworkErrorCode code, String message) {
-        super(message);
-        this.errorCode = code ;
+        this( new FrameworkErrorDetailsBase(FrameworkErrorDetailsBase.UNKNOWN, message), NO_CAUSE, ENABLE_SUPRESSION_FALSE, WRITEABLE_STACK_TRACE_TRUE );
     }
 
     /**
@@ -47,15 +46,11 @@ public class FrameworkException extends Exception {
      * into this exception instance.
      */
     public FrameworkException(Throwable cause) {
-        this( (cause instanceof FrameworkException) ?
-                ((FrameworkException)cause).getErrorCode() :
-                FrameworkErrorCode.UNKNOWN
-            , cause );
+        this( cause.getMessage() , cause , ENABLE_SUPRESSION_FALSE, WRITEABLE_STACK_TRACE_TRUE );
     }
 
-    public FrameworkException(FrameworkErrorCode code, Throwable cause) {
-        super(cause);
-        this.errorCode = code ;
+    public FrameworkException(FrameworkErrorDetailsBase details, Throwable cause) {
+        this(details, cause, ENABLE_SUPRESSION_FALSE, WRITEABLE_STACK_TRACE_TRUE );
     }
 
     /**
@@ -63,16 +58,7 @@ public class FrameworkException extends Exception {
      * into this exception instance.
      */
     public FrameworkException(String message, Throwable cause) {
-        this((cause instanceof FrameworkException) ?
-                        ((FrameworkException)cause).getErrorCode() :
-                        FrameworkErrorCode.UNKNOWN,
-                message, cause);
-    }
-
-
-    public FrameworkException(FrameworkErrorCode code, String message, Throwable cause) {
-        super(message, cause);
-        this.errorCode = code;
+        this( message , cause , ENABLE_SUPRESSION_FALSE, WRITEABLE_STACK_TRACE_TRUE );
     }
 
     /**
@@ -81,21 +67,22 @@ public class FrameworkException extends Exception {
      */
     public FrameworkException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         this((cause instanceof FrameworkException) ?
-                ((FrameworkException)cause).getErrorCode() :
-                FrameworkErrorCode.UNKNOWN,
-            message, cause, enableSuppression, writableStackTrace);
+                ((FrameworkException)cause).getErrorDetails() :
+                new FrameworkErrorDetailsBase(FrameworkErrorDetailsBase.UNKNOWN, cause.getMessage()),
+             cause, enableSuppression, writableStackTrace);
     }
 
-
-    public FrameworkException(FrameworkErrorCode code, String message, Throwable cause, boolean enableSuppression,
+    public FrameworkException(FrameworkErrorDetails errorDetails, Throwable cause, boolean enableSuppression,
                               boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-        this.errorCode = code;
+        super(errorDetails.getMessage(), cause, enableSuppression, writableStackTrace);
+        this.errorDetails = errorDetails;
     }
 
+    public FrameworkErrorDetails getErrorDetails() {
+        return this.errorDetails;
+    }
 
-
-    public FrameworkErrorCode getErrorCode() {
-        return this.errorCode;
+    public int getErrorCode(){
+        return this.errorDetails.getErrorCode();
     }
 }

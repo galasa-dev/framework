@@ -12,13 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
-import com.google.gson.Gson;
-
-import dev.galasa.framework.ResourceNameValidator;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -26,12 +22,16 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
-import dev.galasa.framework.api.common.resources.GalasaProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
+import dev.galasa.framework.api.common.resources.ResourceNameValidator;
+import dev.galasa.framework.api.common.resources.beans.GalasaBeanSerialiser;
+import dev.galasa.framework.api.common.resources.beans.GalasaProperty;
+import dev.galasa.framework.api.common.resources.beans.GalasaPropertyMetadata;
+import dev.galasa.framework.api.common.resources.beans.GalasaPropertyData;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -41,7 +41,9 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public abstract class CPSRoute extends BaseRoute {
 
     static final ResourceNameValidator nameValidator = new ResourceNameValidator();
-    static final Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
+
+    static final GalasaBeanSerialiser beanSerialiser = new GalasaBeanSerialiser();
 
     // Define a default filter to accept everything
     static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
@@ -104,7 +106,7 @@ public abstract class CPSRoute extends BaseRoute {
 
         
         try{
-            property = namespace.getProperty(propertyName);
+            property = namespace.getPropertyFromStore(propertyName);
         }catch (Exception e){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND,e);
@@ -114,11 +116,11 @@ public abstract class CPSRoute extends BaseRoute {
     }
 
 
-    protected boolean checkNameMatchesRequest(String name, HttpServletRequest request ) throws ConfigurationPropertyStoreException, InternalServletException {
+    protected boolean checkNameMatchesRequest(String name, String jsonString ) throws ConfigurationPropertyStoreException, InternalServletException {
         boolean valid = false;
         String propertyName = "";
         try {
-            GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(request);
+            GalasaProperty galasaProperty = beanSerialiser.getPropertyFromJsonString(jsonString);
             propertyName = galasaProperty.getName();
             if (propertyName.equals(name)) {
                 valid = true;
@@ -133,11 +135,14 @@ public abstract class CPSRoute extends BaseRoute {
         return valid;
     }
 
-    protected CPSProperty applyPropertyToStore (HttpServletRequest request, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
-        GalasaProperty galasaProperty = GalasaProperty.getPropertyFromRequestBody(request);
-        checkNamespaceExists(namespaceName);
+    protected CPSProperty applyPropertyToStore (String jsonString, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
+        GalasaProperty galasaProperty = beanSerialiser.getPropertyFromJsonString(jsonString);
         CPSFacade cps = new CPSFacade(framework);
         CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
+        if (namespace.isHidden()) {
+            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
         CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
         if(!checkPropertyNamespaceMatchesURLNamespace(property, namespaceName)){
             ServletError error = new ServletError(GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR,property.getNamespace(), namespaceName);  
@@ -177,7 +182,7 @@ public abstract class CPSRoute extends BaseRoute {
             return namespace[3];
         } catch (Exception e) {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
         }
     }
 
@@ -196,7 +201,7 @@ public abstract class CPSRoute extends BaseRoute {
             return namespace[1];
         } catch (Exception e) {
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
         }
     }
 
@@ -204,22 +209,32 @@ public abstract class CPSRoute extends BaseRoute {
         /*
          * Builds a json array object from a Map of properties
          */
-        List<GalasaProperty> propertyArray = new ArrayList<GalasaProperty>();
+        List<GalasaProperty> results = new ArrayList<GalasaProperty>();
         for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
             CPSProperty property = entry.getValue();
-            propertyArray.add(new GalasaProperty(property));
+
+            GalasaPropertyMetadata metadata = new GalasaPropertyMetadata( property.getNamespace(), property.getName());
+            GalasaPropertyData data = new GalasaPropertyData( property.getPossiblyRedactedValue());
+            GalasaProperty galasaProperty = new GalasaProperty(metadata,data);
+
+            results.add(galasaProperty);
         }
-        return gson.toJson(propertyArray);
+        return gson.toJson(results);
     }
 
     protected String buildResponseBody(CPSProperty property) {
         /*
          * Builds a json array object from a single GalasaProperty containing a property
          */
-        List<GalasaProperty> propertyArray = new ArrayList<GalasaProperty>();
+        List<GalasaProperty> results = new ArrayList<GalasaProperty>();
         if (property != null){
-            propertyArray.add(new GalasaProperty(property));
+
+            GalasaPropertyMetadata metadata = new GalasaPropertyMetadata( property.getNamespace(), property.getName());
+            GalasaPropertyData data = new GalasaPropertyData( property.getPossiblyRedactedValue());
+            GalasaProperty galasaProperty = new GalasaProperty(metadata,data);
+
+            results.add(galasaProperty);
         }
-        return gson.toJson(propertyArray);
+        return gson.toJson(results);
     }
 }

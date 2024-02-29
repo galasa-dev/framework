@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.ras.internal;
+package dev.galasa.framework.api.ras.internal.routes;
 
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
@@ -14,9 +14,10 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 import org.junit.Test;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import dev.galasa.framework.api.ras.internal.RasServlet;
+import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.ras.internal.mocks.*;
-import dev.galasa.framework.api.ras.internal.routes.RunQueryRoute;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -24,6 +25,7 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +37,9 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 public class TestRunQuery extends RasServletTest {
 
@@ -228,6 +232,170 @@ public class TestRunQuery extends RasServletTest {
 	/*
 	*TESTS
 	*/
+
+	/*
+     * Regex Path
+     */
+
+	@Test
+	public void TestPathRegexExpectedPathReturnsTrue(){
+		//Given...
+		String expectedPath = RunQueryRoute.path;
+		String inputPath = "/runs";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+
+	@Test
+	public void TestPathRegexExpectedPathWithNumbersReturnsFalse(){
+		//Given...
+		String expectedPath = RunQueryRoute.path;
+		String inputPath = "/r0ns";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+
+	@Test
+	public void TestPathRegexLowerCasePathReturnsTrue(){
+		//Given...
+		String expectedPath = RunQueryRoute.path;
+		String inputPath = "/runs";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
+	
+	@Test
+	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsFalse(){
+		//Given...
+		String expectedPath = RunQueryRoute.path;
+		String inputPath = "/Runs";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+	
+	@Test
+	public void TestPathRegexUpperCasePathReturnsFalse(){
+		//Given...
+		String expectedPath = RunQueryRoute.path;
+		String inputPath = "/RUNS";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isFalse();
+	}
+ 
+	 @Test
+	 public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+		 //Given...
+		 String expectedPath = RunQueryRoute.path;
+		 String inputPath = "/0rans";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
+		 //Given...
+		 String expectedPath = RunQueryRoute.path;
+		 String inputPath = "/runs/";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isTrue();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexNumberPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = RunQueryRoute.path;
+		 String inputPath = "/runs1234";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexUnexpectedPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = RunQueryRoute.path;
+		 String inputPath = "/requestor";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexEmptyPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = RunQueryRoute.path;
+		 String inputPath = "";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = RunQueryRoute.path;
+		 String inputPath = "/runs/?";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 }
+ 
+	 @Test
+	 public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+		 //Given...
+		 String expectedPath = RunQueryRoute.path;
+		 String inputPath = "/runs//////";
+ 
+		 //When...
+		 boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+ 
+		 //Then...
+		 assertThat(matches).isFalse();
+	 } 
+
+	/*
+	 * GET Requests
+	 */
 
 	@Test
 	public void testQueryWithRequestorNotSortedButNoDBServiceReturnsError() throws Exception {

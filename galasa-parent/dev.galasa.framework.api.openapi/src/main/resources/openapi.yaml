@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
-  version : "0.31.0"
+  version : "0.32.0"
   description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
   contact:
     url: https://galasa.dev/support
@@ -26,6 +26,61 @@ paths:
 # Authentication API
 ##################################################################################
   /auth:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getAuthenticate
+      summary: Redirect to authenticate with an upstream OpenID Connect connector.
+      tags:
+      - Authentication API
+      security: []
+      parameters:
+        - name: client_id
+          in: query
+          description: The ID of the client used to authenticate with the upstream connector.
+          required: true
+          schema:
+            type: string
+        - name: callback_url
+          in: query
+          description: |
+            The URL to return to once the authentication process is complete.
+            This should be a URL to a client web application.
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Returns a redirect to authenticate with the configured connector.
+          headers:
+            location:
+              description: The URL of the configured connector to redirect to.
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required query parameters are missing
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
     post:
       operationId: postAuthenticate
       summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
@@ -40,17 +95,101 @@ paths:
               $ref: '#/components/schemas/AuthProperties'
       responses:
         '200':
-          description: Returns a JSON Object containing a JWT
+          description: Returns a JSON Object containing a JWT and refresh token
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required body properties are missing
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+  /auth/callback:
+    get:
+      operationId: getAuthenticateCallback
+      summary: Callback endpoint used as part of an OAuth 2.0 authorization code flow, redirects to a callback URL with an authorization code as a query parameter.
+      tags:
+      - Authentication API
+      security: []
+      parameters:
+        - name: code
+          in: query
+          description: The authorization code for the current authentication request.
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: The state parameter associated with the current authentication request, used to mitigate CSRF attacks.
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Returns a redirect to the callback URL provided in the original /auth request.
+          headers:
+            location:
+              description: The callback URL provided in the original /auth request, with an authorization code appended as a query parameter.
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/auth/callback'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required query parameters are missing
+  /auth/clients:
+    post:
+      operationId: postClients
+      summary: Create a new Dex client to authenticate with.
+      tags:
+      - Authentication API
+      responses:
+        '201':
+          description: Returns a JSON Object containing the created client's ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DexClient'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+
 ##################################################################################
 # CPS API
 ##################################################################################
@@ -58,10 +197,12 @@ paths:
   # List all known Namespaces in CPS, excluding hidden namespaces
   #--------------------------------------
   /cps/:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getAllCpsNamespaces
       summary: Get all known CPS Namespaces
-      description: Returns a list of all Namespaces in the Configuration Property Store 
+      description: Returns a list of all Namespaces in the Configuration Property Store
       tags:
       - Configuration Property Store API
       responses:
@@ -97,8 +238,8 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
-                cpserror: 
-                  value: 
+                cpserror:
+                  value:
                     error_code: 5015
                     error_message: "GAL5015E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -107,11 +248,13 @@ paths:
   # Create a new property
   #--------------------------------------
   /cps/{namespace}/properties:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: queryCpsNamespaceProperties
       summary: Get all CPS namespace properties
-      description: Returns a list of all Properties in the given namespace within the Configuration Property Store 
-      tags: 
+      description: Returns a list of all Properties in the given namespace within the Configuration Property Store
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -174,8 +317,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                namespacerror: 
-                  value: 
+                namespacerror:
+                  value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. Namespace 'xyz' is not available."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -195,7 +338,7 @@ paths:
       operationId: createCpsProperty
       summary: Create a new CPS property
       description: Create a new property with the supplied value in the given Namespace within the Configuration Property Store.
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -240,8 +383,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                namespaceerror: 
-                  value: 
+                namespaceerror:
+                  value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -278,11 +421,13 @@ paths:
   # Read, Update and Delete a CPS property
   #--------------------------------------
   /cps/{namespace}/properties/{propertyName}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getCpsProperty
       summary: Get single CPS property
       description: Returns a property, value pair that matches the full propertyName in the given Namespace within the Configuration Property Store.
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -296,7 +441,7 @@ paths:
       - name: propertyName
         in: path
         description: |
-          Property Name. 
+          Property Name.
           The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
           and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
@@ -354,8 +499,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                invalidnamespaceerror: 
-                  value: 
+                invalidnamespaceerror:
+                  value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -375,7 +520,7 @@ paths:
       operationId: updateCpsProperty
       summary: Update existing CPS property
       description: Update an existing property in a given namepace in the Configuration Properties Store.
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -389,7 +534,7 @@ paths:
       - name: propertyName
         in: path
         description: |
-          Property Name. 
+          Property Name.
           The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
           and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
@@ -429,8 +574,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                namespaceerror: 
-                  value: 
+                namespaceerror:
+                  value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -467,7 +612,7 @@ paths:
       operationId: deleteCpsProperty
       summary: Delete existing CPS property
       description: Delete an existing property in a given namepace in the Configuration Properties Store.
-      tags: 
+      tags:
       - Configuration Property Store API
       parameters:
       - name: namespace
@@ -481,7 +626,7 @@ paths:
       - name: propertyName
         in: path
         description: |
-          Property Name. 
+          Property Name.
           The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
           and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
         required: true
@@ -514,8 +659,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                namespaceerror: 
-                  value: 
+                namespaceerror:
+                  value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An error occured when trying to retrieve the CPS namespaces
@@ -540,6 +685,8 @@ paths:
 # Deprecated CPS API
 ##################################################################################
   /cps/namespace:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getCpsNamespaces
       deprecated: true
@@ -574,6 +721,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonError'
   /cps/namespace/{namespace}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getCpsNamespaceProperties
       deprecated: true
@@ -623,10 +772,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonError'
   /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getCpsNamespaceCascadeProperty
       deprecated: true
       summary: Get cascade CPS property
+      description: |
+        Searches for a property using namespace, prefix suffix and infixes. 
+        Deprecated in v0.31.0.
+        Use the /cps/{namespace}/properties call instead, using the prefix, suffix and infix query parameters, instead of this call.
+        This call will be removed in a future version of this REST API.
       tags:
       - Configuration Property Store API
       parameters:
@@ -669,7 +825,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GalasaProperty'
+                $ref: '#/components/schemas/CpsProperty'
         '401':
           description: Unauthorized as valid authentication has not been provided
           content:
@@ -689,6 +845,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonError'
   /cps/namespace/{namespace}/property/{property}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     put:
       operationId: putCpsNamespaceProperty
       deprecated: true
@@ -756,10 +914,12 @@ paths:
 # Resources API
 ##################################################################################
   /resources/:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     post:
       operationId: setEcosystemResources
       summary: Upload Resources to the ecosystem
-      description: This API endpoint allows multiple resources to be supplied in a single request to create and/or update in the ecosystem.
+      description: This API endpoint allows multiple resources to be supplied in a single request to delete, create and/or update in the ecosystem.
       tags:
        - Resources API
       requestBody:
@@ -776,12 +936,9 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  allOf:
-                    - $ref: '#/components/schemas/APIError'
-              examples: 
-                singleError: 
+                $ref: '#/components/schemas/APIErrorArray'
+              examples:
+                singleError:
                   value:
                   - error_code: 5017
                     error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
@@ -825,6 +982,8 @@ paths:
   # List all known requestors.
   #--------------------------------------
   /ras/requestors:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRequestors
       summary: Get all known requestors
@@ -868,6 +1027,8 @@ paths:
   # List all known result names.
   #--------------------------------------
   /ras/resultnames:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasResultNames
       summary: Get all the known result names
@@ -911,6 +1072,8 @@ paths:
   # Retrieve Runs based on a query.
   #--------------------------------------
   /ras/runs:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasSearchRuns
       summary: Get Runs from Query
@@ -1129,6 +1292,8 @@ paths:
   # Retrieve a single Run.
   #--------------------------------------
   /ras/runs/{runid}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRunById
       summary: Get Run by ID
@@ -1167,11 +1332,109 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonError'
 
-
+  #--------------------------------------
+  # Update the status of an active test 
+  # run to reset or cancel it.
+  #--------------------------------------
+    put:
+      summary: Update the status of a test run
+      operationId: putRasRunStatusById
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRunStatusRequest'
+      responses:
+        '202':
+          description: Run status updated
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                resetRun:
+                  value: The request to reset run U123 has been received.
+                  summary: Reset run action success
+                cancelRun:
+                  value: The request to cancel run U123 has been received.
+                  summary: Cancel run action success
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidStatusUpdateRequest:
+                  value:
+                    error_code: 5045
+                    error_message: "GAL5045E: Error occured. The field 'status' in the request body is invalid. The 'status' value 'create' supplied is not supported. Supported values are: 'cancel' and 'reset'"
+                  summary: An error occured because the status field does not contain an expected action
+                runNameDoesNotMatch:
+                  value:
+                    error_code: 5046
+                    error_message: "GAL5046E: The 'runName' 'badRun' from the request body does not match the  'runName' 'U123'  associated with the runID in the url 'xx12345xx'."
+                  summary: An error occured because the runName in the request body does not match the runName derived from runID in the URL
+                resetRunHasAlreadyCompleted:
+                  value:
+                    error_code: 5049
+                    error_message: "GAL5049E: Error occured when trying to reset the run ''{0}''. The run has already completed."
+                  summary: The run in the request has already completed and can not be reset
+                cancelRunHasAlreadyCompleted:
+                  value:
+                    error_code: 5050
+                    error_message: "GAL5050E: Error occured when trying to cancel the run 'U123'. The run has already completed."
+                  summary: The run in the request has already completed and can not be cancelled        
+        '401':
+          description: Unauthorized as valid authentication has not been provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+                unableToReset:
+                  value:
+                   error_code: 5047
+                   error_message: "GAL5047E: Error occured when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to action the run reset
+                unableToCancel:
+                  value:
+                    error_code: 5048
+                    error_message: "GAL5048E: Error occured when trying to cancel the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to action the run cancel
   #--------------------------------------
   # Retrieve Run Log.
   #--------------------------------------
   /ras/runs/{runid}/runlog:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRunLog
       summary: Get Run Log
@@ -1215,6 +1478,8 @@ paths:
   # List the artifacts available.
   #--------------------------------------
   /ras/runs/{runid}/artifacts:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRunArtifactList
       summary: Get the available Run artifacts which can be downloaded.
@@ -1276,6 +1541,8 @@ paths:
   # Download a specific artifact
   #--------------------------------------
   /ras/runs/{runid}/files/{artifactPath}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRunArtifactByPath
       summary: Download Artifact for a given runid by artifactPath
@@ -1350,12 +1617,12 @@ paths:
                     error_message: "GAL5009E: Error retrieving artifact  '/framework/cps_record.properties' for run with identifier 'U116'."
                   summary: An error occured when trying to retrieve the artifact
 
-
-
   #--------------------------------------
   # List all testclasses.
   #--------------------------------------
   /ras/testclasses:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasTestclasses
       summary: Get all the known test classes
@@ -1398,6 +1665,8 @@ paths:
 # Runs API
 ##################################################################################
   /runs/{groupId}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       summary: Get group runs
       operationId: getRunsGroup
@@ -1470,6 +1739,8 @@ paths:
 # WebUI API
 ##################################################################################
   /webui/worklist:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getWebuiWorklist
       summary: Get the users Worklist
@@ -1544,6 +1815,8 @@ paths:
 # Bootstrap API
 ##################################################################################
   /bootstrap:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getEcosystemBootstrap
       summary: Contact the Galasa ecosystem
@@ -1573,17 +1846,25 @@ components:
         client_id:
           type: string
           description: The ID of a Galasa client that is being authenticated.
-        secret:
-          type: string
-          description: The secret for the client that is being authenticated.
         refresh_token:
           type: string
-          description: The refresh token to be exchanged for a JWT.
+          description: The refresh token to be exchanged for a JWT, mutually exclusive with "code".
+        code:
+          type: string
+          description: The authorization code to be exchanged for a JWT, mutually exclusive with "refresh_token".
+    DexClient:
+      properties:
+        client_id:
+          type: string
+          description: An alphanumeric string representing the ID of the Dex client.
     TokenResponse:
       properties:
         jwt:
           type: string
-          description: A JSON Web Token to use when authenticating to a Galasa ecosystem.
+          description: A JSON Web Token to use when authenticating with a Galasa ecosystem.
+        refresh_token:
+          type: string
+          description: A refresh token to allow the retrieval of new JWTs when authenticating with a Galasa ecosystem from a client tool.
     CpsProperty:
       properties:
         name:
@@ -1609,19 +1890,25 @@ components:
               description: |
                 Property Name. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
                 and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore).
-                The property name is made of 'parts'. Each part must be separated by a period character. There must be 
+                The property name is made of 'parts'. Each part must be separated by a period character. There must be
                 at least two parts in the property name. The last character cannot be a period character.
         data:
           properties:
             value:
               type: string
               description: |
-                The value of the property, maximum length of approximately 1,500,000 characters. 
+                The value of the property, maximum length of approximately 1,500,000 characters.
                 It cannot be a blank value.
     JsonError:
       properties:
         error:
           type: string
+    APIErrorArray:
+        type: array
+        description: An array of API Errors relating to the resources that failed to complete as expected
+        items:
+          allOf:
+            - $ref: '#/components/schemas/APIError'
     APIError:
       properties:
         error_code:
@@ -1632,7 +1919,7 @@ components:
       properties:
         action:
           type: string
-          enum: ["apply","create","update"]
+          enum: ["apply","create","update","delete"]
         data:
           type: array
           description: An array of Galasa Resources that should contain one or more entrys matching any of the schemas outlined
@@ -1709,6 +1996,14 @@ components:
           type: object
         trace:
           type: boolean
+    UpdateRunStatusRequest:
+      properties:
+        status:
+          type: string
+          enum: ["queued","finished"]
+        result:
+          type: string
+          enum: ["","cancelled"]
     Requestors:
       type: object
       properties:
@@ -1850,9 +2145,9 @@ components:
       properties:
         name:
           type: string
-        propertiesUrl: 
+        propertiesUrl:
           type: string
-        type: 
+        type:
           type: string
 
 
@@ -1884,3 +2179,14 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+##################################################################################
+# Parameters
+##################################################################################
+  parameters:
+    ClientApiVersion:
+      in: header
+      name: ClientApiVersion
+      schema:
+        type: string
+      required: false

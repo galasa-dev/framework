@@ -5,7 +5,12 @@
  */
 package dev.galasa.framework.api.common;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import dev.galasa.framework.api.common.mocks.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -58,5 +63,11 @@ public class BaseServletTest {
             }
             assertThat(fieldMatches).isTrue();
         }
+    }
+
+    protected void setRequiredEnvironmentVariables(MockEnvironment mockEnv) {
+        mockEnv.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL, "http://my-api.server");
+        mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, "http://my-dex.issuer");
+        mockEnv.setenv(EnvironmentVariables.GALASA_DEX_GRPC_HOSTNAME, "dex-grpc:1234");
     }
 }

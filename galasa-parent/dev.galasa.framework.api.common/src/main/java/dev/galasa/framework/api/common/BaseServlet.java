@@ -8,10 +8,8 @@ package dev.galasa.framework.api.common;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -31,7 +29,7 @@ public class BaseServlet extends HttpServlet {
 
     protected Log logger = LogFactory.getLog(this.getClass());
 
-    static final Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
 
     private final Map<String, IRoute> routes = new HashMap<>();
 
@@ -86,7 +84,7 @@ public class BaseServlet extends HttpServlet {
             logger.error(errorString, ex);
         } catch (Throwable t) {
             // We didn't expect this failure to arrive. So deliver a generic error message.
-            errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toString();
+            errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toJsonString();
             httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
             logger.error(errorString, t);
         }
@@ -96,42 +94,39 @@ public class BaseServlet extends HttpServlet {
 
     private void processRoutes(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException, FrameworkException, InterruptedException {
-        if (routes.size() == 0) {
-            handleRequest(req, res);
-        } else {
-            String url = req.getPathInfo();
-            QueryParameters queryParameters = new QueryParameters(req.getParameterMap());
-
-            for (Map.Entry<String, IRoute> entry : routes.entrySet()) {
-
-                String routePattern = entry.getKey();
-                IRoute route = entry.getValue();
-
-                Matcher matcher = Pattern.compile(routePattern).matcher(url);
-
-                if (matcher.matches()) {
-                    logger.info("BaseServlet: Found a route that matches.");
-                    if (req.getMethod().contains("PUT")){
-                        route.handlePutRequest(url, queryParameters, req, res);
-                    } else if (req.getMethod().contains("POST")){
-                        route.handlePostRequest(url, queryParameters, req, res);
-                    } else if (req.getMethod().contains("DELETE")){
-                        route.handleDeleteRequest(url, queryParameters, req, res);
-                    } else {
-                        route.handleGetRequest(url, queryParameters, req, res);
-                    }
-                    return;
-                }
-            }
-
-            // No matching route was found, throw a 404 error.
-            logger.info("BaseServlet: No matching route found.");
-            ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        String url = req.getPathInfo();
+        if (url == null) {
+            // There is no path information, so this must be a root path (e.g. /cps)
+            url = "";
         }
-    }
 
-    public void handleRequest(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, IOException, FrameworkException, InterruptedException {
+        QueryParameters queryParameters = new QueryParameters(req.getParameterMap());
+
+        for (Map.Entry<String, IRoute> entry : routes.entrySet()) {
+
+            String routePattern = entry.getKey();
+            IRoute route = entry.getValue();
+
+            Matcher matcher = Pattern.compile(routePattern).matcher(url);
+
+            if (matcher.matches()) {
+                logger.info("BaseServlet: Found a route that matches.");
+                if (req.getMethod().contains("PUT")){
+                    route.handlePutRequest(url, queryParameters, req, res);
+                } else if (req.getMethod().contains("POST")){
+                    route.handlePostRequest(url, queryParameters, req, res);
+                } else if (req.getMethod().contains("DELETE")){
+                    route.handleDeleteRequest(url, queryParameters, req, res);
+                } else {
+                    route.handleGetRequest(url, queryParameters, req, res);
+                }
+                return;
+            }
+        }
+
+        // No matching route was found, throw a 404 error.
+        logger.info("BaseServlet: No matching route found.");
+        ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
+        throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
     }
 }

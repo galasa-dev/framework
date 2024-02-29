@@ -7,7 +7,6 @@ package dev.galasa.framework.api.ras.internal.routes;
 
 import org.apache.commons.collections4.ListUtils;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -33,7 +32,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -51,17 +50,19 @@ import javax.validation.constraints.NotNull;
  */
 public class RunQueryRoute extends RunsRoute {
 
+	protected static final String path = "\\/runs\\/?";
+
 	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints:
 		*  -> /ras/runs
 		*  -> /ras/runs/
 		*  -> /ras/runs?{querystring}
 		*/
-		super(responseBuilder, "\\/runs\\/?", framework);
+		super(responseBuilder, path, framework);
 
 	}
 
-	final static Gson gson = GalasaGsonBuilder.build();
+	static final GalasaGson gson = new GalasaGson();
 
 	@Override
 	public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters generalQueryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
@@ -98,7 +99,7 @@ public class RunQueryRoute extends RunsRoute {
 					}
 				} catch (ResultArchiveStoreException e) {
 					ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
-					throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+					throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
 				}
 			}
 
@@ -110,7 +111,7 @@ public class RunQueryRoute extends RunsRoute {
 				runs = getRuns(critList);
 			} catch (Exception e) {
 				ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
-				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
 			}
 		}
 
@@ -175,7 +176,7 @@ public class RunQueryRoute extends RunsRoute {
 				json = gson.toJson(returnArray.get(pageNum-1));
 			} catch (Exception e) {
 				ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
-				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
 			}
 		}
 		return json;

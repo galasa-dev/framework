@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.cps.internal.routes;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,7 +35,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class PropertyRoute extends CPSRoute{
 
-    private static final String path = "\\/([a-z0-9]+)/properties([?]?|[^/])+$";
+    protected static final String path = "\\/([a-z][a-z0-9]+)/properties([?]?|[^/])+$";
 
     public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework) {
         super(responseBuilder, path , framework);
@@ -47,10 +49,11 @@ public class PropertyRoute extends CPSRoute{
             throws ServletException, IOException, FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String properties = getNamespaceProperties(namespace, queryParams);
+        checkNamespaceExists(namespace);
         return getResponseBuilder().buildResponse(response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
 
-    private String getNamespaceProperties(String namespaceName, QueryParameters queryParams) throws FrameworkException{
+    private String getNamespaceProperties(String namespaceName, QueryParameters queryParams) throws InternalServletException{
         String properties = "";
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
@@ -66,7 +69,7 @@ public class PropertyRoute extends CPSRoute{
             properties = getProperties(namespace, prefix, suffix, infixes);
         }catch (FrameworkException f){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, f);
         }
         return properties;
     }
@@ -168,7 +171,10 @@ public class PropertyRoute extends CPSRoute{
             throws  IOException, FrameworkException {
         String namespaceName = getNamespaceFromURL(pathInfo);
         checkRequestHasContent(request);
-        CPSProperty property = applyPropertyToStore(request, namespaceName, false);
+        ServletInputStream body = request.getInputStream();
+        String jsonString = new String (body.readAllBytes(),StandardCharsets.UTF_8);
+        body.close();
+        CPSProperty property = applyPropertyToStore(jsonString, namespaceName, false);
         String responseBody = String.format("Successfully created property %s in %s",property.getName(), property.getNamespace());
         return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
     }

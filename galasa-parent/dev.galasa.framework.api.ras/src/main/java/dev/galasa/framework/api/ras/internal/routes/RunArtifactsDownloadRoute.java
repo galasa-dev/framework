@@ -27,8 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsJson;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsProperties;
@@ -43,7 +41,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 /**
  * Implementation to download an artifact for a given run based on its runId and the path
@@ -51,14 +49,16 @@ import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
  */
 public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
 
-    static final Gson gson = GalasaGsonBuilder.build();
+    static final GalasaGson gson = new GalasaGson();
+
+    protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)";
 
     private Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
 
     public RunArtifactsDownloadRoute(ResponseBuilder responseBuilder, IFileSystem fileSystem, IFramework framework) {
         //  Regex to match endpoint: /ras/runs/{runId}/files/{artifactPath}
         super(responseBuilder,
-              "\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)",
+              path,
               fileSystem,
               framework
         );
@@ -90,7 +90,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
             runName = run.getTestStructure().getRunName();
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
         }
 
         // Download the artifact that matches the artifact path or starts with "artifacts/"
@@ -106,7 +106,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
             }
         } catch (ResultArchiveStoreException | IOException ex) {
             ServletError error = new ServletError(GAL5009_ERROR_RETRIEVING_ARTIFACT, artifactPath, runName);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex);
         }
         return res;
     }

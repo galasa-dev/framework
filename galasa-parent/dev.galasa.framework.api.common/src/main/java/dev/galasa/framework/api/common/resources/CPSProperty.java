@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.beans.GalasaProperty;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 
 
@@ -27,7 +27,7 @@ public class CPSProperty {
     private IConfigurationPropertyStoreService store;
     private String value;
 
-      public CPSProperty(IConfigurationPropertyStoreService store, CPSNamespace namespace, GalasaPropertyName propertyName) {
+    public CPSProperty(IConfigurationPropertyStoreService store, CPSNamespace namespace, GalasaPropertyName propertyName) {
         this.namespace = namespace ;
         this.store = store ;
         this.name = propertyName;
@@ -63,6 +63,10 @@ public class CPSProperty {
         return this.name.getNamespaceName();
     }
 
+    public String getQualifiedName() {
+        return this.getNamespace()+"."+this.getName();
+    }
+
     public String getName() {
         return this.name.getSimpleName();
     }
@@ -71,27 +75,27 @@ public class CPSProperty {
         return this.value;
     }
 
-    public String getOutputValue() {
+    public String getPossiblyRedactedValue() {
         String outputValue  = this.value;
-        if(namespace.getVisibility() == Visibility.SECURE){
+        if (namespace.isSecure()){
             outputValue = REDACTED_PROPERTY_VALUE;
         }
         return outputValue;
     }
 
-    public void LoadValueFromStore() throws ConfigurationPropertyStoreException {
+    protected void loadValueFromStore() throws ConfigurationPropertyStoreException {
         // load the value from the property store into this property object.
         // Will be null if the property isn't in the store yet.
         this.value = store.getProperty(name.getLongestPrefix(), name.getShortestSuffix());
 
-        if ( this.value != null ) {
+        if (this.value != null) {
             if ( isSecure() ){
                 this.value = REDACTED_PROPERTY_VALUE;
             }
         }
     }
 
-    public void setPropertyToStore(GalasaProperty galasaProperty,boolean updateProperty) throws FrameworkException, InternalServletException {
+    public void setPropertyToStore(GalasaProperty galasaProperty,boolean updateProperty) throws ConfigurationPropertyStoreException, InternalServletException {
         boolean propExists = existsInStore();
         /*
          * Logic Table to Determine actions
@@ -100,14 +104,23 @@ public class CPSProperty {
          * Therefore setting updateProperty to false will force a create property path,
          * whilst setting updateProperty to true will force an update property path
          */
-        if (propExists == updateProperty){
+        if (propExists == updateProperty) {
             store.setProperty(this.getName(), galasaProperty.getValue());
-        }else if (propExists){
+        } else if (propExists){
             ServletError error = new ServletError(GAL5018_PROPERTY_ALREADY_EXISTS_ERROR, this.getName(), this.getNamespace());  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }else{
+        } else {
             ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR, this.getName());  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    public void deletePropertyFromStore() throws InternalServletException{
+        try {
+            store.deleteProperty(this.getName());
+        } catch (ConfigurationPropertyStoreException e) {
+            ServletError error = new ServletError(GAL5030_UNABLE_TO_DELETE_PROPERTY_ERROR, this.getName());  
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
     }
 
@@ -115,34 +128,34 @@ public class CPSProperty {
         return this.value != null;
     }
 
-    public boolean isSecure() {
+    private boolean isSecure() {
         return this.namespace.isSecure();
     }
 
-    public boolean isPropertyNameValid() {
+    private boolean isPropertyNameValid() {
         return this.name.simpleName != null && !this.name.simpleName.isBlank();
     }
 
-    public boolean isPropertyNameSpaceValid() {
+    private boolean isPropertyNameSpaceValid() {
         return this.name.namespaceName != null && !this.name.namespaceName.isBlank();
     }
 
-    public boolean isPropertyValueValid() {
+    private boolean isPropertyValueValid() {
         return this.value != null && !this.value.isBlank();
     }
 
     public boolean isPropertyValid() throws InternalServletException {
         ServletError error = null;
-        if (!this.isPropertyNameValid()){
+        if (!this.isPropertyNameValid()) {
             error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"name",this.name.simpleName);
         }
-        if (!this.isPropertyNameSpaceValid()){
+        if (!this.isPropertyNameSpaceValid()) {
             error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"namespace",this.name.namespaceName);
         }
-        if (!this.isPropertyValueValid()){
+        if (!this.isPropertyValueValid()) {
             error = new ServletError(GAL5024_INVALID_GALASAPROPERTY,"value",this.value);
         }
-        if (error != null){
+        if (error != null) {
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         return true;

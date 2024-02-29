@@ -22,14 +22,12 @@ import javax.validation.constraints.NotNull;
 
 import org.osgi.service.component.annotations.Component;
 
-import com.google.gson.Gson;
-
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IResultArchiveStoreService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 /**
  * A RAS Service for storing the result archive store
@@ -52,7 +50,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     private Path                           testStructureFile;
     private Path                           runLog;
 
-    private final Gson                     gson     = GalasaGsonBuilder.build();
+    private final GalasaGson                     gson     = new GalasaGson();
 
     private DirectoryRASFileSystemProvider provider;
 

@@ -24,7 +24,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -34,7 +33,7 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.JsonError;
 import dev.galasa.framework.spi.DssAdd;
 import dev.galasa.framework.spi.DssSwap;
@@ -51,7 +50,7 @@ public class WorklistQuery extends HttpServlet {
 	@Reference
 	IFramework framework;
 	
-	final static Gson gson = GalasaGsonBuilder.build();
+	static final GalasaGson gson = new GalasaGson();
 	
 
 	@Override
