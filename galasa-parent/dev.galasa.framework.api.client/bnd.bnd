@@ -1,0 +1,11 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa API - Java REST client
+Export-Package: dev.galasa.framework.api.client*, \
+    dev.galasa.framework.api.client.model*, \
+    dev.galasa.framework.api.client.invoker*
+Import-Package: *, \
+    com.fasterxml.jackson.annotation, \
+    com.fasterxml.jackson.databind, \
+    com.fasterxml.jackson.core, \
+    com.fasterxml.jackson.datatype, \
+    javax.annotation*
