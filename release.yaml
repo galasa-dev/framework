@@ -145,3 +145,10 @@ api:
     version: 0.32.0
     obr: true
     isolated: true
+
+  - artifact: dev.galasa.framework.api.client
+    version: 0.32.0
+    obr: true
+    bom: true
+    mvp: true
+    isolated: true
