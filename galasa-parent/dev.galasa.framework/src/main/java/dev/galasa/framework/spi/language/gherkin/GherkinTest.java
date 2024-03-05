@@ -203,9 +203,11 @@ public class GherkinTest {
 
         for (GherkinMethod method : this.methods) {
             if(this.variables.getNumberOfInstances() >= 1){
-                method.invoke(managers, this.variables.getVariableInstance(1));
+                method.invoke(managers, this.variables.getVariableInstance(0));
+            } else{
+                method.invoke(managers, this.variables.getVariablesOriginal());
             }
-            method.invoke(managers, this.variables.getVariablesOriginal());
+            
             if(method.fullStop()) {
                 break;
             }
