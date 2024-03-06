@@ -18,8 +18,8 @@ Embed-Dependency: *;scope=compile
     docker-java-transport-3.2.14.jar; lib:=true,\
     httpclient5-5.0.3.jar; lib:=true,\
     slf4j-api-1.7.30.jar; lib:=true,\
-    commons-io-2.6.jar; lib:=true,\
-    commons-lang3-3.12.0.jar; lib:=true,\
+    commons-io-2.15.1.jar; lib:=true,\
+    commons-lang3-3.14.0.jar; lib:=true,\
     jackson-databind-2.10.3.jar; lib:=true,\
     guava-19.0.jar; lib:=true,\
     jna-5.12.1.jar; lib:=true,\
@@ -28,5 +28,5 @@ Embed-Dependency: *;scope=compile
     bcpkix-jdk18on-1.75.jar; lib:=true,\
     bcprov-jdk18on-1.75.jar; lib:=true,\
     httpcore5-5.0.2.jar; lib:=true,\
-    commons-codec-1.15.jar; lib:=true
+    commons-codec-1.16.1.jar; lib:=true
 -fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning
