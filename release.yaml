@@ -151,3 +151,4 @@ api:
     obr: true
     bom: true
     mvp: true
+    isolated: true
