@@ -52,9 +52,9 @@ public class AuthenticationServlet extends BaseServlet {
 
         initialiseDexClients(dexIssuerUrl, dexGrpcHostname);
 
-        addRoute(new AuthRoute(getResponseBuilder(), getServletInfo(), oidcProvider, dexGrpcClient));
-        addRoute(new AuthClientsRoute(getResponseBuilder(), getServletInfo(), dexGrpcClient));
-        addRoute(new AuthCallbackRoute(getResponseBuilder(), getServletInfo(), externalApiServerUrl));
+        addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, dexGrpcClient));
+        addRoute(new AuthClientsRoute(getResponseBuilder(), dexGrpcClient));
+        addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl));
 
         logger.info("Galasa Authentication API initialised");
     }
