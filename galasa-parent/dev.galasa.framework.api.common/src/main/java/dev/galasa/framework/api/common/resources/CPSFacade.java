@@ -28,6 +28,7 @@ public class CPSFacade {
         addNamespace("framework",Visibility.NORMAL,framework);
         addNamespace("secure",Visibility.SECURE,framework);
         addNamespace("dss",Visibility.HIDDEN,framework);
+        addNamespace("dex",Visibility.HIDDEN,framework);
     }
 
     private void addNamespace(String name, Visibility visibility , @NotNull IFramework framework ) throws ConfigurationPropertyStoreException  {
