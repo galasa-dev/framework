@@ -18,7 +18,11 @@ import dev.galasa.framework.spi.IFramework;
 @Component(service = { SetupEcosystem.class })
 public class SetupEcosystem {
     
-    private Log             logger  =  LogFactory.getLog(this.getClass());
+    private Log logger = LogFactory.getLog(this.getClass());
+
+    private static final String DSS_ENV_VAR   = "GALASA_DYNAMICSTATUS_STORE";
+    private static final String RAS_ENV_VAR   = "GALASA_RESULTARCHIVE_STORE";
+    private static final String CREDS_ENV_VAR = "GALASA_CREDENTIALS_STORE";
     
     private IFramework framework;
     
@@ -47,7 +51,7 @@ public class SetupEcosystem {
         
         // DSS value
         
-        String dss = System.getenv("GALASA_EXTERNAL_DYNAMICSTATUS_STORE");
+        String dss = System.getenv(DSS_ENV_VAR);
         if (dss != null && !dss.trim().isEmpty()) {
             dss = dss.trim();
             
@@ -60,7 +64,7 @@ public class SetupEcosystem {
         
         // RAS value
         
-        String ras = System.getenv("GALASA_EXTERNAL_RESULTARCHIVE_STORE");
+        String ras = System.getenv(RAS_ENV_VAR);
         if (ras != null && !ras.trim().isEmpty()) {
             ras = ras.trim();
             
@@ -73,7 +77,7 @@ public class SetupEcosystem {
         
         // CREDS value
         
-        String creds = System.getenv("GALASA_EXTERNAL_CREDENTIALS_STORE");
+        String creds = System.getenv(CREDS_ENV_VAR);
         if (creds != null && !creds.trim().isEmpty()) {
             creds = creds.trim();
             
