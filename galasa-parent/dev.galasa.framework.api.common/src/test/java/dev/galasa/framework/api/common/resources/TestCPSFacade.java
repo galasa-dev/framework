@@ -51,6 +51,20 @@ public class TestCPSFacade {
     }
 
     @Test
+    public void TestNamespacesListContainsDex() throws ConfigurationPropertyStoreException{
+
+        IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
+        IFramework mockFramework = new MockFramework(cps);
+        CPSFacade facade = new CPSFacade(mockFramework);
+        Map<String,CPSNamespace> spaces = facade.getNamespaces();
+
+        assertThat(spaces).containsKeys("dex");
+        CPSNamespace ns = spaces.get("dex");
+        assertThat(ns.getName()).isEqualTo("dex");
+        assertThat(ns.getVisibility()).isEqualTo(Visibility.HIDDEN);
+    }
+
+    @Test
     public void TestNamespacesListContainsSecure() throws ConfigurationPropertyStoreException{
 
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
@@ -113,13 +127,17 @@ public class TestCPSFacade {
     }
 
     @Test
-    public void TestGetNamespaceSecureNamespaceIsHidden() throws ConfigurationPropertyStoreException {
+    public void TestGetNamespaceSecureNamespaceIsSecure() throws ConfigurationPropertyStoreException {
         checkGetOfNamespace("secure",true,false);
     }
 
     @Test
-    public void TestGetNamespaceDssNamespaceIsSecure() throws ConfigurationPropertyStoreException {
+    public void TestGetNamespaceDssNamespaceIsHidden() throws ConfigurationPropertyStoreException {
         checkGetOfNamespace("dss",false,true);
     }
 
+    @Test
+    public void TestGetNamespaceDexNamespaceIsHidden() throws ConfigurationPropertyStoreException {
+        checkGetOfNamespace("dex",false,true);
+    }
 }

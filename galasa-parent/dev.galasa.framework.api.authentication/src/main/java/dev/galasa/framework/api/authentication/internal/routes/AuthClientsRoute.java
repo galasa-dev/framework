@@ -28,7 +28,7 @@ public class AuthClientsRoute extends BaseRoute {
 
     private DexGrpcClient dexGrpcClient;
 
-    public AuthClientsRoute(ResponseBuilder responseBuilder, String path, DexGrpcClient dexGrpcClient) {
+    public AuthClientsRoute(ResponseBuilder responseBuilder, DexGrpcClient dexGrpcClient) {
         // Regex to match /auth/clients and /auth/clients/
         super(responseBuilder, "\\/clients\\/?");
         this.dexGrpcClient = dexGrpcClient;
