@@ -149,8 +149,6 @@ public class GherkinTest {
             throw new TestRunException("Unable to parse gherkin test URI", e);
         } catch (FileNotFoundException e) {
             throw new TestRunException("Unable to find gherkin test file", e);
-        } catch (IOException e) {
-            throw new TestRunException("Error reading gherkin test file", e);
         }
     }
 

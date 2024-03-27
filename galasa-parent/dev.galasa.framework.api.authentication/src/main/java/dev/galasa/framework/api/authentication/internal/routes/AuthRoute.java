@@ -35,7 +35,7 @@ public class AuthRoute extends BaseRoute {
     private static final String ID_TOKEN_KEY      = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
 
-    public AuthRoute(ResponseBuilder responseBuilder, String path, OidcProvider oidcProvider, DexGrpcClient dexGrpcClient) {
+    public AuthRoute(ResponseBuilder responseBuilder, OidcProvider oidcProvider, DexGrpcClient dexGrpcClient) {
         // Regex to match endpoint /auth and /auth/
         super(responseBuilder, "\\/?");
         this.oidcProvider = oidcProvider;
