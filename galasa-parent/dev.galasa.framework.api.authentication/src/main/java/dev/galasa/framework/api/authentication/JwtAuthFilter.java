@@ -39,17 +39,17 @@ public class JwtAuthFilter implements Filter {
 
     private final Log logger = LogFactory.getLog(getClass());
 
+    private static final List<String> UNAUTHENTICATED_ROUTES = List.of(
+        "/auth",
+        "/auth/callback",
+        "/bootstrap"
+    );
+
     private ResponseBuilder responseBuilder = new ResponseBuilder();
 
     protected Environment env = new SystemEnvironment();
 
     protected OidcProvider oidcProvider;
-
-    private static final List<String> UNPROTECTED_ROUTES = List.of(
-        "/auth",
-        "/auth/callback",
-        "/bootstrap"
-    );
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -75,7 +75,7 @@ public class JwtAuthFilter implements Filter {
         int httpStatusCode = HttpServletResponse.SC_OK;
 
         // Apply the filter to API endpoints that require a valid JWT to access
-        if (isRequestingProtectedRoute(servletRequest)) {
+        if (isRequestingAuthenticatedRoute(servletRequest)) {
 
             try {
                 String sJwt = JwtWrapper.getBearerTokenFromAuthHeader(servletRequest);
@@ -115,8 +115,8 @@ public class JwtAuthFilter implements Filter {
      * @param servletRequest the request being made to the API server
      * @return true if an endpoint requiring a bearer token was requested, false otherwise
      */
-    private boolean isRequestingProtectedRoute(HttpServletRequest servletRequest) {
+    private boolean isRequestingAuthenticatedRoute(HttpServletRequest servletRequest) {
         String route = servletRequest.getRequestURI().substring(servletRequest.getContextPath().length());
-        return !UNPROTECTED_ROUTES.contains(route);
+        return !UNAUTHENTICATED_ROUTES.contains(route);
     }
 }
