@@ -68,7 +68,7 @@ public class FrameworkException extends Exception {
     public FrameworkException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         this((cause instanceof FrameworkException) ?
                 ((FrameworkException)cause).getErrorDetails() :
-                new FrameworkErrorDetailsBase(FrameworkErrorDetailsBase.UNKNOWN, cause.getMessage()),
+                new FrameworkErrorDetailsBase(FrameworkErrorDetailsBase.UNKNOWN, message),
              cause, enableSuppression, writableStackTrace);
     }
 
