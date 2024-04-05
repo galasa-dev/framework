@@ -1800,7 +1800,7 @@ paths:
     post:
       summary: Submit test runs
       description: |
-        Submits a set of test runs to the ecosystem.
+        Submits a portfolio of test runs to the ecosystem.
 
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
