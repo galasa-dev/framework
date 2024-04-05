@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.text.*;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -1001,7 +1002,8 @@ public class FelixFramework {
             }
 
             if (!isBundleActive(bundleSymbolicName)) {
-                throw new LauncherException("Bundle failed to install and activate");
+                String msg = MessageFormat.format("Bundle %s failed to install and activate",bundleSymbolicName);
+                throw new LauncherException(msg);
             }
 
             printBundles();
