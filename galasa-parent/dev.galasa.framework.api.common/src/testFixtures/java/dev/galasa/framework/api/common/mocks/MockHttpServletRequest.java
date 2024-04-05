@@ -39,6 +39,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String pathInfo;
     private String payload;
     private String method = "GET"; 
+    private String contextPath = "/api";
 
     private MockHttpSession session;
 
@@ -99,6 +100,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
+    public String getContextPath() {
+        return this.contextPath;
+    }
+
+    @Override
     public String getServletPath() {
         return this.pathInfo;
     }
@@ -125,7 +131,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     @Override
     public String getRequestURI() {
-        return "http://mock.galasa.server/cps/" + this.pathInfo;
+        return this.contextPath + this.pathInfo;
     }
 
     @Override
@@ -353,11 +359,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public String getPathTranslated() {
         throw new UnsupportedOperationException("Unimplemented method 'getPathTranslated'");
-    }
-
-    @Override
-    public String getContextPath() {
-        throw new UnsupportedOperationException("Unimplemented method 'getContextPath'");
     }
 
     @Override
