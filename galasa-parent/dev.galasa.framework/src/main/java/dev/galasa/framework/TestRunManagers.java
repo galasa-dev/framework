@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.text.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -362,7 +363,8 @@ public class TestRunManagers {
             }
 
             if (!isBundleActive(bundleSymbolicName)) {
-                throw new FrameworkException("Bundle failed to install and activate");
+                String msg = MessageFormat.format("Bundle %s failed to install and activate",bundleSymbolicName);
+                throw new FrameworkException(msg);
             }
 
             printBundles();
