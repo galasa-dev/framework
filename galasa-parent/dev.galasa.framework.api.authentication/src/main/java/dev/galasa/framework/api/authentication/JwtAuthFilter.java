@@ -42,7 +42,8 @@ public class JwtAuthFilter implements Filter {
     private static final List<String> UNAUTHENTICATED_ROUTES = List.of(
         "/auth",
         "/auth/callback",
-        "/bootstrap"
+        "/bootstrap",
+        "/health"
     );
 
     private ResponseBuilder responseBuilder = new ResponseBuilder();
