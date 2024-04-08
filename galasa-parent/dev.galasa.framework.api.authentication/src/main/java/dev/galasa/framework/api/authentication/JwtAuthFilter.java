@@ -7,6 +7,7 @@ package dev.galasa.framework.api.authentication;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
+import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -38,6 +39,12 @@ public class JwtAuthFilter implements Filter {
 
     private final Log logger = LogFactory.getLog(getClass());
 
+    private static final List<String> UNAUTHENTICATED_ROUTES = List.of(
+        "/auth",
+        "/auth/callback",
+        "/bootstrap"
+    );
+
     private ResponseBuilder responseBuilder = new ResponseBuilder();
 
     protected Environment env = new SystemEnvironment();
@@ -61,51 +68,55 @@ public class JwtAuthFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        if (!(request instanceof HttpServletRequest)) {
-            chain.doFilter(request, response);
-            return;
-        }
-
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         HttpServletResponse servletResponse = (HttpServletResponse) response;
-
-        // Do not apply the filter to the /auth endpoint and only force galasactl to authenticate
-        if ((servletRequest.getServletPath().equals("/auth") && servletRequest.getPathInfo() == null)
-                || !"galasactl".equalsIgnoreCase(servletRequest.getHeader("Galasa-Application"))) {
-            chain.doFilter(request, response);
-            return;
-        }
 
         String errorString = "";
         int httpStatusCode = HttpServletResponse.SC_OK;
 
-        try {
-            String sJwt = JwtWrapper.getBearerTokenFromAuthHeader(servletRequest);
-            if (sJwt != null) {
+        // Apply the filter to API endpoints that require a valid JWT to access
+        if (isRequestingAuthenticatedRoute(servletRequest)) {
 
-                // Only allow the request through the filter if the provided JWT is valid
-                if (oidcProvider.isJwtValid(sJwt)) {
-                    chain.doFilter(request, response);
-                    return;
+            try {
+                String sJwt = JwtWrapper.getBearerTokenFromAuthHeader(servletRequest);
+
+                // Throw an unauthorized exception if the provided JWT isn't valid
+                if (sJwt == null || !oidcProvider.isJwtValid(sJwt)) {
+                    ServletError error = new ServletError(GAL5401_UNAUTHORIZED);
+                    throw new InternalServletException(error, HttpServletResponse.SC_UNAUTHORIZED);
                 }
+
+            } catch (InternalServletException e) {
+                errorString = e.getMessage();
+                httpStatusCode = e.getHttpFailureCode();
+            } catch (Exception e) {
+                errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toJsonString();
+                httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
             }
-
-            // Throw an unauthorized exception
-            ServletError error = new ServletError(GAL5401_UNAUTHORIZED);
-            throw new InternalServletException(error, HttpServletResponse.SC_UNAUTHORIZED);
-
-        } catch (InternalServletException e) {
-            errorString = e.getMessage();
-            httpStatusCode = e.getHttpFailureCode();
-        } catch (Exception e) {
-            errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toJsonString();
-            httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
-        responseBuilder.buildResponse(servletResponse, "application/json", errorString, httpStatusCode);
+
+        if (httpStatusCode == HttpServletResponse.SC_OK) {
+            // The provided JWT is valid or the request is not to a protected endpoint,
+            // so allow the request through
+            chain.doFilter(request, response);
+        } else {
+            // The JWT is not valid or something went wrong, so return the error response
+            responseBuilder.buildResponse(servletResponse, "application/json", errorString, httpStatusCode);
+        }
     }
 
     @Override
     public void destroy() {
     }
 
+    /**
+     * Checks if the given servlet request is going to an endpoint that requires a bearer token
+     * to be accessed.
+     * @param servletRequest the request being made to the API server
+     * @return true if an endpoint requiring a bearer token was requested, false otherwise
+     */
+    private boolean isRequestingAuthenticatedRoute(HttpServletRequest servletRequest) {
+        String route = servletRequest.getRequestURI().substring(servletRequest.getContextPath().length());
+        return !UNAUTHENTICATED_ROUTES.contains(route);
+    }
 }

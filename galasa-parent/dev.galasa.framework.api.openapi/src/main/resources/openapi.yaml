@@ -168,6 +168,11 @@ paths:
     post:
       operationId: postClients
       summary: Create a new Dex client to authenticate with.
+      description: |
+        Creates a new Dex client to authenticate with and returns the details of the created client.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Authentication API
       responses:
@@ -177,6 +182,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DexClient'
+        '401':
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
         '500':
           description: Internal Server Error
           content:
@@ -201,13 +218,17 @@ paths:
       - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getAllCpsNamespaces
-      summary: Get all known CPS Namespaces
-      description: Returns a list of all Namespaces in the Configuration Property Store
+      summary: Get all known CPS namespaces
+      description: |
+        Returns a list of all namespaces in the Configuration Property Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Configuration Property Store API
       responses:
         '200':
-          description: Array of CPS Namespaces
+          description: Array of CPS namespaces
           content:
             application/json:
               schema:
@@ -215,7 +236,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Namespace'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -253,7 +274,11 @@ paths:
     get:
       operationId: queryCpsNamespaceProperties
       summary: Get all CPS namespace properties
-      description: Returns a list of all Properties in the given namespace within the Configuration Property Store
+      description: |
+        Returns a list of all properties in the given namespace within the Configuration Property Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Configuration Property Store API
       parameters:
@@ -299,7 +324,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/GalasaProperty'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -337,7 +362,11 @@ paths:
     post:
       operationId: createCpsProperty
       summary: Create a new CPS property
-      description: Create a new property with the supplied value in the given Namespace within the Configuration Property Store.
+      description: |
+        Create a new property with the supplied value in the given Namespace within the Configuration Property Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Configuration Property Store API
       parameters:
@@ -365,7 +394,7 @@ paths:
                 type: string
               example: Successfully created property propertyName in namespace
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -426,7 +455,11 @@ paths:
     get:
       operationId: getCpsProperty
       summary: Get single CPS property
-      description: Returns a property, value pair that matches the full propertyName in the given Namespace within the Configuration Property Store.
+      description: |
+        Returns a property, value pair that matches the full propertyName in the given namespace within the Configuration Property Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Configuration Property Store API
       parameters:
@@ -481,7 +514,7 @@ paths:
                       value: '*********'
                   summary: Property found in write only namespace
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -519,7 +552,11 @@ paths:
     put:
       operationId: updateCpsProperty
       summary: Update existing CPS property
-      description: Update an existing property in a given namepace in the Configuration Properties Store.
+      description: |
+        Update an existing property in a given namepace in the Configuration Properties Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Configuration Property Store API
       parameters:
@@ -556,7 +593,7 @@ paths:
                 type: string
               example: Successfully updated property propertyName in namespace
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -611,7 +648,11 @@ paths:
     delete:
       operationId: deleteCpsProperty
       summary: Delete existing CPS property
-      description: Delete an existing property in a given namepace in the Configuration Properties Store.
+      description: |
+        Delete an existing property in a given namepace in the Configuration Properties Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Configuration Property Store API
       parameters:
@@ -641,7 +682,7 @@ paths:
                 type: string
               example: Successfully deleted property propertyName in namespace
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -703,7 +744,7 @@ paths:
                 items:
                   type: string
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -754,7 +795,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonError'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -779,10 +820,13 @@ paths:
       deprecated: true
       summary: Get cascade CPS property
       description: |
-        Searches for a property using namespace, prefix suffix and infixes. 
+        Searches for a property using namespace, prefix suffix and infixes.
         Deprecated in v0.31.0.
         Use the /cps/{namespace}/properties call instead, using the prefix, suffix and infix query parameters, instead of this call.
         This call will be removed in a future version of this REST API.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Configuration Property Store API
       parameters:
@@ -827,7 +871,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CpsProperty'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -858,6 +902,9 @@ paths:
         structure of property names.
         Over-rides of values (if present) are returned in preference to the normal stored value
         of a property.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Configuration Property Store API
       parameters:
@@ -892,7 +939,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GalasaProperty'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -919,7 +966,11 @@ paths:
     post:
       operationId: setEcosystemResources
       summary: Upload Resources to the ecosystem
-      description: This API endpoint allows multiple resources to be supplied in a single request to delete, create and/or update in the ecosystem.
+      description: |
+        This API endpoint allows multiple resources to be supplied in a single request to delete, create and/or update in the ecosystem.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
        - Resources API
       requestBody:
@@ -949,7 +1000,7 @@ paths:
                   - error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -987,6 +1038,11 @@ paths:
     get:
       operationId: getRasRequestors
       summary: Get all known requestors
+      description: |
+        Returns the list of all known requestors that have launched tests in the ecosystem.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Result Archive Store API
       parameters:
@@ -1004,7 +1060,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Requestors'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1032,6 +1088,11 @@ paths:
     get:
       operationId: getRasResultNames
       summary: Get all the known result names
+      description: |
+        Returns a list of the known result names that a test can be assigned (e.g. "Passed", "Failed", "EnvFail", etc.).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Result Archive Store API
       parameters:
@@ -1049,7 +1110,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResultNames'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1091,6 +1152,9 @@ paths:
         test runs which were already retrieved in previous pages of the same query critera.
 
         Invalid query parameters are ignored. For example: a 'cache-buster' parameter.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Result Archive Store API
       parameters:
@@ -1241,7 +1305,7 @@ paths:
                     error_message: "GAL5006E: Error parsing the query parameters. Duplicate instances of query parameter 'size' found in the request URL. Expecting only one."
                   summary: An error occured parsing duplicate parameter
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1297,6 +1361,11 @@ paths:
     get:
       operationId: getRasRunById
       summary: Get Run by ID
+      description: |
+        Returns the details of a test run given its ID.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Result Archive Store API
       parameters:
@@ -1314,7 +1383,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Run'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1333,11 +1402,16 @@ paths:
                 $ref: '#/components/schemas/JsonError'
 
   #--------------------------------------
-  # Update the status of an active test 
+  # Update the status of an active test
   # run to reset or cancel it.
   #--------------------------------------
     put:
       summary: Update the status of a test run
+      description: |
+        Updates the status of a test run in order to either reset or cancel it.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: putRasRunStatusById
       tags:
       - Result Archive Store API
@@ -1394,9 +1468,9 @@ paths:
                   value:
                     error_code: 5050
                     error_message: "GAL5050E: Error occured when trying to cancel the run 'U123'. The run has already completed."
-                  summary: The run in the request has already completed and can not be cancelled        
+                  summary: The run in the request has already completed and can not be cancelled
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1438,6 +1512,11 @@ paths:
     get:
       operationId: getRasRunLog
       summary: Get Run Log
+      description: |
+        Returns the logs for a given test run in plaintext.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Result Archive Store API
       parameters:
@@ -1455,7 +1534,7 @@ paths:
               schema:
                 type: string
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1482,7 +1561,12 @@ paths:
       - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRunArtifactList
-      summary: Get the available Run artifacts which can be downloaded.
+      summary: Get the available run artifacts which can be downloaded.
+      description: |
+        Returns a list of the available artifacts for a given test run.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Result Archive Store API
       parameters:
@@ -1500,7 +1584,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ArtifactIndex'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1545,7 +1629,12 @@ paths:
       - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRunArtifactByPath
-      summary: Download Artifact for a given runid by artifactPath
+      summary: Download artifact for a given runid by artifactPath
+      description: |
+        Downloads a test artifact for a given test run using its run ID and the path of the artifact to download.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Result Archive Store API
       parameters:
@@ -1571,7 +1660,7 @@ paths:
                 format: binary
               example: attachment; filename="cps.properties"
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1626,6 +1715,11 @@ paths:
     get:
       operationId: getRasTestclasses
       summary: Get all the known test classes
+      description: |
+        Returns a list of the known test classes registered in the ecosystem.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Result Archive Store API
       parameters:
@@ -1643,7 +1737,7 @@ paths:
              schema:
                 $ref: '#/components/schemas/TestClasses'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1669,6 +1763,11 @@ paths:
       - $ref: '#/components/parameters/ClientApiVersion'
     get:
       summary: Get group runs
+      description: |
+        Returns the details of a group of runs.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: getRunsGroup
       tags:
       - Runs API
@@ -1687,7 +1786,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/TestRuns'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1699,7 +1798,12 @@ paths:
                     error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
     post:
-      summary: Sumbit test runs
+      summary: Submit test runs
+      description: |
+        Submits a portfolio of test runs to the ecosystem.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: postSubmitTestRuns
       tags:
       - Runs API
@@ -1724,7 +1828,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/TestRuns'
         '401':
-          description: Unauthorized as valid authentication has not been provided
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
             application/json:
               schema:
@@ -1819,6 +1923,7 @@ paths:
       - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getEcosystemBootstrap
+      security: []
       summary: Contact the Galasa ecosystem
       tags:
         - Bootstrap API
@@ -2176,6 +2281,8 @@ components:
 ##################################################################################
   securitySchemes:
     JwtAuth:
+      description: |
+        "A valid bearer token in JWT format must be provided in the 'Authorization' header to access secured endpoints"
       type: http
       scheme: bearer
       bearerFormat: JWT
