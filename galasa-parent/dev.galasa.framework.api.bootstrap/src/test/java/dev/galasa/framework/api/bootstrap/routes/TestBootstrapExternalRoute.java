@@ -41,7 +41,7 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
     @Test
     public void TestBootstrapInternalRequestReturnsProperties() throws Exception{
         // Given...
-        setServlet("external");
+        setServlet("-external");
         MockBootstrapServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();

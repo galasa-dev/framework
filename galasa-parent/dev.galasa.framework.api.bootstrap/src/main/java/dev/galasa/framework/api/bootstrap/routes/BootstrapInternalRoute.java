@@ -41,7 +41,7 @@ public class BootstrapInternalRoute extends BaseRoute{
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, 
             HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException, FrameworkException {
-        getLatestProperitesFromFramework();
+        getLatestPropertiesFromFramework();
         Properties actualBootstrap = new Properties();
         synchronized (this.configurationProperties) {
             actualBootstrap.putAll(this.configurationProperties);
@@ -52,7 +52,7 @@ public class BootstrapInternalRoute extends BaseRoute{
     }
 
 
-    private void getLatestProperitesFromFramework() throws ConfigurationPropertyStoreException {
+    private void getLatestPropertiesFromFramework() throws ConfigurationPropertyStoreException {
         Map<String,String> properties = framework.getConfigurationPropertyService("bootstrap").getAllProperties();
         synchronized (configurationProperties) {
             for (String key : bootstrapKeys) {

@@ -21,7 +21,7 @@ import java.io.IOException;
 
 public class BootstrapExternalRoute  extends BaseRoute{
 
-    protected static final String path = "external";
+    protected static final String path = "-external";
 
     public BootstrapExternalRoute(ResponseBuilder responseBuilder) {
         super(responseBuilder, path);
