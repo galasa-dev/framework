@@ -24,4 +24,9 @@ public class EnvironmentVariables {
      * Represents the hostname of the Dex server's gRPC API to allow the API server to communicate with Dex's gRPC API.
      */
     public static final String GALASA_DEX_GRPC_HOSTNAME = "GALASA_DEX_GRPC_HOSTNAME";
+
+    /**
+     * An ordered, comma-separated list of JWT claims to use when Galasa sets a username for an ecosystem user.
+     */
+    public static final String GALASA_USERNAME_CLAIMS = "GALASA_USERNAME_CLAIMS";
 }

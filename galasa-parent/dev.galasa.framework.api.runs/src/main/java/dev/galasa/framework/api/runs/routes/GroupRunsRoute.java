@@ -33,9 +33,9 @@ public class GroupRunsRoute extends GroupRuns{
 
 
     public GroupRunsRoute(ResponseBuilder responseBuilder, IFramework framework) {
-        /* Regex to match endpoints: 
-		*  -> /runs/{GroupID}
-		*/
+        // Regex to match endpoints:
+		// -> /runs/{GroupID}
+		//
         super(responseBuilder, path, framework);
     }
 
@@ -46,23 +46,22 @@ public class GroupRunsRoute extends GroupRuns{
             ScheduleStatus serializedRuns = serializeRuns(runs);
             return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(serializedRuns), HttpServletResponse.SC_OK);
         }else{
-            ServletError error = new ServletError(GAL5019_UNABLE_TO_RETRIEVE_RUNS, groupName);  
+            ServletError error = new ServletError(GAL5019_UNABLE_TO_RETRIEVE_RUNS, groupName);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     public HttpServletResponse handlePostRequest(String groupName, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
     throws ServletException, IOException, FrameworkException {
         String requestor;
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
-        try{
-            requestor = new JwtWrapper(request).getUserName();
-        }catch(Exception e){
-            /* If no JWT is present the try block will through an exception
-             * Currently this process should work without a jwt however when authentication 
-             * is enforced this catch should throw an exception
-             */
+        try {
+            requestor = new JwtWrapper(request).getUsername();
+        } catch(Exception e) {
+            // If no JWT is present the try block will through an exception.
+            // Currently this process should work without a jwt however when authentication
+            // is enforced this catch should throw an exception
             requestor = null;
         }
         ScheduleStatus scheduleStatus = scheduleRun(scheduleRequest, groupName.substring(1), requestor);
