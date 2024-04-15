@@ -23,7 +23,7 @@ import dev.galasa.framework.api.bootstrap.routes.BootstrapInternalRoute;
  * Proxy Servlet for the /bootstrap endpoints
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-	"osgi.http.whiteboard.servlet.pattern=/bootstrap" }, name = "Galasa Bootstrap")
+	"osgi.http.whiteboard.servlet.pattern=/bootstrap/*" }, name = "Galasa Bootstrap")
 public class BootstrapServlet extends BaseServlet {
 
 	@Reference
@@ -31,8 +31,8 @@ public class BootstrapServlet extends BaseServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	protected Log  logger  =  LogFactory.getLog(this.getClass());
-	
+	protected Log logger = LogFactory.getLog(this.getClass());
+
 	@Override
 	public void init() throws ServletException {
 		logger.info("Bootstrap Servlet initialising");
@@ -41,8 +41,5 @@ public class BootstrapServlet extends BaseServlet {
 
 		addRoute(new BootstrapExternalRoute(getResponseBuilder()));
 		addRoute(new BootstrapInternalRoute(getResponseBuilder(), framework));
-
 	}
-
-    
 }
