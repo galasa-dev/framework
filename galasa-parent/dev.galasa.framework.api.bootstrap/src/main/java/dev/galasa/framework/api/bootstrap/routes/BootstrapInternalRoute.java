@@ -6,6 +6,9 @@
 package dev.galasa.framework.api.bootstrap.routes;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -19,11 +22,13 @@ import dev.galasa.framework.spi.FrameworkException;
 
 public class BootstrapInternalRoute extends BaseRoute {
 
-    private Properties configurationProperties;
+    private final ArrayList<String> bootstrapKeys = new ArrayList<>(
+            Arrays.asList("framework.config.store", "framework.extra.bundles", "framework.testcatalog.url"));
 
-    public BootstrapInternalRoute(ResponseBuilder responseBuilder, Properties configurationProperties) {
+    private Properties configurationProperties = new Properties();
+
+    public BootstrapInternalRoute(ResponseBuilder responseBuilder) {
         super(responseBuilder, "");
-        this.configurationProperties = configurationProperties;
         logger.info("Galasa Bootstrap API activated");
     }
 
@@ -41,4 +46,22 @@ public class BootstrapInternalRoute extends BaseRoute {
         return response;
     }
 
+    public void onModified(Map<String, Object> properties) {
+        synchronized (configurationProperties) {
+            for (String key : bootstrapKeys) {
+                String value = (String) properties.get(key);
+                if (value != null) {
+                    this.configurationProperties.put(key, value);
+                } else {
+                    this.configurationProperties.remove(key);
+                }
+            }
+        }
+    }
+
+    public void deactivate() {
+        synchronized (configurationProperties) {
+            this.configurationProperties.clear();
+        }
+    }
 }

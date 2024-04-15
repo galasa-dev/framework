@@ -5,10 +5,7 @@
  */
 package dev.galasa.framework.api.bootstrap;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -21,6 +18,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.spi.IFramework;
@@ -30,7 +28,8 @@ import dev.galasa.framework.api.bootstrap.routes.BootstrapInternalRoute;
  * Proxy Servlet for the /bootstrap endpoints
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
-	"osgi.http.whiteboard.servlet.pattern=/bootstrap/*" }, name = "Galasa Bootstrap")
+    "osgi.http.whiteboard.servlet.pattern=/bootstrap/*" }, configurationPid = {
+            "dev.galasa.bootstrap" }, configurationPolicy = ConfigurationPolicy.REQUIRE, name = "Galasa Bootstrap")
 public class BootstrapServlet extends BaseServlet {
 
 	@Reference
@@ -38,47 +37,38 @@ public class BootstrapServlet extends BaseServlet {
 
 	private static final long serialVersionUID = 1L;
 
-    private final Properties configurationProperties = new Properties();
-
-    private final ArrayList<String> bootstrapKeys = new ArrayList<>(Arrays.asList("framework.config.store",
-            "framework.extra.bundles", "framework.testcatalog.url"));
+    private BootstrapInternalRoute internalBootstrapRoute;
 
 	protected Log logger = LogFactory.getLog(this.getClass());
 
-	@Override
+    @Override
 	public void init() throws ServletException {
-		logger.info("Bootstrap Servlet initialising");
-
 		super.init();
 
-		addRoute(new BootstrapExternalRoute(getResponseBuilder()));
-		addRoute(new BootstrapInternalRoute(getResponseBuilder(), configurationProperties));
+        addRoute(new BootstrapExternalRoute(getResponseBuilder()));
+		logger.info("Bootstrap Servlet Initialised");
 	}
+
 
     @Activate
     public void activate(Map<String, Object> properties) {
-        modified(properties);
+        internalBootstrapRoute = new BootstrapInternalRoute(getResponseBuilder());
+
+        addRoute(internalBootstrapRoute);
+        onModified(properties);
+
         logger.info("Galasa Bootstrap API activated");
     }
 
     @Modified
-    public void modified(Map<String, Object> properties) {
-        synchronized (configurationProperties) {
-            for (String key : bootstrapKeys) {
-                String value = (String) properties.get(key);
-                if (value != null) {
-                    this.configurationProperties.put(key, value);
-                } else {
-                    this.configurationProperties.remove(key);
-                }
-            }
-        }
+    public void onModified(Map<String, Object> properties) {
+        internalBootstrapRoute.onModified(properties);
+        logger.info("Updated properties in Galasa Bootstrap API");
     }
 
     @Deactivate
     public void deactivate() {
-        synchronized (configurationProperties) {
-            this.configurationProperties.clear();
-        }
+        internalBootstrapRoute.deactivate();
+        logger.info("Deactivated Galasa Bootstrap API");
     }
 }

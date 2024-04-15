@@ -7,7 +7,6 @@ package dev.galasa.framework.api.bootstrap.routes;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import dev.galasa.framework.api.bootstrap.BootstrapServletTest;
 import dev.galasa.framework.api.bootstrap.mocks.MockBootstrapServlet;
@@ -30,17 +29,19 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
     @Test
     public void TestBootstrapInternalRouteHandleGetRequestReturnsOK() throws ServletException, IOException, FrameworkException{
         // Given...
-        Properties configurationProperties = new Properties();
-        configurationProperties.setProperty("framework.config.store", "mystore");
-        configurationProperties.setProperty("framework.extra.bundles", "more.bundles");
-        configurationProperties.setProperty("framework.testcatalog.url", "myeco.dev/testcatalog");
+        Map<String, Object> properties = Map.of(
+            "framework.config.store", "mystore",
+            "framework.extra.bundles", "more.bundles",
+            "framework.testcatalog.url", "myeco.dev/testcatalog"
+        );
 
         ResponseBuilder responseBuilder = new ResponseBuilder();
-        BootstrapInternalRoute route = new BootstrapInternalRoute(responseBuilder, configurationProperties);
+        BootstrapInternalRoute route = new BootstrapInternalRoute(responseBuilder);
         HttpServletResponse response = (HttpServletResponse) new MockHttpServletResponse();
         ServletOutputStream outStream = response.getOutputStream();
 
         // When...
+        route.onModified(properties);
         response = route.handleGetRequest("/bootstrap",null,null,response);
 
         // Then...
@@ -66,7 +67,6 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
         ServletOutputStream outStream = resp.getOutputStream();
 
         // When...
-        servlet.init();
         servlet.activate(properties);
         servlet.doGet(req, resp);
 
