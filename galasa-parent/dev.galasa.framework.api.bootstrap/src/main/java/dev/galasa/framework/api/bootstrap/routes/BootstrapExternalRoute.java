@@ -19,17 +19,17 @@ import dev.galasa.framework.spi.FrameworkException;
 
 import java.io.IOException;
 
-public class BootstrapExternalRoute  extends BaseRoute{
+public class BootstrapExternalRoute extends BaseRoute {
 
-    protected static final String path = "-external";
+    protected static final String path = "\\/external";
 
     public BootstrapExternalRoute(ResponseBuilder responseBuilder) {
         super(responseBuilder, path);
     }
 
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, 
-            HttpServletRequest request, HttpServletResponse response) 
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
+            HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
         Properties properties = new Properties();
         properties.store(response.getWriter(), "Galasa Bootstrap Properties");
