@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.common.resources.beans;
+package dev.galasa.framework.api.beans;
 
 public class GalasaPropertyData {
     private String value;

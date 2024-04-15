@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import dev.galasa.framework.api.beans.GalasaProperty;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.utils.GalasaGson;
