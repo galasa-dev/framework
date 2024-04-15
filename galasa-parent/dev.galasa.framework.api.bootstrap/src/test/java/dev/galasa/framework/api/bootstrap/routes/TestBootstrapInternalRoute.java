@@ -5,15 +5,15 @@
  */
 package dev.galasa.framework.api.bootstrap.routes;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 import dev.galasa.framework.api.bootstrap.BootstrapServletTest;
 import dev.galasa.framework.api.bootstrap.mocks.MockBootstrapServlet;
 import dev.galasa.framework.api.common.ResponseBuilder;
-import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IFramework;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,19 +28,21 @@ import org.junit.Test;
 public class TestBootstrapInternalRoute extends BootstrapServletTest {
 
     @Test
-    public void TestBootstrapInternalRouteHandleGetRequestReturnsOK () throws ServletException, IOException, FrameworkException{
+    public void TestBootstrapInternalRouteHandleGetRequestReturnsOK() throws ServletException, IOException, FrameworkException{
         // Given...
-        IConfigurationPropertyStoreService store =  new MockIConfigurationPropertyStoreService("bootstrap");
-        store.setProperty("framework.config.store","mystore");
-        store.setProperty("framework.extra.bundles","more.bundles");
-        store.setProperty("framework.testcatalog.url", "myeco.dev/testcatalog");
-        IFramework framework = new MockFramework(store);
+        Properties configurationProperties = new Properties();
+        configurationProperties.setProperty("framework.config.store", "mystore");
+        configurationProperties.setProperty("framework.extra.bundles", "more.bundles");
+        configurationProperties.setProperty("framework.testcatalog.url", "myeco.dev/testcatalog");
+
         ResponseBuilder responseBuilder = new ResponseBuilder();
-        BootstrapInternalRoute route = new BootstrapInternalRoute(responseBuilder, framework);
-        HttpServletResponse  response =(HttpServletResponse) new MockHttpServletResponse();
+        BootstrapInternalRoute route = new BootstrapInternalRoute(responseBuilder, configurationProperties);
+        HttpServletResponse response = (HttpServletResponse) new MockHttpServletResponse();
         ServletOutputStream outStream = response.getOutputStream();
+
         // When...
         response = route.handleGetRequest("/bootstrap",null,null,response);
+
         // Then...
         String output = outStream.toString();
         assertThat(output).contains("#Galasa Bootstrap Properties\n",
@@ -50,30 +52,13 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
     }
 
     @Test
-    public void TestBootstrapInternalRouteHandleGetRequestWithNullValuesReturnsOK () throws Exception{
+    public void TestBootstrapInternalRequestReturnsProperties() throws Exception {
         // Given...
-        IConfigurationPropertyStoreService store =  new MockIConfigurationPropertyStoreService("bootstrap");
-        store.setProperty("framework.config.store","mystore");
-        store.setProperty("framework.extra.bundles",null);
-        store.setProperty("framework.testcatalog.url", "myeco.dev/testcatalog");
-        IFramework framework = new MockFramework(store);
-        ResponseBuilder responseBuilder = new ResponseBuilder();
-        BootstrapInternalRoute route = new BootstrapInternalRoute(responseBuilder, framework);
-        HttpServletResponse  response =(HttpServletResponse) new MockHttpServletResponse();
-        ServletOutputStream outStream = response.getOutputStream();
-        // When...
-        response = route.handleGetRequest("/bootstrap",null,null,response);
-        // Then...
-        String output = outStream.toString();
-        assertThat(output).contains("#Galasa Bootstrap Properties\n",
-            "framework.config.store=mystore\n",
-            "framework.testcatalog.url=myeco.dev/testcatalog\n");
-        assertThat(output).doesNotContain("framework.extra.bundles=more.bundles");
-    }
+        Map<String, Object> properties = Map.of(
+            "framework.config.store", "mystore",
+            "framework.testcatalog.url", "myeco.dev/testcatalog"
+        );
 
-    @Test
-    public void TestBootstrapInternalRequestReturnsProperties() throws Exception{
-        // Given...
         setServlet("");
         MockBootstrapServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -82,8 +67,9 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
 
         // When...
         servlet.init();
+        servlet.activate(properties);
         servlet.doGet(req, resp);
- 
+
 
         // Then...
         Integer status = resp.getStatus();
@@ -93,7 +79,32 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
 		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).contains("#Galasa Bootstrap Properties\n",
             "framework.config.store=mystore\n",
-            "framework.extra.bundles=more.bundles\n",
             "framework.testcatalog.url=myeco.dev/testcatalog\n");
+    }
+
+    @Test
+    public void TestBootstrapInternalRequestWithNoPropertiesReturnsHeaderOnly() throws Exception {
+        // Given...
+        Map<String, Object> properties = new HashMap<>();
+
+        setServlet("");
+        MockBootstrapServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.activate(properties);
+        servlet.doGet(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(output).contains("#Galasa Bootstrap Properties");
+        assertThat(output).doesNotContain("framework.", "=");
     }
 }
