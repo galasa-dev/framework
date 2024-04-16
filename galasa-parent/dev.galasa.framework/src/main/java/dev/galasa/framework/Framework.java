@@ -48,6 +48,7 @@ public class Framework implements IFramework {
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;
+    private IEventsService                     eventsService;
 
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
@@ -93,7 +94,7 @@ public class Framework implements IFramework {
 
     @Override
     public boolean isInitialised() {
-        if (cpsStore != null && dssStore != null && rasService != null && ctsService != null && credsStore != null) {
+        if (cpsStore != null && dssStore != null && rasService != null && ctsService != null && credsStore != null && eventsService != null) {
             return true;
         }
 
@@ -101,7 +102,7 @@ public class Framework implements IFramework {
     }
 
     public boolean isShutdown() {
-        if (cpsStore == null && dssStore == null && rasService == null && ctsService == null && credsStore == null) {
+        if (cpsStore == null && dssStore == null && rasService == null && ctsService == null && credsStore == null && eventsService == null) {
             return true;
         }
 
@@ -209,6 +210,10 @@ public class Framework implements IFramework {
         return new FrameworkCredentialsService(this, this.credsStore);
     }
 
+    public IEventsService getEventsService() {
+        return this.eventsService;
+    }
+
     /**
      * Set the new Configuration Property Store Service
      *
@@ -259,6 +264,13 @@ public class Framework implements IFramework {
 
         this.rasService = new FrameworkMultipleResultArchiveStore(this, this.rasService);
         ((FrameworkMultipleResultArchiveStore) this.rasService).addResultArchiveStoreService(resultArchiveStoreService);
+    }
+
+    public void setEventsService(@NotNull IEventsService eventsService) throws EventsException {
+        if (this.eventsService != null) {
+            throw new EventsException("Invalid 2nd registration of the Events Service detected");
+        }
+        this.eventsService = eventsService;
     }
 
     public void setConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
@@ -366,6 +378,18 @@ public class Framework implements IFramework {
         boolean error = false;
 
         shutdownLogger.info("Shutting down the framework");
+
+        // *** Shutdown the Events Service
+        if (this.eventsService != null) {
+            try {
+                shutdownLogger.trace("Shutting down the Events Service");
+                this.eventsService.shutdown();
+                this.eventsService = null;
+            } catch (Throwable t) {
+                error = true;
+                shutdownLogger.error("Failed to shutdown the Events Service", t);
+            }
+        }
 
         // *** Shutdown the Confidential Text Service
         if (this.ctsService != null) {

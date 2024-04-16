@@ -94,6 +94,8 @@ public interface IFrameworkInitialisation {
 
     void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException;
 
+    void registerEventsService(@NotNull IEventsService eventsService) throws EventsException;
+
     /**
      * <p>
      * Retrieve the IFramework object. Not all the methods will be valid during the
