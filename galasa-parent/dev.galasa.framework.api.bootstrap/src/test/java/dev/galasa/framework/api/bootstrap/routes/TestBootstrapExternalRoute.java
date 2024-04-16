@@ -28,10 +28,12 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
         // Given...
         ResponseBuilder responseBuilder = new ResponseBuilder();
         BootstrapExternalRoute route = new BootstrapExternalRoute(responseBuilder);
-        HttpServletResponse  response =(HttpServletResponse) new MockHttpServletResponse();
+        HttpServletResponse response = (HttpServletResponse) new MockHttpServletResponse();
         ServletOutputStream outStream = response.getOutputStream();
+
         // When...
-        response = route.handleGetRequest("/bootstrap-external",null,null,response);
+        response = route.handleGetRequest("/bootstrap/external",null,null,response);
+
         // Then...
         String output = outStream.toString();
         assertThat(output).contains("#Galasa Bootstrap Properties");
@@ -50,7 +52,6 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
         // When...
         servlet.init();
         servlet.doGet(req, resp);
-
 
         // Then...
         Integer status = resp.getStatus();
