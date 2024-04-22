@@ -55,6 +55,16 @@ public class OidcProviderTest {
         return jwkJson;
     }
 
+    private HttpResponse<Object> createMockOidcDiscoveryResponse() {
+        JsonObject mockOidcConfig = new JsonObject();
+        mockOidcConfig.addProperty("authorization_endpoint", "http://my-issuer/auth");
+        mockOidcConfig.addProperty("token_endpoint", "http://my-issuer/token");
+        mockOidcConfig.addProperty("jwks_uri", "http://my-issuer/keys");
+
+        HttpResponse<Object> mockOidcDiscoveryResponse = new MockHttpResponse<Object>(gson.toJson(mockOidcConfig));
+        return mockOidcDiscoveryResponse;
+    }
+
     @Test
     public void testTokenPostWithRefreshTokenValidRequestReturnsValidResponse() throws Exception {
         // Given...
@@ -179,7 +189,7 @@ public class OidcProviderTest {
         HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockJwks));
 
         HttpClient mockHttpClient = mock(HttpClient.class);
-        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+        when(mockHttpClient.send(any(), any())).thenReturn(createMockOidcDiscoveryResponse());
 
         OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
 
@@ -214,7 +224,7 @@ public class OidcProviderTest {
         HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockJwks));
 
         HttpClient mockHttpClient = mock(HttpClient.class);
-        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+        when(mockHttpClient.send(any(), any())).thenReturn(createMockOidcDiscoveryResponse());
 
         OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
 
@@ -244,7 +254,7 @@ public class OidcProviderTest {
         HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockJwks));
 
         HttpClient mockHttpClient = mock(HttpClient.class);
-        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+        when(mockHttpClient.send(any(), any())).thenReturn(createMockOidcDiscoveryResponse());
 
         OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
 
