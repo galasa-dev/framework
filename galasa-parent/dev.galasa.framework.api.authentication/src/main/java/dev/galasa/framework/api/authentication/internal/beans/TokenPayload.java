@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.authentication.internal;
+package dev.galasa.framework.api.authentication.internal.beans;
 
 import com.google.gson.annotations.SerializedName;
 

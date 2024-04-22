@@ -9,6 +9,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -27,6 +29,7 @@ import com.google.gson.JsonObject;
 import org.junit.Test;
 
 import dev.galasa.framework.api.authentication.internal.OidcProvider;
+import dev.galasa.framework.api.authentication.internal.beans.JsonWebKey;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpSession;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -34,6 +37,23 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 public class OidcProviderTest {
 
     private static final GalasaGson gson = new GalasaGson();
+
+    /**
+     * Creates and returns a JSON object representing a JSON Web Key.
+     * The format of the created JSON object is as follows:
+     * {
+     *   "keys": [
+     *     { "kid": "key-id" },
+     *     { "kid": "key-id" },
+     *   ],
+     * }
+     */
+    private JsonObject createMockJwkObject(String keyId) {
+        JsonObject jwkJson = new JsonObject();
+        jwkJson.addProperty("kid", keyId);
+
+        return jwkJson;
+    }
 
     @Test
     public void testTokenPostWithRefreshTokenValidRequestReturnsValidResponse() throws Exception {
@@ -98,11 +118,14 @@ public class OidcProviderTest {
     @Test
     public void testGetJsonWebKeysFromIssuerReturnsOk() throws Exception {
         // Given...
-        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("{" +
-            "\"keys\": [" +
-            "{\"kid\": \"thisisakey\"}," +
-            "{\"kid\": \"thisisanotherkey\"}" +
-            "]}");
+        JsonObject mockJwks = new JsonObject();
+        JsonArray keysArray = new JsonArray();
+
+        keysArray.add(createMockJwkObject("thisisakey"));
+        keysArray.add(createMockJwkObject("thisisanotherkey"));
+        mockJwks.add("keys", keysArray);
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockJwks));
 
         HttpClient mockHttpClient = mock(HttpClient.class);
         when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
@@ -113,7 +136,7 @@ public class OidcProviderTest {
         when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
         // When...
-        JsonArray keys = oidcProvider.getJsonWebKeysFromIssuer(oidcProvider.getIssuer());
+        JsonArray keys = oidcProvider.getJsonWebKeysFromIssuer();
 
         // Then...
         assertThat(keys).isNotNull();
@@ -134,24 +157,26 @@ public class OidcProviderTest {
         when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
         // When...
-        JsonArray keys = oidcProvider.getJsonWebKeysFromIssuer(oidcProvider.getIssuer());
+        JsonArray keys = oidcProvider.getJsonWebKeysFromIssuer();
 
         // Then...
         assertThat(keys).isNull();
     }
 
     @Test
-    public void testGetJsonWebKeysFromIssuerByKeyIdReturnsOk() throws Exception {
+    public void testGetJsonWebKeyByKeyIdReturnsOk() throws Exception {
         // Given...
         String targetKeyId = "iwantthiskey";
 
-        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("{" +
-            "\"keys\": [" +
-            "{\"kid\": \"thisisakey\"}," +
-            "{\"kid\": \"thisisanotherkey\"}," +
-            "{\"kid\": \""+targetKeyId+"\"}" +
-            "]}"
-        );
+        JsonObject mockJwks = new JsonObject();
+        JsonArray keysArray = new JsonArray();
+
+        keysArray.add(createMockJwkObject("thisisakey"));
+        keysArray.add(createMockJwkObject("thisisanotherkey"));
+        keysArray.add(createMockJwkObject(targetKeyId));
+        mockJwks.add("keys", keysArray);
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockJwks));
 
         HttpClient mockHttpClient = mock(HttpClient.class);
         when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
@@ -162,24 +187,31 @@ public class OidcProviderTest {
         when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
         // When...
-        JsonObject key = oidcProvider.getJsonWebKeyFromIssuerByKeyId(targetKeyId, oidcProvider.getIssuer());
+        oidcProvider.getJsonWebKeyByKeyId(targetKeyId);
+
+        // Other calls shouldn't send a request to the issuer as long as the refresh interval hasn't elapsed
+        oidcProvider.getJsonWebKeyByKeyId(targetKeyId);
+        oidcProvider.getJsonWebKeyByKeyId(targetKeyId);
 
         // Then...
-        assertThat(key).isNotNull();
-        assertThat(key.get("kid").getAsString()).isEqualTo(targetKeyId);
+        // Check that the HTTP client only sent one request
+        verify(mockHttpClient, times(1)).send(any(), any());
     }
 
     @Test
-    public void testGetJsonWebKeysFromIssuerByKeyIdWithNoMatchingKeyReturnsNull() throws Exception {
+    public void testGetJsonWebKeyByKeyIdWithCachedKeysReturnsCachedKey() throws Exception {
         // Given...
         String targetKeyId = "iwantthiskey";
 
-        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>("{" +
-            "\"keys\": [" +
-            "{\"kid\": \"thisisakey\"}," +
-            "{\"kid\": \"thisisanotherkey\"}" +
-            "]}"
-        );
+        JsonObject mockJwks = new JsonObject();
+        JsonArray keysArray = new JsonArray();
+
+        keysArray.add(createMockJwkObject("thisisakey"));
+        keysArray.add(createMockJwkObject("thisisanotherkey"));
+        keysArray.add(createMockJwkObject(targetKeyId));
+        mockJwks.add("keys", keysArray);
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockJwks));
 
         HttpClient mockHttpClient = mock(HttpClient.class);
         when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
@@ -190,7 +222,37 @@ public class OidcProviderTest {
         when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
 
         // When...
-        JsonObject key = oidcProvider.getJsonWebKeyFromIssuerByKeyId(targetKeyId, oidcProvider.getIssuer());
+        JsonWebKey key = oidcProvider.getJsonWebKeyByKeyId(targetKeyId);
+
+        // Then...
+        assertThat(key).isNotNull();
+        assertThat(key.getKeyId()).isEqualTo(targetKeyId);
+    }
+
+    @Test
+    public void testGetJsonWebKeyByKeyIdWithNoMatchingKeyReturnsNull() throws Exception {
+        // Given...
+        String targetKeyId = "iwantthiskey";
+
+        JsonObject mockJwks = new JsonObject();
+        JsonArray keysArray = new JsonArray();
+
+        keysArray.add(createMockJwkObject("thisisakey"));
+        keysArray.add(createMockJwkObject("thisisanotherkey"));
+        mockJwks.add("keys", keysArray);
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockJwks));
+
+        HttpClient mockHttpClient = mock(HttpClient.class);
+        when(mockHttpClient.send(any(), any())).thenThrow(new IOException());
+
+        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+
+        reset(mockHttpClient);
+        when(mockHttpClient.send(any(), any())).thenReturn(mockResponse);
+
+        // When...
+        JsonWebKey key = oidcProvider.getJsonWebKeyByKeyId(targetKeyId);
 
         // Then...
         assertThat(key).isNull();
