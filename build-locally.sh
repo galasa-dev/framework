@@ -209,7 +209,27 @@ function cleaning_up_before_we_start {
         success "Cleaned OK"
     fi
 
-    clean_up_local_maven_repo
+    clean_up_local_maven_repo 
+}
+
+#-------------------------------------------------------------
+function generate_beans {
+    check_openapi2beans_is_installed
+
+    h2 "Generating beans in the dev.framework.api.beans project."
+    cmd="openapi2beans generate --output ${BASEDIR}/galasa-parent/dev.galasa.framework.api.beans/src/main/java \
+    --yaml $BASEDIR/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml \
+    --package dev.galasa.framework.api.beans"
+    $cmd 
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate the api beans" ; exit 1 ; fi
+    success "OK"
+}
+
+function check_openapi2beans_is_installed {
+    h2 "Checking the openapi2beans tool is installed."
+    which openapi2beans > /dev/null
+    rc=$?; if [[ "$rc" != "0" ]]; then error "You don't have the openapi2beans tool installed. Go get it from the buildutils project" ; exit 1 ; fi
+    success "OK - the openapi2beans tool is installed and available"
 }
 
 #-----------------------------------------------------------------------------------------
@@ -263,7 +283,7 @@ fi
 
 # Over-rode SOURCE_MAVEN if you want to build from a different maven repo...
 if [[ -z ${SOURCE_MAVEN} ]]; then
-    export SOURCE_MAVEN=https://development.galasa.dev/main/maven-repo/obr/
+    export SOURCE_MAVEN=https://development.galasa.dev/main/maven-repo/maven/
     info "SOURCE_MAVEN repo defaulting to ${SOURCE_MAVEN}."
     info "Set this environment variable if you want to over-ride this value."
 else
@@ -296,7 +316,15 @@ CONSOLE_FLAG=--console=plain
 log_file=${LOGS_DIR}/${project}.txt
 info "Log will be placed at ${log_file}"
 
+
+
+
 cleaning_up_before_we_start
+
+# Currently the bean generation stuff doesn't work 100%
+# So I generated beans locally, fixed them up, and have started to use them.
+# generate_beans
+
 build_code
 publish_to_maven
 

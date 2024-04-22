@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.text.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -146,17 +147,27 @@ public class BundleManagement {
                 // *** is a reference
                 ArrayList<Bundle> bundlesToStart = new ArrayList<>();
                 try {
+
                     Resource[] startRequiredResources = resolver.getRequiredResources();
                     for (Resource requiredResource : startRequiredResources) {
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("  startRequiredResource: adding resource" +requiredResource.getURI().toString());
+                        }
                         bundlesToStart.add(bundleContext.installBundle(requiredResource.getURI().toString()));
                     }
                     Resource[] startOptionalResources = resolver.getOptionalResources();
                     for (Resource optionalResource : startOptionalResources) {
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("  getOptionalResources: adding resource" +optionalResource.getURI().toString());
+                        }
                         bundlesToStart.add(bundleContext.installBundle(optionalResource.getURI().toString()));
                     }
 
                     bundlesToStart.add(bundleContext.installBundle(resource.getURI().toString()));
                     for (Bundle bundle : bundlesToStart) {
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("  bundlesToStart: starting" +bundle.getClass().toString());
+                        }
                         bundle.start();
                     }
                 } catch (Exception e) {
@@ -165,7 +176,8 @@ public class BundleManagement {
             }
 
             if (!isBundleActive(bundleContext, bundleSymbolicName)) {
-                throw new FrameworkException("Bundle failed to install and activate");
+                String msg = MessageFormat.format("Bundle %s failed to install and activate",bundleSymbolicName);
+                throw new FrameworkException(msg);
             }
 
             printBundles(bundleContext);
