@@ -30,9 +30,6 @@ import javax.validation.constraints.Null;
  * An {@link IConfigurationPropertyStore} can be obtained from
  * {@link IFramework#getCertificateStoreService()}.
  * </p>
- * 
- * @author Michael Baylis
- * @author Matthew Chivers
  *
  */
 public interface IConfigurationPropertyStoreService {
@@ -151,24 +148,19 @@ public interface IConfigurationPropertyStoreService {
     void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException;
 
     /**
-     * <p>
      * Retrieves all possible different properties set from a namespace
-     * </p>
      * 
      * @return Map of names and values of all properties
+     * @throws ConfigurationPropertyStoreException - Something went wrong accessing the persistent property store
      */
-    Map<String,String> getAllProperties();
+    Map<String,String> getAllProperties() throws ConfigurationPropertyStoreException;
 
     /**
-     * <p>
      * Retrieves all possible different property variations that would be searched,
      * in the search order.
-     * </p>
      * 
-     * <p>
      * If a manager cant get a property, it can report all the properties you could
      * set to get a resolve the problem
-     * </p>
      * 
      * @param prefix  - The prefix of the property name within the namespace.
      * @param suffix  - The suffix of the property name.
@@ -201,7 +193,8 @@ public interface IConfigurationPropertyStoreService {
      * </p>
      * 
      * @return List all namespaces with properties set
+     * @throws ConfigurationPropertyStoreException - Something went wrong accessing the persistent property store
      */
-    List<String> getCPSNamespaces();
+    List<String> getCPSNamespaces() throws ConfigurationPropertyStoreException;
 
 }
