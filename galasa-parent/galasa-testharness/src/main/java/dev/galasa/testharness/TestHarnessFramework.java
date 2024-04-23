@@ -16,7 +16,6 @@ import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.cts.FrameworkConfidentialTextService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
 import dev.galasa.framework.spi.Api;
-import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;

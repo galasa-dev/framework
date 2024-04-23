@@ -318,7 +318,7 @@ public class TestRasQueryParameters extends RasServletTest{
 
 
         Throwable thrown = catchThrowable( () -> {
-            boolean isAscending = params.isAscending("runname");
+            params.isAscending("runname");
         });
 
         assertThat(thrown.getMessage()).contains("GAL5011","runname","sort");
@@ -331,7 +331,7 @@ public class TestRasQueryParameters extends RasServletTest{
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
         Throwable thrown = catchThrowable( () -> {
-            boolean isAscending = params.isAscending("runname");
+            params.isAscending("runname");
         });
 
         assertThat(thrown).isNotNull();
