@@ -132,7 +132,7 @@ public class GherkinTest {
                         this.comments.add(line);
                     }
                 }
-                if(currentMethod != null) {
+                if(currentMethod != null && currentSection != Section.EXAMPLE) {
                     methods.add(currentMethod);
                 }
                 this.testStructure.setTestShortName(this.testName);
@@ -201,9 +201,11 @@ public class GherkinTest {
 
         for (GherkinMethod method : this.methods) {
             if(this.variables.getNumberOfInstances() >= 1){
-                method.invoke(managers, this.variables.getVariableInstance(1));
+                method.invoke(managers, this.variables.getVariableInstance(0));
+            } else{
+                method.invoke(managers, this.variables.getVariablesOriginal());
             }
-            method.invoke(managers, this.variables.getVariablesOriginal());
+            
             if(method.fullStop()) {
                 break;
             }
