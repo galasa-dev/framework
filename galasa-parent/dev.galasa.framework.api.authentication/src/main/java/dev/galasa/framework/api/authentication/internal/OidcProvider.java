@@ -215,7 +215,7 @@ public class OidcProvider {
         HttpResponse<String> response = httpClient.send(getRequest, BodyHandlers.ofString());
 
         JsonObject responseBodyJson = gson.fromJson(response.body(), JsonObject.class);
-        JsonArray updatedJwks = null;
+        JsonArray updatedJwks = new JsonArray();
         if (responseBodyJson.has("keys")) {
             logger.info("Successfully retrieved JSON Web Keys from issuer");
             updatedJwks = responseBodyJson.get("keys").getAsJsonArray();
