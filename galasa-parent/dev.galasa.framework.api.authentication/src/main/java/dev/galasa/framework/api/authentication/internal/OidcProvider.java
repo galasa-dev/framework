@@ -45,6 +45,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
 import dev.galasa.framework.api.authentication.internal.beans.JsonWebKey;
+import dev.galasa.framework.api.common.ITimeService;
+import dev.galasa.framework.api.common.SystemTimeService;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 /**
@@ -61,6 +63,7 @@ public class OidcProvider {
 
     private JsonArray jsonWebKeys;
     private Instant nextJwkRefresh = Instant.EPOCH;
+    private ITimeService timeService;
 
     private String issuerUrl;
     private String authorizationEndpoint;
@@ -69,9 +72,10 @@ public class OidcProvider {
 
     private HttpClient httpClient = HttpClient.newHttpClient();
 
-    public OidcProvider(String issuerUrl, HttpClient httpClient) {
+    public OidcProvider(String issuerUrl, HttpClient httpClient, ITimeService timeService) {
         this.issuerUrl = issuerUrl;
         this.httpClient = httpClient;
+        this.timeService = timeService;
 
         this.authorizationEndpoint = issuerUrl + "/auth";
         this.tokenEndpoint = issuerUrl + "/token";
@@ -91,6 +95,10 @@ public class OidcProvider {
         logger.info("Authorization endpoint is: " + this.authorizationEndpoint);
         logger.info("Token endpoint is: " + this.tokenEndpoint);
         logger.info("JWKs endpoint is: " + this.jwksUri);
+    }
+
+    public OidcProvider(String issuerUrl, HttpClient httpClient) {
+        this(issuerUrl, httpClient, new SystemTimeService());
     }
 
     /**
@@ -195,7 +203,7 @@ public class OidcProvider {
     /**
      * Gets a JSON array of the JSON Web Keys (JWKs) from a GET request to an issuer's /keys endpoint
      */
-    public JsonArray getJsonWebKeysFromIssuer() throws IOException, InterruptedException {
+    private JsonArray getJsonWebKeysFromIssuer() throws IOException, InterruptedException {
         logger.info("Retrieving JSON Web Keys from issuer");
         HttpRequest getRequest = HttpRequest.newBuilder()
             .GET()
@@ -220,9 +228,9 @@ public class OidcProvider {
     /**
      * Gets a JSON Web Key with a given key ID ('kid') from an OpenID connect issuer's /keys endpoint, returned as a JSON object
      */
-    public JsonWebKey getJsonWebKeyByKeyId(String keyId) throws IOException, InterruptedException {
+    public synchronized JsonWebKey getJsonWebKeyByKeyId(String keyId) throws IOException, InterruptedException {
         // Check if it is time to refresh the cached JSON web keys
-        if (jsonWebKeys == null || nextJwkRefresh.isBefore(Instant.now())) {
+        if (jsonWebKeys == null || nextJwkRefresh.isBefore(timeService.now())) {
             logger.info("Refreshing cached JSON Web Keys");
             refreshJsonWebKeys();
         }
