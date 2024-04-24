@@ -10,13 +10,23 @@ import static org.assertj.core.api.Assertions.*;
 import java.net.URI;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Base64.Encoder;
 import java.util.function.BiPredicate;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -34,17 +44,48 @@ public class OidcProviderTest {
 
     private static final GalasaGson gson = new GalasaGson();
 
+    //-------------------------------------------------------------------------
+    // Helper methods
+    //-------------------------------------------------------------------------
+    private KeyPair generateMockRsaKeyPair() throws NoSuchAlgorithmException {
+        // Generate a small key pair
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(512);
+
+        return keyPairGenerator.generateKeyPair();
+    }
+
     /**
-     * Creates and returns a JSON object representing a JSON Web Key.
-     * The format of the created JSON object is as follows:
+     * Creates and returns a JSON object representing a JSON Web Key. The format of
+     * the created JSON object is as follows:
      * {
      *   "kid": "key-id",
+     *   "kty": "RSA",
+     *   "alg": "RS256",
+     *   "use": "sig",
      * }
      */
     private JsonObject createMockJwkObject(String keyId) {
         JsonObject jwkJson = new JsonObject();
         jwkJson.addProperty("kid", keyId);
+        jwkJson.addProperty("kty", "RSA");
+        jwkJson.addProperty("alg", "RS256");
+        jwkJson.addProperty("use", "sig");
 
+        return jwkJson;
+    }
+
+    /**
+     * Creates and returns a JSON object representing a JSON Web Key, including the
+     * RSA public key exponent ('e') and modulus ('n') used to sign the key.
+     */
+    private JsonObject createMockJwkObject(String keyId, RSAPublicKey publicKey) {
+        JsonObject jwkJson = createMockJwkObject(keyId);
+
+        // Both the modulus and exponent need to be Base64-URL-encoded in JWKs
+        Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        jwkJson.addProperty("n", encoder.encodeToString(publicKey.getModulus().toByteArray()));
+        jwkJson.addProperty("e", encoder.encodeToString(publicKey.getPublicExponent().toByteArray()));
         return jwkJson;
     }
 
@@ -53,17 +94,31 @@ public class OidcProviderTest {
      * The format of the created response content is as follows:
      * {
      *   "keys": [
-     *     { "kid": "key-id" },
-     *     { "kid": "key-id" },
+     *     {
+     *       "kid": "key-id",
+     *       "kty": "RSA",
+     *       "alg": "RS256",
+     *       "use": "sig",
+     *     },
      *   ],
      * }
      */
     private HttpResponse<Object> createMockJwksResponse(String... keyIds) {
+        List<JsonObject> jsonWebKeys = new ArrayList<>();
+
+        for (String keyId : keyIds) {
+            jsonWebKeys.add(createMockJwkObject(keyId));
+        }
+
+        return createMockJwksResponse(jsonWebKeys.toArray(new JsonObject[0]));
+    }
+
+    private HttpResponse<Object> createMockJwksResponse(JsonObject... jsonWebKeys) {
         JsonObject mockJwks = new JsonObject();
         JsonArray keysArray = new JsonArray();
 
-        for (String keyId : keyIds) {
-            keysArray.add(createMockJwkObject(keyId));
+        for (JsonObject key : jsonWebKeys) {
+            keysArray.add(key);
         }
         mockJwks.add("keys", keysArray);
 
@@ -81,6 +136,9 @@ public class OidcProviderTest {
         return mockOidcDiscoveryResponse;
     }
 
+    //-------------------------------------------------------------------------
+    // Test methods
+    //-------------------------------------------------------------------------
     @Test
     public void testTokenPostWithRefreshTokenValidRequestReturnsValidResponse() throws Exception {
         // Given...
@@ -273,6 +331,112 @@ public class OidcProviderTest {
 
         // Then...
         assertThat(result).isFalse();
+    }
+
+    @Test
+    public void testIsJwtValidWithExpiredJwtReturnsFalse() throws Exception {
+        // Given...
+        String issuer = "http://dummy-issuer";
+        String keyId = "mock-key";
+
+        // Generate an RSA key pair to sign the mock JWT
+        KeyPair mockKeyPair = generateMockRsaKeyPair();
+        RSAPublicKey mockPublicKey =  (RSAPublicKey) mockKeyPair.getPublic();
+        RSAPrivateKey mockPrivateKey =  (RSAPrivateKey) mockKeyPair.getPrivate();
+
+        // Create the JSON Web Key that will be returned from the issuer
+        JsonObject mockJwk = createMockJwkObject(keyId, mockPublicKey);
+        HttpResponse<Object> mockJwkResponse = createMockJwksResponse(mockJwk);
+
+        // Create the expired JWT
+        String expiredJwt = JWT.create()
+            .withIssuer(issuer)
+            .withKeyId(keyId)
+            .withExpiresAt(Instant.EPOCH)
+            .sign(Algorithm.RSA256(mockPublicKey, mockPrivateKey));
+
+        MockHttpClient mockHttpClient = new MockHttpClient(createMockOidcDiscoveryResponse());
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        OidcProvider oidcProvider = new OidcProvider(issuer, mockHttpClient, mockTimeService);
+
+        mockHttpClient.setMockResponse(mockJwkResponse);
+
+        // When...
+        boolean result = oidcProvider.isJwtValid(expiredJwt);
+
+        // Then...
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void testIsJwtValidWithInvalidSignatureReturnsFalse() throws Exception {
+        // Given...
+        String issuer = "http://dummy-issuer";
+        String targetKeyId = "i-want-this-key";
+        String existingKeyId = "not-this-key";
+
+        // Generate an RSA key pair to sign the mock JWT
+        KeyPair mockKeyPair = generateMockRsaKeyPair();
+        RSAPublicKey mockPublicKey =  (RSAPublicKey) mockKeyPair.getPublic();
+        RSAPrivateKey mockPrivateKey =  (RSAPrivateKey) mockKeyPair.getPrivate();
+
+        // Create the JSON Web Key that will be returned from the issuer
+        JsonObject mockJwk = createMockJwkObject(existingKeyId, mockPublicKey);
+        HttpResponse<Object> mockJwkResponse = createMockJwksResponse(mockJwk);
+
+        // Create a JWT that was signed by an unknown key
+        String invalidJwt = JWT.create()
+            .withIssuer(issuer)
+            .withKeyId(targetKeyId)
+            .withExpiresAt(Instant.MAX)
+            .sign(Algorithm.RSA256(mockPublicKey, mockPrivateKey));
+
+        MockHttpClient mockHttpClient = new MockHttpClient(createMockOidcDiscoveryResponse());
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        OidcProvider oidcProvider = new OidcProvider(issuer, mockHttpClient, mockTimeService);
+
+        mockHttpClient.setMockResponse(mockJwkResponse);
+
+        // When...
+        boolean result = oidcProvider.isJwtValid(invalidJwt);
+
+        // Then...
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void testIsJwtValidWithValidJwtReturnsTrue() throws Exception {
+        // Given...
+        String issuer = "http://dummy-issuer";
+        String keyId = "mock-key";
+
+        // Generate an RSA key pair to sign the mock JWT
+        KeyPair mockKeyPair = generateMockRsaKeyPair();
+        RSAPublicKey mockPublicKey =  (RSAPublicKey) mockKeyPair.getPublic();
+        RSAPrivateKey mockPrivateKey =  (RSAPrivateKey) mockKeyPair.getPrivate();
+
+        // Create the JSON Web Key that will be returned from the issuer
+        JsonObject mockJwk = createMockJwkObject(keyId, mockPublicKey);
+        HttpResponse<Object> mockJwkResponse = createMockJwksResponse(mockJwk);
+
+        // Create a valid JWT that has not expired and was signed by a known key
+        String validJwt = JWT.create()
+            .withIssuer(issuer)
+            .withKeyId(keyId)
+            .withExpiresAt(Instant.MAX)
+            .sign(Algorithm.RSA256(mockPublicKey, mockPrivateKey));
+
+        MockHttpClient mockHttpClient = new MockHttpClient(createMockOidcDiscoveryResponse());
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        OidcProvider oidcProvider = new OidcProvider(issuer, mockHttpClient, mockTimeService);
+
+        mockHttpClient.setMockResponse(mockJwkResponse);
+
+        // When...
+        boolean result = oidcProvider.isJwtValid(validJwt);
+
+        // Then...
+        assertThat(result).isTrue();
     }
 
     @Test
