@@ -254,6 +254,8 @@ public class OidcProvider {
         boolean isValid = false;
         try {
             DecodedJWT decodedJwt = JWT.decode(jwt);
+
+            // Try to get the public key used to sign this JWT
             RSAPublicKey publicKey = getRSAPublicKeyFromIssuer(decodedJwt.getKeyId());
             if (publicKey != null) {
                 Algorithm algorithm = Algorithm.RSA256(publicKey, null);
@@ -265,7 +267,7 @@ public class OidcProvider {
 
         } catch (JWTVerificationException e) {
             // The JWT is not valid
-            logger.info("Invalid JWT '" + jwt + "'. Reason: " + e.getMessage());
+            logger.error("Invalid JWT '" + jwt + "'. Reason: " + e.getMessage(), e);
         }
         return isValid;
     }
