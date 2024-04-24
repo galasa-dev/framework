@@ -17,7 +17,6 @@ import javax.validation.constraints.NotNull;
 import org.junit.Test;
 
 import dev.galasa.framework.internal.cps.FpfConfigurationPropertyStore;
-import dev.galasa.framework.internal.dss.FpfDynamicStatusStoreRegistration;
 import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;

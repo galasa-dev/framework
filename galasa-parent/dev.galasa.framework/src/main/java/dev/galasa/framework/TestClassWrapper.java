@@ -6,6 +6,7 @@
 package dev.galasa.framework;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -162,8 +163,10 @@ public class TestClassWrapper {
      */
     public void instantiateTestClass() throws TestRunException {
         try {
-            testClassObject = testClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException | NullPointerException e) {
+            testClassObject = testClass.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | NullPointerException | 
+                 IllegalArgumentException | InvocationTargetException | NoSuchMethodException | 
+                 SecurityException  e ) {
             throw new TestRunException("Unable to instantiate test class", e);
         }
     }
