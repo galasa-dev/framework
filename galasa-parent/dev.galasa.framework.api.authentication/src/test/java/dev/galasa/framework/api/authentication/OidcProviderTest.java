@@ -22,6 +22,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Base64.Encoder;
 import java.util.function.BiPredicate;
 
 import com.auth0.jwt.JWT;
@@ -80,11 +81,11 @@ public class OidcProviderTest {
      */
     private JsonObject createMockJwkObject(String keyId, RSAPublicKey publicKey) {
         JsonObject jwkJson = createMockJwkObject(keyId);
-        jwkJson.addProperty("n",
-                Base64.getUrlEncoder().withoutPadding().encodeToString(publicKey.getModulus().toByteArray()));
 
-        jwkJson.addProperty("e",
-                Base64.getUrlEncoder().withoutPadding().encodeToString(publicKey.getPublicExponent().toByteArray()));
+        // Both the modulus and exponent need to be Base64-encoded in JWKs
+        Encoder encoder = Base64.getEncoder().withoutPadding();
+        jwkJson.addProperty("n", encoder.encodeToString(publicKey.getModulus().toByteArray()));
+        jwkJson.addProperty("e", encoder.encodeToString(publicKey.getPublicExponent().toByteArray()));
         return jwkJson;
     }
 
