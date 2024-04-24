@@ -387,7 +387,7 @@ public class OidcProviderTest {
         String invalidJwt = JWT.create()
             .withIssuer(issuer)
             .withKeyId(targetKeyId)
-            .withExpiresAt(Instant.EPOCH)
+            .withExpiresAt(Instant.MAX)
             .sign(Algorithm.RSA256(mockPublicKey, mockPrivateKey));
 
         MockHttpClient mockHttpClient = new MockHttpClient(createMockOidcDiscoveryResponse());
