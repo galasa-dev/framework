@@ -82,8 +82,8 @@ public class OidcProviderTest {
     private JsonObject createMockJwkObject(String keyId, RSAPublicKey publicKey) {
         JsonObject jwkJson = createMockJwkObject(keyId);
 
-        // Both the modulus and exponent need to be Base64-encoded in JWKs
-        Encoder encoder = Base64.getEncoder().withoutPadding();
+        // Both the modulus and exponent need to be Base64-URL-encoded in JWKs
+        Encoder encoder = Base64.getUrlEncoder().withoutPadding();
         jwkJson.addProperty("n", encoder.encodeToString(publicKey.getModulus().toByteArray()));
         jwkJson.addProperty("e", encoder.encodeToString(publicKey.getPublicExponent().toByteArray()));
         return jwkJson;
