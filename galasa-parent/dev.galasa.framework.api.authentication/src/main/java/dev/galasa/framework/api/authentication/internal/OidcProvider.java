@@ -21,6 +21,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Optional;
@@ -42,6 +44,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import dev.galasa.framework.api.authentication.internal.beans.JsonWebKey;
+import dev.galasa.framework.api.common.ITimeService;
+import dev.galasa.framework.api.common.SystemTimeService;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 /**
@@ -53,6 +58,13 @@ public class OidcProvider {
 
     private static final GalasaGson gson = new GalasaGson();
 
+    private static final String BEARER_TOKEN_SCOPE = "openid offline_access profile";
+    private static final int JWK_REFRESH_INTERVAL_MINUTES = 10;
+
+    private JsonArray jsonWebKeys;
+    private Instant nextJwkRefresh = Instant.EPOCH;
+    private ITimeService timeService;
+
     private String issuerUrl;
     private String authorizationEndpoint;
     private String tokenEndpoint;
@@ -60,11 +72,10 @@ public class OidcProvider {
 
     private HttpClient httpClient = HttpClient.newHttpClient();
 
-    private static final String BEARER_TOKEN_SCOPE = "openid offline_access profile";
-
-    public OidcProvider(String issuerUrl, HttpClient httpClient) {
+    public OidcProvider(String issuerUrl, HttpClient httpClient, ITimeService timeService) {
         this.issuerUrl = issuerUrl;
         this.httpClient = httpClient;
+        this.timeService = timeService;
 
         this.authorizationEndpoint = issuerUrl + "/auth";
         this.tokenEndpoint = issuerUrl + "/token";
@@ -86,8 +97,8 @@ public class OidcProvider {
         logger.info("JWKs endpoint is: " + this.jwksUri);
     }
 
-    public String getIssuer() {
-        return this.issuerUrl;
+    public OidcProvider(String issuerUrl, HttpClient httpClient) {
+        this(issuerUrl, httpClient, new SystemTimeService());
     }
 
     /**
@@ -192,7 +203,8 @@ public class OidcProvider {
     /**
      * Gets a JSON array of the JSON Web Keys (JWKs) from a GET request to an issuer's /keys endpoint
      */
-    public JsonArray getJsonWebKeysFromIssuer(String issuer) throws IOException, InterruptedException {
+    private JsonArray getJsonWebKeysFromIssuer() throws IOException, InterruptedException {
+        logger.info("Retrieving JSON Web Keys from issuer");
         HttpRequest getRequest = HttpRequest.newBuilder()
             .GET()
             .header("Accept", "application/json")
@@ -203,25 +215,32 @@ public class OidcProvider {
         HttpResponse<String> response = httpClient.send(getRequest, BodyHandlers.ofString());
 
         JsonObject responseBodyJson = gson.fromJson(response.body(), JsonObject.class);
-        if (!responseBodyJson.has("keys")) {
-            logger.error("Error: No JSON Web Keys were found at the '" + issuer + "/keys' endpoint.");
-            return null;
+        JsonArray updatedJwks = new JsonArray();
+        if (responseBodyJson.has("keys")) {
+            logger.info("Successfully retrieved JSON Web Keys from issuer");
+            updatedJwks = responseBodyJson.get("keys").getAsJsonArray();
+        } else {
+            logger.error("Error: No JSON Web Keys were found at the '" + issuerUrl + "/keys' endpoint.");
         }
-        return responseBodyJson.get("keys").getAsJsonArray();
+        return updatedJwks;
     }
 
     /**
      * Gets a JSON Web Key with a given key ID ('kid') from an OpenID connect issuer's /keys endpoint, returned as a JSON object
      */
-    public JsonObject getJsonWebKeyFromIssuerByKeyId(String keyId, String issuer) throws IOException, InterruptedException {
-        JsonArray jsonWebKeys = getJsonWebKeysFromIssuer(issuer);
+    public synchronized JsonWebKey getJsonWebKeyByKeyId(String keyId) throws IOException, InterruptedException {
+        // Check if it is time to refresh the cached JSON web keys
+        if (jsonWebKeys == null || nextJwkRefresh.isBefore(timeService.now())) {
+            logger.info("Refreshing cached JSON Web Keys");
+            refreshJsonWebKeys();
+        }
 
         // Iterate over the JSON array of JWKs, finding the one that matches the given key ID
-        JsonObject matchingKey = null;
-        for (JsonElement key : jsonWebKeys) {
-            JsonObject keyAsJsonObject = key.getAsJsonObject();
-            if (keyAsJsonObject.get("kid").getAsString().equals(keyId)) {
-                matchingKey = keyAsJsonObject;
+        JsonWebKey matchingKey = null;
+        for (JsonElement keyElement : jsonWebKeys) {
+            JsonWebKey key = gson.fromJson(keyElement.toString(), JsonWebKey.class);
+            if (key.getKeyId().equals(keyId)) {
+                matchingKey = key;
                 break;
             }
         }
@@ -235,7 +254,7 @@ public class OidcProvider {
         try {
 
             DecodedJWT decodedJwt = JWT.decode(jwt);
-            RSAPublicKey publicKey = getRSAPublicKeyFromIssuer(decodedJwt.getKeyId(), issuerUrl);
+            RSAPublicKey publicKey = getRSAPublicKeyFromIssuer(decodedJwt.getKeyId());
             Algorithm algorithm = Algorithm.RSA256(publicKey, null);
             JWTVerifier verifier = JWT.require(algorithm).withIssuer(issuerUrl).build();
 
@@ -259,20 +278,27 @@ public class OidcProvider {
     //   "n": "abcdefg",
     //   "e": "xyz"
     // }
-    private RSAPublicKey getRSAPublicKeyFromIssuer(String keyId, String issuer)
+    private RSAPublicKey getRSAPublicKeyFromIssuer(String keyId)
             throws IOException, InterruptedException, NoSuchAlgorithmException, InvalidKeySpecException {
 
         // Get the JWK with the given key ID
-        JsonObject matchingJwk = getJsonWebKeyFromIssuerByKeyId(keyId, issuer);
+        JsonWebKey matchingJwk = getJsonWebKeyByKeyId(keyId);
         if (matchingJwk == null) {
-            logger.error("Error: No matching JSON Web Key was found with key ID '" + keyId + "'.");
-            return null;
+            // Force the cached keys to be refreshed and try again
+            nextJwkRefresh = Instant.EPOCH;
+            matchingJwk = getJsonWebKeyByKeyId(keyId);
+
+            // If we still failed to get a matching key, then this must be a bad key ID
+            if (matchingJwk == null) {
+                logger.error("Error: No matching JSON Web Key was found with key ID '" + keyId + "'.");
+                return null;
+            }
         }
 
         // A JWK contains an 'n' field to represent the key's modulus, and an 'e' field to represent the key's exponent, both are Base64URL-encoded
         Decoder decoder = Base64.getUrlDecoder();
-        BigInteger modulus = new BigInteger(1, decoder.decode(matchingJwk.get("n").getAsString()));
-        BigInteger exponent = new BigInteger(1, decoder.decode(matchingJwk.get("e").getAsString()));
+        BigInteger modulus = new BigInteger(1, decoder.decode(matchingJwk.getRsaModulus()));
+        BigInteger exponent = new BigInteger(1, decoder.decode(matchingJwk.getRsaExponent()));
 
         // Build a public key from the JWK that was matched
         RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
@@ -316,5 +342,16 @@ public class OidcProvider {
     private HttpResponse<String> sendGetRequest(URI uri) throws IOException, InterruptedException {
         HttpRequest getRequest = HttpRequest.newBuilder().GET().uri(uri).build();
         return httpClient.send(getRequest, BodyHandlers.ofString());
+    }
+
+
+    /**
+     * Refreshes the cached JSON Web Keys used to verify the signature of JWTs
+     */
+    private void refreshJsonWebKeys() throws IOException, InterruptedException {
+        jsonWebKeys = getJsonWebKeysFromIssuer();
+
+        // Update the next refresh time by the refresh interval
+        nextJwkRefresh = Instant.now().plus(JWK_REFRESH_INTERVAL_MINUTES, ChronoUnit.MINUTES);
     }
 }

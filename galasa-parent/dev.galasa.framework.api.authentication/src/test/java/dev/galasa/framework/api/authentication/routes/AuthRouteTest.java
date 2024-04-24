@@ -311,7 +311,6 @@ public class AuthRouteTest extends BaseServletTest {
 
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.getConnectorRedirectUrl(eq(clientId), any(), any())).thenReturn(redirectLocation);
-        when(mockOidcProvider.getIssuer()).thenReturn("http://dummy.issuer");
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();
@@ -346,10 +345,8 @@ public class AuthRouteTest extends BaseServletTest {
         BiPredicate<String, String> defaultFilter = (a, b) -> true;
         HttpResponse<String> mockResponse = new MockHttpResponse<String>("", HttpHeaders.of(headers, defaultFilter));
 
-        String mockIssuerUrl = "http://dummy.issuer";
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.sendAuthorizationGet(any(), any(), any())).thenReturn(mockResponse);
-        when(mockOidcProvider.getIssuer()).thenReturn(mockIssuerUrl);
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();
