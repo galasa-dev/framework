@@ -251,21 +251,23 @@ public class OidcProvider {
      * Checks if a given JWT is valid or not
      */
     public boolean isJwtValid(String jwt) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException {
+        boolean isValid = false;
         try {
-
             DecodedJWT decodedJwt = JWT.decode(jwt);
             RSAPublicKey publicKey = getRSAPublicKeyFromIssuer(decodedJwt.getKeyId());
-            Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-            JWTVerifier verifier = JWT.require(algorithm).withIssuer(issuerUrl).build();
+            if (publicKey != null) {
+                Algorithm algorithm = Algorithm.RSA256(publicKey, null);
+                JWTVerifier verifier = JWT.require(algorithm).withIssuer(issuerUrl).build();
 
-            verifier.verify(jwt);
-            return (decodedJwt != null);
+                decodedJwt = verifier.verify(jwt);
+                isValid = (decodedJwt != null);
+            }
 
         } catch (JWTVerificationException e) {
             // The JWT is not valid
             logger.info("Invalid JWT '" + jwt + "'. Reason: " + e.getMessage());
-            return false;
         }
+        return isValid;
     }
 
     // Constructs an RSA public key from a JSON Web Key (JWK) that contains the provided key ID
