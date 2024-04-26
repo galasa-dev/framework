@@ -82,40 +82,10 @@ publishing {
                 }
                 developers {
                     developer {
-                        name = 'Michael Baylis'
-                        email = 'Michael.Baylis@uk.ibm.com'
-                        organization = 'IBM'
-                        organizationUrl = 'https://www.ibm.com'
-                    }
-                    developer {
-                        name = 'William Yates'
-                        email = 'wyates@uk.ibm.com'
-                        organization = 'IBM'
-                        organizationUrl = 'https://www.ibm.com'
-                    }
-                    developer {
-                        name = 'David Roberts'
-                        email = 'david.roberts@uk.ibm.com'
-                        organization = 'IBM'
-                        organizationUrl = 'https://www.ibm.com'
-                    }
-                    developer {
-                        name = 'James Davies'
-                        email = 'james.davies@ibm.com'
-                        organization = 'IBM'
-                        organizationUrl = 'https://www.ibm.com'
-                    }
-                    developer {
-                        name = 'Kees Jansen'
-                        email = 'kees.jansen@ibm.com'
-                        organization = 'IBM'
-                        organizationUrl = 'https://www.ibm.com'
-                    }
-                    developer {
-                        name = 'Jade Carino'
-                        email = 'jade.carino@ibm.com'
-                        organization = 'IBM'
-                        organizationUrl = 'https://www.ibm.com'
+                        name = 'Galasa Contributors'
+                        email = 'galasadelivery@ibm.com'
+                        organization = 'Linux Foundation'
+                        organizationUrl = 'https://github.com/galasa-dev'
                     }
                 }
                 scm {
