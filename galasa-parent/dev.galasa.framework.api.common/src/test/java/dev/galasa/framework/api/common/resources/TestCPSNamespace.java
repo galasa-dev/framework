@@ -22,7 +22,7 @@ public class TestCPSNamespace {
         //Given...
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
         //When...
         CPSNamespace namespace = new CPSNamespace(expectedName, Visibility.NORMAL, mockFramework);
@@ -40,7 +40,7 @@ public class TestCPSNamespace {
         //Given...
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
         //When...
         CPSNamespace namespace = new CPSNamespace(expectedName, Visibility.NORMAL, mockFramework);
@@ -58,9 +58,9 @@ public class TestCPSNamespace {
         //Given...
         String expectedName = "secure";
         String expectedUrl = "/secure/properties";
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
-    
+
         //When...
         CPSNamespace namespace = new CPSNamespace(expectedName, Visibility.SECURE, mockFramework);
         //Then...
@@ -77,7 +77,7 @@ public class TestCPSNamespace {
         //Given...
         String expectedName = "secure";
         String expectedUrl = "/secure/properties";
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
         //When...
         CPSNamespace namespace = new CPSNamespace(expectedName, Visibility.SECURE, mockFramework);
@@ -92,7 +92,7 @@ public class TestCPSNamespace {
 
     @Test
     public void TestSecureNamespaceSaysItsSecure() throws Exception {
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
         CPSNamespace namespace = new CPSNamespace("secure", Visibility.SECURE, mockFramework);
         assertThat(namespace.isSecure()).isTrue();
@@ -101,7 +101,7 @@ public class TestCPSNamespace {
 
     @Test
     public void TestSecureNamespaceSaysItsNotHidden() throws Exception {
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
         CPSNamespace namespace = new CPSNamespace("secure", Visibility.SECURE, mockFramework);
         assertThat(namespace.isHidden()).isFalse();
@@ -109,7 +109,7 @@ public class TestCPSNamespace {
 
     @Test
     public void TestDssNamespaceSaysItsHidden() throws Exception {
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
         CPSNamespace namespace = new CPSNamespace("dss", Visibility.HIDDEN, mockFramework);
         assertThat(namespace.isHidden()).isTrue();
@@ -117,7 +117,7 @@ public class TestCPSNamespace {
 
     @Test
     public void TestDssNamespaceSaysItsNotSecure() throws Exception {
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
         CPSNamespace namespace = new CPSNamespace("dss", Visibility.HIDDEN, mockFramework);
         assertThat(namespace.isSecure()).isFalse();
@@ -126,7 +126,7 @@ public class TestCPSNamespace {
     @Test
     public void TestNamespaceGivesPropertiesFromCPSServiceNormalNamespaceReturnsValue() throws Exception {
         //Given...
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService("myNamespace");
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService("myNamespace");
         String propertyName = "myNamespace.my.property.a";
         String propertyValue = "myValue";
         mockCPS.setProperty(propertyName, propertyValue);
@@ -145,7 +145,7 @@ public class TestCPSNamespace {
     @Test
     public void TestNamespaceGivesPropertyFromCPSServiceNormalNamespaceReturnsValue() throws Exception {
         //Given...
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService("myNamespace");
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService("myNamespace");
         String fullPropertyName = "myNamespace.my.property.a";
         String propertyName = "my.property.a";
         String propertyValue = "myValue";
@@ -167,7 +167,7 @@ public class TestCPSNamespace {
     @Test
     public void TestNamespaceGivesPropertiesFromCPSServiceSecureNamespaceReturnsRedactedValue() throws Exception {
         //Given...
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
         String propertyName = "myNamespace.my.property.a";
         String propertyValue = "myValue";
@@ -187,7 +187,7 @@ public class TestCPSNamespace {
     @Test
     public void TestNamespaceGivesPropertiesFromCPSServiceSecureNamespaceReturnsNull() throws Exception {
         //Given...
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         String propertyName = "myNamespace.my.property.a";
         String propertyValue = "myValue";
         mockCPS.setProperty(propertyName, propertyValue);

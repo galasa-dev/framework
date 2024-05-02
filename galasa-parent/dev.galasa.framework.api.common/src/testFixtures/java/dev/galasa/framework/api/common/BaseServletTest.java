@@ -57,12 +57,25 @@ public class BaseServletTest {
 
             for (JsonElement element : jsonArray) {
                 JsonObject jsonObject = element.getAsJsonObject();
-                if (jsonObject.get(entry.getKey()).toString().equals(entry.getValue())) {
+                if (jsonObject.get(entry.getKey()).getAsString().equals(entry.getValue())) {
                     fieldMatches = true;
                 }
             }
             assertThat(fieldMatches).isTrue();
         }
+    }
+
+    protected String getJsonArrayAsStringFromJson(String jsonString, String jsonArrayKey) throws Exception {
+        JsonElement jsonElement = JsonParser.parseString(jsonString);
+        assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
+
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        assertThat(jsonObject.has(jsonArrayKey)).isTrue();
+
+        JsonArray jsonArray = jsonObject.get(jsonArrayKey).getAsJsonArray();
+        assertThat(jsonArray).isNotNull().as("Json parsed is not a json array.");
+
+        return jsonArray.toString();
     }
 
     protected void setRequiredEnvironmentVariables(MockEnvironment mockEnv) {

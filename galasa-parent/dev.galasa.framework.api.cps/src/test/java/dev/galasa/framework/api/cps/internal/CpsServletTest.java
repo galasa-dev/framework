@@ -15,7 +15,7 @@ import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
+import dev.galasa.framework.api.common.mocks.MockConfigurationPropertyStoreService;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -45,12 +45,12 @@ public class CpsServletTest extends BaseServletTest {
 	protected void setServlet(String namespace){
 		this.servlet = new MockCpsServlet();
 		if (namespace != null){
-			IConfigurationPropertyStoreService cpsstore = new MockIConfigurationPropertyStoreService(namespace);
+            IConfigurationPropertyStoreService cpsstore = new MockConfigurationPropertyStoreService(namespace);
 			IFramework framework = new MockFramework(cpsstore);
 			this.servlet.setFramework(framework);
 		}
 	}
-	
+
 	protected void setServlet(String path,String namespace, Map<String, String[]> parameterMap){
 		setServlet(namespace);
 		ServletOutputStream outStream = new MockServletOutputStream();
@@ -101,8 +101,8 @@ public class CpsServletTest extends BaseServletTest {
 			String expected = element.toString();
             jsonProperties.add(gson.fromJson(expected, GalasaProperty.class));
 		}
-		
-        // Go through the list of expected Galasa Properties and 
+
+        // Go through the list of expected Galasa Properties and
 		// json properties (which have been converted into Galasa Properties)
 		// and check if any of the elements contain a matching key-value entry.
         for (GalasaProperty property : expectedProperties) {
@@ -149,7 +149,7 @@ public class CpsServletTest extends BaseServletTest {
 			// Key Value namesapce.propertyname value value
 			String[] splitName = entry.getKey().split("[.]", 2);
 			results.add(generateProperty(splitName[0], splitName[1],entry.getValue(),"galasa-dev/v1alpha1"));
-		} 
+        }
         return gson.toJson(results);
     }
 }

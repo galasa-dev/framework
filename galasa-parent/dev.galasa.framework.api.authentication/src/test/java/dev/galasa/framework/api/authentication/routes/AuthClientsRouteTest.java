@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import javax.servlet.ServletOutputStream;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.gson.JsonObject;
@@ -26,12 +27,19 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 public class AuthClientsRouteTest extends BaseServletTest {
 
     private static final GalasaGson gson = new GalasaGson();
+    private MockOidcProvider mockOidcProvider;
+    private MockEnvironment mockEnv;
+
+    @Before
+    public void setUp() {
+        mockOidcProvider = new MockOidcProvider();
+        mockEnv = new MockEnvironment();
+        setRequiredEnvironmentVariables(mockEnv);
+    }
 
     @Test
     public void testAuthClientsPostRequestWithNoCreatedClientReturnsError() throws Exception {
         // Given...
-        MockOidcProvider mockOidcProvider = new MockOidcProvider();
-        MockEnvironment mockEnv = new MockEnvironment();
         setRequiredEnvironmentVariables(mockEnv);
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer.url");
@@ -60,10 +68,6 @@ public class AuthClientsRouteTest extends BaseServletTest {
     @Test
     public void testAuthClientsPostRequestReturnsClient() throws Exception {
         // Given...
-        MockOidcProvider mockOidcProvider = new MockOidcProvider();
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
         String clientId = "my-client-id";
         String clientSecret = "my-client-secret";
         String redirectUri = "http://my.app/callback";

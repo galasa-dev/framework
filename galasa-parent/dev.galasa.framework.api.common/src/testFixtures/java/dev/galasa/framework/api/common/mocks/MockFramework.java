@@ -19,6 +19,7 @@ import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
+import dev.galasa.framework.spi.auth.IUserStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 
@@ -30,7 +31,16 @@ import javax.validation.constraints.NotNull;
 public class MockFramework implements IFramework {
     IResultArchiveStore archiveStore;
     IFrameworkRuns frameworkRuns;
-    MockIConfigurationPropertyStoreService cpsService = new MockIConfigurationPropertyStoreService("framework");
+    MockConfigurationPropertyStoreService cpsService = new MockConfigurationPropertyStoreService("framework");
+    IUserStoreService userStoreService;
+
+    public MockFramework() {
+        // Do nothing...
+    }
+
+    public MockFramework(IUserStoreService userStoreService) {
+        this.userStoreService = userStoreService;
+    }
 
     public MockFramework(IResultArchiveStore archiveStore) {
         this.archiveStore = archiveStore;
@@ -46,7 +56,31 @@ public class MockFramework implements IFramework {
     }
 
     public MockFramework(IConfigurationPropertyStoreService cpsService){
-        this.cpsService = (MockIConfigurationPropertyStoreService) cpsService;
+        this.cpsService = (MockConfigurationPropertyStoreService) cpsService;
+    }
+
+    @Override
+    public @NotNull IUserStoreService getUserStoreService() {
+        return this.userStoreService;
+    }
+
+    @Override
+    public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
+            throws ConfigurationPropertyStoreException {
+            if(this.cpsService.namespaceInput.equalsIgnoreCase("error")){
+                throw new ConfigurationPropertyStoreException();
+            }
+       return this.cpsService;
+    }
+
+    @Override
+    public @NotNull IResultArchiveStore getResultArchiveStore() {
+        return archiveStore;
+    }
+
+    @Override
+    public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
+        return this.frameworkRuns;
     }
 
     @Override
@@ -60,15 +94,6 @@ public class MockFramework implements IFramework {
     }
 
     @Override
-    public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
-            throws ConfigurationPropertyStoreException {
-            if(this.cpsService.namespaceInput.equalsIgnoreCase("error")){
-                throw new ConfigurationPropertyStoreException();
-            }
-       return this.cpsService;
-    }
-
-    @Override
     public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
             throws DynamicStatusStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'getDynamicStatusStoreService'");
@@ -77,11 +102,6 @@ public class MockFramework implements IFramework {
     @Override
     public @NotNull ICertificateStoreService getCertificateStoreService() {
         throw new UnsupportedOperationException("Unimplemented method 'getCertificateStoreService'");
-    }
-
-    @Override
-    public @NotNull IResultArchiveStore getResultArchiveStore() {
-        return archiveStore;
     }
 
     @Override
@@ -110,11 +130,6 @@ public class MockFramework implements IFramework {
     }
 
     @Override
-    public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
-        return this.frameworkRuns;
-    }
-
-    @Override
     public IRun getTestRun() {
         throw new UnsupportedOperationException("Unimplemented method 'getTestRun'");
     }
@@ -133,5 +148,4 @@ public class MockFramework implements IFramework {
     public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'getSharedEnvironmentRunType'");
     }
-    
 }

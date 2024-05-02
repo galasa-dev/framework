@@ -24,7 +24,7 @@ public class TestGalasaNamespace {
         //Given...
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
         CPSNamespace cpsNamespace = new CPSNamespace(expectedName, Visibility.NORMAL, mockFramework);
         //When...
@@ -61,7 +61,7 @@ public class TestGalasaNamespace {
         //Given...
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";
-        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService();
         MockFramework mockFramework = new MockFramework(mockCPS);
         CPSNamespace cpsNamespace = new CPSNamespace(expectedName, Visibility.SECURE, mockFramework);
         //When...
@@ -92,5 +92,5 @@ public class TestGalasaNamespace {
         assertThat(namespace.getUrl()).isEqualTo(expectedUrl);
         assertThat(namespace.getVisibility()).isEqualTo(Visibility.SECURE);
     }
-    
+
 }
