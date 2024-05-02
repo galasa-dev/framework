@@ -14,6 +14,10 @@ import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.auth.IUserStore;
+import dev.galasa.framework.spi.auth.IUserStoreService;
+import dev.galasa.framework.spi.auth.UserStoreException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -23,6 +27,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import dev.galasa.framework.internal.auth.FrameworkUserStoreService;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
@@ -48,6 +53,7 @@ public class Framework implements IFramework {
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;
+    private IUserStore                         userStore;
 
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
@@ -127,7 +133,7 @@ public class Framework implements IFramework {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * dev.galasa.framework.spi.IFramework#getDynamicStatusStore(java.lang.String)
      */
@@ -168,7 +174,7 @@ public class Framework implements IFramework {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see dev.galasa.framework.spi.IFramework#getResultArchiveStore()
      */
     @Override
@@ -182,7 +188,7 @@ public class Framework implements IFramework {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see dev.galasa.framework.spi.IFramework#getResourcePoolingService()
      */
     @Override
@@ -192,7 +198,7 @@ public class Framework implements IFramework {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see dev.galasa.framework.spi.IFramework#getConfidentialTextService()
      */
     @Override
@@ -234,6 +240,14 @@ public class Framework implements IFramework {
         }
 
         this.dssStore = dssStore;
+    }
+
+    public void setUserStore(@NotNull IUserStore userStore) throws UserStoreException {
+        if (this.userStore != null) {
+            throw new UserStoreException("Invalid second registration of the User Store Service detected");
+        }
+
+        this.userStore = userStore;
     }
 
     /**
@@ -305,7 +319,7 @@ public class Framework implements IFramework {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see dev.galasa.framework.spi.IFramework#getTestRunName()
      */
     @Override
@@ -315,7 +329,7 @@ public class Framework implements IFramework {
 
     /**
      * Set the run name if it is a test run
-     * 
+     *
      * @param runName The run name
      * @throws FrameworkException
      */
@@ -472,7 +486,7 @@ public class Framework implements IFramework {
         if (sePhase == null) {
             return null;
         }
-        
+
         switch(sePhase) {
             case "BUILD":
                 return SharedEnvironmentRunType.BUILD;
@@ -488,4 +502,8 @@ public class Framework implements IFramework {
 		return null;
 	}
 
+    @Override
+    public @NotNull IUserStoreService getUserStoreService() {
+        return new FrameworkUserStoreService(userStore);
+    }
 }

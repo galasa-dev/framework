@@ -12,42 +12,21 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
-import java.util.Properties;
-import java.util.Random;
-
-import javax.validation.constraints.NotNull;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import dev.galasa.framework.internal.dss.FpfDynamicStatusStore;
-import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
-import dev.galasa.framework.spi.Api;
-import dev.galasa.framework.spi.CertificateStoreException;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
-import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.ICertificateStoreService;
-import dev.galasa.framework.spi.IConfidentialTextService;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IFrameworkRuns;
-import dev.galasa.framework.spi.IResourcePoolingService;
-import dev.galasa.framework.spi.IResultArchiveStore;
-import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.SharedEnvironmentRunType;
-import dev.galasa.framework.spi.creds.ICredentialsService;
 
 /**
  * <p>
  * This test class checks the behaviour of registering a local DSS using the FPF
  * class in functional
  * </p>
- * 
+ *
  * @author Bruce Abbott
  */
 
@@ -61,7 +40,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
     public void setup() throws IOException, DynamicStatusStoreException {
         this.testFile = File.createTempFile("galasafpf_", ".properties");
         fpfDss = new FpfDynamicStatusStore(testFile.toURI());
-        fDss = new FrameworkDynamicStatusStoreService(new Framework(), fpfDss, "temp");
+        fDss = new FrameworkDynamicStatusStoreService(new MockFramework(), fpfDss, "temp");
     }
 
     @After
@@ -75,7 +54,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * <p>
      * This test checks for no exceptions when putting a key/value pair into the DSS
      * </p>
-     * 
+     *
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -90,7 +69,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * This test checks for no exceptions when putting a map of multiple key/value
      * pairs into the DSS
      * </p>
-     * 
+     *
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -108,7 +87,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * This test checks the returned boolean from attempting a swap which has
      * already occured. Expected False.
      * </p>
-     * 
+     *
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -122,7 +101,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * <p>
      * This test checks the returned boolean from attempting a swap. Expected True.
      * </p>
-     * 
+     *
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -138,7 +117,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * multiple key/value pairs from a Map) which has already occured. Expected
      * False.
      * </p>
-     * 
+     *
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -157,7 +136,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * This test checks the returned boolean from attempting a swap and put of a Map
      * of key/value pairs. Expected True.
      * </p>
-     * 
+     *
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -175,7 +154,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * <p>
      * This test checks that a value can be retrieved.
      * </p>
-     * 
+     *
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -190,7 +169,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * This test checks if all key/value pairs with a common prefix can be
      * retrieved.
      * </p>
-     * 
+     *
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -208,7 +187,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * <p>
      * This test checks if a key/value pair can be deleted.
      * </p>
-     * 
+     *
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -223,7 +202,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * <p>
      * This test checks if all key/value pairs with a common prefix can be deleted.
      * </p>
-     * 
+     *
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -235,91 +214,4 @@ public class FrameworkDynamicStatusStoreServiceTest {
         assertEquals("Key/value pairs not deleted successfully", new HashMap<String, String>(),
                 fDss.getPrefix("prefix"));
     }
-
-    /**
-     * <p>
-     * This is a private class used to implement the IFramework for testing
-     * purposes.
-     * </p>
-     */
-    private class Framework implements IFramework {
-        public IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
-                throws ConfigurationPropertyStoreException {
-            return null;
-        }
-
-        public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
-                throws DynamicStatusStoreException {
-            return null;
-        }
-
-        public IResultArchiveStore getResultArchiveStore() {
-            return null;
-        }
-
-        public IResourcePoolingService getResourcePoolingService() {
-            return null;
-        }
-
-        @Override
-        public @NotNull IConfidentialTextService getConfidentialTextService() {
-            return null;
-        }
-
-        @Override
-        public String getTestRunName() {
-            return null;
-        }
-
-        @Override
-        public ICredentialsService getCredentialsService() {
-            return null;
-        }
-
-        @Override
-        public Random getRandom() {
-            return null;
-        }
-
-        @Override
-        public IRun getTestRun() {
-            return null;
-        }
-
-        @Override
-        public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
-            return null;
-        }
-
-        @Override
-        public void setFrameworkProperties(Properties overrideProperties) {
-        }
-
-        @Override
-        public boolean isInitialised() {
-            return false;
-        }
-
-        @Override
-        public Properties getRecordProperties() {
-            return null;
-        }
-
-        @Override
-        public URL getApiUrl(@NotNull Api api) throws FrameworkException {
-            return null;
-        }
-        
-
-        @Override
-        public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
-            return null;
-        }
-
-		@Override
-		public @NotNull ICertificateStoreService getCertificateStoreService() {
-			return null;
-		}
-    }
-
 }

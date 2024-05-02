@@ -30,11 +30,12 @@ import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
+import dev.galasa.framework.spi.auth.IUserStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 
 public class TestHarnessFramework implements IFramework {
-    
+
     public InMemoryCps cpsStore = new InMemoryCps();
     public InMemoryDss dssStore = new InMemoryDss();
     public InMemoryCreds credsStore = new InMemoryCreds();
@@ -42,11 +43,11 @@ public class TestHarnessFramework implements IFramework {
     public Properties record = new Properties();
     public FrameworkResourcePoolingService rps = new FrameworkResourcePoolingService();
     public FrameworkConfidentialTextService cts = new FrameworkConfidentialTextService();
-    
+
     public FrameworkRuns frameworkRuns;
-    
+
     private String runName;
-    public  IRun run; 
+    public  IRun run;
 
     public TestHarnessFramework() throws FrameworkException {
         this.frameworkRuns = new FrameworkRuns(this);
@@ -98,7 +99,7 @@ public class TestHarnessFramework implements IFramework {
     public String getTestRunName() {
         return this.runName;
     }
-    
+
     public void setTestRunName(@NotNull String runName) throws DynamicStatusStoreException {
         this.runName = runName;
         this.run     = this.frameworkRuns.getRun(runName);
@@ -138,5 +139,10 @@ public class TestHarnessFramework implements IFramework {
 	public @NotNull ICertificateStoreService getCertificateStoreService() {
 		throw new Unavailable();// To be written when someone needs it
 	}
+
+    @Override
+    public @NotNull IUserStoreService getUserStoreService() {
+        throw new Unavailable();
+    }
 
 }
