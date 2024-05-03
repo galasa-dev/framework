@@ -38,6 +38,8 @@ public interface IFrameworkInitialisation {
 
     URI getCredentialsStoreUri();
 
+    URI getUserStoreUri();
+
     /**
      * Retrieves a list of Result Archive URIs that need to be initialised
      *

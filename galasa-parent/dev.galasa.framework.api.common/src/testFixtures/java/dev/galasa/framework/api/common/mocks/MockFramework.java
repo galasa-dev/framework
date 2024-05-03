@@ -19,6 +19,7 @@ import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
+import dev.galasa.framework.spi.auth.IUserStore;
 import dev.galasa.framework.spi.auth.IUserStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
@@ -147,5 +148,10 @@ public class MockFramework implements IFramework {
     @Override
     public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'getSharedEnvironmentRunType'");
+    }
+
+    @Override
+    public @NotNull IUserStore getUserStore() {
+        throw new UnsupportedOperationException("Unimplemented method 'getUserStore'");
     }
 }

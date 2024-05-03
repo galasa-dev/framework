@@ -312,6 +312,17 @@ public class Framework implements IFramework {
         return this.credsStore;
     }
 
+
+    @Override
+    public IUserStore getUserStore() {
+        return this.userStore;
+    }
+
+    @Override
+    public IUserStoreService getUserStoreService() {
+        return new FrameworkUserStoreService(userStore);
+    }
+
     @Override
     public Random getRandom() {
         return this.random;
@@ -501,9 +512,4 @@ public class Framework implements IFramework {
 	public @NotNull ICertificateStoreService getCertificateStoreService() {
 		return null;
 	}
-
-    @Override
-    public @NotNull IUserStoreService getUserStoreService() {
-        return new FrameworkUserStoreService(userStore);
-    }
 }

@@ -22,7 +22,11 @@ import dev.galasa.framework.mocks.MockLog;
 import dev.galasa.framework.mocks.MockRASRegistration;
 import dev.galasa.framework.mocks.MockRASStoreService;
 import dev.galasa.framework.mocks.MockServiceReference;
+import dev.galasa.framework.mocks.MockUserStore;
+import dev.galasa.framework.mocks.MockUserStoreRegistration;
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.auth.IUserStore;
+import dev.galasa.framework.spi.auth.IUserStoreRegistration;
 import dev.galasa.framework.spi.creds.ICredentialsStoreRegistration;
 
 import org.apache.commons.logging.Log;
@@ -79,10 +83,10 @@ public class TestFrameworkInitialisation {
         bootstrapProperties.setProperty("framework.galasa.home","/myuser/home");
         MockEnvironment env = new MockEnvironment();
         FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrapProperties, env);
-        
+
 
         List<URI> rasUriList = frameworkInit.getResultArchiveStoreUris();
-        
+
         assertThat(rasUriList).hasSize(1);
         assertThat(rasUriList.get(0).getPath()).isEqualTo("/myuser/home/ras");
     }
@@ -115,7 +119,7 @@ public class TestFrameworkInitialisation {
         Map<String,String> cpsProperties = new HashMap<String,String>();
 
         cpsProperties.put("framework.run.testbundleclass","myTestBundle/myTestClass");
-        
+
         // framework.run.name sets the run-name explicitly.
         // cpsProperties.put("framework.run.name","myRunName");
 
@@ -131,10 +135,12 @@ public class TestFrameworkInitialisation {
         MockCredentialsStore mockCredentialsStore = addMockCredentialsStoreToMockServiceRegistry(services, bundle);
         MockConfidentialTextStore mockConfidentialTextStore = addMockConfidentialTextServiceToMockServiceRegistry(services, bundle);
 
+        addMockUserStoreToMockServiceRegistry(services, bundle);
+
         // When...
-        FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation( 
-            bootstrapProperties,  
-            overrideProperties, 
+        FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation(
+            bootstrapProperties,
+            overrideProperties,
             isTestrun,
             logger,
             bundleContext,
@@ -174,7 +180,7 @@ public class TestFrameworkInitialisation {
         Map<String,String> dssProps = new HashMap<String,String>();
         MockDSSStore mockDSSStore = new MockDSSStore(dssProps);
         MockDSSRegistration mockDSSRegistration = new MockDSSRegistration(mockDSSStore);
-        MockServiceReference<IDynamicStatusStoreRegistration> mockDSSRef = 
+        MockServiceReference<IDynamicStatusStoreRegistration> mockDSSRef =
             new MockServiceReference<IDynamicStatusStoreRegistration>(mockDSSRegistration, bundle );
         services.put(IDynamicStatusStoreRegistration.class.getName(),mockDSSRef);
         return mockDSSStore;
@@ -184,7 +190,7 @@ public class TestFrameworkInitialisation {
         Map<String,String> rasProps = new HashMap<String,String>();
         MockRASStoreService mockRASStoreService = new MockRASStoreService(rasProps);
         MockRASRegistration mockRASRegistration = new MockRASRegistration(mockRASStoreService);
-        MockServiceReference<IResultArchiveStoreRegistration> mockRASRef = 
+        MockServiceReference<IResultArchiveStoreRegistration> mockRASRef =
             new MockServiceReference<IResultArchiveStoreRegistration>(mockRASRegistration, bundle );
         services.put(IResultArchiveStoreRegistration.class.getName(),mockRASRef);
         return mockRASStoreService;
@@ -194,7 +200,7 @@ public class TestFrameworkInitialisation {
         Map<String,ICredentials> credsProps = new HashMap<String,ICredentials>();
         MockCredentialsStore mockCredentialsStore = new MockCredentialsStore(credsProps);
         MockCredentialsStoreRegistration mockCredentialsStoreRegistration = new MockCredentialsStoreRegistration(mockCredentialsStore);
-        MockServiceReference<ICredentialsStoreRegistration> mockCredsRegRef = 
+        MockServiceReference<ICredentialsStoreRegistration> mockCredsRegRef =
             new MockServiceReference<ICredentialsStoreRegistration>(mockCredentialsStoreRegistration, bundle );
         services.put(ICredentialsStoreRegistration.class.getName(),mockCredsRegRef);
         return mockCredentialsStore;
@@ -204,10 +210,17 @@ public class TestFrameworkInitialisation {
         Map<String,String> confidentialTextProps = new HashMap<String,String>();
         MockConfidentialTextStore mockConfidentialTextStore = new MockConfidentialTextStore(confidentialTextProps);
         MockConfidentialTextStoreRegistration mockConfidentialTextStoreRegistration = new MockConfidentialTextStoreRegistration(mockConfidentialTextStore);
-        MockServiceReference<IConfidentialTextServiceRegistration> mockConfidentialTextServiceRegRef = 
+        MockServiceReference<IConfidentialTextServiceRegistration> mockConfidentialTextServiceRegRef =
             new MockServiceReference<IConfidentialTextServiceRegistration>(mockConfidentialTextStoreRegistration, bundle );
         services.put(IConfidentialTextServiceRegistration.class.getName(),mockConfidentialTextServiceRegRef);
         return mockConfidentialTextStore;
+    }
+
+    private void addMockUserStoreToMockServiceRegistry(Map<String,MockServiceReference<?>> services, Bundle bundle) {
+        MockUserStore mockUserStore = new MockUserStore();
+        MockUserStoreRegistration mockUserStoreRegistration = new MockUserStoreRegistration(mockUserStore);
+        MockServiceReference<IUserStoreRegistration> mockUserStoreRef = new MockServiceReference<IUserStoreRegistration>(mockUserStoreRegistration, bundle);
+        services.put(IUserStoreRegistration.class.getName(),mockUserStoreRef);
     }
 
     // When no framework service has been found... should be an error.
@@ -222,20 +235,20 @@ public class TestFrameworkInitialisation {
         MockEnvironment mockEnv = new MockEnvironment();
 
         Map<String,MockServiceReference<?>> services = new HashMap<String,MockServiceReference<?>>();
-        
+
         // Note: The framework service isn't added as a service reference ! This should cause an error.
 
         MockBundleContext bundleContext = new MockBundleContext(services);
-        
+
         MockFileSystem mockFileSystem = new MockFileSystem();
 
         // When...
         try {
-            new FrameworkInitialisation( 
-                bootstrapProperties,  
-                overrideProperties, 
+            new FrameworkInitialisation(
+                bootstrapProperties,
+                overrideProperties,
                 isTestrun,
-                logger, 
+                logger,
                 bundleContext,
                 mockFileSystem,
                 mockEnv);
@@ -272,17 +285,17 @@ public class TestFrameworkInitialisation {
         // Note: The CPS framework service isn't added as a service reference !
 
         MockBundleContext bundleContext = new MockBundleContext(services);
-        
+
         MockFileSystem mockFileSystem = new MockFileSystem();
 
         // When...
         FrameworkInitialisation frameworkInitUnderTest = null;
         try {
-            frameworkInitUnderTest = new FrameworkInitialisation( 
-                bootstrapProperties,  
-                overrideProperties, 
+            frameworkInitUnderTest = new FrameworkInitialisation(
+                bootstrapProperties,
+                overrideProperties,
                 isTestrun,
-                logger, 
+                logger,
                 bundleContext,
                 mockFileSystem,
                 mockEnv);
@@ -341,7 +354,7 @@ public class TestFrameworkInitialisation {
         FrameworkInitialisation frameworkInit = createFrameworkInit();
 
         Log logger = new MockLog();
-        
+
         // A fresh file system...
         MockFileSystem fs = new MockFileSystem();
     //    MockEnvironment mockEnv = new MockEnvironment();
@@ -374,7 +387,7 @@ public class TestFrameworkInitialisation {
         FrameworkInitialisation frameworkInit = createFrameworkInit();
 
         Log logger = new MockLog();
-        
+
         // A fresh file system...
         MockFileSystem fs = new MockFileSystem();
 //        MockEnvironment mockEnv = new MockEnvironment();
@@ -409,7 +422,7 @@ public class TestFrameworkInitialisation {
         FrameworkInitialisation frameworkInit = createFrameworkInit();
 
         Log logger = new MockLog();
-        
+
         // A fresh file system...
         MockFileSystem fs = new MockFileSystem();
 //        MockEnvironment mockEnv = new MockEnvironment();
@@ -510,4 +523,61 @@ public class TestFrameworkInitialisation {
         assertThat(home).isEqualTo("~/.galasa");
     }
 
+    @Test
+    public void testLocateUserStoreDefaultsToNull() throws Exception {
+
+        // Given...
+        Properties bootstrap = new Properties();
+
+        // The framework.user.store property hasn't been set, so there is no user store to use.
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
+
+        Log logger = new MockLog();
+
+        // When...
+        URI uri = frameworkInit.locateUserStore(logger, bootstrap);
+
+        // Then...
+        assertThat(uri).isNull();
+    }
+
+    @Test
+    public void testLocateUserStoreGetsFrameworkUserStoreUri() throws Exception {
+
+        // Given...
+        Properties bootstrap = new Properties();
+
+        URI userStoreUri = URI.create("couchdb:http://my-user-store");
+        // The framework.user.store property hasn't been set, so there is no user store to use.
+        bootstrap.setProperty("framework.user.store", userStoreUri.toString());
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
+
+        Log logger = new MockLog();
+
+        // When...
+        URI uri = frameworkInit.locateUserStore(logger, bootstrap);
+
+        // Then...
+        assertThat(uri).isNotNull();
+        assertThat(uri).isEqualTo(userStoreUri);
+    }
+
+    @Test
+    public void testInitialiseUserStoreSetsFrameworkUserStore() throws Exception {
+
+        // Given...
+        Properties bootstrap = new Properties();
+
+        URI userStoreUri = URI.create("couchdb:http://my-user-store");
+        // The framework.user.store property hasn't been set, so there is no user store to use.
+        bootstrap.setProperty("framework.user.store", userStoreUri.toString());
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
+
+        // When...
+        IUserStore userStore = frameworkInit.getFramework().getUserStore();
+
+        // Then...
+        assertThat(userStore).isNotNull();
+        assertThat(userStore.getClass().getName()).isEqualTo(MockUserStore.class.getName());
+    }
 }

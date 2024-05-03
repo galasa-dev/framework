@@ -15,6 +15,7 @@ import org.apache.commons.logging.*;
 import org.osgi.framework.*;
 import dev.galasa.framework.spi.*;
 import dev.galasa.framework.spi.auth.IUserStore;
+import dev.galasa.framework.spi.auth.IUserStoreRegistration;
 import dev.galasa.framework.spi.auth.UserStoreException;
 import dev.galasa.framework.spi.creds.*;
 
@@ -26,6 +27,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private final URI                                uriConfigurationPropertyStore;
     private final URI                                uriDynamicStatusStore;
     private final URI                                uriCredentialsStore;
+    private final URI                                uriUserStore;
     private final List<URI>                          uriResultArchiveStores;
 
     private final IConfigurationPropertyStoreService cpsFramework;
@@ -203,6 +205,12 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         initialiseConfidentialTextService(logger,bundleContext);
 
+        // Tbe user store is only required for the ecosystem, local runs don't need it
+        this.uriUserStore = locateUserStore(initLogger, overrideProperties);
+        if (this.uriUserStore != null) {
+            initialiseUserStore(initLogger, bundleContext);
+        }
+
         if (framework.isInitialised()) {
             logger.info("Framework initialised");
         } else {
@@ -322,6 +330,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     @Override
     public URI getCredentialsStoreUri() {
         return this.uriCredentialsStore;
+    }
+
+    @Override
+    public URI getUserStoreUri() {
+        return this.uriUserStore;
     }
 
     /*
@@ -492,6 +505,21 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         } catch (final Exception e) {
             throw new FrameworkException("Unable to resolve the Dynamic Status Store URI", e);
         }
+    }
+
+    /**
+     * Find where the user store is located, or return null if one has not been set.
+     */
+    URI locateUserStore(Log logger, Properties overrideProperties) throws URISyntaxException {
+        URI storeUri = null;
+        String propUri = overrideProperties.getProperty("framework.user.store");
+
+        if (propUri != null && !propUri.isEmpty()) {
+            logger.debug("Bootstrap property framework.user.store used to determine User Store location");
+            storeUri = new URI(propUri);
+            logger.debug("User Store is " + storeUri.toString());
+        }
+        return storeUri;
     }
 
     // Find the run name of the test run, if it's not a set property
@@ -769,5 +797,30 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         logger.trace("Selected Confidential Text Service is "
                 + this.framework.getConfidentialTextService().getClass().getName());
 
+    }
+
+    void initialiseUserStore(Log logger, BundleContext bundleContext)
+        throws FrameworkException, InvalidSyntaxException {
+
+        logger.trace("Searching for User Store providers");
+        final ServiceReference<?>[] userStoreServiceReference = bundleContext
+                .getAllServiceReferences(IUserStoreRegistration.class.getName(), null);
+        if ((userStoreServiceReference == null) || (userStoreServiceReference.length == 0)) {
+            throw new FrameworkException("No User Store Services have been found");
+        }
+        for (final ServiceReference<?> userStoreReference : userStoreServiceReference) {
+            final IUserStoreRegistration userStoreRegistration = (IUserStoreRegistration) bundleContext
+                    .getService(userStoreReference);
+            logger.trace("Found User Store Provider " + userStoreRegistration.getClass().getName());
+
+            // The registration code calls back to registerUserStore to set the user
+            // store object in this.framework, so it can be retrieved by the
+            // this.framework.getUserStore() call...
+            userStoreRegistration.initialise(this);
+        }
+        if (this.framework.getUserStore() == null) {
+            throw new FrameworkException("Failed to initialise a User Store, unable to continue");
+        }
+        logger.debug("Selected User Store Service is " + this.framework.getUserStore().getClass().getName());
     }
 }

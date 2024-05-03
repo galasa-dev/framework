@@ -32,6 +32,7 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
     private URI cpsUri;
     private URI dssUri;
     private URI credsUri;
+    private URI userStoreUri;
     private IFramework framework;
 
     public MockFrameworkInitialisation(URI cpsUri) {
@@ -39,10 +40,7 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     public MockFrameworkInitialisation(URI cpsUri, URI dssUri, URI credsUri) {
-        this.cpsUri = cpsUri;
-        this.dssUri = dssUri;
-        this.credsUri = credsUri;
-        this.framework = new MockFramework();
+        this(cpsUri, dssUri, credsUri, new MockFramework());
     }
 
     public MockFrameworkInitialisation(URI cpsUri, URI dssUri, URI credsUri, MockFramework framework) {
@@ -65,6 +63,11 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
     @Override
     public URI getCredentialsStoreUri() {
         return credsUri;
+    }
+
+    @Override
+    public URI getUserStoreUri() {
+        return userStoreUri;
     }
 
     @Override
