@@ -6,6 +6,9 @@
 package dev.galasa.framework.api.authentication.internal.routes;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -46,7 +49,10 @@ public class AuthTokensRoute extends BaseRoute {
 
         logger.info("handleGetRequest() entered");
 
-        List<AuthToken> tokens = framework.getUserStoreService().getTokens();
+        // Retrieve all the tokens and put them in a mutable list before sorting
+        // them based on their creation time
+        List<AuthToken> tokens = new ArrayList<>(framework.getUserStoreService().getTokens());
+        Collections.sort(tokens, Comparator.comparing(AuthToken::getCreationTime));
 
         return getResponseBuilder().buildResponse(response, "application/json", getTokensAsJsonString(tokens), HttpServletResponse.SC_OK);
     }

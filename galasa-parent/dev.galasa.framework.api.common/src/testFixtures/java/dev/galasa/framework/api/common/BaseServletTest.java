@@ -65,7 +65,7 @@ public class BaseServletTest {
         }
     }
 
-    protected String getJsonArrayAsStringFromJson(String jsonString, String jsonArrayKey) throws Exception {
+    protected JsonArray getJsonArrayFromJson(String jsonString, String jsonArrayKey) throws Exception {
         JsonElement jsonElement = JsonParser.parseString(jsonString);
         assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
@@ -75,7 +75,7 @@ public class BaseServletTest {
         JsonArray jsonArray = jsonObject.get(jsonArrayKey).getAsJsonArray();
         assertThat(jsonArray).isNotNull().as("Json parsed is not a json array.");
 
-        return jsonArray.toString();
+        return jsonArray;
     }
 
     protected void setRequiredEnvironmentVariables(MockEnvironment mockEnv) {
