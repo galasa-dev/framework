@@ -5,6 +5,8 @@
  */
 package dev.galasa.framework.api.authentication.internal.routes;
 
+import static dev.galasa.framework.api.common.ServletErrorMessage.GAL5000_GENERIC_API_ERROR;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,13 +22,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import dev.galasa.framework.api.common.BaseRoute;
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.auth.AuthToken;
-
-// import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+import dev.galasa.framework.spi.auth.UserStoreException;
 
 public class AuthTokensRoute extends BaseRoute {
 
@@ -49,10 +52,17 @@ public class AuthTokensRoute extends BaseRoute {
 
         logger.info("handleGetRequest() entered");
 
-        // Retrieve all the tokens and put them in a mutable list before sorting
-        // them based on their creation time
-        List<AuthToken> tokens = new ArrayList<>(framework.getUserStoreService().getTokens());
-        Collections.sort(tokens, Comparator.comparing(AuthToken::getCreationTime));
+        List<AuthToken> tokens = new ArrayList<>();
+        try {
+            // Retrieve all the tokens and put them into a mutable list before sorting
+            // them based on their creation time
+            tokens = new ArrayList<>(framework.getUserStoreService().getTokens());
+            Collections.sort(tokens, Comparator.comparing(AuthToken::getCreationTime));
+
+        } catch (UserStoreException e) {
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+        }
 
         return getResponseBuilder().buildResponse(response, "application/json", getTokensAsJsonString(tokens), HttpServletResponse.SC_OK);
     }
