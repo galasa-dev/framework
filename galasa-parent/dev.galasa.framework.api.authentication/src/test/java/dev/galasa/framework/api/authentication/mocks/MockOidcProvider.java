@@ -48,7 +48,7 @@ public class MockOidcProvider implements IOidcProvider {
     public boolean isJwtValid(String jwt)
             throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException {
         if (throwException) {
-            throw new IOException("simulating an unexpected failure!");
+            throwIOException();
         }
         return isJwtValid;
     }
@@ -57,7 +57,7 @@ public class MockOidcProvider implements IOidcProvider {
     public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpSession session)
             throws IOException, InterruptedException {
         if (throwException) {
-            throw new IOException("simulating an unexpected failure!");
+            throwIOException();
         }
         return redirectUrl;
     }
@@ -66,7 +66,7 @@ public class MockOidcProvider implements IOidcProvider {
     public HttpResponse<String> sendTokenPost(String clientId, String clientSecret, String refreshToken)
             throws IOException, InterruptedException {
         if (throwException) {
-            throw new IOException("simulating an unexpected failure!");
+            throwIOException();
         }
         return mockResponse;
     }
@@ -75,7 +75,7 @@ public class MockOidcProvider implements IOidcProvider {
     public HttpResponse<String> sendTokenPost(String clientId, String clientSecret, String authCode, String redirectUri)
             throws IOException, InterruptedException {
         if (throwException) {
-            throw new IOException("simulating an unexpected failure!");
+            throwIOException();
         }
         return mockResponse;
     }
@@ -84,8 +84,12 @@ public class MockOidcProvider implements IOidcProvider {
     public HttpResponse<String> sendAuthorizationGet(String clientId, String callbackUrl, HttpSession session)
             throws IOException, InterruptedException {
         if (throwException) {
-            throw new IOException("simulating an unexpected failure!");
+            throwIOException();
         }
         return mockResponse;
+    }
+
+    private void throwIOException() throws IOException {
+        throw new IOException("simulating an unexpected failure!");
     }
 }
