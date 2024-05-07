@@ -6,7 +6,6 @@
 package dev.galasa.framework.api.authentication.routes;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 import javax.servlet.ServletOutputStream;
 
@@ -15,9 +14,9 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
-import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
+import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -31,7 +30,7 @@ public class AuthClientsRouteTest extends BaseServletTest {
     @Test
     public void testAuthClientsPostRequestWithNoCreatedClientReturnsError() throws Exception {
         // Given...
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
         MockEnvironment mockEnv = new MockEnvironment();
         setRequiredEnvironmentVariables(mockEnv);
 
@@ -61,7 +60,7 @@ public class AuthClientsRouteTest extends BaseServletTest {
     @Test
     public void testAuthClientsPostRequestReturnsClient() throws Exception {
         // Given...
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
         MockEnvironment mockEnv = new MockEnvironment();
         setRequiredEnvironmentVariables(mockEnv);
 

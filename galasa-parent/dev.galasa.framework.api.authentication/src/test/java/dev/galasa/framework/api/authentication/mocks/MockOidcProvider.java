@@ -16,14 +16,15 @@ public class MockOidcProvider implements IOidcProvider {
     private String redirectUrl;
 
     private boolean isJwtValid = false;
-    private boolean throwIOException = false;
+
+    private boolean throwException = false;
 
     private HttpResponse<String> mockResponse;
 
     public MockOidcProvider() {}
 
     public MockOidcProvider(boolean throwException) {
-        this.throwIOException = throwException;
+        this.throwException = throwException;
     }
 
     public MockOidcProvider(String redirectUrl) {
@@ -34,6 +35,10 @@ public class MockOidcProvider implements IOidcProvider {
         this.mockResponse = mockResponse;
     }
 
+    public void setJwtValid(boolean isJwtValid) {
+        this.isJwtValid = isJwtValid;
+    }
+
     @Override
     public JsonObject getOpenIdConfiguration() throws IOException, InterruptedException {
         return null;
@@ -42,19 +47,25 @@ public class MockOidcProvider implements IOidcProvider {
     @Override
     public boolean isJwtValid(String jwt)
             throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InterruptedException {
+        if (throwException) {
+            throw new IOException("simulating an unexpected failure!");
+        }
         return isJwtValid;
     }
 
     @Override
     public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpSession session)
             throws IOException, InterruptedException {
+        if (throwException) {
+            throw new IOException("simulating an unexpected failure!");
+        }
         return redirectUrl;
     }
 
     @Override
     public HttpResponse<String> sendTokenPost(String clientId, String clientSecret, String refreshToken)
             throws IOException, InterruptedException {
-        if (throwIOException) {
+        if (throwException) {
             throw new IOException("simulating an unexpected failure!");
         }
         return mockResponse;
@@ -63,7 +74,7 @@ public class MockOidcProvider implements IOidcProvider {
     @Override
     public HttpResponse<String> sendTokenPost(String clientId, String clientSecret, String authCode, String redirectUri)
             throws IOException, InterruptedException {
-        if (throwIOException) {
+        if (throwException) {
             throw new IOException("simulating an unexpected failure!");
         }
         return mockResponse;
@@ -72,7 +83,7 @@ public class MockOidcProvider implements IOidcProvider {
     @Override
     public HttpResponse<String> sendAuthorizationGet(String clientId, String callbackUrl, HttpSession session)
             throws IOException, InterruptedException {
-        if (throwIOException) {
+        if (throwException) {
             throw new IOException("simulating an unexpected failure!");
         }
         return mockResponse;

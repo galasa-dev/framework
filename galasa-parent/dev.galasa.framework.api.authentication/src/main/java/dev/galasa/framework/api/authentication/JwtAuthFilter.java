@@ -51,7 +51,7 @@ public class JwtAuthFilter implements Filter {
 
     protected Environment env = new SystemEnvironment();
 
-    protected OidcProvider oidcProvider;
+    protected IOidcProvider oidcProvider;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
