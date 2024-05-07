@@ -236,7 +236,8 @@ public class AuthRouteTest extends BaseServletTest {
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.sendTokenPost(any(), any(), any())).thenThrow(new IOException("simulating an unexpected failure!"));
 
-        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
+        String clientId = "myclient";
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
         MockEnvironment mockEnv = new MockEnvironment();
         setRequiredEnvironmentVariables(mockEnv);
 
@@ -274,7 +275,8 @@ public class AuthRouteTest extends BaseServletTest {
         OidcProvider mockOidcProvider = mock(OidcProvider.class);
         when(mockOidcProvider.sendTokenPost(any(), any(), any())).thenReturn(mockResponse);
 
-        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
+        String clientId = "myclient";
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
         MockEnvironment mockEnv = new MockEnvironment();
         setRequiredEnvironmentVariables(mockEnv);
 

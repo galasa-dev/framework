@@ -5,6 +5,10 @@
  */
 package dev.galasa.framework.api.authentication.internal;
 
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -17,8 +21,11 @@ import com.coreos.dex.api.DexOuterClass.GetClientReq;
 import com.coreos.dex.api.DexOuterClass.GetClientResp;
 import com.coreos.dex.api.DexOuterClass.CreateClientReq.Builder;
 
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.ServletError;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 
 /**
  * A gRPC client class that interacts with Dex's API over gRPC, using the
@@ -65,27 +72,37 @@ public class DexGrpcClient {
     }
 
     /**
-     * Returns a Dex client with a given client ID, or null if no such client exists.
+     * Returns a Dex client with a given client ID.
      *
      * @param clientId the ID of the client to retrieve
+     * @throws InternalServletException if there was an issue retrieving the client
      */
-    public Client getClient(String clientId) {
+    public Client getClient(String clientId) throws InternalServletException {
         logger.info("Retrieving Dex client with ID: " + clientId);
 
         // Build the GetClient request
         com.coreos.dex.api.DexOuterClass.GetClientReq.Builder getClientReqBuilder = GetClientReq.newBuilder();
         getClientReqBuilder.setId(clientId);
 
-        // Send the gRPC call to get the Dex client
-        GetClientReq getClientReq = getClientReqBuilder.build();
-        GetClientResp clientResp = sendGetClientRequest(getClientReq);
-
         Client client = null;
-        if (clientResp.hasClient()) {
-            logger.info("Dex client successfully retrieved");
-            client = clientResp.getClient();
-        } else {
-            logger.error("Failed to get the Dex client with ID: " + clientId);
+        try {
+            // Send the gRPC call to get the Dex client
+            GetClientReq getClientReq = getClientReqBuilder.build();
+            GetClientResp clientResp = sendGetClientRequest(getClientReq);
+
+            if (clientResp.hasClient()) {
+                logger.info("Dex client successfully retrieved");
+                client = clientResp.getClient();
+            } else {
+                // Something went wrong, the gRPC response didn't contain a Dex client
+                ServletError error = new ServletError(GAL5052_FAILED_TO_RETRIEVE_CLIENT);
+                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+        } catch (StatusRuntimeException ex) {
+            // A StatusRuntimeException is thrown if no such client exists with the given ID,
+            // so consider this a bad request
+            ServletError error = new ServletError(GAL5051_INVALID_GALASA_TOKEN_PROVIDED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, ex);
         }
         return client;
     }

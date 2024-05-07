@@ -12,6 +12,7 @@ import org.junit.Test;
 import com.coreos.dex.api.DexOuterClass.Client;
 
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
+import dev.galasa.framework.api.common.InternalServletException;
 
 public class DexGrpcClientTest {
 
@@ -42,17 +43,20 @@ public class DexGrpcClientTest {
     }
 
     @Test
-    public void testGetClientWithEmptyClientResponseReturnsNull() throws Exception {
+    public void testGetClientWithEmptyClientResponseThrowsInternalServletException() throws Exception {
         // Given...
         String clientId = "myclient";
 
         MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer");
 
         // When...
-        Client responseClient = client.getClient(clientId);
+        Throwable thrown = catchThrowable(() -> {
+            client.getClient(clientId);
+        });
 
         // Then...
-        assertThat(responseClient).isNull();
+        assertThat(thrown).isInstanceOf(InternalServletException.class);
+        assertThat(thrown.getMessage()).contains("GAL5052E", "Unable to retrieve client for authentication");
     }
 
     @Test
@@ -66,5 +70,22 @@ public class DexGrpcClientTest {
 
         // Then...
         assertThat(responseClient).isEqualTo(client.getDexClient());
+    }
+
+    @Test
+    public void testGetClientWithInvalidClientIdThrowsInternalServletException() throws Exception {
+        // Given...
+        // Force the mock client to throw a StatusRuntimeException
+        String clientId = "error";
+        MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer", clientId, "secret", "http://callback");
+
+        // When...
+        Throwable thrown = catchThrowable(() -> {
+            client.getClient(clientId);
+        });
+
+        // Then...
+        assertThat(thrown).isInstanceOf(InternalServletException.class);
+        assertThat(thrown.getMessage()).contains("GAL5051E","Invalid GALASA_TOKEN value provided");
     }
 }

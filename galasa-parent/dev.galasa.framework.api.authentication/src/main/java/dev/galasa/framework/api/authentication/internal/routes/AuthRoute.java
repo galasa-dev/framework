@@ -152,7 +152,7 @@ public class AuthRoute extends BaseRoute {
      *                        for the /token endpoint
      */
     private JsonObject sendTokenPost(HttpServletRequest request, TokenPayload requestBodyJson)
-            throws IOException, InterruptedException {
+            throws IOException, InterruptedException, InternalServletException {
         String refreshToken = requestBodyJson.getRefreshToken();
         String clientId = requestBodyJson.getClientId();
         Client dexClient = dexGrpcClient.getClient(clientId);
