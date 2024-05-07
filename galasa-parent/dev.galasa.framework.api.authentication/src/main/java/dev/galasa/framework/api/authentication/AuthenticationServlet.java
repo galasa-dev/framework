@@ -38,7 +38,7 @@ public class AuthenticationServlet extends BaseServlet {
     private Log logger = LogFactory.getLog(getClass());
 
     protected Environment env = new SystemEnvironment();
-    protected OidcProvider oidcProvider;
+    protected IOidcProvider oidcProvider;
     protected DexGrpcClient dexGrpcClient;
 
     @Override
