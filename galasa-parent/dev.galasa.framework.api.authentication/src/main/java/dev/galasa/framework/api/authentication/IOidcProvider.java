@@ -9,6 +9,10 @@ import javax.servlet.http.HttpSession;
 
 import com.google.gson.JsonObject;
 
+/**
+ * An interface that defines the methods used to communicate with an OpenID Connect (OIDC)
+ * provider via standard OpenID Connect REST API endpoints.
+ */
 public interface IOidcProvider {
 
     /**
