@@ -83,8 +83,8 @@ public enum ServletErrorMessage {
     GAL5027_UNSUPPORTED_API_VERSION                   (5027, "E: Error occured. The field 'apiVersion' in the request body is invalid. The value ''{0}'' is not a supported version. Currently the ecosystem accepts the ''{1}'' api version. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
 
     // Auth APIs...
-    GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem and try again."),
-    GAL5052_FAILED_TO_RETRIEVE_CLIENT                 (5052, "E: Unable to retrieve client for authentication. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem and try again.")
+    GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
+    GAL5052_FAILED_TO_RETRIEVE_CLIENT                 (5052, "E: Unable to retrieve client for authentication. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again.")
     ;
 
 

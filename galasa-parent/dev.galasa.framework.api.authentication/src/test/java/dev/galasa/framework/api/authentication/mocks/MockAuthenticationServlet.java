@@ -23,7 +23,7 @@ public class MockAuthenticationServlet extends AuthenticationServlet {
     }
 
     @Override
-    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname) {
+    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname, String externalWebUiUrl) {
         // Do nothing...
     }
 }

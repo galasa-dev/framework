@@ -37,8 +37,11 @@ public class DexGrpcClient {
 
     private DexBlockingStub blockingStub;
 
-    public DexGrpcClient(String issuerHostname) {
+    private String externalWebUiUrl;
+
+    public DexGrpcClient(String issuerHostname, String externalWebUiUrl) {
         initialiseBlockingStub(issuerHostname);
+        this.externalWebUiUrl = externalWebUiUrl;
     }
 
     /**
@@ -95,13 +98,13 @@ public class DexGrpcClient {
                 client = clientResp.getClient();
             } else {
                 // Something went wrong, the gRPC response didn't contain a Dex client
-                ServletError error = new ServletError(GAL5052_FAILED_TO_RETRIEVE_CLIENT);
+                ServletError error = new ServletError(GAL5052_FAILED_TO_RETRIEVE_CLIENT, externalWebUiUrl);
                 throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } catch (StatusRuntimeException ex) {
             // A StatusRuntimeException is thrown if no such client exists with the given ID,
             // so consider this a bad request
-            ServletError error = new ServletError(GAL5051_INVALID_GALASA_TOKEN_PROVIDED);
+            ServletError error = new ServletError(GAL5051_INVALID_GALASA_TOKEN_PROVIDED, externalWebUiUrl);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, ex);
         }
         return client;

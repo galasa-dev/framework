@@ -17,12 +17,12 @@ public class MockDexGrpcClient extends DexGrpcClient {
     private Client dexClient;
 
     public MockDexGrpcClient(String issuerHostname, String clientId, String clientSecret, String callbackUrl) {
-        super(issuerHostname);
+        super(issuerHostname, "http://my-ecosystem");
         this.dexClient = createDexClient(clientId, clientSecret, callbackUrl);
     }
 
     public MockDexGrpcClient(String issuerHostname) {
-        super(issuerHostname);
+        super(issuerHostname, "http://my-ecosystem");
     }
 
     // Mock out the creation of the blocking stub
