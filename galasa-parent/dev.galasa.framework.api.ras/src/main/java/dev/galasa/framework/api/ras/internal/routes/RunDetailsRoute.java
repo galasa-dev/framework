@@ -90,10 +90,10 @@ public class RunDetailsRoute extends RunsRoute {
          logger.info("Run reset by external source.");
          responseBody = String.format("The request to reset run %s has been received.", runName);
       } else if (status == RunActionStatus.FINISHED) {
-         cancelRun(runName, result);
          // Update the run's test structure so it shows the run was cancelled and finished.
          updateRunTestStructure(run, Result.cancelled("Run cancelled by external source").getName(),
                                      RunActionStatus.FINISHED.toString());
+         cancelRun(runName, result);
          logger.info("Run cancelled by external source.");
          responseBody = String.format("The request to cancel run %s has been received.", runName);
       } 
@@ -164,7 +164,7 @@ public class RunDetailsRoute extends RunsRoute {
       }
    }
 
-   private void updateRunTestStructure(IRunResult run, String result, String status) throws ResultArchiveStoreException{
+   private void updateRunTestStructure(IRunResult run, String result, String status) throws ResultArchiveStoreException {
       TestStructure newTestStructure = run.getTestStructure();
       newTestStructure.setResult(result);
       newTestStructure.setStatus(status);
