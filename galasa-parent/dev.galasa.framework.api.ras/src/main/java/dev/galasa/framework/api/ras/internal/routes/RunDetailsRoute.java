@@ -29,7 +29,9 @@ import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 /*
@@ -65,16 +67,17 @@ public class RunDetailsRoute extends RunsRoute {
    @Override
    public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest request, HttpServletResponse response) throws DynamicStatusStoreException, FrameworkException, IOException {
       String runId = getRunIdFromPath(pathInfo);
+      IRunResult run = getRunByRunId(runId);
       String runName = getRunNameFromRunId(runId);
 
       checkRequestHasContent(request);
       RunActionJson runAction = getUpdatedRunActionFromRequestBody(request);
       
-      return getResponseBuilder().buildResponse(response, "text/plain", updateRunStatus(runName, runAction), HttpServletResponse.SC_ACCEPTED);
+      return getResponseBuilder().buildResponse(response, "text/plain", updateRunStatus(run, runName, runAction), HttpServletResponse.SC_ACCEPTED);
    } 
 
 
-   private String updateRunStatus(String runName, RunActionJson runAction) throws InternalServletException {
+   private String updateRunStatus(IRunResult run, String runName, RunActionJson runAction) throws InternalServletException, ResultArchiveStoreException {
       String responseBody = "";
       RunActionStatus status = RunActionStatus.getfromString(runAction.getStatus());
       String result = runAction.getResult();
@@ -88,6 +91,9 @@ public class RunDetailsRoute extends RunsRoute {
          responseBody = String.format("The request to reset run %s has been received.", runName);
       } else if (status == RunActionStatus.FINISHED) {
          cancelRun(runName, result);
+         // Update the run's test structure so it shows the run was cancelled and finished.
+         updateRunTestStructure(run, Result.cancelled("Run cancelled by external source").getName(),
+                                     RunActionStatus.FINISHED.toString());
          logger.info("Run cancelled by external source.");
          responseBody = String.format("The request to cancel run %s has been received.", runName);
       } 
@@ -156,6 +162,13 @@ public class RunDetailsRoute extends RunsRoute {
          ServletError error = new ServletError(GAL5050_UNABLE_TO_CANCEL_COMPLETED_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
+   }
+
+   private void updateRunTestStructure(IRunResult run, String result, String status) throws ResultArchiveStoreException{
+      TestStructure newTestStructure = run.getTestStructure();
+      newTestStructure.setResult(result);
+      newTestStructure.setStatus(status);
+      this.framework.getResultArchiveStore().updateTestStructure(newTestStructure);
    }
 
 }

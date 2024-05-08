@@ -16,6 +16,7 @@ public class Result {
     private static final String PASSED      = "Passed";
     private static final String FAILED      = "Failed";
     private static final String ENVFAIL     = "EnvFail";
+    private static final String CANCELLED   = "Cancelled";
 
     private String              name;
     private String              reason;
@@ -27,6 +28,7 @@ public class Result {
     private boolean             failed      = false;
     private boolean             defects     = false;
     private boolean             ignored     = false;
+    private boolean             cancelled   = false;
     private boolean             environment = false;
     private boolean             resources   = false;
     private boolean             fullStop    = false;
@@ -41,6 +43,7 @@ public class Result {
         resultNames.add(PASSED);
         resultNames.add(FAILED);
         resultNames.add(ENVFAIL);
+        resultNames.add(CANCELLED);
         return resultNames;
     }
 
@@ -99,6 +102,16 @@ public class Result {
         return result;
     }
 
+    public static Result cancelled(String reason) {
+        Result result = new Result();
+        result.name = CANCELLED;
+        result.cancelled = true;
+        result.iconUri = "internalicon:cancelled";
+        result.reason = reason;
+
+        return result;
+    }
+
     public static Result custom(String name, 
             boolean passed, 
             boolean failed, 
@@ -145,6 +158,10 @@ public class Result {
 
     public boolean isEnvFail() {
         return this.environment;
+    }
+
+    public boolean isCancelled() {
+        return this.cancelled;
     }
 
     public boolean isFullStop() {
