@@ -84,7 +84,8 @@ public enum ServletErrorMessage {
 
     // Auth APIs...
     GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
-    GAL5052_FAILED_TO_RETRIEVE_CLIENT                 (5052, "E: Unable to retrieve client for authentication. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again.")
+    GAL5052_FAILED_TO_RETRIEVE_CLIENT                 (5052, "E: Unable to retrieve client for authentication. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
+    GAL5053_FAILED_TO_RETRIEVE_TOKENS                 (5053, "E: Error retrieving tokens from user store. Report the problem to your Galasa Ecosystem owner.")
     ;
 
 

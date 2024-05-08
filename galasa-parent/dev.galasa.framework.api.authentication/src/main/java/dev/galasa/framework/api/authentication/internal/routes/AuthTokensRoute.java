@@ -5,7 +5,7 @@
  */
 package dev.galasa.framework.api.authentication.internal.routes;
 
-import static dev.galasa.framework.api.common.ServletErrorMessage.GAL5000_GENERIC_API_ERROR;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class AuthTokensRoute extends BaseRoute {
             Collections.sort(tokens, Comparator.comparing(AuthToken::getCreationTime));
 
         } catch (UserStoreException e) {
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+            ServletError error = new ServletError(GAL5053_FAILED_TO_RETRIEVE_TOKENS);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
 

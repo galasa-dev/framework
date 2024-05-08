@@ -124,6 +124,37 @@ public class AuthTokensRouteTest extends BaseServletTest {
     }
 
     @Test
+    public void testGetAuthTokensWithUserStoreExceptionThrowsInternalServletException() throws Exception {
+        // Given...
+        String tokenId = "id123";
+        String description = "test token";
+        Instant creationTime = Instant.now();
+        User owner = new User("username");
+
+        List<AuthToken> tokens = List.of(
+            new AuthToken(tokenId, description, creationTime, owner)
+        );
+        MockUserStoreService userStoreService = new MockUserStoreService(tokens);
+        userStoreService.setThrowException(true);
+
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, new MockFramework(userStoreService));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", "", "GET");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(500);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+        assertThat(servletResponse.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
+        assertThat(outStream.toString()).contains("GAL5053E", "Error retrieving tokens from user store");
+    }
+
+    @Test
     public void testGetAuthTokensReturnsMultipleTokensOrderedByCreationTimeAscending() throws Exception {
         // Given...
         User owner = new User("username");

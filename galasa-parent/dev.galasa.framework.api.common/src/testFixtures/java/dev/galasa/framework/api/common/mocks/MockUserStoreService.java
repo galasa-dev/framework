@@ -15,13 +15,26 @@ import dev.galasa.framework.spi.auth.UserStoreException;
 public class MockUserStoreService implements IUserStoreService {
 
     List<AuthToken> tokens = new ArrayList<>();
+    private boolean throwException = false;
 
     public MockUserStoreService(List<AuthToken> tokens) {
         this.tokens = tokens;
     }
 
+    public void setThrowException(boolean throwException) {
+        this.throwException = throwException;
+    }
+
     @Override
     public List<AuthToken> getTokens() throws UserStoreException {
+        if (throwException) {
+            throwUserStoreException();
+        }
+
         return tokens;
+    }
+
+    private void throwUserStoreException() throws UserStoreException {
+        throw new UserStoreException("simulating an unexpected failure!");
     }
 }
