@@ -6,7 +6,6 @@
 package dev.galasa.framework.api.authentication.routes;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +16,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
-import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
+import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
+import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -28,13 +28,13 @@ import dev.galasa.framework.api.common.mocks.MockHttpSession;
 public class AuthCallbackRouteTest extends BaseServletTest {
 
     private DexGrpcClient mockDexGrpcClient;
-    private OidcProvider mockOidcProvider;
+    private MockOidcProvider mockOidcProvider;
     private MockEnvironment mockEnv;
 
     @Before
     public void setUp() {
-        mockDexGrpcClient = mock(DexGrpcClient.class);
-        mockOidcProvider = mock(OidcProvider.class);
+        mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+        mockOidcProvider = new MockOidcProvider();
         mockEnv = new MockEnvironment();
         setRequiredEnvironmentVariables(mockEnv);
     }

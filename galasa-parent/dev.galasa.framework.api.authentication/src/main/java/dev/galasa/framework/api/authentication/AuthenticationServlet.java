@@ -38,7 +38,7 @@ public class AuthenticationServlet extends BaseServlet {
     private Log logger = LogFactory.getLog(getClass());
 
     protected Environment env = new SystemEnvironment();
-    protected OidcProvider oidcProvider;
+    protected IOidcProvider oidcProvider;
     protected DexGrpcClient dexGrpcClient;
 
     @Override
@@ -50,7 +50,9 @@ public class AuthenticationServlet extends BaseServlet {
         String dexIssuerUrl = getRequiredEnvVariable(EnvironmentVariables.GALASA_DEX_ISSUER);
         String dexGrpcHostname = getRequiredEnvVariable(EnvironmentVariables.GALASA_DEX_GRPC_HOSTNAME);
 
-        initialiseDexClients(dexIssuerUrl, dexGrpcHostname);
+        String externalWebUiUrl = externalApiServerUrl.replace("/api", "");
+
+        initialiseDexClients(dexIssuerUrl, dexGrpcHostname, externalWebUiUrl);
 
         addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, dexGrpcClient));
         addRoute(new AuthClientsRoute(getResponseBuilder(), dexGrpcClient));
@@ -63,9 +65,9 @@ public class AuthenticationServlet extends BaseServlet {
      * Initialises the OpenID Connect Provider and Dex gRPC client fields to allow
      * the authentication servlet to communicate with Dex.
      */
-    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname) {
+    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname, String externalWebUiUrl) {
         this.oidcProvider = new OidcProvider(dexIssuerUrl, HttpClient.newHttpClient());
-        this.dexGrpcClient = new DexGrpcClient(dexGrpcHostname);
+        this.dexGrpcClient = new DexGrpcClient(dexGrpcHostname, externalWebUiUrl);
     }
 
     /**
