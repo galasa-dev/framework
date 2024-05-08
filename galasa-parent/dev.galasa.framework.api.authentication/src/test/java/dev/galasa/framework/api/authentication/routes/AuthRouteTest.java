@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
@@ -73,7 +72,7 @@ public class AuthRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
         setRequiredEnvironmentVariables(mockEnv);
 
-        IOidcProvider mockOidcProvider = new MockOidcProvider();
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "", "POST");
@@ -103,7 +102,7 @@ public class AuthRouteTest extends BaseServletTest {
         MockEnvironment mockEnv = new MockEnvironment();
         setRequiredEnvironmentVariables(mockEnv);
 
-        IOidcProvider mockOidcProvider = new MockOidcProvider();
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
 
         // Payload with a missing "refresh_token" field
@@ -141,7 +140,7 @@ public class AuthRouteTest extends BaseServletTest {
         String clientSecret = "asecret";
         String refreshToken = "here-is-a-token";
 
-        IOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, clientSecret, "http://callback");
         MockEnvironment mockEnv = new MockEnvironment();
@@ -190,7 +189,7 @@ public class AuthRouteTest extends BaseServletTest {
         String callbackUri = "http://api.host/auth/callback";
         String issuerUrl = "http://dummy.host";
 
-        IOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient(issuerUrl, clientId, clientSecret, callbackUri);
         MockEnvironment mockEnv = new MockEnvironment();
@@ -227,7 +226,8 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthPostRequestThrowsUnexpectedErrorReturnsServerError() throws Exception {
         // Given...
-        IOidcProvider mockOidcProvider = new MockOidcProvider(true);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
+        mockOidcProvider.setThrowException(true);
 
         String clientId = "myclient";
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
@@ -265,7 +265,7 @@ public class AuthRouteTest extends BaseServletTest {
         dummyErrorJson.addProperty("error", "oh no, something went wrong!");
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(gson.toJson(dummyErrorJson));
 
-        IOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
 
         String clientId = "myclient";
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
@@ -303,7 +303,7 @@ public class AuthRouteTest extends BaseServletTest {
         String clientId = "my-client";
         String clientCallbackUrl = "http://my.app";
 
-        IOidcProvider mockOidcProvider = new MockOidcProvider(redirectLocation);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider(redirectLocation);
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();
@@ -338,7 +338,7 @@ public class AuthRouteTest extends BaseServletTest {
         BiPredicate<String, String> defaultFilter = (a, b) -> true;
         HttpResponse<String> mockResponse = new MockHttpResponse<String>("", HttpHeaders.of(headers, defaultFilter));
 
-        IOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();
@@ -374,7 +374,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthGetRequestWithMissingClientIdReturnsBadRequest() throws Exception {
         // Given...
-        IOidcProvider mockOidcProvider = new MockOidcProvider();
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();
@@ -405,7 +405,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthGetRequestWithMissingCallbackUrlReturnsBadRequest() throws Exception {
         // Given...
-        IOidcProvider mockOidcProvider = new MockOidcProvider();
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();
@@ -436,7 +436,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthGetRequestWithMissingParamsReturnsBadRequest() throws Exception {
         // Given...
-        IOidcProvider mockOidcProvider = new MockOidcProvider();
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();
@@ -467,7 +467,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthGetRequestWithBadCallbackUrlReturnsBadRequest() throws Exception {
         // Given...
-        IOidcProvider mockOidcProvider = new MockOidcProvider();
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();
@@ -501,7 +501,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthServletInitWithMissingRequiredEnvVarsThrowsServletException() throws Exception {
         // Given...
-        IOidcProvider mockOidcProvider = new MockOidcProvider();
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();

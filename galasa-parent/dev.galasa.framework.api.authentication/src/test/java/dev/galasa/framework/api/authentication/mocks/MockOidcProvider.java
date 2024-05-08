@@ -23,10 +23,6 @@ public class MockOidcProvider implements IOidcProvider {
 
     public MockOidcProvider() {}
 
-    public MockOidcProvider(boolean throwException) {
-        this.throwException = throwException;
-    }
-
     public MockOidcProvider(String redirectUrl) {
         this.redirectUrl = redirectUrl;
     }
@@ -37,6 +33,10 @@ public class MockOidcProvider implements IOidcProvider {
 
     public void setJwtValid(boolean isJwtValid) {
         this.isJwtValid = isJwtValid;
+    }
+
+    public void setThrowException(boolean throwException) {
+        this.throwException = throwException;
     }
 
     @Override

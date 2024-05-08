@@ -256,7 +256,8 @@ public class JwtAuthFilterTest extends BaseServletTest {
         mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
 
         String mockJwt = "dummy.jwt.here";
-        MockOidcProvider mockOidcProvider = new MockOidcProvider(true);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
+        mockOidcProvider.setThrowException(true);
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
 
