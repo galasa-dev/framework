@@ -44,6 +44,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.internal.beans.JsonWebKey;
 import dev.galasa.framework.api.common.ITimeService;
 import dev.galasa.framework.api.common.SystemTimeService;
@@ -52,7 +53,7 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 /**
  * A class that handles communications with an OpenID Connect (OIDC) Provider.
  */
-public class OidcProvider {
+public class OidcProvider implements IOidcProvider {
 
     private final Log logger = LogFactory.getLog(getClass());
 

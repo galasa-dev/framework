@@ -28,7 +28,7 @@ public enum ServletErrorMessage {
     GAL5048_UNABLE_TO_CANCEL_RUN                      (5048, "E: Error occured when trying to cancel the run ''{0}''. Report the problem to your Galasa Ecosystem owner."),
     GAL5049_UNABLE_TO_RESET_COMPLETED_RUN             (5049, "E: Error occured when trying to reset the run ''{0}''. The run has already completed."),
     GAL5050_UNABLE_TO_CANCEL_COMPLETED_RUN            (5050, "E: Error occured when trying to cancel the run ''{0}''. The run has already completed."),
-    
+
     // RunArtifactsList...
     GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST           (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),
 
@@ -76,11 +76,15 @@ public enum ServletErrorMessage {
     GAL5042_INVALID_PROPERTY_NAME_INVALID_CHAR        (5042, "E: Invalid property name. ''{0}'' must not contain the ''{1}'' character. Allowable characters after the first character are 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), '.' (dot) and '_' (underscore)"),
     GAL5043_INVALID_PROPERTY_NAME_NO_DOT_SEPARATOR    (5043, "E: Invalid property name. Property name ''{0}'' much have at least two parts seperated by a '.' (dot)."),
     GAL5044_INVALID_PROPERTY_NAME_TRAILING_DOT        (5044, "E: Invalid property name. Property name ''{0}'' must not end with a '.' (dot) seperator."),
-    
+
     //Resources APIs...
     GAL5025_UNSUPPORTED_ACTION                        (5025, "E: Error occured. The field 'action' in the request body is invalid. The 'action' value''{0}'' supplied is not supported. Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
     GAL5026_UNSUPPORTED_RESOURCE_TYPE                 (5026, "E: Error occured. The field 'kind' in the request body is invalid. The value ''{0}'' is not supported. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
-    GAL5027_UNSUPPORTED_API_VERSION                   (5027, "E: Error occured. The field 'apiVersion' in the request body is invalid. The value ''{0}'' is not a supported version. Currently the ecosystem accepts the ''{1}'' api version. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program.")
+    GAL5027_UNSUPPORTED_API_VERSION                   (5027, "E: Error occured. The field 'apiVersion' in the request body is invalid. The value ''{0}'' is not a supported version. Currently the ecosystem accepts the ''{1}'' api version. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
+
+    // Auth APIs...
+    GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
+    GAL5052_FAILED_TO_RETRIEVE_CLIENT                 (5052, "E: Unable to retrieve client for authentication. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again.")
     ;
 
 

@@ -15,8 +15,8 @@ import javax.servlet.http.HttpSession;
 import com.coreos.dex.api.DexOuterClass.Client;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
-import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.authentication.internal.beans.TokenPayload;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -29,13 +29,13 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class AuthRoute extends BaseRoute {
 
-    private OidcProvider oidcProvider;
+    private IOidcProvider oidcProvider;
     private DexGrpcClient dexGrpcClient;
 
     private static final String ID_TOKEN_KEY      = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
 
-    public AuthRoute(ResponseBuilder responseBuilder, OidcProvider oidcProvider, DexGrpcClient dexGrpcClient) {
+    public AuthRoute(ResponseBuilder responseBuilder, IOidcProvider oidcProvider, DexGrpcClient dexGrpcClient) {
         // Regex to match endpoint /auth and /auth/
         super(responseBuilder, "\\/?");
         this.oidcProvider = oidcProvider;
@@ -152,7 +152,7 @@ public class AuthRoute extends BaseRoute {
      *                        for the /token endpoint
      */
     private JsonObject sendTokenPost(HttpServletRequest request, TokenPayload requestBodyJson)
-            throws IOException, InterruptedException {
+            throws IOException, InterruptedException, InternalServletException {
         String refreshToken = requestBodyJson.getRefreshToken();
         String clientId = requestBodyJson.getClientId();
         Client dexClient = dexGrpcClient.getClient(clientId);

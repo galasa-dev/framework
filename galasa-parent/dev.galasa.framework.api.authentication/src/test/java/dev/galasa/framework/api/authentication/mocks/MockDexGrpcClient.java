@@ -8,6 +8,8 @@ import com.coreos.dex.api.DexOuterClass.GetClientResp;
 import com.coreos.dex.api.DexOuterClass.CreateClientResp.Builder;
 
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 
 // A class that only mocks out methods that interact with Dex's gRPC service
 public class MockDexGrpcClient extends DexGrpcClient {
@@ -15,12 +17,12 @@ public class MockDexGrpcClient extends DexGrpcClient {
     private Client dexClient;
 
     public MockDexGrpcClient(String issuerHostname, String clientId, String clientSecret, String callbackUrl) {
-        super(issuerHostname);
+        super(issuerHostname, "http://my-ecosystem");
         this.dexClient = createDexClient(clientId, clientSecret, callbackUrl);
     }
 
     public MockDexGrpcClient(String issuerHostname) {
-        super(issuerHostname);
+        super(issuerHostname, "http://my-ecosystem");
     }
 
     // Mock out the creation of the blocking stub
@@ -43,7 +45,11 @@ public class MockDexGrpcClient extends DexGrpcClient {
     public GetClientResp sendGetClientRequest(GetClientReq getClientReq) {
         com.coreos.dex.api.DexOuterClass.GetClientResp.Builder getClientRespBuilder = GetClientResp.newBuilder();
         if (this.dexClient != null) {
-            getClientRespBuilder.setClient(this.dexClient);
+            if (this.dexClient.getId().equals("error")) {
+                throw new StatusRuntimeException(Status.UNKNOWN);
+            } else {
+                getClientRespBuilder.setClient(this.dexClient);
+            }
         }
         return getClientRespBuilder.build();
     }
