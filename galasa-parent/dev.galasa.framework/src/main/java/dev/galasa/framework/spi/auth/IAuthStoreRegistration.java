@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.IFrameworkInitialisation;
 
-public interface IUserStoreRegistration {
+public interface IAuthStoreRegistration {
 
-    void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws UserStoreException;
+    void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws AuthStoreException;
 }

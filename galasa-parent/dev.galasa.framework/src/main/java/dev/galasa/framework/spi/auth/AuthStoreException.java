@@ -7,26 +7,25 @@ package dev.galasa.framework.spi.auth;
 
 import dev.galasa.framework.spi.FrameworkException;
 
-public class UserStoreException extends FrameworkException {
+public class AuthStoreException extends FrameworkException {
     private static final long serialVersionUID = 1L;
 
-    public UserStoreException() {
+    public AuthStoreException() {
     }
 
-    public UserStoreException(String message) {
+    public AuthStoreException(String message) {
         super(message);
     }
 
-    public UserStoreException(Throwable cause) {
+    public AuthStoreException(Throwable cause) {
         super(cause);
     }
 
-    public UserStoreException(String message, Throwable cause) {
+    public AuthStoreException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public UserStoreException(String message, Throwable cause, boolean enableSuppression,
-            boolean writableStackTrace) {
+    public AuthStoreException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

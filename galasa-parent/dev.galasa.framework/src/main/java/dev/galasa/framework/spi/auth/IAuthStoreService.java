@@ -7,14 +7,14 @@ package dev.galasa.framework.spi.auth;
 
 import java.util.List;
 
-public interface IUserStoreService {
+public interface IAuthStoreService {
 
     /**
      * Returns a list of all the tokens stored in the authentication store.
-     * 
+     *
      * @return a list of all tokens stored in the authentication store.
-     * @throws UserStoreException if there is an issue accessing the authentication
+     * @throws AuthStoreException if there is an issue accessing the authentication
      *                            store.
      */
-    List<AuthToken> getTokens() throws UserStoreException;
+    List<AuthToken> getTokens() throws AuthStoreException;
 }

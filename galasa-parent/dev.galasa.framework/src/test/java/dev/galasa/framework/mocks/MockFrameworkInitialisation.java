@@ -22,8 +22,8 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.IResultArchiveStoreService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.auth.IUserStore;
-import dev.galasa.framework.spi.auth.UserStoreException;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
@@ -32,7 +32,7 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
     private URI cpsUri;
     private URI dssUri;
     private URI credsUri;
-    private URI userStoreUri;
+    private URI authStoreUri;
     private IFramework framework;
 
     public MockFrameworkInitialisation(URI cpsUri) {
@@ -66,8 +66,8 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     @Override
-    public URI getUserStoreUri() {
-        return userStoreUri;
+    public URI getAuthStoreUri() {
+        return authStoreUri;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     @Override
-    public void registerUserStore(@NotNull IUserStore userStore) throws UserStoreException {
+    public void registerAuthStore(@NotNull IAuthStore authStore) throws AuthStoreException {
         // Do nothing...
     }
 

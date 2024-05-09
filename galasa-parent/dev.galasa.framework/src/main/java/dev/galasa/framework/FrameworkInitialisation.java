@@ -14,9 +14,9 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.*;
 import org.osgi.framework.*;
 import dev.galasa.framework.spi.*;
-import dev.galasa.framework.spi.auth.IUserStore;
-import dev.galasa.framework.spi.auth.IUserStoreRegistration;
-import dev.galasa.framework.spi.auth.UserStoreException;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreRegistration;
+import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.creds.*;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
@@ -27,7 +27,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private final URI                                uriConfigurationPropertyStore;
     private final URI                                uriDynamicStatusStore;
     private final URI                                uriCredentialsStore;
-    private final URI                                uriUserStore;
+    private final URI uriAuthStore;
     private final List<URI>                          uriResultArchiveStores;
 
     private final IConfigurationPropertyStoreService cpsFramework;
@@ -205,10 +205,10 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         initialiseConfidentialTextService(logger,bundleContext);
 
-        // Tbe user store is only required for the ecosystem, local runs don't need it
-        this.uriUserStore = locateUserStore(initLogger, overrideProperties);
-        if (this.uriUserStore != null) {
-            initialiseUserStore(initLogger, bundleContext);
+        // Tbe auth store is only required for the ecosystem, local runs don't need it
+        this.uriAuthStore = locateAuthStore(initLogger, overrideProperties);
+        if (this.uriAuthStore != null) {
+            initialiseAuthStore(initLogger, bundleContext);
         }
 
         if (framework.isInitialised()) {
@@ -333,8 +333,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     @Override
-    public URI getUserStoreUri() {
-        return this.uriUserStore;
+    public URI getAuthStoreUri() {
+        return this.uriAuthStore;
     }
 
     /*
@@ -400,8 +400,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     @Override
-    public void registerUserStore(@NotNull IUserStore userStore) throws UserStoreException {
-        this.framework.setUserStore(userStore);
+    public void registerAuthStore(@NotNull IAuthStore authStore) throws AuthStoreException {
+        this.framework.setAuthStore(authStore);
     }
 
     /*
@@ -508,16 +508,16 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     /**
-     * Find where the user store is located, or return null if one has not been set.
+     * Find where the auth store is located, or return null if one has not been set.
      */
-    URI locateUserStore(Log logger, Properties overrideProperties) throws URISyntaxException {
+    URI locateAuthStore(Log logger, Properties overrideProperties) throws URISyntaxException {
         URI storeUri = null;
-        String propUri = overrideProperties.getProperty("framework.user.store");
+        String propUri = overrideProperties.getProperty("framework.auth.store");
 
         if (propUri != null && !propUri.isEmpty()) {
-            logger.debug("Bootstrap property framework.user.store used to determine User Store location");
+            logger.debug("Bootstrap property framework.auth.store used to determine Auth Store location");
             storeUri = new URI(propUri);
-            logger.debug("User Store is " + storeUri.toString());
+            logger.debug("Auth Store is " + storeUri.toString());
         }
         return storeUri;
     }
@@ -799,28 +799,28 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     }
 
-    void initialiseUserStore(Log logger, BundleContext bundleContext)
+    void initialiseAuthStore(Log logger, BundleContext bundleContext)
         throws FrameworkException, InvalidSyntaxException {
 
-        logger.trace("Searching for User Store providers");
-        final ServiceReference<?>[] userStoreServiceReference = bundleContext
-                .getAllServiceReferences(IUserStoreRegistration.class.getName(), null);
-        if ((userStoreServiceReference == null) || (userStoreServiceReference.length == 0)) {
-            throw new FrameworkException("No User Store Services have been found");
+        logger.trace("Searching for Auth Store providers");
+        final ServiceReference<?>[] authStoreServiceReference = bundleContext
+                .getAllServiceReferences(IAuthStoreRegistration.class.getName(), null);
+        if ((authStoreServiceReference == null) || (authStoreServiceReference.length == 0)) {
+            throw new FrameworkException("No Auth Store Services have been found");
         }
-        for (final ServiceReference<?> userStoreReference : userStoreServiceReference) {
-            final IUserStoreRegistration userStoreRegistration = (IUserStoreRegistration) bundleContext
-                    .getService(userStoreReference);
-            logger.trace("Found User Store Provider " + userStoreRegistration.getClass().getName());
+        for (final ServiceReference<?> authStoreReference : authStoreServiceReference) {
+            final IAuthStoreRegistration authStoreRegistration = (IAuthStoreRegistration) bundleContext
+                    .getService(authStoreReference);
+            logger.trace("Found Auth Store Provider " + authStoreRegistration.getClass().getName());
 
-            // The registration code calls back to registerUserStore to set the user
+            // The registration code calls back to registerAuthStore to set the auth
             // store object in this.framework, so it can be retrieved by the
-            // this.framework.getUserStore() call...
-            userStoreRegistration.initialise(this);
+            // this.framework.getAuthStore() call...
+            authStoreRegistration.initialise(this);
         }
-        if (this.framework.getUserStore() == null) {
-            throw new FrameworkException("Failed to initialise a User Store, unable to continue");
+        if (this.framework.getAuthStore() == null) {
+            throw new FrameworkException("Failed to initialise a Auth Store, unable to continue");
         }
-        logger.debug("Selected User Store Service is " + this.framework.getUserStore().getClass().getName());
+        logger.debug("Selected Auth Store Service is " + this.framework.getAuthStore().getClass().getName());
     }
 }

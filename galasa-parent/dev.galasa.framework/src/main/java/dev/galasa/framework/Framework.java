@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.*;
-import dev.galasa.framework.spi.auth.IUserStore;
-import dev.galasa.framework.spi.auth.IUserStoreService;
-import dev.galasa.framework.spi.auth.UserStoreException;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.AuthStoreException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +27,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import dev.galasa.framework.internal.auth.FrameworkUserStoreService;
+import dev.galasa.framework.internal.auth.FrameworkAuthStoreService;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
@@ -53,7 +53,7 @@ public class Framework implements IFramework {
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;
-    private IUserStore                         userStore;
+    private IAuthStore authStore;
 
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
@@ -242,12 +242,12 @@ public class Framework implements IFramework {
         this.dssStore = dssStore;
     }
 
-    public void setUserStore(@NotNull IUserStore userStore) throws UserStoreException {
-        if (this.userStore != null) {
-            throw new UserStoreException("Invalid second registration of the User Store Service detected");
+    public void setAuthStore(@NotNull IAuthStore authStore) throws AuthStoreException {
+        if (this.authStore != null) {
+            throw new AuthStoreException("Invalid second registration of the Auth Store Service detected");
         }
 
-        this.userStore = userStore;
+        this.authStore = authStore;
     }
 
     /**
@@ -314,13 +314,13 @@ public class Framework implements IFramework {
 
 
     @Override
-    public IUserStore getUserStore() {
-        return this.userStore;
+    public IAuthStore getAuthStore() {
+        return this.authStore;
     }
 
     @Override
-    public IUserStoreService getUserStoreService() {
-        return new FrameworkUserStoreService(userStore);
+    public IAuthStoreService getAuthStoreService() {
+        return new FrameworkAuthStoreService(authStore);
     }
 
     @Override

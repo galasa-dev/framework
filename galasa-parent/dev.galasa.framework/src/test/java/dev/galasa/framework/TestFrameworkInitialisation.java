@@ -22,11 +22,11 @@ import dev.galasa.framework.mocks.MockLog;
 import dev.galasa.framework.mocks.MockRASRegistration;
 import dev.galasa.framework.mocks.MockRASStoreService;
 import dev.galasa.framework.mocks.MockServiceReference;
-import dev.galasa.framework.mocks.MockUserStore;
-import dev.galasa.framework.mocks.MockUserStoreRegistration;
+import dev.galasa.framework.mocks.MockAuthStore;
+import dev.galasa.framework.mocks.MockAuthStoreRegistration;
 import dev.galasa.framework.spi.*;
-import dev.galasa.framework.spi.auth.IUserStore;
-import dev.galasa.framework.spi.auth.IUserStoreRegistration;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreRegistration;
 import dev.galasa.framework.spi.creds.ICredentialsStoreRegistration;
 
 import org.apache.commons.logging.Log;
@@ -135,7 +135,7 @@ public class TestFrameworkInitialisation {
         MockCredentialsStore mockCredentialsStore = addMockCredentialsStoreToMockServiceRegistry(services, bundle);
         MockConfidentialTextStore mockConfidentialTextStore = addMockConfidentialTextServiceToMockServiceRegistry(services, bundle);
 
-        addMockUserStoreToMockServiceRegistry(services, bundle);
+        addMockAuthStoreToMockServiceRegistry(services, bundle);
 
         // When...
         FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation(
@@ -216,11 +216,12 @@ public class TestFrameworkInitialisation {
         return mockConfidentialTextStore;
     }
 
-    private void addMockUserStoreToMockServiceRegistry(Map<String,MockServiceReference<?>> services, Bundle bundle) {
-        MockUserStore mockUserStore = new MockUserStore();
-        MockUserStoreRegistration mockUserStoreRegistration = new MockUserStoreRegistration(mockUserStore);
-        MockServiceReference<IUserStoreRegistration> mockUserStoreRef = new MockServiceReference<IUserStoreRegistration>(mockUserStoreRegistration, bundle);
-        services.put(IUserStoreRegistration.class.getName(),mockUserStoreRef);
+    private void addMockAuthStoreToMockServiceRegistry(Map<String,MockServiceReference<?>> services, Bundle bundle) {
+        MockAuthStore mockAuthStore = new MockAuthStore();
+        MockAuthStoreRegistration mockAuthStoreRegistration = new MockAuthStoreRegistration(mockAuthStore);
+        MockServiceReference<IAuthStoreRegistration> mockAuthStoreRef = new MockServiceReference<IAuthStoreRegistration>(
+                mockAuthStoreRegistration, bundle);
+        services.put(IAuthStoreRegistration.class.getName(), mockAuthStoreRef);
     }
 
     // When no framework service has been found... should be an error.
@@ -524,60 +525,60 @@ public class TestFrameworkInitialisation {
     }
 
     @Test
-    public void testLocateUserStoreDefaultsToNull() throws Exception {
+    public void testLocateAuthStoreDefaultsToNull() throws Exception {
 
         // Given...
         Properties bootstrap = new Properties();
 
-        // The framework.user.store property hasn't been set, so there is no user store to use.
+        // The framework.auth.store property hasn't been set, so there is no auth store to use.
         FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
 
         Log logger = new MockLog();
 
         // When...
-        URI uri = frameworkInit.locateUserStore(logger, bootstrap);
+        URI uri = frameworkInit.locateAuthStore(logger, bootstrap);
 
         // Then...
         assertThat(uri).isNull();
     }
 
     @Test
-    public void testLocateUserStoreGetsFrameworkUserStoreUri() throws Exception {
+    public void testLocateAuthStoreGetsFrameworkAuthStoreUri() throws Exception {
 
         // Given...
         Properties bootstrap = new Properties();
 
-        URI userStoreUri = URI.create("couchdb:http://my-user-store");
-        // The framework.user.store property hasn't been set, so there is no user store to use.
-        bootstrap.setProperty("framework.user.store", userStoreUri.toString());
+        URI authStoreUri = URI.create("couchdb:http://my-user-store");
+
+        bootstrap.setProperty("framework.auth.store", authStoreUri.toString());
         FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
 
         Log logger = new MockLog();
 
         // When...
-        URI uri = frameworkInit.locateUserStore(logger, bootstrap);
+        URI uri = frameworkInit.locateAuthStore(logger, bootstrap);
 
         // Then...
         assertThat(uri).isNotNull();
-        assertThat(uri).isEqualTo(userStoreUri);
+        assertThat(uri).isEqualTo(authStoreUri);
     }
 
     @Test
-    public void testInitialiseUserStoreSetsFrameworkUserStore() throws Exception {
+    public void testInitialiseAuthStoreSetsFrameworkAuthStore() throws Exception {
 
         // Given...
         Properties bootstrap = new Properties();
 
-        URI userStoreUri = URI.create("couchdb:http://my-user-store");
-        // The framework.user.store property hasn't been set, so there is no user store to use.
-        bootstrap.setProperty("framework.user.store", userStoreUri.toString());
+        URI authStoreUri = URI.create("couchdb:http://my-user-store");
+
+        bootstrap.setProperty("framework.auth.store", authStoreUri.toString());
         FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
 
         // When...
-        IUserStore userStore = frameworkInit.getFramework().getUserStore();
+        IAuthStore authStore = frameworkInit.getFramework().getAuthStore();
 
         // Then...
-        assertThat(userStore).isNotNull();
-        assertThat(userStore.getClass().getName()).isEqualTo(MockUserStore.class.getName());
+        assertThat(authStore).isNotNull();
+        assertThat(authStore.getClass().getName()).isEqualTo(MockAuthStore.class.getName());
     }
 }

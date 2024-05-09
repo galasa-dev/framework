@@ -9,15 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.galasa.framework.spi.auth.AuthToken;
-import dev.galasa.framework.spi.auth.IUserStoreService;
-import dev.galasa.framework.spi.auth.UserStoreException;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.AuthStoreException;
 
-public class MockUserStoreService implements IUserStoreService {
+public class MockAuthStoreService implements IAuthStoreService {
 
     List<AuthToken> tokens = new ArrayList<>();
     private boolean throwException = false;
 
-    public MockUserStoreService(List<AuthToken> tokens) {
+    public MockAuthStoreService(List<AuthToken> tokens) {
         this.tokens = tokens;
     }
 
@@ -26,15 +26,15 @@ public class MockUserStoreService implements IUserStoreService {
     }
 
     @Override
-    public List<AuthToken> getTokens() throws UserStoreException {
+    public List<AuthToken> getTokens() throws AuthStoreException {
         if (throwException) {
-            throwUserStoreException();
+            throwAuthStoreException();
         }
 
         return tokens;
     }
 
-    private void throwUserStoreException() throws UserStoreException {
-        throw new UserStoreException("simulating an unexpected failure!");
+    private void throwAuthStoreException() throws AuthStoreException {
+        throw new AuthStoreException("simulating an unexpected failure!");
     }
 }

@@ -10,8 +10,8 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.framework.spi.auth.IUserStore;
-import dev.galasa.framework.spi.auth.UserStoreException;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
@@ -38,7 +38,7 @@ public interface IFrameworkInitialisation {
 
     URI getCredentialsStoreUri();
 
-    URI getUserStoreUri();
+    URI getAuthStoreUri();
 
     /**
      * Retrieves a list of Result Archive URIs that need to be initialised
@@ -99,13 +99,13 @@ public interface IFrameworkInitialisation {
     void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException;
 
     /**
-     * Register a User Store Service, which allows the framework to retrieve user
+     * Register an Auth Store Service, which allows the framework to retrieve user
      * and token information.
      *
-     * @param userStore the user store service to be registered
-     * @throws UserStoreException if there is a problem registering the service
+     * @param authStore the auth store service to be registered
+     * @throws AuthStoreException if there is a problem registering the service
      */
-    void registerUserStore(@NotNull IUserStore userStore) throws UserStoreException;
+    void registerAuthStore(@NotNull IAuthStore authStore) throws AuthStoreException;
 
     /**
      * <p>

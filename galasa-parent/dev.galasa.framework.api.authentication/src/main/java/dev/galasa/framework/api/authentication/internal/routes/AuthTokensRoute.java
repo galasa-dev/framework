@@ -29,7 +29,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.auth.AuthToken;
-import dev.galasa.framework.spi.auth.UserStoreException;
+import dev.galasa.framework.spi.auth.AuthStoreException;
 
 public class AuthTokensRoute extends BaseRoute {
 
@@ -56,10 +56,10 @@ public class AuthTokensRoute extends BaseRoute {
         try {
             // Retrieve all the tokens and put them into a mutable list before sorting
             // them based on their creation time
-            tokens = new ArrayList<>(framework.getUserStoreService().getTokens());
+            tokens = new ArrayList<>(framework.getAuthStoreService().getTokens());
             Collections.sort(tokens, Comparator.comparing(AuthToken::getCreationTime));
 
-        } catch (UserStoreException e) {
+        } catch (AuthStoreException e) {
             ServletError error = new ServletError(GAL5053_FAILED_TO_RETRIEVE_TOKENS);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }

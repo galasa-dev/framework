@@ -8,19 +8,19 @@ package dev.galasa.framework.mocks;
 import java.util.List;
 
 import dev.galasa.framework.spi.auth.AuthToken;
-import dev.galasa.framework.spi.auth.IUserStore;
-import dev.galasa.framework.spi.auth.IUserStoreService;
-import dev.galasa.framework.spi.auth.UserStoreException;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.AuthStoreException;
 
-public class MockUserStore implements IUserStore, IUserStoreService {
+public class MockAuthStore implements IAuthStore, IAuthStoreService {
 
     @Override
-    public List<AuthToken> getTokens() throws UserStoreException {
+    public List<AuthToken> getTokens() throws AuthStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'getTokens'");
     }
 
     @Override
-    public void shutdown() throws UserStoreException {
+    public void shutdown() throws AuthStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
     }
 }

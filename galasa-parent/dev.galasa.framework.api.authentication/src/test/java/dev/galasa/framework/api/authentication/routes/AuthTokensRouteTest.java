@@ -26,7 +26,7 @@ import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.mocks.MockUserStoreService;
+import dev.galasa.framework.api.common.mocks.MockAuthStoreService;
 import dev.galasa.framework.spi.auth.AuthToken;
 import dev.galasa.framework.spi.auth.User;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -65,8 +65,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
 	@Test
 	public void testAuthTokensRouteRegexMatchesOnlyTokens(){
 		//Given...
-        MockUserStoreService userStoreService = new MockUserStoreService(null);
-        String tokensRoutePath = new AuthTokensRoute(null, new MockFramework(userStoreService)).getPath();
+        MockAuthStoreService authStoreService = new MockAuthStoreService(null);
+        String tokensRoutePath = new AuthTokensRoute(null, new MockFramework(authStoreService)).getPath();
 
 		//When...
 		Pattern tokensRoutePattern = Pattern.compile(tokensRoutePath);
@@ -96,8 +96,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
         List<AuthToken> tokens = List.of(
             new AuthToken(tokenId, description, creationTime, owner)
         );
-        MockUserStoreService userStoreService = new MockUserStoreService(tokens);
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, new MockFramework(userStoreService));
+        MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, new MockFramework(authStoreService));
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", "", "GET");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -124,7 +124,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
     }
 
     @Test
-    public void testGetAuthTokensWithUserStoreExceptionThrowsInternalServletException() throws Exception {
+    public void testGetAuthTokensWithAuthStoreExceptionThrowsInternalServletException() throws Exception {
         // Given...
         String tokenId = "id123";
         String description = "test token";
@@ -134,10 +134,10 @@ public class AuthTokensRouteTest extends BaseServletTest {
         List<AuthToken> tokens = List.of(
             new AuthToken(tokenId, description, creationTime, owner)
         );
-        MockUserStoreService userStoreService = new MockUserStoreService(tokens);
-        userStoreService.setThrowException(true);
+        MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
+        authStoreService.setThrowException(true);
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, new MockFramework(userStoreService));
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, new MockFramework(authStoreService));
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", "", "GET");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -151,7 +151,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(500);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
         assertThat(servletResponse.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(outStream.toString()).contains("GAL5053E", "Error retrieving tokens from user store");
+        assertThat(outStream.toString()).contains("GAL5053E", "Error retrieving tokens from the auth store");
     }
 
     @Test
@@ -171,8 +171,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
         List<AuthToken> tokens = List.of(token1, token2, token3, token4);
         List<AuthToken> expectedTokenOrder = List.of(token2, token1, token4, token3);
 
-        MockUserStoreService userStoreService = new MockUserStoreService(tokens);
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, new MockFramework(userStoreService));
+        MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, new MockFramework(authStoreService));
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", "", "GET");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();

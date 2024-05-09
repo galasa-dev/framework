@@ -30,8 +30,8 @@ import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
-import dev.galasa.framework.spi.auth.IUserStore;
-import dev.galasa.framework.spi.auth.IUserStoreService;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 
@@ -142,12 +142,12 @@ public class TestHarnessFramework implements IFramework {
 	}
 
     @Override
-    public @NotNull IUserStoreService getUserStoreService() {
+    public @NotNull IAuthStoreService getAuthStoreService() {
         throw new Unavailable();
     }
 
     @Override
-    public @NotNull IUserStore getUserStore() {
+    public @NotNull IAuthStore getAuthStore() {
         throw new Unavailable();
     }
 

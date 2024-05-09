@@ -19,8 +19,8 @@ import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
-import dev.galasa.framework.spi.auth.IUserStore;
-import dev.galasa.framework.spi.auth.IUserStoreService;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 
@@ -33,14 +33,14 @@ public class MockFramework implements IFramework {
     IResultArchiveStore archiveStore;
     IFrameworkRuns frameworkRuns;
     MockConfigurationPropertyStoreService cpsService = new MockConfigurationPropertyStoreService("framework");
-    IUserStoreService userStoreService;
+    IAuthStoreService authStoreService;
 
     public MockFramework() {
         // Do nothing...
     }
 
-    public MockFramework(IUserStoreService userStoreService) {
-        this.userStoreService = userStoreService;
+    public MockFramework(IAuthStoreService authStoreService) {
+        this.authStoreService = authStoreService;
     }
 
     public MockFramework(IResultArchiveStore archiveStore) {
@@ -61,8 +61,8 @@ public class MockFramework implements IFramework {
     }
 
     @Override
-    public @NotNull IUserStoreService getUserStoreService() {
-        return this.userStoreService;
+    public @NotNull IAuthStoreService getAuthStoreService() {
+        return this.authStoreService;
     }
 
     @Override
@@ -151,7 +151,7 @@ public class MockFramework implements IFramework {
     }
 
     @Override
-    public @NotNull IUserStore getUserStore() {
-        throw new UnsupportedOperationException("Unimplemented method 'getUserStore'");
+    public @NotNull IAuthStore getAuthStore() {
+        throw new UnsupportedOperationException("Unimplemented method 'getAuthStore'");
     }
 }
