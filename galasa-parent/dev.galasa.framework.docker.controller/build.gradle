@@ -5,12 +5,13 @@ plugins {
 
 description = 'Docker Controller'
 
-version '0.32.0'
+version '0.34.0'
 
 dependencies {
     implementation project(':dev.galasa')
     implementation project(':dev.galasa.framework')
 
+    implementation 'commons-io:commons-io:2.16.1'
     implementation 'commons-codec:commons-codec:1.16.1'
     implementation ('org.apache.commons:commons-compress') {
         version {

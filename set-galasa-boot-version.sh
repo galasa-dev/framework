@@ -157,5 +157,3 @@ mkdir -p $temp_dir
 
 update_build_gradle_version $temp_dir
 update_release_yaml_version $temp_dir
-
-warn "There is a galasa-boot version in ecliplse/galasa-eclipse-parent/dev.galasa.eclipse/pom.xml that needs to be updated manually."
