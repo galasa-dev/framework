@@ -27,18 +27,18 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.auth.AuthToken;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 public class AuthTokensRoute extends BaseRoute {
 
-    private IFramework framework;
+    private IAuthStoreService authStoreService;
 
-    public AuthTokensRoute(ResponseBuilder responseBuilder, IFramework framework) {
+    public AuthTokensRoute(ResponseBuilder responseBuilder, IAuthStoreService authStoreService) {
         // Regex to match /auth/tokens only
         super(responseBuilder, "\\/tokens\\/?");
-        this.framework = framework;
+        this.authStoreService = authStoreService;
     }
 
     /**
@@ -56,7 +56,7 @@ public class AuthTokensRoute extends BaseRoute {
         try {
             // Retrieve all the tokens and put them into a mutable list before sorting
             // them based on their creation time
-            tokens = new ArrayList<>(framework.getAuthStoreService().getTokens());
+            tokens = new ArrayList<>(authStoreService.getTokens());
             Collections.sort(tokens, Comparator.comparing(AuthToken::getCreationTime));
 
         } catch (AuthStoreException e) {

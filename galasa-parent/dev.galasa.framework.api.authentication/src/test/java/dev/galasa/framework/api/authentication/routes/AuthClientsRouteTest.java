@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import javax.servlet.ServletOutputStream;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.gson.JsonObject;
@@ -17,9 +16,7 @@ import com.google.gson.JsonObject;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
-import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
-import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -27,24 +24,13 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 public class AuthClientsRouteTest extends BaseServletTest {
 
     private static final GalasaGson gson = new GalasaGson();
-    private MockOidcProvider mockOidcProvider;
-    private MockEnvironment mockEnv;
-
-    @Before
-    public void setUp() {
-        mockOidcProvider = new MockOidcProvider();
-        mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-    }
 
     @Test
     public void testAuthClientsPostRequestWithNoCreatedClientReturnsError() throws Exception {
         // Given...
-        setRequiredEnvironmentVariables(mockEnv);
-
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer.url");
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockDexGrpcClient);
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/clients", "", "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -74,7 +60,7 @@ public class AuthClientsRouteTest extends BaseServletTest {
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer.url", clientId, clientSecret, redirectUri);
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockDexGrpcClient);
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/clients", "", "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();

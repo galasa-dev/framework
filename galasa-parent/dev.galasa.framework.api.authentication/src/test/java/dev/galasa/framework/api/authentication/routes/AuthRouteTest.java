@@ -26,12 +26,12 @@ import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
 import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
-import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpSession;
+import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class AuthRouteTest extends BaseServletTest {
@@ -68,12 +68,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthPostRequestWithEmptyRequestPayloadReturnsBadRequestError() throws Exception {
         // Given...
-        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
-        MockOidcProvider mockOidcProvider = new MockOidcProvider();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "", "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -98,12 +93,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthPostRequestWithInvalidRequestPayloadReturnsBadRequestError() throws Exception {
         // Given...
-        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
-        MockOidcProvider mockOidcProvider = new MockOidcProvider();
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         // Payload with a missing "refresh_token" field
         String payload = buildRequestPayload("dummy-id", null, null);
@@ -143,17 +133,13 @@ public class AuthRouteTest extends BaseServletTest {
         MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, clientSecret, "http://callback");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient);
 
         String payload = buildRequestPayload(clientId, refreshToken, null);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", payload, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
-
-        mockEnv.setenv("GALASA_DEX_ISSUER", "http://dummy.host");
 
         // When...
         servlet.init();
@@ -192,18 +178,13 @@ public class AuthRouteTest extends BaseServletTest {
         MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient(issuerUrl, clientId, clientSecret, callbackUri);
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient);
 
         String payload = buildRequestPayload(clientId, null, authCode);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", payload, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
-
-        mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, issuerUrl);
-        mockEnv.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL, "http://api.host");
 
         // When...
         servlet.init();
@@ -231,17 +212,13 @@ public class AuthRouteTest extends BaseServletTest {
 
         String clientId = "myclient";
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient);
 
         String payload = buildRequestPayload("dummy-id", "here-is-a-token", null);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", payload, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
-
-        mockEnv.setenv("GALASA_DEX_ISSUER", "http://dummy.host");
 
         // When...
         servlet.init();
@@ -269,17 +246,13 @@ public class AuthRouteTest extends BaseServletTest {
 
         String clientId = "myclient";
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient);
 
         String payload = buildRequestPayload("dummy-id", "here-is-a-token", null);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", payload, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
-
-        mockEnv.setenv("GALASA_DEX_ISSUER", "http://dummy.host");
 
         // When...
         servlet.init();
@@ -305,11 +278,7 @@ public class AuthRouteTest extends BaseServletTest {
 
         MockOidcProvider mockOidcProvider = new MockOidcProvider(redirectLocation);
 
-        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider);
 
         Map<String, String[]> queryParams = Map.of(
                 "client_id", new String[] { clientId }, "callback_url", new String[] { clientCallbackUrl }
@@ -340,11 +309,7 @@ public class AuthRouteTest extends BaseServletTest {
 
         MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
 
-        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider);
 
         Map<String, String[]> queryParams = Map.of(
                 "client_id", new String[] { "my-client" }, "callback_url", new String[] { "http://my.app" }
@@ -374,13 +339,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthGetRequestWithMissingClientIdReturnsBadRequest() throws Exception {
         // Given...
-        MockOidcProvider mockOidcProvider = new MockOidcProvider();
-
-        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         Map<String, String[]> queryParams = Map.of("callbackUrl", new String[] { "http://my.callback.url" });
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
@@ -405,13 +364,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthGetRequestWithMissingCallbackUrlReturnsBadRequest() throws Exception {
         // Given...
-        MockOidcProvider mockOidcProvider = new MockOidcProvider();
-
-        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         Map<String, String[]> queryParams = Map.of("client_id", new String[] { "my-client-id" });
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
@@ -436,13 +389,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthGetRequestWithMissingParamsReturnsBadRequest() throws Exception {
         // Given...
-        MockOidcProvider mockOidcProvider = new MockOidcProvider();
-
-        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         Map<String, String[]> queryParams = new HashMap<>();
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
@@ -467,13 +414,7 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthGetRequestWithBadCallbackUrlReturnsBadRequest() throws Exception {
         // Given...
-        MockOidcProvider mockOidcProvider = new MockOidcProvider();
-
-        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         Map<String, String[]> queryParams = Map.of(
             "client_id", new String[] { "my-client-id" },
@@ -506,7 +447,7 @@ public class AuthRouteTest extends BaseServletTest {
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient, new MockFramework());
 
         // When...
         Throwable thrown = catchThrowable(() -> {

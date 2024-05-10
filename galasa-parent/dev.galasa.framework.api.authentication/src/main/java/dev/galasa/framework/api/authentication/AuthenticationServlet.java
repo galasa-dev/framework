@@ -27,6 +27,7 @@ import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 
 /**
  * Authentication Servlet that acts as a proxy to send requests to Dex's /token
@@ -59,11 +60,13 @@ public class AuthenticationServlet extends BaseServlet {
         String externalWebUiUrl = externalApiServerUrl.replace("/api", "");
 
         initialiseDexClients(dexIssuerUrl, dexGrpcHostname, externalWebUiUrl);
+        
+        IAuthStoreService authStoreService = framework.getAuthStoreService();
 
-        addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, dexGrpcClient));
+        addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService));
         addRoute(new AuthClientsRoute(getResponseBuilder(), dexGrpcClient));
         addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl));
-        addRoute(new AuthTokensRoute(getResponseBuilder(), framework));
+        addRoute(new AuthTokensRoute(getResponseBuilder(), authStoreService));
 
         logger.info("Galasa Authentication API initialised");
     }

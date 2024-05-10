@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.gson.JsonArray;
@@ -23,7 +22,6 @@ import com.google.gson.JsonObject;
 import dev.galasa.framework.api.authentication.internal.routes.AuthTokensRoute;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.common.BaseServletTest;
-import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockAuthStoreService;
@@ -34,7 +32,6 @@ import dev.galasa.framework.api.common.mocks.MockFramework;
 
 public class AuthTokensRouteTest extends BaseServletTest {
 
-    private MockEnvironment mockEnv;
     private static final GalasaGson gson = new GalasaGson();
 
     /**
@@ -56,17 +53,11 @@ public class AuthTokensRouteTest extends BaseServletTest {
         }
     }
 
-    @Before
-    public void setUp() {
-        mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-    }
-
 	@Test
 	public void testAuthTokensRouteRegexMatchesOnlyTokens(){
 		//Given...
         MockAuthStoreService authStoreService = new MockAuthStoreService(null);
-        String tokensRoutePath = new AuthTokensRoute(null, new MockFramework(authStoreService)).getPath();
+        String tokensRoutePath = new AuthTokensRoute(null, authStoreService).getPath();
 
 		//When...
 		Pattern tokensRoutePattern = Pattern.compile(tokensRoutePath);
@@ -97,7 +88,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
             new AuthToken(tokenId, description, creationTime, owner)
         );
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, new MockFramework(authStoreService));
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(new MockFramework(authStoreService));
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", "", "GET");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -137,7 +128,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         authStoreService.setThrowException(true);
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, new MockFramework(authStoreService));
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(new MockFramework(authStoreService));
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", "", "GET");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -172,7 +163,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         List<AuthToken> expectedTokenOrder = List.of(token2, token1, token4, token3);
 
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, new MockFramework(authStoreService));
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(new MockFramework(authStoreService));
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", "", "GET");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();

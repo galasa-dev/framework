@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.coreos.dex.api.DexOuterClass.Client;
+import com.google.common.net.HttpHeaders;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.authentication.IOidcProvider;
@@ -24,22 +25,25 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class AuthRoute extends BaseRoute {
 
+    private IAuthStoreService authStoreService;
     private IOidcProvider oidcProvider;
     private DexGrpcClient dexGrpcClient;
 
     private static final String ID_TOKEN_KEY      = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
 
-    public AuthRoute(ResponseBuilder responseBuilder, IOidcProvider oidcProvider, DexGrpcClient dexGrpcClient) {
+    public AuthRoute(ResponseBuilder responseBuilder, IOidcProvider oidcProvider, DexGrpcClient dexGrpcClient, IAuthStoreService authStoreService) {
         // Regex to match endpoint /auth and /auth/
         super(responseBuilder, "\\/?");
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = dexGrpcClient;
+        this.authStoreService = authStoreService;
     }
 
     /**
@@ -69,7 +73,7 @@ public class AuthRoute extends BaseRoute {
             if (authUrl != null) {
                 logger.info("Redirect URL to upstream connector received: " + authUrl);
 
-                response.addHeader("Location", authUrl);
+                response.addHeader(HttpHeaders.LOCATION, authUrl);
                 return getResponseBuilder().buildResponse(response, null, null,
                         HttpServletResponse.SC_FOUND);
             } else {
@@ -96,15 +100,15 @@ public class AuthRoute extends BaseRoute {
         logger.info("AuthRoute: handlePostRequest() entered.");
 
         // Check that the request body contains the required payload
-        TokenPayload requestBodyJson = getRequestBodyAsJson(request);
-        if (requestBodyJson == null || !isTokenPayloadValid(requestBodyJson)) {
+        TokenPayload requestPayload = getRequestBodyAsJson(request);
+        if (requestPayload == null || !isTokenPayloadValid(requestPayload)) {
             ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
         try {
             // Send a POST request to Dex's /token endpoint
-            JsonObject tokenResponseBodyJson = sendTokenPost(request, requestBodyJson);
+            JsonObject tokenResponseBodyJson = sendTokenPost(request, requestPayload);
 
             // Return the JWT and refresh token as the servlet's response
             if (tokenResponseBodyJson != null && tokenResponseBodyJson.has(ID_TOKEN_KEY) && tokenResponseBodyJson.has(REFRESH_TOKEN_KEY)) {
