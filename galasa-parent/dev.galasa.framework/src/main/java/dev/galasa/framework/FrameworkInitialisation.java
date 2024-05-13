@@ -206,9 +206,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         initialiseConfidentialTextService(logger,bundleContext);
 
         // Tbe auth store is only required for the ecosystem, local runs don't need it
-        this.uriAuthStore = locateAuthStore(initLogger, overrideProperties);
+        this.uriAuthStore = locateAuthStore(logger, overrideProperties);
         if (this.uriAuthStore != null) {
-            initialiseAuthStore(initLogger, bundleContext);
+            initialiseAuthStore(logger, bundleContext);
         }
 
         if (framework.isInitialised()) {
