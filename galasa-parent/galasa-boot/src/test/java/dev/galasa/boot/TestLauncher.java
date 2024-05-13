@@ -192,4 +192,49 @@ public class TestLauncher {
         }
         fail("LauncherException should have been thrown");
     }
+
+    @Test
+    public void testLogCommandLineArgumentsWithJWTReturnsMask() throws LauncherException, InterruptedException{
+        // Given...
+        String jwtValue = "myJWT15h3r3";
+        Launcher launcher = new Launcher();
+        String[] arguments = new String[]{"--bootstrap","file://home/.galasa/bootstrap.properties","-DGALASA_JWT="+jwtValue, "--obr","file://path/to/my/obr"};
+        
+        // When...
+        String output = launcher.logCommandLineArguments(arguments);
+
+        // Then...
+        String expectedOutput = "Supplied command line arguments: --bootstrap file://home/.galasa/bootstrap.properties -DGALASA_JWT=******* --obr file://path/to/my/obr ";
+        assertThat(output).contains("GALASA_JWT");
+        assertThat(output).doesNotContain(jwtValue);
+        assertThat(output).isEqualTo(expectedOutput);
+    }
+
+    @Test
+    public void testLogCommandLineArgumentsWithoutJWTReturnsvalues() throws LauncherException, InterruptedException{
+        // Given...
+        Launcher launcher = new Launcher();
+        String[] arguments = new String[]{"--bootstrap","file://home/.galasa/bootstrap.properties","--test", "please-test.java", "--obr","file://path/to/my/obr"};
+        
+        // When...
+        String output = launcher.logCommandLineArguments(arguments);
+
+        // Then...
+        String expectedOutput = "Supplied command line arguments: --bootstrap file://home/.galasa/bootstrap.properties --test please-test.java --obr file://path/to/my/obr ";
+        assertThat(output).isEqualTo(expectedOutput);
+    }
+
+    @Test
+    public void testLogCommandLineArgumentsWithBadJWTFlagReturnsvalues() throws LauncherException, InterruptedException{
+        // Given...
+        Launcher launcher = new Launcher();
+        String[] arguments = new String[]{"--bootstrap","file://home/.galasa/bootstrap.properties","--jwt", "im4d3am15tak3", "--obr","file://path/to/my/obr"};
+        
+        // When...
+        String output = launcher.logCommandLineArguments(arguments);
+
+        // Then...
+        String expectedOutput = "Supplied command line arguments: --bootstrap file://home/.galasa/bootstrap.properties --jwt im4d3am15tak3 --obr file://path/to/my/obr ";
+        assertThat(output).isEqualTo(expectedOutput);
+    }
 }
