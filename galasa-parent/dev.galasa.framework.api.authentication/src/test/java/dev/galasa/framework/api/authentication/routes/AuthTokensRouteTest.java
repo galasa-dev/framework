@@ -8,6 +8,7 @@ package dev.galasa.framework.api.authentication.routes;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -56,7 +57,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
 	@Test
 	public void testAuthTokensRouteRegexMatchesOnlyTokens(){
 		//Given...
-        MockAuthStoreService authStoreService = new MockAuthStoreService(null);
+        MockAuthStoreService authStoreService = new MockAuthStoreService(new ArrayList<>());
         String tokensRoutePath = new AuthTokensRoute(null, authStoreService).getPath();
 
 		//When...
