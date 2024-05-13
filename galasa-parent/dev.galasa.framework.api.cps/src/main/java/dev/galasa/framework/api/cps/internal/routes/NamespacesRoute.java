@@ -34,7 +34,7 @@ import dev.galasa.framework.spi.utils.GalasaGson;
  */
 public class NamespacesRoute extends CPSRoute {
 
-    protected static final String path = "\\/";
+    protected static final String path = "\\/?";
     private static final GalasaGson gson = new GalasaGson();
 
 
