@@ -40,7 +40,8 @@ public class NamespacesRoute extends CPSRoute {
 
     public NamespacesRoute(ResponseBuilder responseBuilder, IFramework framework ) {
 		/* Regex to match endpoints: 
-		*  -> /cps/
+		*  -> /cps
+        *  -> /cps/
 		*/
 		super(responseBuilder, path, framework);
 	}
