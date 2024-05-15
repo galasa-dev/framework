@@ -9,21 +9,22 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.galasa.framework.spi.auth.AuthToken;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IAuthToken;
 import dev.galasa.framework.spi.auth.User;
 import dev.galasa.framework.api.common.ITimeService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
+import dev.galasa.framework.spi.auth.AuthToken;
 
 public class MockAuthStoreService implements IAuthStoreService {
 
-    List<AuthToken> tokens = new ArrayList<>();
+    List<IAuthToken> tokens = new ArrayList<>();
     private ITimeService timeService;
     private int tokenIdCounter = 0;
 
     private boolean throwException = false;
 
-    public MockAuthStoreService(List<AuthToken> tokens) {
+    public MockAuthStoreService(List<IAuthToken> tokens) {
         this.tokens = tokens;
         this.timeService = new MockTimeService(Instant.now());
     }
@@ -37,7 +38,7 @@ public class MockAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public List<AuthToken> getTokens() throws AuthStoreException {
+    public List<IAuthToken> getTokens() throws AuthStoreException {
         if (throwException) {
             throwAuthStoreException();
         }

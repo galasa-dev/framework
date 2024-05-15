@@ -27,6 +27,7 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockAuthStoreService;
 import dev.galasa.framework.spi.auth.AuthToken;
+import dev.galasa.framework.spi.auth.IAuthToken;
 import dev.galasa.framework.spi.auth.User;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -85,7 +86,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         Instant creationTime = Instant.now();
         User owner = new User("username");
 
-        List<AuthToken> tokens = List.of(
+        List<IAuthToken> tokens = List.of(
             new AuthToken(tokenId, description, creationTime, owner)
         );
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
@@ -123,7 +124,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         Instant creationTime = Instant.now();
         User owner = new User("username");
 
-        List<AuthToken> tokens = List.of(
+        List<IAuthToken> tokens = List.of(
             new AuthToken(tokenId, description, creationTime, owner)
         );
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
@@ -160,7 +161,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         AuthToken token3 = new AuthToken("token3", "future creation time", time3, owner);
         AuthToken token4 = new AuthToken("token4", "creation time after epoch, same as token1", time2, owner);
 
-        List<AuthToken> tokens = List.of(token1, token2, token3, token4);
+        List<IAuthToken> tokens = List.of(token1, token2, token3, token4);
         List<AuthToken> expectedTokenOrder = List.of(token2, token1, token4, token3);
 
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);

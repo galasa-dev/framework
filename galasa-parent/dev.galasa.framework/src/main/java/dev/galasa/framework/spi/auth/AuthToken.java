@@ -9,7 +9,7 @@ import java.time.Instant;
 
 import com.google.gson.annotations.SerializedName;
 
-public class AuthToken {
+public class AuthToken implements IAuthToken {
 
     @SerializedName("token_id")
     private String tokenId;

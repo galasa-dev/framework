@@ -15,7 +15,7 @@ public interface IAuthStoreService {
      * @return a list of all tokens stored in the auth store.
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
-    List<AuthToken> getTokens() throws AuthStoreException;
+    List<IAuthToken> getTokens() throws AuthStoreException;
 
     /**
      * Stores a new token in the auth store's tokens database.

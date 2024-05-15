@@ -7,9 +7,9 @@ package dev.galasa.framework.internal.auth;
 
 import java.util.List;
 
-import dev.galasa.framework.spi.auth.AuthToken;
 import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IAuthToken;
 import dev.galasa.framework.spi.auth.User;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
@@ -25,7 +25,7 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public List<AuthToken> getTokens() throws AuthStoreException {
+    public List<IAuthToken> getTokens() throws AuthStoreException {
         return authStore.getTokens();
     }
 

@@ -27,8 +27,8 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.auth.AuthToken;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IAuthToken;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 public class AuthTokensRoute extends BaseRoute {
@@ -52,12 +52,12 @@ public class AuthTokensRoute extends BaseRoute {
 
         logger.info("handleGetRequest() entered");
 
-        List<AuthToken> tokens = new ArrayList<>();
+        List<IAuthToken> tokens = new ArrayList<>();
         try {
             // Retrieve all the tokens and put them into a mutable list before sorting
             // them based on their creation time
             tokens = new ArrayList<>(authStoreService.getTokens());
-            Collections.sort(tokens, Comparator.comparing(AuthToken::getCreationTime));
+            Collections.sort(tokens, Comparator.comparing(IAuthToken::getCreationTime));
 
         } catch (AuthStoreException e) {
             ServletError error = new ServletError(GAL5053_FAILED_TO_RETRIEVE_TOKENS);
@@ -73,9 +73,9 @@ public class AuthTokensRoute extends BaseRoute {
      * @param tokens the tokens to convert
      * @return a JSON representation of the tokens within a "tokens" JSON array
      */
-    private String getTokensAsJsonString(List<AuthToken> tokens) {
+    private String getTokensAsJsonString(List<IAuthToken> tokens) {
         JsonArray tokensArray = new JsonArray();
-        for (AuthToken token : tokens) {
+        for (IAuthToken token : tokens) {
             String tokenJson = gson.toJson(token);
             tokensArray.add(JsonParser.parseString(tokenJson));
         }
