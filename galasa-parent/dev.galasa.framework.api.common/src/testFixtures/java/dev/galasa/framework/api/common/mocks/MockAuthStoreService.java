@@ -12,7 +12,7 @@ import java.util.List;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IAuthToken;
 import dev.galasa.framework.spi.auth.User;
-import dev.galasa.framework.api.common.ITimeService;
+import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.AuthToken;
 
