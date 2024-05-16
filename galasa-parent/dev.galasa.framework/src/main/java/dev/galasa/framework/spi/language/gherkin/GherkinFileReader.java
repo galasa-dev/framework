@@ -10,10 +10,8 @@ import java.util.List;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.UncheckedIOException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import dev.galasa.framework.TestRunException;
@@ -25,10 +23,11 @@ public class GherkinFileReader implements IGherkinFileReader {
         List<String> lines ;
         try {
             File gherkinFile = new File(gherkinUri);
-            String content = FileUtils.readFileToString(gherkinFile,"UTF-8");
             lines = IOUtils.readLines(new FileReader(gherkinFile));
-        } catch (IOException e) {
-            throw new TestRunException("Unable to find gherkin test file", e);
+        } catch (UncheckedIOException e) {
+            throw new TestRunException("Unable to read the gherkin test file", e);
+        } catch (FileNotFoundException e) {
+            throw new TestRunException("Unable to find the gherkin test file", e);
         }
         return lines ;
     }
