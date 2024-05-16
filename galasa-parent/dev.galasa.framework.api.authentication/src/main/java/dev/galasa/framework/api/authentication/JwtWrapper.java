@@ -45,6 +45,11 @@ public class JwtWrapper {
         usernameClaimOverrides = env.getenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS);
     }
 
+    public JwtWrapper(String jwt, Environment env) {
+        this.decodedJwt = decodeJwt(jwt);
+        usernameClaimOverrides = env.getenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS);
+    }
+
     public DecodedJWT decodeJwt(@NotNull String jwt) {
         return JWT.decode(jwt);
     }

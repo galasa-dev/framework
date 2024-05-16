@@ -85,7 +85,10 @@ public enum ServletErrorMessage {
     // Auth APIs...
     GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
     GAL5052_FAILED_TO_RETRIEVE_CLIENT                 (5052, "E: Unable to retrieve client for authentication. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
-    GAL5053_FAILED_TO_RETRIEVE_TOKENS                 (5053, "E: Error retrieving tokens from the auth store. Report the problem to your Galasa Ecosystem owner.")
+    GAL5053_FAILED_TO_RETRIEVE_TOKENS                 (5053, "E: Error retrieving tokens from the auth store. Report the problem to your Galasa Ecosystem owner."),
+    GAL5054_FAILED_TO_GET_CONNECTOR_URL               (5054, "E: Could not get the URL of an upstream identity provider to authenticate with. Report the problem to your Galasa Ecosystem owner."),
+    GAL5055_FAILED_TO_GET_TOKENS_FROM_ISSUER          (5055, "E: Failed to get a JWT and a refresh token from the token issuer. The issuer's response did not contain a JWT and refresh token."),
+    GAL5056_FAILED_TO_STORE_TOKEN_IN_AUTH_STORE       (5056, "E: Error occurred when storing the new Galasa token with description ''{0}'' in the auth store."),
     ;
 
 

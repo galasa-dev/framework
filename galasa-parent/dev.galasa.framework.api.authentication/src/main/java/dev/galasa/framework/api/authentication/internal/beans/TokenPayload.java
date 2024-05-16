@@ -23,6 +23,9 @@ public class TokenPayload {
     @SerializedName("code")
     private String code;
 
+    @SerializedName("description")
+    private String description;
+
     public String getClientId() {
         return clientId;
     }
@@ -33,5 +36,9 @@ public class TokenPayload {
 
     public String getCode() {
         return code;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

@@ -46,13 +46,16 @@ public class MockAuthStoreService implements IAuthStoreService {
         return tokens;
     }
 
-    private void throwAuthStoreException() throws AuthStoreException {
-        throw new AuthStoreException("simulating an unexpected failure!");
-    }
-
     @Override
     public void storeToken(String clientId, String description, User owner) throws AuthStoreException {
+        if (throwException) {
+            throwAuthStoreException();
+        }
         tokens.add(new AuthToken("token-" + tokenIdCounter, description, timeService.now(), owner));
         tokenIdCounter++;
+    }
+
+    private void throwAuthStoreException() throws AuthStoreException {
+        throw new AuthStoreException("simulating an unexpected failure!");
     }
 }

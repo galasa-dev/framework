@@ -17,15 +17,19 @@ import com.google.common.net.HttpHeaders;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.authentication.IOidcProvider;
+import dev.galasa.framework.api.authentication.JwtWrapper;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.internal.beans.TokenPayload;
 import dev.galasa.framework.api.common.BaseRoute;
+import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.User;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -34,16 +38,24 @@ public class AuthRoute extends BaseRoute {
     private IAuthStoreService authStoreService;
     private IOidcProvider oidcProvider;
     private DexGrpcClient dexGrpcClient;
+    private Environment env;
 
     private static final String ID_TOKEN_KEY      = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
 
-    public AuthRoute(ResponseBuilder responseBuilder, IOidcProvider oidcProvider, DexGrpcClient dexGrpcClient, IAuthStoreService authStoreService) {
+    public AuthRoute(
+        ResponseBuilder responseBuilder,
+        IOidcProvider oidcProvider,
+        DexGrpcClient dexGrpcClient,
+        IAuthStoreService authStoreService,
+        Environment env
+    ) {
         // Regex to match endpoint /auth and /auth/
         super(responseBuilder, "\\/?");
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = dexGrpcClient;
         this.authStoreService = authStoreService;
+        this.env = env;
     }
 
     /**
@@ -69,24 +81,26 @@ public class AuthRoute extends BaseRoute {
             // Store the callback URL in the session to redirect to at the end of the authentication process
             session.setAttribute("callbackUrl", clientCallbackUrl);
 
+            // Get the redirect URL to the upstream connector and add it to the response's "Location" header
             String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, AuthCallbackRoute.getExternalAuthCallbackUrl(), session);
             if (authUrl != null) {
                 logger.info("Redirect URL to upstream connector received: " + authUrl);
-
                 response.addHeader(HttpHeaders.LOCATION, authUrl);
-                return getResponseBuilder().buildResponse(response, null, null,
-                        HttpServletResponse.SC_FOUND);
-            } else {
-                logger.info("Unable to get URL to redirect to upstream connector.");
-            }
 
+            } else {
+                session.invalidate();
+                ServletError error = new ServletError(GAL5054_FAILED_TO_GET_CONNECTOR_URL);
+                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         } catch (InterruptedException e) {
             logger.error("GET request to the OpenID Connect provider's authorization endpoint was interrupted.", e);
+
+            session.invalidate();
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
 
-        session.invalidate();
-        ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-        throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        return getResponseBuilder().buildResponse(response, null, null, HttpServletResponse.SC_FOUND);
     }
 
     /**
@@ -106,6 +120,7 @@ public class AuthRoute extends BaseRoute {
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
+        JsonObject responseJson = new JsonObject();
         try {
             // Send a POST request to Dex's /token endpoint
             JsonObject tokenResponseBodyJson = sendTokenPost(request, requestPayload);
@@ -114,22 +129,32 @@ public class AuthRoute extends BaseRoute {
             if (tokenResponseBodyJson != null && tokenResponseBodyJson.has(ID_TOKEN_KEY) && tokenResponseBodyJson.has(REFRESH_TOKEN_KEY)) {
                 logger.info("Bearer and refresh tokens successfully received from issuer.");
 
-                JsonObject responseJson = new JsonObject();
-                responseJson.add("jwt", tokenResponseBodyJson.get(ID_TOKEN_KEY));
-                responseJson.add(REFRESH_TOKEN_KEY, tokenResponseBodyJson.get(REFRESH_TOKEN_KEY));
+                String jwt = tokenResponseBodyJson.get(ID_TOKEN_KEY).getAsString();
+                responseJson.addProperty("jwt", jwt);
+                responseJson.addProperty(REFRESH_TOKEN_KEY, tokenResponseBodyJson.get(REFRESH_TOKEN_KEY).getAsString());
 
-                return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(responseJson),
-                        HttpServletResponse.SC_OK);
+                // If we're refreshing an existing token, then we don't want to create a new entry in the tokens database.
+                // We only want to store tokens in the tokens database when they are created.
+                String tokenDescription = requestPayload.getDescription();
+                if (requestPayload.getRefreshToken() == null && tokenDescription != null) {
+                    addTokenToAuthStore(requestPayload.getClientId(), jwt, tokenDescription);
+                }
+
             } else {
                 logger.info("Unable to get new bearer and refresh tokens from issuer.");
+
+                ServletError error = new ServletError(GAL5055_FAILED_TO_GET_TOKENS_FROM_ISSUER);
+                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
 
         } catch (InterruptedException e) {
             logger.error("POST request to the OpenID Connect provider's token endpoint was interrupted.", e);
+
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
 
-        ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-        throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(responseJson), HttpServletResponse.SC_OK);
     }
 
     /**
@@ -203,5 +228,27 @@ public class AuthRoute extends BaseRoute {
      */
     private boolean isTokenPayloadValid(TokenPayload requestPayload) {
         return (requestPayload.getClientId() != null) && (requestPayload.getRefreshToken() != null || requestPayload.getCode() != null);
+    }
+
+    /**
+     * Records a new Galasa token in the auth store.
+     *
+     * @param clientId the ID of the client that a user has authenticated with
+     * @param jwt the JWT that was returned after authenticating with the client, identifying the user
+     * @param description the description of the Galasa token provided by the user
+     * @throws InternalServletException
+     */
+    private void addTokenToAuthStore(String clientId, String jwt, String description) throws InternalServletException {
+        logger.info("Storing new token record in the auth store");
+        JwtWrapper jwtWrapper = new JwtWrapper(jwt, env);
+        User user = new User(jwtWrapper.getUsername());
+
+        try {
+            authStoreService.storeToken(clientId, description, user);
+        } catch (AuthStoreException e) {
+            ServletError error = new ServletError(GAL5056_FAILED_TO_STORE_TOKEN_IN_AUTH_STORE, description);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+        }
+        logger.info("Stored token record in the auth store OK");
     }
 }

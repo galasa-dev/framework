@@ -60,10 +60,10 @@ public class AuthenticationServlet extends BaseServlet {
         String externalWebUiUrl = externalApiServerUrl.replace("/api", "");
 
         initialiseDexClients(dexIssuerUrl, dexGrpcHostname, externalWebUiUrl);
-        
+
         IAuthStoreService authStoreService = framework.getAuthStoreService();
 
-        addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService));
+        addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService, env));
         addRoute(new AuthClientsRoute(getResponseBuilder(), dexGrpcClient));
         addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl));
         addRoute(new AuthTokensRoute(getResponseBuilder(), authStoreService));

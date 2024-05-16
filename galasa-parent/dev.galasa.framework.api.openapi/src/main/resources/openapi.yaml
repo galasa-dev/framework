@@ -2000,6 +2000,9 @@ components:
         code:
           type: string
           description: The authorization code to be exchanged for a JWT, mutually exclusive with "refresh_token".
+        description:
+          type: string
+          description: A single-line description to be associated with the Galasa auth token.
     AuthTokens:
       properties:
         tokens:
