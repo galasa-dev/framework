@@ -32,7 +32,7 @@ import javax.validation.constraints.NotNull;
 public class MockFramework implements IFramework {
     IResultArchiveStore archiveStore;
     IFrameworkRuns frameworkRuns;
-    MockConfigurationPropertyStoreService cpsService = new MockConfigurationPropertyStoreService("framework");
+    MockIConfigurationPropertyStoreService cpsService = new MockIConfigurationPropertyStoreService("framework");
     IAuthStoreService authStoreService;
 
     public MockFramework() {
@@ -57,7 +57,7 @@ public class MockFramework implements IFramework {
     }
 
     public MockFramework(IConfigurationPropertyStoreService cpsService){
-        this.cpsService = (MockConfigurationPropertyStoreService) cpsService;
+        this.cpsService = (MockIConfigurationPropertyStoreService) cpsService;
     }
 
     @Override

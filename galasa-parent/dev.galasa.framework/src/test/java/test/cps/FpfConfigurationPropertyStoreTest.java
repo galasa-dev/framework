@@ -26,7 +26,7 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
  * This tests class checks the behaviour of registering a local CPS using the
  * FPF class is functional.
  * </p>
- *
+ * 
  * @author James Davies
  */
 
@@ -37,7 +37,7 @@ public class FpfConfigurationPropertyStoreTest {
      * This test method checks the returned boolean from a class that checks if a
      * URI is a local file. Expected true.
      * </p>
-     *
+     * 
      * @throws IOException
      */
     @Test
@@ -52,7 +52,7 @@ public class FpfConfigurationPropertyStoreTest {
      * This test method checks the returned boolean from a class that checks if a
      * URI is a local file. Expected false.
      * </p>
-     *
+     * 
      * @throws IOException
      */
     @Test
@@ -66,7 +66,7 @@ public class FpfConfigurationPropertyStoreTest {
      * This methof checks that the implemented get method works through this
      * interface.
      * </p>
-     *
+     * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
      */
@@ -97,7 +97,7 @@ public class FpfConfigurationPropertyStoreTest {
      * This method tests that the exception is caught is the local file is not
      * there.
      * </p>
-     *
+     * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
      */

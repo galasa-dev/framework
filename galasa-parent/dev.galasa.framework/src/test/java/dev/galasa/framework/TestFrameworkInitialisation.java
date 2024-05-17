@@ -83,10 +83,10 @@ public class TestFrameworkInitialisation {
         bootstrapProperties.setProperty("framework.galasa.home","/myuser/home");
         MockEnvironment env = new MockEnvironment();
         FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrapProperties, env);
-
+        
 
         List<URI> rasUriList = frameworkInit.getResultArchiveStoreUris();
-
+        
         assertThat(rasUriList).hasSize(1);
         assertThat(rasUriList.get(0).getPath()).isEqualTo("/myuser/home/ras");
     }
@@ -119,7 +119,7 @@ public class TestFrameworkInitialisation {
         Map<String,String> cpsProperties = new HashMap<String,String>();
 
         cpsProperties.put("framework.run.testbundleclass","myTestBundle/myTestClass");
-
+        
         // framework.run.name sets the run-name explicitly.
         // cpsProperties.put("framework.run.name","myRunName");
 
@@ -138,9 +138,9 @@ public class TestFrameworkInitialisation {
         addMockAuthStoreToMockServiceRegistry(services, bundle);
 
         // When...
-        FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation(
-            bootstrapProperties,
-            overrideProperties,
+        FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation( 
+            bootstrapProperties,  
+            overrideProperties, 
             isTestrun,
             logger,
             bundleContext,
@@ -180,7 +180,7 @@ public class TestFrameworkInitialisation {
         Map<String,String> dssProps = new HashMap<String,String>();
         MockDSSStore mockDSSStore = new MockDSSStore(dssProps);
         MockDSSRegistration mockDSSRegistration = new MockDSSRegistration(mockDSSStore);
-        MockServiceReference<IDynamicStatusStoreRegistration> mockDSSRef =
+        MockServiceReference<IDynamicStatusStoreRegistration> mockDSSRef = 
             new MockServiceReference<IDynamicStatusStoreRegistration>(mockDSSRegistration, bundle );
         services.put(IDynamicStatusStoreRegistration.class.getName(),mockDSSRef);
         return mockDSSStore;
@@ -190,7 +190,7 @@ public class TestFrameworkInitialisation {
         Map<String,String> rasProps = new HashMap<String,String>();
         MockRASStoreService mockRASStoreService = new MockRASStoreService(rasProps);
         MockRASRegistration mockRASRegistration = new MockRASRegistration(mockRASStoreService);
-        MockServiceReference<IResultArchiveStoreRegistration> mockRASRef =
+        MockServiceReference<IResultArchiveStoreRegistration> mockRASRef = 
             new MockServiceReference<IResultArchiveStoreRegistration>(mockRASRegistration, bundle );
         services.put(IResultArchiveStoreRegistration.class.getName(),mockRASRef);
         return mockRASStoreService;
@@ -200,7 +200,7 @@ public class TestFrameworkInitialisation {
         Map<String,ICredentials> credsProps = new HashMap<String,ICredentials>();
         MockCredentialsStore mockCredentialsStore = new MockCredentialsStore(credsProps);
         MockCredentialsStoreRegistration mockCredentialsStoreRegistration = new MockCredentialsStoreRegistration(mockCredentialsStore);
-        MockServiceReference<ICredentialsStoreRegistration> mockCredsRegRef =
+        MockServiceReference<ICredentialsStoreRegistration> mockCredsRegRef = 
             new MockServiceReference<ICredentialsStoreRegistration>(mockCredentialsStoreRegistration, bundle );
         services.put(ICredentialsStoreRegistration.class.getName(),mockCredsRegRef);
         return mockCredentialsStore;
@@ -210,7 +210,7 @@ public class TestFrameworkInitialisation {
         Map<String,String> confidentialTextProps = new HashMap<String,String>();
         MockConfidentialTextStore mockConfidentialTextStore = new MockConfidentialTextStore(confidentialTextProps);
         MockConfidentialTextStoreRegistration mockConfidentialTextStoreRegistration = new MockConfidentialTextStoreRegistration(mockConfidentialTextStore);
-        MockServiceReference<IConfidentialTextServiceRegistration> mockConfidentialTextServiceRegRef =
+        MockServiceReference<IConfidentialTextServiceRegistration> mockConfidentialTextServiceRegRef = 
             new MockServiceReference<IConfidentialTextServiceRegistration>(mockConfidentialTextStoreRegistration, bundle );
         services.put(IConfidentialTextServiceRegistration.class.getName(),mockConfidentialTextServiceRegRef);
         return mockConfidentialTextStore;
@@ -236,20 +236,20 @@ public class TestFrameworkInitialisation {
         MockEnvironment mockEnv = new MockEnvironment();
 
         Map<String,MockServiceReference<?>> services = new HashMap<String,MockServiceReference<?>>();
-
+        
         // Note: The framework service isn't added as a service reference ! This should cause an error.
 
         MockBundleContext bundleContext = new MockBundleContext(services);
-
+        
         MockFileSystem mockFileSystem = new MockFileSystem();
 
         // When...
         try {
-            new FrameworkInitialisation(
-                bootstrapProperties,
-                overrideProperties,
+            new FrameworkInitialisation( 
+                bootstrapProperties,  
+                overrideProperties, 
                 isTestrun,
-                logger,
+                logger, 
                 bundleContext,
                 mockFileSystem,
                 mockEnv);
@@ -286,17 +286,17 @@ public class TestFrameworkInitialisation {
         // Note: The CPS framework service isn't added as a service reference !
 
         MockBundleContext bundleContext = new MockBundleContext(services);
-
+        
         MockFileSystem mockFileSystem = new MockFileSystem();
 
         // When...
         FrameworkInitialisation frameworkInitUnderTest = null;
         try {
-            frameworkInitUnderTest = new FrameworkInitialisation(
-                bootstrapProperties,
-                overrideProperties,
+            frameworkInitUnderTest = new FrameworkInitialisation( 
+                bootstrapProperties,  
+                overrideProperties, 
                 isTestrun,
-                logger,
+                logger, 
                 bundleContext,
                 mockFileSystem,
                 mockEnv);
@@ -355,7 +355,7 @@ public class TestFrameworkInitialisation {
         FrameworkInitialisation frameworkInit = createFrameworkInit();
 
         Log logger = new MockLog();
-
+        
         // A fresh file system...
         MockFileSystem fs = new MockFileSystem();
     //    MockEnvironment mockEnv = new MockEnvironment();
@@ -388,7 +388,7 @@ public class TestFrameworkInitialisation {
         FrameworkInitialisation frameworkInit = createFrameworkInit();
 
         Log logger = new MockLog();
-
+        
         // A fresh file system...
         MockFileSystem fs = new MockFileSystem();
 //        MockEnvironment mockEnv = new MockEnvironment();
@@ -423,7 +423,7 @@ public class TestFrameworkInitialisation {
         FrameworkInitialisation frameworkInit = createFrameworkInit();
 
         Log logger = new MockLog();
-
+        
         // A fresh file system...
         MockFileSystem fs = new MockFileSystem();
 //        MockEnvironment mockEnv = new MockEnvironment();

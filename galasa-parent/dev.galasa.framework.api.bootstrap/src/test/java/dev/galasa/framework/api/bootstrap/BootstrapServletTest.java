@@ -16,14 +16,14 @@ import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.mocks.MockConfigurationPropertyStoreService;
+import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 
 public class BootstrapServletTest extends BaseServletTest {
-
+    
 
 	MockBootstrapServlet servlet;
 	HttpServletRequest req;
@@ -32,14 +32,14 @@ public class BootstrapServletTest extends BaseServletTest {
 	protected void setServlet() throws ConfigurationPropertyStoreException{
 		this.servlet = new MockBootstrapServlet();
 		IConfigurationPropertyStoreService cpsstore;
-        cpsstore = new MockConfigurationPropertyStoreService("bootstrap");
+		cpsstore = new MockIConfigurationPropertyStoreService("bootstrap");
         cpsstore.setProperty("framework.config.store","mystore");
         cpsstore.setProperty("framework.extra.bundles","more.bundles");
         cpsstore.setProperty("framework.testcatalog.url", "myeco.dev/testcatalog");
 		IFramework framework = new MockFramework(cpsstore);
 		this.servlet.setFramework(framework);
 	}
-
+	
 	protected void setServlet(String path) throws ConfigurationPropertyStoreException{
 		setServlet();
 		ServletOutputStream outStream = new MockServletOutputStream();

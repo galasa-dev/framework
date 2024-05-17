@@ -26,7 +26,7 @@ import dev.galasa.framework.spi.DynamicStatusStoreException;
  * This test class checks the behaviour of registering a local DSS using the FPF
  * class in functional
  * </p>
- *
+ * 
  * @author Bruce Abbott
  */
 
@@ -54,7 +54,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * <p>
      * This test checks for no exceptions when putting a key/value pair into the DSS
      * </p>
-     *
+     * 
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -69,7 +69,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * This test checks for no exceptions when putting a map of multiple key/value
      * pairs into the DSS
      * </p>
-     *
+     * 
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -87,7 +87,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * This test checks the returned boolean from attempting a swap which has
      * already occured. Expected False.
      * </p>
-     *
+     * 
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -101,7 +101,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * <p>
      * This test checks the returned boolean from attempting a swap. Expected True.
      * </p>
-     *
+     * 
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -117,7 +117,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * multiple key/value pairs from a Map) which has already occured. Expected
      * False.
      * </p>
-     *
+     * 
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -136,7 +136,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * This test checks the returned boolean from attempting a swap and put of a Map
      * of key/value pairs. Expected True.
      * </p>
-     *
+     * 
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -154,7 +154,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * <p>
      * This test checks that a value can be retrieved.
      * </p>
-     *
+     * 
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -169,7 +169,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * This test checks if all key/value pairs with a common prefix can be
      * retrieved.
      * </p>
-     *
+     * 
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -187,7 +187,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * <p>
      * This test checks if a key/value pair can be deleted.
      * </p>
-     *
+     * 
      * @throws DynamicStatusStoreException
      * @throws IOException
      */
@@ -202,7 +202,7 @@ public class FrameworkDynamicStatusStoreServiceTest {
      * <p>
      * This test checks if all key/value pairs with a common prefix can be deleted.
      * </p>
-     *
+     * 
      * @throws DynamicStatusStoreException
      * @throws IOException
      */

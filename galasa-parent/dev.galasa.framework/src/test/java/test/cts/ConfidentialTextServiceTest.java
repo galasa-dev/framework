@@ -18,14 +18,14 @@ import dev.galasa.framework.spi.ConfidentialTextException;
 /**
  * This test class ensures that confidential texts that have been registered are
  * reomved from text.
- *
+ * 
  * @author James Davies
  */
 public class ConfidentialTextServiceTest {
 
     /**
      * The test method adds a confidential text to the service.
-     *
+     * 
      * @throws ConfidentialTextException
      * @throws IOException
      */
@@ -40,7 +40,7 @@ public class ConfidentialTextServiceTest {
     /**
      * This test method ensures that any regitered words or phrases are removed from
      * a text.
-     *
+     * 
      * @throws ConfidentialTextException
      * @throws IOException
      */
@@ -63,7 +63,7 @@ public class ConfidentialTextServiceTest {
     /**
      * This test method ensures that any regitered words or phrases are removed from
      * a text.
-     *
+     * 
      * @throws ConfidentialTextException
      * @throws IOException
      */

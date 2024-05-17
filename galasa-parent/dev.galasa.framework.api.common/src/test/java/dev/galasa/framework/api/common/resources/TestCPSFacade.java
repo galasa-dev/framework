@@ -23,8 +23,8 @@ public class TestCPSFacade {
     @Test
     public void TestNamespacesListContainsFramework() throws ConfigurationPropertyStoreException{
 
-        IConfigurationPropertyStoreService cps = new MockConfigurationPropertyStoreService();
-
+        IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
+        
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
         Map<String,CPSNamespace> spaces = facade.getNamespaces();
@@ -38,7 +38,7 @@ public class TestCPSFacade {
     @Test
     public void TestNamespacesListContainsDSS() throws ConfigurationPropertyStoreException{
 
-        IConfigurationPropertyStoreService cps = new MockConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
         Map<String,CPSNamespace> spaces = facade.getNamespaces();
@@ -53,7 +53,7 @@ public class TestCPSFacade {
     @Test
     public void TestNamespacesListContainsDex() throws ConfigurationPropertyStoreException{
 
-        IConfigurationPropertyStoreService cps = new MockConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
         Map<String,CPSNamespace> spaces = facade.getNamespaces();
@@ -67,7 +67,7 @@ public class TestCPSFacade {
     @Test
     public void TestNamespacesListContainsSecure() throws ConfigurationPropertyStoreException{
 
-        IConfigurationPropertyStoreService cps = new MockConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
         Map<String,CPSNamespace> spaces = facade.getNamespaces();
@@ -81,12 +81,12 @@ public class TestCPSFacade {
 
     @Test
     public void TestGetNamespacesDrawsFromCPSService() throws Exception {
-        IConfigurationPropertyStoreService cps = new MockConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
 
         cps.setProperty("myNamespace.myProperties.a","myValue");
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
-
+        
         Map<String,CPSNamespace> spaces = facade.getNamespaces();
 
         assertThat(spaces).containsKeys("myNamespace");
@@ -97,7 +97,7 @@ public class TestCPSFacade {
 
     @Test
     public void TestGetNamespacesDrawsFromCPSServiceSecureVisibilityNotOverwritten() throws Exception {
-        IConfigurationPropertyStoreService cps = new MockConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
 
         cps.setProperty("secure.myProperties.a","myValue");
 
@@ -113,7 +113,7 @@ public class TestCPSFacade {
 
     private void checkGetOfNamespace(String name, boolean isExpectedToBeSecure, boolean isExpectedToBeHidden )
             throws ConfigurationPropertyStoreException{
-        IConfigurationPropertyStoreService cps = new MockConfigurationPropertyStoreService();
+        IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         IFramework mockFramework = new MockFramework(cps);
         CPSFacade facade = new CPSFacade(mockFramework);
         CPSNamespace ns = facade.getNamespace(name);

@@ -55,28 +55,28 @@ public class AuthTokensRouteTest extends BaseServletTest {
         }
     }
 
-	@Test
-	public void testAuthTokensRouteRegexMatchesOnlyTokens(){
-		//Given...
+    @Test
+    public void testAuthTokensRouteRegexMatchesOnlyTokens(){
+        //Given...
         MockAuthStoreService authStoreService = new MockAuthStoreService(new ArrayList<>());
         String tokensRoutePath = new AuthTokensRoute(null, authStoreService).getPath();
 
-		//When...
-		Pattern tokensRoutePattern = Pattern.compile(tokensRoutePath);
+        //When...
+        Pattern tokensRoutePattern = Pattern.compile(tokensRoutePath);
 
-		//Then...
+        //Then...
         // The route should only accept /tokens and /tokens/
-		assertThat(tokensRoutePattern.matcher("/tokens").matches()).isTrue();
-		assertThat(tokensRoutePattern.matcher("/tokens/").matches()).isTrue();
+        assertThat(tokensRoutePattern.matcher("/tokens").matches()).isTrue();
+        assertThat(tokensRoutePattern.matcher("/tokens/").matches()).isTrue();
 
         // The route should not accept the following
-		assertThat(tokensRoutePattern.matcher("/token").matches()).isFalse();
-		assertThat(tokensRoutePattern.matcher("/token/").matches()).isFalse();
-		assertThat(tokensRoutePattern.matcher("/tokens/////").matches()).isFalse();
-		assertThat(tokensRoutePattern.matcher("/t0kens").matches()).isFalse();
-		assertThat(tokensRoutePattern.matcher("/").matches()).isFalse();
-		assertThat(tokensRoutePattern.matcher("").matches()).isFalse();
-	}
+        assertThat(tokensRoutePattern.matcher("/token").matches()).isFalse();
+        assertThat(tokensRoutePattern.matcher("/token/").matches()).isFalse();
+        assertThat(tokensRoutePattern.matcher("/tokens/////").matches()).isFalse();
+        assertThat(tokensRoutePattern.matcher("/t0kens").matches()).isFalse();
+        assertThat(tokensRoutePattern.matcher("/").matches()).isFalse();
+        assertThat(tokensRoutePattern.matcher("").matches()).isFalse();
+    }
 
     @Test
     public void testGetAuthTokensReturnsTokensOK() throws Exception {

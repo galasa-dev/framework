@@ -14,9 +14,9 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.*;
 import org.osgi.framework.*;
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreRegistration;
-import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.creds.*;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
@@ -27,7 +27,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private final URI                                uriConfigurationPropertyStore;
     private final URI                                uriDynamicStatusStore;
     private final URI                                uriCredentialsStore;
-    private final URI uriAuthStore;
+    private final URI                                uriAuthStore;
     private final List<URI>                          uriResultArchiveStores;
 
     private final IConfigurationPropertyStoreService cpsFramework;
@@ -39,33 +39,33 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     private String galasaHome;
 
-
+    
     public FrameworkInitialisation(
-        Properties bootstrapProperties,
+        Properties bootstrapProperties, 
         Properties overrideProperties
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, false, null,
+        this(bootstrapProperties, overrideProperties, false, null, 
         getBundleContext() , new FileSystem() , new SystemEnvironment());
     }
 
 
     public FrameworkInitialisation(
-        Properties bootstrapProperties,
-        Properties overrideProperties,
+        Properties bootstrapProperties, 
+        Properties overrideProperties, 
         boolean testrun
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, testrun, null,
+        this(bootstrapProperties, overrideProperties, testrun, null, 
         getBundleContext() , new FileSystem(), new SystemEnvironment());
     }
 
 
     public FrameworkInitialisation(
-        Properties bootstrapProperties,
+        Properties bootstrapProperties, 
         Properties overrideProperties,
         boolean testrun,
         Log initLogger
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, testrun, initLogger,
+        this(bootstrapProperties, overrideProperties, testrun, initLogger, 
         getBundleContext(), new FileSystem(), new SystemEnvironment());
     }
 
@@ -104,7 +104,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                         home = "~/.galasa";
                     }
                 }
-
+                
             } else {
                 logger.info("Environment variable GALASA_HOME used to set value of home location.");
             }
@@ -139,11 +139,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     public FrameworkInitialisation(
-        Properties bootstrapProperties,
-        Properties overrideProperties,
+        Properties bootstrapProperties, 
+        Properties overrideProperties, 
         boolean testrun,
         Log initLogger,
-        BundleContext bundleContext ,
+        BundleContext bundleContext , 
         IFileSystem fileSystem,
         Environment env
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
@@ -205,7 +205,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         initialiseConfidentialTextService(logger,bundleContext);
 
-        // Tbe auth store is only required for the ecosystem, local runs don't need it
+        // The auth store is only required for the ecosystem, local runs don't need it
         this.uriAuthStore = locateAuthStore(logger, overrideProperties);
         if (this.uriAuthStore != null) {
             initialiseAuthStore(logger, bundleContext);
@@ -238,7 +238,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     /**
      * Submit the run and return the run name.
-     *
+     * 
      * @param runBundleClass
      * @param language
      * @return The name of the run created.
@@ -249,7 +249,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         IFrameworkRuns frameworkRuns = this.framework.getFrameworkRuns();
 
         switch(language) {
-            case "java":
+            case "java": 
                 String split[] = runBundleClass.split("/");
                 String bundle = split[0];
                 String test = split[1];
@@ -269,7 +269,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     /**
      * Create an empty default property file if it doesn't already exist
-     *
+     * 
      * @param propertyFile
      * @throws IOException
      */
@@ -425,7 +425,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 	@Override
 	public void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
 			throws CertificateStoreException {
-
+		
 	}
 
     private void assertFrameworkNotAlreadyInitialised(Framework framework) throws FrameworkException {
@@ -436,7 +436,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     /**
      * Find where the property store is located, or create a new one if it's not
-     *
+     * 
      * Note: package level scope so we can unit test it.
      * @param logger
      * @param bootstrapProperties
@@ -522,7 +522,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         return storeUri;
     }
 
-    // Find the run name of the test run, if it's not a set property
+    // Find the run name of the test run, if it's not a set property 
     // ("framework.run.name")
     // then create a run name by submitting the run, based on language, properties.
     private String locateRunName(IConfigurationPropertyStoreService cpsFramework) throws FrameworkException {
@@ -576,7 +576,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             String rasProperty = overrideProperties.getProperty("framework.resultarchive.store");
             processRASlocationProperty(rasProperty,uriResultArchiveStores);
 
-
+            
             if (uriResultArchiveStores.isEmpty()) {
                 // We've not got a RAS store yet, so use the one configured in the CPS...
                 rasProperty = cpsFramework.getProperty("resultarchive", "store");
@@ -627,7 +627,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         IConfigurationPropertyStoreService cpsFramework,
         IFileSystem fileSystem
     ) throws FrameworkException {
-
+        
         URI uriCredentialsStore ;
         // *** Work out the creds uri
         try {
@@ -648,7 +648,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             }
             uriCredentialsStore = Paths.get(this.galasaHome, "credentials.properties").toUri();
             createIfMissing(uriCredentialsStore,fileSystem);
-
+            
         } catch (final Exception e) {
             throw new FrameworkException("Unable to resolve the Credentials Store URI", e);
         }
@@ -670,9 +670,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             final IConfigurationPropertyStoreRegistration cpsStoreRegistration = (IConfigurationPropertyStoreRegistration) bundleContext
                     .getService(cpsReference);
             logger.trace("Found CPS Provider " + cpsStoreRegistration.getClass().getName());
-            // Call out to the cpsStoreRegistration.
+            // Call out to the cpsStoreRegistration. 
             // We expect it to call back on the IFrameworkInitialisation.registerConfigurationPropertyStore call
-            // to set the CPS object into the this.framework, so it can be retrieved by the
+            // to set the CPS object into the this.framework, so it can be retrieved by the 
             // this.framework.getConfigurationPropertyStore() call in a bit...
             cpsStoreRegistration.initialise(this);
         }
@@ -707,9 +707,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             throw new FrameworkException("Failed to initialise a Dynamic Status Store, unable to continue");
         }
         logger.trace("Selected DSS Service is " + this.framework.getDynamicStatusStore().getClass().getName());
-
+        
         return this.framework.getDynamicStatusStoreService("framework");
-    }
+    }  
 
 
     void initialiseResultsArchiveStore(Log logger, BundleContext bundleContext) throws FrameworkException, InvalidSyntaxException {
@@ -730,7 +730,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             } else {
                 logger.trace("Found RAS Provider " + rasRegistration.getClass().getName());
                 // Magic here: The ras Registration calls back to this.registerResultArchiveStoreService()
-                // which in turn sets the value into the framework, so that
+                // which in turn sets the value into the framework, so that 
                 // ramework.getResultArchiveStoreService() returns non-null.
                 rasRegistration.initialise(this);
             }
@@ -743,8 +743,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
 
     void initialiseCredentialsStore(
-        Log logger,
-        BundleContext bundleContext
+        Log logger, 
+        BundleContext bundleContext 
     ) throws FrameworkException, InvalidSyntaxException {
 
         // *** Initialise the Credentials Store
@@ -759,7 +759,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                     .getService(credsReference);
             logger.trace("Found Creds Provider " + credsRegistration.getClass().getName());
             // Magic happens here; The registration code calls back here to registerCredentialsStore()
-            // which in turn pushes that to the framework, so later on,
+            // which in turn pushes that to the framework, so later on, 
             // framework.getCredentialsStore() returns non-null.
             credsRegistration.initialise(this);
         }
@@ -771,8 +771,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
 
     void initialiseConfidentialTextService(
-        Log logger,
-        BundleContext bundleContext
+        Log logger, 
+        BundleContext bundleContext 
     ) throws FrameworkException, InvalidSyntaxException {
 
         // *** Initialise the Confidential Text Service
@@ -787,7 +787,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
                     .getService(confidentialReference);
             logger.trace("Found Confidential Text Services Provider " + credsRegistration.getClass().getName());
             // Magic happens here; The registration code calls back here to registerConfidentialTextstore()
-            // which in turn pushes that to the framework, so later on,
+            // which in turn pushes that to the framework, so later on, 
             // framework.getConfidentialTextService returns non-null.
             credsRegistration.initialise(this);
         }

@@ -19,7 +19,7 @@ import dev.galasa.framework.spi.ConfidentialTextException;
 /**
  * This test class ensures that confidential texts that have been registered are
  * reomved from text.
- *
+ * 
  * @author James Davies
  */
 public class ConfidentialTextServiceRegistrationTest {
@@ -27,7 +27,7 @@ public class ConfidentialTextServiceRegistrationTest {
     /**
      * This method intialises the confidentialTextService and checks no exceptions
      * are thrown.
-     *
+     * 
      * @throws ConfidentialTextException - if the service cannot be registered (i.e
      *                                   more than 1 service).
      * @throws IOException

@@ -10,7 +10,7 @@ import org.junit.Test;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.mocks.MockFramework;
-import dev.galasa.framework.api.common.mocks.MockConfigurationPropertyStoreService;
+import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 
@@ -21,12 +21,12 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 public class TestCPSProperty extends BaseServletTest {
-
-    private class MockCPSServiceWithError extends MockConfigurationPropertyStoreService {
-        protected MockCPSServiceWithError(String namespace){
+    
+    private class MockICPSServiceWithError extends MockIConfigurationPropertyStoreService {
+        protected MockICPSServiceWithError(String namespace){
             super.namespaceInput= namespace;
         }
-
+        
         @Override
         public void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException {
             throw new ConfigurationPropertyStoreException("Could not Delete Key");
@@ -39,10 +39,10 @@ public class TestCPSProperty extends BaseServletTest {
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
         String propertyValue = "randomValue123";
-
+        
         //When...
         CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-
+        
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
@@ -57,10 +57,10 @@ public class TestCPSProperty extends BaseServletTest {
         String propertyName = "new.property.name";
         String propertyValue = "randomValue123";
         String fullPropertyName = namespace+"."+propertyName;
-
+        
         //When...
         CPSProperty property = new CPSProperty(fullPropertyName, propertyValue);
-
+        
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
@@ -76,10 +76,10 @@ public class TestCPSProperty extends BaseServletTest {
         String propertyValue = "randomValue123";
         String fullPropertyName = namespace+"."+propertyName;
         Map.Entry<String, String> entry = Map.entry(fullPropertyName, propertyValue);
-
+        
         //When...
         CPSProperty property = new CPSProperty(entry);
-
+        
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
@@ -93,10 +93,10 @@ public class TestCPSProperty extends BaseServletTest {
         String namespace = "randomnamespace";
         String propertyName = "random.property.name";
         String propertyValue = "randomValue123";
-
+        
         //When...
         CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-
+        
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
@@ -110,10 +110,10 @@ public class TestCPSProperty extends BaseServletTest {
         String namespace = null;
         String propertyName = null;
         String propertyValue = null;
-
+        
         //When...
         CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-
+        
 
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
@@ -133,10 +133,10 @@ public class TestCPSProperty extends BaseServletTest {
         String namespace = null;
         String propertyName = null;
         String propertyValue = null;
-
+        
         //When...
         CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-
+        
 
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
@@ -156,10 +156,10 @@ public class TestCPSProperty extends BaseServletTest {
         String namespace = "framework";
         String propertyName = null;
         String propertyValue = null;
-
+        
         //When...
         CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-
+        
 
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
@@ -179,10 +179,10 @@ public class TestCPSProperty extends BaseServletTest {
         String namespace = "framework";
         String propertyName = "property";
         String propertyValue = null;
-
+        
         //When...
         CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-
+        
 
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
@@ -202,10 +202,10 @@ public class TestCPSProperty extends BaseServletTest {
         String namespace = null;
         String propertyName = "property";
         String propertyValue = "value";
-
+        
         //When...
         CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-
+        
 
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
@@ -225,10 +225,10 @@ public class TestCPSProperty extends BaseServletTest {
         String namespace = "framework";
         String propertyName = "";
         String propertyValue = "value";
-
+        
         //When...
         CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-
+        
 
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
@@ -248,10 +248,10 @@ public class TestCPSProperty extends BaseServletTest {
         String namespace = "framework";
         String propertyName = "property";
         String propertyValue = "";
-
+        
         //When...
         CPSProperty property = new CPSProperty(namespace, propertyName, propertyValue);
-
+        
 
         //Then...
         assertThat(property.getNamespace()).isEqualTo(namespace);
@@ -271,7 +271,7 @@ public class TestCPSProperty extends BaseServletTest {
         String propertyNamespace = "random";
         String propertyName = "property.name";
         String propertyValue = "randomValue123";
-        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService(propertyNamespace);
+        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService(propertyNamespace);
         MockFramework mockFramework = new MockFramework(mockCPS);
         mockCPS.setProperty(propertyNamespace+"."+propertyName, propertyValue);
         //check that the property has been set
@@ -293,7 +293,7 @@ public class TestCPSProperty extends BaseServletTest {
         String propertyNamespace = "secure";
         String propertyName = "property.name";
         String propertyValue = "randomValue123";
-        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService(propertyNamespace);
+        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService(propertyNamespace);
         MockFramework mockFramework = new MockFramework(mockCPS);
         mockCPS.setProperty(propertyNamespace+"."+propertyName, propertyValue);
         //check that the property has been set
@@ -315,7 +315,7 @@ public class TestCPSProperty extends BaseServletTest {
         String propertyNamespace = "random";
         String propertyName = "property.name";
         String propertyValue = "randomValue123";
-        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService(propertyNamespace);
+        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService(propertyNamespace);
         MockFramework mockFramework = new MockFramework(mockCPS);
         mockCPS.setProperty(propertyNamespace+"."+propertyName, propertyValue);
         //check that the property has been set
@@ -337,7 +337,7 @@ public class TestCPSProperty extends BaseServletTest {
         String propertyNamespace = "random";
         String propertyName = "property.name";
         String propertyValue = "randomValue123";
-        IConfigurationPropertyStoreService mockCPS = new MockCPSServiceWithError(propertyNamespace);
+        IConfigurationPropertyStoreService mockCPS = new MockICPSServiceWithError(propertyNamespace);
         MockFramework mockFramework = new MockFramework(mockCPS);
         mockCPS.setProperty(propertyNamespace+"."+propertyName, propertyValue);
         //check that the property has been set
@@ -355,7 +355,7 @@ public class TestCPSProperty extends BaseServletTest {
         assertThat(thrown).isNotNull();
         checkErrorStructure(thrown.getMessage(),5030,
             "GAL5030E: Error occured when trying to delete Property 'properly.name'.",
-                "Report the problem to your Galasa Ecosystem owner.");
+            "Report the problem to your Galasa Ecosystem owner.");        
     }
 
     @Test
@@ -364,7 +364,7 @@ public class TestCPSProperty extends BaseServletTest {
         String propertyNamespace = "random";
         String propertyName = "property.name";
         String propertyValue = "";
-        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService(propertyNamespace);
+        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService(propertyNamespace);
         MockFramework mockFramework = new MockFramework(mockCPS);
         mockCPS.setProperty(propertyNamespace+"."+propertyName, propertyValue);
         //check that the property has been set
@@ -386,7 +386,7 @@ public class TestCPSProperty extends BaseServletTest {
         String invalidNamespace = "random";
         String propertyName = "property.name";
         String propertyValue = "randomValue123";
-        IConfigurationPropertyStoreService mockCPS = new MockCPSServiceWithError(invalidNamespace);
+        IConfigurationPropertyStoreService mockCPS = new MockICPSServiceWithError(invalidNamespace);
         MockFramework mockFramework = new MockFramework(mockCPS);
         mockCPS.setProperty("validNamespace."+propertyName, propertyValue);
         //check that the property has been set
@@ -404,7 +404,7 @@ public class TestCPSProperty extends BaseServletTest {
         assertThat(thrown).isNotNull();
         checkErrorStructure(thrown.getMessage(),5030,
             "GAL5030E: Error occured when trying to delete Property 'property.name'.",
-                "Report the problem to your Galasa Ecosystem owner.");
+            "Report the problem to your Galasa Ecosystem owner.");        
     }
 
 
@@ -414,7 +414,7 @@ public class TestCPSProperty extends BaseServletTest {
         String propertyNamespace = "secure";
         String propertyName = "property.name";
         String propertyValue = "randomValue123";
-        IConfigurationPropertyStoreService mockCPS = new MockConfigurationPropertyStoreService(propertyNamespace);
+        IConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService(propertyNamespace);
         MockFramework mockFramework = new MockFramework(mockCPS);
         mockCPS.setProperty(propertyNamespace+"."+propertyName, propertyValue);
         //check that the property has been set

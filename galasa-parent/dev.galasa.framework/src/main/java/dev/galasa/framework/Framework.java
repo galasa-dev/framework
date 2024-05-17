@@ -53,7 +53,7 @@ public class Framework implements IFramework {
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;
-    private IAuthStore authStore;
+    private IAuthStore                         authStore;
 
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
@@ -133,7 +133,7 @@ public class Framework implements IFramework {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * dev.galasa.framework.spi.IFramework#getDynamicStatusStore(java.lang.String)
      */
@@ -174,7 +174,7 @@ public class Framework implements IFramework {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see dev.galasa.framework.spi.IFramework#getResultArchiveStore()
      */
     @Override
@@ -188,7 +188,7 @@ public class Framework implements IFramework {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see dev.galasa.framework.spi.IFramework#getResourcePoolingService()
      */
     @Override
@@ -198,7 +198,7 @@ public class Framework implements IFramework {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see dev.galasa.framework.spi.IFramework#getConfidentialTextService()
      */
     @Override
@@ -330,7 +330,7 @@ public class Framework implements IFramework {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see dev.galasa.framework.spi.IFramework#getTestRunName()
      */
     @Override
@@ -340,7 +340,7 @@ public class Framework implements IFramework {
 
     /**
      * Set the run name if it is a test run
-     *
+     * 
      * @param runName The run name
      * @throws FrameworkException
      */
@@ -497,7 +497,7 @@ public class Framework implements IFramework {
         if (sePhase == null) {
             return null;
         }
-
+        
         switch(sePhase) {
             case "BUILD":
                 return SharedEnvironmentRunType.BUILD;
@@ -512,4 +512,5 @@ public class Framework implements IFramework {
 	public @NotNull ICertificateStoreService getCertificateStoreService() {
 		return null;
 	}
+
 }

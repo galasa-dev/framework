@@ -21,7 +21,7 @@ import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.mocks.MockConfigurationPropertyStoreService;
+import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
 
 import dev.galasa.framework.api.resources.mocks.MockResourcesServlet;
@@ -31,18 +31,18 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class ResourcesServletTest extends BaseServletTest {
-
+    
 	static final GalasaGson gson = new GalasaGson();
 
 	MockResourcesServlet servlet;
 	HttpServletRequest req;
 	HttpServletResponse resp;
 
-    private class MockICPSServiceWithError extends MockConfigurationPropertyStoreService {
+	private class MockICPSServiceWithError extends MockIConfigurationPropertyStoreService {
         protected MockICPSServiceWithError(String namespace){
             super.namespaceInput= namespace;
         }
-
+        
         @Override
         public void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException {
             throw new ConfigurationPropertyStoreException("Could not Delete Key");
@@ -53,14 +53,14 @@ public class ResourcesServletTest extends BaseServletTest {
 		this.servlet = new MockResourcesServlet();
 		IConfigurationPropertyStoreService cpsstore;
 		if (namespace != null){
-            cpsstore = new MockConfigurationPropertyStoreService(namespace);
+			cpsstore = new MockIConfigurationPropertyStoreService(namespace);
 		} else{
 			cpsstore = new MockICPSServiceWithError("framework");
 		}
 		IFramework framework = new MockFramework(cpsstore);
 		this.servlet.setFramework(framework);
 	}
-
+	
 	protected void setServlet(String path,String namespace, Map<String, String[]> parameterMap){
 		setServlet(namespace);
 		ServletOutputStream outStream = new MockServletOutputStream();
@@ -92,7 +92,7 @@ public class ResourcesServletTest extends BaseServletTest {
 	protected void checkPropertyInNamespace(String namespace, String propertyName, String propertyValue) throws Exception{
 		assertThat(checkProperty(namespace, propertyName, propertyValue)).isTrue();
 	}
-
+	
 	protected void checkPropertyNotInNamespace(String namespace, String propertyName, String propertyValue) throws Exception{
 		assertThat(checkProperty(namespace, propertyName, propertyValue)).isFalse();
 	}
@@ -145,7 +145,7 @@ public class ResourcesServletTest extends BaseServletTest {
 			// Key Value namesapce.propertyname value value
 			String[] splitName = entry.getKey().split("[.]", 2);
 			results += generatePropertyJSON(splitName[0], splitName[1],entry.getValue(),"galasa-dev/v1alpha1");
-        }
+		} 
         return "[\n  "+results+"\n]";
     }
 }

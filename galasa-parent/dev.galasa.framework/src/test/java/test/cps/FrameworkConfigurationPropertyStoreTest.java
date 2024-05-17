@@ -48,7 +48,7 @@ public class FrameworkConfigurationPropertyStoreTest {
      * <p>
      * This test method ensures the object can be insantiated
      * </p>
-     *
+     * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
      */
@@ -80,7 +80,7 @@ public class FrameworkConfigurationPropertyStoreTest {
      * This test method does a simple get property check from a basic properties
      * file.
      * </p>
-     *
+     * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
      */
@@ -109,7 +109,7 @@ public class FrameworkConfigurationPropertyStoreTest {
      * This test method ensures that the getProperty method retrieves the preferred
      * key when two viable options available.
      * </p>
-     *
+     * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
      */
@@ -141,7 +141,7 @@ public class FrameworkConfigurationPropertyStoreTest {
      * This test method ensures that the getProperty method checks the overrides and
      * retrieves the correct values over the CPS stored version.
      * </p>
-     *
+     * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
      */

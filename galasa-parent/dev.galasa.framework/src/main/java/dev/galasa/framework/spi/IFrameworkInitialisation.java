@@ -20,7 +20,7 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
  * IFrameworkInitialisation provides access to the framework routines that
  * should only be called during test run and server initialisation.
  * </p>
- *
+ * 
  * @author Michael Baylis
  *
  */
@@ -28,7 +28,7 @@ public interface IFrameworkInitialisation {
 
     /**
      * Retrieves the Configuration Property Store that was set in the bootstrap
-     *
+     * 
      * @return {@link java.net.URI}
      */
     @NotNull
@@ -42,7 +42,7 @@ public interface IFrameworkInitialisation {
 
     /**
      * Retrieves a list of Result Archive URIs that need to be initialised
-     *
+     * 
      * @return A list of URIs describing the RASs to be activated
      */
     @NotNull
@@ -55,9 +55,9 @@ public interface IFrameworkInitialisation {
      * first things done during initialisation. If a second CPS attempts register
      * itself, {@link ConfigurationPropertyStoreException} will be thrown.
      * </p>
-     *
-     * @param configurationPropertyStore - the configuration property store service
-     *                                   chosen to be active
+     * 
+     * @param configurationPropertyStore - the configuration property store
+     *                                          service chosen to be active
      * @throws ConfigurationPropertyStoreException - Only if a 2nd attempt to
      *                                             register a CPS was performed
      */
@@ -71,7 +71,7 @@ public interface IFrameworkInitialisation {
      * Register a Result Archive Store Service. Multiple Result Archive stores can
      * be registered per test run or service instance and will be one of the first
      * things done during initialisation.
-     *
+     * 
      * @param resultArchiveStoreService - the result archive store service to be
      *                                  registered
      * @throws ResultArchiveStoreException If there is a problem registering the
@@ -79,16 +79,16 @@ public interface IFrameworkInitialisation {
      */
     void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService)
             throws ResultArchiveStoreException;
-
+    
     /**
      * <p>
-     * Register a Certificate Store Service.
+     * Register a Certificate Store Service. 
      * </p>
-     *
+     * 
      * @param certificateStoreService - the certificate store service to be
-     *                                registered
+     *                                  registered
      * @throws CertificateStoreException If there is a problem registering the
-     *                                   service
+     *                                     service
      */
     void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
             throws CertificateStoreException;
@@ -113,7 +113,7 @@ public interface IFrameworkInitialisation {
      * initialisation period. Review the Framework Lifecycle to determine when parts
      * of the Framework is initialised
      * </p>
-     *
+     * 
      * @return {@link dev.galasa.framework.spi.IFramework}
      */
     @NotNull
