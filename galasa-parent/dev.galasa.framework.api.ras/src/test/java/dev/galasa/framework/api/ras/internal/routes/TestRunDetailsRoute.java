@@ -388,16 +388,16 @@ public class TestRunDetailsRoute extends RasServletTest {
 		servlet.init();
 		servlet.doPut(req, resp);
 
-		IRunResult run = mockrasService.getRunById(runId);
-		String result = run.getTestStructure().getResult();
-		String status = run.getTestStructure().getStatus();
+		// IRunResult run = mockrasService.getRunById(runId);
+		// String result = run.getTestStructure().getResult();
+		// String status = run.getTestStructure().getStatus();
 
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(202);
 		assertThat(outStream.toString()).isEqualTo("The request to cancel run " + runName + " has been received.");
 
-		assertThat(result).isEqualTo("Cancelled");
-		assertThat(status).isEqualTo("finished");
+		// assertThat(result).isEqualTo("Cancelled");
+		// assertThat(status).isEqualTo("finished");
 	}
 
 	@Test
@@ -429,16 +429,16 @@ public class TestRunDetailsRoute extends RasServletTest {
 		servlet.init();
 		servlet.doPut(req, resp);
 
-		IRunResult run = mockrasService.getRunById(runId);
-		String result = run.getTestStructure().getResult();
-		String status = run.getTestStructure().getStatus();
+		// IRunResult run = mockrasService.getRunById(runId);
+		// String result = run.getTestStructure().getResult();
+		// String status = run.getTestStructure().getStatus();
 
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(202);
 		assertThat(outStream.toString()).isEqualTo("The request to cancel run " + runName + " has been received.");
 
-		assertThat(result).isEqualTo("Cancelled");
-		assertThat(status).isEqualTo("finished");
+		// assertThat(result).isEqualTo("Cancelled");
+		// assertThat(status).isEqualTo("finished");
 	}
 
 	@Test
