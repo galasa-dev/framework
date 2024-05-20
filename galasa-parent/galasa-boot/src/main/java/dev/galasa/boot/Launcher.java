@@ -658,6 +658,7 @@ public class Launcher {
         String DSS_ENV_VAR = "GALASA_DYNAMICSTATUS_STORE";
         String RAS_ENV_VAR = "GALASA_RESULTARCHIVE_STORE";
         String CREDS_ENV_VAR = "GALASA_CREDENTIALS_STORE";
+        String AUTH_ENV_VAR = "GALASA_AUTH_STORE";
 
         String cps = env.getenv(CPS_ENV_VAR);
 
@@ -686,6 +687,13 @@ public class Launcher {
             creds = creds.trim();
             logger.info(String.format("Environment variable: %s used to locate credentials store location",CREDS_ENV_VAR));
             bootstrap.setProperty("framework.credentials.store",creds);
+        }
+
+        String authStore = env.getenv(AUTH_ENV_VAR);
+        if( (authStore != null) && (!authStore.trim().isEmpty())){
+            authStore = authStore.trim();
+            logger.info(String.format("Environment variable: %s used to locate auth store location",AUTH_ENV_VAR));
+            bootstrap.setProperty("framework.auth.store",authStore);
         }
     }
 }
