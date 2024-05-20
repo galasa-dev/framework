@@ -3,11 +3,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.spi.auth;
+package dev.galasa.framework.api.common;
 
 import java.time.Instant;
 
 import com.google.gson.annotations.SerializedName;
+
+import dev.galasa.framework.spi.auth.IAuthToken;
+import dev.galasa.framework.spi.auth.User;
 
 public class AuthToken implements IAuthToken {
 

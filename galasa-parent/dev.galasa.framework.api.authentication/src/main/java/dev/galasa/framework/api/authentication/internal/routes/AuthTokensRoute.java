@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import dev.galasa.framework.api.common.AuthToken;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
@@ -30,7 +31,6 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IAuthToken;
 import dev.galasa.framework.spi.auth.AuthStoreException;
-import dev.galasa.framework.spi.auth.AuthToken;
 
 public class AuthTokensRoute extends BaseRoute {
 

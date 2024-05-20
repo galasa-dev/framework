@@ -22,11 +22,11 @@ import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.authentication.internal.routes.AuthTokensRoute;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
+import dev.galasa.framework.api.common.AuthToken;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockAuthStoreService;
-import dev.galasa.framework.spi.auth.AuthToken;
 import dev.galasa.framework.spi.auth.IAuthToken;
 import dev.galasa.framework.spi.auth.User;
 import dev.galasa.framework.spi.utils.GalasaGson;
