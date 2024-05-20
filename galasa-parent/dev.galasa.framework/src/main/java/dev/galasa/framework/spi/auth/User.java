@@ -5,8 +5,11 @@
  */
 package dev.galasa.framework.spi.auth;
 
+import com.google.gson.annotations.SerializedName;
+
 public class User {
 
+    @SerializedName("login_id")
     private String loginId;
 
     public User(String loginId) {

@@ -30,6 +30,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IAuthToken;
 import dev.galasa.framework.spi.auth.AuthStoreException;
+import dev.galasa.framework.spi.auth.AuthToken;
 
 public class AuthTokensRoute extends BaseRoute {
 
@@ -52,19 +53,22 @@ public class AuthTokensRoute extends BaseRoute {
 
         logger.info("handleGetRequest() entered");
 
-        List<IAuthToken> tokens = new ArrayList<>();
+        List<AuthToken> tokensToReturn = new ArrayList<>();
         try {
-            // Retrieve all the tokens and put them into a mutable list before sorting
-            // them based on their creation time
-            tokens = new ArrayList<>(authStoreService.getTokens());
+            // Retrieve all the tokens and put them into a mutable list before sorting them based on their creation time
+            List<IAuthToken> tokens = new ArrayList<>(authStoreService.getTokens());
             Collections.sort(tokens, Comparator.comparing(IAuthToken::getCreationTime));
 
+            // Convert the token received from the auth store into the token bean that will be returned as JSON
+            for (IAuthToken token : tokens) {
+                tokensToReturn.add(new AuthToken(token));
+            }
         } catch (AuthStoreException e) {
             ServletError error = new ServletError(GAL5053_FAILED_TO_RETRIEVE_TOKENS);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
 
-        return getResponseBuilder().buildResponse(response, "application/json", getTokensAsJsonString(tokens), HttpServletResponse.SC_OK);
+        return getResponseBuilder().buildResponse(response, "application/json", getTokensAsJsonString(tokensToReturn), HttpServletResponse.SC_OK);
     }
 
     /**
@@ -73,7 +77,7 @@ public class AuthTokensRoute extends BaseRoute {
      * @param tokens the tokens to convert
      * @return a JSON representation of the tokens within a "tokens" JSON array
      */
-    private String getTokensAsJsonString(List<IAuthToken> tokens) {
+    private String getTokensAsJsonString(List<AuthToken> tokens) {
         JsonArray tokensArray = new JsonArray();
         for (IAuthToken token : tokens) {
             String tokenJson = gson.toJson(token);

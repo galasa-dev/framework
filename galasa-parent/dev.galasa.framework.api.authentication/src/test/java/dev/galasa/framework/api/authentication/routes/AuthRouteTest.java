@@ -245,6 +245,7 @@ public class AuthRouteTest extends BaseServletTest {
         assertThat(newToken.getCreationTime()).isEqualTo(tokenCreationTime);
         assertThat(newToken.getOwner().getLoginId()).isEqualTo(userName);
     }
+
     @Test
     public void testAuthPostRequestWithValidAuthCodeRequestPayloadReturnsJWT() throws Exception {
         // Given...

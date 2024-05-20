@@ -205,7 +205,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         initialiseConfidentialTextService(logger,bundleContext);
 
-        // The auth store is only required for the ecosystem, local runs don't need it
+        // The auth store is only required for the ecosystem, so the URL to it won't be set in local runs
         this.uriAuthStore = locateAuthStore(logger, overrideProperties);
         if (this.uriAuthStore != null) {
             initialiseAuthStore(logger, bundleContext);
@@ -819,7 +819,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             authStoreRegistration.initialise(this);
         }
         if (this.framework.getAuthStore() == null) {
-            throw new FrameworkException("Failed to initialise a Auth Store, unable to continue");
+            throw new FrameworkException("Failed to initialise an Auth Store, unable to continue");
         }
         logger.debug("Selected Auth Store Service is " + this.framework.getAuthStore().getClass().getName());
     }
