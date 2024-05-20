@@ -674,6 +674,10 @@ public class TestRunner {
 
     private void updateResult() throws TestRunException {
         try {
+            // if ("Cancelled".equals(this.dss.get("run." + run.getName() + ".result"))) {
+            //     // The run was cancelled by an external source so set the result to "Cancelled"
+            //     this.testStructure.setResult(Result.cancelled("Run cancelled by an external source").getName());
+            // }
             if (this.testStructure.getResult() == null) {
                 this.testStructure.setResult("UNKNOWN");
             }

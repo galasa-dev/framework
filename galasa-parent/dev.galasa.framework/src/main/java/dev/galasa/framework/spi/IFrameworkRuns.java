@@ -45,4 +45,6 @@ public interface IFrameworkRuns {
 
     boolean reset(String runname) throws DynamicStatusStoreException;
 
+    // boolean cancel(String runname) throws DynamicStatusStoreException;
+
 }

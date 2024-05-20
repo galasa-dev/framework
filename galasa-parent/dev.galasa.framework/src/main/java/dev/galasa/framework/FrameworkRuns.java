@@ -416,6 +416,23 @@ public class FrameworkRuns implements IFrameworkRuns {
         return true;
     }
 
+    // public boolean cancel(String runname) throws DynamicStatusStoreException {
+    //     String prefix = RUN_PREFIX + runname + ".";
+
+    //     Map<String, String> properties = this.dss.getPrefix(prefix);
+    //     if (properties.isEmpty()) {
+    //         return false;
+    //     }
+
+    //     if ("true".equals(properties.get(prefix + "local"))) {
+    //         return false;
+    //     }
+
+    //     this.dss.put(prefix + "status", "finished");
+    //     this.dss.put(prefix + "result", "Cancelled");
+    //     return true;
+    // }
+
     @Override
     public boolean reset(String runname) throws DynamicStatusStoreException {
         String prefix = RUN_PREFIX + runname + ".";
@@ -442,6 +459,11 @@ public class FrameworkRuns implements IFrameworkRuns {
         if (properties.isEmpty()) {
             return null;
         }
+
+        // // The run was cancelled by an external source so shut down the Pod
+        // if ("Cancelled".equals(this.dss.get(prefix + "result"))) {
+        //     return null;
+        // }
 
         return new RunImpl(runname, this.dss);
     }
