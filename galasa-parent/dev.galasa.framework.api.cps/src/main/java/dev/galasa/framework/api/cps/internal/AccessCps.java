@@ -98,20 +98,25 @@ public class AccessCps extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
         try {
             resp.setHeader("Content-Type", "application/json");
-
-            Matcher matcher1 = pattern1.matcher(req.getPathInfo());
+            String url = req.getPathInfo();
+            if (url == null) {
+                // There is no path information, so this must be the root path (i.e. /cps/namespace)
+                // This allows pattern1 to match rather than throwing a null pointer exception
+                url = "";
+            }
+            Matcher matcher1 = pattern1.matcher(url);
             if (matcher1.matches()) {
                 getNamespaces(resp);
                 return;
             }
-            Matcher matcher2 = pattern2.matcher(req.getPathInfo());
+            Matcher matcher2 = pattern2.matcher(url);
             if (matcher2.matches()) {
                 String namespace = matcher2.group(1);
                 nameValidator.assertNamespaceCharPatternIsValid(namespace);
                 getNamespaceProperties(resp,namespace);
                 return;
             }
-            Matcher matcher3 = pattern3.matcher(req.getPathInfo());
+            Matcher matcher3 = pattern3.matcher(url);
             if (matcher3.matches()) {
                 String namespace = matcher3.group(1);
                 nameValidator.assertNamespaceCharPatternIsValid(namespace);
@@ -123,7 +128,7 @@ public class AccessCps extends HttpServlet {
                 return;
             }
 
-            sendError(resp, "Invalid GET URL - " + req.getPathInfo()
+            sendError(resp, "Invalid GET URL - " + url
                      , HttpServletResponse.SC_BAD_REQUEST // Bad Request
                      );
 

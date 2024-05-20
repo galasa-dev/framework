@@ -19,11 +19,7 @@ import dev.galasa.framework.spi.creds.*;
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     private static final String                      USER_HOME = "user.home";
-    private static final String                      GALASA_HOME = "GALASA_HOME";
-
     private Framework                                framework;
-
-    private final Properties                         bootstrapProperties;
 
     private final URI                                uriConfigurationPropertyStore;
     private final URI                                uriDynamicStatusStore;
@@ -148,7 +144,6 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         Environment env
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
 
-        this.bootstrapProperties = bootstrapProperties;
         this.fileSystem = fileSystem;
 
         if (initLogger == null) {

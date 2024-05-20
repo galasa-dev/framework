@@ -5,7 +5,6 @@
  */
 package dev.galasa.framework.internal.cps;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,9 +12,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
@@ -34,7 +30,6 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
     private Properties                  record;
     private Properties                  overrides;
     private IConfigurationPropertyStore cpsStore;
-    private Log logger = LogFactory.getLog(this.getClass());
 
     /**
      * <p>
@@ -101,8 +96,9 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
      * </p>
      * 
      * @return all properties from a given namespace
+     * @throws ConfigurationPropertyStoreException 
      */
-    public Map<String,String> getAllProperties() {
+    public Map<String,String> getAllProperties() throws ConfigurationPropertyStoreException {
         return cpsStore.getPropertiesFromNamespace(namespace);
     }
 
@@ -241,11 +237,9 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
     }
 
     /**
-     * <p>
      * This method takes passed infixes and generates the list of infixes of
      * hierachy order, which is will be surrounded by the prefix and suffix to
      * genterate the kys to be searched.
-     * </p>
      * 
      * @param infixes - all the heirachy levels that could be appended to the
      *                namespace and prefix.
@@ -264,7 +258,7 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
         return infixOrderList;
     }
 
-    public List<String> getCPSNamespaces() {
+    public List<String> getCPSNamespaces() throws ConfigurationPropertyStoreException {
         return cpsStore.getNamespaces();
     }
     

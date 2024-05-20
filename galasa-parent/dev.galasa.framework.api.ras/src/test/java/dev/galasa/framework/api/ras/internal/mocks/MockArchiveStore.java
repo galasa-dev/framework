@@ -16,10 +16,10 @@ import javax.validation.constraints.NotNull;
 
 public class MockArchiveStore implements IResultArchiveStore {
 
+    private List<IResultArchiveStoreDirectoryService> directoryServices;
 
-    private List<IResultArchiveStoreDirectoryService> directoryServices ;
 
-    public MockArchiveStore( List<IResultArchiveStoreDirectoryService> directoryServices ) {
+    public MockArchiveStore(List<IResultArchiveStoreDirectoryService> directoryServices) {
         this.directoryServices = directoryServices;
     }
 
@@ -35,7 +35,11 @@ public class MockArchiveStore implements IResultArchiveStore {
 
     @Override
     public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
+        try {
+            testStructure.normalise();
+        } catch (final Exception e) {
+            throw new ResultArchiveStoreException("Unable to write the test structure", e);
+        }
     }
 
     @Override

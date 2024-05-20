@@ -24,7 +24,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.framework.FrameworkInitialisation;
-import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;

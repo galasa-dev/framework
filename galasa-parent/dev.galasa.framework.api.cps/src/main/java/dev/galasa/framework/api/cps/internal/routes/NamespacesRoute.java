@@ -34,12 +34,13 @@ import dev.galasa.framework.spi.utils.GalasaGson;
  */
 public class NamespacesRoute extends CPSRoute {
 
-    protected static final String path = "\\/";
+    protected static final String path = "\\/?";
     private static final GalasaGson gson = new GalasaGson();
 
 
     public NamespacesRoute(ResponseBuilder responseBuilder, IFramework framework ) {
 		/* Regex to match endpoints: 
+		*  -> /cps
 		*  -> /cps/
 		*/
 		super(responseBuilder, path, framework);

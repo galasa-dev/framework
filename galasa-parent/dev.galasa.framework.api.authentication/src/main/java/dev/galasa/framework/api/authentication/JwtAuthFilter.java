@@ -43,6 +43,7 @@ public class JwtAuthFilter implements Filter {
         "/auth",
         "/auth/callback",
         "/bootstrap",
+        "/bootstrap/external",
         "/health"
     );
 
@@ -50,7 +51,7 @@ public class JwtAuthFilter implements Filter {
 
     protected Environment env = new SystemEnvironment();
 
-    protected OidcProvider oidcProvider;
+    protected IOidcProvider oidcProvider;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -93,6 +94,7 @@ public class JwtAuthFilter implements Filter {
             } catch (Exception e) {
                 errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toJsonString();
                 httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+                logger.error(errorString, e);
             }
         }
 

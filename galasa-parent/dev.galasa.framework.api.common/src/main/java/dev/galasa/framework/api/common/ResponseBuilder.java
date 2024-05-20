@@ -35,4 +35,17 @@ public class ResponseBuilder {
 		}
 		return resp;
 	}
+
+	public HttpServletResponse buildResponseHeaders(
+		HttpServletResponse resp,
+		String contentType,
+		int status
+	) {
+		//Set headers for HTTP Response
+		resp.setStatus(status);
+		resp.setContentType(contentType);
+		resp.addHeader("Access-Control-Allow-Origin", "*");
+
+		return resp;
+	}
 }

@@ -9,7 +9,7 @@ plugins {
 
 description = 'Galasa API - RAS'
 
-version '0.32.0'
+version '0.34.0'
 
 dependencies {
     implementation project(':dev.galasa.framework')
@@ -17,7 +17,7 @@ dependencies {
 
     implementation 'org.apache.commons:commons-collections4:4.4'
 
-    testCompile 'org.apache.commons:commons-lang3:3.12.0'
+    testCompile 'org.apache.commons:commons-lang3:3.14.0'
     testCompile project(':dev.galasa.framework').sourceSets.test.output
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
 }

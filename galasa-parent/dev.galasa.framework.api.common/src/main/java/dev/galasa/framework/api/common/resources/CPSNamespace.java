@@ -50,7 +50,7 @@ public class CPSNamespace {
         return this.visibility == Visibility.HIDDEN;
     }
 
-    public Map<GalasaPropertyName,CPSProperty> getProperties(){
+    public Map<GalasaPropertyName,CPSProperty> getProperties() throws ConfigurationPropertyStoreException{
         Map<GalasaPropertyName,CPSProperty> properties = new HashMap<GalasaPropertyName,CPSProperty>();
         if (visibility != Visibility.HIDDEN){
             Map<String,String> cpsProperties = propertyStore.getAllProperties();

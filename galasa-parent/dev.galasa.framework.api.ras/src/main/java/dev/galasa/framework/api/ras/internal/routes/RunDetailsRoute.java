@@ -74,7 +74,7 @@ public class RunDetailsRoute extends RunsRoute {
    } 
 
 
-   private String updateRunStatus(String runName, RunActionJson runAction) throws InternalServletException {
+   private String updateRunStatus(String runName, RunActionJson runAction) throws InternalServletException, ResultArchiveStoreException {
       String responseBody = "";
       RunActionStatus status = RunActionStatus.getfromString(runAction.getStatus());
       String result = runAction.getResult();
@@ -146,7 +146,7 @@ public class RunDetailsRoute extends RunsRoute {
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
       try {
-         // Cancelling a run works by deleting all its entries in the DSS
+         // Cancelling a run currently works by deleting all its entries in the DSS
          isCanceled = framework.getFrameworkRuns().delete(runName);
       } catch (FrameworkException e) {
          ServletError error = new ServletError(GAL5048_UNABLE_TO_CANCEL_RUN, runName);

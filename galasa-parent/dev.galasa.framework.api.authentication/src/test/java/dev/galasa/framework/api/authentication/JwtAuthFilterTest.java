@@ -6,8 +6,6 @@
 package dev.galasa.framework.api.authentication;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Map;
@@ -22,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.authentication.internal.OidcProvider;
+import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
@@ -34,7 +32,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
 
     class MockJwtAuthFilter extends JwtAuthFilter {
 
-        public MockJwtAuthFilter(Environment env, OidcProvider oidcProvider) {
+        public MockJwtAuthFilter(Environment env, IOidcProvider oidcProvider) {
             super.env = env;
             super.oidcProvider = oidcProvider;
         }
@@ -56,7 +54,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         String mockIssuerUrl = "http://dummy-issuer/dex";
         mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
 
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
 
@@ -81,7 +79,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         // Given...
         MockEnvironment mockEnv = new MockEnvironment();
 
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
 
@@ -101,7 +99,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         String mockIssuerUrl = "http://dummy-issuer/dex";
         mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
 
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
 
@@ -128,10 +126,10 @@ public class JwtAuthFilterTest extends BaseServletTest {
         String mockIssuerUrl = "http://dummy-issuer/dex";
         mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
 
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
-        
+
         Map<String, String> headers = Map.of("Authorization", "");
         HttpServletRequest mockRequest = new MockHttpServletRequest("/ras/runs", headers);
         HttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -155,7 +153,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         String mockIssuerUrl = "http://dummy-issuer/dex";
         mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
 
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
         HttpServletRequest mockRequest = new MockHttpServletRequest("", "/auth");
@@ -181,8 +179,8 @@ public class JwtAuthFilterTest extends BaseServletTest {
 
         String mockJwt = "dummy.jwt.here";
 
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
-        when(mockOidcProvider.isJwtValid(mockJwt)).thenReturn(true);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
+        mockOidcProvider.setJwtValid(true);
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
 
@@ -206,7 +204,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         String mockIssuerUrl = "http://dummy-issuer/dex";
         mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
 
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
         HttpServletRequest mockRequest = new MockHttpServletRequest("", "/bootstrap");
@@ -230,8 +228,8 @@ public class JwtAuthFilterTest extends BaseServletTest {
         mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
 
         String mockJwt = "dummy.jwt.here";
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
-        when(mockOidcProvider.isJwtValid(mockJwt)).thenReturn(false);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
+        mockOidcProvider.setJwtValid(false);
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
 
@@ -258,8 +256,8 @@ public class JwtAuthFilterTest extends BaseServletTest {
         mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
 
         String mockJwt = "dummy.jwt.here";
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
-        when(mockOidcProvider.isJwtValid(mockJwt)).thenThrow(new IOException("simulating a failure!"));
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
+        mockOidcProvider.setThrowException(true);
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
 
@@ -287,8 +285,8 @@ public class JwtAuthFilterTest extends BaseServletTest {
 
         String mockJwt = "dummy.jwt.here";
 
-        OidcProvider mockOidcProvider = mock(OidcProvider.class);
-        when(mockOidcProvider.isJwtValid(mockJwt)).thenReturn(true);
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
+        mockOidcProvider.setJwtValid(true);
 
         JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
 

@@ -6,24 +6,24 @@
 package dev.galasa.framework.api.authentication.mocks;
 
 import dev.galasa.framework.api.authentication.AuthenticationServlet;
+import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
-import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.common.Environment;
 
 public class MockAuthenticationServlet extends AuthenticationServlet {
 
-    public MockAuthenticationServlet(Environment env, OidcProvider oidcProvider, DexGrpcClient dexGrpcClient) {
+    public MockAuthenticationServlet(Environment env, IOidcProvider oidcProvider, DexGrpcClient dexGrpcClient) {
         this(env, oidcProvider);
         this.dexGrpcClient = dexGrpcClient;
     }
 
-    public MockAuthenticationServlet(Environment env, OidcProvider oidcProvider) {
+    public MockAuthenticationServlet(Environment env, IOidcProvider oidcProvider) {
         this.env = env;
         this.oidcProvider = oidcProvider;
     }
 
     @Override
-    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname) {
+    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname, String externalWebUiUrl) {
         // Do nothing...
     }
 }

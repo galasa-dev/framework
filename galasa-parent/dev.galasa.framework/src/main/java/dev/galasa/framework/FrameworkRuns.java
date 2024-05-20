@@ -45,7 +45,7 @@ public class FrameworkRuns implements IFrameworkRuns {
     private final String                             NO_GROUP     = "none";
     private final String                             NO_BUNDLE     = "none";
     private final String                             NO_RUNTYPE   = "UNKNOWN";
-    private final String                             NO_REQUESTER = "unknown";
+    // private final String                             NO_REQUESTER = "unknown";
 
     private final String                             RUN_PREFIX   = "run.";
 

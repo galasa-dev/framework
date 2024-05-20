@@ -222,6 +222,21 @@ public class Launcher {
         }
     }
 
+
+    protected String logCommandLineArguments(String[] args) {
+        StringBuilder messageBuffer = new StringBuilder();
+        messageBuffer.append("Supplied command line arguments: ");
+        for (String arg : args) {
+            if (arg.contains("DGALASA_JWT")){
+                String[] argument = arg.split("=");
+                messageBuffer.append(argument[0] + "=******* ");
+            }else{
+                messageBuffer.append(arg + " ");
+            }
+        }
+        return messageBuffer.toString();
+    }
+
     /**
      * Process the supplied command line augments
      * 
@@ -230,12 +245,7 @@ public class Launcher {
      */
     private void processCommandLine(String[] args) throws ParseException {
 
-        StringBuilder messageBuffer = new StringBuilder();
-        messageBuffer.append("Supplied command line arguments: ");
-        for (String arg : args) {
-            messageBuffer.append(arg + " ");
-        }
-        logger.debug(messageBuffer.toString());
+        logger.debug(logCommandLineArguments(args));
 
         Options options = new Options();
         Option propertyOption = Option.builder().longOpt("D").argName("property=value").hasArgs().valueSeparator()

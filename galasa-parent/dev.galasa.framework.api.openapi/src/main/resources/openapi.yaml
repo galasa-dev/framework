@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
-  version : "0.33.0"
+  version : "0.34.0"
   description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
   contact:
     url: https://galasa.dev/support
@@ -213,7 +213,7 @@ paths:
   #--------------------------------------
   # List all known Namespaces in CPS, excluding hidden namespaces
   #--------------------------------------
-  /cps/:
+  /cps:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
     get:
