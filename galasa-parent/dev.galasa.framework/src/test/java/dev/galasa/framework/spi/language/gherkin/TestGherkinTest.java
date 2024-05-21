@@ -411,7 +411,6 @@ public class TestGherkinTest {
         assertThat(test.getName()).isEqualTo("Browse the catalog and order");
         assertThat(test.getMethods()).hasSize(2);
         assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario outline 1");
-        test.getMethods()
         assertThat(test.getMethods().get(1).getName()).isEqualTo("Scenario outline 2");
     }
 
