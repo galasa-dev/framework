@@ -242,21 +242,8 @@ public class GherkinTestRunner {
         }
 
         if(!gherkinTest.allMethodsRegistered()) {
-            logger.error("The following Gherkin statements have not been registered to a Manager");
-            
-            for(GherkinMethod method : gherkinTest.getMethods()) {
-                logger.info("    Method: " + method.getName());
-                for(IGherkinExecutable executable : method.getExecutables()) {
-                    Object owner = executable.getOwner();
-                    if (owner != null) {
-                        logger.info("        OK - " + executable.getKeyword() + " " + executable.getValue());
-                    } else {
-                        logger.error("        MISSING - " + executable.getKeyword() + " " + executable.getValue());
-                    }
-                }
-            }
-            
-            
+            logStatementsNotRecognisedByAnyManager(gherkinTest);
+
             stopHeartbeat();
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
             frameworkInitialisation.shutdownFramework();
@@ -317,6 +304,22 @@ public class GherkinTestRunner {
         frameworkInitialisation.shutdownFramework();
 
         return;
+    }
+
+    private void logStatementsNotRecognisedByAnyManager(GherkinTest gherkinTest) {
+        logger.error("The following Gherkin statements have not been registered to a Manager");
+        
+        for(GherkinMethod method : gherkinTest.getMethods()) {
+            logger.info("    Method: " + method.getName());
+            for(IGherkinExecutable executable : method.getExecutables()) {
+                Object owner = executable.getOwner();
+                if (owner != null) {
+                    logger.info("        OK - " + executable.getKeyword() + " " + executable.getValue());
+                } else {
+                    logger.error("        MISSING - " + executable.getKeyword() + " " + executable.getValue());
+                }
+            }
+        }
     }
 
     private void generateEnvironment(GherkinTest testObject, TestRunManagers managers) throws TestRunException {

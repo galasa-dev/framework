@@ -308,4 +308,201 @@ public class TestGherkinTest {
         assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario 1");
         assertThat(test.getMethods().get(1).getName()).isEqualTo("Scenario 2");
     }
+
+    @Test
+    public void TestGherkinTestCreatableWithScenarioAndScenarioOutline() throws Exception {
+        TestStructure testStructure = new TestStructure();
+        MockRun run = new MockRun();
+        String GOOD_URI = "file://toSimpleSchema";
+        run.setGherkin(GOOD_URI);
+
+        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+
+        String gherkinFeatureText = new StringBuilder()
+            .append("Feature: Browse the catalog and order\n")
+            .append("\n")
+
+            .append("Scenario: Scenario 1\n")
+            .append("\n")
+            .append("Given a terminal\n")
+            .append("Then wait for \"me\" in any terminal field\n")
+            .append("And type \"me\" on terminal\n")
+            .append("And wait for terminal keyboard\n")
+            .append("And type \"hello\" on terminal\n")
+            .append("\n")
+            .append("And press terminal key ENTER\n")
+            .append("\n")
+            .append("And wait for terminal keyboard\n")
+            .append("Then check \"Sign-on is complete\" appears only once on terminal\n")
+
+            .append("Scenario Outline: Scenario outline 1\n")
+            .append("\n")
+            .append("Given a terminal\n")
+            .append("Then wait for \"myString\" in any terminal field\n")
+            .append("And type \"myString\" on terminal\n")
+            .append("Then check \"Sign-on is complete\" appears only once on terminal\n")
+            .append("\n")
+            .append("Examples:\n")
+            .append("| field1 | field2 |\n")
+            .append("| X123455  | YXXXXXXX |\n")
+            .append("| Xiwhdoi  | uqhwdhjq |\n")
+            .append("| asdasda  | asdasdas |\n")
+            .append("\n")
+
+            .toString();
+
+        gherkinReader.setFeatureText(gherkinFeatureText);
+
+        GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
+        assertThat(test).isNotNull();
+        assertThat(test.getName()).isEqualTo("Browse the catalog and order");
+        assertThat(test.getMethods()).hasSize(2);
+        assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario 1");
+        assertThat(test.getMethods().get(1).getName()).isEqualTo("Scenario outline 1");
+    }
+
+    @Test
+    public void TestGherkinTestCreatableWithScenarioOutlineAndScenarioOutline() throws Exception {
+        TestStructure testStructure = new TestStructure();
+        MockRun run = new MockRun();
+        String GOOD_URI = "file://toSimpleSchema";
+        run.setGherkin(GOOD_URI);
+
+        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+
+        String gherkinFeatureText = new StringBuilder()
+            .append("Feature: Browse the catalog and order\n")
+            .append("\n")
+
+            .append("Scenario Outline: Scenario outline 1\n")
+            .append("\n")
+            .append("Given a terminal\n")
+            .append("Then wait for \"myString\" in any terminal field\n")
+            .append("And type \"myString\" on terminal\n")
+            .append("Then check \"Sign-on is complete\" appears only once on terminal\n")
+            .append("\n")
+            .append("Examples:\n")
+            .append("| field1 | field2 |\n")
+            .append("| X123455  | YXXXXXXX |\n")
+            .append("| Xiwhdoi  | uqhwdhjq |\n")
+            .append("| asdasda  | asdasdas |\n")
+            .append("\n")
+
+            .append("Scenario Outline: Scenario outline 2\n")
+            .append("\n")
+            .append("Given a terminal\n")
+            .append("Then wait for \"myString\" in any terminal field\n")
+            .append("And type \"myString\" on terminal\n")
+            .append("Then check \"Sign-on is complete\" appears only once on terminal\n")
+            .append("\n")
+            .append("Examples:\n")
+            .append("| field1 | field2 |\n")
+            .append("| X123455  | YXXXXXXX |\n")
+            .append("| Xiwhdoi  | uqhwdhjq |\n")
+            .append("| asdasda  | asdasdas |\n")
+            .append("\n")
+
+            .toString();
+
+        gherkinReader.setFeatureText(gherkinFeatureText);
+
+        GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
+        assertThat(test).isNotNull();
+        assertThat(test.getName()).isEqualTo("Browse the catalog and order");
+        assertThat(test.getMethods()).hasSize(2);
+        assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario outline 1");
+        test.getMethods()
+        assertThat(test.getMethods().get(1).getName()).isEqualTo("Scenario outline 2");
+    }
+
+    @Test
+    public void TestGherkinTestCreatableWithScenarioOutlineAndScenario() throws Exception {
+        TestStructure testStructure = new TestStructure();
+        MockRun run = new MockRun();
+        String GOOD_URI = "file://toSimpleSchema";
+        run.setGherkin(GOOD_URI);
+
+        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+
+        String gherkinFeatureText = new StringBuilder()
+            .append("Feature: Browse the catalog and order\n")
+            .append("\n")
+
+            .append("Scenario Outline: Scenario outline 1\n")
+            .append("\n")
+            .append("Given a terminal\n")
+            .append("Then wait for \"myString\" in any terminal field\n")
+            .append("And type \"myString\" on terminal\n")
+            .append("Then check \"Sign-on is complete\" appears only once on terminal\n")
+            .append("\n")
+            .append("Examples:\n")
+            .append("| field1 | field2 |\n")
+            .append("| X123455  | YXXXXXXX |\n")
+            .append("| Xiwhdoi  | uqhwdhjq |\n")
+            .append("| asdasda  | asdasdas |\n")
+            .append("\n")
+
+            .append("Scenario: Scenario 1\n")
+            .append("\n")
+            .append("Given a terminal\n")
+            .append("Then wait for \"me\" in any terminal field\n")
+            .append("And type \"me\" on terminal\n")
+            .append("And wait for terminal keyboard\n")
+            .append("And type \"hello\" on terminal\n")
+            .append("\n")
+            .append("And press terminal key ENTER\n")
+            .append("\n")
+            .append("And wait for terminal keyboard\n")
+            .append("Then check \"Sign-on is complete\" appears only once on terminal\n")
+
+            .toString();
+
+        gherkinReader.setFeatureText(gherkinFeatureText);
+
+        GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
+        assertThat(test).isNotNull();
+        assertThat(test.getName()).isEqualTo("Browse the catalog and order");
+        assertThat(test.getMethods()).hasSize(2);
+        assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario outline 1");
+        assertThat(test.getMethods().get(1).getName()).isEqualTo("Scenario 1");
+    }
+
+    @Test
+    public void TestGherkinTestCreatableWithScenarioWithComment() throws Exception {
+        TestStructure testStructure = new TestStructure();
+        MockRun run = new MockRun();
+        String GOOD_URI = "file://toSimpleSchema";
+        run.setGherkin(GOOD_URI);
+
+        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+
+        String gherkinFeatureText = new StringBuilder()
+            .append("Feature: Browse the catalog and order\n")
+            .append("\n")
+            .append("# comment 1 <<< this is a comment \n")
+            .append("Scenario: Scenario 1\n")
+            .append("\n")
+            .append("# comment 2 <<< this is a comment \n")
+            .append("Given a terminal\n")
+            .append("Then wait for \"me\" in any terminal field\n")
+            .append("And type \"me\" on terminal\n")
+            .append("And wait for terminal keyboard\n")
+            .append("And type \"hello\" on terminal\n")
+            .append("\n")
+            .append("And press terminal key BACKTAB\n")
+            .append("\n")
+            .append("And wait for terminal keyboard\n")
+            .append("Then check \"Sign-on is complete\" appears only once on terminal\n")
+            .append("# comment 3 <<< this is a comment \n")
+
+            .toString();
+
+        gherkinReader.setFeatureText(gherkinFeatureText);
+
+        GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
+        assertThat(test).isNotNull();
+        assertThat(test.getName()).isEqualTo("Browse the catalog and order");
+        assertThat(test.getMethods()).hasSize(1);
+        assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario 1");
+    }
 }

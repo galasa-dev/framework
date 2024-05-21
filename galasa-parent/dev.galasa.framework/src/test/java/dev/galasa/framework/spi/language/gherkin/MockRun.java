@@ -5,11 +5,8 @@
  */
 package dev.galasa.framework.spi.language.gherkin;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.time.Instant;
-import java.util.*;
-import org.junit.Test;
+
 
 import dev.galasa.api.run.Run;
 import dev.galasa.framework.spi.IRun;
@@ -17,6 +14,15 @@ import dev.galasa.framework.spi.IRun;
 public class MockRun implements IRun {
 
     private String gherkinFeatureText;
+
+    @Override
+    public String getGherkin() {
+        return gherkinFeatureText;
+    }
+
+    public void setGherkin(String featureText) {
+        this.gherkinFeatureText = featureText;
+    }
 
     @Override
     public String getName() {
@@ -138,13 +144,6 @@ public class MockRun implements IRun {
         throw new UnsupportedOperationException("Unimplemented method 'isSharedEnvironment'");
     }
 
-    @Override
-    public String getGherkin() {
-        return gherkinFeatureText;
-    }
 
-    public void setGherkin(String featureText) {
-        this.gherkinFeatureText = featureText;
-    }
     
 }

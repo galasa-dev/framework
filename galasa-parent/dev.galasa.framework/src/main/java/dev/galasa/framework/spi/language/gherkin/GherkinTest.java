@@ -41,7 +41,6 @@ public class GherkinTest {
     private GherkinVariables variables;
 
     private String testName;
-    private List<String> comments;
 
 
     // Logger statics
@@ -58,28 +57,42 @@ public class GherkinTest {
         ;
     }
 
-
-
     public GherkinTest(IRun run, TestStructure testStructure) throws TestRunException {
         this(run,testStructure, new GherkinFileReader() );
     }
 
     protected GherkinTest(IRun run, TestStructure testStructure, IGherkinFileReader fileReader) throws TestRunException {
         this.methods = new ArrayList<>();
-        this.comments = new ArrayList<>();
         this.variables = new GherkinVariables();
         this.testStructure = testStructure;
 
-        List<String> lines = getGhekinFeatureTextLines(run,fileReader);
+        List<String> lines = getGherkinFeatureTextLines(run,fileReader);
 
+        parseGherkinSyntax(lines);
+
+        List<TestGherkinMethod> structureMethods = new ArrayList<TestGherkinMethod>(this.methods.size());
+        for(GherkinMethod method : this.methods) {
+            structureMethods.add(method.getStructure());
+        }
+
+        this.testStructure.setGherkinMethods(structureMethods);
+    }
+
+    private void parseGherkinSyntax(List<String> lines) throws TestRunException {
         GherkinMethod currentMethod = null;
         Section currentSection = Section.FEATURE;
         boolean exampleHeaderLineProcessed = false;
-        
+
         for(String line : lines) {
 
             line = line.trim();
             if(line.isEmpty()) {
+                // Ignore blank lines.
+                continue;
+            }
+
+            if (line.startsWith("#")) {
+                // Ignore comment lines.
                 continue;
             }
 
@@ -125,6 +138,7 @@ public class GherkinTest {
             switch(currentSection) {
                 case SCENARIO:
                 case SCENARIO_OUTLINE:
+                    exampleHeaderLineProcessed = false;
                     currentMethod.addStatement(line);
                     break;
 
@@ -137,13 +151,15 @@ public class GherkinTest {
                         variables.processHeaderLine(line);
                         exampleHeaderLineProcessed = true;
                     }
+                    break;
 
                 case FEATURE:
+                    exampleHeaderLineProcessed = false;
                     break;
 
                 default:
-                    // Mike: I can't see how anything is treated as a comment. The current section is always set!
-                    this.comments.add(line);
+                    // Should never be able to reach this code. But just in case someone adds to the enum list and doesn't cope with it here.
+                    throw new TestRunException("Programming error. Unexpected section "+currentSection.name());
             }
         }
 
@@ -151,23 +167,14 @@ public class GherkinTest {
         endSection(currentMethod, currentSection);
 
         this.testStructure.setTestShortName(this.testName);
-
-        List<TestGherkinMethod> structureMethods = new ArrayList<TestGherkinMethod>(this.methods.size());
-        for(GherkinMethod method : this.methods) {
-            structureMethods.add(method.getStructure());
-        }
-
-        this.testStructure.setGherkinMethods(structureMethods);
     }
 
-    private void endSection(GherkinMethod method, Section sectionEnding) throws TestRunException{
+    private void endSection(GherkinMethod method, Section sectionEnding) throws TestRunException {
         if (sectionEnding == Section.SCENARIO_OUTLINE) {
             // If the outline section is ending, then we know the Examples section is missing.
             throw new TestRunException("Badly formed Gherkin feature: 'Scenario Outline:' used without an 'Examples:' section.");
         }
-        if(method != null) {
-            addMethod(method);
-        }
+        addMethod(method);
     }
 
     private void addMethod(GherkinMethod methodToAdd) {
@@ -248,7 +255,7 @@ public class GherkinTest {
         }
 
         try {
-            Result newResult = managers.endOfTestClass(this.result, null); // TODO pass the class level exception
+            Result newResult = managers.endOfTestClass(this.result, null); 
             if (newResult != null) {
                 logger.info("Result of test run overridden to " + newResult);
                 this.result = newResult;
@@ -270,7 +277,7 @@ public class GherkinTest {
     }
 
 
-    private List<String> getGhekinFeatureTextLines(IRun run, IGherkinFileReader fileReader) throws TestRunException {
+    private List<String> getGherkinFeatureTextLines(IRun run, IGherkinFileReader fileReader) throws TestRunException {
 
         String gherkinUriString = run.getGherkin();
         if (gherkinUriString == null) {
