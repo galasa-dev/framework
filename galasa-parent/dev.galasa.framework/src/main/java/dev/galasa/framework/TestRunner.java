@@ -118,7 +118,7 @@ public class TestRunner {
         this.framework = frameworkInitialisation.getFramework();
 
         try {
-            this.produceEvents = produceEventsFeatureFlagIsTrue();
+            this.produceEvents = isProduceEventsFeatureFlagTrue();
         } catch (ConfigurationPropertyStoreException e) {
             throw new TestRunException("Problem loading the CPS property for event production.");
         }
@@ -484,7 +484,7 @@ public class TestRunner {
         frameworkInitialisation.shutdownFramework();
     }
 
-    private boolean produceEventsFeatureFlagIsTrue() throws ConfigurationPropertyStoreException {
+    private boolean isProduceEventsFeatureFlagTrue() throws ConfigurationPropertyStoreException {
         boolean produceEvents = false;
         String produceEventsProp = this.cps.getProperty("produce", "events");
         if (produceEventsProp != null) {
