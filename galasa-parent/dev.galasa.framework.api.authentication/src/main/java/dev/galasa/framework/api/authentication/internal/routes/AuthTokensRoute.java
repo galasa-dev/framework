@@ -61,7 +61,12 @@ public class AuthTokensRoute extends BaseRoute {
 
             // Convert the token received from the auth store into the token bean that will be returned as JSON
             for (IAuthToken token : tokens) {
-                tokensToReturn.add(new AuthToken(token));
+                tokensToReturn.add(new AuthToken(
+                    token.getTokenId(),
+                    token.getDescription(),
+                    token.getCreationTime(),
+                    token.getOwner())
+                );
             }
         } catch (AuthStoreException e) {
             ServletError error = new ServletError(GAL5053_FAILED_TO_RETRIEVE_TOKENS);

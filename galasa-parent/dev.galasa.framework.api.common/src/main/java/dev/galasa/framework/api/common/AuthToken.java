@@ -26,13 +26,6 @@ public class AuthToken implements IAuthToken {
     @SerializedName("owner")
     private User owner;
 
-    public AuthToken(IAuthToken token) {
-        this.tokenId = token.getTokenId();
-        this.description = token.getDescription();
-        this.creationTime = token.getCreationTime();
-        this.owner = token.getOwner();
-    }
-
     public AuthToken(String tokenId, String description, Instant creationTime, User owner) {
         this.tokenId = tokenId;
         this.description = description;
