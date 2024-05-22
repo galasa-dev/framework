@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.EnvironmentVariables;
+import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
@@ -38,7 +40,10 @@ public class RunsServletTest extends BaseServletTest {
 
 
 	protected void setServlet(String path, String groupName, List<IRun> runs){
-        this.servlet = new MockRunsServlet();
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username,name,sub");
+
+        this.servlet = new MockRunsServlet(mockEnv);
         ServletOutputStream outStream = new MockServletOutputStream();
         PrintWriter writer = new PrintWriter(outStream);
         this.resp = new MockHttpServletResponse(writer, outStream);

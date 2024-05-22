@@ -144,7 +144,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(500);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
         assertThat(servletResponse.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
-        assertThat(outStream.toString()).contains("GAL5053E", "Error retrieving tokens from the auth store");
+        assertThat(outStream.toString()).contains("GAL5053E", "Internal server error occurred when retrieving tokens from the auth store", "The auth store could be badly configured or could be experiencing temporary issues");
     }
 
     @Test

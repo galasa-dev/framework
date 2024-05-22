@@ -13,6 +13,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.*;
 
 import dev.galasa.framework.api.common.EnvironmentVariables;
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 
@@ -33,14 +34,17 @@ public class JwtWrapperTest {
     private String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2YWxpZFVzZXJJRCIsIm5hbWUiOiJVc2VyIE5hbWUiLCJpYXQiOjE1MTYyMzkwMjJ9.UvI3VPNyTJuql6vU3ES0zsvlXdiJYzkjIRhNahD3yd8";
 
     @Test
-    public void TestGetUserValidJwtReturnsOk() throws Exception {
+    public void testGetUsernameValidJwtReturnsOk() throws Exception {
         // Given...
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
-
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
 
+        MockEnvironment mockEnv = new MockEnvironment();
+        String userNameClaimOverrides = "name";
+        mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, userNameClaimOverrides);
+
         // When...
-        JwtWrapper auth = new JwtWrapper(req);
+        JwtWrapper auth = new JwtWrapper(req, mockEnv);
         String user = auth.getUsername();
 
         // Then...
@@ -48,7 +52,7 @@ public class JwtWrapperTest {
     }
 
     @Test
-    public void TestGetUserValidJwtWithOnlySubClaimReturnsSubClaim() throws Exception {
+    public void testGetUsernameValidJwtWithOnlySubClaimReturnsSubClaim() throws Exception {
         // Given...
         // This mock JWT only contains the following claims in its payload:
         // {
@@ -60,8 +64,12 @@ public class JwtWrapperTest {
 
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
 
+        MockEnvironment mockEnv = new MockEnvironment();
+        String userNameClaimOverrides = "name,sub";
+        mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, userNameClaimOverrides);
+
         // When...
-        JwtWrapper auth = new JwtWrapper(req);
+        JwtWrapper auth = new JwtWrapper(req, mockEnv);
         String user = auth.getUsername();
 
         // Then...
@@ -69,30 +77,26 @@ public class JwtWrapperTest {
     }
 
     @Test
-    public void TestGetUserValidJwtWithDefaultClaimsReturnsPreferredUserName() throws Exception {
+    public void testGetUsernameValidJwtWithNoMatchingClaimThrowsError() throws Exception {
         // Given...
-        // This mock JWT contains the following claims in its payload:
-        // {
-        // "sub": "validUserID",
-        // "name": "User name",
-        // "iat": 1516239022,
-        // "preferred_username": "myUserName"
-        // }
-        String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2YWxpZFVzZXJJRCIsIm5hbWUiOiJVc2VyIG5hbWUiLCJpYXQiOjE1MTYyMzkwMjIsInByZWZlcnJlZF91c2VybmFtZSI6Im15VXNlck5hbWUifQ.yLd54TnuS-HooMLYTzc47N6Et1bBJJMmZst2XcD1-Qo";
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
-
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
 
+        MockEnvironment mockEnv = new MockEnvironment();
+        String userNameClaimOverrides = "non-existant-claim";
+        mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, userNameClaimOverrides);
+
         // When...
-        JwtWrapper auth = new JwtWrapper(req);
-        String user = auth.getUsername();
+        JwtWrapper auth = new JwtWrapper(req, mockEnv);
+        InternalServletException thrown = catchThrowableOfType(() -> auth.getUsername(), InternalServletException.class);
 
         // Then...
-        assertThat(user).isEqualTo("myUserName");
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5057E", "No JWT claim exists in the given JWT that matches the supplied claims:", userNameClaimOverrides);
     }
 
     @Test
-    public void TestGetUserValidJwtNoUserClaimsReturnsNull() throws Exception {
+    public void testGetUsernameValidJwtNoUserClaimsThrowsError() throws Exception {
         // Given...
         // This mock JWT contains the following claims in its payload:
         // {
@@ -105,14 +109,15 @@ public class JwtWrapperTest {
 
         // When...
         JwtWrapper auth = new JwtWrapper(req);
-        String user = auth.getUsername();
+        InternalServletException thrown = catchThrowableOfType(() -> auth.getUsername(), InternalServletException.class);
 
         // Then...
-        assertThat(user).isNull();
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5058E", "No JWT claims to retrieve a username from were provided");
     }
 
     @Test
-    public void TestGetUserValidJwtWithCustomClaimsReturnsOverriddenClaim() throws Exception {
+    public void testGetUsernameValidJwtWithCustomClaimsReturnsUsername() throws Exception {
         // Given...
         // This mock JWT contains the following claims in its payload:
         // {
@@ -142,7 +147,7 @@ public class JwtWrapperTest {
     }
 
     @Test
-    public void TestGetUserValidJwtWithSpacedCustomClaimsReturnsOverriddenClaim() throws Exception {
+    public void testGetUsernameValidJwtWithSpacedCustomClaimsReturnsUsername() throws Exception {
         // Given...
         // This mock JWT contains the following claims in its payload:
         // {
@@ -172,7 +177,7 @@ public class JwtWrapperTest {
     }
 
     @Test
-    public void TestGetUserNoJwtReturnsError() throws Exception {
+    public void testGetUsernameNoJwtReturnsError() throws Exception {
         // Given...
         MockHttpServletRequest req = new MockHttpServletRequest("", new HashMap<>());
 
@@ -185,7 +190,7 @@ public class JwtWrapperTest {
     }
 
     @Test
-    public void TestGetUserInvalidJwtReturnsError() throws Exception {
+    public void testGetUsernameInvalidJwtReturnsError() throws Exception {
         // Given...
         Map<String, String> headers = Map.of("Authorization", "Bearer JzdWIiOiJ2YWxpZFVzZXJJRCIsIm5hbWUiOiJVc",
                                             "Galasa-Application", "galasactl");
@@ -201,7 +206,7 @@ public class JwtWrapperTest {
     }
 
     @Test
-    public void TestGetUserInvalidAuthorizationReturnsError() throws Exception {
+    public void testGetUsernameInvalidAuthorizationReturnsError() throws Exception {
         // Given...
         Map<String, String> headers = Map.of("Authorization", "Basic JzdWIiOiJ2YWxpZFVzZXJJRCIsIm5hbWUiOiJVc",
                                             "Galasa-Application", "galasactl");

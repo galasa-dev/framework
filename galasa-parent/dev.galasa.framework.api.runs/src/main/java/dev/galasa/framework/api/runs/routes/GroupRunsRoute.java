@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import dev.galasa.framework.api.authentication.JwtWrapper;
 import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
+import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -31,12 +32,14 @@ public class GroupRunsRoute extends GroupRuns{
     protected static final String path = "\\/[a-zA-Z0-9_\\-]*";
     private final GalasaGson gson = new GalasaGson();
 
+    private Environment env;
 
-    public GroupRunsRoute(ResponseBuilder responseBuilder, IFramework framework) {
+    public GroupRunsRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) {
         // Regex to match endpoints:
 		// -> /runs/{GroupID}
 		//
         super(responseBuilder, path, framework);
+        this.env = env;
     }
 
     public HttpServletResponse handleGetRequest(String groupName, QueryParameters queryParams, HttpServletRequest request, HttpServletResponse response)
@@ -57,7 +60,7 @@ public class GroupRunsRoute extends GroupRuns{
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
         try {
-            requestor = new JwtWrapper(request).getUsername();
+            requestor = new JwtWrapper(request, env).getUsername();
         } catch(Exception e) {
             // If no JWT is present the try block will through an exception.
             // Currently this process should work without a jwt however when authentication

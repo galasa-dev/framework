@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.JwtWrapper;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
-import dev.galasa.framework.api.authentication.internal.beans.TokenPayload;
+import dev.galasa.framework.api.beans.TokenPayload;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;

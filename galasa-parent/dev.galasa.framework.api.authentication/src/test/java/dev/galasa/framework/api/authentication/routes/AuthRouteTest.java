@@ -204,7 +204,6 @@ public class AuthRouteTest extends BaseServletTest {
         String issuerUrl = "http://dummy.host";
 
         MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
-
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient(issuerUrl, clientId, clientSecret, callbackUri);
 
         Instant tokenCreationTime = Instant.now();
@@ -348,7 +347,7 @@ public class AuthRouteTest extends BaseServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(500);
-        checkErrorStructure(outStream.toString(), 5056, "GAL5056E", "Error occurred when storing the new Galasa token with description", tokenDescription);
+        checkErrorStructure(outStream.toString(), 5056, "GAL5056E", "Internal server error occurred when storing the new Galasa token with description", tokenDescription);
     }
 
     @Test
@@ -409,10 +408,10 @@ public class AuthRouteTest extends BaseServletTest {
         // Expecting this json:
         // {
         //   "error_code": 5055,
-        //   "error_message": "GAL5055E: Failed to get a JWT and a refresh token from the token issuer. The issuer's response did not contain a JWT and refresh token.
+        //   "error_message": "GAL5055E: ..."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(500);
-        checkErrorStructure(outStream.toString(), 5055, "GAL5055E", "Failed to get a JWT and a refresh token from the token issuer");
+        checkErrorStructure(outStream.toString(), 5055, "GAL5055E", "Failed to get a JWT and a refresh token from the Galasa Dex server", "The Dex server did not respond with a JWT and refresh token");
     }
 
     @Test
@@ -475,10 +474,10 @@ public class AuthRouteTest extends BaseServletTest {
         // Expecting this json:
         // {
         //   "error_code": 5054,
-        //   "error_message": "GAL5054E: Could not get the URL of an upstream identity provider to authenticate with. Report the problem to your Galasa Ecosystem owner."
+        //   "error_message": "GAL5054E: ..."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(500);
-        checkErrorStructure(outStream.toString(), 5054, "GAL5054E", "Could not get the URL of an upstream identity provider to authenticate with");
+        checkErrorStructure(outStream.toString(), 5054, "GAL5054E", "Internal server error", "The REST API server could not get the URL of the authentication provider (e.g. GitHub/LDAP) from the Galasa Dex component");
     }
 
     @Test
