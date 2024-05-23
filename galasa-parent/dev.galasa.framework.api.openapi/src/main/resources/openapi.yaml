@@ -2017,9 +2017,9 @@ components:
         token_id:
           type: string
           description: The ID of the token's record in Galasa's tokens database.
-        created_time:
+        creation_time:
           type: string
-          description: The date and time when the token was created (e.g. "2024-04-01T12:25:00.123Z").
+          description: The creation date and time of the auth token (e.g. "2024-04-01T12:25:00.123Z").
         owner:
           type: object
           description: Details about the owner of the token.
