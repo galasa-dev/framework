@@ -27,6 +27,7 @@ export ORIGINAL_DIR=$(pwd)
 cd "${BASEDIR}/.."
 WORKSPACE_DIR=$(pwd)
 
+OPENAPI2BEANS="${BASEDIR}/galasa-parent/build/openapi2beans"
 
 #-----------------------------------------------------------------------------------------
 #
@@ -243,7 +244,7 @@ function generate_beans {
     check_openapi2beans_is_installed
 
     h2 "Generating beans in the dev.framework.api.beans project."
-    cmd="build/openapi2beans generate --output ${BASEDIR}/galasa-parent/dev.galasa.framework.api.beans/src/main/java \
+    cmd="${OPENAPI2BEANS} generate --output ${BASEDIR}/galasa-parent/dev.galasa.framework.api.beans/src/main/java \
     --yaml $BASEDIR/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml \
     --package dev.galasa.framework.api.beans.generated \
     --force"
@@ -254,12 +255,12 @@ function generate_beans {
 
 function check_openapi2beans_is_installed {
     h2 "Checking the openapi2beans tool is installed."
-    OPENAPI2BEANS_FILEPATH="${BASEDIR}/galasa-parent/build/openapi2beans"
-    if [[ ! -f ${OPENAPI2BEANS_FILEPATH} ]]; then
+    
+    if [[ ! -f ${OPENAPI2BEANS} ]]; then
         download_openapi2beans
     fi
-    if [[ ! -x ${OPENAPI2BEANS_FILEPATH}/openapi2beans ]]; then
-        chmod 700 ${OPENAPI2BEANS_FILEPATH}
+    if [[ ! -x ${OPENAPI2BEANS} ]]; then
+        chmod 700 ${OPENAPI2BEANS}
     fi
 
     success "OK - the openapi2beans tool is installed and available"
@@ -270,11 +271,10 @@ function download_openapi2beans {
 
     h2 "Downloading openapi2beans tool"
     url=https://development.galasa.dev/main/binary/bld/openapi2beans-${os}-${architecture}
-    curl -o ${OPENAPI2BEANS_FILEPATH} $url 
+    
+    curl --create-dirs -o ${OPENAPI2BEANS} ${url} 
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to download the openapi2beans tool." ; exit 1 ; fi
 
-    chmod 700 ${OPENAPI2BEANS_FILEPATH}
-    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to make openapi2beans executable." ; exit 1 ; fi
 }
 
 #-----------------------------------------------------------------------------------------
