@@ -2055,6 +2055,7 @@ components:
           type: string
         kind:
           type: string
+          enum: [GalasaProperty]
         metadata:
           type: object
           properties:
@@ -2188,16 +2189,13 @@ components:
           enum: ["queued","finished"]
         result:
           type: string
-<<<<<<< Updated upstream
-          enum: ["","cancelled"]
+          enum: [nil,"cancelled"]
     User:
       properties:
         login_id:
           type: string
           description: The ID representing the user's username.
-=======
           enum: [nil,"cancelled"]
->>>>>>> Stashed changes
     Requestors:
       type: object
       properties:
