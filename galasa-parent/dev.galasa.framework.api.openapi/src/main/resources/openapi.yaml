@@ -206,6 +206,49 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
+  /auth/tokens:
+    get:
+      operationId: getTokens
+      summary: Get a list of tokens used for authenticating with the Galasa API server.
+      description: |
+        Returns a list of tokens used for authenticating with the Galasa API server, sorted by
+        ascending creation date order (i.e. earliest first, latest last).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Authentication API
+      responses:
+        '200':
+          description: Returns a JSON Object containing the list of tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '401':
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
 
 ##################################################################################
 # CPS API
@@ -1957,6 +2000,30 @@ components:
         code:
           type: string
           description: The authorization code to be exchanged for a JWT, mutually exclusive with "refresh_token".
+        description:
+          type: string
+          description: A single-line description to be associated with the Galasa auth token.
+    AuthTokens:
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthToken'
+    AuthToken:
+      properties:
+        token_id:
+          type: string
+          description: The ID of the token's record in Galasa's tokens database.
+        created_time:
+          type: string
+          description: The date and time when the token was created (e.g. "2024-04-01T12:25:00.123Z").
+        owner:
+          type: object
+          description: Details about the owner of the token.
+          $ref: '#/components/schemas/User'
+        description:
+          type: string
+          description: A description of the token, provided by the user when creating it.
     DexClient:
       properties:
         client_id:
@@ -2109,6 +2176,11 @@ components:
         result:
           type: string
           enum: ["","cancelled"]
+    User:
+      properties:
+        login_id:
+          type: string
+          description: The ID representing the user's username.
     Requestors:
       type: object
       properties:

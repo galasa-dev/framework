@@ -6,38 +6,20 @@
 package dev.galasa.framework.internal.dss;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-
-import javax.validation.constraints.NotNull;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import dev.galasa.framework.internal.dss.FpfDynamicStatusStore;
-import dev.galasa.framework.spi.CertificateStoreException;
-import dev.galasa.framework.spi.ConfidentialTextException;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkPropertyFileException;
-import dev.galasa.framework.spi.ICertificateStoreService;
-import dev.galasa.framework.spi.IConfidentialTextService;
-import dev.galasa.framework.spi.IConfigurationPropertyStore;
-import dev.galasa.framework.spi.IDynamicStatusStore;
-import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IFrameworkInitialisation;
-import dev.galasa.framework.spi.IResultArchiveStoreService;
-import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.creds.CredentialsException;
-import dev.galasa.framework.spi.creds.ICredentialsStore;
 
 /**
  * Test the Framework DSS Stub. Most of the functionality will exist in the
@@ -187,74 +169,5 @@ public class FpfDynamicStatusStoreTest {
         properties.load(Files.newInputStream(tempProperties));
 
         return properties.getProperty(key);
-    }
-
-    /**
-     * <p>
-     * This class is used to test the implemented methods in the tests above. They
-     * are all noddy methods.
-     * </p>
-     */
-    private class FrameworkInitialisation implements IFrameworkInitialisation {
-        private final URI uri;
-
-        public FrameworkInitialisation(URI uri) {
-            this.uri = uri;
-        }
-
-        @Override
-        public URI getBootstrapConfigurationPropertyStore() {
-            return null;
-        }
-
-        @Override
-        public void registerConfidentialTextService(@NotNull IConfidentialTextService cts)
-                throws ConfidentialTextException {
-        }
-
-        @Override
-        public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
-                throws DynamicStatusStoreException {
-        }
-
-        @Override
-        public IFramework getFramework() {
-            return null;
-        }
-
-        @Override
-        public void registerConfigurationPropertyStore(@NotNull IConfigurationPropertyStore configurationPropertyStore)
-                throws ConfigurationPropertyStoreException {
-        }
-
-        @Override
-        public void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService)
-                throws ResultArchiveStoreException {
-        }
-
-        @Override
-        public URI getDynamicStatusStoreUri() {
-            return this.uri;
-        }
-
-        @Override
-        public URI getCredentialsStoreUri() {
-            return null;
-        }
-
-        @Override
-        public List<URI> getResultArchiveStoreUris() {
-            return null;
-        }
-
-        @Override
-        public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
-        }
-
-		@Override
-		public void registerCertificateStoreService(@NotNull ICertificateStoreService certificateStoreService)
-				throws CertificateStoreException {			
-		}
-
     }
 }

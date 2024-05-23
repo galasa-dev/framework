@@ -15,6 +15,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.api.common.BaseServlet;
+import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.runs.routes.GroupRunsRoute;
 import dev.galasa.framework.spi.IFramework;
 
@@ -30,6 +32,8 @@ public class RunsServlet extends BaseServlet {
 
 	private static final long serialVersionUID = 1L;
 
+    protected Environment env = new SystemEnvironment();
+
 	private Log  logger  =  LogFactory.getLog(this.getClass());
 
 	@Override
@@ -37,6 +41,6 @@ public class RunsServlet extends BaseServlet {
 		logger.info("Schedule Runs Servlet initialising");
 
 		super.init();
-		addRoute(new GroupRunsRoute(getResponseBuilder(), framework));
+		addRoute(new GroupRunsRoute(getResponseBuilder(), framework, env));
 	}
 }

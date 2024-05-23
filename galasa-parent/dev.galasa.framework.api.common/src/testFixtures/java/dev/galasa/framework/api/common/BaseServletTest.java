@@ -10,8 +10,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import dev.galasa.framework.api.common.mocks.MockEnvironment;
-
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Map;
@@ -57,7 +55,7 @@ public class BaseServletTest {
 
             for (JsonElement element : jsonArray) {
                 JsonObject jsonObject = element.getAsJsonObject();
-                if (jsonObject.get(entry.getKey()).toString().equals(entry.getValue())) {
+                if (jsonObject.get(entry.getKey()).getAsString().equals(entry.getValue())) {
                     fieldMatches = true;
                 }
             }
@@ -65,9 +63,16 @@ public class BaseServletTest {
         }
     }
 
-    protected void setRequiredEnvironmentVariables(MockEnvironment mockEnv) {
-        mockEnv.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL, "http://my-api.server/api");
-        mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, "http://my-dex.issuer/dex");
-        mockEnv.setenv(EnvironmentVariables.GALASA_DEX_GRPC_HOSTNAME, "dex-grpc:1234");
+    protected JsonArray getJsonArrayFromJson(String jsonString, String jsonArrayKey) throws Exception {
+        JsonElement jsonElement = JsonParser.parseString(jsonString);
+        assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
+
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        assertThat(jsonObject.has(jsonArrayKey)).isTrue();
+
+        JsonArray jsonArray = jsonObject.get(jsonArrayKey).getAsJsonArray();
+        assertThat(jsonArray).isNotNull().as("Json parsed is not a json array.");
+
+        return jsonArray;
     }
 }

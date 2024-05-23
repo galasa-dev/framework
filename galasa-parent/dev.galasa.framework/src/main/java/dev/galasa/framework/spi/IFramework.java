@@ -11,6 +11,8 @@ import java.util.Random;
 
 import javax.validation.constraints.NotNull;
 
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 
@@ -118,6 +120,25 @@ public interface IFramework {
      */
     @NotNull
     IResultArchiveStore getResultArchiveStore();
+
+    /**
+     * <p>
+     * Retrieve the Auth Store from the framework.
+     * </p>
+     *
+     * @return An {@link IAuthStore}, cannot be null
+     */
+    @NotNull
+    IAuthStore getAuthStore();
+
+    /**
+     * Retrieve the Auth Store Service which can be used to retrieve users and
+     * tokens from the store.
+     *
+     * @return An {@link IAuthStoreService}, cannot be null
+     */
+    @NotNull
+    IAuthStoreService getAuthStoreService();
 
     /**
      * <p>

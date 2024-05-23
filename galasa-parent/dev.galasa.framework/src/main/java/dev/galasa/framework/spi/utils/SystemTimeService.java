@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.common;
+package dev.galasa.framework.spi.utils;
 
 import java.time.Instant;
 

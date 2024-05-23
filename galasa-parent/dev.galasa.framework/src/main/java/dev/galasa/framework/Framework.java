@@ -14,6 +14,10 @@ import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.AuthStoreException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -23,6 +27,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import dev.galasa.framework.internal.auth.FrameworkAuthStoreService;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
@@ -48,6 +53,7 @@ public class Framework implements IFramework {
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;
+    private IAuthStore                         authStore;
 
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
@@ -236,6 +242,14 @@ public class Framework implements IFramework {
         this.dssStore = dssStore;
     }
 
+    public void setAuthStore(@NotNull IAuthStore authStore) throws AuthStoreException {
+        if (this.authStore != null) {
+            throw new AuthStoreException("Invalid second registration of the Auth Store Service detected");
+        }
+
+        this.authStore = authStore;
+    }
+
     /**
      * Add a new Result Archive Store Service to the framework, eventually we will
      * have the ability to have multiples RASs running
@@ -296,6 +310,17 @@ public class Framework implements IFramework {
 
     protected ICredentialsStore getCredentialsStore() {
         return this.credsStore;
+    }
+
+
+    @Override
+    public IAuthStore getAuthStore() {
+        return this.authStore;
+    }
+
+    @Override
+    public IAuthStoreService getAuthStoreService() {
+        return new FrameworkAuthStoreService(authStore);
     }
 
     @Override

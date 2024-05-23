@@ -12,37 +12,20 @@ import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
-import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
-import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
-import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpSession;
 
 public class AuthCallbackRouteTest extends BaseServletTest {
 
-    private DexGrpcClient mockDexGrpcClient;
-    private MockOidcProvider mockOidcProvider;
-    private MockEnvironment mockEnv;
-
-    @Before
-    public void setUp() {
-        mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
-        mockOidcProvider = new MockOidcProvider();
-        mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-    }
-
     @Test
     public void testAuthCallbackGetRequestWithMissingAuthCodeAndStateReturnsBadRequest() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         Map<String, String[]> queryParams = new HashMap<>();
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
@@ -68,7 +51,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestWithMissingAuthCodeReturnsBadRequest() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         Map<String, String[]> queryParams = Map.of("state", new String[] { "my-state" });
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
@@ -94,7 +77,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestWithMissingStateReturnsBadRequest() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         Map<String, String[]> queryParams = Map.of("code", new String[] { "my-auth-code" });
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
@@ -120,7 +103,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestWithBadCallbackUrlReturnsError() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -158,7 +141,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestWithValidStateAndCodeReturnsCode() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -189,7 +172,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestCallbackUrlWithQueryAppendsCodeToQueryParams() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -220,7 +203,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestWithInvalidStateReturnsBadRequest() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -256,7 +239,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestWithNoMatchingStateSessionReturnsBadRequest() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -292,7 +275,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestWithMissingStateSessionReturnsBadRequest() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";

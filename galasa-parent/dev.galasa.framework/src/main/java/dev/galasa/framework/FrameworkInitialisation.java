@@ -14,6 +14,9 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.*;
 import org.osgi.framework.*;
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.auth.AuthStoreException;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreRegistration;
 import dev.galasa.framework.spi.creds.*;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
@@ -24,6 +27,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private final URI                                uriConfigurationPropertyStore;
     private final URI                                uriDynamicStatusStore;
     private final URI                                uriCredentialsStore;
+    private final URI                                uriAuthStore;
     private final List<URI>                          uriResultArchiveStores;
 
     private final IConfigurationPropertyStoreService cpsFramework;
@@ -200,7 +204,13 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         initialiseCredentialsStore(logger,bundleContext);
 
         initialiseConfidentialTextService(logger,bundleContext);
-                
+
+        // The auth store is only required for the ecosystem, so the URL to it won't be set in local runs
+        this.uriAuthStore = locateAuthStore(logger, overrideProperties);
+        if (this.uriAuthStore != null) {
+            initialiseAuthStore(logger, bundleContext);
+        }
+
         if (framework.isInitialised()) {
             logger.info("Framework initialised");
         } else {
@@ -322,6 +332,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         return this.uriCredentialsStore;
     }
 
+    @Override
+    public URI getAuthStoreUri() {
+        return this.uriAuthStore;
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -382,6 +397,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     @Override
     public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         this.framework.setCredentialsStore(credentialsStore);
+    }
+
+    @Override
+    public void registerAuthStore(@NotNull IAuthStore authStore) throws AuthStoreException {
+        this.framework.setAuthStore(authStore);
     }
 
     /*
@@ -485,6 +505,21 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         } catch (final Exception e) {
             throw new FrameworkException("Unable to resolve the Dynamic Status Store URI", e);
         }
+    }
+
+    /**
+     * Find where the auth store is located, or return null if one has not been set.
+     */
+    URI locateAuthStore(Log logger, Properties overrideProperties) throws URISyntaxException {
+        URI storeUri = null;
+        String propUri = overrideProperties.getProperty("framework.auth.store");
+
+        if (propUri != null && !propUri.isEmpty()) {
+            logger.debug("Bootstrap property framework.auth.store used to determine Auth Store location");
+            storeUri = new URI(propUri);
+            logger.debug("Auth Store is " + storeUri.toString());
+        }
+        return storeUri;
     }
 
     // Find the run name of the test run, if it's not a set property 
@@ -762,5 +797,30 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         logger.trace("Selected Confidential Text Service is "
                 + this.framework.getConfidentialTextService().getClass().getName());
 
+    }
+
+    void initialiseAuthStore(Log logger, BundleContext bundleContext)
+        throws FrameworkException, InvalidSyntaxException {
+
+        logger.trace("Searching for Auth Store providers");
+        final ServiceReference<?>[] authStoreServiceReference = bundleContext
+                .getAllServiceReferences(IAuthStoreRegistration.class.getName(), null);
+        if ((authStoreServiceReference == null) || (authStoreServiceReference.length == 0)) {
+            throw new FrameworkException("No Auth Store Services have been found");
+        }
+        for (final ServiceReference<?> authStoreReference : authStoreServiceReference) {
+            final IAuthStoreRegistration authStoreRegistration = (IAuthStoreRegistration) bundleContext
+                    .getService(authStoreReference);
+            logger.trace("Found Auth Store Provider " + authStoreRegistration.getClass().getName());
+
+            // The registration code calls back to registerAuthStore to set the auth
+            // store object in this.framework, so it can be retrieved by the
+            // this.framework.getAuthStore() call...
+            authStoreRegistration.initialise(this);
+        }
+        if (this.framework.getAuthStore() == null) {
+            throw new FrameworkException("Failed to initialise an Auth Store, unable to continue");
+        }
+        logger.debug("Selected Auth Store Service is " + this.framework.getAuthStore().getClass().getName());
     }
 }
