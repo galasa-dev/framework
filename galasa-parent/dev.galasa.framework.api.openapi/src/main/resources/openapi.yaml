@@ -2005,12 +2005,14 @@ components:
           type: string
           description: A single-line description to be associated with the Galasa auth token.
     AuthTokens:
+      type: object
       properties:
         tokens:
           type: array
           items:
             $ref: '#/components/schemas/AuthToken'
     AuthToken:
+      type: object
       properties:
         token_id:
           type: string
@@ -2191,6 +2193,7 @@ components:
           type: string
           enum: [nil,"cancelled"]
     User:
+      type: object
       properties:
         login_id:
           type: string
