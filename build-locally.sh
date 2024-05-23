@@ -254,11 +254,12 @@ function generate_beans {
 
 function check_openapi2beans_is_installed {
     h2 "Checking the openapi2beans tool is installed."
-    if [[ ! -f ${BASEDIR}/build/openapi2beans ]]; then
+    OPENAPI2BEANS_FOLDER="${BASEDIR}/galasa-parent/build"
+    if [[ ! -f ${OPENAPI2BEANS_FOLDER}/openapi2beans ]]; then
         download_openapi2beans
     fi
-    if [[ ! -x /build/openapi2beans ]]; then
-        chmod 777 ${BASEDIR}/galasa-parent/build/openapi2beans
+    if [[ ! -x ${OPENAPI2BEANS_FOLDER}/openapi2beans ]]; then
+        chmod 700 ${OPENAPI2BEANS_FOLDER}/openapi2beans
     fi
 
     success "OK - the openapi2beans tool is installed and available"
@@ -268,14 +269,13 @@ function download_openapi2beans {
     get_architecture
 
     h2 "Downloading openapi2beans tool"
+    mkdir -p ${OPENAPI2BEANS_FOLDER}
     url=https://development.galasa.dev/main/binary/bld/openapi2beans-${os}-${architecture}
-    curl -O $url
+    curl -o ${OPENAPI2BEANS_FOLDER}/openapi2beans $url 
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to download the openapi2beans tool." ; exit 1 ; fi
 
-    mkdir -p build
-    mv openapi2beans-${os}-${architecture} ${BASEDIR}/galasa-parent/build/openapi2beans
-    chmod 777 ${BASEDIR}/galasa-parent/build/openapi2beans
-    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to move openapi2beans to new location." ; exit 1 ; fi
+    chmod 700 ${OPENAPI2BEANS_FOLDER}/openapi2beans
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to make openapi2beans executable." ; exit 1 ; fi
 }
 
 #-----------------------------------------------------------------------------------------

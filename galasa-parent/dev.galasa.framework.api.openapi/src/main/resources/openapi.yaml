@@ -2198,7 +2198,6 @@ components:
         login_id:
           type: string
           description: The ID representing the user's username.
-          enum: [nil,"cancelled"]
     Requestors:
       type: object
       properties:
