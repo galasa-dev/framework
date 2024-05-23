@@ -1990,6 +1990,7 @@ paths:
 components:
   schemas:
     AuthProperties:
+      type: object
       properties:
         client_id:
           type: string
@@ -2025,11 +2026,13 @@ components:
           type: string
           description: A description of the token, provided by the user when creating it.
     DexClient:
+      type: object
       properties:
         client_id:
           type: string
           description: An alphanumeric string representing the ID of the Dex client.
     TokenResponse:
+      type: object
       properties:
         jwt:
           type: string
@@ -2038,6 +2041,7 @@ components:
           type: string
           description: A refresh token to allow the retrieval of new JWTs when authenticating with a Galasa ecosystem from a client tool.
     CpsProperty:
+      type: object
       properties:
         name:
           type: string
@@ -2045,12 +2049,14 @@ components:
         value:
           type: string
     GalasaProperty:
+      type: object
       properties:
         apiVersion:
           type: string
         kind:
           type: string
         metadata:
+          type: object
           properties:
             namespace:
               type: string
@@ -2065,6 +2071,7 @@ components:
                 The property name is made of 'parts'. Each part must be separated by a period character. There must be
                 at least two parts in the property name. The last character cannot be a period character.
         data:
+          type: object
           properties:
             value:
               type: string
@@ -2072,22 +2079,24 @@ components:
                 The value of the property, maximum length of approximately 1,500,000 characters.
                 It cannot be a blank value.
     JsonError:
+      type: object
       properties:
         error:
           type: string
     APIErrorArray:
-        type: array
-        description: An array of API Errors relating to the resources that failed to complete as expected
-        items:
-          allOf:
-            - $ref: '#/components/schemas/APIError'
+      type: array
+      description: An array of API Errors relating to the resources that failed to complete as expected
+      items:
+          $ref: '#/components/schemas/APIError'
     APIError:
+      type: object
       properties:
         error_code:
           type: integer
         error_message:
           type: string
     Resources:
+      type: object
       properties:
         action:
           type: string
@@ -2099,6 +2108,7 @@ components:
             anyOf:
               - $ref: '#/components/schemas/GalasaProperty'
     TestRuns:
+      type: object
       properties:
         complete:
           type: boolean
@@ -2107,6 +2117,7 @@ components:
           items:
             $ref: '#/components/schemas/TestRun'
     TestRun:
+      type: object
       properties:
         name:
           type: string
@@ -2145,6 +2156,7 @@ components:
         rasRunId:
           type: string
     TestRunRequest:
+      type: object
       properties:
         classNames:
           type: array
@@ -2169,18 +2181,23 @@ components:
         trace:
           type: boolean
     UpdateRunStatusRequest:
+      type: object
       properties:
         status:
           type: string
           enum: ["queued","finished"]
         result:
           type: string
+<<<<<<< Updated upstream
           enum: ["","cancelled"]
     User:
       properties:
         login_id:
           type: string
           description: The ID representing the user's username.
+=======
+          enum: [nil,"cancelled"]
+>>>>>>> Stashed changes
     Requestors:
       type: object
       properties:
@@ -2245,6 +2262,7 @@ components:
           items:
             type: object
     Artifact:
+      type: object
       properties:
         artifactPath:
           type: string
