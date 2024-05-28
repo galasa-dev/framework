@@ -100,7 +100,7 @@ public class Framework implements IFramework {
 
     @Override
     public boolean isInitialised() {
-        if (cpsStore != null && dssStore != null && rasService != null && ctsService != null && credsStore != null && eventsService != null) {
+        if (cpsStore != null && dssStore != null && rasService != null && ctsService != null && credsStore != null) {
             return true;
         }
 
@@ -108,7 +108,7 @@ public class Framework implements IFramework {
     }
 
     public boolean isShutdown() {
-        if (cpsStore == null && dssStore == null && rasService == null && ctsService == null && credsStore == null && eventsService == null) {
+        if (cpsStore == null && dssStore == null && rasService == null && ctsService == null && credsStore == null) {
             return true;
         }
 
