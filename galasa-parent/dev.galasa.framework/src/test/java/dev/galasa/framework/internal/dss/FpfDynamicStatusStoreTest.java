@@ -19,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dev.galasa.framework.spi.DynamicStatusStoreException;
-import dev.galasa.framework.spi.EventsException;
 import dev.galasa.framework.spi.FrameworkPropertyFileException;
 
 /**
