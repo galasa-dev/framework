@@ -24,11 +24,7 @@ import dev.galasa.framework.mocks.MockLog;
 import dev.galasa.framework.mocks.MockRASRegistration;
 import dev.galasa.framework.mocks.MockRASStoreService;
 import dev.galasa.framework.mocks.MockServiceReference;
-import dev.galasa.framework.mocks.MockAuthStore;
-import dev.galasa.framework.mocks.MockAuthStoreRegistration;
 import dev.galasa.framework.spi.*;
-import dev.galasa.framework.spi.auth.IAuthStore;
-import dev.galasa.framework.spi.auth.IAuthStoreRegistration;
 import dev.galasa.framework.spi.creds.ICredentialsStoreRegistration;
 
 import org.apache.commons.logging.Log;
@@ -125,7 +121,7 @@ public class TestFrameworkInitialisation {
         // framework.run.name sets the run-name explicitly.
         // cpsProperties.put("framework.run.name","myRunName");
 
-        addMockCPSToMockServiceRegistery(services,cpsProperties, bundle);
+        addMockCPSToMockServiceRegistry(services,cpsProperties, bundle);
 
         MockDSSStore mockDSSStore = addMockDSSToMockServiceRegistry(services, bundle);
 
@@ -137,7 +133,6 @@ public class TestFrameworkInitialisation {
         MockCredentialsStore mockCredentialsStore = addMockCredentialsStoreToMockServiceRegistry(services, bundle);
         MockConfidentialTextStore mockConfidentialTextStore = addMockConfidentialTextServiceToMockServiceRegistry(services, bundle);
 
-        addMockAuthStoreToMockServiceRegistry(services, bundle);
         MockEventsService mockEventsService = addMockEventsServiceToMockServiceRegistry(services, bundle);
 
         // When...
@@ -173,7 +168,7 @@ public class TestFrameworkInitialisation {
         return mockFramework;
     }
 
-    private void addMockCPSToMockServiceRegistery(Map<String,MockServiceReference<?>> services, Map<String,String> cpsProperties, Bundle bundle) {
+    private void addMockCPSToMockServiceRegistry(Map<String,MockServiceReference<?>> services, Map<String,String> cpsProperties, Bundle bundle) {
         MockCPSStore mockCPSStore = new MockCPSStore(cpsProperties);
         MockCPSRegistration mockCPSRegistration = new MockCPSRegistration(mockCPSStore);
         MockServiceReference<IConfigurationPropertyStoreRegistration> mockCPSRef = new MockServiceReference<IConfigurationPropertyStoreRegistration>(mockCPSRegistration, bundle );
@@ -218,14 +213,6 @@ public class TestFrameworkInitialisation {
             new MockServiceReference<IConfidentialTextServiceRegistration>(mockConfidentialTextStoreRegistration, bundle );
         services.put(IConfidentialTextServiceRegistration.class.getName(),mockConfidentialTextServiceRegRef);
         return mockConfidentialTextStore;
-    }
-
-    private void addMockAuthStoreToMockServiceRegistry(Map<String,MockServiceReference<?>> services, Bundle bundle) {
-        MockAuthStore mockAuthStore = new MockAuthStore();
-        MockAuthStoreRegistration mockAuthStoreRegistration = new MockAuthStoreRegistration(mockAuthStore);
-        MockServiceReference<IAuthStoreRegistration> mockAuthStoreRef = new MockServiceReference<IAuthStoreRegistration>(
-                mockAuthStoreRegistration, bundle);
-        services.put(IAuthStoreRegistration.class.getName(), mockAuthStoreRef);
     }
 
     private MockEventsService addMockEventsServiceToMockServiceRegistry(Map<String,MockServiceReference<?>> services, Bundle bundle) {
@@ -535,64 +522,6 @@ public class TestFrameworkInitialisation {
         FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrapProperties, env);
         String home = frameworkInit.getGalasaHome(env);
         assertThat(home).isEqualTo("~/.galasa");
-    }
-
-    @Test
-    public void testLocateAuthStoreDefaultsToNull() throws Exception {
-
-        // Given...
-        Properties bootstrap = new Properties();
-
-        // The framework.auth.store property hasn't been set, so there is no auth store to use.
-        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
-
-        Log logger = new MockLog();
-
-        // When...
-        URI uri = frameworkInit.locateAuthStore(logger, bootstrap);
-
-        // Then...
-        assertThat(uri).isNull();
-    }
-
-    @Test
-    public void testLocateAuthStoreGetsFrameworkAuthStoreUri() throws Exception {
-
-        // Given...
-        Properties bootstrap = new Properties();
-
-        URI authStoreUri = URI.create("couchdb:http://my-user-store");
-
-        bootstrap.setProperty("framework.auth.store", authStoreUri.toString());
-        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
-
-        Log logger = new MockLog();
-
-        // When...
-        URI uri = frameworkInit.locateAuthStore(logger, bootstrap);
-
-        // Then...
-        assertThat(uri).isNotNull();
-        assertThat(uri).isEqualTo(authStoreUri);
-    }
-
-    @Test
-    public void testInitialiseAuthStoreSetsFrameworkAuthStore() throws Exception {
-
-        // Given...
-        Properties bootstrap = new Properties();
-
-        URI authStoreUri = URI.create("couchdb:http://my-user-store");
-
-        bootstrap.setProperty("framework.auth.store", authStoreUri.toString());
-        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
-
-        // When...
-        IAuthStore authStore = frameworkInit.getFramework().getAuthStore();
-
-        // Then...
-        assertThat(authStore).isNotNull();
-        assertThat(authStore.getClass().getName()).isEqualTo(MockAuthStore.class.getName());
     }
 
     @Test

@@ -3,9 +3,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.mocks;
+package dev.galasa.framework.api.mocks;
 
-import dev.galasa.framework.spi.IFrameworkInitialisation;
+import dev.galasa.framework.spi.IApiServerInitialisation;
 import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreRegistration;
 import dev.galasa.framework.spi.auth.AuthStoreException;
@@ -19,7 +19,7 @@ public class MockAuthStoreRegistration implements IAuthStoreRegistration {
     }
 
     @Override
-    public void initialise(IFrameworkInitialisation frameworkInitialisation) throws AuthStoreException {
+    public void initialise(IApiServerInitialisation frameworkInitialisation) throws AuthStoreException {
         frameworkInitialisation.registerAuthStore(store);
     }
 }

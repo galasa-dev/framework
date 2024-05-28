@@ -46,6 +46,8 @@ import dev.galasa.boot.LauncherException;
  */
 public class FelixFramework {
 
+    private static final String EXTRA_API_SERVER_BUNDLES_PROP = "api.extra.bundles";
+
     private BootLogger logger = new BootLogger();
 
     private boolean loadConsole = false;
@@ -135,16 +137,27 @@ public class FelixFramework {
             // Load extra bundles from the bootstrap
             String extraBundles = boostrapProperties.getProperty("framework.extra.bundles");
             if (extraBundles != null) {
-                String[] ebs = extraBundles.split(",");
-                for (String eb : ebs) {
-                    eb = eb.trim();
-                    if (!eb.isEmpty()) {
-                        loadBundle(eb);
-                    }
-                }
+                loadBundlesList(extraBundles);
             }
         } catch (IOException | BundleException e) {
             throw new LauncherException("Unable to initialise the Felix framework", e);
+        }
+    }
+
+    private void loadExtraApiBundles(Properties boostrapProperties) throws LauncherException {
+        String extraApiBundles = boostrapProperties.getProperty(EXTRA_API_SERVER_BUNDLES_PROP);
+        if (extraApiBundles != null) {
+            loadBundlesList(extraApiBundles);
+        }
+    }
+
+    private void loadBundlesList(String extraBundles) throws LauncherException {
+        String[] bundlesList = extraBundles.split(",");
+        for (String extraBundle : bundlesList) {
+            extraBundle = extraBundle.trim();
+            if (!extraBundle.isEmpty()) {
+                loadBundle(extraBundle);
+            }
         }
     }
 
@@ -678,6 +691,9 @@ public class FelixFramework {
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
         // Get the framework bundle
         loadBundle("dev.galasa.framework.api");
+
+        // Load any extra bundles that should only be available when running the API server
+        loadExtraApiBundles(boostrapProperties);
 
         // Get the dev.galasa.framework.api.internal.ApiStartup class service
         String classString = "dev.galasa.framework.api.internal.ApiStartup";
