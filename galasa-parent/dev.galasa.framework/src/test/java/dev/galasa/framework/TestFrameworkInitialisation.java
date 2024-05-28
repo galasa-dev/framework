@@ -594,4 +594,19 @@ public class TestFrameworkInitialisation {
         assertThat(authStore).isNotNull();
         assertThat(authStore.getClass().getName()).isEqualTo(MockAuthStore.class.getName());
     }
+
+    @Test
+    public void testInitialiseEventsServiceSetsFrameworkEventsService() throws Exception {
+
+        // Given...
+        Properties bootstrap = new Properties();
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
+
+        // When...
+        IEventsService eventsService = frameworkInit.getFramework().getEventsService();
+
+        // Then...
+        assertThat(eventsService).isNotNull();
+        assertThat(eventsService.getClass().getName()).isEqualTo(MockEventsService.class.getName());
+    }
 }
