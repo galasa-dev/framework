@@ -10,35 +10,15 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.net.URL;
 import java.util.Properties;
-import java.util.Random;
-
-import javax.validation.constraints.NotNull;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import dev.galasa.framework.internal.cps.FpfConfigurationPropertyStore;
-import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
-import dev.galasa.framework.spi.Api;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.DynamicStatusStoreException;
-import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.ICertificateStoreService;
-import dev.galasa.framework.spi.IConfidentialTextService;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IDynamicStatusStoreService;
+import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IFrameworkRuns;
-import dev.galasa.framework.spi.IResourcePoolingService;
-import dev.galasa.framework.spi.IResultArchiveStore;
-import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.SharedEnvironmentRunType;
-import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.CredentialsToken;
-import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.ICredentials;
 
 /**
@@ -46,7 +26,7 @@ import dev.galasa.ICredentials;
  * This test class checks the behaviour of retrieving credentials from the local
  * store is functional.
  * </p>
- * 
+ *
  * @author Bruce Abbott
  */
 public class FrameworkCredentialsTest {
@@ -73,7 +53,7 @@ public class FrameworkCredentialsTest {
     /**
      * This test method checks that a token stored in the local Credentials Store
      * can be retrieved.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -86,7 +66,7 @@ public class FrameworkCredentialsTest {
         propsCREDS.setProperty("secure.credentials.testcredsid.token", "testToken");
         saveProperties(propsCREDS, fileCREDS);
 
-        Framework framework = new Framework(fileCPS);
+        IFramework framework = new MockFramework(fileCPS);
         FileCredentialsStore fileCreds = new FileCredentialsStore(fileCREDS.toURI(), framework);
         FrameworkCredentialsService service = new FrameworkCredentialsService(framework, fileCreds);
 
@@ -104,105 +84,4 @@ public class FrameworkCredentialsTest {
         properties.store(out, null);
         out.close();
     }
-
-    /**
-     * <p>
-     * This is a private class used to implement the IFramework for testing
-     * purposes.
-     * </p>
-     */
-    private class Framework implements IFramework {
-        private Properties overrides = new Properties();
-        private Properties records   = new Properties();
-        private File       cps;
-
-        public Framework(File fileCPS) {
-            this.cps = fileCPS;
-        }
-
-        public IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
-                throws ConfigurationPropertyStoreException {
-            FrameworkConfigurationPropertyService fcps;
-            try {
-                fcps = new FrameworkConfigurationPropertyService(this, new FpfConfigurationPropertyStore(cps.toURI()),
-                        overrides, records, namespace);
-                return fcps;
-            } catch (Exception e) {
-                throw new ConfigurationPropertyStoreException("error initialising", e);
-            }
-        }
-
-        public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
-                throws DynamicStatusStoreException {
-            return null;
-        }
-
-        public IResultArchiveStore getResultArchiveStore() {
-            return null;
-        }
-
-        public IResourcePoolingService getResourcePoolingService() {
-            return null;
-        }
-
-        @Override
-        public @NotNull IConfidentialTextService getConfidentialTextService() {
-            return null;
-        }
-
-        @Override
-        public String getTestRunName() {
-            return null;
-        }
-
-        @Override
-        public ICredentialsService getCredentialsService() throws CredentialsException {
-            return null;
-        }
-
-        @Override
-        public Random getRandom() {
-            return null;
-        }
-
-        @Override
-        public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
-            return null;
-        }
-
-        @Override
-        public void setFrameworkProperties(Properties overrideProperties) {
-        }
-
-        @Override
-        public boolean isInitialised() {
-            return false;
-        }
-
-        @Override
-        public IRun getTestRun() {
-            return null;
-        }
-
-        @Override
-        public Properties getRecordProperties() {
-            return null;
-        }
-
-        @Override
-        public URL getApiUrl(@NotNull Api api) throws FrameworkException {
-            return null;
-        }
-
-        @Override
-        public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
-            return null;
-        }
-
-		@Override
-		public @NotNull ICertificateStoreService getCertificateStoreService() {
-			return null;
-		}
-    }
-
 }

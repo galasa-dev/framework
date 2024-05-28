@@ -14,6 +14,10 @@ import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.AuthStoreException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -23,6 +27,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import dev.galasa.framework.internal.auth.FrameworkAuthStoreService;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
@@ -48,6 +53,8 @@ public class Framework implements IFramework {
     private IResultArchiveStoreService         rasService;
     private IConfidentialTextService           ctsService;
     private ICredentialsStore                  credsStore;
+    private IEventsService                     eventsService;
+    private IAuthStore                         authStore;
 
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
@@ -209,6 +216,10 @@ public class Framework implements IFramework {
         return new FrameworkCredentialsService(this, this.credsStore);
     }
 
+    public IEventsService getEventsService() {
+        return this.eventsService;
+    }
+
     /**
      * Set the new Configuration Property Store Service
      *
@@ -236,6 +247,14 @@ public class Framework implements IFramework {
         this.dssStore = dssStore;
     }
 
+    public void setAuthStore(@NotNull IAuthStore authStore) throws AuthStoreException {
+        if (this.authStore != null) {
+            throw new AuthStoreException("Invalid second registration of the Auth Store Service detected");
+        }
+
+        this.authStore = authStore;
+    }
+
     /**
      * Add a new Result Archive Store Service to the framework, eventually we will
      * have the ability to have multiples RASs running
@@ -259,6 +278,13 @@ public class Framework implements IFramework {
 
         this.rasService = new FrameworkMultipleResultArchiveStore(this, this.rasService);
         ((FrameworkMultipleResultArchiveStore) this.rasService).addResultArchiveStoreService(resultArchiveStoreService);
+    }
+
+    public void setEventsService(@NotNull IEventsService eventsService) throws EventsException {
+        if (this.eventsService != null) {
+            throw new EventsException("Invalid 2nd registration of the Events Service detected");
+        }
+        this.eventsService = eventsService;
     }
 
     public void setConfidentialTextService(@NotNull IConfidentialTextService confidentialTextService)
@@ -296,6 +322,17 @@ public class Framework implements IFramework {
 
     protected ICredentialsStore getCredentialsStore() {
         return this.credsStore;
+    }
+
+
+    @Override
+    public IAuthStore getAuthStore() {
+        return this.authStore;
+    }
+
+    @Override
+    public IAuthStoreService getAuthStoreService() {
+        return new FrameworkAuthStoreService(authStore);
     }
 
     @Override
@@ -366,6 +403,18 @@ public class Framework implements IFramework {
         boolean error = false;
 
         shutdownLogger.info("Shutting down the framework");
+
+        // *** Shutdown the Events Service
+        if (this.eventsService != null) {
+            try {
+                shutdownLogger.trace("Shutting down the Events Service");
+                this.eventsService.shutdown();
+                this.eventsService = null;
+            } catch (Throwable t) {
+                error = true;
+                shutdownLogger.error("Failed to shutdown the Events Service", t);
+            }
+        }
 
         // *** Shutdown the Confidential Text Service
         if (this.ctsService != null) {

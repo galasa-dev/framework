@@ -24,12 +24,15 @@ import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
+import dev.galasa.framework.spi.IEventsService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 
@@ -138,5 +141,20 @@ public class TestHarnessFramework implements IFramework {
 	public @NotNull ICertificateStoreService getCertificateStoreService() {
 		throw new Unavailable();// To be written when someone needs it
 	}
+
+    @Override
+    public @NotNull IAuthStoreService getAuthStoreService() {
+        throw new Unavailable();
+    }
+
+    @Override
+    public @NotNull IAuthStore getAuthStore() {
+        throw new Unavailable();
+    }
+
+    @Override
+    public @NotNull IEventsService getEventsService() {
+        throw new Unavailable();
+    }
 
 }

@@ -27,6 +27,7 @@ export ORIGINAL_DIR=$(pwd)
 cd "${BASEDIR}/.."
 WORKSPACE_DIR=$(pwd)
 
+OPENAPI2BEANS="${BASEDIR}/galasa-parent/build/openapi2beans"
 
 #-----------------------------------------------------------------------------------------
 #
@@ -213,13 +214,40 @@ function cleaning_up_before_we_start {
 }
 
 #-------------------------------------------------------------
+function get_architecture() {
+    h2 "Retrieving system architecture."
+        raw_os=$(uname -s) # eg: "Darwin"
+    os=""
+    case $raw_os in
+        Darwin*)
+            os="darwin"
+            ;;
+        Linux*)
+            os="linux"
+            ;;
+        *)
+            error "Unsupported operating system is in use. $raw_os"
+            exit 1
+    esac
+
+    architecture=$(uname -m)
+    case $architecture in
+        aarch64)
+            architecture="arm64"
+            ;;
+        amd64)
+            architecture="x86_64"
+    esac
+}
+
 function generate_beans {
     check_openapi2beans_is_installed
 
     h2 "Generating beans in the dev.framework.api.beans project."
-    cmd="openapi2beans generate --output ${BASEDIR}/galasa-parent/dev.galasa.framework.api.beans/src/main/java \
+    cmd="${OPENAPI2BEANS} generate --output ${BASEDIR}/galasa-parent/dev.galasa.framework.api.beans/src/main/java \
     --yaml $BASEDIR/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml \
-    --package dev.galasa.framework.api.beans"
+    --package dev.galasa.framework.api.beans.generated \
+    --force"
     $cmd 
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate the api beans" ; exit 1 ; fi
     success "OK"
@@ -227,9 +255,26 @@ function generate_beans {
 
 function check_openapi2beans_is_installed {
     h2 "Checking the openapi2beans tool is installed."
-    which openapi2beans > /dev/null
-    rc=$?; if [[ "$rc" != "0" ]]; then error "You don't have the openapi2beans tool installed. Go get it from the buildutils project" ; exit 1 ; fi
+    
+    if [[ ! -f ${OPENAPI2BEANS} ]]; then
+        download_openapi2beans
+    fi
+    if [[ ! -x ${OPENAPI2BEANS} ]]; then
+        chmod 700 ${OPENAPI2BEANS}
+    fi
+
     success "OK - the openapi2beans tool is installed and available"
+}
+
+function download_openapi2beans {
+    get_architecture
+
+    h2 "Downloading openapi2beans tool"
+    url=https://development.galasa.dev/main/binary/bld/openapi2beans-${os}-${architecture}
+    
+    curl --create-dirs -o ${OPENAPI2BEANS} ${url} 
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to download the openapi2beans tool." ; exit 1 ; fi
+
 }
 
 #-----------------------------------------------------------------------------------------
@@ -323,7 +368,7 @@ cleaning_up_before_we_start
 
 # Currently the bean generation stuff doesn't work 100%
 # So I generated beans locally, fixed them up, and have started to use them.
-# generate_beans
+generate_beans
 
 build_code
 publish_to_maven

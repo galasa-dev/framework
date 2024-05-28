@@ -45,12 +45,16 @@ public class TestLauncher {
         bootstrap.setProperty("framework.credentials.store","/this/should/be/ignored.properties");
         me.setenv("GALASA_CREDENTIALS_STORE","/Users/hobbit/galasa_home/creds.properties");
 
+        bootstrap.setProperty("framework.auth.store","/this/should/be/ignored");
+        me.setenv("GALASA_AUTH_STORE","https://my-auth-store-server:1234");
+
         l.setStoresFromEnvironmentVariables(me,bootstrap);
 
         assertThat(bootstrap.getProperty("framework.config.store")).isEqualTo("/Users/hobbit/galasa_home/cps.properties");
         assertThat(bootstrap.getProperty("framework.dynamicstatus.store")).isEqualTo("/Users/hobbit/galasa_home/dss.properties");
         assertThat(bootstrap.getProperty("framework.resultarchive.store")).isEqualTo("/Users/hobbit/galasa_home/ras");
         assertThat(bootstrap.getProperty("framework.credentials.store")).isEqualTo("/Users/hobbit/galasa_home/creds.properties");
+        assertThat(bootstrap.getProperty("framework.auth.store")).isEqualTo("https://my-auth-store-server:1234");
     }
 
     @Test
@@ -67,12 +71,15 @@ public class TestLauncher {
 
         me.setenv("GALASA_CREDENTIALS_STORE","/Users/hobbit/galasa_home/creds.properties");
 
+        me.setenv("GALASA_AUTH_STORE","https://my-auth-store-server:1234");
+
         l.setStoresFromEnvironmentVariables(me,bootstrap);
 
         assertThat(bootstrap.getProperty("framework.config.store")).isEqualTo("/Users/hobbit/galasa_home/cps.properties");
         assertThat(bootstrap.getProperty("framework.dynamicstatus.store")).isEqualTo("/Users/hobbit/galasa_home/dss.properties");
         assertThat(bootstrap.getProperty("framework.resultarchive.store")).isEqualTo("/Users/hobbit/galasa_home/ras");
         assertThat(bootstrap.getProperty("framework.credentials.store")).isEqualTo("/Users/hobbit/galasa_home/creds.properties");
+        assertThat(bootstrap.getProperty("framework.auth.store")).isEqualTo("https://my-auth-store-server:1234");
     }
 
     @Test
@@ -89,12 +96,15 @@ public class TestLauncher {
 
         bootstrap.setProperty("framework.credentials.store","/this/should/be/ignored.properties");
 
+        bootstrap.setProperty("framework.auth.store","https://my-auth-store-server:1234");
+
         l.setStoresFromEnvironmentVariables(me,bootstrap);
 
         assertThat(bootstrap.getProperty("framework.config.store")).isEqualTo("/this/should/be/ignored.properties");
         assertThat(bootstrap.getProperty("framework.dynamicstatus.store")).isEqualTo("/this/should/be/ignored.properties");
         assertThat(bootstrap.getProperty("framework.resultarchive.store")).isEqualTo("/this/should/be/ignored/ras");
         assertThat(bootstrap.getProperty("framework.credentials.store")).isEqualTo("/this/should/be/ignored.properties");
+        assertThat(bootstrap.getProperty("framework.auth.store")).isEqualTo("https://my-auth-store-server:1234");
     }
 
     @Test
@@ -115,12 +125,16 @@ public class TestLauncher {
         bootstrap.setProperty("framework.credentials.store","/this/should/be/ignored.properties");
         me.setenv("GALASA_CREDENTIALS_STORE","/Users/hobbit/galasa_home/creds.properties");
 
+        bootstrap.setProperty("framework.auth.store","/this/should/be/ignored");
+        me.setenv("GALASA_AUTH_STORE","     https://my-auth-store-server:1234  ");
+
         l.setStoresFromEnvironmentVariables(me,bootstrap);
 
         assertThat(bootstrap.getProperty("framework.config.store")).isEqualTo("/Users/hobbit/galasa_home/cps.properties");
         assertThat(bootstrap.getProperty("framework.dynamicstatus.store")).isEqualTo("/Users/hobbit/galasa_home/dss.properties");
         assertThat(bootstrap.getProperty("framework.resultarchive.store")).isEqualTo("/Users/hobbit/galasa_home/ras");
         assertThat(bootstrap.getProperty("framework.credentials.store")).isEqualTo("/Users/hobbit/galasa_home/creds.properties");
+        assertThat(bootstrap.getProperty("framework.auth.store")).isEqualTo("https://my-auth-store-server:1234");
     }
 
     @Test

@@ -91,12 +91,12 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 
     private Map<String, String> getArtifactFields(String path, String contentType, String size) {
         Map<String, String> artifactFields = Map.of(
-            "path", '"'+path+'"',
-            "contentType", '"'+contentType+'"'
+            "path", path,
+            "contentType", contentType
         );
 
         if (size != null) {
-            artifactFields.put("size", '"'+size+'"');
+            artifactFields.put("size", size);
         }
         return artifactFields;
     }
@@ -155,7 +155,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		//Then...
 		assertThat(matches).isTrue();
 	}
-	
+
 	@Test
 	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue(){
 		//Given...
@@ -168,7 +168,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		//Then...
 		assertThat(matches).isTrue();
 	}
-	
+
 	@Test
 	public void TestPathRegexUpperCasePathReturnsFalse(){
 		//Given...
@@ -181,7 +181,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		//Then...
 		assertThat(matches).isFalse();
 	}
- 
+
 	@Test
 	public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
 		//Given...
@@ -271,7 +271,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 
 		//Then...
 		assertThat(matches).isFalse();
-	} 
+	}
 
 	/*
 	 * GET Requests

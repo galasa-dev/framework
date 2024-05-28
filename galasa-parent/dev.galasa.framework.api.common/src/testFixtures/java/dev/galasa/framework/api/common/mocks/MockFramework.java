@@ -13,12 +13,15 @@ import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
+import dev.galasa.framework.spi.IEventsService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 
@@ -31,6 +34,15 @@ public class MockFramework implements IFramework {
     IResultArchiveStore archiveStore;
     IFrameworkRuns frameworkRuns;
     MockIConfigurationPropertyStoreService cpsService = new MockIConfigurationPropertyStoreService("framework");
+    IAuthStoreService authStoreService;
+
+    public MockFramework() {
+        // Do nothing...
+    }
+
+    public MockFramework(IAuthStoreService authStoreService) {
+        this.authStoreService = authStoreService;
+    }
 
     public MockFramework(IResultArchiveStore archiveStore) {
         this.archiveStore = archiveStore;
@@ -50,13 +62,8 @@ public class MockFramework implements IFramework {
     }
 
     @Override
-    public void setFrameworkProperties(Properties overrideProperties) {
-        throw new UnsupportedOperationException("Unimplemented method 'setFrameworkProperties'");
-    }
-
-    @Override
-    public boolean isInitialised() {
-        throw new UnsupportedOperationException("Unimplemented method 'isInitialised'");
+    public @NotNull IAuthStoreService getAuthStoreService() {
+        return this.authStoreService;
     }
 
     @Override
@@ -69,6 +76,26 @@ public class MockFramework implements IFramework {
     }
 
     @Override
+    public @NotNull IResultArchiveStore getResultArchiveStore() {
+        return archiveStore;
+    }
+
+    @Override
+    public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
+        return this.frameworkRuns;
+    }
+
+    @Override
+    public void setFrameworkProperties(Properties overrideProperties) {
+        throw new UnsupportedOperationException("Unimplemented method 'setFrameworkProperties'");
+    }
+
+    @Override
+    public boolean isInitialised() {
+        throw new UnsupportedOperationException("Unimplemented method 'isInitialised'");
+    }
+
+    @Override
     public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
             throws DynamicStatusStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'getDynamicStatusStoreService'");
@@ -77,11 +104,6 @@ public class MockFramework implements IFramework {
     @Override
     public @NotNull ICertificateStoreService getCertificateStoreService() {
         throw new UnsupportedOperationException("Unimplemented method 'getCertificateStoreService'");
-    }
-
-    @Override
-    public @NotNull IResultArchiveStore getResultArchiveStore() {
-        return archiveStore;
     }
 
     @Override
@@ -110,11 +132,6 @@ public class MockFramework implements IFramework {
     }
 
     @Override
-    public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
-        return this.frameworkRuns;
-    }
-
-    @Override
     public IRun getTestRun() {
         throw new UnsupportedOperationException("Unimplemented method 'getTestRun'");
     }
@@ -133,5 +150,14 @@ public class MockFramework implements IFramework {
     public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'getSharedEnvironmentRunType'");
     }
-    
+
+    @Override
+    public @NotNull IAuthStore getAuthStore() {
+        throw new UnsupportedOperationException("Unimplemented method 'getAuthStore'");
+    }
+
+    @Override
+    public @NotNull IEventsService getEventsService() {
+        throw new UnsupportedOperationException("Unimplemented method 'getEventsService'");
+    }
 }

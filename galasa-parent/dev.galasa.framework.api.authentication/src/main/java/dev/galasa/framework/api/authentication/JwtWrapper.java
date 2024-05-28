@@ -6,11 +6,14 @@
 
 package dev.galasa.framework.api.authentication;
 
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
@@ -21,6 +24,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
+import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.SystemEnvironment;
 
 public class JwtWrapper {
@@ -28,13 +33,8 @@ public class JwtWrapper {
     protected DecodedJWT decodedJwt;
     private Log logger = LogFactory.getLog(this.getClass());
 
-    private static final List<String> DEFAULT_USERNAME_CLAIMS = List.of(
-        "preferred_username",
-        "name",
-        "sub"
-    );
-
-    private final String usernameClaimOverrides;
+    // Stores a comma-separated string of JWT claims that can map to a username
+    private final String usernameClaimsStr;
 
     public JwtWrapper(HttpServletRequest req) {
         this(req, new SystemEnvironment());
@@ -42,7 +42,12 @@ public class JwtWrapper {
 
     public JwtWrapper(HttpServletRequest req, Environment env) {
         this.decodedJwt = decodeJwt(getBearerTokenFromAuthHeader(req));
-        usernameClaimOverrides = env.getenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS);
+        usernameClaimsStr = env.getenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS);
+    }
+
+    public JwtWrapper(String jwt, Environment env) {
+        this.decodedJwt = decodeJwt(jwt);
+        usernameClaimsStr = env.getenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS);
     }
 
     public DecodedJWT decodeJwt(@NotNull String jwt) {
@@ -72,32 +77,30 @@ public class JwtWrapper {
     }
 
     /**
-     * Gets the username from a request's JWT, or null if no matching claim exists
-     * within the JWT.
+     * Gets the username from a request's JWT, throwing an exception if a username
+     * could not be retrieved from the supplied JWT claims.
      *
-     * @return the username retrieved from a claim in the JWT, or null if no
-     *         matching claim in the JWT can be used as a username.
+     * @return the username retrieved from a claim in the JWT
+     * @throws InternalServletException if no JWT claims could be used to get a
+     *                                  username or no JWT was set
      */
-    public String getUsername() {
-        if (decodedJwt == null){
-            return null;
-        }
-
-        // Use an environment variable to override the default list of username claims
-        List<String> usernameClaims = DEFAULT_USERNAME_CLAIMS;
-        if (usernameClaimOverrides != null && !usernameClaimOverrides.isEmpty()) {
+    public String getUsername() throws InternalServletException {
+        // Use an environment variable to set the list of username claims
+        List<String> usernameClaims = new ArrayList<>();
+        if (usernameClaimsStr != null && !usernameClaimsStr.isEmpty()) {
             logger.info("Environment variable '" + EnvironmentVariables.GALASA_USERNAME_CLAIMS
-                    + "' used to override the JWT claims that map to a username");
+                    + "' used to provide the JWT claims that map to a username");
             usernameClaims = getUsernameClaimOverridesAsList();
+        } else {
+            ServletError error = new ServletError(GAL5058_NO_USERNAME_JWT_CLAIMS_PROVIDED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
         // Go through the preference list of JWT claims to get a username from the decoded JWT
         String userName = getUsernameFromClaims(usernameClaims);
-        if (userName == null && usernameClaims != DEFAULT_USERNAME_CLAIMS) {
-
-            // Try to get a username from the default list of claims to match against
-            logger.info("Could not get username from overridden claims, attempting to use default claims instead");
-            userName = getUsernameFromClaims(DEFAULT_USERNAME_CLAIMS);
+        if (userName == null) {
+            ServletError error = new ServletError(GAL5057_FAILED_TO_RETRIEVE_USERNAME_FROM_JWT, usernameClaimsStr);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
         return userName;
     }
@@ -114,7 +117,7 @@ public class JwtWrapper {
     }
 
     private List<String> getUsernameClaimOverridesAsList() {
-        String[] overrideClaims = usernameClaimOverrides.split(",");
+        String[] overrideClaims = usernameClaimsStr.split(",");
         List<String> usernameClaims = new ArrayList<>();
 
         for (String claim : overrideClaims) {

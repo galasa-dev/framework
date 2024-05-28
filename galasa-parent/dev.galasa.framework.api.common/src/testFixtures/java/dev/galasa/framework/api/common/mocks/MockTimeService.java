@@ -7,7 +7,7 @@ package dev.galasa.framework.api.common.mocks;
 
 import java.time.Instant;
 
-import dev.galasa.framework.api.common.ITimeService;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 public class MockTimeService implements ITimeService {
 
