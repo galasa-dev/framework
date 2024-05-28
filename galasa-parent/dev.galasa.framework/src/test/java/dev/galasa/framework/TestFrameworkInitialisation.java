@@ -16,6 +16,8 @@ import dev.galasa.framework.mocks.MockCredentialsStoreRegistration;
 import dev.galasa.framework.mocks.MockDSSRegistration;
 import dev.galasa.framework.mocks.MockDSSStore;
 import dev.galasa.framework.mocks.MockEnvironment;
+import dev.galasa.framework.mocks.MockEventsService;
+import dev.galasa.framework.mocks.MockEventsServiceRegistration;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.mocks.MockLog;
@@ -136,6 +138,7 @@ public class TestFrameworkInitialisation {
         MockConfidentialTextStore mockConfidentialTextStore = addMockConfidentialTextServiceToMockServiceRegistry(services, bundle);
 
         addMockAuthStoreToMockServiceRegistry(services, bundle);
+        MockEventsService mockEventsService = addMockEventsServiceToMockServiceRegistry(services, bundle);
 
         // When...
         FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation( 
@@ -154,6 +157,7 @@ public class TestFrameworkInitialisation {
         assertThat(mockFramework.getDynamicStatusStore()).isEqualTo(mockDSSStore);
         assertThat(mockFramework.getCredentialsStore()).isEqualTo(mockCredentialsStore);
         assertThat(mockFramework.getResultArchiveStore()).isEqualTo(mockRASStoreService);
+        assertThat(mockFramework.getEventsService()).isEqualTo(mockEventsService);
 
         //assertThat(bootstrapProperties).isEmpty();
         //assertThat(overrideProperties).isEmpty();
@@ -222,6 +226,15 @@ public class TestFrameworkInitialisation {
         MockServiceReference<IAuthStoreRegistration> mockAuthStoreRef = new MockServiceReference<IAuthStoreRegistration>(
                 mockAuthStoreRegistration, bundle);
         services.put(IAuthStoreRegistration.class.getName(), mockAuthStoreRef);
+    }
+
+    private MockEventsService addMockEventsServiceToMockServiceRegistry(Map<String,MockServiceReference<?>> services, Bundle bundle) {
+        MockEventsService mockEventsService = new MockEventsService();
+        MockEventsServiceRegistration mockEventsServiceRegistration = new MockEventsServiceRegistration(mockEventsService);
+        MockServiceReference<IEventsServiceRegistration> mockEventsServiceRegRef =
+            new MockServiceReference<IEventsServiceRegistration>(mockEventsServiceRegistration, bundle);
+        services.put(IEventsServiceRegistration.class.getName(), mockEventsServiceRegRef);
+        return mockEventsService;
     }
 
     // When no framework service has been found... should be an error.
@@ -580,5 +593,20 @@ public class TestFrameworkInitialisation {
         // Then...
         assertThat(authStore).isNotNull();
         assertThat(authStore.getClass().getName()).isEqualTo(MockAuthStore.class.getName());
+    }
+
+    @Test
+    public void testInitialiseEventsServiceSetsFrameworkEventsService() throws Exception {
+
+        // Given...
+        Properties bootstrap = new Properties();
+        FrameworkInitialisation frameworkInit = createFrameworkInit(bootstrap);
+
+        // When...
+        IEventsService eventsService = frameworkInit.getFramework().getEventsService();
+
+        // Then...
+        assertThat(eventsService).isNotNull();
+        assertThat(eventsService.getClass().getName()).isEqualTo(MockEventsService.class.getName());
     }
 }

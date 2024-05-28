@@ -14,10 +14,12 @@ import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.EventsException;
 import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
 import dev.galasa.framework.spi.IDynamicStatusStore;
+import dev.galasa.framework.spi.IEventsService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.IResultArchiveStoreService;
@@ -112,6 +114,11 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
 
     @Override
     public void registerAuthStore(@NotNull IAuthStore authStore) throws AuthStoreException {
+        // Do nothing...
+    }
+
+    @Override
+    public void registerEventsService(@NotNull IEventsService eventsService) throws EventsException {
         // Do nothing...
     }
 

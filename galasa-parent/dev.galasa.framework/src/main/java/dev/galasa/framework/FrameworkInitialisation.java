@@ -211,6 +211,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             initialiseAuthStore(logger, bundleContext);
         }
 
+
+        initialiseEventsService(logger, bundleContext);
+                
         if (framework.isInitialised()) {
             logger.info("Framework initialised");
         } else {
@@ -397,6 +400,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     @Override
     public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
         this.framework.setCredentialsStore(credentialsStore);
+    }
+
+    @Override
+    public void registerEventsService(@NotNull IEventsService eventsService) throws EventsException {
+        this.framework.setEventsService(eventsService);
     }
 
     @Override
@@ -796,6 +804,36 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         }
         logger.trace("Selected Confidential Text Service is "
                 + this.framework.getConfidentialTextService().getClass().getName());
+
+    }
+
+    void initialiseEventsService(
+        Log logger,
+        BundleContext bundleContext
+    ) throws FrameworkException, InvalidSyntaxException {
+
+        // *** Initialise the Events Service
+        logger.trace("Searching for Events Service providers");
+        final ServiceReference<?>[] eventServiceReference = bundleContext
+            .getAllServiceReferences(IEventsServiceRegistration.class.getName(), null);
+
+        if ((eventServiceReference == null) || (eventServiceReference.length == 0)) {
+            throw new FrameworkException("No Events Services have been found");
+        }
+        for (final ServiceReference<?> eventsReference : eventServiceReference) {
+            final IEventsServiceRegistration eventsRegistration = (IEventsServiceRegistration) bundleContext
+                .getService(eventsReference);
+            logger.trace("Found Events Services Provider " + eventsRegistration.getClass().getName());
+            // Magic happens here; The registration code calls back here to registerEventsService()
+            // which in turn pushes that to the framework, so later on, 
+            // framework.getEventsService() returns non-null.
+            eventsRegistration.initialise(this);
+        }
+        if (this.framework.getEventsService() == null) {
+            throw new FrameworkException("Failed to initialise an Events Service, unable to continue");
+        }
+        logger.trace("Selected Events Service is " 
+            + this.framework.getEventsService().getClass().getName());
 
     }
 

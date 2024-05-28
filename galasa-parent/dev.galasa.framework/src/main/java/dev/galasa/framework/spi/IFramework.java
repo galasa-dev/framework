@@ -161,6 +161,9 @@ public interface IFramework {
     IConfidentialTextService getConfidentialTextService();
 
     @NotNull
+    IEventsService getEventsService();
+
+    @NotNull
     ICredentialsService getCredentialsService() throws CredentialsException;
 
     /**
