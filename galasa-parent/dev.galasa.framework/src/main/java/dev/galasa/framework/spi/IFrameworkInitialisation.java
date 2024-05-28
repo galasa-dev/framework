@@ -98,6 +98,8 @@ public interface IFrameworkInitialisation {
 
     void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException;
 
+    void registerEventsService(@NotNull IEventsService eventsService) throws EventsException;
+
     /**
      * Register an Auth Store Service, which allows the framework to retrieve user
      * and token information.

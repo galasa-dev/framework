@@ -106,4 +106,9 @@ public class MockFramework implements IFramework {
     public @NotNull IAuthStoreService getAuthStoreService() {
         throw new MockMethodNotImplementedException();
     }
+
+    @Override
+    public @NotNull IEventsService getEventsService() {
+        throw new MockMethodNotImplementedException();
+    }
 }
