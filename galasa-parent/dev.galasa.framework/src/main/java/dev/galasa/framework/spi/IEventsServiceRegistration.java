@@ -9,6 +9,6 @@ import javax.validation.constraints.NotNull;
 
 public interface IEventsServiceRegistration {
 
-    void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws DynamicStatusStoreException;
+    void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws EventsException;
     
 }

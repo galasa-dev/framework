@@ -29,3 +29,4 @@ public class EventsException extends FrameworkException {
     }
     
 }
+

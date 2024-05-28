@@ -122,3 +122,4 @@ public interface IFrameworkInitialisation {
     IFramework getFramework();
 
 }
+
