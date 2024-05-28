@@ -84,7 +84,13 @@ public enum ServletErrorMessage {
 
     // Auth APIs...
     GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
-    GAL5052_FAILED_TO_RETRIEVE_CLIENT                 (5052, "E: Unable to retrieve client for authentication. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again.")
+    GAL5052_FAILED_TO_RETRIEVE_CLIENT                 (5052, "E: Unable to retrieve client for authentication. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
+    GAL5053_FAILED_TO_RETRIEVE_TOKENS                 (5053, "E: Internal server error occurred when retrieving tokens from the auth store. The auth store could be badly configured or could be experiencing temporary issues. Report the problem to your Galasa Ecosystem owner."),
+    GAL5054_FAILED_TO_GET_CONNECTOR_URL               (5054, "E: Internal server error. The REST API server could not get the URL of the authentication provider (e.g. GitHub/LDAP) from the Galasa Dex component. The Dex component of Galasa could be badly configured, or could be experiencing a temporary issue. Report the problem to your Galasa Ecosystem owner."),
+    GAL5055_FAILED_TO_GET_TOKENS_FROM_ISSUER          (5055, "E: Failed to get a JWT and a refresh token from the Galasa Dex server. The Dex server did not respond with a JWT and refresh token. This could be because the Dex server is experiencing an outage or other temporary issues. Report the problem to your Galasa Ecosystem owner."),
+    GAL5056_FAILED_TO_STORE_TOKEN_IN_AUTH_STORE       (5056, "E: Internal server error occurred when storing the new Galasa token with description ''{0}'' in the auth store. The auth store could be badly configured, or could be experiencing a temporary issue. Report the problem to your Galasa Ecosystem owner."),
+    GAL5057_FAILED_TO_RETRIEVE_USERNAME_FROM_JWT      (5057, "E: Unable to retrieve a username from the given JWT. No JWT claim exists in the given JWT that matches the supplied claims: ''{0}''. This could be because the Galasa Ecosystem is badly configured and the chosen authentication provider does not include the expected claims in JWTs. Report the problem to your Galasa Ecosystem owner."),
+    GAL5058_NO_USERNAME_JWT_CLAIMS_PROVIDED           (5058, "E: Unable to retrieve a username from the given JWT. No JWT claims to retrieve a username from were provided. This could be because the Galasa Ecosystem is badly configured. Report the problem to your Galasa Ecosystem owner."),
     ;
 
 

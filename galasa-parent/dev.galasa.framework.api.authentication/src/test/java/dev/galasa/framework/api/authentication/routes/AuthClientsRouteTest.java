@@ -16,9 +16,7 @@ import com.google.gson.JsonObject;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
-import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
-import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -30,13 +28,9 @@ public class AuthClientsRouteTest extends BaseServletTest {
     @Test
     public void testAuthClientsPostRequestWithNoCreatedClientReturnsError() throws Exception {
         // Given...
-        MockOidcProvider mockOidcProvider = new MockOidcProvider();
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer.url");
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockDexGrpcClient);
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/clients", "", "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -60,17 +54,13 @@ public class AuthClientsRouteTest extends BaseServletTest {
     @Test
     public void testAuthClientsPostRequestReturnsClient() throws Exception {
         // Given...
-        MockOidcProvider mockOidcProvider = new MockOidcProvider();
-        MockEnvironment mockEnv = new MockEnvironment();
-        setRequiredEnvironmentVariables(mockEnv);
-
         String clientId = "my-client-id";
         String clientSecret = "my-client-secret";
         String redirectUri = "http://my.app/callback";
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer.url", clientId, clientSecret, redirectUri);
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockDexGrpcClient);
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/clients", "", "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();

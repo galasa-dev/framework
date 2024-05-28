@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
@@ -20,10 +21,13 @@ import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.authentication.internal.routes.AuthCallbackRoute;
 import dev.galasa.framework.api.authentication.internal.routes.AuthClientsRoute;
 import dev.galasa.framework.api.authentication.internal.routes.AuthRoute;
+import dev.galasa.framework.api.authentication.internal.routes.AuthTokensRoute;
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.SystemEnvironment;
+import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 
 /**
  * Authentication Servlet that acts as a proxy to send requests to Dex's /token
@@ -32,6 +36,9 @@ import dev.galasa.framework.api.common.SystemEnvironment;
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
         "osgi.http.whiteboard.servlet.pattern=/auth/*" }, name = "Galasa Authentication")
 public class AuthenticationServlet extends BaseServlet {
+
+    @Reference
+    protected IFramework framework;
 
     private static final long serialVersionUID = 1L;
 
@@ -54,9 +61,12 @@ public class AuthenticationServlet extends BaseServlet {
 
         initialiseDexClients(dexIssuerUrl, dexGrpcHostname, externalWebUiUrl);
 
-        addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, dexGrpcClient));
+        IAuthStoreService authStoreService = framework.getAuthStoreService();
+
+        addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService, env));
         addRoute(new AuthClientsRoute(getResponseBuilder(), dexGrpcClient));
         addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl));
+        addRoute(new AuthTokensRoute(getResponseBuilder(), authStoreService));
 
         logger.info("Galasa Authentication API initialised");
     }

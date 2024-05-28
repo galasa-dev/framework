@@ -206,6 +206,49 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
+  /auth/tokens:
+    get:
+      operationId: getTokens
+      summary: Get a list of tokens used for authenticating with the Galasa API server.
+      description: |
+        Returns a list of tokens used for authenticating with the Galasa API server, sorted by
+        ascending creation date order (i.e. earliest first, latest last).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Authentication API
+      responses:
+        '200':
+          description: Returns a JSON Object containing the list of tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '401':
+          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unauthorizederror:
+                  value:
+                    error_code: 5401
+                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+                  summary: The request was unauthenticated so is unauthorized.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
 
 ##################################################################################
 # CPS API
@@ -1947,6 +1990,7 @@ paths:
 components:
   schemas:
     AuthProperties:
+      type: object
       properties:
         client_id:
           type: string
@@ -1957,12 +2001,40 @@ components:
         code:
           type: string
           description: The authorization code to be exchanged for a JWT, mutually exclusive with "refresh_token".
+        description:
+          type: string
+          description: A single-line description to be associated with the Galasa auth token.
+    AuthTokens:
+      type: object
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthToken'
+    AuthToken:
+      type: object
+      properties:
+        token_id:
+          type: string
+          description: The ID of the token's record in Galasa's tokens database.
+        creation_time:
+          type: string
+          description: The creation date and time of the auth token (e.g. "2024-04-01T12:25:00.123Z").
+        owner:
+          type: object
+          description: Details about the owner of the token.
+          $ref: '#/components/schemas/User'
+        description:
+          type: string
+          description: A description of the token, provided by the user when creating it.
     DexClient:
+      type: object
       properties:
         client_id:
           type: string
           description: An alphanumeric string representing the ID of the Dex client.
     TokenResponse:
+      type: object
       properties:
         jwt:
           type: string
@@ -1971,6 +2043,7 @@ components:
           type: string
           description: A refresh token to allow the retrieval of new JWTs when authenticating with a Galasa ecosystem from a client tool.
     CpsProperty:
+      type: object
       properties:
         name:
           type: string
@@ -1978,12 +2051,15 @@ components:
         value:
           type: string
     GalasaProperty:
+      type: object
       properties:
         apiVersion:
           type: string
         kind:
           type: string
+          enum: [GalasaProperty]
         metadata:
+          type: object
           properties:
             namespace:
               type: string
@@ -1998,6 +2074,7 @@ components:
                 The property name is made of 'parts'. Each part must be separated by a period character. There must be
                 at least two parts in the property name. The last character cannot be a period character.
         data:
+          type: object
           properties:
             value:
               type: string
@@ -2005,22 +2082,24 @@ components:
                 The value of the property, maximum length of approximately 1,500,000 characters.
                 It cannot be a blank value.
     JsonError:
+      type: object
       properties:
         error:
           type: string
     APIErrorArray:
-        type: array
-        description: An array of API Errors relating to the resources that failed to complete as expected
-        items:
-          allOf:
-            - $ref: '#/components/schemas/APIError'
+      type: array
+      description: An array of API Errors relating to the resources that failed to complete as expected
+      items:
+          $ref: '#/components/schemas/APIError'
     APIError:
+      type: object
       properties:
         error_code:
           type: integer
         error_message:
           type: string
     Resources:
+      type: object
       properties:
         action:
           type: string
@@ -2032,6 +2111,7 @@ components:
             anyOf:
               - $ref: '#/components/schemas/GalasaProperty'
     TestRuns:
+      type: object
       properties:
         complete:
           type: boolean
@@ -2040,6 +2120,7 @@ components:
           items:
             $ref: '#/components/schemas/TestRun'
     TestRun:
+      type: object
       properties:
         name:
           type: string
@@ -2078,6 +2159,7 @@ components:
         rasRunId:
           type: string
     TestRunRequest:
+      type: object
       properties:
         classNames:
           type: array
@@ -2102,13 +2184,20 @@ components:
         trace:
           type: boolean
     UpdateRunStatusRequest:
+      type: object
       properties:
         status:
           type: string
           enum: ["queued","finished"]
         result:
           type: string
-          enum: ["","cancelled"]
+          enum: [nil,"cancelled"]
+    User:
+      type: object
+      properties:
+        login_id:
+          type: string
+          description: The ID representing the user's username.
     Requestors:
       type: object
       properties:
@@ -2173,6 +2262,7 @@ components:
           items:
             type: object
     Artifact:
+      type: object
       properties:
         artifactPath:
           type: string

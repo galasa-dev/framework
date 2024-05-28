@@ -6,10 +6,14 @@
 package dev.galasa.framework.api.cps.mocks;
 
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import java.net.URL;
 import java.util.*;
+
+import javax.validation.constraints.NotNull;
 
 public class MockFramework implements IFramework {
 
@@ -90,6 +94,16 @@ public class MockFramework implements IFramework {
 
     @Override
     public SharedEnvironmentRunType getSharedEnvironmentRunType() throws ConfigurationPropertyStoreException {
+        throw new MockMethodNotImplementedException();
+    }
+
+    @Override
+    public @NotNull IAuthStore getAuthStore() {
+        throw new MockMethodNotImplementedException();
+    }
+
+    @Override
+    public @NotNull IAuthStoreService getAuthStoreService() {
         throw new MockMethodNotImplementedException();
     }
 }
