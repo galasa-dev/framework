@@ -5,14 +5,18 @@
  */
 package dev.galasa.framework.internal.events;
 
+import dev.galasa.framework.spi.events.IEvent;
 import dev.galasa.framework.spi.IEventsService;
 
 public class FrameworkEventsService implements IEventsService {
 
-    // The implementation of an Events Service would be in here, but there is no implementation for local runs...
+    // The Events Service has no implementation for local runs...
 
-    
+    @Override
+    public void produceEvent(String topic, IEvent event) {
+    }
 
+    @Override
     public void shutdown(){
         // Nothing to shut down
     }
