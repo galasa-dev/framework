@@ -46,6 +46,7 @@ import dev.galasa.boot.LauncherException;
  */
 public class FelixFramework {
 
+    private static final String EXTRA_FRAMEWORK_BUNDLES_PROP  = "framework.extra.bundles";
     private static final String EXTRA_API_SERVER_BUNDLES_PROP = "api.extra.bundles";
 
     private BootLogger logger = new BootLogger();
@@ -135,7 +136,7 @@ public class FelixFramework {
             loadBundle("dev.galasa.framework");
 
             // Load extra bundles from the bootstrap
-            String extraBundles = boostrapProperties.getProperty("framework.extra.bundles");
+            String extraBundles = boostrapProperties.getProperty(EXTRA_FRAMEWORK_BUNDLES_PROP);
             if (extraBundles != null) {
                 loadBundlesList(extraBundles);
             }
