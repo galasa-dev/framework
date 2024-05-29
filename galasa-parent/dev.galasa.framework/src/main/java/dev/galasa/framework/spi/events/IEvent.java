@@ -18,8 +18,5 @@ public interface IEvent {
     String getMessage();
 
     void setMessage(String message);
-
-    @Override
-    String toString();
     
 }
