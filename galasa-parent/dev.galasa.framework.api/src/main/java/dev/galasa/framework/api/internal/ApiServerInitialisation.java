@@ -96,8 +96,7 @@ public class ApiServerInitialisation extends FrameworkInitialisation implements 
         return storeUri;
     }
 
-    void initialiseAuthStore(Log logger, BundleContext bundleContext)
-            throws FrameworkException, InvalidSyntaxException {
+    void initialiseAuthStore(Log logger, BundleContext bundleContext) throws FrameworkException, InvalidSyntaxException {
 
         logger.trace("Searching for Auth Store providers");
         final ServiceReference<?>[] authStoreServiceReference = bundleContext
