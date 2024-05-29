@@ -9,7 +9,7 @@ import dev.galasa.framework.spi.events.IEvent;
 
 public interface IEventsService {
 
-    void produceEvent(String topic, IEvent event);
+    void produceEvent(String topic, IEvent event) throws EventsException;
 
     void shutdown();
     
