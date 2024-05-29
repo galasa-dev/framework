@@ -2071,7 +2071,6 @@ components:
           type: string
           description: The creation date and time of the auth token (e.g. "2024-04-01T12:25:00.123Z").
         owner:
-          type: object
           description: Details about the owner of the token.
           $ref: '#/components/schemas/User'
         description:
