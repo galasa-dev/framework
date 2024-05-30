@@ -37,7 +37,7 @@ public class FrameworkInitialisationTestBase {
 
     protected MockFramework addMockFrameworkToMockServiceRegistry(Map<String,MockServiceReference<?>> services, Bundle bundle) {
         MockFramework mockFramework = new MockFramework();
-        MockServiceReference<IFramework> mockFrameworkRef = new MockServiceReference<IFramework>(mockFramework, bundle );
+        MockServiceReference<IFramework> mockFrameworkRef = new MockServiceReference<>(mockFramework, bundle );
         services.put(IFramework.class.getName(),mockFrameworkRef);
         return mockFramework;
     }
@@ -45,7 +45,7 @@ public class FrameworkInitialisationTestBase {
     protected void addMockCPSToMockServiceRegistry(Map<String,MockServiceReference<?>> services, Map<String,String> cpsProperties, Bundle bundle) {
         MockCPSStore mockCPSStore = new MockCPSStore(cpsProperties);
         MockCPSRegistration mockCPSRegistration = new MockCPSRegistration(mockCPSStore);
-        MockServiceReference<IConfigurationPropertyStoreRegistration> mockCPSRef = new MockServiceReference<IConfigurationPropertyStoreRegistration>(mockCPSRegistration, bundle );
+        MockServiceReference<IConfigurationPropertyStoreRegistration> mockCPSRef = new MockServiceReference<>(mockCPSRegistration, bundle );
         services.put(IConfigurationPropertyStoreRegistration.class.getName(),mockCPSRef);
     }
 
@@ -54,7 +54,7 @@ public class FrameworkInitialisationTestBase {
         MockDSSStore mockDSSStore = new MockDSSStore(dssProps);
         MockDSSRegistration mockDSSRegistration = new MockDSSRegistration(mockDSSStore);
         MockServiceReference<IDynamicStatusStoreRegistration> mockDSSRef = 
-            new MockServiceReference<IDynamicStatusStoreRegistration>(mockDSSRegistration, bundle );
+            new MockServiceReference<>(mockDSSRegistration, bundle );
         services.put(IDynamicStatusStoreRegistration.class.getName(),mockDSSRef);
         return mockDSSStore;
     }
@@ -64,7 +64,7 @@ public class FrameworkInitialisationTestBase {
         MockRASStoreService mockRASStoreService = new MockRASStoreService(rasProps);
         MockRASRegistration mockRASRegistration = new MockRASRegistration(mockRASStoreService);
         MockServiceReference<IResultArchiveStoreRegistration> mockRASRef = 
-            new MockServiceReference<IResultArchiveStoreRegistration>(mockRASRegistration, bundle );
+            new MockServiceReference<>(mockRASRegistration, bundle );
         services.put(IResultArchiveStoreRegistration.class.getName(),mockRASRef);
         return mockRASStoreService;
     }
@@ -74,7 +74,7 @@ public class FrameworkInitialisationTestBase {
         MockCredentialsStore mockCredentialsStore = new MockCredentialsStore(credsProps);
         MockCredentialsStoreRegistration mockCredentialsStoreRegistration = new MockCredentialsStoreRegistration(mockCredentialsStore);
         MockServiceReference<ICredentialsStoreRegistration> mockCredsRegRef = 
-            new MockServiceReference<ICredentialsStoreRegistration>(mockCredentialsStoreRegistration, bundle );
+            new MockServiceReference<>(mockCredentialsStoreRegistration, bundle );
         services.put(ICredentialsStoreRegistration.class.getName(),mockCredsRegRef);
         return mockCredentialsStore;
     }
@@ -84,7 +84,7 @@ public class FrameworkInitialisationTestBase {
         MockConfidentialTextStore mockConfidentialTextStore = new MockConfidentialTextStore(confidentialTextProps);
         MockConfidentialTextStoreRegistration mockConfidentialTextStoreRegistration = new MockConfidentialTextStoreRegistration(mockConfidentialTextStore);
         MockServiceReference<IConfidentialTextServiceRegistration> mockConfidentialTextServiceRegRef = 
-            new MockServiceReference<IConfidentialTextServiceRegistration>(mockConfidentialTextStoreRegistration, bundle );
+            new MockServiceReference<>(mockConfidentialTextStoreRegistration, bundle );
         services.put(IConfidentialTextServiceRegistration.class.getName(),mockConfidentialTextServiceRegRef);
         return mockConfidentialTextStore;
     }
@@ -93,7 +93,7 @@ public class FrameworkInitialisationTestBase {
         MockEventsService mockEventsService = new MockEventsService();
         MockEventsServiceRegistration mockEventsServiceRegistration = new MockEventsServiceRegistration(mockEventsService);
         MockServiceReference<IEventsServiceRegistration> mockEventsServiceRegRef =
-            new MockServiceReference<IEventsServiceRegistration>(mockEventsServiceRegistration, bundle);
+            new MockServiceReference<>(mockEventsServiceRegistration, bundle);
         services.put(IEventsServiceRegistration.class.getName(), mockEventsServiceRegRef);
         return mockEventsService;
     }

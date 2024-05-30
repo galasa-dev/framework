@@ -63,6 +63,13 @@ public class FelixFramework {
         
     private File felixCache;
 
+    public FelixFramework() {}
+
+    public FelixFramework(Framework framework, RepositoryAdmin repositoryAdmin) {
+        this.framework = framework;
+        this.repositoryAdmin = repositoryAdmin;
+    }
+
     /**
      * Initialise and start the Felix framework. Install required bundles and the
      * OBRs. Install the Galasa framework bundle
