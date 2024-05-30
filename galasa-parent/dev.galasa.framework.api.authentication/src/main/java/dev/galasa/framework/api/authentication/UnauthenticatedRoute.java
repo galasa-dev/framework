@@ -9,21 +9,29 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import dev.galasa.framework.api.common.HttpMethod;
+
+/**
+ * An enum representing the API routes that do not require a JWT in order to send
+ * requests to. Each route contains a list of allowed HTTP methods indicating the
+ * methods that will not be blocked by the JWT filter.
+ */
 public enum UnauthenticatedRoute {
 
-    AUTH("/auth", "GET", "POST"),
-    AUTH_TOKENS("/auth/tokens", "POST"),
-    AUTH_CALLBACK("/auth/callback", "GET"),
-    BOOTSTRAP("/bootstrap", "GET"),
-    BOOTSTRAP_EXTERNAL("/bootstrap/external", "GET"),
-    HEALTH("/health", "GET"),
+    AUTH("/auth", HttpMethod.GET, HttpMethod.POST),
+    AUTH_TOKENS("/auth/tokens", HttpMethod.POST),
+    AUTH_CALLBACK("/auth/callback", HttpMethod.GET),
+    BOOTSTRAP("/bootstrap", HttpMethod.GET),
+    BOOTSTRAP_EXTERNAL("/bootstrap/external", HttpMethod.GET),
+    HEALTH("/health", HttpMethod.GET),
     ;
 
     private String route;
-    private List<String> allowedMethods;
+    private List<HttpMethod> allowedMethods;
 
-    private UnauthenticatedRoute(String route, String... allowedMethods) {
+    private UnauthenticatedRoute(String route, HttpMethod... allowedMethods) {
         this.route = route;
         this.allowedMethods = Arrays.asList(allowedMethods);
     }
@@ -42,6 +50,9 @@ public enum UnauthenticatedRoute {
     }
 
     public List<String> getAllowedMethods() {
-        return this.allowedMethods;
+        return this.allowedMethods
+            .stream()
+            .map(HttpMethod::toString)
+            .collect(Collectors.toList());
     }
 }
