@@ -301,7 +301,8 @@ function check_secrets {
     detect-secrets scan --exclude-files '.*/src/test/.*' --update ${BASEDIR}/.secrets.baseline
     rc=$? 
     check_exit_code $rc "Failed to run detect-secrets. Please check it is installed properly" 
-    
+    success "updated secrets file"
+
     h2 "running audit for secrets"
     detect-secrets audit ${BASEDIR}/.secrets.baseline
     rc=$? 
