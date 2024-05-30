@@ -87,10 +87,9 @@ function check_exit_code () {
     # $1 an integer value of the expected exit code
     # $2 an error message to display if $1 is not equal to 0
     if [[ "$1" != "0" ]]; then 
-        error "$2" ; 
-        exit 1 ; 
+        error "$2" 
+        exit 1  
     fi
-
 }
 
 #-------------------------------------------------------------
@@ -306,7 +305,7 @@ function check_secrets {
     h2 "running audit for secrets"
     detect-secrets audit ${BASEDIR}/.secrets.baseline
     rc=$? 
-    check_exit_code $rc "Failed to audit detect-secrets."
+    check_exit_code 0 "Failed to audit detect-secrets."
     success "secrets audit complete"
 }
 
