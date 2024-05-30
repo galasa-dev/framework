@@ -128,6 +128,8 @@ paths:
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
   /auth/callback:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getAuthenticateCallback
       summary: Callback endpoint used as part of an OAuth 2.0 authorization code flow, redirects to a callback URL with an authorization code as a query parameter.
@@ -168,6 +170,8 @@ paths:
                     error_message: "E: Error occured when trying to execute request '/auth/callback'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required query parameters are missing
   /auth/clients:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     post:
       operationId: postClients
       summary: Create a new Dex client to authenticate with.
@@ -210,6 +214,8 @@ paths:
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
   /auth/tokens:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getTokens
       summary: Get a list of tokens used for authenticating with the Galasa API server.
@@ -296,6 +302,8 @@ paths:
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
   /auth/tokens/{tokenId}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     delete:
       operationId: deleteToken
       summary: Deletes a token which is used for authenticating with the Galasa API server.
