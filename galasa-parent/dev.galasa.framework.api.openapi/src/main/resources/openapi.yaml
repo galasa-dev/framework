@@ -81,8 +81,11 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
+    
+    # POST /auth is deprecated in favour of POST /auth/tokens and will be removed in a future release
     post:
       operationId: postAuthenticate
+      deprecated: true
       summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
       tags:
       - Authentication API
@@ -125,6 +128,8 @@ paths:
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
   /auth/callback:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getAuthenticateCallback
       summary: Callback endpoint used as part of an OAuth 2.0 authorization code flow, redirects to a callback URL with an authorization code as a query parameter.
@@ -165,6 +170,8 @@ paths:
                     error_message: "E: Error occured when trying to execute request '/auth/callback'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required query parameters are missing
   /auth/clients:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     post:
       operationId: postClients
       summary: Create a new Dex client to authenticate with.
@@ -207,6 +214,8 @@ paths:
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
   /auth/tokens:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getTokens
       summary: Get a list of tokens used for authenticating with the Galasa API server.
@@ -249,7 +258,52 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
-  /auth/tokens/{tokenId}:    
+    post:
+      operationId: createToken
+      summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
+      tags:
+      - Authentication API
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthProperties'
+      responses:
+        '200':
+          description: Returns a JSON Object containing a JWT and refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/auth/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required body properties are missing
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+  /auth/tokens/{tokenId}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     delete:
       operationId: deleteToken
       summary: Deletes a token which is used for authenticating with the Galasa API server.
