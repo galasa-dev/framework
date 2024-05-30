@@ -8,6 +8,7 @@ package dev.galasa.framework.api.authentication;
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -39,13 +40,7 @@ public class JwtAuthFilter implements Filter {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private static final List<String> UNAUTHENTICATED_ROUTES = List.of(
-        "/auth",
-        "/auth/callback",
-        "/bootstrap",
-        "/bootstrap/external",
-        "/health"
-    );
+    private static final Map<String, List<String>> UNAUTHENTICATED_ROUTES = UnauthenticatedRoute.getRoutesAsMap();
 
     private ResponseBuilder responseBuilder = new ResponseBuilder();
 
@@ -119,7 +114,14 @@ public class JwtAuthFilter implements Filter {
      * @return true if an endpoint requiring a bearer token was requested, false otherwise
      */
     private boolean isRequestingAuthenticatedRoute(HttpServletRequest servletRequest) {
+        boolean routeRequiresJwt = true;
         String route = servletRequest.getRequestURI().substring(servletRequest.getContextPath().length());
-        return !UNAUTHENTICATED_ROUTES.contains(route);
+
+        List<String> allowedRouteMethods = UNAUTHENTICATED_ROUTES.get(route);
+        if (allowedRouteMethods != null) {
+            routeRequiresJwt = !allowedRouteMethods.contains(servletRequest.getMethod());
+        }
+
+        return routeRequiresJwt;
     }
 }
