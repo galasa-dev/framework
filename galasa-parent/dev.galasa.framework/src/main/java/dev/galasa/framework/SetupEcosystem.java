@@ -68,15 +68,15 @@ public class SetupEcosystem {
 
     private void addStoreToCpsProperties(IConfigurationPropertyStoreService cps, String storeName, String storeEnvVar) throws ConfigurationPropertyStoreException {
         String storeUri = System.getenv(storeEnvVar);
-        String storeCpsProp = "framework." + storeName + ".store";
+        String storeCpsProp = storeName + ".store";
 
         if (storeUri != null && !storeUri.trim().isEmpty()) {
             storeUri = storeUri.trim();
 
             cps.setProperty(storeCpsProp, storeUri);
-            logger.info(storeCpsProp + " has been set to: " + storeUri);
+            logger.info("framework." + storeCpsProp + " has been set to: " + storeUri);
         } else {
-            logger.info("Not setting " + storeCpsProp);
+            logger.info("Not setting framework." + storeCpsProp);
         }
     }
 
