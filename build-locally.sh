@@ -82,6 +82,17 @@ EOF
 }
 
 #-------------------------------------------------------------
+function check_exit_code () {
+    # This function takes 3 parameters in the form:
+    # $1 an integer value of the expected exit code
+    # $2 an error message to display if $1 is not equal to 0
+    if [[ "$1" != "0" ]]; then 
+        error "$2" 
+        exit 1  
+    fi
+}
+
+#-------------------------------------------------------------
 function download_dependencies {
     if [[ "${build_type}" == "clean" ]]; then
         h2 "Cleaning the dependencies out..."
@@ -98,7 +109,8 @@ function download_dependencies {
     downloadDependencies \
     2>&1 >> ${log_file}
 
-    rc=$? ; if [[ "${rc}" != "0" ]]; then  error "Failed to run the gradle task to download our dependencies. rc=${rc}" ; exit 1 ; fi
+    rc=$? 
+    check_exit_code $rc "Failed to run the gradle task to download our dependencies. rc=${rc}"
     success "OK"
 }
 
@@ -136,7 +148,8 @@ function generate_rest_docs {
     -o ${OUTPUT_DIR} \
     2>&1>> ${log_file}
 
-    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate documentation from the openapi.yaml file. rc=${rc}" ; exit 1 ; fi
+    rc=$? 
+    check_exit_code $rc "Failed to generate documentation from the openapi.yaml file. rc=${rc}"
     success "Generated REST API documentation at ${OUTPUT_DIR}/index.html"
 }
 
@@ -158,7 +171,8 @@ function build_code {
 
     info "Using this command: $cmd"
     $cmd 2>&1 >> ${log_file}
-    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to build ${project} log is at ${log_file}" ; exit 1 ; fi
+    rc=$? 
+    check_exit_code $rc "Failed to build ${project} log is at ${log_file}"
     success "Built OK"
 }
 
@@ -175,7 +189,8 @@ function publish_to_maven {
     info "Command is $cmd"
     $cmd 2>&1 >> ${log_file}
     info "Log information is at ${log_file}"
-    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish ${project} log is at ${log_file}" ; exit 1 ; fi
+    rc=$? 
+    check_exit_code $rc "Failed to publish ${project} log is at ${log_file}"
     success "Published OK"
 }
 
@@ -206,7 +221,8 @@ function cleaning_up_before_we_start {
         -PsourceMaven=${SOURCE_MAVEN} ${OPTIONAL_DEBUG_FLAG} \
         clean \
         2>&1 >> ${log_file}
-        rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${log_file} ; error "Failed to clean ${project}" ; exit 1 ; fi
+        rc=$? 
+        check_exit_code $rc "Failed to clean ${project}"
         success "Cleaned OK"
     fi
 
@@ -249,7 +265,8 @@ function generate_beans {
     --package dev.galasa.framework.api.beans.generated \
     --force"
     $cmd 
-    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate the api beans" ; exit 1 ; fi
+    rc=$? 
+    check_exit_code $rc "Failed to generate the api beans"
     success "OK"
 }
 
@@ -273,8 +290,23 @@ function download_openapi2beans {
     url=https://development.galasa.dev/main/binary/bld/openapi2beans-${os}-${architecture}
     
     curl --create-dirs -o ${OPENAPI2BEANS} ${url} 
-    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to download the openapi2beans tool." ; exit 1 ; fi
+    rc=$? 
+    check_exit_code $rc "Failed to download the openapi2beans tool."
 
+}
+
+function check_secrets {
+    h2 "updating secrets baseline"
+    detect-secrets scan --exclude-files '.*/src/test/.*' --update ${BASEDIR}/.secrets.baseline
+    rc=$? 
+    check_exit_code $rc "Failed to run detect-secrets. Please check it is installed properly" 
+    success "updated secrets file"
+
+    h2 "running audit for secrets"
+    detect-secrets audit ${BASEDIR}/.secrets.baseline
+    rc=$? 
+    check_exit_code 0 "Failed to audit detect-secrets."
+    success "secrets audit complete"
 }
 
 #-----------------------------------------------------------------------------------------
@@ -378,5 +410,7 @@ if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
 fi
 
 generate_rest_docs
+
+check_secrets
 
 success "Project ${project} built - OK - log is at ${log_file}"
