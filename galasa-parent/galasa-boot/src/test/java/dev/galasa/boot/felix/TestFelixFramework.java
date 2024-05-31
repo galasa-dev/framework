@@ -21,6 +21,7 @@ import org.osgi.framework.Bundle;
 import dev.galasa.boot.mocks.MockRunnableService;
 import dev.galasa.boot.mocks.MockBundle;
 import dev.galasa.boot.mocks.MockBundleContext;
+import dev.galasa.boot.mocks.MockFelixFramework;
 import dev.galasa.boot.mocks.MockOsgiFramework;
 import dev.galasa.boot.mocks.MockRepositoryAdmin;
 import dev.galasa.boot.mocks.MockResolver;
@@ -55,7 +56,7 @@ public class TestFelixFramework {
         MockBundleContext mockBundleContext = new MockBundleContext(availableBundles);
         MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
 
-        FelixFramework felixFramework = new FelixFramework(mockOsgiFramework, mockRepoAdmin);
+        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
         Properties bootstrapProperties = new Properties();
         Properties overridesProperties = new Properties();
 
@@ -104,7 +105,7 @@ public class TestFelixFramework {
         MockBundleContext mockBundleContext = new MockBundleContext(availableBundles);
         MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
 
-        FelixFramework felixFramework = new FelixFramework(mockOsgiFramework, mockRepoAdmin);
+        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
         Properties bootstrapProperties = new Properties();
         Properties overridesProperties = new Properties();
 
@@ -151,7 +152,7 @@ public class TestFelixFramework {
         MockBundleContext mockBundleContext = new MockBundleContext(availableBundles);
         MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
 
-        FelixFramework felixFramework = new FelixFramework(mockOsgiFramework, mockRepoAdmin);
+        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
         
         // Bootstrap properties don't contain the api.extra.bundles property
         Properties bootstrapProperties = new Properties();

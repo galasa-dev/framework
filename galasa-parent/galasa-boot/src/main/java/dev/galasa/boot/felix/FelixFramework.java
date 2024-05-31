@@ -49,26 +49,19 @@ public class FelixFramework {
     private static final String EXTRA_FRAMEWORK_BUNDLES_PROP  = "framework.extra.bundles";
     private static final String EXTRA_API_SERVER_BUNDLES_PROP = "api.extra.bundles";
 
+    protected Framework framework;
+
+    protected RepositoryAdmin repositoryAdmin;
+
     private BootLogger logger = new BootLogger();
 
     private boolean loadConsole = false;
     
     private String bootJarLoacation = null;
 
-    private Framework framework;
-
     private Bundle obrBundle;
-
-    private RepositoryAdmin repositoryAdmin;
         
     private File felixCache;
-
-    public FelixFramework() {}
-
-    public FelixFramework(Framework framework, RepositoryAdmin repositoryAdmin) {
-        this.framework = framework;
-        this.repositoryAdmin = repositoryAdmin;
-    }
 
     /**
      * Initialise and start the Felix framework. Install required bundles and the
