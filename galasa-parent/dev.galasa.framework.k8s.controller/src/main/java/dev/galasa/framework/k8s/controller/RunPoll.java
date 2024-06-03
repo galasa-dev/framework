@@ -20,9 +20,11 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.spi.Environment;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.SystemEnvironment;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Affinity;
@@ -45,6 +47,9 @@ import io.kubernetes.client.openapi.models.V1SecretKeySelector;
 import io.prometheus.client.Counter;
 
 public class RunPoll implements Runnable {
+
+    private static final String RAS_TOKEN_ENV = "GALASA_RAS_TOKEN";
+
     private final Log                        logger           = LogFactory.getLog(getClass());
 
     private final Settings                   settings;
@@ -54,6 +59,8 @@ public class RunPoll implements Runnable {
     private final QueuedComparator           queuedComparator = new QueuedComparator();
 
     private Counter                          submittedRuns;
+    private Environment                      env              = new SystemEnvironment();
+
 
     public RunPoll(IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
         this.settings = settings;
@@ -249,6 +256,7 @@ public class RunPoll implements Runnable {
             //
             // envs.add(createValueEnv("GALASA_ENGINE_TYPE", engineLabel));
             envs.add(createValueEnv("MAX_HEAP", Integer.toString(this.settings.getEngineMemory()) + "m"));
+            envs.add(createValueEnv(RAS_TOKEN_ENV, env.getenv(RAS_TOKEN_ENV)));
             //
             // envs.add(createSecretEnv("GALASA_SERVER_USER", "galasa-secret",
             // "galasa-server-username"));
