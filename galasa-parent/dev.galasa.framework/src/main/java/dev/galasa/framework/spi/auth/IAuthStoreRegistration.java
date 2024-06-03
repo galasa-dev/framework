@@ -7,9 +7,9 @@ package dev.galasa.framework.spi.auth;
 
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.framework.spi.IFrameworkInitialisation;
+import dev.galasa.framework.spi.IApiServerInitialisation;
 
 public interface IAuthStoreRegistration {
 
-    void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws AuthStoreException;
+    void initialise(@NotNull IApiServerInitialisation frameworkInitialisation) throws AuthStoreException;
 }
