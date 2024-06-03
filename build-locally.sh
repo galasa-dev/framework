@@ -298,7 +298,7 @@ function download_openapi2beans {
 function check_secrets {
     h2 "updating secrets baseline"
     cd ${BASEDIR}
-    detect-secrets scan --exclude-files '.*/src/test/.*' --update .secrets.baseline
+    detect-secrets scan --update .secrets.baseline
     rc=$? 
     check_exit_code $rc "Failed to run detect-secrets. Please check it is installed properly" 
     success "updated secrets file"
@@ -306,7 +306,15 @@ function check_secrets {
     h2 "running audit for secrets"
     detect-secrets audit .secrets.baseline
     rc=$? 
-     check_exit_code $rc "Failed to audit detect-secrets."
+    check_exit_code $rc "Failed to audit detect-secrets."
+    
+    #Check all secrets have been audited
+    secrets=$(grep -c hashed_secret .secrets.baseline)
+    audits=$(grep -c is_secret .secrets.baseline)
+    if [[ "$secrets" != "$audits" ]]; then 
+        error "Not all secrets found have been audited"
+        exit 1  
+    fi
     success "secrets audit complete"
 }
 
