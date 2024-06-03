@@ -5,7 +5,7 @@ plugins {
 
 description = 'Framework API'
 
-version = '0.27.0'
+version = '0.34.0'
 
 dependencies {
 
@@ -14,6 +14,7 @@ dependencies {
     implementation 'org.osgi:org.osgi.service.cm:1.6.0'
     implementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
 
+    testImplementation project(':dev.galasa.framework').sourceSets.test.output
 }
 
 // Note: These values are consumed by the parent build process
