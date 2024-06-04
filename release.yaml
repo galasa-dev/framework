@@ -75,7 +75,7 @@ framework:
 api:
   bundles:
   - artifact: dev.galasa.framework.api
-    version: 0.27.0
+    version: 0.34.0
     obr: true
     isolated: true
     codecoverage: true
