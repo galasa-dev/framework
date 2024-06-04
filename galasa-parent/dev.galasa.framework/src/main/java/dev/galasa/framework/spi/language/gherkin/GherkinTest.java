@@ -8,7 +8,9 @@ package dev.galasa.framework.spi.language.gherkin;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,6 +79,9 @@ public class GherkinTest {
 
         this.testStructure.setGherkinMethods(structureMethods);
     }
+
+
+
 
     private void parseGherkinSyntax(List<String> lines) throws TestRunException {
         GherkinMethod currentMethod = null;
