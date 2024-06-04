@@ -128,7 +128,9 @@ public class AccessCps extends HttpServlet {
                 return;
             }
 
-            sendError(resp, "Invalid GET URL - " + url
+            logger.info("Invalid GET URL "+url);
+            // Note: The URL is not sent back to the caller in case it contains malicious code. Cross-site scripting vulnerability.
+            sendError(resp, "Invalid GET URL"
                      , HttpServletResponse.SC_BAD_REQUEST // Bad Request
                      );
 
@@ -165,7 +167,9 @@ public class AccessCps extends HttpServlet {
                 addCPSProperty(resp, req, namespace, propertyName);
                 return;
             }
-            sendError(resp, "Invalid PUT URL - " + req.getPathInfo()
+            logger.info("Invalid PUT URL "+req.getPathInfo());
+            // Note: We don't return the input the user sent in a response in case it contains malicious code.
+            sendError(resp, "Invalid PUT URL" 
                      ,400 // Bad Request
                      );
 
