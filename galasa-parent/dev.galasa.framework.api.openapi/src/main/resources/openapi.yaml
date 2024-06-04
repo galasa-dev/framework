@@ -1988,82 +1988,6 @@ paths:
                     error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
 ##################################################################################
-# WebUI API
-##################################################################################
-  /webui/worklist:
-    parameters:
-      - $ref: '#/components/parameters/ClientApiVersion'
-    get:
-      operationId: getWebuiWorklist
-      summary: Get the users Worklist
-      tags:
-        - WebUI Worklist API
-      responses:
-        '200':
-          description: Array of Worklist objects
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Worklist'
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-
-    put:
-      operationId: addWebuiWorklistRunId
-      summary: Add RAS runId to Worklist
-      tags:
-        - WebUI Worklist API
-      parameters:
-        - name: runId
-          in: query
-          description: Run ID
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Run added to Worklist and updated Worklist returned
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Worklist'
-        '404':
-          description: Run not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-
-    delete:
-      operationId: deleteWebuiWorklistRunId
-      tags:
-        - WebUI Worklist API
-      summary: Remove RAS runId from Worklist
-      parameters:
-        - name: runId
-          in: query
-          description: Run Id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Run removed from Worklist and updated Worklist returned
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Worklist'
-        '404':
-          description: Run not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-##################################################################################
 # Bootstrap API
 ##################################################################################
   /bootstrap:
@@ -2419,26 +2343,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Run'
-    Worklist:
-      type: object
-      properties:
-        worklistItems:
-          type: array
-          items:
-            $ref: '#/components/schemas/WorklistItem'
-    WorklistItem:
-      type: object
-      properties:
-        runId:
-          type: string
-        runName:
-          type: string
-        shortName:
-          type: string
-        testClass:
-          type: string
-        result:
-          type: string
     Namespace:
       type: object
       properties:
