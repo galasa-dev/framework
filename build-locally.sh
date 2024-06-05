@@ -315,6 +315,7 @@ function check_secrets {
         error "Not all secrets found have been audited"
         exit 1  
     fi
+    sed -i '' '/[ ]*"generated_at": ".*",/d' .secrets.baseline
     success "secrets audit complete"
 }
 
