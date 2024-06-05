@@ -60,7 +60,7 @@ public class AccessCpsTest {
         assertThat(response.getHeader("Content-Type")).isEqualTo("application/json");
 
         String errorMessage = response.getPayloadAsErrorMessage();
-        assertThat(errorMessage).isEqualTo("Invalid PUT URL - /badUrl");
+        assertThat(errorMessage).isEqualTo("Invalid PUT URL");
         assertThat(response.getStatus()).isEqualTo(400); // Bad request
     }
 
@@ -230,8 +230,10 @@ public class AccessCpsTest {
         String errorMessage = response.getPayloadAsErrorMessage();
         assertThat(errorMessage)
                 .doesNotContain("Internal server error.")
-                .contains("Invalid GET URL - ")
-                .contains(path);
+                .contains("Invalid GET URL");
+                // Not checking the path here, because the server should not return it. Doing so is a vulnerability
+                // because the server could inadvertantly be forwarding malicious code to the client, which may 
+                // erroneously be executed.
     }
 
     @Test
