@@ -141,7 +141,7 @@ public class AuthRouteTest extends BaseServletTest {
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(mockResponseJson);
 
         String clientId = "dummy-id";
-        String clientSecret = "asecret";
+        String clientSecret = "asecret"; // Mock value, not a secret //pragma: allowlist secret
         String refreshToken = "here-is-a-token";
 
         MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
@@ -197,7 +197,7 @@ public class AuthRouteTest extends BaseServletTest {
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(mockResponseJson);
 
         String clientId = "dummy-id";
-        String clientSecret = "asecret";
+        String clientSecret = "asecret"; // Mock value, not a secret //pragma: allowlist secret
         String authCode = "thisisacode";
 
         String callbackUri = "http://api.host/auth/callback";
@@ -255,7 +255,7 @@ public class AuthRouteTest extends BaseServletTest {
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(mockResponseJson);
 
         String clientId = "dummy-id";
-        String clientSecret = "asecret";
+        String clientSecret = "asecret";// Mock value, not a secret //pragma: allowlist secret
         String authCode = "thisisacode";
 
         String callbackUri = "http://api.host/auth/callback";
@@ -317,7 +317,7 @@ public class AuthRouteTest extends BaseServletTest {
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(mockResponseJson);
 
         String clientId = "dummy-id";
-        String clientSecret = "asecret";
+        String clientSecret = "asecret"; // Mock value, not a secret //pragma: allowlist secret
         String authCode = "thisisacode";
 
         String callbackUri = "http://api.host/auth/callback";

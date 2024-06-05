@@ -31,7 +31,7 @@ public class JwtWrapperTest {
     // "name": "User Name",
     // "iat": 1516239022
     // }
-    private String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2YWxpZFVzZXJJRCIsIm5hbWUiOiJVc2VyIE5hbWUiLCJpYXQiOjE1MTYyMzkwMjJ9.UvI3VPNyTJuql6vU3ES0zsvlXdiJYzkjIRhNahD3yd8";
+    private String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2YWxpZFVzZXJJRCIsIm5hbWUiOiJVc2VyIE5hbWUiLCJpYXQiOjE1MTYyMzkwMjJ9.UvI3VPNyTJuql6vU3ES0zsvlXdiJYzkjIRhNahD3yd8";// Mock JWT containing no data, not a secret //pragma: allowlist secret
 
     @Test
     public void testGetUsernameValidJwtReturnsOk() throws Exception {
@@ -59,7 +59,7 @@ public class JwtWrapperTest {
         // "sub": "validUserID",
         // "iat": 1516239022
         // }
-        String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2YWxpZFVzZXJJRCIsImlhdCI6MTUxNjIzOTAyMn0.wKWJlzB3RVJJfrP8JQdL2FSIcaXOLtBJOi3rraHr0CM";
+        String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2YWxpZFVzZXJJRCIsImlhdCI6MTUxNjIzOTAyMn0.wKWJlzB3RVJJfrP8JQdL2FSIcaXOLtBJOi3rraHr0CM"; // Mock JWT, not a secret //pragma: allowlist secret
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
 
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
@@ -102,7 +102,7 @@ public class JwtWrapperTest {
         // {
         // "iat": 1516239022
         // }
-        String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTYyMzkwMjJ9.tbDepxpstvGdW8TC3G8zg4B6rUYAOvfzdceoH48wgRQ";
+        String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTYyMzkwMjJ9.tbDepxpstvGdW8TC3G8zg4B6rUYAOvfzdceoH48wgRQ"; // Mock JWT, not a secret //pragma: allowlist secret
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
 
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
@@ -126,7 +126,7 @@ public class JwtWrapperTest {
         // "iat": 1516239022,
         // "name": "Bob"
         // }
-        String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdWJqZWN0LWJvYiIsImN1c3RvbV91c2VyX2lkIjoiVXNlcklkIiwiaWF0IjoxNTE2MjM5MDIyLCJuYW1lIjoiQm9iIn0.mC7UNlGhDW00ZkrSnDT-lQE8JMFnPuIO1MFaN_9a43E";
+        String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdWJqZWN0LWJvYiIsImN1c3RvbV91c2VyX2lkIjoiVXNlcklkIiwiaWF0IjoxNTE2MjM5MDIyLCJuYW1lIjoiQm9iIn0.mC7UNlGhDW00ZkrSnDT-lQE8JMFnPuIO1MFaN_9a43E";// Mock JWT, not a secret //pragma: allowlist secret
 
         // Provide a custom claim to override the default JWT claims used by the API
         // server
@@ -156,7 +156,7 @@ public class JwtWrapperTest {
         // "iat": 1516239022,
         // "name": "Bob"
         // }
-        String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdWJqZWN0LWJvYiIsImN1c3RvbV91c2VyX2lkIjoiVXNlcklkIiwiaWF0IjoxNTE2MjM5MDIyLCJuYW1lIjoiQm9iIn0.mC7UNlGhDW00ZkrSnDT-lQE8JMFnPuIO1MFaN_9a43E";
+        String mockJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdWJqZWN0LWJvYiIsImN1c3RvbV91c2VyX2lkIjoiVXNlcklkIiwiaWF0IjoxNTE2MjM5MDIyLCJuYW1lIjoiQm9iIn0.mC7UNlGhDW00ZkrSnDT-lQE8JMFnPuIO1MFaN_9a43E"; // Mock JWT, not a secret //pragma: allowlist secret
 
         // Provide a custom claim to override the default JWT claims used by the API
         // server
