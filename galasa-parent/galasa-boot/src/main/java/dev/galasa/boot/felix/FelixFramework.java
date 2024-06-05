@@ -470,116 +470,7 @@ public class FelixFramework {
 
     }
 
-    /**
-     * Backup the CPS Properties
-     * 
-     * @param boostrapProperties  the bootstrap properties
-     * @param overridesProperties the override properties
-     * @param filePath
-     * @throws LauncherException
-     */
-    public void runBackupCPS(Properties boostrapProperties, Properties overridesProperties, String filePath)
-            throws LauncherException {
-
-        // Get the framework bundle
-        Bundle frameWorkBundle = getBundle("dev.galasa.framework");
-
-        // Get the dev.galasa.framework.BackupCPS class service
-        String classString = "dev.galasa.framework.BackupCPS";
-        String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
-
-        ServiceReference<?>[] serviceReferences;
-        try {
-            serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
-        } catch (InvalidSyntaxException e) {
-            throw new LauncherException("Unable to get framework service reference", e);
-        }
-        if (serviceReferences == null || serviceReferences.length != 1) {
-            throw new LauncherException("Unable to get single reference to BackupCPS service: "
-                    + ((serviceReferences == null) ? 0 : serviceReferences.length) + " service(s) returned");
-        }
-
-        Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
-        if (service == null) {
-            throw new LauncherException("Unable to get BackupCPS service");
-        }
-
-        // Get the dev.galasa.framework.BackupCPS#backup() method
-        Method runBackupCPSMethod;
-        try {
-            runBackupCPSMethod = service.getClass().getMethod("backup", Properties.class, Properties.class,
-                    String.class);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new LauncherException("Unable to get Framework BackupCPS backup method", e);
-        }
-
-        // Invoke the runBackupCPSMethod method
-        logger.debug("Invoking BackupCPS backup()");
-        try {
-            runBackupCPSMethod.invoke(service, boostrapProperties, overridesProperties, filePath);
-        } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
-            throw new LauncherException(e.getCause());
-        }
-
-    }
-
-    /**
-     * Restore the CPS Properties
-     * 
-     * @param boostrapProperties  the bootstrap properties
-     * @param overridesProperties the override properties
-     * @param filePath
-     * @param dryRun
-     * @throws LauncherException
-     */
-    public void runRestoreCPS(Properties boostrapProperties, Properties overridesProperties, String filePath,
-            boolean dryRun) throws LauncherException {
-
-        // Get the framework bundle
-        Bundle frameWorkBundle = getBundle("dev.galasa.framework");
-
-        String className = "RestoreCPS";
-        String methodName = "restore";
-
-        // Get the dev.galasa.framework.RestoreCPS class service
-        String classString = "dev.galasa.framework." + className;
-        String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
-
-        ServiceReference<?>[] serviceReferences;
-        try {
-            serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
-        } catch (InvalidSyntaxException e) {
-            throw new LauncherException("Unable to get framework service reference", e);
-        }
-        if (serviceReferences == null || serviceReferences.length != 1) {
-            throw new LauncherException("Unable to get single reference to " + className + " service: "
-                    + ((serviceReferences == null) ? 0 : serviceReferences.length) + " service(s) returned");
-        }
-
-        Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
-        if (service == null) {
-            throw new LauncherException("Unable to get " + className + " service");
-        }
-
-        // Get the dev.galasa.framework.RestoreCPS#restore() method
-        Method runRestoreCPSMethod;
-        try {
-            runRestoreCPSMethod = service.getClass().getMethod(methodName, Properties.class, Properties.class,
-                    String.class, boolean.class);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new LauncherException("Unable to get Framework " + className + " " + methodName + " method", e);
-        }
-
-        // Invoke the runBackupCPSMethod method
-        logger.debug("Invoking " + className + " " + methodName + "()");
-        try {
-            runRestoreCPSMethod.invoke(service, boostrapProperties, overridesProperties, filePath, dryRun);
-        } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
-            throw new LauncherException(e.getCause());
-        }
-
-    }
-
+    
     /**
      * Setup the Ecosystem
      * 
@@ -592,7 +483,7 @@ public class FelixFramework {
         // Get the framework bundle
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
 
-        // Get the dev.galasa.framework.BackupCPS class service
+        // Get the dev.galasa.framework.SetupEcosystem class service
         String classString = "dev.galasa.framework.SetupEcosystem";
         String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
 
@@ -642,7 +533,7 @@ public class FelixFramework {
         // Get the framework bundle
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
 
-        // Get the dev.galasa.framework.BackupCPS class service
+        // Get the dev.galasa.framework.ValidateEcosystem class service
         String classString = "dev.galasa.framework.ValidateEcosystem";
         String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
 
