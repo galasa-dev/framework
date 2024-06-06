@@ -99,7 +99,8 @@ public class OidcProvider implements IOidcProvider {
         } catch (IOException | InterruptedException | JsonSyntaxException e) {
             logger.error("Unable to obtain issuer's OpenID configuration, using defaults");
         } catch (URISyntaxException e) {
-            ServletError error = new ServletError(GAL5059_INVALID_ISSUER_URI_PROVIDED, issuerUrl);
+            logger.error("Invalid Galasa Dex URL provided '" + issuerUrl + "'", e);
+            ServletError error = new ServletError(GAL5059_INVALID_ISSUER_URI_PROVIDED);
             throw new ServletException(error.getMessage(), e);
         }
 
@@ -384,13 +385,15 @@ public class OidcProvider implements IOidcProvider {
             URI uri = new URI(urlToValidate);
             if (!uri.getScheme().equals(issuerUrl.getScheme())
                 || !uri.getHost().equals(issuerUrl.getHost())) {
-                ServletError error = new ServletError(GAL5061_MISMATCHED_OIDC_URI_RECEIVED, urlToValidate, issuerUrl.toString());
+                logger.error("URL '" + urlToValidate + "' does not match issuer scheme or hostname '" + issuerUrl + "'");
+                ServletError error = new ServletError(GAL5061_MISMATCHED_OIDC_URI_RECEIVED);
                 throw new ServletException(error.getMessage());
             }
 
             return uri.toString();
         } catch (URISyntaxException e) {
-            ServletError error = new ServletError(GAL5060_INVALID_OIDC_URI_RECEIVED, urlToValidate);
+            logger.error("Invalid URL received '" + urlToValidate + "'", e);
+            ServletError error = new ServletError(GAL5060_INVALID_OIDC_URI_RECEIVED);
             throw new ServletException(error.getMessage(), e);
         }
     }

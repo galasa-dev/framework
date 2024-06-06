@@ -148,7 +148,7 @@ public class OidcProviderTest {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5059", "Invalid Galasa Dex server URI provided");
+        assertThat(thrown.getMessage()).contains("GAL5059", "Invalid Galasa Dex server URL provided");
     }
 
     @Test
