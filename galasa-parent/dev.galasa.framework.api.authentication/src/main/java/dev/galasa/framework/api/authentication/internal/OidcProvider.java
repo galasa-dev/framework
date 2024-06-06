@@ -99,9 +99,9 @@ public class OidcProvider implements IOidcProvider {
         } catch (IOException | InterruptedException | JsonSyntaxException e) {
             logger.error("Unable to obtain issuer's OpenID configuration, using defaults");
         } catch (URISyntaxException e) {
-            logger.error("Invalid Galasa Dex URL provided '" + issuerUrl + "'", e);
+            logger.error("Invalid Galasa Dex URL provided '" + issuerUrl + "'");
             ServletError error = new ServletError(GAL5059_INVALID_ISSUER_URI_PROVIDED);
-            throw new ServletException(error.getMessage(), e);
+            throw new ServletException(error.getMessage());
         }
 
         logger.info("Authorization endpoint is: " + this.authorizationEndpoint);
@@ -392,9 +392,9 @@ public class OidcProvider implements IOidcProvider {
 
             return uri.toString();
         } catch (URISyntaxException e) {
-            logger.error("Invalid URL received '" + urlToValidate + "'", e);
+            logger.error("Invalid URL received '" + urlToValidate + "'");
             ServletError error = new ServletError(GAL5060_INVALID_OIDC_URI_RECEIVED);
-            throw new ServletException(error.getMessage(), e);
+            throw new ServletException(error.getMessage());
         }
     }
 }
