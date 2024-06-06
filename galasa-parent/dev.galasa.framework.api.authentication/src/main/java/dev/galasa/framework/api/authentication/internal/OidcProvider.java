@@ -390,7 +390,7 @@ public class OidcProvider implements IOidcProvider {
 
             return uri.toString();
         } catch (URISyntaxException e) {
-            ServletError error = new ServletError(GAL5060_INVALID_OIDC_URI_RECEIVED, urlToValidate, issuerUrl.toString());
+            ServletError error = new ServletError(GAL5060_INVALID_OIDC_URI_RECEIVED, urlToValidate);
             throw new ServletException(error.getMessage(), e);
         }
     }
