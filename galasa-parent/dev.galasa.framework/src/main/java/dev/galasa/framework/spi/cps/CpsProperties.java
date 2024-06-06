@@ -20,11 +20,10 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 /**
  * Utility methods for retrieving properties from the Configuration Property
  * Store. Mainly used for the Manager Property Classes pattern.
- * 
- * @author Michael Baylis
- *
  */
 public class CpsProperties {
+
+    
 
     /**
      * Retrieve an int from the CPS or return a default if it the property is
@@ -48,8 +47,8 @@ public class CpsProperties {
 
             return Integer.parseInt(sValue.trim());
         } catch (Exception e) {
-            Log logger = LogFactory.getLog(e.getStackTrace()[1].getClassName());
 
+            Log logger = LogFactory.getLog(CpsProperties.class.getName());
             logger.warn("Invalid property, using default " + defaultValue, e);
             return defaultValue;
         }
@@ -99,7 +98,7 @@ public class CpsProperties {
 
             return sValue;
         } catch (Exception e) {
-            Log logger = LogFactory.getLog(e.getStackTrace()[1].getClassName());
+            Log logger = LogFactory.getLog(CpsProperties.class.getName());
             logger.warn("Invalid property, using default " + defaultValue, e);
             return defaultValue;
         }
@@ -132,7 +131,7 @@ public class CpsProperties {
             }
             return result;
         } catch (Exception e) {
-            Log logger = LogFactory.getLog(e.getStackTrace()[1].getClassName());
+            Log logger = LogFactory.getLog(CpsProperties.class.getName());
             logger.warn("Invalid property, using default " + defaultValues.toString(), e);
             return splitToList(defaultValues);
         }
