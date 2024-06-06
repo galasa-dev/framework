@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Base64.Encoder;
 import java.util.function.BiPredicate;
 
+import javax.servlet.ServletException;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.google.gson.JsonArray;
@@ -139,6 +141,109 @@ public class OidcProviderTest {
     //-------------------------------------------------------------------------
     // Test methods
     //-------------------------------------------------------------------------
+    @Test
+    public void testCreateOidcProviderWithInvalidIssuerUrlThrowsError() throws Exception {
+        // When...
+        ServletException thrown = catchThrowableOfType(() -> new OidcProvider("not a valid issuer url", null), ServletException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5059", "Invalid Galasa Dex server URL provided");
+    }
+
+    @Test
+    public void testCreateOidcProviderWithInvalidAuthEndpointThrowsError() throws Exception {
+        // Given...
+        JsonObject mockOpenIdConfig = new JsonObject();
+        mockOpenIdConfig.addProperty("authorization_endpoint", "not a valid url");
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockOpenIdConfig), 200);
+
+        MockHttpClient mockHttpClient = new MockHttpClient(mockResponse);
+
+        // When...
+        ServletException thrown = catchThrowableOfType(() -> new OidcProvider("http://my.server", mockHttpClient), ServletException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5060E", "Invalid OpenID Connect URL");
+    }
+
+    @Test
+    public void testCreateOidcProviderWithAuthEndpointDifferentSchemeThrowsError() throws Exception {
+        // Given...
+        JsonObject mockOpenIdConfig = new JsonObject();
+        mockOpenIdConfig.addProperty("authorization_endpoint", "nothttp://my.server/auth");
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockOpenIdConfig), 200);
+
+        MockHttpClient mockHttpClient = new MockHttpClient(mockResponse);
+
+        // When...
+        ServletException thrown = catchThrowableOfType(() -> new OidcProvider("http://my.server", mockHttpClient), ServletException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5061E", "does not match the expected Dex server scheme or host");
+    }
+
+    @Test
+    public void testCreateOidcProviderWithAuthEndpointOnDifferentHostThrowsError() throws Exception {
+        // Given...
+        JsonObject mockOpenIdConfig = new JsonObject();
+        mockOpenIdConfig.addProperty("authorization_endpoint", "http://my-malicious-server/auth");
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockOpenIdConfig), 200);
+
+        MockHttpClient mockHttpClient = new MockHttpClient(mockResponse);
+
+        // When...
+        ServletException thrown = catchThrowableOfType(() -> new OidcProvider("http://my.server", mockHttpClient), ServletException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5061E", "does not match the expected Dex server scheme or host");
+    }
+
+    @Test
+    public void testCreateOidcProviderWithTokensEndpointOnDifferentHostThrowsError() throws Exception {
+        // Given...
+        JsonObject mockOpenIdConfig = new JsonObject();
+        mockOpenIdConfig.addProperty("authorization_endpoint", "http://my.server/auth");
+        mockOpenIdConfig.addProperty("token_endpoint", "http://my-malicious-server/tokens");
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockOpenIdConfig), 200);
+
+        MockHttpClient mockHttpClient = new MockHttpClient(mockResponse);
+
+        // When...
+        ServletException thrown = catchThrowableOfType(() -> new OidcProvider("http://my.server", mockHttpClient), ServletException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5061E", "does not match the expected Dex server scheme or host");
+    }
+
+    @Test
+    public void testCreateOidcProviderWithJwksEndpointOnDifferentHostThrowsError() throws Exception {
+        // Given...
+        JsonObject mockOpenIdConfig = new JsonObject();
+        mockOpenIdConfig.addProperty("authorization_endpoint", "http://my.server/auth");
+        mockOpenIdConfig.addProperty("token_endpoint", "http://my.server/tokens");
+        mockOpenIdConfig.addProperty("jwks_uri", "http://my-malicious-server/keys");
+
+        HttpResponse<Object> mockResponse = new MockHttpResponse<Object>(gson.toJson(mockOpenIdConfig), 200);
+
+        MockHttpClient mockHttpClient = new MockHttpClient(mockResponse);
+
+        // When...
+        ServletException thrown = catchThrowableOfType(() -> new OidcProvider("http://my.server", mockHttpClient), ServletException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5061E", "does not match the expected Dex server scheme or host");
+    }
+
     @Test
     public void testTokenPostWithRefreshTokenValidRequestReturnsValidResponse() throws Exception {
         // Given...
@@ -451,7 +556,7 @@ public class OidcProviderTest {
 
         MockHttpClient mockHttpClient = new MockHttpClient(mockResponse);
 
-        OidcProvider oidcProvider = new OidcProvider("http://dummy-issuer", mockHttpClient);
+        OidcProvider oidcProvider = new OidcProvider("http://my.server", mockHttpClient);
 
         // When...
         JsonObject openIdConfig = oidcProvider.getOpenIdConfiguration();
@@ -460,6 +565,7 @@ public class OidcProviderTest {
         assertThat(openIdConfig).isNotNull();
         assertThat(openIdConfig).isEqualTo(mockOpenIdConfig);
     }
+
 
     @Test
     public void testGetOpenIdConfigurationWithErrorResponseReturnsNull() throws Exception {

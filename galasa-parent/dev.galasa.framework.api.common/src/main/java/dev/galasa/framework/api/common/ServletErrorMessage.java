@@ -91,6 +91,9 @@ public enum ServletErrorMessage {
     GAL5056_FAILED_TO_STORE_TOKEN_IN_AUTH_STORE       (5056, "E: Internal server error occurred when storing the new Galasa token with description ''{0}'' in the auth store. The auth store could be badly configured, or could be experiencing a temporary issue. Report the problem to your Galasa Ecosystem owner."),
     GAL5057_FAILED_TO_RETRIEVE_USERNAME_FROM_JWT      (5057, "E: Unable to retrieve a username from the given JWT. No JWT claim exists in the given JWT that matches the supplied claims: ''{0}''. This could be because the Galasa Ecosystem is badly configured and the chosen authentication provider does not include the expected claims in JWTs. Report the problem to your Galasa Ecosystem owner."),
     GAL5058_NO_USERNAME_JWT_CLAIMS_PROVIDED           (5058, "E: Unable to retrieve a username from the given JWT. No JWT claims to retrieve a username from were provided. This could be because the Galasa Ecosystem is badly configured. Report the problem to your Galasa Ecosystem owner."),
+    GAL5059_INVALID_ISSUER_URI_PROVIDED               (5059, "E: Invalid Galasa Dex server URL provided. This could be because the Galasa Ecosystem is badly configured. Report the problem to your Galasa Ecosystem owner."),
+    GAL5060_INVALID_OIDC_URI_RECEIVED                 (5060, "E: Internal server error. Invalid OpenID Connect URL received from the Galasa Dex server. Report the problem to your Galasa Ecosystem owner."),
+    GAL5061_MISMATCHED_OIDC_URI_RECEIVED              (5061, "E: Internal server error. OpenID Connect URL received from the Galasa Dex server does not match the expected Dex server scheme or host. Report the problem to your Galasa Ecosystem owner."),
     ;
 
 
