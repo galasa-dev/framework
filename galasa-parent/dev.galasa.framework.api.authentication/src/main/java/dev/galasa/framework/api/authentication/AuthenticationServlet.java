@@ -74,8 +74,9 @@ public class AuthenticationServlet extends BaseServlet {
     /**
      * Initialises the OpenID Connect Provider and Dex gRPC client fields to allow
      * the authentication servlet to communicate with Dex.
+     * @throws ServletException if there was an issue contacting Dex
      */
-    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname, String externalWebUiUrl) {
+    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname, String externalWebUiUrl) throws ServletException {
         this.oidcProvider = new OidcProvider(dexIssuerUrl, HttpClient.newHttpClient());
         this.dexGrpcClient = new DexGrpcClient(dexGrpcHostname, externalWebUiUrl);
     }
