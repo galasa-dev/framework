@@ -68,7 +68,7 @@ public class RunQueryRoute extends RunsRoute {
 	public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters generalQueryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
 		RasQueryParameters queryParams = new RasQueryParameters(generalQueryParams);
 		String outputString = retrieveResults(queryParams);
-		return getResponseBuilder().buildResponse(res, "application/json", outputString, HttpServletResponse.SC_OK);
+		return getResponseBuilder().buildResponse(req, res, "application/json", outputString, HttpServletResponse.SC_OK);
 	}
 
 	protected String retrieveResults(

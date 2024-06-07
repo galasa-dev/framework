@@ -171,7 +171,6 @@ public class TestGroupRunsRoute extends RunsServletTest {
         //Then...
         assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -384,7 +383,6 @@ public class TestGroupRunsRoute extends RunsServletTest {
         //Then...
         assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),

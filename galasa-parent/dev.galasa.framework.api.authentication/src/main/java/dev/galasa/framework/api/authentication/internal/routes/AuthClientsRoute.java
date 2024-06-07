@@ -52,7 +52,7 @@ public class AuthClientsRoute extends BaseRoute {
 
         // Marshal into a structure to be returned as JSON
         DexClient clientToReturn = new DexClient(newDexClient.getId());
-        return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(clientToReturn),
+        return getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(clientToReturn),
                 HttpServletResponse.SC_CREATED);
     }
 }

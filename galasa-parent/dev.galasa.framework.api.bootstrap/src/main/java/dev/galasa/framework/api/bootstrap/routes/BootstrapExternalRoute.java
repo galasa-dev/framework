@@ -33,7 +33,7 @@ public class BootstrapExternalRoute extends BaseRoute {
             throws ServletException, IOException, FrameworkException {
         Properties properties = new Properties();
         properties.store(response.getWriter(), "Galasa Bootstrap Properties");
-        response = getResponseBuilder().buildResponseHeaders(response, "text/plain", HttpServletResponse.SC_OK);
+        response = getResponseBuilder().buildResponseHeaders(request, response, "text/plain", HttpServletResponse.SC_OK);
         return response;
     }
 

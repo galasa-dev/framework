@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
@@ -51,6 +53,8 @@ public class ResourcesServletTest extends BaseServletTest {
 
 	protected void setServlet(String namespace){
 		this.servlet = new MockResourcesServlet();
+        servlet.setResponseBuilder(new ResponseBuilder(new MockEnvironment()));
+
 		IConfigurationPropertyStoreService cpsstore;
 		if (namespace != null){
 			cpsstore = new MockIConfigurationPropertyStoreService(namespace);

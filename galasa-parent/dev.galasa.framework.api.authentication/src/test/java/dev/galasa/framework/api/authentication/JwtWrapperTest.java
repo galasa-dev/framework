@@ -108,7 +108,8 @@ public class JwtWrapperTest {
         MockHttpServletRequest req = new MockHttpServletRequest("", headers);
 
         // When...
-        JwtWrapper auth = new JwtWrapper(req);
+        MockEnvironment mockEnv = new MockEnvironment();
+        JwtWrapper auth = new JwtWrapper(req, mockEnv);
         InternalServletException thrown = catchThrowableOfType(() -> auth.getUsername(), InternalServletException.class);
 
         // Then...

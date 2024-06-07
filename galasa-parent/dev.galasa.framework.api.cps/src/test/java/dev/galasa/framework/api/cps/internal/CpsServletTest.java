@@ -12,6 +12,8 @@ import com.google.gson.JsonParser;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
 import dev.galasa.framework.api.beans.GalasaProperty;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
@@ -44,6 +46,8 @@ public class CpsServletTest extends BaseServletTest {
 
 	protected void setServlet(String namespace){
 		this.servlet = new MockCpsServlet();
+        servlet.setResponseBuilder(new ResponseBuilder(new MockEnvironment()));
+
 		if (namespace != null){
 			IConfigurationPropertyStoreService cpsstore = new MockIConfigurationPropertyStoreService(namespace);
 			IFramework framework = new MockFramework(cpsstore);

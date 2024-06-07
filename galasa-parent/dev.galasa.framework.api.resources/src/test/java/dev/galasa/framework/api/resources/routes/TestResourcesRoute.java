@@ -823,7 +823,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyInNamespace(namespace, propertyname, value);
     }
 
@@ -848,7 +847,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyInNamespace(namespace, propertyname, value);
     }
 
@@ -875,7 +873,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String output = outStream.toString();
         assertThat(status).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property does not exist.");
         checkPropertyNotInNamespace(namespace, propertyname, value);
     }
@@ -906,7 +903,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyInNamespace(namespace, propertyname, value);
         checkPropertyInNamespace(namespace, propertynametwo, valuetwo);
     }
@@ -932,7 +928,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyInNamespace(namespace, propertyname, value);
     }
 
@@ -959,7 +954,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String output = outStream.toString();
         assertThat(status).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).contains("The property name provided already exists");
         checkPropertyNotInNamespace(namespace, propertyname, value);
     }
@@ -985,7 +979,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyInNamespace(namespace, propertyname, value);
     }
 
@@ -1015,7 +1008,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyInNamespace(namespace, propertyname, value);
         checkPropertyInNamespace(namespace, propertynametwo, valuetwo);
     }
@@ -1046,7 +1038,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyInNamespace(namespace, propertyname, value);
         checkPropertyInNamespace(namespace, propertynametwo, valuetwo);
     }
@@ -1072,7 +1063,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyNotInNamespace(namespace, propertyname, value);
     }
 
@@ -1102,7 +1092,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyNotInNamespace(namespace, propertyname, value);
         checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
     }
@@ -1128,7 +1117,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyNotInNamespace(namespace, propertyname, value);
     }
 
@@ -1158,7 +1146,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyNotInNamespace(namespace, propertyname, value);
         checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
     }
@@ -1189,7 +1176,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         checkPropertyNotInNamespace(namespace, propertyname, value);
         checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
     }
@@ -1217,7 +1203,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String output = outStream.toString();
         assertThat(status).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).contains("GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
         checkPropertyNotInNamespace(namespace, propertyname, value);
     }
@@ -1249,8 +1234,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         Integer status = resp.getStatus();
         String output = outStream.toString();
         assertThat(status).isEqualTo(400);
-		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*"); 
+		assertThat(resp.getContentType()).isEqualTo("application/json"); 
         assertThat(output).contains("GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
         assertThat(output).contains("GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
         checkPropertyNotInNamespace(namespace, propertyname, value);

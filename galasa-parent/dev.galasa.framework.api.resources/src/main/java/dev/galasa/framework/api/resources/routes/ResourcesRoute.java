@@ -66,9 +66,9 @@ public class ResourcesRoute  extends BaseRoute{
         body.close();
         List<String> errorsList = processRequest(jsonBody);
         if (errorsList.size() >0){
-            response = getResponseBuilder().buildResponse(response, "application/json", gson.toJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
+            response = getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
         } else {
-            response = getResponseBuilder().buildResponse(response, "application/json", "", HttpServletResponse.SC_OK);
+            response = getResponseBuilder().buildResponse(request, response, "application/json", "", HttpServletResponse.SC_OK);
         }
         errors.clear();
         return response;
