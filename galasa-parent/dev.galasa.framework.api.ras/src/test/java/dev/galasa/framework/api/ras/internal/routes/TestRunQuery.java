@@ -119,7 +119,7 @@ public class TestRunQuery extends RasServletTest {
 		return runnames;
 	}
 
-	public String generateExpectedJson (List<IRunResult> mockInputRunResults, String[] pageSize,String[] pageNo){
+	public String generateExpectedJson (List<IRunResult> mockInputRunResults, String[] pageSize,String[] pageNo) throws ResultArchiveStoreException{
 		int resSize = Integer.parseInt(pageSize[0]);
 		double numPages = Math.ceil((double)mockInputRunResults.size()/resSize);
 		if (numPages == 0) {
@@ -163,7 +163,7 @@ public class TestRunQuery extends RasServletTest {
 						   "      }\n"+
 						   "    }";
 				} catch (ResultArchiveStoreException e) {
-					e.printStackTrace();
+					fail("Problem creating the test data we want to compare against.", e);
 				}
 				jsonResult = jsonResult+runData;
 			}
