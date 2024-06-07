@@ -178,6 +178,29 @@ public class TestResponseBuilder {
     }
 
     @Test
+    public void testBuildResponseHeadersWithHttpSplittingDoesNotSetCorsHeader() throws Exception {
+        // Given...
+        String origin = "http://my-server.com\n\rContent-Type: text/plain";
+
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setenv(EnvironmentVariables.GALASA_ALLOWED_ORIGINS, "*");
+        ResponseBuilder responseBuilder = new ResponseBuilder(mockEnv);
+
+        Map<String, String> reqHeaders = Map.of("Origin", origin);
+        MockHttpServletRequest req = new MockHttpServletRequest("/", reqHeaders);
+        MockHttpServletResponse resp = new MockHttpServletResponse();
+        String contentType = "application/json";
+
+        // When...
+        HttpServletResponse actualResp = responseBuilder.buildResponseHeaders(req, resp, contentType, HttpServletResponse.SC_OK);
+
+        // Then...
+        assertThat(actualResp.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+        assertThat(actualResp.getContentType()).isEqualTo(contentType);
+        assertThat(actualResp.getHeader("Access-Control-Allow-Origin")).isNull();
+    }
+
+    @Test
     public void testBuildResponseHeadersWithNoAllowedOriginsDoesNotSetCorsHeader() throws Exception {
         // Given...
         String origin = "https://my.server2.com";
