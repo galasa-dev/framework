@@ -10,6 +10,7 @@ import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
+import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.spi.IFramework;
@@ -45,6 +46,7 @@ public class MockAuthenticationServlet extends AuthenticationServlet {
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = dexGrpcClient;
         this.framework = framework;
+        setResponseBuilder(new ResponseBuilder(env));
     }
 
     @Override

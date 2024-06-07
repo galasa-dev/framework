@@ -48,7 +48,7 @@ public class PropertyUpdateRoute extends CPSRoute {
         String propertyName = getPropertyNameFromURL(pathInfo);
         checkNamespaceExists(namespace);
         String property = retrieveProperty(namespace,propertyName);
-		return getResponseBuilder().buildResponse(response, "application/json", property, HttpServletResponse.SC_OK); 
+		return getResponseBuilder().buildResponse(req, response, "application/json", property, HttpServletResponse.SC_OK); 
     }
 
     private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
@@ -90,7 +90,7 @@ public class PropertyUpdateRoute extends CPSRoute {
         checkNamespaceExists(namespaceName);
         CPSProperty property = applyPropertyToStore(jsonString, namespaceName, true);
         String responseBody = String.format("Successfully updated property %s in %s",property.getName(), property.getNamespace());
-        return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK); 
+        return getResponseBuilder().buildResponse(request, response, "text/plain", responseBody, HttpServletResponse.SC_OK); 
     }
 
 
@@ -104,7 +104,7 @@ public class PropertyUpdateRoute extends CPSRoute {
         String property = getPropertyNameFromURL(pathInfo);
         deleteProperty(namespace, property);
         String responseBody = String.format("Successfully deleted property %s in %s",property, namespace);
-        return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_OK);
+        return getResponseBuilder().buildResponse(request, response, "text/plain", responseBody, HttpServletResponse.SC_OK);
     }
 
 

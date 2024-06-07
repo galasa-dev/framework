@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.bootstrap.mocks.MockBootstrapServlet;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
@@ -31,6 +33,8 @@ public class BootstrapServletTest extends BaseServletTest {
 
 	protected void setServlet() throws ConfigurationPropertyStoreException{
 		this.servlet = new MockBootstrapServlet();
+        servlet.setResponseBuilder(new ResponseBuilder(new MockEnvironment()));
+
 		IConfigurationPropertyStoreService cpsstore;
 		cpsstore = new MockIConfigurationPropertyStoreService("bootstrap");
         cpsstore.setProperty("framework.config.store","mystore");

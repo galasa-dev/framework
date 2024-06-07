@@ -72,7 +72,7 @@ public class AuthCallbackRoute extends BaseRoute {
 
                     // Redirect the user back to the callback URL provided in the original /auth request
                     response.addHeader("Location", clientCallbackUrl);
-                    return getResponseBuilder().buildResponse(response, null, null,
+                    return getResponseBuilder().buildResponse(request, response, null, null,
                             HttpServletResponse.SC_FOUND);
                 } else {
                     logger.error("Unable to redirect back to the client application (failed to retrieve callback URL from session)");

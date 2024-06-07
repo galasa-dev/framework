@@ -163,7 +163,6 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// We expect an error back, because the API server couldn't find any Etcd store to query
 		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -189,7 +188,6 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(outStream.toString()).isEqualTo("[\n"+
 		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
 		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
@@ -211,7 +209,6 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(outStream.toString()).isEqualTo("[\n"+
 		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
 		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
@@ -234,7 +231,6 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(outStream.toString()).isEqualTo("[\n"+
 		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
 		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
@@ -258,7 +254,6 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
 		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -285,7 +280,6 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
 		assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -311,7 +305,6 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
 		assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -340,7 +333,6 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
 		assertThat(resp.getStatus()).isEqualTo(405);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -369,7 +361,6 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
 		assertThat(resp.getStatus()).isEqualTo(405);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -398,7 +389,6 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
 		assertThat(resp.getStatus()).isEqualTo(405);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),

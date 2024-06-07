@@ -385,7 +385,6 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		assertThat(jsonString).contains(expectedJson);
 
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -461,7 +460,6 @@ public class TestRunArtifactsListServlet extends RasServletTest {
         checkRootArtifactsJson(jsonString);
 
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test
@@ -527,7 +525,6 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		assertThat(jsonString).contains(expectedJson);
 
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -559,6 +556,5 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 }

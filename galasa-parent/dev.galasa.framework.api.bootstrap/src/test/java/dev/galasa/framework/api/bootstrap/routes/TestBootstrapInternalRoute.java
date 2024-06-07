@@ -11,6 +11,7 @@ import java.util.Map;
 import dev.galasa.framework.api.bootstrap.BootstrapServletTest;
 import dev.galasa.framework.api.bootstrap.mocks.MockBootstrapServlet;
 import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.spi.FrameworkException;
 
@@ -35,14 +36,16 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
             "framework.testcatalog.url", "myeco.dev/testcatalog"
         );
 
+        String pathInfo = "/bootstrap";
         ResponseBuilder responseBuilder = new ResponseBuilder();
         BootstrapInternalRoute route = new BootstrapInternalRoute(responseBuilder);
+        HttpServletRequest req = (HttpServletRequest) new MockHttpServletRequest(pathInfo);
         HttpServletResponse response = (HttpServletResponse) new MockHttpServletResponse();
         ServletOutputStream outStream = response.getOutputStream();
 
         // When...
         route.onModified(properties);
-        response = route.handleGetRequest("/bootstrap",null,null,response);
+        response = route.handleGetRequest(pathInfo,null,req,response);
 
         // Then...
         String output = outStream.toString();
@@ -76,7 +79,6 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
         String output = outStream.toString();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).contains("#Galasa Bootstrap Properties\n",
             "framework.config.store=mystore\n",
             "framework.testcatalog.url=myeco.dev/testcatalog\n");
@@ -103,7 +105,6 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
         String output = outStream.toString();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).contains("#Galasa Bootstrap Properties");
         assertThat(output).doesNotContain("framework.", "=");
     }

@@ -47,7 +47,7 @@ public class GroupRunsRoute extends GroupRuns{
         List<IRun> runs = getRuns(groupName.substring(1));
         if (runs != null){
             ScheduleStatus serializedRuns = serializeRuns(runs);
-            return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(serializedRuns), HttpServletResponse.SC_OK);
+            return getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(serializedRuns), HttpServletResponse.SC_OK);
         }else{
             ServletError error = new ServletError(GAL5019_UNABLE_TO_RETRIEVE_RUNS, groupName);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -68,7 +68,7 @@ public class GroupRunsRoute extends GroupRuns{
             requestor = null;
         }
         ScheduleStatus scheduleStatus = scheduleRun(scheduleRequest, groupName.substring(1), requestor);
-        return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(scheduleStatus), HttpServletResponse.SC_CREATED);
+        return getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(scheduleStatus), HttpServletResponse.SC_CREATED);
     }
 
 }

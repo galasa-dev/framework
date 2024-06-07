@@ -45,6 +45,10 @@ public class BaseServlet extends HttpServlet {
         return this.responseBuilder;
     }
 
+    public void setResponseBuilder(ResponseBuilder responseBuilder) {
+        this.responseBuilder = responseBuilder;
+    }
+
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         logger.info("BaseServlet: doGet() entered. Url: " + req.getPathInfo());
@@ -89,7 +93,7 @@ public class BaseServlet extends HttpServlet {
             logger.error(errorString, t);
         }
 
-        getResponseBuilder().buildResponse(res, "application/json", errorString, httpStatusCode);
+        getResponseBuilder().buildResponse(req, res, "application/json", errorString, httpStatusCode);
     }
 
     private void processRoutes(HttpServletRequest req, HttpServletResponse res)

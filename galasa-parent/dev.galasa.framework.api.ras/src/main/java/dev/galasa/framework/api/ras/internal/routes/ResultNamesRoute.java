@@ -46,7 +46,7 @@ public class ResultNamesRoute extends RunsRoute {
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) 
 	throws ServletException, IOException, FrameworkException {
         String outputString = retrieveResults(new RasQueryParameters(queryParams));
-		return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK);
+		return getResponseBuilder().buildResponse(req, response, "application/json", outputString, HttpServletResponse.SC_OK);
     }
 
     public String retrieveResults (RasQueryParameters queryParams) throws ServletException, InternalServletException{

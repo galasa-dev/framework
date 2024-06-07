@@ -44,7 +44,7 @@ public class RunLogRoute extends RunsRoute {
         String runId = matcher.group(1);
         String runLog = getRunlog(runId);
         if (runLog != null) {
-            return getResponseBuilder().buildResponse(res, "text/plain", runLog, HttpServletResponse.SC_OK);
+            return getResponseBuilder().buildResponse(req, res, "text/plain", runLog, HttpServletResponse.SC_OK);
         } else {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);

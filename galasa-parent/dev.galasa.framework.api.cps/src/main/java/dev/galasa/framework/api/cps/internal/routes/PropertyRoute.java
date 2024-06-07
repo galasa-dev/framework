@@ -50,7 +50,7 @@ public class PropertyRoute extends CPSRoute{
         String namespace = getNamespaceFromURL(pathInfo);
         String properties = getNamespaceProperties(namespace, queryParams);
         checkNamespaceExists(namespace);
-        return getResponseBuilder().buildResponse(response, "application/json", properties, HttpServletResponse.SC_OK); 
+        return getResponseBuilder().buildResponse(req, response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
 
     private String getNamespaceProperties(String namespaceName, QueryParameters queryParams) throws InternalServletException{
@@ -176,7 +176,7 @@ public class PropertyRoute extends CPSRoute{
         body.close();
         CPSProperty property = applyPropertyToStore(jsonString, namespaceName, false);
         String responseBody = String.format("Successfully created property %s in %s",property.getName(), property.getNamespace());
-        return getResponseBuilder().buildResponse(response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
+        return getResponseBuilder().buildResponse(request, response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
     }
 
 }

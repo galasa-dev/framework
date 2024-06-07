@@ -100,7 +100,7 @@ public class AuthRoute extends BaseRoute {
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
 
-        return getResponseBuilder().buildResponse(response, null, null, HttpServletResponse.SC_FOUND);
+        return getResponseBuilder().buildResponse(request, response, null, null, HttpServletResponse.SC_FOUND);
     }
 
     /**
@@ -154,7 +154,7 @@ public class AuthRoute extends BaseRoute {
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
 
-        return getResponseBuilder().buildResponse(response, "application/json", gson.toJson(responseJson), HttpServletResponse.SC_OK);
+        return getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(responseJson), HttpServletResponse.SC_OK);
     }
 
     /**

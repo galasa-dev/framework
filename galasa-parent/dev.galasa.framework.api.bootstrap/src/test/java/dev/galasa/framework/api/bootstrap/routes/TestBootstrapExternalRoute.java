@@ -8,6 +8,7 @@ package dev.galasa.framework.api.bootstrap.routes;
 import dev.galasa.framework.api.bootstrap.BootstrapServletTest;
 import dev.galasa.framework.api.bootstrap.mocks.MockBootstrapServlet;
 import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.spi.FrameworkException;
 
@@ -26,13 +27,15 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
     @Test
     public void TestBootstrapExternalRouteHandleGetRequestReturnsOK () throws ServletException, IOException, FrameworkException{
         // Given...
+        String pathInfo = "/bootstrap/external";
         ResponseBuilder responseBuilder = new ResponseBuilder();
         BootstrapExternalRoute route = new BootstrapExternalRoute(responseBuilder);
         HttpServletResponse response = (HttpServletResponse) new MockHttpServletResponse();
+        HttpServletRequest req = (HttpServletRequest) new MockHttpServletRequest(pathInfo);
         ServletOutputStream outStream = response.getOutputStream();
 
         // When...
-        response = route.handleGetRequest("/bootstrap/external",null,null,response);
+        response = route.handleGetRequest(pathInfo,null,req,response);
 
         // Then...
         String output = outStream.toString();
@@ -58,7 +61,6 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
         String output = outStream.toString();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).contains("#Galasa Bootstrap Properties");
         assertThat(output).doesNotContain("framework.config.store=mystore\n",
             "framework.extra.bundles=more.bundles\n",

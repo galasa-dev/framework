@@ -42,7 +42,7 @@ public class JwtAuthFilter implements Filter {
 
     private static final Map<String, List<String>> UNAUTHENTICATED_ROUTES = UnauthenticatedRoute.getRoutesAsMap();
 
-    private ResponseBuilder responseBuilder = new ResponseBuilder();
+    protected ResponseBuilder responseBuilder = new ResponseBuilder();
 
     protected Environment env = new SystemEnvironment();
 
@@ -99,7 +99,7 @@ public class JwtAuthFilter implements Filter {
             chain.doFilter(request, response);
         } else {
             // The JWT is not valid or something went wrong, so return the error response
-            responseBuilder.buildResponse(servletResponse, "application/json", errorString, httpStatusCode);
+            responseBuilder.buildResponse(servletRequest, servletResponse, "application/json", errorString, httpStatusCode);
         }
     }
 

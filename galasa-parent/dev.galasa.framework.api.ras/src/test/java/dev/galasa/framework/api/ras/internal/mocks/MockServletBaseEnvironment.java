@@ -10,7 +10,9 @@ import dev.galasa.framework.spi.IRunResult;
 
 import java.io.PrintWriter;
 
+import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.IServletUnderTest;
+import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
@@ -87,7 +89,9 @@ public abstract class MockServletBaseEnvironment {
     }
 
     public RasServlet getRasServlet() {
-        return (RasServlet)this.servlet;
+        RasServlet rasServlet = (RasServlet)this.servlet;
+        rasServlet.setResponseBuilder(new ResponseBuilder(new MockEnvironment()));
+        return rasServlet;
     }
 
     public void setMockInputs(List<IRunResult> mockInpResults) {

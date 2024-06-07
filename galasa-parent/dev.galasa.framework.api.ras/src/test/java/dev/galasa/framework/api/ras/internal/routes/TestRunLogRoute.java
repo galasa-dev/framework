@@ -237,7 +237,6 @@ public class TestRunLogRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(runLog);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -261,7 +260,6 @@ public class TestRunLogRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEmpty();
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -290,7 +288,6 @@ public class TestRunLogRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "runA");
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -320,6 +317,5 @@ public class TestRunLogRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 }
