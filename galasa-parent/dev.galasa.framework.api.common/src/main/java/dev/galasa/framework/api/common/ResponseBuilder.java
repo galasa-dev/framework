@@ -6,6 +6,8 @@
 package dev.galasa.framework.api.common;
 
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,7 +86,7 @@ public class ResponseBuilder {
     private String validateRequestOrigin(HttpServletRequest req) {
         String requestOrigin = req.getHeader(ORIGIN_HEADER);
         if (requestOrigin == null || !isOriginAllowed(requestOrigin)) {
-            logger.error("Request origin is not permitted to receive responses");
+            logger.error("Request origin is not set or is not permitted to receive responses");
             requestOrigin = null;
         }
         return requestOrigin;
@@ -92,21 +94,29 @@ public class ResponseBuilder {
 
     private boolean isOriginAllowed(String requestOrigin) {
         boolean isAllowed = false;
-        for (String allowedOrigin : allowedOrigins) {
-            if (allowedOrigin.startsWith("*")) {
-                // If the allowed origin is of the form '*.example.com', remove the '*' and compare suffixes
-                String allowedOriginSuffix = allowedOrigin.substring(1);
-                isAllowed = requestOrigin.endsWith(allowedOriginSuffix);
-            } else {
-                // The allowed origin is of the form '<scheme>://<hostname>' or '<scheme>://<hostname>:<port>',
-                // so compare the origins exactly as they are
-                isAllowed = requestOrigin.equals(allowedOrigin);
-            }
+        try {
+            // Validate that the provided origin is a valid URI
+            new URI(requestOrigin);
 
-            // We've matched the origin, so break out of the loop
-            if (isAllowed) {
-                break;
+            for (String allowedOrigin : allowedOrigins) {
+                if (allowedOrigin.startsWith("*")) {
+                    // If the allowed origin is of the form '*.example.com', remove the '*' and compare suffixes
+                    String allowedOriginSuffix = allowedOrigin.substring(1);
+                    isAllowed = requestOrigin.endsWith(allowedOriginSuffix);
+                } else {
+                    // The allowed origin is of the form '<scheme>://<hostname>' or '<scheme>://<hostname>:<port>',
+                    // so compare the origins exactly as they are
+                    isAllowed = requestOrigin.equals(allowedOrigin);
+                }
+
+                // We've matched the origin, so break out of the loop
+                if (isAllowed) {
+                    break;
+                }
             }
+        } catch (URISyntaxException e) {
+            logger.error("Invalid request origin provided");
+            isAllowed = false;
         }
         return isAllowed;
     }

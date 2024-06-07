@@ -120,7 +120,7 @@ public class AuthTokensRoute extends BaseRoute {
         JsonObject responseJson = new JsonObject();
         try {
             // Send a POST request to Dex's /token endpoint
-            JsonObject tokenResponseBodyJson = sendTokenPost(request, requestPayload);
+            JsonObject tokenResponseBodyJson = sendTokenPost(requestPayload);
 
             // Return the JWT and refresh token as the servlet's response
             if (tokenResponseBodyJson != null && tokenResponseBodyJson.has(ID_TOKEN_KEY) && tokenResponseBodyJson.has(REFRESH_TOKEN_KEY)) {
@@ -196,7 +196,7 @@ public class AuthTokensRoute extends BaseRoute {
      * @param requestBodyJson the request payload containing the required parameters
      *                        for the /token endpoint
      */
-    private JsonObject sendTokenPost(HttpServletRequest request, TokenPayload requestBodyJson)
+    private JsonObject sendTokenPost(TokenPayload requestBodyJson)
             throws IOException, InterruptedException, InternalServletException {
         String refreshToken = requestBodyJson.getRefreshToken();
         String clientId = requestBodyJson.getClientId();
