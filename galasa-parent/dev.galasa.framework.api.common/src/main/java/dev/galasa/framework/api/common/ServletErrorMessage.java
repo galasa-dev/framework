@@ -94,6 +94,7 @@ public enum ServletErrorMessage {
     GAL5059_INVALID_ISSUER_URI_PROVIDED               (5059, "E: Invalid Galasa Dex server URL provided. This could be because the Galasa Ecosystem is badly configured. Report the problem to your Galasa Ecosystem owner."),
     GAL5060_INVALID_OIDC_URI_RECEIVED                 (5060, "E: Internal server error. Invalid OpenID Connect URL received from the Galasa Dex server. Report the problem to your Galasa Ecosystem owner."),
     GAL5061_MISMATCHED_OIDC_URI_RECEIVED              (5061, "E: Internal server error. OpenID Connect URL received from the Galasa Dex server does not match the expected Dex server scheme or host. Report the problem to your Galasa Ecosystem owner."),
+    GAL5062_INVALID_TOKEN_REQUEST_BODY                (5062, "E: Invalid request body provided. Please ensure that you have provided a client ID and either a refresh token or a authorization code in your request. Allowable characters for these parameters are 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), and '_' (underscore)"),
     ;
 
 

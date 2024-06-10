@@ -72,9 +72,9 @@ public class OidcProvider implements IOidcProvider {
     private ITimeService timeService;
 
     private URI issuerUrl;
-    private String authorizationEndpoint;
-    private String tokenEndpoint;
-    private String jwksUri;
+    private URI authorizationEndpoint;
+    private URI tokenEndpoint;
+    private URI jwksUri;
 
     private HttpClient httpClient = HttpClient.newHttpClient();
 
@@ -84,9 +84,9 @@ public class OidcProvider implements IOidcProvider {
             this.httpClient = httpClient;
             this.timeService = timeService;
 
-            this.authorizationEndpoint = issuerUrl + "/auth";
-            this.tokenEndpoint = issuerUrl + "/token";
-            this.jwksUri = issuerUrl + "/keys";
+            this.authorizationEndpoint = URI.create(issuerUrl + "/auth");
+            this.tokenEndpoint = URI.create(issuerUrl + "/token");
+            this.jwksUri = URI.create(issuerUrl + "/keys");
 
             JsonObject openIdConfiguration = getOpenIdConfiguration();
             if (openIdConfiguration != null) {
@@ -118,11 +118,11 @@ public class OidcProvider implements IOidcProvider {
      * endpoint and return the JSON response.
      */
     public JsonObject getOpenIdConfiguration() throws IOException, InterruptedException {
-        String openIdConfigurationUrl = issuerUrl + "/.well-known/openid-configuration";
+        URI openIdConfigurationUrl = URI.create(issuerUrl + "/.well-known/openid-configuration");
         JsonObject responseJson = null;
 
         logger.info("Sending GET request to " + openIdConfigurationUrl);
-        HttpResponse<String> response = sendGetRequest(URI.create(openIdConfigurationUrl));
+        HttpResponse<String> response = sendGetRequest(openIdConfigurationUrl);
         if (response.statusCode() == HttpServletResponse.SC_OK) {
             logger.info("OpenID configuration received successfully");
             responseJson = gson.fromJson(response.body(), JsonObject.class);
@@ -139,7 +139,7 @@ public class OidcProvider implements IOidcProvider {
     public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpSession session) throws IOException, InterruptedException {
         logger.info("Sending GET request to " + authorizationEndpoint);
 
-        HttpResponse<String> authResponse = sendAuthorizationGet(clientId, callbackUrl.toString(), session);
+        HttpResponse<String> authResponse = sendAuthorizationGet(clientId, callbackUrl, session);
         String redirectUrl = getLocationHeaderFromResponse(authResponse);
 
         // In case the "Location" header contains a relative URI, get an absolute URI from the response
@@ -159,7 +159,7 @@ public class OidcProvider implements IOidcProvider {
         String state = RandomStringUtils.randomAlphanumeric(32);
         String queryParams = "?response_type=code"
             + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
-            + "&redirect_uri=" + callbackUrl
+            + "&redirect_uri=" + URLEncoder.encode(callbackUrl, StandardCharsets.UTF_8)
             + "&scope=" + URLEncoder.encode(BEARER_TOKEN_SCOPE, StandardCharsets.UTF_8)
             + "&state=" + state;
 
@@ -181,14 +181,14 @@ public class OidcProvider implements IOidcProvider {
         // Convert the request's JSON object to the application/x-www-form-urlencoded content type
         // as required by the /token endpoint.
         sbRequestBody.append("grant_type=refresh_token");
-        sbRequestBody.append("&client_id=" + clientId);
-        sbRequestBody.append("&client_secret=" + clientSecret);
-        sbRequestBody.append("&refresh_token=" + refreshToken);
+        sbRequestBody.append("&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8));
+        sbRequestBody.append("&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8));
+        sbRequestBody.append("&refresh_token=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8));
 
         logger.info("Sending POST request to '" + tokenEndpoint + "' for client with ID '" + clientId + "'");
 
         // Create a POST request to the /token endpoint
-        return sendPostRequest(sbRequestBody.toString(), "application/x-www-form-urlencoded", URI.create(tokenEndpoint));
+        return sendPostRequest(sbRequestBody.toString(), "application/x-www-form-urlencoded", tokenEndpoint);
     }
 
     /**
@@ -201,15 +201,15 @@ public class OidcProvider implements IOidcProvider {
         // Convert the request's JSON object to the application/x-www-form-urlencoded content type
         // as required by the /token endpoint.
         sbRequestBody.append("grant_type=authorization_code");
-        sbRequestBody.append("&code=" + authCode);
-        sbRequestBody.append("&client_id=" + clientId);
-        sbRequestBody.append("&client_secret=" + clientSecret);
-        sbRequestBody.append("&redirect_uri=" + redirectUri);
+        sbRequestBody.append("&code=" + URLEncoder.encode(authCode, StandardCharsets.UTF_8));
+        sbRequestBody.append("&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8));
+        sbRequestBody.append("&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8));
+        sbRequestBody.append("&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8));
 
         logger.info("Sending POST request to '" + tokenEndpoint + "' for client with ID '" + clientId + "'");
 
         // Create a POST request to the /token endpoint
-        return sendPostRequest(sbRequestBody.toString(), "application/x-www-form-urlencoded", URI.create(tokenEndpoint));
+        return sendPostRequest(sbRequestBody.toString(), "application/x-www-form-urlencoded", tokenEndpoint);
     }
 
     /**
@@ -220,7 +220,7 @@ public class OidcProvider implements IOidcProvider {
         HttpRequest getRequest = HttpRequest.newBuilder()
             .GET()
             .header("Accept", "application/json")
-            .uri(URI.create(jwksUri))
+            .uri(jwksUri)
             .build();
 
         // Send a GET request to the issuer's /keys endpoint
@@ -380,7 +380,7 @@ public class OidcProvider implements IOidcProvider {
      * @return the validated URL
      * @throws ServletException if the URL is not valid
      */
-    private String getValidatedUrl(String urlToValidate) throws ServletException {
+    private URI getValidatedUrl(String urlToValidate) throws ServletException {
         try {
             URI uri = new URI(urlToValidate);
             if (!uri.getScheme().equals(issuerUrl.getScheme())
@@ -390,7 +390,7 @@ public class OidcProvider implements IOidcProvider {
                 throw new ServletException(error.getMessage());
             }
 
-            return uri.toString();
+            return uri;
         } catch (URISyntaxException e) {
             logger.error("Invalid URL received '" + urlToValidate + "'");
             ServletError error = new ServletError(GAL5060_INVALID_OIDC_URI_RECEIVED);
