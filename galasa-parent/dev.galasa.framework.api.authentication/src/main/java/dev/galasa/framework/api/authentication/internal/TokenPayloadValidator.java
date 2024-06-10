@@ -16,12 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public class TokenPayloadValidator implements IBeanValidator<TokenPayload> {
 
-    // Regex to match a non-empty string that can contain only:
-    // - Alphanumeric characters
-    // - '-' (dashes)
-    // - '_' (underscores)
-    private static final String ALPHANUM_DASHES_PATTERN = "^[a-zA-Z0-9\\-_]+$";
-
     @Override
     public void validate(TokenPayload tokenPayload) throws InternalServletException {
         boolean isValid = false;
@@ -30,10 +24,10 @@ public class TokenPayloadValidator implements IBeanValidator<TokenPayload> {
             String refreshToken = tokenPayload.getRefreshToken();
             String authCode = tokenPayload.getCode();
     
-            if (clientId != null && clientId.matches(ALPHANUM_DASHES_PATTERN)) {
+            if (clientId != null && isAlphanumWithDashes(clientId)) {
                 // The refresh token and authorization code parameters are mutually exclusive
-                isValid = ((refreshToken != null && refreshToken.matches(ALPHANUM_DASHES_PATTERN) && authCode == null)
-                    || (authCode != null && authCode.matches(ALPHANUM_DASHES_PATTERN) && refreshToken == null));
+                isValid = ((refreshToken != null && isAlphanumWithDashes(refreshToken) && authCode == null)
+                    || (authCode != null && isAlphanumWithDashes(authCode) && refreshToken == null));
             }
         }
 
@@ -41,5 +35,22 @@ public class TokenPayloadValidator implements IBeanValidator<TokenPayload> {
             ServletError error = new ServletError(GAL5062_INVALID_TOKEN_REQUEST_BODY);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
+    }
+
+    /**
+     * Checks whether a given string contains only alphanumeric characters, '-', and '_'
+     * 
+     * @param str the string to validate
+     * @return true if the string contains only alphanumeric characters, '-', and '_', or false otherwise
+     */
+    private boolean isAlphanumWithDashes(String str) {
+        boolean isValid = true;
+        for (char c : str.toCharArray()) {
+            if (!Character.isLetterOrDigit(c) && c != '-' && c != '_') {
+                isValid = false;
+                break;
+            }
+        }
+        return isValid;
     }
 }
