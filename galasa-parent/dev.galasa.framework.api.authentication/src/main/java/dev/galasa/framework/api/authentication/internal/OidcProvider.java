@@ -181,9 +181,9 @@ public class OidcProvider implements IOidcProvider {
         // Convert the request's JSON object to the application/x-www-form-urlencoded content type
         // as required by the /token endpoint.
         sbRequestBody.append("grant_type=refresh_token");
-        sbRequestBody.append("&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8));
-        sbRequestBody.append("&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8));
-        sbRequestBody.append("&refresh_token=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8));
+        sbRequestBody.append("&client_id=" + clientId);
+        sbRequestBody.append("&client_secret=" + clientSecret);
+        sbRequestBody.append("&refresh_token=" + refreshToken);
 
         logger.info("Sending POST request to '" + tokenEndpoint + "' for client with ID '" + clientId + "'");
 
@@ -201,9 +201,9 @@ public class OidcProvider implements IOidcProvider {
         // Convert the request's JSON object to the application/x-www-form-urlencoded content type
         // as required by the /token endpoint.
         sbRequestBody.append("grant_type=authorization_code");
-        sbRequestBody.append("&code=" + URLEncoder.encode(authCode, StandardCharsets.UTF_8));
-        sbRequestBody.append("&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8));
-        sbRequestBody.append("&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8));
+        sbRequestBody.append("&code=" + authCode);
+        sbRequestBody.append("&client_id=" + clientId);
+        sbRequestBody.append("&client_secret=" + clientSecret);
         sbRequestBody.append("&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8));
 
         logger.info("Sending POST request to '" + tokenEndpoint + "' for client with ID '" + clientId + "'");
