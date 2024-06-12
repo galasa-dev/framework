@@ -2,8 +2,8 @@ plugins {
     id 'biz.aQute.bnd.builder'
     id 'galasa.api.server'
     id "com.google.protobuf" version "0.9.4"
-    id 'pmd'
     id("com.github.spotbugs") version "4.7.0"
+    id 'pmd'
 
     id 'java'
 }
@@ -24,6 +24,25 @@ dependencies {
     compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
 
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
+}
+
+pmd {
+  consoleOutput = true
+  toolVersion = "6.50.0"
+  ruleSetFiles = files("config/pmd/sdvrules.xml")
+  ruleSets = []
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+  excludeFilter = file("config/spotbugs/excludes.xml") 
+  reports {
+    xml {
+      enabled = true
+    }
+    html {
+      enabled = true
+    }
+  }
 }
 
 protobuf {
