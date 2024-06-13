@@ -227,7 +227,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         // Given...
         MockAuthenticationServlet servlet = new MockAuthenticationServlet();
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "", "POST");
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", "", "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
@@ -238,13 +238,112 @@ public class AuthTokensRouteTest extends BaseServletTest {
         // Then...
         // Expecting this json:
         // {
-        // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occured when trying to execute request
-        // '/auth'. Please check your request parameters or report the problem to your
-        // Galasa Ecosystem owner."
+        // "error_code" : 5411,
+        // "error_message" : "GAL5411E: ... The request body is empty."
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(411);
+        checkErrorStructure(outStream.toString(), 5411, "GAL5411E");
+    }
+
+    @Test
+    public void testAuthPostRequestWithBadlyFormattedClientIdReturnsBadRequestError() throws Exception {
+        // Given...
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
+
+        // Payload with a non-alphanumeric clientID
+        String payload = buildRequestPayload("&%[not a valid client ID]", "refreshtoken", null);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", payload, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5062,
+        // "error_message" : "GAL5062E: Invalid request body provided. ..."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E");
+        checkErrorStructure(outStream.toString(), 5062, "GAL5062E");
+    }
+
+    @Test
+    public void testAuthPostRequestWithBadlyFormattedRefreshTokenReturnsBadRequestError() throws Exception {
+        // Given...
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
+
+        // Payload with a non-alphanumeric refresh token
+        String payload = buildRequestPayload("dummy-id", "(not a valid refresh token)", null);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", payload, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5062,
+        // "error_message" : "GAL5062E: Invalid request body provided. ..."
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5062, "GAL5062E");
+    }
+
+    @Test
+    public void testAuthPostRequestWithBadlyFormattedAuthCodeReturnsBadRequestError() throws Exception {
+        // Given...
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
+
+        // Payload with a non-alphanumeric auth code
+        String payload = buildRequestPayload("dummy_id", "refresh-token", "$** not a valid auth code **@");
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", payload, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5062,
+        // "error_message" : "GAL5062E: Invalid request body provided. ..."
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5062, "GAL5062E");
+    }
+
+    @Test
+    public void testAuthPostRequestWithBothRefreshTokenAndAuthCodeReturnsBadRequestError() throws Exception {
+        // Given...
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
+
+        // The refresh token and auth code are mutually exclusive, so a bad request should be thrown when both are
+        // provided
+        String payload = buildRequestPayload("dummy-id", "refresh-token", "auth-code");
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", payload, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5062,
+        // "error_message" : "GAL5062E: Invalid request body provided. ..."
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5062, "GAL5062E");
     }
 
     @Test
@@ -265,13 +364,11 @@ public class AuthTokensRouteTest extends BaseServletTest {
         // Then...
         // Expecting this json:
         // {
-        // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occured when trying to execute request
-        // '/auth'. Please check your request parameters or report the problem to your
-        // Galasa Ecosystem owner."
+        // "error_code" : 5062,
+        // "error_message" : "GAL5062E: Invalid request body provided. ..."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E");
+        checkErrorStructure(outStream.toString(), 5062, "GAL5062E");
     }
 
     @Test

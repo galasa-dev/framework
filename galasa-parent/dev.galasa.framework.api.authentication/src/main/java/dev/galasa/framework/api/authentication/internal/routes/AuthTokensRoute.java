@@ -7,7 +7,6 @@ package dev.galasa.framework.api.authentication.internal.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
@@ -27,10 +26,12 @@ import com.google.gson.JsonParser;
 import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.JwtWrapper;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
+import dev.galasa.framework.api.authentication.internal.TokenPayloadValidator;
 import dev.galasa.framework.api.beans.TokenPayload;
 import dev.galasa.framework.api.common.AuthToken;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.IBeanValidator;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -50,6 +51,8 @@ public class AuthTokensRoute extends BaseRoute {
 
     private static final String ID_TOKEN_KEY      = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
+
+    private static final IBeanValidator<TokenPayload> validator = new TokenPayloadValidator();
 
     public AuthTokensRoute(
         ResponseBuilder responseBuilder,
@@ -111,11 +114,8 @@ public class AuthTokensRoute extends BaseRoute {
         logger.info("AuthRoute: handlePostRequest() entered.");
 
         // Check that the request body contains the required payload
-        TokenPayload requestPayload = getRequestBodyAsJson(request);
-        if (requestPayload == null || !isTokenPayloadValid(requestPayload)) {
-            ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
+        TokenPayload requestPayload = parseRequestBody(request, TokenPayload.class);
+        validator.validate(requestPayload);
 
         JsonObject responseJson = new JsonObject();
         try {
@@ -174,22 +174,6 @@ public class AuthTokensRoute extends BaseRoute {
     }
 
     /**
-     * Gets a given HTTP request's body as a JSON object.
-     */
-    private TokenPayload getRequestBodyAsJson(HttpServletRequest request) throws IOException {
-        StringBuilder sbRequestBody = new StringBuilder();
-        BufferedReader bodyReader = request.getReader();
-
-        String line = bodyReader.readLine();
-        while (line != null) {
-            sbRequestBody.append(line);
-            line = bodyReader.readLine();
-        }
-
-        return gson.fromJson(sbRequestBody.toString(), TokenPayload.class);
-    }
-
-    /**
      * Sends a POST request to the JWT issuer's /token endpoint and returns the
      * response's body as a JSON object.
      *
@@ -221,14 +205,6 @@ public class AuthTokensRoute extends BaseRoute {
             }
         }
         return response;
-    }
-
-    /**
-     * Checks if the POST request payload to pass to Dex's /token endpoint contains a client ID and either
-     * a refresh token or an authorization code.
-     */
-    private boolean isTokenPayloadValid(TokenPayload requestPayload) {
-        return (requestPayload.getClientId() != null) && (requestPayload.getRefreshToken() != null || requestPayload.getCode() != null);
     }
 
     /**
