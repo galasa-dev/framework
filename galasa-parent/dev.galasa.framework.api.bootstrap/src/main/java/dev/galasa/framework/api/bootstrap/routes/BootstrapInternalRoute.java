@@ -42,7 +42,7 @@ public class BootstrapInternalRoute extends BaseRoute {
         }
 
         actualBootstrap.store(response.getWriter(), "Galasa Bootstrap Properties");
-        response = getResponseBuilder().buildResponseHeaders(response, "text/plain", HttpServletResponse.SC_OK);
+        response = getResponseBuilder().buildResponseHeaders(request, response, "text/plain", HttpServletResponse.SC_OK);
         return response;
     }
 

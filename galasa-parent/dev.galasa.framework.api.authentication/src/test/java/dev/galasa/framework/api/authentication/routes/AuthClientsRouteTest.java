@@ -55,7 +55,7 @@ public class AuthClientsRouteTest extends BaseServletTest {
     public void testAuthClientsPostRequestReturnsClient() throws Exception {
         // Given...
         String clientId = "my-client-id";
-        String clientSecret = "my-client-secret";
+        String clientSecret = "my-client-secret"; // Mock value, not a secret //pragma: allowlist secret
         String redirectUri = "http://my.app/callback";
 
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer.url", clientId, clientSecret, redirectUri);

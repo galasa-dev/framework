@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
-  version : "0.34.0"
+  version : "0.35.0"
   description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
   contact:
     url: https://galasa.dev/support
@@ -81,8 +81,11 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
+    
+    # POST /auth is deprecated in favour of POST /auth/tokens and will be removed in a future release
     post:
       operationId: postAuthenticate
+      deprecated: true
       summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
       tags:
       - Authentication API
@@ -125,6 +128,8 @@ paths:
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
   /auth/callback:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getAuthenticateCallback
       summary: Callback endpoint used as part of an OAuth 2.0 authorization code flow, redirects to a callback URL with an authorization code as a query parameter.
@@ -165,6 +170,8 @@ paths:
                     error_message: "E: Error occured when trying to execute request '/auth/callback'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required query parameters are missing
   /auth/clients:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     post:
       operationId: postClients
       summary: Create a new Dex client to authenticate with.
@@ -207,6 +214,8 @@ paths:
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
   /auth/tokens:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getTokens
       summary: Get a list of tokens used for authenticating with the Galasa API server.
@@ -249,6 +258,52 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An error occured when trying to access the endpoint
+    post:
+      operationId: createToken
+      summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
+      tags:
+      - Authentication API
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthProperties'
+      responses:
+        '200':
+          description: Returns a JSON Object containing a JWT and refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/auth/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required body properties are missing
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+  /auth/tokens/{tokenId}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
     delete:
       operationId: deleteToken
       summary: Deletes a token which is used for authenticating with the Galasa API server.
@@ -1933,82 +1988,6 @@ paths:
                     error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
 ##################################################################################
-# WebUI API
-##################################################################################
-  /webui/worklist:
-    parameters:
-      - $ref: '#/components/parameters/ClientApiVersion'
-    get:
-      operationId: getWebuiWorklist
-      summary: Get the users Worklist
-      tags:
-        - WebUI Worklist API
-      responses:
-        '200':
-          description: Array of Worklist objects
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Worklist'
-        '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-
-    put:
-      operationId: addWebuiWorklistRunId
-      summary: Add RAS runId to Worklist
-      tags:
-        - WebUI Worklist API
-      parameters:
-        - name: runId
-          in: query
-          description: Run ID
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Run added to Worklist and updated Worklist returned
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Worklist'
-        '404':
-          description: Run not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-
-    delete:
-      operationId: deleteWebuiWorklistRunId
-      tags:
-        - WebUI Worklist API
-      summary: Remove RAS runId from Worklist
-      parameters:
-        - name: runId
-          in: query
-          description: Run Id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Run removed from Worklist and updated Worklist returned
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Worklist'
-        '404':
-          description: Run not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-##################################################################################
 # Bootstrap API
 ##################################################################################
   /bootstrap:
@@ -2071,7 +2050,6 @@ components:
           type: string
           description: The creation date and time of the auth token (e.g. "2024-04-01T12:25:00.123Z").
         owner:
-          type: object
           description: Details about the owner of the token.
           $ref: '#/components/schemas/User'
         description:
@@ -2365,26 +2343,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Run'
-    Worklist:
-      type: object
-      properties:
-        worklistItems:
-          type: array
-          items:
-            $ref: '#/components/schemas/WorklistItem'
-    WorklistItem:
-      type: object
-      properties:
-        runId:
-          type: string
-        runName:
-          type: string
-        shortName:
-          type: string
-        testClass:
-          type: string
-        result:
-          type: string
     Namespace:
       type: object
       properties:

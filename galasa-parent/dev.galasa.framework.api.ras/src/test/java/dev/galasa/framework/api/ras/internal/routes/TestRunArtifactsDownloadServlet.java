@@ -240,7 +240,6 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		checkErrorStructure(outStream.toString(), 5008, "GAL5008E", artifactPath, runName);
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test
@@ -274,7 +273,6 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		checkErrorStructure(outStream.toString(), 5009, "GAL5009E", artifactPath, runName);
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test
@@ -308,7 +306,6 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		checkErrorStructure(outStream.toString(), 5009, "GAL5009E", artifactPath, runName);
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -341,7 +338,6 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test
@@ -402,7 +398,6 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		checkErrorStructure(outStream.toString(), 5009, "GAL5009E", artifactPath, runName);
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test

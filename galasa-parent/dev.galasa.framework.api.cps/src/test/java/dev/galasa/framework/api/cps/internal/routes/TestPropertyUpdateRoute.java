@@ -214,7 +214,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
 		assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -240,7 +239,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
 		assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -268,7 +266,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         String output = outStream.toString();
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo(expectedJson);
     }
 
@@ -291,7 +288,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         String output = outStream.toString();
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo(expectedJson);
     }
 
@@ -312,7 +308,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // We expect data back
         assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -341,7 +336,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         String output = outStream.toString();
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo(expectedJson);
     }
 
@@ -362,7 +356,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         String output = outStream.toString();
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[]");
     }
 
@@ -383,7 +376,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         String output = outStream.toString();
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("[]");
     }
 
@@ -404,7 +396,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // We expect data back
         assertThat(resp.getStatus()).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -431,7 +422,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // We expect data back
         assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -458,7 +448,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // We expect data back
         assertThat(resp.getStatus()).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -490,7 +479,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
 		assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -517,7 +505,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
 		assertThat(resp.getStatus()).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -548,7 +535,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         String output = outStream.toString();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).isEqualTo("Successfully updated property property.5 in framework");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
     }
@@ -575,7 +561,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         String output = outStream.toString();
         assertThat(status).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).isEqualTo("Successfully updated property property.5 in secure");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();
     }
@@ -601,7 +586,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // We expect data back
         assertThat(resp.getStatus()==500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -632,7 +616,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         Integer status = resp.getStatus();
         assertThat(status).isEqualTo(404);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
        checkErrorStructure(
 			outStream.toString(),
 			5017,
@@ -660,7 +643,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // Then...
         assertThat(resp.getStatus()).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -687,7 +669,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // Then...
         assertThat(resp.getStatus()).isEqualTo(411);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -715,7 +696,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // Then...
         assertThat(resp.getStatus()).isEqualTo(411);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -746,7 +726,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
 		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         
 		checkErrorStructure(
 			outStream.toString(),
@@ -773,7 +752,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         // We expect data back
         assertThat(resp.getStatus()==500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -800,7 +778,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		// We expect an error back, because the API server couldn't find any Etcd store to Route
 		assertThat(resp.getStatus()).isEqualTo(500);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         
 		checkErrorStructure(
 			outStream.toString(),
@@ -827,7 +804,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		String output = outStream.toString();
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("Successfully deleted property bad.property in framework");
         
     }
@@ -853,7 +829,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         String output = outStream.toString();
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
         assertThat(output).isEqualTo("Successfully deleted property property.1 in framework");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isFalse(); 
     }
@@ -878,7 +853,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		String output = outStream.toString();
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 		assertThat(output).isEqualTo("Successfully deleted property property.1 in secure");
 		assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isFalse(); 
     }
@@ -907,7 +881,6 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		// We expect an error back, because the API server has thrown a ConfigurationPropertyStoreException
 		assertThat(resp.getStatus()).isEqualTo(405);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),

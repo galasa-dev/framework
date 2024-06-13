@@ -8,6 +8,7 @@ package dev.galasa.framework.api.authentication.internal;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
@@ -27,6 +28,7 @@ import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Optional;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -46,9 +48,12 @@ import com.google.gson.JsonSyntaxException;
 
 import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.internal.beans.JsonWebKey;
+import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.utils.SystemTimeService;
+
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 /**
  * A class that handles communications with an OpenID Connect (OIDC) Provider.
@@ -66,39 +71,45 @@ public class OidcProvider implements IOidcProvider {
     private Instant nextJwkRefresh = Instant.EPOCH;
     private ITimeService timeService;
 
-    private String issuerUrl;
-    private String authorizationEndpoint;
-    private String tokenEndpoint;
-    private String jwksUri;
+    private URI issuerUrl;
+    private URI authorizationEndpoint;
+    private URI tokenEndpoint;
+    private URI jwksUri;
 
     private HttpClient httpClient = HttpClient.newHttpClient();
 
-    public OidcProvider(String issuerUrl, HttpClient httpClient, ITimeService timeService) {
-        this.issuerUrl = issuerUrl;
-        this.httpClient = httpClient;
-        this.timeService = timeService;
-
-        this.authorizationEndpoint = issuerUrl + "/auth";
-        this.tokenEndpoint = issuerUrl + "/token";
-        this.jwksUri = issuerUrl + "/keys";
-
+    public OidcProvider(String issuerUrl, HttpClient httpClient, ITimeService timeService) throws ServletException {
         try {
+            this.issuerUrl = new URI(issuerUrl);
+            this.httpClient = httpClient;
+            this.timeService = timeService;
+
+            this.authorizationEndpoint = URI.create(issuerUrl + "/auth");
+            this.tokenEndpoint = URI.create(issuerUrl + "/token");
+            this.jwksUri = URI.create(issuerUrl + "/keys");
+
             JsonObject openIdConfiguration = getOpenIdConfiguration();
             if (openIdConfiguration != null) {
                 // The following endpoints are mandatory in OpenID configurations
-                this.authorizationEndpoint = openIdConfiguration.get("authorization_endpoint").getAsString();
-                this.tokenEndpoint = openIdConfiguration.get("token_endpoint").getAsString();
-                this.jwksUri = openIdConfiguration.get("jwks_uri").getAsString();
+                this.authorizationEndpoint = getValidatedUrl(openIdConfiguration.get("authorization_endpoint").getAsString());
+                this.tokenEndpoint = getValidatedUrl(openIdConfiguration.get("token_endpoint").getAsString());
+                this.jwksUri = getValidatedUrl(openIdConfiguration.get("jwks_uri").getAsString());
             }
+
         } catch (IOException | InterruptedException | JsonSyntaxException e) {
             logger.error("Unable to obtain issuer's OpenID configuration, using defaults");
+        } catch (URISyntaxException e) {
+            logger.error("Invalid Galasa Dex URL provided '" + issuerUrl + "'");
+            ServletError error = new ServletError(GAL5059_INVALID_ISSUER_URI_PROVIDED);
+            throw new ServletException(error.getMessage());
         }
+
         logger.info("Authorization endpoint is: " + this.authorizationEndpoint);
         logger.info("Token endpoint is: " + this.tokenEndpoint);
         logger.info("JWKs endpoint is: " + this.jwksUri);
     }
 
-    public OidcProvider(String issuerUrl, HttpClient httpClient) {
+    public OidcProvider(String issuerUrl, HttpClient httpClient) throws ServletException {
         this(issuerUrl, httpClient, new SystemTimeService());
     }
 
@@ -107,11 +118,11 @@ public class OidcProvider implements IOidcProvider {
      * endpoint and return the JSON response.
      */
     public JsonObject getOpenIdConfiguration() throws IOException, InterruptedException {
-        String openIdConfigurationUrl = issuerUrl + "/.well-known/openid-configuration";
+        URI openIdConfigurationUrl = URI.create(issuerUrl + "/.well-known/openid-configuration");
         JsonObject responseJson = null;
 
         logger.info("Sending GET request to " + openIdConfigurationUrl);
-        HttpResponse<String> response = sendGetRequest(URI.create(openIdConfigurationUrl));
+        HttpResponse<String> response = sendGetRequest(openIdConfigurationUrl);
         if (response.statusCode() == HttpServletResponse.SC_OK) {
             logger.info("OpenID configuration received successfully");
             responseJson = gson.fromJson(response.body(), JsonObject.class);
@@ -128,7 +139,7 @@ public class OidcProvider implements IOidcProvider {
     public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpSession session) throws IOException, InterruptedException {
         logger.info("Sending GET request to " + authorizationEndpoint);
 
-        HttpResponse<String> authResponse = sendAuthorizationGet(clientId, callbackUrl.toString(), session);
+        HttpResponse<String> authResponse = sendAuthorizationGet(clientId, callbackUrl, session);
         String redirectUrl = getLocationHeaderFromResponse(authResponse);
 
         // In case the "Location" header contains a relative URI, get an absolute URI from the response
@@ -148,7 +159,7 @@ public class OidcProvider implements IOidcProvider {
         String state = RandomStringUtils.randomAlphanumeric(32);
         String queryParams = "?response_type=code"
             + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
-            + "&redirect_uri=" + callbackUrl
+            + "&redirect_uri=" + URLEncoder.encode(callbackUrl, StandardCharsets.UTF_8)
             + "&scope=" + URLEncoder.encode(BEARER_TOKEN_SCOPE, StandardCharsets.UTF_8)
             + "&state=" + state;
 
@@ -177,7 +188,7 @@ public class OidcProvider implements IOidcProvider {
         logger.info("Sending POST request to '" + tokenEndpoint + "' for client with ID '" + clientId + "'");
 
         // Create a POST request to the /token endpoint
-        return sendPostRequest(sbRequestBody.toString(), "application/x-www-form-urlencoded", URI.create(tokenEndpoint));
+        return sendPostRequest(sbRequestBody.toString(), "application/x-www-form-urlencoded", tokenEndpoint);
     }
 
     /**
@@ -193,12 +204,12 @@ public class OidcProvider implements IOidcProvider {
         sbRequestBody.append("&code=" + authCode);
         sbRequestBody.append("&client_id=" + clientId);
         sbRequestBody.append("&client_secret=" + clientSecret);
-        sbRequestBody.append("&redirect_uri=" + redirectUri);
+        sbRequestBody.append("&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8));
 
         logger.info("Sending POST request to '" + tokenEndpoint + "' for client with ID '" + clientId + "'");
 
         // Create a POST request to the /token endpoint
-        return sendPostRequest(sbRequestBody.toString(), "application/x-www-form-urlencoded", URI.create(tokenEndpoint));
+        return sendPostRequest(sbRequestBody.toString(), "application/x-www-form-urlencoded", tokenEndpoint);
     }
 
     /**
@@ -209,7 +220,7 @@ public class OidcProvider implements IOidcProvider {
         HttpRequest getRequest = HttpRequest.newBuilder()
             .GET()
             .header("Accept", "application/json")
-            .uri(URI.create(jwksUri))
+            .uri(jwksUri)
             .build();
 
         // Send a GET request to the issuer's /keys endpoint
@@ -260,7 +271,7 @@ public class OidcProvider implements IOidcProvider {
             RSAPublicKey publicKey = getRSAPublicKeyFromIssuer(decodedJwt.getKeyId());
             if (publicKey != null) {
                 Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-                JWTVerifier verifier = JWT.require(algorithm).withIssuer(issuerUrl).build();
+                JWTVerifier verifier = JWT.require(algorithm).withIssuer(issuerUrl.toString()).build();
 
                 decodedJwt = verifier.verify(jwt);
                 isValid = (decodedJwt != null);
@@ -358,5 +369,32 @@ public class OidcProvider implements IOidcProvider {
 
         // Update the next refresh time by the refresh interval
         nextJwkRefresh = Instant.now().plus(JWK_REFRESH_INTERVAL_MINUTES, ChronoUnit.MINUTES);
+    }
+
+    /**
+     * Validates and returns the validated URL as a string. The validation checks that
+     * the given URL is a valid URL and its scheme and host matches the OpenID Connect
+     * issuer's scheme and host.
+     * 
+     * @param urlToValidate the URL to validate
+     * @return the validated URL
+     * @throws ServletException if the URL is not valid
+     */
+    private URI getValidatedUrl(String urlToValidate) throws ServletException {
+        try {
+            URI uri = new URI(urlToValidate);
+            if (!uri.getScheme().equals(issuerUrl.getScheme())
+                || !uri.getHost().equals(issuerUrl.getHost())) {
+                logger.error("URL '" + urlToValidate + "' does not match issuer scheme or hostname '" + issuerUrl + "'");
+                ServletError error = new ServletError(GAL5061_MISMATCHED_OIDC_URI_RECEIVED);
+                throw new ServletException(error.getMessage());
+            }
+
+            return uri;
+        } catch (URISyntaxException e) {
+            logger.error("Invalid URL received '" + urlToValidate + "'");
+            ServletError error = new ServletError(GAL5060_INVALID_OIDC_URI_RECEIVED);
+            throw new ServletException(error.getMessage());
+        }
     }
 }

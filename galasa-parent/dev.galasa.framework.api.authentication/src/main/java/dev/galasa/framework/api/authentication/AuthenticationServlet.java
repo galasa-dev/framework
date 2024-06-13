@@ -66,7 +66,7 @@ public class AuthenticationServlet extends BaseServlet {
         addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService, env));
         addRoute(new AuthClientsRoute(getResponseBuilder(), dexGrpcClient));
         addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl));
-        addRoute(new AuthTokensRoute(getResponseBuilder(), authStoreService));
+        addRoute(new AuthTokensRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService, env));
 
         logger.info("Galasa Authentication API initialised");
     }
@@ -74,8 +74,9 @@ public class AuthenticationServlet extends BaseServlet {
     /**
      * Initialises the OpenID Connect Provider and Dex gRPC client fields to allow
      * the authentication servlet to communicate with Dex.
+     * @throws ServletException if there was an issue contacting Dex
      */
-    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname, String externalWebUiUrl) {
+    protected void initialiseDexClients(String dexIssuerUrl, String dexGrpcHostname, String externalWebUiUrl) throws ServletException {
         this.oidcProvider = new OidcProvider(dexIssuerUrl, HttpClient.newHttpClient());
         this.dexGrpcClient = new DexGrpcClient(dexGrpcHostname, externalWebUiUrl);
     }

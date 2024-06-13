@@ -283,7 +283,6 @@ public class TestRequestorsRoute extends RasServletTest{
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test
@@ -311,7 +310,6 @@ public class TestRequestorsRoute extends RasServletTest{
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test
@@ -339,7 +337,6 @@ public class TestRequestorsRoute extends RasServletTest{
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test
@@ -368,7 +365,6 @@ public class TestRequestorsRoute extends RasServletTest{
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test
@@ -397,7 +393,6 @@ public class TestRequestorsRoute extends RasServletTest{
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test
@@ -426,7 +421,6 @@ public class TestRequestorsRoute extends RasServletTest{
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
     @Test
@@ -455,6 +449,5 @@ public class TestRequestorsRoute extends RasServletTest{
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 }

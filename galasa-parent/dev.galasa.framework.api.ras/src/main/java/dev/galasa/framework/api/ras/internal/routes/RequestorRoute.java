@@ -45,7 +45,7 @@ public class RequestorRoute extends RunsRoute {
     throws ServletException, IOException, FrameworkException {
         this.sortQueryParameterChecker = new RasQueryParameters(queryParams);
         String outputString = retrieveRequestors(queryParams);
-        return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
+        return getResponseBuilder().buildResponse(req, response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }
     
     private String retrieveRequestors(QueryParameters params) throws InternalServletException, ResultArchiveStoreException{

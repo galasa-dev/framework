@@ -66,8 +66,6 @@ public class Launcher {
     private static final String     LOCALMAVEN_OPTION         = "localmaven";
     private static final String     REMOTEMAVEN_OPTION        = "remotemaven";
     private static final String     TRACE_OPTION              = "trace";
-    private static final String     BACKUPCPS_OPTION          = "backupcps";
-    private static final String     RESTORECPS_OPTION         = "restorecps";
     private static final String     FILE_OPTION               = "f";
     private static final String     FILE_OPTION_LONG          = "file";
     private static final String     DRY_RUN_OPTION            = "dryrun";
@@ -99,8 +97,6 @@ public class Launcher {
     private boolean                 dockerController;
     private boolean                 metricsServer;
     private boolean                 api;
-    private boolean                 backupCPS;
-    private boolean                 restoreCPS;
     private boolean                 dryRun;
     private boolean                 setupEco;
     private boolean                 validateEco;
@@ -189,11 +185,6 @@ public class Launcher {
             } else if (api) {
                 logger.debug("Web API Server");
                 felixFramework.runWebApiServer(bootstrapProperties, overridesProperties, bundles, metrics, health);
-            } else if (backupCPS) {
-                logger.debug("Back Up CPS Properties");
-                felixFramework.runBackupCPS(bootstrapProperties, overridesProperties, filePath);
-            } else if (restoreCPS) {
-                felixFramework.runRestoreCPS(bootstrapProperties, overridesProperties, filePath, dryRun);
             } else if (setupEco) {
                 felixFramework.runSetupEcosystem(bootstrapProperties, overridesProperties);
             } else if (validateEco) {
@@ -268,8 +259,6 @@ public class Launcher {
         options.addOption(null, LOCALMAVEN_OPTION, true, "The local maven repository, defaults to ~/.m2/repository");
         options.addOption(null, REMOTEMAVEN_OPTION, true, "The remote maven repositories, defaults to central");
         options.addOption(null, TRACE_OPTION, false, "Enable TRACE logging");
-        options.addOption(null, BACKUPCPS_OPTION, false, "Back up CPS properties to file");
-        options.addOption(null, RESTORECPS_OPTION, false, "Restore CPS properties from file");
         options.addOption(FILE_OPTION, FILE_OPTION_LONG, true, "File for data input/output");
         options.addOption(null, DRY_RUN_OPTION, false, "Perform a dry-run of the specified actions. Can be combined with \"" + FILE_OPTION_LONG + "\"");
         options.addOption(null, SETUPECO_OPTION, false, "Setup the Galasa Ecosystem");
@@ -315,8 +304,6 @@ public class Launcher {
         dockerController = commandLine.hasOption(DOCKERCONTROLLER_OPTION);
         metricsServer = commandLine.hasOption(METRICSERVER_OPTION);
         api = commandLine.hasOption(API_OPTION);
-        backupCPS = commandLine.hasOption(BACKUPCPS_OPTION);
-        restoreCPS = commandLine.hasOption(RESTORECPS_OPTION);
         dryRun = commandLine.hasOption(DRY_RUN_OPTION);
         setupEco = commandLine.hasOption(SETUPECO_OPTION);
         validateEco = commandLine.hasOption(VALIDATEECO_OPTION);
@@ -366,22 +353,6 @@ public class Launcher {
         if (api) {
             return;
         }
-
-        if (backupCPS || restoreCPS) {
-            if (backupCPS && restoreCPS) {
-                commandLineError("Cannot use options \"" + BACKUPCPS_OPTION + "\" and \"" + RESTORECPS_OPTION + "\" together.");
-            } else {
-                filePath = commandLine.getOptionValue(FILE_OPTION);
-                if (filePath == null) {
-                    if (backupCPS) { 
-                        filePathError(BACKUPCPS_OPTION);
-                    } else {
-                        filePathError(RESTORECPS_OPTION);
-                    }
-                }
-            }
-            return;
-        }
         
         if (setupEco) {
             return;
@@ -389,12 +360,6 @@ public class Launcher {
 
         if (validateEco) {
             return;
-        }
-
-        if (dryRun) {
-        	commandLineError(
-        			"Must be combined with \"" + RESTORECPS_OPTION + "\"");
-        	return;
         }
 
         commandLineError(
@@ -405,10 +370,9 @@ public class Launcher {
                 		+ ", --" + METRICSERVER_OPTION
                 		+ ", --" + RESOURCEMANAGEMENT_OPTION
                 		+ ", --" + BUNDLE_OPTION
-                        + ", --" + BACKUPCPS_OPTION
                         + ", --" + SETUPECO_OPTION
                         + ", --" + VALIDATEECO_OPTION
-                		+ ", or --" + RESTORECPS_OPTION);
+                        );
     }
     
     private void filePathError(String option) {

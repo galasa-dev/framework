@@ -95,13 +95,11 @@ public class AuthRouteTest extends BaseServletTest {
         // Then...
         // Expecting this json:
         // {
-        // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occured when trying to execute request
-        // '/auth'. Please check your request parameters or report the problem to your
-        // Galasa Ecosystem owner."
+        // "error_code" : 5062,
+        // "error_message" : "GAL5411E: ... The request body is empty."
         // }
-        assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E");
+        assertThat(servletResponse.getStatus()).isEqualTo(411);
+        checkErrorStructure(outStream.toString(), 5411, "GAL5411E");
     }
 
     @Test
@@ -122,13 +120,11 @@ public class AuthRouteTest extends BaseServletTest {
         // Then...
         // Expecting this json:
         // {
-        // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occured when trying to execute request
-        // '/auth'. Please check your request parameters or report the problem to your
-        // Galasa Ecosystem owner."
+        // "error_code" : 5062,
+        // "error_message" : "GAL5062E: Invalid request body provided. ..."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E");
+        checkErrorStructure(outStream.toString(), 5062, "GAL5062E");
     }
 
     @Test
@@ -141,7 +137,7 @@ public class AuthRouteTest extends BaseServletTest {
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(mockResponseJson);
 
         String clientId = "dummy-id";
-        String clientSecret = "asecret";
+        String clientSecret = "asecret"; // Mock value, not a secret //pragma: allowlist secret
         String refreshToken = "here-is-a-token";
 
         MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
@@ -197,7 +193,7 @@ public class AuthRouteTest extends BaseServletTest {
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(mockResponseJson);
 
         String clientId = "dummy-id";
-        String clientSecret = "asecret";
+        String clientSecret = "asecret"; // Mock value, not a secret //pragma: allowlist secret
         String authCode = "thisisacode";
 
         String callbackUri = "http://api.host/auth/callback";
@@ -255,7 +251,7 @@ public class AuthRouteTest extends BaseServletTest {
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(mockResponseJson);
 
         String clientId = "dummy-id";
-        String clientSecret = "asecret";
+        String clientSecret = "asecret";// Mock value, not a secret //pragma: allowlist secret
         String authCode = "thisisacode";
 
         String callbackUri = "http://api.host/auth/callback";
@@ -317,7 +313,7 @@ public class AuthRouteTest extends BaseServletTest {
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(mockResponseJson);
 
         String clientId = "dummy-id";
-        String clientSecret = "asecret";
+        String clientSecret = "asecret"; // Mock value, not a secret //pragma: allowlist secret
         String authCode = "thisisacode";
 
         String callbackUri = "http://api.host/auth/callback";

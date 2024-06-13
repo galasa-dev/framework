@@ -17,6 +17,7 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 
 public abstract class BaseRoute implements IRoute {
@@ -89,5 +90,28 @@ public abstract class BaseRoute implements IRoute {
             throw new InternalServletException(error, HttpServletResponse.SC_LENGTH_REQUIRED);
         }
         return valid;
+    }
+
+    /**
+     * Parses a given HTTP request's body into a bean object
+     * 
+     * @param request the HTTP request to be parsed
+     * @param clazz the bean class to parse the request body into
+     * @return the parsed HTTP request body
+     * @throws IOException if there is an issue reading the request body
+     * @throws InternalServletException if the request does not contain a body
+     */
+    protected <T> T parseRequestBody(HttpServletRequest request, Class<T> clazz) throws IOException, InternalServletException {
+        StringBuilder sbRequestBody = new StringBuilder();
+        checkRequestHasContent(request);
+
+        try (BufferedReader bodyReader = request.getReader()) {
+            String line = bodyReader.readLine();
+            while (line != null) {
+                sbRequestBody.append(line);
+                line = bodyReader.readLine();
+            }
+        }
+        return gson.fromJson(sbRequestBody.toString(), clazz);
     }
 }

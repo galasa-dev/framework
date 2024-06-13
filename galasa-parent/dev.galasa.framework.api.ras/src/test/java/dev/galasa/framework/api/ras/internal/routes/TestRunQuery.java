@@ -119,7 +119,7 @@ public class TestRunQuery extends RasServletTest {
 		return runnames;
 	}
 
-	public String generateExpectedJson (List<IRunResult> mockInputRunResults, String[] pageSize,String[] pageNo){
+	public String generateExpectedJson (List<IRunResult> mockInputRunResults, String[] pageSize,String[] pageNo) throws ResultArchiveStoreException{
 		int resSize = Integer.parseInt(pageSize[0]);
 		double numPages = Math.ceil((double)mockInputRunResults.size()/resSize);
 		if (numPages == 0) {
@@ -163,7 +163,7 @@ public class TestRunQuery extends RasServletTest {
 						   "      }\n"+
 						   "    }";
 				} catch (ResultArchiveStoreException e) {
-					e.printStackTrace();
+					fail("Problem creating the test data we want to compare against.", e);
 				}
 				jsonResult = jsonResult+runData;
 			}
@@ -207,7 +207,6 @@ public class TestRunQuery extends RasServletTest {
 		);
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	private boolean checkIfSameOrder(String[] sortedList, String expectedResultString, String sortedElement){
@@ -419,7 +418,6 @@ public class TestRunQuery extends RasServletTest {
 		// We expect an error back, because the API server couldn't find any RAS database to query
 		assertThat(resp.getStatus()==500);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -448,7 +446,6 @@ public class TestRunQuery extends RasServletTest {
 		// We expect an error back, because the API server couldn't find any RAS database to query
 		assertThat(resp.getStatus()==500);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -486,7 +483,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -524,7 +520,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -569,7 +564,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -623,7 +617,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -668,7 +661,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -697,7 +689,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==400);
 		assertThat( outStream.toString() ).contains("GAL5010E: Error parsing the query parameters. from time is a mandatory field if no runname is supplied.");
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -731,7 +722,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -769,7 +759,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -807,7 +796,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -844,7 +832,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -901,7 +888,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -960,7 +946,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1010,7 +995,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1039,7 +1023,6 @@ public class TestRunQuery extends RasServletTest {
 		checkErrorStructure(outStream.toString(), 5004, "GAL5004E: ", "Error retrieving page.");
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1074,7 +1057,6 @@ public class TestRunQuery extends RasServletTest {
 		);
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1109,7 +1091,6 @@ public class TestRunQuery extends RasServletTest {
 		);
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1145,7 +1126,6 @@ public class TestRunQuery extends RasServletTest {
 		//Then...
 		assertThat(resp.getStatus()==404);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -1251,7 +1231,6 @@ public class TestRunQuery extends RasServletTest {
 		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
 		assertThat(resp.getStatus()==200);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
  		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 	}
 
@@ -1286,7 +1265,6 @@ public class TestRunQuery extends RasServletTest {
 		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
 		assertThat(resp.getStatus()==200);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
  		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 	}
 
@@ -1395,7 +1373,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat( outStream.toString() ).contains(expectedRunNames);
 		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1440,7 +1417,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1485,7 +1461,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1530,7 +1505,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1575,7 +1549,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1616,7 +1589,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1661,7 +1633,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1696,7 +1667,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==500);
 		assertThat( outStream.toString() ).contains("GAL5011E:","badsort");
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1731,7 +1701,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==500);
 		assertThat( outStream.toString() ).contains("GAL5011E:","to:erroneoussort");
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1771,7 +1740,6 @@ public class TestRunQuery extends RasServletTest {
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1813,7 +1781,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat( outStream.toString() ).contains(expectedRunNames);
 		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1857,7 +1824,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat( outStream.toString() ).contains(expectedRunNames);
 		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1901,7 +1867,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat( outStream.toString() ).contains(expectedRunNames);
 		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1941,7 +1906,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedRunNames);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -1983,7 +1947,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedRunNames);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
@@ -2025,7 +1988,6 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getStatus()==200);
 		assertThat( outStream.toString() ).isEqualTo(expectedRunNames);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
-		assertThat( resp.getHeader("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test

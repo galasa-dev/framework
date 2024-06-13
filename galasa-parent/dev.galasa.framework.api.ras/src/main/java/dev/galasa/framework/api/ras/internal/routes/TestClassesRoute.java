@@ -49,7 +49,7 @@ public class TestClassesRoute extends RunsRoute {
     throws ServletException, IOException, FrameworkException {
         this.sortQueryParameterChecker = new RasQueryParameters(queryParams);
         String outputString = TestClasses();
-        return getResponseBuilder().buildResponse(response, "application/json", outputString, HttpServletResponse.SC_OK); 
+        return getResponseBuilder().buildResponse(req, response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }
     
     private String TestClasses () throws ResultArchiveStoreException, ServletException, InternalServletException {

@@ -24,6 +24,7 @@ import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
+import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
@@ -35,6 +36,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
         public MockJwtAuthFilter(Environment env, IOidcProvider oidcProvider) {
             super.env = env;
             super.oidcProvider = oidcProvider;
+            super.responseBuilder = new ResponseBuilder(env);
         }
     }
 
@@ -169,6 +171,51 @@ public class JwtAuthFilterTest extends BaseServletTest {
         assertThat(mockResponse.getStatus()).isEqualTo(200);
     }
 
+    @Test
+    public void testPostRequestToAuthTokensPassesThroughFilterAndReturnsOk() throws Exception {
+        // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+        String mockIssuerUrl = "http://dummy-issuer/dex";
+        mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
+
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
+
+        JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
+        HttpServletRequest mockRequest = new MockHttpServletRequest("/auth/tokens", "", "POST");
+        HttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        FilterChain mockChain = new MockFilterChain();
+
+        // When...
+        authFilter.init(null);
+        authFilter.doFilter(mockRequest, mockResponse, mockChain);
+
+        // Then...
+        assertThat(mockResponse.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void testGetRequestWithoutJwtToAuthTokensIsBlockedByFilter() throws Exception {
+        // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+        String mockIssuerUrl = "http://dummy-issuer/dex";
+        mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, mockIssuerUrl);
+
+        MockOidcProvider mockOidcProvider = new MockOidcProvider();
+
+        JwtAuthFilter authFilter = new MockJwtAuthFilter(mockEnv, mockOidcProvider);
+        HttpServletRequest mockRequest = new MockHttpServletRequest("/auth/tokens", "", "GET");
+        HttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        FilterChain mockChain = new MockFilterChain();
+
+        // When...
+        authFilter.init(null);
+        authFilter.doFilter(mockRequest, mockResponse, mockChain);
+
+        // Then...
+        assertThat(mockResponse.getStatus()).isEqualTo(401);
+    }
 
     @Test
     public void testRequestToProtectedAuthRouteIsProcessedInFilter() throws Exception {

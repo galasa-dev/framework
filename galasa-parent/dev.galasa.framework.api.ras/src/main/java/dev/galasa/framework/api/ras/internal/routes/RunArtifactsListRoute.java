@@ -67,7 +67,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
         Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);
-        return getResponseBuilder().buildResponse(res, "application/json", retrieveResults(runId), HttpServletResponse.SC_OK);
+        return getResponseBuilder().buildResponse(req, res, "application/json", retrieveResults(runId), HttpServletResponse.SC_OK);
     }
 
     private String retrieveResults(String runId) throws InternalServletException {
