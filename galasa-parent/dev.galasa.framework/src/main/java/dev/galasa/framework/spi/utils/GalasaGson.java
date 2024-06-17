@@ -6,12 +6,17 @@
 package dev.galasa.framework.spi.utils;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.io.Reader;
+
+import org.apache.commons.io.output.StringBuilderWriter;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 
 public class GalasaGson {
@@ -44,8 +49,8 @@ public class GalasaGson {
         return gson.fromJson(json,  classOfT);   
     }
     
-    public <T> T fromJson(InputStreamReader inputStreamReqader, Class<T> classOfT)  {
-        return gson.fromJson(inputStreamReqader,  classOfT);   
+    public <T> T fromJson(InputStreamReader inputStreamReader, Class<T> classOfT) throws IOException  {
+        return fromJson(readerToString(inputStreamReader),  classOfT);  
     }
     
     public <T> T fromJson(JsonObject jsonObject, Class<T> classOfT)  {
@@ -56,8 +61,8 @@ public class GalasaGson {
         return gson.fromJson(jsonReader,  classOfT);   
     }
     
-    public JsonObject fromJson(BufferedReader bufferedReader, Class<JsonObject> classOfT)  {
-        return gson.fromJson(bufferedReader,  classOfT);   
+    public JsonObject fromJson(BufferedReader bufferedReader, Class<JsonObject> classOfT) throws IOException  {
+        return fromJson(readerToString(bufferedReader),  classOfT);   
     }
 
     public JsonElement toJsonTree(Object obj){
@@ -66,5 +71,11 @@ public class GalasaGson {
 
     public JsonReader newJsonReader(StringReader stringReader) {
         return gson.newJsonReader(stringReader);
+    }
+
+    private String readerToString(Reader reader) throws IOException {
+        StringBuilderWriter writer = new StringBuilderWriter();
+        reader.transferTo(writer);
+        return writer.toString();
     }
 }
