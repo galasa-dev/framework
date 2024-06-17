@@ -7,7 +7,7 @@ package dev.galasa.framework.spi.language;
 
 import java.lang.reflect.Method;
 
-import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
+import dev.galasa.framework.spi.language.gherkin.GherkinScenario;
 
 public class GalasaMethod {
 
@@ -15,7 +15,7 @@ public class GalasaMethod {
 
     private Method javaTestMethod;
     private Method javaExecutionMethod;
-    private GherkinMethod gherkinMethod;
+    private GherkinScenario gherkinMethod;
 
     public GalasaMethod(Method executionMethod, Method testMethod) {
         this.javaTestMethod = testMethod;
@@ -23,7 +23,7 @@ public class GalasaMethod {
         this.language = GalasaLanguage.java;
     }
 
-    public GalasaMethod(GherkinMethod method) {
+    public GalasaMethod(GherkinScenario method) {
         this.gherkinMethod = method;
         this.language = GalasaLanguage.gherkin;
     }
@@ -48,7 +48,7 @@ public class GalasaMethod {
         return this.javaExecutionMethod;
     }
 
-    public GherkinMethod getGherkinMethod() {
+    public GherkinScenario getGherkinMethod() {
         return this.gherkinMethod;
     }
     

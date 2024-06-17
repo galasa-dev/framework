@@ -29,12 +29,29 @@ public class ParseToken {
         return this.type;
     }
 
+    public String toString() {
+        StringBuffer buff = new StringBuffer();
+
+        buff.append("token:");
+        buff.append(this.type.name());
+        buff.append(", line:");
+        buff.append(this.lineNumber);
+        buff.append(", text:");
+        buff.append(this.text);
+
+        return buff.toString();
+    }
+
     public String getText() {
         return this.text;
     }
 
     public int getLineNumber() {
         return this.lineNumber;
+    }
+
+    public List<ParseToken> getChildren() {
+        return this.children;
     }
 
     @Override
@@ -71,6 +88,10 @@ public class ParseToken {
 
     public void setLineNumber(int newLineNumber) {
         this.lineNumber = newLineNumber;
+    }
+
+    public void setText(String text) {
+        this.text = text ;
     }
 
 }

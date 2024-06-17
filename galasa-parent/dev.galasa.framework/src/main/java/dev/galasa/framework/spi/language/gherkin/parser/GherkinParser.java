@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import dev.galasa.framework.TestRunException;
 
 public class GherkinParser {
@@ -17,26 +20,46 @@ public class GherkinParser {
     private final LexicalScanner lex ;
     private final Stack<ParseToken> tokens = new Stack<ParseToken>();
 
+    private final static Log logger = LogFactory.getLog(GherkinParser.class);
+
     public GherkinParser(LexicalScanner lex) {
         this.lex = lex;
     }
 
     public void shift(ParseToken token) {
+        logger.debug("Parser: shifting token "+token.toString());
         tokens.add(token);
     }
 
-    public void reduce(int tokensToParent, ParseToken parentToken) {
+    public void reduce(int tokensToReduce, ParseToken parentToken) {
+        logger.debug("Parser: reducing "+Integer.toString(tokensToReduce));
         // Pull the last n elements off the parse stack.
         List<ParseToken> children = new ArrayList<ParseToken>();
-        for(int i=0;i<=tokensToParent;i+=1) {
+        while(tokensToReduce>0) {
             ParseToken token = tokens.pop();
             children.add(0,token);
+            tokensToReduce -=1;
         }
 
         // Set them into the parent token.
         parentToken.addChildren(children);
 
+        parentTokenInheritsChildAttributes(parentToken);
+
+        for(ParseToken childToken: parentToken.children) {
+            logger.debug("Parser:   child: "+childToken.toString());
+        }
+
         shift(parentToken);
+    }
+
+    private void parentTokenInheritsChildAttributes( ParseToken parentToken ) {
+        List<ParseToken> children = parentToken.getChildren();
+        if (children.size() > 0 ) {
+            ParseToken firstChild = children.get(0);
+            parentToken.setLineNumber( firstChild.getLineNumber() );
+            parentToken.setText( firstChild.getText());
+        }
     }
 
     // Returns a tree of parse token nodes as the abstract syntax tree representation.
@@ -56,16 +79,16 @@ public class GherkinParser {
                 // <feature> := FEATURE_START <scenarioPartList> @ END_OF_FILE
                 ParseToken token2 = lex.getNextToken();
                 if (token2.getType()!=TokenType.END_OF_FILE) {
-                    String msg = MessageFormat.format("Unexpected token {0} on line {1}",token2.getType(),token2.getLineNumber());
+                    String msg = MessageFormat.format("GHER001: Unexpected token {0} on line {1}",token2.getType(),token2.getLineNumber());
                     error(msg);
                 }
 
                 // <feature> := FEATURE_START <scenarioPartList> END_OF_FILE @
-                reduce(3,new ParseToken(TokenType.FEATURE, token.getText(), token.getLineNumber()));
+                reduce(2,new ParseToken(TokenType.FEATURE, token.getText(), token.getLineNumber()));
                 break;
 
             default:
-                String msg = MessageFormat.format("Expected a Feature: token on line {0}",Integer.toString(token.getLineNumber()));
+                String msg = MessageFormat.format("GHER002: Expected a `Feature:` token on line {0}",Integer.toString(token.getLineNumber()));
                 error(msg);
                 break;
         }
@@ -96,7 +119,7 @@ public class GherkinParser {
                 break;
 
             default:
-                String msg = MessageFormat.format("Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
+                String msg = MessageFormat.format("GHER003: Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
                 error(msg);
                 break;
         }
@@ -122,7 +145,7 @@ public class GherkinParser {
                 break;
 
             default:
-                String msg = MessageFormat.format("Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
+                String msg = MessageFormat.format("GHER004: Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
                 error(msg);
                 break;
         }
@@ -143,7 +166,7 @@ public class GherkinParser {
                 break;
 
             default:
-                String msg = MessageFormat.format("Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
+                String msg = MessageFormat.format("GHER005: Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
                 error(msg);
                 break;
         }
@@ -162,7 +185,7 @@ public class GherkinParser {
                 // <scenarioOutline> := SCENARIO_OUTLINE_START <stepList> @ EXAMPLES_START <dataTable>
                 ParseToken token2 = lex.getNextToken();
                 if (token.getType() != TokenType.EXAMPLES_START) {
-                    String msg = MessageFormat.format("Unexpected token {0} at line {1}", token2.getType(), Integer.toString(token2.getLineNumber()));
+                    String msg = MessageFormat.format("GHER006: Unexpected token {0} at line {1}", token2.getType(), Integer.toString(token2.getLineNumber()));
                     error(msg);
                 }
 
@@ -174,7 +197,7 @@ public class GherkinParser {
                 break;
 
             default:
-                String msg = MessageFormat.format("Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
+                String msg = MessageFormat.format("GHER007: Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
                 error(msg);
                 break;
         }
@@ -205,7 +228,7 @@ public class GherkinParser {
                 break;
 
             default:
-                String msg = MessageFormat.format("Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
+                String msg = MessageFormat.format("GHER008: Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
                 error(msg);
                 break;
         }

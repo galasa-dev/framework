@@ -10,10 +10,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class GherkinLexicalScanner implements LexicalScanner {
     private List<String> lines;
     private Iterator<String> linesWalker ;
     private int lineNumber ;
+    private final static Log logger = LogFactory.getLog(GherkinLexicalScanner.class);
 
     private List<TokenMatcher> tokenMatchers = List.of(
         new FeatureTokenMatcher(),
@@ -49,6 +53,8 @@ public class GherkinLexicalScanner implements LexicalScanner {
         if (token.getType() == TokenType.END_OF_FILE) {
             tokenStack.push(token);
         }
+
+        logger.debug("Lex: GetToken: Returning "+token.toString());
         return token ;
     }
 
@@ -95,6 +101,7 @@ public class GherkinLexicalScanner implements LexicalScanner {
     }
 
     public void pushBackToken(ParseToken token) {
+        logger.debug("Lex: pushBackToken: Pushing back token "+token.toString());
         tokenStack.push(token);
     }
 }

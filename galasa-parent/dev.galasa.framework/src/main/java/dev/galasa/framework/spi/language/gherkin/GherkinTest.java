@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.spi.language.gherkin.parser.*;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.FrameworkException;
@@ -27,6 +28,10 @@ import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.teststructure.TestGherkinMethod;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
+/**
+ * A GherkinTest is a complete Gherkin feature.
+ * It can have multiple scenarios, each of which has a number of steps.
+ */
 public class GherkinTest {
 
     private Log logger = LogFactory.getLog(GherkinTest.class);
@@ -36,7 +41,7 @@ public class GherkinTest {
     private final static Pattern examplesPattern = Pattern.compile("Examples:");
     private final static Pattern scenarioOutlinePattern = Pattern.compile("Scenario Outline:(.*)");
 
-    private List<GherkinMethod> methods;
+    private List<GherkinScenario> methods;
     private URI gherkinUri;
     private TestStructure testStructure;
     private Result result;
@@ -73,8 +78,8 @@ public class GherkinTest {
         parseGherkinSyntax(lines);
 
         List<TestGherkinMethod> structureMethods = new ArrayList<TestGherkinMethod>(this.methods.size());
-        for(GherkinMethod method : this.methods) {
-            structureMethods.add(method.getStructure());
+        for(GherkinScenario scenario : this.methods) {
+            structureMethods.add(scenario.getStructure());
         }
 
         this.testStructure.setGherkinMethods(structureMethods);
@@ -82,9 +87,8 @@ public class GherkinTest {
 
 
 
-
     private void parseGherkinSyntax(List<String> lines) throws TestRunException {
-        GherkinMethod currentMethod = null;
+        GherkinScenario currentMethod = null;
         Section currentSection = Section.FEATURE;
         boolean exampleHeaderLineProcessed = false;
 
@@ -115,7 +119,7 @@ public class GherkinTest {
             if (scenarioMatch.matches()) {
                 endSection(currentMethod, currentSection);                
                 currentSection = Section.SCENARIO;
-                currentMethod = new GherkinMethod(scenarioMatch.group(1).trim(), testName);
+                currentMethod = new GherkinScenario(scenarioMatch.group(1).trim(), testName);
                 continue;
             }
 
@@ -124,7 +128,7 @@ public class GherkinTest {
             if(scenarioOutlineMatch.matches()) {
                 endSection(currentMethod, currentSection);                
                 currentSection = Section.SCENARIO_OUTLINE;
-                currentMethod = new GherkinMethod(scenarioOutlineMatch.group(1).trim(), testName);
+                currentMethod = new GherkinScenario(scenarioOutlineMatch.group(1).trim(), testName);
                 continue;
             }
 
@@ -144,7 +148,7 @@ public class GherkinTest {
                 case SCENARIO:
                 case SCENARIO_OUTLINE:
                     exampleHeaderLineProcessed = false;
-                    currentMethod.addStatement(line);
+                    currentMethod.addStep(line);
                     break;
 
                 case EXAMPLE:
@@ -174,7 +178,7 @@ public class GherkinTest {
         this.testStructure.setTestShortName(this.testName);
     }
 
-    private void endSection(GherkinMethod method, Section sectionEnding) throws TestRunException {
+    private void endSection(GherkinScenario method, Section sectionEnding) throws TestRunException {
         if (sectionEnding == Section.SCENARIO_OUTLINE) {
             // If the outline section is ending, then we know the Examples section is missing.
             throw new TestRunException("Badly formed Gherkin feature: 'Scenario Outline:' used without an 'Examples:' section.");
@@ -182,7 +186,7 @@ public class GherkinTest {
         addMethod(method);
     }
 
-    private void addMethod(GherkinMethod methodToAdd) {
+    private void addMethod(GherkinScenario methodToAdd) {
         if(methodToAdd != null) {
             methods.add(methodToAdd);
         }
@@ -192,13 +196,13 @@ public class GherkinTest {
         return this.testName;
     }
 
-    public List<GherkinMethod> getMethods() {
+    public List<GherkinScenario> getMethods() {
         return this.methods;
     }
 
     public List<IGherkinExecutable> getAllExecutables() {
         List<IGherkinExecutable> allExecutables = new ArrayList<>();
-        for(GherkinMethod method : this.methods) {
+        for(GherkinScenario method : this.methods) {
             allExecutables.addAll(method.getExecutables());
         }
         return allExecutables;
@@ -235,7 +239,7 @@ public class GherkinTest {
             throw new TestRunException("Unable to inform managers of start of test class", e);
         }
 
-        for (GherkinMethod method : this.methods) {
+        for (GherkinScenario method : this.methods) {
             if(this.variables.getNumberOfInstances() >= 1){
                 method.invoke(managers, this.variables.getVariableInstance(0));
             } else{
@@ -247,7 +251,7 @@ public class GherkinTest {
             }
         }
 
-        for (GherkinMethod method : this.methods) {
+        for (GherkinScenario method : this.methods) {
             Result methodResult = method.getResult();
             if (methodResult != null && methodResult.isFailed()) {
                 this.result = Result.failed("A Test failed");
