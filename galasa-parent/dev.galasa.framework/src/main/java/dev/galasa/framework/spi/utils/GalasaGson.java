@@ -13,10 +13,10 @@ import java.io.Reader;
 
 import org.apache.commons.io.output.StringBuilderWriter;
 
+import com.google.json.JsonSanitizer;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 
 public class GalasaGson {
@@ -46,7 +46,8 @@ public class GalasaGson {
     }
 
     public <T> T fromJson(String json, Class<T> classOfT)  {
-        return gson.fromJson(json,  classOfT);   
+        String sanitizedJson = JsonSanitizer.sanitize(json);
+        return gson.fromJson(sanitizedJson,  classOfT);   
     }
     
     public <T> T fromJson(InputStreamReader inputStreamReader, Class<T> classOfT) throws IOException  {

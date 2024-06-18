@@ -441,39 +441,6 @@ public class TestGroupRunsRoute extends RunsServletTest {
     }
 
     @Test
-    public void TestPostRunsWithBadBodyReturnsError() throws Exception {
-        // Given...
-		String groupName = "valid";
-        String payload = "{\"classNames\": [\"badClassName\"]," +
-        "\"requestorType\": \"requestorType\"," +
-        "\"requestor\": \"user1\"," +
-        "\"testStream\": \"this is a test stream\"," +
-        "\"obr\": \"this.obr\","+
-        "\"mavenRepository\": \"this.maven.repo\"," +
-        "\"sharedEnvironmentPhase\": \"envPhase\"," +
-        "\"sharedEnvironmentRunTime\": \"envRunTime\"," +
-        "\"overrides\": {}" +
-        "\"trace\": true }";
-
-        setServlet("/"+groupName, groupName, payload, "POST");
-		MockRunsServlet servlet = getServlet();
-		HttpServletRequest req = getRequest();
-		HttpServletResponse resp = getResponse();
-        ServletOutputStream outStream = resp.getOutputStream();
-
-        // When...
-        servlet.init();
-        servlet.doPost(req, resp);
-
-        // Then...
-        assertThat(resp.getStatus()).isEqualTo(400);
-        checkErrorStructure(
-			outStream.toString(),
-			5020, "E: Error occured when trying to translate the payload into a run."
-		);
-    }
-
-    @Test
     public void TestPostRunsWithValidBodyBadEnvPhaseReturnsError() throws Exception {
         // Given...
 		String groupName = "valid";
