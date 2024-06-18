@@ -317,7 +317,11 @@ public class AccessCps extends HttpServlet {
             cps.setProperty(reqJson.get("name").getAsString(), reqJson.get("value").getAsString());
             resp.setStatus(200);
             PrintWriter writer = resp.getWriter();
-            writer.write(gson.toJson(reqJson));
+            // Create a new response object rather than sending the original request to prevent cross-site scritping (XSS)
+            JsonObject respJson = new JsonObject();
+            respJson.add("name", reqJson.get("name"));
+            respJson.add("value", reqJson.get("value"));
+            writer.write(gson.toJson(respJson));
             writer.flush();
         }
     }
