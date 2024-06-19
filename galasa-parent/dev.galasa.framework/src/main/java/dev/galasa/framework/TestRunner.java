@@ -5,6 +5,8 @@
  */
 package dev.galasa.framework;
 
+import static org.mockito.Mockito.framework;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -38,6 +40,7 @@ import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.EventsException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -49,6 +52,7 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
+import dev.galasa.framework.spi.events.Event;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
@@ -651,7 +655,16 @@ public class TestRunner {
     private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
 
         if (this.produceEvents) {
-            logger.debug("Producing a test lifecycle status change event.");
+            logger.debug("Producing a test run lifecycle status change event.");
+
+            String message = String.format("Galasa test run %s is now in status: %s.", framework.getTestRunName(), status.toString());
+            Event testLifecycleStatusChangeEvent = new Event(Instant.now().toString(), message);
+
+            try {
+                framework.getEventsService().produceEvent("Tests.StatusChangedEvent", testLifecycleStatusChangeEvent);
+            } catch (EventsException e) {
+                throw new TestRunException("Failed to publish a test run lifecycle status change event to the Events Service", e);
+            }
         }
 
         this.testStructure.setStatus(status.toString());
