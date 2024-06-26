@@ -26,4 +26,12 @@ public interface IAuthStoreService {
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
     void storeToken(String clientId, String description, User owner) throws AuthStoreException;
+
+    /**
+     * Deletes an existing token in the auth store's tokens database.
+     * 
+     * @param tokenId the ID of the token to delete.
+     * @throws AuthStoreException if there was an issue accessing the auth store.
+     */
+    void deleteToken(String tokenId) throws AuthStoreException;
 }

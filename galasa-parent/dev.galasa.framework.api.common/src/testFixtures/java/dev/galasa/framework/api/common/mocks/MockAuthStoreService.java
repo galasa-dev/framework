@@ -58,4 +58,21 @@ public class MockAuthStoreService implements IAuthStoreService {
     private void throwAuthStoreException() throws AuthStoreException {
         throw new AuthStoreException("simulating an unexpected failure!");
     }
+
+    @Override
+    public void deleteToken(String tokenId) throws AuthStoreException {
+        IAuthToken tokenToRemove = null;
+        for (IAuthToken token : tokens) {
+            if (token.getTokenId().equals(tokenId)) {
+                tokenToRemove = token;
+                break;
+            }
+        }
+        
+        if (tokenToRemove != null) {
+            tokens.remove(tokenToRemove);
+        } else {
+            throw new AuthStoreException("did not find token to delete!");
+        }
+    }
 }

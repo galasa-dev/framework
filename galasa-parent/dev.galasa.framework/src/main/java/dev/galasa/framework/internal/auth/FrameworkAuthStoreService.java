@@ -34,4 +34,8 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
         authStore.storeToken(clientId, description, owner);
     }
 
+    @Override
+    public void deleteToken(String tokenId) throws AuthStoreException {
+        authStore.deleteToken(tokenId);
+    }
 }

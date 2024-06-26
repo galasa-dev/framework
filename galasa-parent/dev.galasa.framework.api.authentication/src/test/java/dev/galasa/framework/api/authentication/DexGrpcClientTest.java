@@ -26,7 +26,8 @@ public class DexGrpcClientTest {
         Client responseClient = client.createClient(callbackUrl);
 
         // Then...
-        assertThat(responseClient).isEqualTo(client.getDexClient());
+        assertThat(client.getDexClients()).hasSize(1);
+        assertThat(responseClient).isEqualTo(client.getDexClients().get(0));
     }
 
     @Test
@@ -69,7 +70,7 @@ public class DexGrpcClientTest {
         Client responseClient = client.getClient(clientId);
 
         // Then...
-        assertThat(responseClient).isEqualTo(client.getDexClient());
+        assertThat(responseClient).isEqualTo(client.getDexClients().get(0));
     }
 
     @Test
@@ -87,5 +88,39 @@ public class DexGrpcClientTest {
         // Then...
         assertThat(thrown).isInstanceOf(InternalServletException.class);
         assertThat(thrown.getMessage()).contains("GAL5051E","Invalid GALASA_TOKEN value provided");
+    }
+
+    @Test
+    public void testDeleteClientRemovesClientOK() throws Exception {
+        // Given...
+        String clientId = "a-client";
+        MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer", clientId, "secret", "http://callback");
+        client.addDexClient("anotherclient", "anothersecret", "http://another-callback-url");
+
+        assertThat(client.getDexClients()).hasSize(2);
+
+        // When...
+        client.deleteClient(clientId);
+
+        // Then...
+        assertThat(client.getDexClients()).hasSize(1);
+    }
+
+    @Test
+    public void testDeleteClientWithNonExistantClientThrowsException() throws Exception {
+        // Given...
+        MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer", "a-client", "secret", "http://callback");
+        client.addDexClient("anotherclient", "anothersecret", "http://another-callback-url");
+
+        assertThat(client.getDexClients()).hasSize(2);
+
+        // When...
+        Throwable thrown = catchThrowableOfType(() -> {
+            client.deleteClient("a-non-existant-client");
+        }, InternalServletException.class);
+
+        // Then...
+        assertThat(thrown.getMessage()).contains("GAL5063E", "Failed to delete client with the given ID");
+        assertThat(client.getDexClients()).hasSize(2);
     }
 }

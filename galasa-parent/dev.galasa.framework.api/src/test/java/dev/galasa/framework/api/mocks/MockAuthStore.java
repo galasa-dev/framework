@@ -29,4 +29,9 @@ public class MockAuthStore implements IAuthStore, IAuthStoreService {
     public void storeToken(String clientId, String description, User owner) throws AuthStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'storeToken'");
     }
+
+    @Override
+    public void deleteToken(String tokenId) throws AuthStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'deleteToken'");
+    }
 }
