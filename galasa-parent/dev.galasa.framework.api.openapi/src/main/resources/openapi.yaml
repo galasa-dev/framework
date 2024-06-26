@@ -306,7 +306,7 @@ paths:
       - $ref: '#/components/parameters/ClientApiVersion'
     delete:
       operationId: deleteToken
-      summary: Deletes a token which is used for authenticating with the Galasa API server.
+      summary: Revokes a token which is used for authenticating with the Galasa API server.
       description: |
         Revokes access for a preivously generated token through specifing the token ID.
 
@@ -324,12 +324,12 @@ paths:
           type: string
       responses:
         '200':
-          description: Action Message
+          description: Success message indicating that the given token has been revoked
           content:
             text/plain:
               schema:
                 type: string
-              example: Successfully deleted token with tokenId from the database
+              example: Successfully revoked token with tokenId from the database
         '401':
           description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
