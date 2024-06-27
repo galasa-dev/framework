@@ -11,8 +11,8 @@ dependencies {
     implementation project(':dev.galasa.framework')
     implementation project(':dev.galasa.framework.api.common')
 
-    testCompile 'org.apache.commons:commons-lang3:3.14.0'
-    testCompile project(':dev.galasa.framework').sourceSets.test.output
+    testImplementation 'org.apache.commons:commons-lang3:3.14.0'
+    testImplementation project(':dev.galasa.framework').sourceSets.test.output
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
 }
 

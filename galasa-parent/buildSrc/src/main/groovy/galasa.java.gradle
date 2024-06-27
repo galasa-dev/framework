@@ -6,8 +6,8 @@ plugins {
 
 group = 'dev.galasa'
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 21
+targetCompatibility = 21
 
 java {
     withJavadocJar()
@@ -37,6 +37,7 @@ tasks.withType(Sign) {
 }
 
 task gitHash(dependsOn : 'classes') {
+
     def dir    = file("${buildDir}/githash")
     def meta   = file("${buildDir}/githash/META-INF")
     def result = file("${buildDir}/githash/META-INF/git.hash")
