@@ -111,7 +111,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.openapi
-    version: 0.35.0
+    version: 0.36.0
     obr: true
     isolated: true
     mvp: true

@@ -110,13 +110,13 @@ function update_release_yaml {
 
     source_file=$1
     target_file=$2
+    regex=$3
 
     # Read through the release yaml and set the version of the framework bundle explicitly.
     # It's on the line after the line containing 'artifact: dev.galasa.framework'
     is_line_supressed=false
     while IFS= read -r line
     do
-        regex="^.*dev.galasa.framework[ ]*$"
         if [[ "$line" =~ $regex ]]; then
             # We found the marker, so the next line needs supressing.
             echo "$line"
@@ -158,7 +158,7 @@ cat $BASEDIR/galasa-parent/build.gradle | sed "s/version[ ]*=.*/version = \"$com
 cp $temp_dir/framework-parent-build.gradle $BASEDIR/galasa-parent/build.gradle
 
 
-update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml
+update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml "^.*dev.galasa.framework[ ]*$"
 cp $temp_dir/release.yaml ${BASEDIR}/release.yaml
 
 
@@ -169,6 +169,10 @@ cp $temp_dir/openapi.yaml ${BASEDIR}/galasa-parent/dev.galasa.framework.api.open
 ## and the openapi bundle
 cat $BASEDIR/galasa-parent/dev.galasa.framework.api.openapi/build.gradle | sed "s/^[ ]*version[ ]*=.*/version = \"$component_version\"/1" > $temp_dir/framework-build.gradle
 cp $temp_dir/framework-build.gradle $BASEDIR/galasa-parent/dev.galasa.framework.api.openapi/build.gradle
+
+# Update the openapi bundle in the release.yaml
+update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml "^.*dev.galasa.framework.api.openapi[ ]*$"
+cp $temp_dir/release.yaml ${BASEDIR}/release.yaml
 
 
 cat ${BASEDIR}/test-api-locally.md | sed "s/^[ ]*export[ ]+GALASA_OBR_VERSION[ ]*=[ ]*.*$/export GALASA_OBR_VERSION=\"$component_version\"/1" > $temp_dir/test-api-locally.md 
