@@ -21,7 +21,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework
-    version: 0.35.0
+    version: 0.36.0
     obr: true
     bom: true
     mvp: true
