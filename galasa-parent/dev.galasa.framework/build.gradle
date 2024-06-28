@@ -7,7 +7,7 @@ description = 'Galasa Framework'
 
 // Note: The following line is changed by the set-version.sh script.
 // It is also read by other build scrips as required.
-version = "0.35.0"
+version = "0.36.0"
 
 dependencies {
 
