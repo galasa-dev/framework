@@ -792,11 +792,11 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             // framework.getEventsService() returns non-null.
             eventsRegistration.initialise(this);
         }
-        if (this.framework.getEventsService() == null) {
-            throw new FrameworkException("Failed to initialise an Events Service, unable to continue");
-        }
-        logger.trace("Selected Events Service is " 
+        // The Events Service should not be mandatory so okay to not have one registered
+        if (this.framework.getEventsService() != null) {
+            logger.trace("Selected Events Service is " 
             + this.framework.getEventsService().getClass().getName());
 
+        }
     }
 }
