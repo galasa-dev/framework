@@ -5,8 +5,6 @@
  */
 package dev.galasa.framework;
 
-import static org.mockito.Mockito.framework;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -52,7 +50,7 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
-import dev.galasa.framework.spi.events.Event;
+import dev.galasa.framework.spi.events.TestRunLifecycleStatusChangedEvent;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
@@ -658,10 +656,11 @@ public class TestRunner {
             logger.debug("Producing a test run lifecycle status change event.");
 
             String message = String.format("Galasa test run %s is now in status: %s.", framework.getTestRunName(), status.toString());
-            Event testLifecycleStatusChangeEvent = new Event(Instant.now().toString(), message);
+            TestRunLifecycleStatusChangedEvent testRunLifecycleStatusChangedEvent = new TestRunLifecycleStatusChangedEvent(Instant.now().toString(), message);
+            String topic = testRunLifecycleStatusChangedEvent.getTopic();
 
             try {
-                framework.getEventsService().produceEvent("Tests.StatusChangedEvent", testLifecycleStatusChangeEvent);
+                framework.getEventsService().produceEvent(topic, testRunLifecycleStatusChangedEvent);
             } catch (EventsException e) {
                 throw new TestRunException("Failed to publish a test run lifecycle status change event to the Events Service", e);
             }
