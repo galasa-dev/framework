@@ -45,7 +45,7 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.language.GalasaTest;
-import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
+import dev.galasa.framework.spi.language.gherkin.GherkinScenario;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
@@ -242,21 +242,8 @@ public class GherkinTestRunner {
         }
 
         if(!gherkinTest.allMethodsRegistered()) {
-            logger.error("The following Gherkin statements have not been registered to a Manager");
-            
-            for(GherkinMethod method : gherkinTest.getMethods()) {
-                logger.info("    Method: " + method.getName());
-                for(IGherkinExecutable executable : method.getExecutables()) {
-                    Object owner = executable.getOwner();
-                    if (owner != null) {
-                        logger.info("        OK - " + executable.getKeyword() + " " + executable.getValue());
-                    } else {
-                        logger.error("        MISSING - " + executable.getKeyword() + " " + executable.getValue());
-                    }
-                }
-            }
-            
-            
+            logStatementsNotRecognisedByAnyManager(gherkinTest);
+
             stopHeartbeat();
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
             frameworkInitialisation.shutdownFramework();
@@ -317,6 +304,22 @@ public class GherkinTestRunner {
         frameworkInitialisation.shutdownFramework();
 
         return;
+    }
+
+    private void logStatementsNotRecognisedByAnyManager(GherkinTest gherkinTest) {
+        logger.error("The following Gherkin statements have not been registered to a Manager");
+        
+        for(GherkinScenario method : gherkinTest.getMethods()) {
+            logger.info("    Method: " + method.getName());
+            for(IGherkinExecutable executable : method.getExecutables()) {
+                Object owner = executable.getOwner();
+                if (owner != null) {
+                    logger.info("        OK - " + executable.getKeyword() + " " + executable.getValue());
+                } else {
+                    logger.error("        MISSING - " + executable.getKeyword() + " " + executable.getValue());
+                }
+            }
+        }
     }
 
     private void generateEnvironment(GherkinTest testObject, TestRunManagers managers) throws TestRunException {

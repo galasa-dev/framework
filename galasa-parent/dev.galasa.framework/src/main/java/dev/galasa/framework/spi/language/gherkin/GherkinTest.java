@@ -5,21 +5,20 @@
  */
 package dev.galasa.framework.spi.language.gherkin;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.spi.language.gherkin.parser.*;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.FrameworkException;
@@ -29,23 +28,26 @@ import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.teststructure.TestGherkinMethod;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
+/**
+ * A GherkinTest is a complete Gherkin feature.
+ * It can have multiple scenarios, each of which has a number of steps.
+ */
 public class GherkinTest {
 
     private Log logger = LogFactory.getLog(GherkinTest.class);
 
     private final static Pattern featurePattern = Pattern.compile("Feature:(.*)");
     private final static Pattern scenarioPattern = Pattern.compile("Scenario:(.*)");
-
     private final static Pattern examplesPattern = Pattern.compile("Examples:");
+    private final static Pattern scenarioOutlinePattern = Pattern.compile("Scenario Outline:(.*)");
 
-    private List<GherkinMethod> methods;
+    private List<GherkinScenario> methods;
     private URI gherkinUri;
     private TestStructure testStructure;
     private Result result;
     private GherkinVariables variables;
 
     private String testName;
-    private List<String> comments;
 
 
     // Logger statics
@@ -55,99 +57,138 @@ public class GherkinTest {
     public static final String  LOG_ASTERS     = StringUtils.repeat("*", 100);
 
     enum Section {
+        SCENARIO_OUTLINE,
         FEATURE,
         SCENARIO,
         EXAMPLE,
+        ;
     }
 
     public GherkinTest(IRun run, TestStructure testStructure) throws TestRunException {
+        this(run,testStructure, new GherkinFileReader() );
+    }
+
+    protected GherkinTest(IRun run, TestStructure testStructure, IGherkinFileReader fileReader) throws TestRunException {
         this.methods = new ArrayList<>();
-        this.comments = new ArrayList<>();
         this.variables = new GherkinVariables();
         this.testStructure = testStructure;
 
-        try {
-            gherkinUri = new URI(run.getGherkin());
+        List<String> lines = getGherkinFeatureTextLines(run,fileReader);
 
-            if (gherkinUri.getScheme().equals("file")) {
-                File gherkinFile = new File(gherkinUri);
-                List<String> lines = IOUtils.readLines(new FileReader(gherkinFile));
-                GherkinMethod currentMethod = null;
-                Section currentSection = Section.FEATURE;
-                boolean exampleHeaderLineProcessed = false;
+        parseGherkinSyntax(lines);
 
-                for(String line : lines) {
-                    line = line.trim();
-                    if(line.isEmpty()) {
-                        continue;
-                    }
+        List<TestGherkinMethod> structureMethods = new ArrayList<TestGherkinMethod>(this.methods.size());
+        for(GherkinScenario scenario : this.methods) {
+            structureMethods.add(scenario.getStructure());
+        }
 
-                    //handle features
-                    Matcher featureMatch = featurePattern.matcher(line);
-                    if (featureMatch.matches()) {
-                        currentSection = Section.FEATURE;
-                        this.testName = featureMatch.group(1).trim();
-                        continue;
-                    }
+        this.testStructure.setGherkinMethods(structureMethods);
+    }
 
-                    //handle scenarios
-                    Matcher scenarioMatch = scenarioPattern.matcher(line);
-                    if (scenarioMatch.matches()) {
-                        currentSection = Section.SCENARIO;
-                        if(currentMethod != null) {
-                            methods.add(currentMethod);
-                        }
-                        currentMethod = new GherkinMethod(scenarioMatch.group(1).trim(), testName);
-                        continue;
-                    }
 
-                    //handles examples
-                    Matcher exampleMatch = examplesPattern.matcher(line);
-                    if(exampleMatch.matches()) {
-                        currentSection = Section.EXAMPLE;
-                        //stash the previous currentMethod
-                        methods.add(currentMethod);
-                        continue;
-                    }
 
-                    //We are not in a heading, so work out where we are and process the line
-                    //scenario lines
-                    if(currentSection == Section.SCENARIO) {
-                        currentMethod.addStatement(line);
-                        continue;
-                    }
+    private void parseGherkinSyntax(List<String> lines) throws TestRunException {
+        GherkinScenario currentMethod = null;
+        Section currentSection = Section.FEATURE;
+        boolean exampleHeaderLineProcessed = false;
 
-                    //example lines
-                    if(currentSection == Section.EXAMPLE) {
-                        if(exampleHeaderLineProcessed) {
-                            variables.processDataLine(line);
-                        } else {
-                            variables.processHeaderLine(line);
-                            exampleHeaderLineProcessed = true;
-                        }
-                    }
+        for(String line : lines) {
 
-                    if(currentSection != Section.FEATURE && currentSection!= Section.SCENARIO && currentSection != Section.EXAMPLE) {
-                        this.comments.add(line);
-                    }
-                }
-                if(currentMethod != null && currentSection != Section.EXAMPLE) {
-                    methods.add(currentMethod);
-                }
-                this.testStructure.setTestShortName(this.testName);
-
-                List<TestGherkinMethod> structureMethods = new ArrayList<TestGherkinMethod>(this.methods.size());
-                for(GherkinMethod method : this.methods) {
-                    structureMethods.add(method.getStructure());
-                }
-                this.testStructure.setGherkinMethods(structureMethods);
-            } else {
-                throw new TestRunException("Gherkin URI scheme " + gherkinUri.getScheme() + "is not supported");
+            line = line.trim();
+            if(line.isEmpty()) {
+                // Ignore blank lines.
+                continue;
             }
-        } catch (URISyntaxException e) {
-            throw new TestRunException("Unable to parse gherkin test URI", e);
-        } catch (FileNotFoundException e) {
-            throw new TestRunException("Unable to find gherkin test file", e);
+
+            if (line.startsWith("#")) {
+                // Ignore comment lines.
+                continue;
+            }
+
+            //handle features
+            Matcher featureMatch = featurePattern.matcher(line);
+            if (featureMatch.matches()) {
+                endSection(currentMethod, currentSection);
+                currentSection = Section.FEATURE;
+                this.testName = featureMatch.group(1).trim();
+                continue;
+            }
+
+            //handle scenarios
+            Matcher scenarioMatch = scenarioPattern.matcher(line);
+            if (scenarioMatch.matches()) {
+                endSection(currentMethod, currentSection);                
+                currentSection = Section.SCENARIO;
+                currentMethod = new GherkinScenario(scenarioMatch.group(1).trim(), testName);
+                continue;
+            }
+
+            // handle scenario outlines
+            Matcher scenarioOutlineMatch = scenarioOutlinePattern.matcher(line);
+            if(scenarioOutlineMatch.matches()) {
+                endSection(currentMethod, currentSection);                
+                currentSection = Section.SCENARIO_OUTLINE;
+                currentMethod = new GherkinScenario(scenarioOutlineMatch.group(1).trim(), testName);
+                continue;
+            }
+
+            //handle examples
+            Matcher exampleMatch = examplesPattern.matcher(line);
+            if(exampleMatch.matches()) {
+                if (currentSection != Section.SCENARIO_OUTLINE) {
+                    throw new TestRunException("Example specified without being inside a 'Scenario Outline:'");
+                }
+                currentSection = Section.EXAMPLE;
+                continue;
+            }
+
+            //We are not in a heading, so work out where we are and process the line
+            //scenario lines
+            switch(currentSection) {
+                case SCENARIO:
+                case SCENARIO_OUTLINE:
+                    exampleHeaderLineProcessed = false;
+                    currentMethod.addStep(line);
+                    break;
+
+                case EXAMPLE:
+                    if(exampleHeaderLineProcessed) {
+                        // We've already processed the header line.
+                        variables.processDataLine(line);
+                    } else {
+                        // Not yet processed the header line.
+                        variables.processHeaderLine(line);
+                        exampleHeaderLineProcessed = true;
+                    }
+                    break;
+
+                case FEATURE:
+                    exampleHeaderLineProcessed = false;
+                    break;
+
+                default:
+                    // Should never be able to reach this code. But just in case someone adds to the enum list and doesn't cope with it here.
+                    throw new TestRunException("Programming error. Unexpected section "+currentSection.name());
+            }
+        }
+
+        // We might be in the middle of an example... so our method hasn't been added-in yet.
+        endSection(currentMethod, currentSection);
+
+        this.testStructure.setTestShortName(this.testName);
+    }
+
+    private void endSection(GherkinScenario method, Section sectionEnding) throws TestRunException {
+        if (sectionEnding == Section.SCENARIO_OUTLINE) {
+            // If the outline section is ending, then we know the Examples section is missing.
+            throw new TestRunException("Badly formed Gherkin feature: 'Scenario Outline:' used without an 'Examples:' section.");
+        }
+        addMethod(method);
+    }
+
+    private void addMethod(GherkinScenario methodToAdd) {
+        if(methodToAdd != null) {
+            methods.add(methodToAdd);
         }
     }
 
@@ -155,13 +196,13 @@ public class GherkinTest {
         return this.testName;
     }
 
-    public List<GherkinMethod> getMethods() {
+    public List<GherkinScenario> getMethods() {
         return this.methods;
     }
 
     public List<IGherkinExecutable> getAllExecutables() {
         List<IGherkinExecutable> allExecutables = new ArrayList<>();
-        for(GherkinMethod method : this.methods) {
+        for(GherkinScenario method : this.methods) {
             allExecutables.addAll(method.getExecutables());
         }
         return allExecutables;
@@ -198,7 +239,7 @@ public class GherkinTest {
             throw new TestRunException("Unable to inform managers of start of test class", e);
         }
 
-        for (GherkinMethod method : this.methods) {
+        for (GherkinScenario method : this.methods) {
             if(this.variables.getNumberOfInstances() >= 1){
                 method.invoke(managers, this.variables.getVariableInstance(0));
             } else{
@@ -210,7 +251,7 @@ public class GherkinTest {
             }
         }
 
-        for (GherkinMethod method : this.methods) {
+        for (GherkinScenario method : this.methods) {
             Result methodResult = method.getResult();
             if (methodResult != null && methodResult.isFailed()) {
                 this.result = Result.failed("A Test failed");
@@ -223,7 +264,7 @@ public class GherkinTest {
         }
 
         try {
-            Result newResult = managers.endOfTestClass(this.result, null); // TODO pass the class level exception
+            Result newResult = managers.endOfTestClass(this.result, null); 
             if (newResult != null) {
                 logger.info("Result of test run overridden to " + newResult);
                 this.result = newResult;
@@ -242,5 +283,33 @@ public class GherkinTest {
 
         String postReport = this.testStructure.gherkinReport(LOG_START_LINE);
         logger.trace("Finishing Test Class structure:-" + postReport);
+    }
+
+
+    private List<String> getGherkinFeatureTextLines(IRun run, IGherkinFileReader fileReader) throws TestRunException {
+
+        String gherkinUriString = run.getGherkin();
+        if (gherkinUriString == null) {
+            throw new TestRunException("Gherkin URI is not set");
+        }
+
+        try {
+            gherkinUri = new URI(gherkinUriString);
+        } catch (URISyntaxException e) {
+            throw new TestRunException("Unable to parse gherkin test URI", e);
+        }
+
+        String schema = gherkinUri.getScheme();
+        if (schema == null) {
+            throw new TestRunException("Gherkin URI " + gherkinUri + " does not contain a schema");
+        }
+
+        if (!"file".equals(schema)) {
+            throw new TestRunException("Gherkin URI scheme " + schema + " is not supported");
+        }
+
+        List<String> lines =  fileReader.readLines(gherkinUri);
+        
+        return lines ;
     }
 }

@@ -15,7 +15,10 @@ import dev.galasa.ManagerException;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.spi.IGherkinManager;
 
-public class GherkinStatement implements IGherkinExecutable {
+/**
+ * A GherkinStatement is a single executable statement. ie: A step in the scenario.
+ */
+public class GherkinStep implements IGherkinExecutable {
 
     private String statement;
     private GherkinKeyword keyword;
@@ -24,13 +27,13 @@ public class GherkinStatement implements IGherkinExecutable {
     private List<String> regexGroups;
     private Object owningClass;
 
-    private GherkinStatement(String statement) throws TestRunException {
+    private GherkinStep(String statement) throws TestRunException {
         this.keyword = GherkinKeyword.get(statement);
         this.statement = statement.substring(statement.indexOf(" ") + 1).trim();
     }
 
     public static IGherkinExecutable get(String statement) throws TestRunException {
-        IGherkinExecutable executable = new GherkinStatement(statement);
+        IGherkinExecutable executable = new GherkinStep(statement);
         return executable;
     }
 
