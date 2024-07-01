@@ -19,6 +19,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IAuthToken;
 
 public class AuthTokensDetailsRoute extends BaseRoute {
     private IAuthStoreService authStoreService;
@@ -62,6 +63,9 @@ public class AuthTokensDetailsRoute extends BaseRoute {
 
     private void revokeToken(String tokenId) throws InternalServletException {
         try {
+            // Revoke the token in Dex
+            IAuthToken tokenToRevoke = authStoreService.getToken(tokenId);
+
             // Delete the token's record in the auth store
             authStoreService.deleteToken(tokenId);
         } catch (AuthStoreException ex) {

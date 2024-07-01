@@ -61,18 +61,23 @@ public class MockAuthStoreService implements IAuthStoreService {
 
     @Override
     public void deleteToken(String tokenId) throws AuthStoreException {
-        IAuthToken tokenToRemove = null;
-        for (IAuthToken token : tokens) {
-            if (token.getTokenId().equals(tokenId)) {
-                tokenToRemove = token;
-                break;
-            }
-        }
-        
+        IAuthToken tokenToRemove = getToken(tokenId);
         if (tokenToRemove != null) {
             tokens.remove(tokenToRemove);
         } else {
             throw new AuthStoreException("did not find token to delete!");
         }
+    }
+
+    @Override
+    public IAuthToken getToken(String tokenId) throws AuthStoreException {
+        IAuthToken tokenToReturn = null;
+        for (IAuthToken token : tokens) {
+            if (token.getTokenId().equals(tokenId)) {
+                tokenToReturn = token;
+                break;
+            }
+        }
+        return tokenToReturn;
     }
 }

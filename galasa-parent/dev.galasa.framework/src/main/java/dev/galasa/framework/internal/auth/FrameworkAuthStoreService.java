@@ -30,6 +30,20 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     }
 
     @Override
+    public IAuthToken getToken(String tokenId) throws AuthStoreException {
+        List<IAuthToken> tokens = authStore.getTokens();
+
+        IAuthToken tokenToReturn = null;
+        for (IAuthToken token : tokens) {
+            if (token.getTokenId().equals(tokenId)) {
+                tokenToReturn = token;
+                break;
+            }
+        }
+        return tokenToReturn;
+    }
+
+    @Override
     public void storeToken(String clientId, String description, User owner) throws AuthStoreException {
         authStore.storeToken(clientId, description, owner);
     }
