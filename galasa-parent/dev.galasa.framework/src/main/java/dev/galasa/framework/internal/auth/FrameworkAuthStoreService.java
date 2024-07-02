@@ -9,7 +9,7 @@ import java.util.List;
 
 import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
-import dev.galasa.framework.spi.auth.IAuthToken;
+import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.User;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
@@ -25,8 +25,22 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public List<IAuthToken> getTokens() throws AuthStoreException {
+    public List<IInternalAuthToken> getTokens() throws AuthStoreException {
         return authStore.getTokens();
+    }
+
+    @Override
+    public IInternalAuthToken getToken(String tokenId) throws AuthStoreException {
+        List<IInternalAuthToken> tokens = authStore.getTokens();
+
+        IInternalAuthToken tokenToReturn = null;
+        for (IInternalAuthToken token : tokens) {
+            if (token.getTokenId().equals(tokenId)) {
+                tokenToReturn = token;
+                break;
+            }
+        }
+        return tokenToReturn;
     }
 
     @Override
@@ -34,4 +48,8 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
         authStore.storeToken(clientId, description, owner);
     }
 
+    @Override
+    public void deleteToken(String tokenId) throws AuthStoreException {
+        authStore.deleteToken(tokenId);
+    }
 }

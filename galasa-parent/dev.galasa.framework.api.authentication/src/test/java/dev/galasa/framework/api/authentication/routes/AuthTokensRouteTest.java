@@ -31,9 +31,10 @@ import dev.galasa.framework.api.common.AuthToken;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
+import dev.galasa.framework.api.common.mocks.MockInternalAuthToken;
 import dev.galasa.framework.api.common.mocks.MockTimeService;
 import dev.galasa.framework.api.common.mocks.MockAuthStoreService;
-import dev.galasa.framework.spi.auth.IAuthToken;
+import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.User;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -124,11 +125,12 @@ public class AuthTokensRouteTest extends BaseServletTest {
         // Given...
         String tokenId = "id123";
         String description = "test token";
+        String clientId = "my-client";
         Instant creationTime = Instant.now();
         User owner = new User("username");
 
-        List<IAuthToken> tokens = List.of(
-            new AuthToken(tokenId, description, creationTime, owner)
+        List<IInternalAuthToken> tokens = List.of(
+            new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId)
         );
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(new MockFramework(authStoreService));
@@ -161,11 +163,12 @@ public class AuthTokensRouteTest extends BaseServletTest {
         // Given...
         String tokenId = "id123";
         String description = "test token";
+        String clientId = "my-client";
         Instant creationTime = Instant.now();
         User owner = new User("username");
 
-        List<IAuthToken> tokens = List.of(
-            new AuthToken(tokenId, description, creationTime, owner)
+        List<IInternalAuthToken> tokens = List.of(
+            new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId)
         );
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         authStoreService.setThrowException(true);
@@ -200,7 +203,13 @@ public class AuthTokensRouteTest extends BaseServletTest {
         AuthToken token3 = new AuthToken("token3", "future creation time", time3, owner);
         AuthToken token4 = new AuthToken("token4", "creation time after epoch, same as token1", time2, owner);
 
-        List<IAuthToken> tokens = List.of(token1, token2, token3, token4);
+        List<IInternalAuthToken> tokens = List.of(
+            new MockInternalAuthToken(token1),
+            new MockInternalAuthToken(token2),
+            new MockInternalAuthToken(token3),
+            new MockInternalAuthToken(token4)
+        );
+
         List<AuthToken> expectedTokenOrder = List.of(token2, token1, token4, token3);
 
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
@@ -476,10 +485,10 @@ public class AuthTokensRouteTest extends BaseServletTest {
         assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJsonObject));
 
         // A record of the newly-created token should have been added to the auth store
-        List<IAuthToken> tokens = mockAuthStoreService.getTokens();
+        List<IInternalAuthToken> tokens = mockAuthStoreService.getTokens();
         assertThat(tokens).hasSize(1);
 
-        IAuthToken newToken = tokens.get(0);
+        IInternalAuthToken newToken = tokens.get(0);
         assertThat(newToken.getDescription()).isEqualTo(tokenDescription);
         assertThat(newToken.getCreationTime()).isEqualTo(tokenCreationTime);
         assertThat(newToken.getOwner().getLoginId()).isEqualTo(userName);

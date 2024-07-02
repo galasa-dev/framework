@@ -9,10 +9,9 @@ import java.time.Instant;
 
 import com.google.gson.annotations.SerializedName;
 
-import dev.galasa.framework.spi.auth.IAuthToken;
 import dev.galasa.framework.spi.auth.User;
 
-public class AuthToken implements IAuthToken {
+public class AuthToken {
 
     @SerializedName("token_id")
     private String tokenId;

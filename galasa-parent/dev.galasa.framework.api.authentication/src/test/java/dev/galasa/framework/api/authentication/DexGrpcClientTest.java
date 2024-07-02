@@ -26,7 +26,8 @@ public class DexGrpcClientTest {
         Client responseClient = client.createClient(callbackUrl);
 
         // Then...
-        assertThat(responseClient).isEqualTo(client.getDexClient());
+        assertThat(client.getDexClients()).hasSize(1);
+        assertThat(responseClient).isEqualTo(client.getDexClients().get(0));
     }
 
     @Test
@@ -69,7 +70,7 @@ public class DexGrpcClientTest {
         Client responseClient = client.getClient(clientId);
 
         // Then...
-        assertThat(responseClient).isEqualTo(client.getDexClient());
+        assertThat(responseClient).isEqualTo(client.getDexClients().get(0));
     }
 
     @Test
@@ -87,5 +88,72 @@ public class DexGrpcClientTest {
         // Then...
         assertThat(thrown).isInstanceOf(InternalServletException.class);
         assertThat(thrown.getMessage()).contains("GAL5051E","Invalid GALASA_TOKEN value provided");
+    }
+
+    @Test
+    public void testDeleteClientRemovesClientOK() throws Exception {
+        // Given...
+        String clientId = "a-client";
+        MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer", clientId, "secret", "http://callback");
+        client.addDexClient("anotherclient", "anothersecret", "http://another-callback-url");
+
+        assertThat(client.getDexClients()).hasSize(2);
+
+        // When...
+        client.deleteClient(clientId);
+
+        // Then...
+        assertThat(client.getDexClients()).hasSize(1);
+    }
+
+    @Test
+    public void testDeleteClientWithNonExistantClientThrowsException() throws Exception {
+        // Given...
+        MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer", "a-client", "secret", "http://callback");
+        client.addDexClient("anotherclient", "anothersecret", "http://another-callback-url");
+
+        assertThat(client.getDexClients()).hasSize(2);
+
+        // When...
+        Throwable thrown = catchThrowableOfType(() -> {
+            client.deleteClient("a-non-existant-client");
+        }, InternalServletException.class);
+
+        // Then...
+        assertThat(thrown.getMessage()).contains("GAL5063E", "Failed to delete client with the given ID");
+        assertThat(client.getDexClients()).hasSize(2);
+    }
+
+    @Test
+    public void testRevokeRefreshWithNonExistantClientThrowsException() throws Exception {
+        // Given...
+        MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer");
+
+        // When...
+        Throwable thrown = catchThrowableOfType(() -> {
+            client.revokeRefreshToken("my-user", "notfound");
+        }, InternalServletException.class);
+
+        // Then...
+        assertThat(thrown.getMessage()).contains("GAL5064E", "Failed to revoke the token with the given ID");
+    }
+
+    @Test
+    public void testRevokeRefreshRemovesTokenOK() throws Exception {
+        // Given...
+        String userId = "my-user";
+        String clientId = "my-client";
+
+        MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer");
+        client.addDexClient(clientId, "my-secret", "http://my-callback-url");
+        client.addMockRefreshToken(userId, clientId);
+
+        assertThat(client.getRefreshTokens()).hasSize(1);
+
+        // When...
+        client.revokeRefreshToken(userId, clientId);
+
+        // Then...
+        assertThat(client.getRefreshTokens()).hasSize(0);
     }
 }

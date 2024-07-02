@@ -55,6 +55,15 @@ public class JwtWrapper {
     }
 
     /**
+     * Get the value of the "sub" claim from the decoded JWT
+     * 
+     * @return the value associated with the decoded JWT's "sub" claim
+     */
+    public String getSubject() {
+        return decodedJwt.getSubject();
+    }
+
+    /**
      * Gets a JSON Web Token (JWT) from a given request's Authorization header,
      * returning null if it does not have one.
      *

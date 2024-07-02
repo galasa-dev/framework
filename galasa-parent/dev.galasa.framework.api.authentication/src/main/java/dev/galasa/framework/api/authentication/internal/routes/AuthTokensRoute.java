@@ -38,7 +38,7 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
-import dev.galasa.framework.spi.auth.IAuthToken;
+import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.User;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
@@ -83,11 +83,11 @@ public class AuthTokensRoute extends BaseRoute {
         List<AuthToken> tokensToReturn = new ArrayList<>();
         try {
             // Retrieve all the tokens and put them into a mutable list before sorting them based on their creation time
-            List<IAuthToken> tokens = new ArrayList<>(authStoreService.getTokens());
-            Collections.sort(tokens, Comparator.comparing(IAuthToken::getCreationTime));
+            List<IInternalAuthToken> tokens = new ArrayList<>(authStoreService.getTokens());
+            Collections.sort(tokens, Comparator.comparing(IInternalAuthToken::getCreationTime));
 
             // Convert the token received from the auth store into the token bean that will be returned as JSON
-            for (IAuthToken token : tokens) {
+            for (IInternalAuthToken token : tokens) {
                 tokensToReturn.add(new AuthToken(
                     token.getTokenId(),
                     token.getDescription(),
@@ -162,7 +162,7 @@ public class AuthTokensRoute extends BaseRoute {
      */
     private String getTokensAsJsonString(List<AuthToken> tokens) {
         JsonArray tokensArray = new JsonArray();
-        for (IAuthToken token : tokens) {
+        for (AuthToken token : tokens) {
             String tokenJson = gson.toJson(token);
             tokensArray.add(JsonParser.parseString(tokenJson));
         }
