@@ -15,7 +15,7 @@ public interface IAuthStoreService {
      * @return a list of all auth token records stored in the auth store.
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
-    List<IAuthToken> getTokens() throws AuthStoreException;
+    List<IInternalAuthToken> getTokens() throws AuthStoreException;
 
     /**
      * Gets an token record given its ID from the auth store.
@@ -24,7 +24,7 @@ public interface IAuthStoreService {
      * @return an auth token givne 
      * @throws AuthStoreException
      */
-    IAuthToken getToken(String tokenId) throws AuthStoreException;
+    IInternalAuthToken getToken(String tokenId) throws AuthStoreException;
 
     /**
      * Stores a new token in the auth store's tokens database.

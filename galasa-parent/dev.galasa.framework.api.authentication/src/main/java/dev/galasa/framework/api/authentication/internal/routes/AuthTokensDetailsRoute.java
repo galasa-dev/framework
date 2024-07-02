@@ -10,6 +10,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dev.galasa.framework.api.authentication.JwtWrapper;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -19,7 +20,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
-import dev.galasa.framework.spi.auth.IAuthToken;
+import dev.galasa.framework.spi.auth.IInternalAuthToken;
 
 public class AuthTokensDetailsRoute extends BaseRoute {
     private IAuthStoreService authStoreService;
@@ -42,7 +43,8 @@ public class AuthTokensDetailsRoute extends BaseRoute {
             HttpServletRequest request, HttpServletResponse response)
             throws FrameworkException {
         String tokenId = getTokenIdFromUrl(pathInfo);
-        revokeToken(tokenId);
+        String dexUserId = new JwtWrapper(request).getSubject();
+        revokeToken(tokenId, dexUserId);
 
         String responseBody = "Successfully revoked token with ID '" + tokenId + "'";
         return getResponseBuilder().buildResponse(request, response, "text/plain", responseBody, HttpServletResponse.SC_OK);
@@ -56,15 +58,20 @@ public class AuthTokensDetailsRoute extends BaseRoute {
         } catch (Exception ex) {
             // This should never happen since the URL's path will always contain a valid token ID
             // at this point, otherwise the route will not be matched
-            ServletError error = new ServletError(GAL5064_FAILED_TO_GET_TOKEN_ID_FROM_URL);
+            ServletError error = new ServletError(GAL5065_FAILED_TO_GET_TOKEN_ID_FROM_URL);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, ex);
         }
     }
 
-    private void revokeToken(String tokenId) throws InternalServletException {
+    private void revokeToken(String tokenId, String userId) throws InternalServletException {
         try {
-            // Revoke the token in Dex
-            IAuthToken tokenToRevoke = authStoreService.getToken(tokenId);
+            // Delete the Dex client associated with the token
+            IInternalAuthToken tokenToRevoke = authStoreService.getToken(tokenId);
+            String dexClientId = tokenToRevoke.getDexClientId();
+            dexGrpcClient.deleteClient(dexClientId);
+
+            // Revoke the refresh token
+            dexGrpcClient.revokeRefreshToken(userId, dexClientId);
 
             // Delete the token's record in the auth store
             authStoreService.deleteToken(tokenId);

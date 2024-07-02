@@ -123,4 +123,37 @@ public class DexGrpcClientTest {
         assertThat(thrown.getMessage()).contains("GAL5063E", "Failed to delete client with the given ID");
         assertThat(client.getDexClients()).hasSize(2);
     }
+
+    @Test
+    public void testRevokeRefreshWithNonExistantClientThrowsException() throws Exception {
+        // Given...
+        MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer");
+
+        // When...
+        Throwable thrown = catchThrowableOfType(() -> {
+            client.revokeRefreshToken("my-user", "notfound");
+        }, InternalServletException.class);
+
+        // Then...
+        assertThat(thrown.getMessage()).contains("GAL5064E", "Failed to revoke the token with the given ID");
+    }
+
+    @Test
+    public void testRevokeRefreshRemovesTokenOK() throws Exception {
+        // Given...
+        String userId = "my-user";
+        String clientId = "my-client";
+
+        MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer");
+        client.addDexClient(clientId, "my-secret", "http://my-callback-url");
+        client.addMockRefreshToken(userId, clientId);
+
+        assertThat(client.getRefreshTokens()).hasSize(1);
+
+        // When...
+        client.revokeRefreshToken(userId, clientId);
+
+        // Then...
+        assertThat(client.getRefreshTokens()).hasSize(0);
+    }
 }

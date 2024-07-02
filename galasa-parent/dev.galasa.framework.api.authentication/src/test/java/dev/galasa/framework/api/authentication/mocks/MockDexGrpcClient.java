@@ -15,6 +15,8 @@ import com.coreos.dex.api.DexOuterClass.DeleteClientReq;
 import com.coreos.dex.api.DexOuterClass.DeleteClientResp;
 import com.coreos.dex.api.DexOuterClass.GetClientReq;
 import com.coreos.dex.api.DexOuterClass.GetClientResp;
+import com.coreos.dex.api.DexOuterClass.RevokeRefreshReq;
+import com.coreos.dex.api.DexOuterClass.RevokeRefreshResp;
 import com.coreos.dex.api.DexOuterClass.CreateClientResp.Builder;
 
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
@@ -25,6 +27,7 @@ import io.grpc.StatusRuntimeException;
 public class MockDexGrpcClient extends DexGrpcClient {
 
     private List<Client> dexClients = new ArrayList<>();
+    private List<String> refreshTokens = new ArrayList<>();
 
     public MockDexGrpcClient(String issuerHostname, String clientId, String clientSecret, String callbackUrl) {
         super(issuerHostname, "http://my-ecosystem");
@@ -64,18 +67,12 @@ public class MockDexGrpcClient extends DexGrpcClient {
         }
         return getClientRespBuilder.build();
     }
+
     @Override
     public DeleteClientResp sendDeleteClientRequest(DeleteClientReq deleteClientReq) {
         com.coreos.dex.api.DexOuterClass.DeleteClientResp.Builder deleteClientRespBuilder = DeleteClientResp.newBuilder();
         String clientId = deleteClientReq.getId();
-
-        Client clientToRemove = null;
-        for (Client dexClient : dexClients) {
-            if (dexClient.getId().equals(clientId)) {
-                clientToRemove = dexClient;
-                break;
-            }
-        }
+        Client clientToRemove = getDexClient(clientId);
 
         if (clientToRemove != null) {
             dexClients.remove(clientToRemove);
@@ -83,8 +80,26 @@ public class MockDexGrpcClient extends DexGrpcClient {
         } else {
             deleteClientRespBuilder.setNotFound(true);
         }
-        
         return deleteClientRespBuilder.build();
+    }
+
+    @Override
+    public RevokeRefreshResp sendRevokeRefreshRequest(RevokeRefreshReq revokeRefreshReq) {
+        com.coreos.dex.api.DexOuterClass.RevokeRefreshResp.Builder builder = RevokeRefreshResp.newBuilder();
+        String clientId = revokeRefreshReq.getClientId();
+        if (clientId.equals("notfound")) {
+            builder.setNotFound(true);
+        } else {
+            builder.setNotFound(false);
+            String tokenToRemove = null;
+            for (String refreshToken : refreshTokens) {
+                if (refreshToken.endsWith(clientId)) {
+                    tokenToRemove = refreshToken;
+                }
+            }
+            refreshTokens.remove(tokenToRemove);
+        }
+        return builder.build();
     }
 
     public void addDexClient(String clientId, String clientSecret, String callbackUrl) {
@@ -96,7 +111,26 @@ public class MockDexGrpcClient extends DexGrpcClient {
         dexClients.add(clientBuilder.build());
     }
 
+    public void addMockRefreshToken(String userId, String clientId) {
+        refreshTokens.add(userId + clientId);
+    }
+
+    private Client getDexClient(String clientId) {
+        Client clientToReturn = null;
+        for (Client dexClient : dexClients) {
+            if (dexClient.getId().equals(clientId)) {
+                clientToReturn = dexClient;
+                break;
+            }
+        }
+        return clientToReturn;
+    }
+
     public List<Client> getDexClients() {
         return dexClients;
+    }
+
+    public List<String> getRefreshTokens() {
+        return refreshTokens;
     }
 }

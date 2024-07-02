@@ -21,6 +21,8 @@ import com.coreos.dex.api.DexOuterClass.DeleteClientReq;
 import com.coreos.dex.api.DexOuterClass.DeleteClientResp;
 import com.coreos.dex.api.DexOuterClass.GetClientReq;
 import com.coreos.dex.api.DexOuterClass.GetClientResp;
+import com.coreos.dex.api.DexOuterClass.RevokeRefreshReq;
+import com.coreos.dex.api.DexOuterClass.RevokeRefreshResp;
 import com.coreos.dex.api.DexOuterClass.CreateClientReq.Builder;
 
 import dev.galasa.framework.api.common.InternalServletException;
@@ -139,6 +141,34 @@ public class DexGrpcClient {
     }
 
     /**
+     * Revokes a refresh token for a given Dex client and corresponding user.
+     *
+     * @param userId   the ID of the user the refresh token is for
+     * @param clientId the ID of the client the refresh token is for
+     * @throws InternalServletException if there was an issue revoking the refresh token
+     */
+    public void revokeRefreshToken(String userId, String clientId) throws InternalServletException {
+        logger.info("Revoking refresh token client with ID: " + clientId);
+
+        // Build the RevokeRefresh request
+        com.coreos.dex.api.DexOuterClass.RevokeRefreshReq.Builder revokeRefreshReqBuilder = RevokeRefreshReq.newBuilder();
+        revokeRefreshReqBuilder.setClientId(clientId);
+        revokeRefreshReqBuilder.setUserId(userId);
+
+        // Send the gRPC call to delete the Dex client
+        RevokeRefreshReq revokeRefreshReq = revokeRefreshReqBuilder.build();
+        RevokeRefreshResp clientResp = sendRevokeRefreshRequest(revokeRefreshReq);
+
+        if (!clientResp.getNotFound()) {
+            logger.info("Refresh token successfully revoked");
+        } else {
+            // Something went wrong, the client with the given ID couldn't be found
+            ServletError error = new ServletError(GAL5064_FAILED_TO_REVOKE_TOKEN);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * Initialises a blocking stub to be used when sending requests to Dex's gRPC
      * API.
      *
@@ -177,5 +207,15 @@ public class DexGrpcClient {
      */
     protected DeleteClientResp sendDeleteClientRequest(DeleteClientReq deleteClientReq) {
         return blockingStub.deleteClient(deleteClientReq);
+    }
+
+    /**
+     * Sends a request to revoke a Dex refresh token.
+     *
+     * @param revokeRefreshReq the request to send
+     * @return the response received from Dex's gRPC API
+     */
+    protected RevokeRefreshResp sendRevokeRefreshRequest(RevokeRefreshReq revokeRefreshReq) {
+        return blockingStub.revokeRefresh(revokeRefreshReq);
     }
 }

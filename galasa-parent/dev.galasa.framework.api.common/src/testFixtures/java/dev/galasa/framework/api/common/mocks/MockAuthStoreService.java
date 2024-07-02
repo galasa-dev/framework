@@ -10,21 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.galasa.framework.spi.auth.IAuthStoreService;
-import dev.galasa.framework.spi.auth.IAuthToken;
+import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.User;
 import dev.galasa.framework.spi.utils.ITimeService;
-import dev.galasa.framework.api.common.AuthToken;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 public class MockAuthStoreService implements IAuthStoreService {
 
-    List<IAuthToken> tokens = new ArrayList<>();
+    List<IInternalAuthToken> tokens = new ArrayList<>();
     private ITimeService timeService;
     private int tokenIdCounter = 0;
 
     private boolean throwException = false;
 
-    public MockAuthStoreService(List<IAuthToken> tokens) {
+    public MockAuthStoreService(List<IInternalAuthToken> tokens) {
         this.tokens = tokens;
         this.timeService = new MockTimeService(Instant.now());
     }
@@ -38,11 +37,10 @@ public class MockAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public List<IAuthToken> getTokens() throws AuthStoreException {
+    public List<IInternalAuthToken> getTokens() throws AuthStoreException {
         if (throwException) {
             throwAuthStoreException();
         }
-
         return tokens;
     }
 
@@ -51,7 +49,7 @@ public class MockAuthStoreService implements IAuthStoreService {
         if (throwException) {
             throwAuthStoreException();
         }
-        tokens.add(new AuthToken("token-" + tokenIdCounter, description, timeService.now(), owner));
+        tokens.add(new MockInternalAuthToken("token-" + tokenIdCounter, description, timeService.now(), owner, clientId));
         tokenIdCounter++;
     }
 
@@ -61,7 +59,11 @@ public class MockAuthStoreService implements IAuthStoreService {
 
     @Override
     public void deleteToken(String tokenId) throws AuthStoreException {
-        IAuthToken tokenToRemove = getToken(tokenId);
+        if (throwException) {
+            throwAuthStoreException();
+        }
+
+        IInternalAuthToken tokenToRemove = getToken(tokenId);
         if (tokenToRemove != null) {
             tokens.remove(tokenToRemove);
         } else {
@@ -70,9 +72,13 @@ public class MockAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public IAuthToken getToken(String tokenId) throws AuthStoreException {
-        IAuthToken tokenToReturn = null;
-        for (IAuthToken token : tokens) {
+    public IInternalAuthToken getToken(String tokenId) throws AuthStoreException {
+        if (throwException) {
+            throwAuthStoreException();
+        }
+
+        IInternalAuthToken tokenToReturn = null;
+        for (IInternalAuthToken token : tokens) {
             if (token.getTokenId().equals(tokenId)) {
                 tokenToReturn = token;
                 break;

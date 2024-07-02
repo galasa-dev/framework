@@ -97,7 +97,7 @@ public enum ServletErrorMessage {
     GAL5062_INVALID_TOKEN_REQUEST_BODY                (5062, "E: Invalid request body provided. Please ensure that you have provided a client ID and either a refresh token or a authorization code in your request. Allowable characters for these parameters are 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), and '_' (underscore)"),
     GAL5063_FAILED_TO_DELETE_CLIENT                   (5063, "E: Failed to delete client with the given ID. Please ensure that you have provided a valid ID representing an existing Dex client in your request and try again"),
     GAL5064_FAILED_TO_REVOKE_TOKEN                    (5064, "E: Failed to revoke the token with the given ID. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
-    GAL5064_FAILED_TO_GET_TOKEN_ID_FROM_URL           (5065, "E: Failed to retrieve a token ID from the request path. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
+    GAL5065_FAILED_TO_GET_TOKEN_ID_FROM_URL           (5065, "E: Failed to retrieve a token ID from the request path. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     ;
 
 
