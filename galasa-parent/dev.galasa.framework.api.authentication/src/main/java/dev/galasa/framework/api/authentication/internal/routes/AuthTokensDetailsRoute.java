@@ -65,6 +65,7 @@ public class AuthTokensDetailsRoute extends BaseRoute {
 
     private void revokeToken(String tokenId, String userId) throws InternalServletException {
         try {
+            logger.info("Attempting to revoke token with ID '" + tokenId + "'");
             // Delete the Dex client associated with the token
             IInternalAuthToken tokenToRevoke = authStoreService.getToken(tokenId);
             if (tokenToRevoke == null) {
@@ -80,6 +81,8 @@ public class AuthTokensDetailsRoute extends BaseRoute {
 
             // Delete the token's record in the auth store
             authStoreService.deleteToken(tokenId);
+
+            logger.info("Revoked token with ID '" + tokenId + "' OK");
         } catch (AuthStoreException ex) {
             ServletError error = new ServletError(GAL5064_FAILED_TO_REVOKE_TOKEN);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex);

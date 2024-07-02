@@ -87,17 +87,19 @@ public class MockDexGrpcClient extends DexGrpcClient {
     public RevokeRefreshResp sendRevokeRefreshRequest(RevokeRefreshReq revokeRefreshReq) {
         com.coreos.dex.api.DexOuterClass.RevokeRefreshResp.Builder builder = RevokeRefreshResp.newBuilder();
         String clientId = revokeRefreshReq.getClientId();
-        if (clientId.equals("notfound")) {
-            builder.setNotFound(true);
-        } else {
-            builder.setNotFound(false);
+        builder.setNotFound(true);
+
+        if (!clientId.equals("notfound")) {
             String tokenToRemove = null;
             for (String refreshToken : refreshTokens) {
                 if (refreshToken.endsWith(clientId)) {
                     tokenToRemove = refreshToken;
                 }
             }
-            refreshTokens.remove(tokenToRemove);
+            if (tokenToRemove != null) {
+                refreshTokens.remove(tokenToRemove);
+                builder.setNotFound(false);
+            }
         }
         return builder.build();
     }
