@@ -67,6 +67,11 @@ public class AuthTokensDetailsRoute extends BaseRoute {
         try {
             // Delete the Dex client associated with the token
             IInternalAuthToken tokenToRevoke = authStoreService.getToken(tokenId);
+            if (tokenToRevoke == null) {
+                ServletError error = new ServletError(GAL5064_FAILED_TO_REVOKE_TOKEN);
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            }
+
             String dexClientId = tokenToRevoke.getDexClientId();
             dexGrpcClient.deleteClient(dexClientId);
 

@@ -121,7 +121,7 @@ public class DexGrpcClient {
      * @throws InternalServletException if there was an issue deleting the client
      */
     public void deleteClient(String clientId) throws InternalServletException {
-        logger.info("Deleting Dex client with ID: " + clientId);
+        logger.info("Deleting Dex client");
 
         // Build the DeleteClient request
         com.coreos.dex.api.DexOuterClass.DeleteClientReq.Builder deleteClientReqBuilder = DeleteClientReq.newBuilder();
@@ -136,7 +136,7 @@ public class DexGrpcClient {
         } else {
             // Something went wrong, the client with the given ID couldn't be found
             ServletError error = new ServletError(GAL5063_FAILED_TO_DELETE_CLIENT);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -148,7 +148,7 @@ public class DexGrpcClient {
      * @throws InternalServletException if there was an issue revoking the refresh token
      */
     public void revokeRefreshToken(String userId, String clientId) throws InternalServletException {
-        logger.info("Revoking refresh token client with ID: " + clientId);
+        logger.info("Revoking refresh token");
 
         // Build the RevokeRefresh request
         com.coreos.dex.api.DexOuterClass.RevokeRefreshReq.Builder revokeRefreshReqBuilder = RevokeRefreshReq.newBuilder();
@@ -162,9 +162,9 @@ public class DexGrpcClient {
         if (!clientResp.getNotFound()) {
             logger.info("Refresh token successfully revoked");
         } else {
-            // Something went wrong, the client with the given ID couldn't be found
+            // Something went wrong, the refresh token for the given client and user couldn't be found
             ServletError error = new ServletError(GAL5064_FAILED_TO_REVOKE_TOKEN);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
 

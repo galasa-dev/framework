@@ -142,4 +142,44 @@ public class AuthTokensDetailsRouteTest {
         assertThat(servletResponse.getStatus()).isEqualTo(500);
         assertThat(outStream.toString()).contains("GAL5064E", "Failed to revoke the token with the given ID");
     }
+
+    @Test
+    public void testDeleteAuthTokensWithNonExistantTokenReturnsNotFound() throws Exception {
+        // Given...
+        String tokenId = "non-existant-token";
+        String description = "test token";
+        String clientId = "my-client";
+        Instant creationTime = Instant.now();
+        User owner = new User("username");
+
+        List<IInternalAuthToken> tokens = new ArrayList<>();
+        tokens.add(new MockInternalAuthToken("a-different-token", description, creationTime, owner, clientId));
+
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+        mockDexGrpcClient.addDexClient("another-client", "my-secret", "http://a-callback-url");
+        mockDexGrpcClient.addMockRefreshToken(owner.getLoginId(), clientId);
+
+        MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
+
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
+
+        Algorithm mockJwtSigningAlgorithm = Algorithm.HMAC256("dummysecret");
+        String mockJwt = JWT.create()
+            .withSubject(owner.getLoginId())
+            .withIssuedAt(Instant.EPOCH)
+            .sign(mockJwtSigningAlgorithm);
+
+        Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doDelete(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(404);
+        assertThat(outStream.toString()).contains("GAL5064E", "Failed to revoke the token with the given ID");
+    }
 }
