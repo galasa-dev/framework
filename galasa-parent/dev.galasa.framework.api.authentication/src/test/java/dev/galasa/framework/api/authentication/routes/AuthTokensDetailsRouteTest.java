@@ -23,6 +23,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import dev.galasa.framework.api.authentication.internal.routes.AuthTokensDetailsRoute;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
+import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockAuthStoreService;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -31,10 +32,18 @@ import dev.galasa.framework.api.common.mocks.MockInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.User;
 
-public class AuthTokensDetailsRouteTest {
+public class AuthTokensDetailsRouteTest extends BaseServletTest {
+
+    private String createMockJwt(String userId) {
+        Algorithm mockJwtSigningAlgorithm = Algorithm.HMAC256("dummysecret");
+        return JWT.create()
+            .withSubject(userId)
+            .withIssuedAt(Instant.EPOCH)
+            .sign(mockJwtSigningAlgorithm);
+    }
 
     @Test
-    public void testAuthTokensDetailsRouteRegexMatchesExpectedPaths(){
+    public void testAuthTokensDetailsRouteRegexMatchesExpectedPaths() throws Exception {
         //Given...
         String tokensDetailsRoutePath = new AuthTokensDetailsRoute(null, null, null).getPath();
 
@@ -80,11 +89,7 @@ public class AuthTokensDetailsRouteTest {
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
 
-        Algorithm mockJwtSigningAlgorithm = Algorithm.HMAC256("dummysecret");
-        String mockJwt = JWT.create()
-            .withSubject(owner.getLoginId())
-            .withIssuedAt(Instant.EPOCH)
-            .sign(mockJwtSigningAlgorithm);
+        String mockJwt = createMockJwt(owner.getLoginId());
 
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
@@ -123,11 +128,7 @@ public class AuthTokensDetailsRouteTest {
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
 
-        Algorithm mockJwtSigningAlgorithm = Algorithm.HMAC256("dummysecret");
-        String mockJwt = JWT.create()
-            .withSubject(owner.getLoginId())
-            .withIssuedAt(Instant.EPOCH)
-            .sign(mockJwtSigningAlgorithm);
+        String mockJwt = createMockJwt(owner.getLoginId());
 
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
@@ -140,7 +141,7 @@ public class AuthTokensDetailsRouteTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(500);
-        assertThat(outStream.toString()).contains("GAL5064E", "Failed to revoke the token with the given ID");
+        checkErrorStructure(outStream.toString(), 5064, "GAL5064E", "Failed to revoke the token with the given ID");
     }
 
     @Test
@@ -160,14 +161,9 @@ public class AuthTokensDetailsRouteTest {
         mockDexGrpcClient.addMockRefreshToken(owner.getLoginId(), clientId);
 
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
-
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
 
-        Algorithm mockJwtSigningAlgorithm = Algorithm.HMAC256("dummysecret");
-        String mockJwt = JWT.create()
-            .withSubject(owner.getLoginId())
-            .withIssuedAt(Instant.EPOCH)
-            .sign(mockJwtSigningAlgorithm);
+        String mockJwt = createMockJwt(owner.getLoginId());
 
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
@@ -180,7 +176,7 @@ public class AuthTokensDetailsRouteTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(404);
-        assertThat(outStream.toString()).contains("GAL5066E", "No such token with the given ID exists");
+        checkErrorStructure(outStream.toString(), 5066, "GAL5066E", "No such token with the given ID exists");
     }
 
     @Test
@@ -200,14 +196,9 @@ public class AuthTokensDetailsRouteTest {
         mockDexGrpcClient.addMockRefreshToken(owner.getLoginId(), clientId);
 
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
-
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
 
-        Algorithm mockJwtSigningAlgorithm = Algorithm.HMAC256("dummysecret");
-        String mockJwt = JWT.create()
-            .withSubject(owner.getLoginId())
-            .withIssuedAt(Instant.EPOCH)
-            .sign(mockJwtSigningAlgorithm);
+        String mockJwt = createMockJwt(owner.getLoginId());
 
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
@@ -220,7 +211,7 @@ public class AuthTokensDetailsRouteTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(404);
-        assertThat(outStream.toString()).contains("GAL5063E", "Failed to delete client with the given ID");
+        checkErrorStructure(outStream.toString(), 5063, "GAL5063E", "Failed to delete client with the given ID");
     }
 
     @Test
@@ -240,14 +231,9 @@ public class AuthTokensDetailsRouteTest {
         mockDexGrpcClient.addDexClient(clientId, "my-secret", "http://a-callback-url");
 
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
-
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
 
-        Algorithm mockJwtSigningAlgorithm = Algorithm.HMAC256("dummysecret");
-        String mockJwt = JWT.create()
-            .withSubject(owner.getLoginId())
-            .withIssuedAt(Instant.EPOCH)
-            .sign(mockJwtSigningAlgorithm);
+        String mockJwt = createMockJwt(owner.getLoginId());
 
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
@@ -260,6 +246,6 @@ public class AuthTokensDetailsRouteTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(404);
-        assertThat(outStream.toString()).contains("GAL5064E", "Failed to revoke the token with the given ID");
+        checkErrorStructure(outStream.toString(), 5064, "GAL5064E", "Failed to revoke the token with the given ID");
     }
 }
