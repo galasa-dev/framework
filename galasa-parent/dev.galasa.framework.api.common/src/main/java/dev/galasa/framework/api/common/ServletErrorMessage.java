@@ -98,6 +98,7 @@ public enum ServletErrorMessage {
     GAL5063_FAILED_TO_DELETE_CLIENT                   (5063, "E: Failed to delete client with the given ID. Please ensure that you have provided a valid ID representing an existing Dex client in your request and try again"),
     GAL5064_FAILED_TO_REVOKE_TOKEN                    (5064, "E: Failed to revoke the token with the given ID. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     GAL5065_FAILED_TO_GET_TOKEN_ID_FROM_URL           (5065, "E: Failed to retrieve a token ID from the request path. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
+    GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS                (5066, "E: No such token with the given ID exists. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     ;
 
 

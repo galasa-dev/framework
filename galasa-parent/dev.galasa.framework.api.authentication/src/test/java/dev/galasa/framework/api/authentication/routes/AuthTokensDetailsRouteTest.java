@@ -180,6 +180,6 @@ public class AuthTokensDetailsRouteTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(404);
-        assertThat(outStream.toString()).contains("GAL5064E", "Failed to revoke the token with the given ID");
+        assertThat(outStream.toString()).contains("GAL5066E", "No such token with the given ID exists");
     }
 }
