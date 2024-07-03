@@ -82,8 +82,13 @@ public class TestGherkinTest {
         MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
         gherkinReader.setFeatureText("");
 
-        GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
-        assertThat(test).isNotNull();
+        TestRunException ex = catchThrowableOfType(
+            ()-> { new GherkinTest(run,testStructure,gherkinReader); }, 
+            TestRunException.class);
+        assertThat(ex)
+            .isNotNull()
+            .hasMessageContaining("GHER002")
+            ;
     }
 
     @Test
@@ -116,7 +121,7 @@ public class TestGherkinTest {
         GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
         assertThat(test).isNotNull();
         assertThat(test.getName()).isEqualTo("Browse the catalog and order");
-        assertThat(test.getMethods()).hasSize(1);
+        assertThat(test.getScenarios()).hasSize(1);
     }
 
     @Test
@@ -148,7 +153,7 @@ public class TestGherkinTest {
 
         TestRunException ex = catchThrowableOfType( ()-> new GherkinTest(run,testStructure,gherkinReader),
             TestRunException.class );
-        assertThat(ex).hasMessageContaining("Example specified without being inside a 'Scenario Outline:'");
+        assertThat(ex).hasMessageContaining("Example given outside of a Scenario Outline.");
     }
 
     @Test
@@ -177,7 +182,7 @@ public class TestGherkinTest {
 
         TestRunException ex = catchThrowableOfType( ()-> new GherkinTest(run,testStructure,gherkinReader),
             TestRunException.class );
-        assertThat(ex).hasMessageContaining("Badly formed Gherkin feature: 'Scenario Outline:' used without an 'Examples:' section.");
+        assertThat(ex).hasMessageContaining("'Scenario Outline:' used without an 'Examples:' section.");
     }
 
     @Test
@@ -214,7 +219,7 @@ public class TestGherkinTest {
         assertThat(test.getName()).isEqualTo("Browse the catalog and order");
 
         // TODO: Explain why there is only one method, despite the table having two rows ? 
-        assertThat(test.getMethods()).hasSize(1);
+        assertThat(test.getScenarios()).hasSize(3);
     }
 
     @Test
@@ -255,8 +260,8 @@ public class TestGherkinTest {
         GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
         assertThat(test).isNotNull();
         assertThat(test.getName()).isEqualTo("Browse the catalog and order");
-        assertThat(test.getMethods()).hasSize(1);
-        assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario 1");
+        assertThat(test.getScenarios()).hasSize(1);
+        assertThat(test.getScenarios().get(0).getName()).isEqualTo("Scenario 1");
     }
 
     @Test
@@ -304,9 +309,9 @@ public class TestGherkinTest {
         GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
         assertThat(test).isNotNull();
         assertThat(test.getName()).isEqualTo("Browse the catalog and order");
-        assertThat(test.getMethods()).hasSize(2);
-        assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario 1");
-        assertThat(test.getMethods().get(1).getName()).isEqualTo("Scenario 2");
+        assertThat(test.getScenarios()).hasSize(2);
+        assertThat(test.getScenarios().get(0).getName()).isEqualTo("Scenario 1");
+        assertThat(test.getScenarios().get(1).getName()).isEqualTo("Scenario 2");
     }
 
     @Test
@@ -356,9 +361,11 @@ public class TestGherkinTest {
         GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
         assertThat(test).isNotNull();
         assertThat(test.getName()).isEqualTo("Browse the catalog and order");
-        assertThat(test.getMethods()).hasSize(2);
-        assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario 1");
-        assertThat(test.getMethods().get(1).getName()).isEqualTo("Scenario outline 1");
+        assertThat(test.getScenarios()).hasSize(4);
+        assertThat(test.getScenarios().get(0).getName()).isEqualTo("Scenario 1");
+        assertThat(test.getScenarios().get(1).getName()).isEqualTo("Scenario outline 1-0");
+        assertThat(test.getScenarios().get(2).getName()).isEqualTo("Scenario outline 1-1");
+        assertThat(test.getScenarios().get(3).getName()).isEqualTo("Scenario outline 1-2");
     }
 
     @Test
@@ -390,16 +397,16 @@ public class TestGherkinTest {
 
             .append("Scenario Outline: Scenario outline 2\n")
             .append("\n")
-            .append("Given a terminal\n")
-            .append("Then wait for \"myString\" in any terminal field\n")
-            .append("And type \"myString\" on terminal\n")
-            .append("Then check \"Sign-on is complete\" appears only once on terminal\n")
+            .append("Given a terminal 2\n")
+            .append("Then wait for \"myString\" in any terminal field 2\n")
+            .append("And type \"myString\" on terminal 2 \n")
+            .append("Then check \"Sign-on is complete\" appears only once on terminal 2\n")
             .append("\n")
             .append("Examples:\n")
-            .append("| field1 | field2 |\n")
-            .append("| X123455  | YXXXXXXX |\n")
-            .append("| Xiwhdoi  | uqhwdhjq |\n")
-            .append("| asdasda  | asdasdas |\n")
+            .append("| field12 | field22 |\n")
+            .append("| X1234552  | YXXXXXXX2 |\n")
+            .append("| Xiwhdoi2  | uqhwdhjq2 |\n")
+            .append("| asdasda2  | asdasdas2 |\n")
             .append("\n")
 
             .toString();
@@ -409,9 +416,13 @@ public class TestGherkinTest {
         GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
         assertThat(test).isNotNull();
         assertThat(test.getName()).isEqualTo("Browse the catalog and order");
-        assertThat(test.getMethods()).hasSize(2);
-        assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario outline 1");
-        assertThat(test.getMethods().get(1).getName()).isEqualTo("Scenario outline 2");
+        assertThat(test.getScenarios()).hasSize(6);
+        assertThat(test.getScenarios().get(0).getName()).isEqualTo("Scenario outline 1-0");
+        assertThat(test.getScenarios().get(1).getName()).isEqualTo("Scenario outline 1-1");
+        assertThat(test.getScenarios().get(2).getName()).isEqualTo("Scenario outline 1-2");
+        assertThat(test.getScenarios().get(3).getName()).isEqualTo("Scenario outline 2-0");
+        assertThat(test.getScenarios().get(4).getName()).isEqualTo("Scenario outline 2-1");
+        assertThat(test.getScenarios().get(5).getName()).isEqualTo("Scenario outline 2-2");
     }
 
     @Test
@@ -461,9 +472,11 @@ public class TestGherkinTest {
         GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
         assertThat(test).isNotNull();
         assertThat(test.getName()).isEqualTo("Browse the catalog and order");
-        assertThat(test.getMethods()).hasSize(2);
-        assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario outline 1");
-        assertThat(test.getMethods().get(1).getName()).isEqualTo("Scenario 1");
+        assertThat(test.getScenarios()).hasSize(4);
+        assertThat(test.getScenarios().get(0).getName()).isEqualTo("Scenario outline 1-0");
+        assertThat(test.getScenarios().get(1).getName()).isEqualTo("Scenario outline 1-1");
+        assertThat(test.getScenarios().get(2).getName()).isEqualTo("Scenario outline 1-2");
+        assertThat(test.getScenarios().get(3).getName()).isEqualTo("Scenario 1");
     }
 
     @Test
@@ -501,7 +514,9 @@ public class TestGherkinTest {
         GherkinTest test = new GherkinTest(run,testStructure,gherkinReader);
         assertThat(test).isNotNull();
         assertThat(test.getName()).isEqualTo("Browse the catalog and order");
-        assertThat(test.getMethods()).hasSize(1);
-        assertThat(test.getMethods().get(0).getName()).isEqualTo("Scenario 1");
+        assertThat(test.getScenarios()).hasSize(1);
+        assertThat(test.getScenarios().get(0).getName()).isEqualTo("Scenario 1");
     }
+
+   
 }

@@ -202,4 +202,122 @@ public class TestGherkinParser {
         assertThat(expectedStepList3.getType()).isEqualTo(TokenType.STEP_LIST);
         assertThat(expectedStepList3.getChildren()).isEmpty();
     }
+
+    @Test
+    public void TestFeatureWithTwoComplexScenarios() throws Exception {
+        // Given...
+        List<String> lines = List.of(
+            "Feature: my feature",
+            "Scenario: scenario1",
+            "  Given a",
+            "  and b",
+            "  then c",
+            "Scenario: scenario2",
+            "  Given a",
+            "  and b",
+            "  then c"
+        );
+        LexicalScanner lexer = new GherkinLexicalScanner(lines);
+        dev.galasa.framework.spi.language.gherkin.parser.GherkinParser parser = new dev.galasa.framework.spi.language.gherkin.parser.GherkinParser(lexer);
+        ParseToken rootToken = parser.Parse();
+
+        String expectedParseTreeText = 
+        "{token:<feature>, line:1, text:my feature}\n"+
+        "  {token:Feature:, line:1, text:my feature}\n"+ 
+        "  {token:<scenarioPartList>, line:2, text:scenario1}\n"+ 
+        "    {token:<scenario>, line:2, text:scenario1}\n"+ 
+        "      {token:Scenario:, line:2, text:scenario1}\n"+ 
+        "      {token:<stepList>, line:3, text:Given a}\n"+ 
+        "        {token:step, line:3, text:Given a}\n"+ 
+        "        {token:<stepList>, line:4, text:and b}\n"+ 
+        "          {token:step, line:4, text:and b}\n"+ 
+        "          {token:<stepList>, line:5, text:then c}\n"+ 
+        "            {token:step, line:5, text:then c}\n"+ 
+        "            {token:<stepList>, line:6, text:}\n"+ 
+        "    {token:<scenarioPartList>, line:6, text:scenario2}\n"+ 
+        "      {token:<scenario>, line:6, text:scenario2}\n"+ 
+        "        {token:Scenario:, line:6, text:scenario2}\n"+ 
+        "        {token:<stepList>, line:7, text:Given a}\n"+ 
+        "          {token:step, line:7, text:Given a}\n"+ 
+        "          {token:<stepList>, line:8, text:and b}\n"+ 
+        "            {token:step, line:8, text:and b}\n"+ 
+        "            {token:<stepList>, line:9, text:then c}\n"+ 
+        "              {token:step, line:9, text:then c}\n"+ 
+        "              {token:<stepList>, line:10, text:}\n"+ 
+        "      {token:<scenarioPartList>, line:10, text:}\n"
+        ;
+
+        ParseTreePrinter printer = new ParseTreePrinter();
+        String actualParseTreeText = printer.getPrintOutput(rootToken);
+        assertThat(actualParseTreeText).isEqualTo(expectedParseTreeText);
+    }
+
+    @Test
+    public void TestFeatureWithScenarioOutline() throws Exception {
+        // Given...
+        List<String> lines = List.of(
+            "Feature: Browse the catalog and order\n",
+            "\n",
+            "Scenario Outline: Scenario outline 1\n",
+            "\n",
+            "Given a terminal\n",
+            "Then wait for \"myString\" in any terminal field\n",
+            "And type \"myString\" on terminal\n",
+            "Then check \"Sign-on is complete\" appears only once on terminal\n",
+            "\n",
+            "Examples:\n",
+            "| field1 | field2 |\n",
+            "| X123455  | YXXXXXXX |\n",
+            "| Xiwhdoi  | uqhwdhjq |\n",
+            "| asdasda  | asdasdas |\n",
+            "\n"
+        );
+
+
+        LexicalScanner lexer = new GherkinLexicalScanner(lines);
+        dev.galasa.framework.spi.language.gherkin.parser.GherkinParser parser = new dev.galasa.framework.spi.language.gherkin.parser.GherkinParser(lexer);
+        ParseToken rootToken = parser.Parse();
+
+        
+        List<String> expectedParseTreeTextLines = List.of(
+        "{token:<feature>, line:1, text:Browse the catalog and order}",
+        "  {token:Feature:, line:1, text:Browse the catalog and order}",
+        "  {token:<scenarioPartList>, line:3, text:Scenario outline 1}",
+        "    {token:<scenarioPart>, line:3, text:Scenario outline 1}",
+        "      {token:<scenarioOutline>, line:3, text:Scenario outline 1}",
+        "        {token:Scenario Outline:, line:3, text:Scenario outline 1}",
+        "        {token:<stepList>, line:5, text:Given a terminal}",
+        "          {token:step, line:5, text:Given a terminal}",
+        "          {token:<stepList>, line:6, text:Then wait for \"myString\" in any terminal field}",
+        "            {token:step, line:6, text:Then wait for \"myString\" in any terminal field}",
+        "            {token:<stepList>, line:7, text:And type \"myString\" on terminal}",
+        "              {token:step, line:7, text:And type \"myString\" on terminal}",
+        "              {token:<stepList>, line:8, text:Then check \"Sign-on is complete\" appears only once on terminal}",
+        "                {token:step, line:8, text:Then check \"Sign-on is complete\" appears only once on terminal}",
+        "                {token:<stepList>, line:10, text:}",
+        "        {token:Examples:, line:10, text:}",
+        "        {token:<dataTable>, line:11, text:| field1 | field2 |}",
+        "          {token:<dataTableHeader>, line:11, text:| field1 | field2 |}",
+        "            {token:data line, line:11, text:| field1 | field2 |}",
+        "          {token:<dataTableLineList>, line:12, text:| X123455  | YXXXXXXX |}",
+        "            {token:data line, line:12, text:| X123455  | YXXXXXXX |}",
+        "            {token:<dataTableLineList>, line:13, text:| Xiwhdoi  | uqhwdhjq |}",
+        "              {token:data line, line:13, text:| Xiwhdoi  | uqhwdhjq |}",
+        "              {token:<dataTableLineList>, line:14, text:| asdasda  | asdasdas |}",
+        "                {token:data line, line:14, text:| asdasda  | asdasdas |}",
+        "                {token:<dataTableLineList>, line:0, text:}",
+        "    {token:<scenarioPartList>, line:16, text:}"
+        );
+        StringBuffer buff = new StringBuffer();
+        for( String expectedLine : expectedParseTreeTextLines){ 
+            buff.append(expectedLine);
+            buff.append("\n");
+        }
+        String expectedParseTreeText = buff.toString();
+
+        ParseTreePrinter printer = new ParseTreePrinter();
+        String actualParseTreeText = printer.getPrintOutput(rootToken);
+        assertThat(actualParseTreeText).isEqualTo(expectedParseTreeText);
+    }
+    
 }

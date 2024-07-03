@@ -27,7 +27,7 @@ public class GherkinStep implements IGherkinExecutable {
     private List<String> regexGroups;
     private Object owningClass;
 
-    private GherkinStep(String statement) throws TestRunException {
+    public GherkinStep(String statement) throws TestRunException {
         this.keyword = GherkinKeyword.get(statement);
         this.statement = statement.substring(statement.indexOf(" ") + 1).trim();
     }

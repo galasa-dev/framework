@@ -79,7 +79,7 @@ public class GherkinParser {
                 // <feature> := FEATURE_START <scenarioPartList> @ END_OF_FILE
                 ParseToken token2 = lex.getNextToken();
                 if (token2.getType()!=TokenType.END_OF_FILE) {
-                    String msg = MessageFormat.format("GHER001: Unexpected token {0} on line {1}",token2.getType(),token2.getLineNumber());
+                    String msg = MessageFormat.format("GHER001: Unexpected token {0}",token2);
                     error(msg);
                 }
 
@@ -118,9 +118,18 @@ public class GherkinParser {
                 reduce(2, new ParseToken(TokenType.SCENARIO_PART_LIST, ""));
                 break;
 
+            case EXAMPLES_START: 
+                {
+                    String msg = MessageFormat.format("GHER012: Unexpected token {0}. Example given outside of a Scenario Outline.", token);
+                    error(msg);
+                }
+                break;
+
             default:
-                String msg = MessageFormat.format("GHER003: Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
-                error(msg);
+                {
+                    String msg = MessageFormat.format("GHER003: Unexpected token {0}", token);
+                    error(msg);
+                }
                 break;
         }
     }
@@ -145,7 +154,7 @@ public class GherkinParser {
                 break;
 
             default:
-                String msg = MessageFormat.format("GHER004: Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
+                String msg = MessageFormat.format("GHER004: Unexpected token {0}", token);
                 error(msg);
                 break;
         }
@@ -166,7 +175,7 @@ public class GherkinParser {
                 break;
 
             default:
-                String msg = MessageFormat.format("GHER005: Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
+                String msg = MessageFormat.format("GHER005: Unexpected token {0}", token);
                 error(msg);
                 break;
         }
@@ -183,25 +192,111 @@ public class GherkinParser {
                 parseStepList();
                 
                 // <scenarioOutline> := SCENARIO_OUTLINE_START <stepList> @ EXAMPLES_START <dataTable>
-                ParseToken token2 = lex.getNextToken();
-                if (token.getType() != TokenType.EXAMPLES_START) {
-                    String msg = MessageFormat.format("GHER006: Unexpected token {0} at line {1}", token2.getType(), Integer.toString(token2.getLineNumber()));
-                    error(msg);
-                }
+                expectToken(TokenType.EXAMPLES_START, MessageFormat.format("GHER006: Unexpected token {0}. ''Scenario Outline:'' used without an ''Examples:'' section.", token) );
 
                 // <scenarioOutline> := SCENARIO_OUTLINE_START <stepList> EXAMPLES_START @ <dataTable>
-                // TODO: parseDataTable();
+                parseDataTable();
 
                 // <scenarioOutline> := SCENARIO_OUTLINE_START <stepList> EXAMPLES_START <dataTable> @
                 reduce(4,new ParseToken(TokenType.SCENARIO_OUTLINE, ""));
                 break;
 
             default:
-                String msg = MessageFormat.format("GHER007: Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
+                String msg = MessageFormat.format("GHER007: Unexpected token {0}", token);
                 error(msg);
                 break;
         }
     }
+
+    private void expectToken(TokenType expectedToken, String msgIfMissing ) throws TestRunException {
+        ParseToken token = lex.getNextToken();
+        if (token.getType() != expectedToken) {
+            error(msgIfMissing);
+        } else {
+            shift(token);
+        }
+    }
+
+    // <dataTable> ::= @ <dataHeaderLine> <dataValuesLineList>
+    // <dataHeaderLine> ::= DATA_LINE
+    private void parseDataTable() throws TestRunException {
+        ParseToken token = lex.getNextToken();
+        switch(token.getType()) {
+
+            case DATA_LINE:
+                // Don't process the token. Push it back to the lexer.
+                lex.pushBackToken(token);
+
+                // <dataTable> ::= @ <dataHeaderLine> <dataValuesLineList>
+                parseDataHeaderLine();
+
+                // <dataTable> ::= <dataHeaderLine> @ <dataValuesLineList>
+                parseDataValuesLineList();
+
+                // <dataTable> ::= <dataHeaderLine> <dataValuesLineList> @
+                reduce(2,new ParseToken(TokenType.DATA_TABLE, ""));
+
+            break;
+
+            default:
+                String msg = MessageFormat.format("GHER009: Unexpected token {0}. Expected the first line of a data table.", token);
+                error(msg);
+            break;
+        }
+    }
+
+
+    // <dataTableHeader> ::= @ DATA_LINE
+    private void parseDataHeaderLine() throws TestRunException {
+        ParseToken token = lex.getNextToken();
+        switch(token.getType()) {
+
+            case DATA_LINE:
+                shift(token);
+
+                // <dataTableHeader> ::= DATA_LINE @
+                reduce(1, new ParseToken(TokenType.DATA_TABLE_HEADER, ""));
+            break;
+
+            default:
+                String msg = MessageFormat.format("GHER010: Unexpected token {0}. Expected the first line of a data table.", token);
+                error(msg);
+            break;
+        }
+    }
+    
+    // <dataTableValuesLineList> ::= null
+    //                             | DATA_LINE <dataTableValuesLineList>
+    private void parseDataValuesLineList() throws TestRunException {
+        ParseToken token = lex.getNextToken();
+        switch(token.getType()) {
+
+            case DATA_LINE:
+                shift(token);
+                
+                // <dataValuesLineList> ::= DATA_LINE @ <dataValuesLineList>
+                parseDataValuesLineList();
+
+                // <dataValuesLineList> ::= DATA_LINE <dataValuesLineList> @
+                reduce(2,new ParseToken(TokenType.DATA_TABLE_LINE_LIST,""));
+            break;
+
+            case END_OF_FILE:
+            case SCENARIO_START:
+            case SCENARIO_OUTLINE_START:
+                lex.pushBackToken(token);
+                
+                // <dataValuesLineList> ::= null @
+                reduce(0,new ParseToken(TokenType.DATA_TABLE_LINE_LIST,""));
+                break;
+
+            default:
+                String msg = MessageFormat.format("GHER011: Unexpected token {0}. Expected the first line of a data table.", token);
+                error(msg);
+            break;
+        }
+    }
+
 
     // <stepList> := @ null
     //             | @ STEP <stepList>
@@ -210,12 +305,12 @@ public class GherkinParser {
         switch(token.getType()) {
             case SCENARIO_START:
             case SCENARIO_OUTLINE_START:
+            case EXAMPLES_START:
             case END_OF_FILE:
                 // <stepList> := @ null
                 lex.pushBackToken(token);
                 reduce(0,new ParseToken(TokenType.STEP_LIST,"",token.getLineNumber()));
                 break;
-
                  
             case STEP:
                 shift(token);
@@ -228,7 +323,7 @@ public class GherkinParser {
                 break;
 
             default:
-                String msg = MessageFormat.format("GHER008: Unexpected token {0} at line {1}", token.getType(), Integer.toString(token.getLineNumber()));
+                String msg = MessageFormat.format("GHER008: Unexpected token {0}", token);
                 error(msg);
                 break;
         }

@@ -32,12 +32,13 @@ public class ParseToken {
     public String toString() {
         StringBuffer buff = new StringBuffer();
 
-        buff.append("token:");
-        buff.append(this.type.name());
+        buff.append("{token:");
+        buff.append(this.type.getReadableName());
         buff.append(", line:");
         buff.append(this.lineNumber);
         buff.append(", text:");
         buff.append(this.text);
+        buff.append("}");
 
         return buff.toString();
     }

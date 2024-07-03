@@ -7,7 +7,6 @@ package dev.galasa.framework.spi.language.gherkin.parser;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.List;
 import org.junit.Test;
 
 public class TestParseToken {
