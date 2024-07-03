@@ -28,9 +28,10 @@ public class AuthClientsRoute extends BaseRoute {
 
     private DexGrpcClient dexGrpcClient;
 
+    private static final String PATH_PATTERN = "\\/clients\\/?";
+
     public AuthClientsRoute(ResponseBuilder responseBuilder, DexGrpcClient dexGrpcClient) {
-        // Regex to match /auth/clients and /auth/clients/
-        super(responseBuilder, "\\/clients\\/?");
+        super(responseBuilder, PATH_PATTERN);
         this.dexGrpcClient = dexGrpcClient;
     }
 

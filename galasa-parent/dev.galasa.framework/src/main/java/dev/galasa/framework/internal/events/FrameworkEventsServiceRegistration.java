@@ -5,6 +5,8 @@
  */
 package dev.galasa.framework.internal.events;
 
+import java.net.URI;
+
 import javax.validation.constraints.NotNull;
 
 import org.osgi.service.component.annotations.Component;
@@ -24,11 +26,17 @@ public class FrameworkEventsServiceRegistration implements IEventsServiceRegistr
      * @throws EventsException 
      */
     public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws EventsException {
+
         try {
-            frameworkInitialisation.registerEventsService(new FrameworkEventsService());
+            URI cps = frameworkInitialisation.getBootstrapConfigurationPropertyStore();
+
+            // If the CPS is a file, then register this version of the EventsService
+            if (cps.getScheme().equals("file")) {
+                frameworkInitialisation.registerEventsService(new FrameworkEventsService());
+            }
         } catch (EventsException e) {
             throw e;
         }
     }
-    
+
 }

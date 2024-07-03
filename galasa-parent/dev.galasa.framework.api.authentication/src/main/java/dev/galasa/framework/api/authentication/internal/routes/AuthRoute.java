@@ -1,3 +1,8 @@
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package dev.galasa.framework.api.authentication.internal.routes;
 
 import java.io.IOException;
@@ -44,6 +49,9 @@ public class AuthRoute extends BaseRoute {
     private static final String ID_TOKEN_KEY      = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
 
+    // Regex to match endpoint /auth and /auth/
+    private static final String PATH_PATTERN = "\\/?";
+
     private static final IBeanValidator<TokenPayload> validator = new TokenPayloadValidator();
 
     public AuthRoute(
@@ -53,8 +61,7 @@ public class AuthRoute extends BaseRoute {
         IAuthStoreService authStoreService,
         Environment env
     ) {
-        // Regex to match endpoint /auth and /auth/
-        super(responseBuilder, "\\/?");
+        super(responseBuilder, PATH_PATTERN);
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = dexGrpcClient;
         this.authStoreService = authStoreService;

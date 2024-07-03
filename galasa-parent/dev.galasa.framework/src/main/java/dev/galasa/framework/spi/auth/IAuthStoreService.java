@@ -10,12 +10,21 @@ import java.util.List;
 public interface IAuthStoreService {
 
     /**
-     * Returns a list of all the tokens stored in the auth store.
+     * Returns a list of all the auth token records stored in the auth store.
      *
-     * @return a list of all tokens stored in the auth store.
+     * @return a list of all auth token records stored in the auth store.
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
-    List<IAuthToken> getTokens() throws AuthStoreException;
+    List<IInternalAuthToken> getTokens() throws AuthStoreException;
+
+    /**
+     * Gets an token record given its ID from the auth store.
+     * 
+     * @param tokenId the ID of the token record to retrieve
+     * @return an auth token givne 
+     * @throws AuthStoreException
+     */
+    IInternalAuthToken getToken(String tokenId) throws AuthStoreException;
 
     /**
      * Stores a new token in the auth store's tokens database.
@@ -26,4 +35,12 @@ public interface IAuthStoreService {
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
     void storeToken(String clientId, String description, User owner) throws AuthStoreException;
+
+    /**
+     * Deletes an existing token in the auth store's tokens database.
+     * 
+     * @param tokenId the ID of the token to delete.
+     * @throws AuthStoreException if there was an issue accessing the auth store.
+     */
+    void deleteToken(String tokenId) throws AuthStoreException;
 }

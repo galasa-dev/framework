@@ -472,7 +472,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
 			5020, "E: Error occured when trying to translate the payload into a run."
 		);
     }
-
+    
     @Test
     public void TestPostRunsWithValidBodyBadEnvPhaseReturnsError() throws Exception {
         // Given...

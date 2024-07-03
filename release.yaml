@@ -21,7 +21,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework
-    version: 0.35.0
+    version: 0.36.0
     obr: true
     bom: true
     mvp: true
@@ -40,7 +40,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.k8s.controller
-    version: 0.34.0
+    version: 0.36.0
     obr: true
     isolated: true
     codecoverage: true
@@ -75,13 +75,13 @@ framework:
 api:
   bundles:
   - artifact: dev.galasa.framework.api
-    version: 0.34.0
+    version: 0.36.0
     obr: true
     isolated: true
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.authentication
-    version: 0.35.0
+    version: 0.36.0
     obr: true
     isolated: true
     codecoverage: true
@@ -93,13 +93,13 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.common
-    version: 0.35.0
+    version: 0.36.0
     obr: true
     isolated: true
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.cps
-    version: 0.34.0
+    version: 0.35.0
     obr: true
     isolated: true
     codecoverage: true
@@ -111,7 +111,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.openapi
-    version: 0.35.0
+    version: 0.36.0
     obr: true
     isolated: true
     mvp: true
