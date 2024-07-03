@@ -5,13 +5,12 @@
  */
 package dev.galasa.framework.api.cps.internal.routes;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,29 +25,45 @@ import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
-import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+public class AllPropertiesInNamesapceFilteredRoute extends CPSRoute {
 
-public class PropertyRoute extends CPSRoute{
-
-    protected static final String path = "\\/([a-z][a-z0-9]+)/properties([?]?|[^/])+$";
-
-    public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework) {
-        super(responseBuilder, path , framework);
+    protected static final String path = "\\/namespace\\/([a-z][a-z0-9]+)\\/prefix\\/([a-zA-Z0-9\\.\\-\\_]+)\\/suffix\\/([a-zA-Z0-9\\.\\-\\_]+)\\/?";
+    
+    private String suffix;
+    private String prefix;
+    private String namespaceName;
+    
+    public AllPropertiesInNamesapceFilteredRoute(ResponseBuilder responseBuilder, IFramework framework) {
+        /* Regex to match endpoints: 
+		*  -> /cps/namespace/namespaceName/prefix/propertyStartsWith/suffix/propertyEndsWith
+		*  -> /cps/namespace/namespaceName/prefix/propertyStartsWith/suffix/propertyEndsWith/
+		*/
+        super(responseBuilder, path, framework);
     }
-
-    /*
-     * Property Query
-     */
+    
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
-            throws ServletException, IOException, FrameworkException {
-        String namespace = getNamespaceFromURL(pathInfo);
-        String properties = getNamespaceProperties(namespace, queryParams);
-        checkNamespaceExists(namespace);
+            throws ServletException, FrameworkException {
+        getPropertyDetailsFromURL(pathInfo);
+        String properties = getNamespaceProperties(queryParams);
+        checkNamespaceExists(namespaceName);
         return getResponseBuilder().buildResponse(req, response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
 
-    private String getNamespaceProperties(String namespaceName, QueryParameters queryParams) throws InternalServletException{
+    private void getPropertyDetailsFromURL(String pathInfo) throws InternalServletException {
+        // Set the values for the suffix prefix and namespaceName in order to use the values
+        try {
+            String[] path = pathInfo.split("/");
+            namespaceName = path[2];
+            prefix = path[4];
+            suffix = path[6];
+        } catch (Exception e) {
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);  
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
+        }
+    }
+
+    private String getNamespaceProperties( QueryParameters queryParams) throws InternalServletException{
         String properties = "";
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
@@ -58,33 +73,13 @@ public class PropertyRoute extends CPSRoute{
                 ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespaceName);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
-            String prefix = queryParams.getSingleString("prefix", null);
-            String suffix = queryParams.getSingleString("suffix", null);
             List<String> infixes = queryParams.getMultipleString("infix", null);
             Map<GalasaPropertyName, CPSProperty> propertiesMap = getProperties(namespace, prefix, suffix, infixes);
-            properties = buildResponseBody(propertiesMap);
+            properties = buildPropertiesResponseBody(propertiesMap);
         }catch (FrameworkException f){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, f);
         }
         return properties;
     }
-    
-    /*
-     * Property Create
-     */
-    @Override
-    public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters,
-            HttpServletRequest request, HttpServletResponse response)
-            throws  IOException, FrameworkException {
-        String namespaceName = getNamespaceFromURL(pathInfo);
-        checkRequestHasContent(request);
-        ServletInputStream body = request.getInputStream();
-        String jsonString = new String (body.readAllBytes(),StandardCharsets.UTF_8);
-        body.close();
-        CPSProperty property = applyPropertyToStore(jsonString, namespaceName, false);
-        String responseBody = String.format("Successfully created property %s in %s",property.getName(), property.getNamespace());
-        return getResponseBuilder().buildResponse(request, response, "text/plain", responseBody, HttpServletResponse.SC_CREATED); 
-    }
-
 }
