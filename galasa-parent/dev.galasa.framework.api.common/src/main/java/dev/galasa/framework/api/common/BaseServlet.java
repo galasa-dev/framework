@@ -79,10 +79,8 @@ public class BaseServlet extends HttpServlet {
 
         try {
             processRoutes(req, res);
-            return;
         } catch (InternalServletException ex) {
-            // the message is a curated servlet message, we intentionally threw up to this
-            // level.
+            // the message is a curated servlet message, we intentionally threw up to this level.
             errorString = ex.getMessage();
             httpStatusCode = ex.getHttpFailureCode();
             logger.error(errorString, ex);
@@ -93,7 +91,9 @@ public class BaseServlet extends HttpServlet {
             logger.error(errorString, t);
         }
 
-        getResponseBuilder().buildResponse(req, res, "application/json", errorString, httpStatusCode);
+        if (!errorString.isEmpty()) {
+            getResponseBuilder().buildResponse(req, res, "application/json", errorString, httpStatusCode);
+        }
     }
 
     private void processRoutes(HttpServletRequest req, HttpServletResponse res)
@@ -106,6 +106,7 @@ public class BaseServlet extends HttpServlet {
 
         QueryParameters queryParameters = new QueryParameters(req.getParameterMap());
 
+        boolean pathMatched = false;
         for (Map.Entry<String, IRoute> entry : routes.entrySet()) {
 
             String routePattern = entry.getKey();
@@ -114,6 +115,7 @@ public class BaseServlet extends HttpServlet {
             Matcher matcher = Pattern.compile(routePattern).matcher(url);
 
             if (matcher.matches()) {
+                pathMatched = true;
                 logger.info("BaseServlet: Found a route that matches.");
                 if (req.getMethod().contains("PUT")){
                     route.handlePutRequest(url, queryParameters, req, res);
@@ -124,13 +126,15 @@ public class BaseServlet extends HttpServlet {
                 } else {
                     route.handleGetRequest(url, queryParameters, req, res);
                 }
-                return;
+                break;
             }
         }
 
-        // No matching route was found, throw a 404 error.
-        logger.info("BaseServlet: No matching route found.");
-        ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
-        throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        if (!pathMatched) {
+            // No matching route was found, throw a 404 error.
+            logger.info("BaseServlet: No matching route found.");
+            ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
     }
 }

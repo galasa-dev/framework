@@ -26,9 +26,11 @@ public class AuthCallbackRoute extends BaseRoute {
 
     private static String externalApiServerUrl;
 
+    // Regex to match /auth/callback only
+    private static final String PATH_PATTERN = "\\/callback";
+
     public AuthCallbackRoute(ResponseBuilder responseBuilder, String externalApiServerUrl) {
-        // Regex to match /auth/callback only
-        super(responseBuilder, "\\/callback");
+        super(responseBuilder, PATH_PATTERN);
         AuthCallbackRoute.externalApiServerUrl = externalApiServerUrl;
     }
 
