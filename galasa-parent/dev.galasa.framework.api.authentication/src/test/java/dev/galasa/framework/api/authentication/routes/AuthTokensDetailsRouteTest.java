@@ -56,6 +56,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         // - dashes (-)
         // - underscores (_)
         assertThat(routePattern.matcher("/tokens/abc").matches()).isTrue();
+        assertThat(routePattern.matcher("/tokens/abc/").matches()).isTrue();
         assertThat(routePattern.matcher("/tokens/123").matches()).isTrue();
         assertThat(routePattern.matcher("/tokens/1-token-2").matches()).isTrue();
         assertThat(routePattern.matcher("/tokens/token_1_2_a876").matches()).isTrue();

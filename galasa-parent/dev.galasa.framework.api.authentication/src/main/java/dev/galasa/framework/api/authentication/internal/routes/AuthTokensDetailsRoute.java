@@ -7,6 +7,9 @@ package dev.galasa.framework.api.authentication.internal.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,14 +31,14 @@ public class AuthTokensDetailsRoute extends BaseRoute {
 
     // Regex to match /auth/tokens/{tokenid} and /auth/tokens/{tokenid}/, where {tokenid}
     // is an ID that can contain only alphanumeric characters, underscores (_), and dashes (-)
-    private static final String PATH = "\\/tokens\\/[a-zA-Z0-9\\-\\_]+";
+    private static final String PATH_PATTERN = "\\/tokens\\/([a-zA-Z0-9\\-\\_]+)\\/?";
 
     public AuthTokensDetailsRoute(
         ResponseBuilder responseBuilder,
         DexGrpcClient dexGrpcClient,
         IAuthStoreService authStoreService
     ) {
-        super(responseBuilder, PATH);
+        super(responseBuilder, PATH_PATTERN);
         this.dexGrpcClient = dexGrpcClient;
         this.authStoreService = authStoreService;
     }
@@ -55,8 +58,9 @@ public class AuthTokensDetailsRoute extends BaseRoute {
     private String getTokenIdFromUrl(String pathInfo) throws InternalServletException {
         try {
             // The URL path is '/auth/tokens/{tokenid}' so we'll grab the {tokenid} part of the path
-            String[] urlParts = pathInfo.split("/");
-            return urlParts[2];
+            Matcher matcher = Pattern.compile(PATH_PATTERN).matcher(pathInfo);
+            matcher.matches();
+            return matcher.group(1);
         } catch (Exception ex) {
             // This should never happen since the URL's path will always contain a valid token ID
             // at this point, otherwise the route will not be matched

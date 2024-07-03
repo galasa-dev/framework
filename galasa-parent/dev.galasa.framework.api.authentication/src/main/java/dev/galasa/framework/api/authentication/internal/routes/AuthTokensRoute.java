@@ -52,6 +52,9 @@ public class AuthTokensRoute extends BaseRoute {
     private static final String ID_TOKEN_KEY      = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
 
+    // Regex to match /auth/tokens and /auth/tokens/ only
+    private static final String PATH_PATTERN = "\\/tokens\\/?";
+
     private static final IBeanValidator<TokenPayload> validator = new TokenPayloadValidator();
 
     public AuthTokensRoute(
@@ -61,8 +64,7 @@ public class AuthTokensRoute extends BaseRoute {
         IAuthStoreService authStoreService,
         Environment env
     ) {
-        // Regex to match /auth/tokens only
-        super(responseBuilder, "\\/tokens\\/?");
+        super(responseBuilder, PATH_PATTERN);
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = dexGrpcClient;
         this.authStoreService = authStoreService;
