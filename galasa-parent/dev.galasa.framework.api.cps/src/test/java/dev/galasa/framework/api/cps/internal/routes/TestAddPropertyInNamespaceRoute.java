@@ -235,7 +235,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     
 
 	@Test
-	public void TestGetNamespacesPUTRequestReturnsError() throws Exception{
+	public void TestGetNamespacesPUTRequestReturnsOK() throws Exception{
 		// Given...
         String namespace = "framework";
         String propertyName = "property.6";
@@ -272,6 +272,34 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
         assertThat(resp.getContentType()).isEqualTo("application/json");
         assertThat(output).isEqualTo("{\n  \"name\": \""+propertyName+"\",\n  \"value\": \""+value+"\"\n}");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();      
+    }
+
+    @Test
+	public void TestPropertyNamrMismatchPUTRequestReturnsError() throws Exception{
+		// Given...
+        String namespace = "framework";
+        String propertyName = "property.6";
+        String value = "value6";
+        String json = "{\"name\":\""+propertyName+"\", \"value\":\""+value+"\"}";
+		setServlet("/namespace/framework/property/property.2", namespace, json, "PUT");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doPut(req,resp);
+
+		// Then...
+        Integer status = resp.getStatus();
+        assertThat(status).isEqualTo(404);
+        assertThat(resp.getContentType()).isEqualTo("application/json");
+        checkErrorStructure(
+			outStream.toString(),
+			5029,
+			"E: The GalasaProperty name 'property.6' must match the url namespace 'property.2'."
+		); 
     }
 
 	/*

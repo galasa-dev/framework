@@ -26,6 +26,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
@@ -98,14 +99,14 @@ public class AddPropertyInNamespaceRoute extends CPSRoute {
             respJson.addProperty("name", property.getName());
             respJson.addProperty("value", property.getValue());
             properties = gson.toJson(respJson);
-        }catch (FrameworkException f){
-            ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, f);
+        }catch (ConfigurationPropertyStoreException f){
+                ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, f);
         }
         return properties;
     }
 
-    private CPSProperty applyPropertyToStore (String propertyName, String propertyValue, String namespaceName , boolean isUpdateAction) throws IOException, FrameworkException{
+    private CPSProperty applyPropertyToStore (String propertyName, String propertyValue, String namespaceName , boolean isUpdateAction) throws InternalServletException, ConfigurationPropertyStoreException{
         GalasaProperty galasaProperty = new GalasaProperty(namespaceName, propertyName, propertyValue);
         CPSFacade cps = new CPSFacade(framework);
         CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());

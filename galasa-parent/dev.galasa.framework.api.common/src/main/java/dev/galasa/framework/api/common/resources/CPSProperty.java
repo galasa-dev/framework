@@ -113,7 +113,6 @@ public class CPSProperty {
             ServletError error = new ServletError(GAL5017_PROPERTY_DOES_NOT_EXIST_ERROR, this.getName());  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
-        loadValueFromStore();
     }
 
     public void deletePropertyFromStore() throws InternalServletException{
