@@ -31,7 +31,7 @@ public class AuthTokensDetailsRoute extends BaseRoute {
         DexGrpcClient dexGrpcClient,
         IAuthStoreService authStoreService
     ) {
-        // Regex to match /auth/tokens/{tokenid} and /auth/tokens/{tokenid}/, where {tokenid} 
+        // Regex to match /auth/tokens/{tokenid} and /auth/tokens/{tokenid}/, where {tokenid}
         // is an ID that can contain only alphanumeric characters, underscores (_), and dashes (-)
         super(responseBuilder, "\\/tokens\\/[a-zA-Z0-9\\-\\_]+");
         this.dexGrpcClient = dexGrpcClient;
@@ -66,13 +66,14 @@ public class AuthTokensDetailsRoute extends BaseRoute {
     private void revokeToken(String tokenId, String userId) throws InternalServletException {
         try {
             logger.info("Attempting to revoke token with ID '" + tokenId + "'");
-            // Delete the Dex client associated with the token
+
             IInternalAuthToken tokenToRevoke = authStoreService.getToken(tokenId);
             if (tokenToRevoke == null) {
                 ServletError error = new ServletError(GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
 
+            // Delete the Dex client associated with the token
             String dexClientId = tokenToRevoke.getDexClientId();
             dexGrpcClient.deleteClient(dexClientId);
 

@@ -73,12 +73,11 @@ public class MockDexGrpcClient extends DexGrpcClient {
         com.coreos.dex.api.DexOuterClass.DeleteClientResp.Builder deleteClientRespBuilder = DeleteClientResp.newBuilder();
         String clientId = deleteClientReq.getId();
         Client clientToRemove = getDexClient(clientId);
+        deleteClientRespBuilder.setNotFound(true);
 
         if (clientToRemove != null) {
             dexClients.remove(clientToRemove);
             deleteClientRespBuilder.setNotFound(false);
-        } else {
-            deleteClientRespBuilder.setNotFound(true);
         }
         return deleteClientRespBuilder.build();
     }
