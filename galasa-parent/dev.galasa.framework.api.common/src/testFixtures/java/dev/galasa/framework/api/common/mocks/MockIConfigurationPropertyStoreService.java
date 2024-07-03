@@ -19,7 +19,7 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 public class MockIConfigurationPropertyStoreService implements IConfigurationPropertyStoreService{
 
     protected String namespaceInput;
-    public Map<String, String> properties = new HashMap<String,String>();
+    protected Map<String, String> properties = new HashMap<String,String>();
 
 
     public MockIConfigurationPropertyStoreService() {

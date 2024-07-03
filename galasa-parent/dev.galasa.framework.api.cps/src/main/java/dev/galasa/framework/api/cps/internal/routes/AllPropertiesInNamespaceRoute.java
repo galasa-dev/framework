@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class AllPropertiesInNamespaceRoute extends CPSRoute {
 
-    protected static final String path = "\\/namespace/([a-z][a-z0-9]+)/?";
+    protected static final String path = "\\/namespace\\/([a-z][a-z0-9]+)\\/?";
     
     public AllPropertiesInNamespaceRoute(ResponseBuilder responseBuilder, IFramework framework) {
         /* Regex to match endpoints: 
@@ -63,7 +63,7 @@ public class AllPropertiesInNamespaceRoute extends CPSRoute {
                 ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespaceName);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
-            Map<GalasaPropertyName, CPSProperty> sortedProperties = sortResults(namespace.getProperties());
+            Map<GalasaPropertyName, CPSProperty> sortedProperties = sortPropertiesByPropertyName(namespace.getProperties());
 
             properties = buildPropertiesResponseBody(sortedProperties);
         }catch (FrameworkException f){

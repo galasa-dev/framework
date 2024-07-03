@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class AllNamespaceRoute extends CPSRoute {
 
-    protected static final String path = "\\/namespace/?";
+    protected static final String path = "\\/namespace\\/?";
     private static final GalasaGson gson = new GalasaGson();
     
     public AllNamespaceRoute(ResponseBuilder responseBuilder, IFramework framework) {

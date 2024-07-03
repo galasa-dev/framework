@@ -182,7 +182,7 @@ public abstract class CPSRoute extends BaseRoute {
      * @param properties
      * @return Sorted Map of properties
      */
-    protected Map<GalasaPropertyName, CPSProperty> sortResults(Map<GalasaPropertyName, CPSProperty> properties){
+    protected Map<GalasaPropertyName, CPSProperty> sortPropertiesByPropertyName(Map<GalasaPropertyName, CPSProperty> properties){
         Collection<GalasaPropertyName> unsortedKeys = properties.keySet();
         PropertyComparator comparator = new PropertyComparator();
         Map<GalasaPropertyName, CPSProperty> sorted = new TreeMap<GalasaPropertyName, CPSProperty>(comparator);
@@ -241,7 +241,7 @@ public abstract class CPSRoute extends BaseRoute {
         if (infixes != null){
             properties = filterPropertiesByInfix(properties, infixes);
         }
-        Map<GalasaPropertyName, CPSProperty> sortedProperties = sortResults(properties);
+        Map<GalasaPropertyName, CPSProperty> sortedProperties = sortPropertiesByPropertyName(properties);
         return sortedProperties;
     }
     

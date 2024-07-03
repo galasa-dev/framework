@@ -32,7 +32,7 @@ import dev.galasa.framework.spi.IFramework;
 
 public class AddPropertyInNamespaceRoute extends CPSRoute {
 
-    protected static final String path = "\\/namespace/([a-z][a-z0-9]+)/property/([a-zA-Z0-9\\.\\-\\_]+)/?";
+    protected static final String path = "\\/namespace\\/([a-z][a-z0-9]+)\\/property\\/([a-zA-Z0-9\\.\\-\\_]+)/?";
     
     private String propertyName;
     private String namespaceName;
@@ -81,18 +81,20 @@ public class AddPropertyInNamespaceRoute extends CPSRoute {
                 ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR, namespaceName);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
-            if (!propertyName.equals(reqJson.get("name").getAsString())){
-                ServletError error = new ServletError(GAL5029_PROPERTY_NAME_DOES_NOT_MATCH_ERROR, reqJson.get("name").getAsString(), propertyName);
+            String jsonName = reqJson.get("name").getAsString();
+            String jsonValue = reqJson.get("value").getAsString();
+            if (!propertyName.equals(jsonName)){
+                ServletError error = new ServletError(GAL5029_PROPERTY_NAME_DOES_NOT_MATCH_ERROR, jsonName, propertyName);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
             nameValidator.assertPropertyNameCharPatternIsValid(propertyName);
             CPSProperty property = namespace.getPropertyFromStore(propertyName);
             if (property.getValue() == null){
                 // Property does not exist in store, create a new property
-                property = applyPropertyToStore(reqJson.get("name").getAsString(),reqJson.get("value").getAsString(), namespaceName, false);
+                property = applyPropertyToStore(jsonName, jsonValue, namespaceName, false);
             } else {
                 // Property does exist in store, update the property
-                property = applyPropertyToStore(reqJson.get("name").getAsString(),reqJson.get("value").getAsString(), namespaceName, true);
+                property = applyPropertyToStore(jsonName, jsonValue, namespaceName, true);
             }
             
             JsonObject respJson = new JsonObject();

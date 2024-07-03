@@ -246,7 +246,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
             public @Null String getProperty(@NotNull String prefix, @NotNull String suffix, String... infixes)
             throws ConfigurationPropertyStoreException {
             for (Map.Entry<String,String> property : properties.entrySet()){
-                String key = property.getKey();//.substring(property.getKey().indexOf(".")+1);
+                String key = property.getKey();
                 String match = prefix+"."+suffix;
                 if (key.contains(match)){
                     return property.getValue();
