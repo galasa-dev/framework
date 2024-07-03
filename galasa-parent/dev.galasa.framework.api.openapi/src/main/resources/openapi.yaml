@@ -1097,7 +1097,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CpsProperty'
+                $ref: '#/components/schemas/GalasaProperty'
         '401':
           description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:

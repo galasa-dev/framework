@@ -7,8 +7,11 @@ package dev.galasa.framework.api.cps.internal.routes;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
@@ -23,6 +26,8 @@ import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
+import dev.galasa.framework.api.cps.internal.common.PropertyComparator;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
@@ -61,8 +66,7 @@ public class PropertyRoute extends CPSRoute{
             String prefix = queryParams.getSingleString("prefix", null);
             String suffix = queryParams.getSingleString("suffix", null);
             List<String> infixes = queryParams.getMultipleString("infix", null);
-            Map<GalasaPropertyName, CPSProperty> propertiesMap = getProperties(namespace, prefix, suffix, infixes);
-            properties = buildResponseBody(propertiesMap);
+            properties = getProperties(namespace, prefix, suffix, infixes);
         }catch (FrameworkException f){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, f);
@@ -70,6 +74,94 @@ public class PropertyRoute extends CPSRoute{
         return properties;
     }
     
+    
+    private String getProperties(CPSNamespace namespace, String prefix, String suffix, List<String> infixes) throws ConfigurationPropertyStoreException {
+        Map<GalasaPropertyName, CPSProperty> properties = namespace.getProperties();
+        
+        if (prefix != null){
+            properties = filterPropertiesByPrefix(namespace.getName(), properties,prefix);
+        }
+        if (suffix != null){
+            properties = filterPropertiesBySuffix(properties,suffix);
+        }
+        if (infixes != null){
+            properties = filterPropertiesByInfix(properties, infixes);
+        }
+        Map<GalasaPropertyName, CPSProperty> sortedProperties = sortResults(properties);
+        return buildResponseBody(sortedProperties);
+    }
+    
+    /**
+     * Sort the properties provided by key 
+     * @param properties
+     * @return Sorted Map of properties
+     */
+    protected Map<GalasaPropertyName, CPSProperty> sortResults(Map<GalasaPropertyName, CPSProperty> properties){
+        Collection<GalasaPropertyName> unsortedKeys = properties.keySet();
+        PropertyComparator comparator = new PropertyComparator();
+        Map<GalasaPropertyName, CPSProperty> sorted = new TreeMap<GalasaPropertyName, CPSProperty>(comparator);
+
+        for( GalasaPropertyName key : unsortedKeys ) {
+            sorted.put(key, properties.get(key));
+        }
+
+        return sorted;
+    }
+
+    /**
+     * Filter a map of provided properties by checking that the properties start with namespace.prefix 
+     * using the supplied paramenters
+     * @param namespace
+     * @param properties
+     * @param prefix
+     * @return Map of Properties starting with the provided prefix
+     */
+    protected  Map<GalasaPropertyName, CPSProperty> filterPropertiesByPrefix(String namespace, Map<GalasaPropertyName, CPSProperty> properties , String prefix){
+        Map<GalasaPropertyName, CPSProperty> filteredProperties = new HashMap<GalasaPropertyName, CPSProperty>();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
+            if (entry.getKey().getFullyQualifiedName().startsWith(namespace + "."+prefix)){
+                filteredProperties.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return filteredProperties;
+    }
+
+    /**
+     * Filter a map of provided properties by checking that the properties end with the supplied prefix
+     * @param properties
+     * @param suffix
+     * @return Map of Properties ending with the provided suffix
+     */
+    protected  Map<GalasaPropertyName, CPSProperty> filterPropertiesBySuffix( Map<GalasaPropertyName, CPSProperty> properties , String suffix){
+       Map<GalasaPropertyName, CPSProperty> filteredProperties = new HashMap<GalasaPropertyName, CPSProperty>();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
+            if (entry.getKey().getFullyQualifiedName().endsWith(suffix)){
+                filteredProperties.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return filteredProperties;
+    }
+
+    /**
+     * Filter a map of provided properties by checking that the properties contain and match at least of the
+     * supplied infixes 
+     * @param properties
+     * @param infixes
+     * @return Map of Properties containing the at least one of the infixes
+     */
+    protected  Map<GalasaPropertyName, CPSProperty> filterPropertiesByInfix(Map<GalasaPropertyName, CPSProperty>properties, List<String> infixes){
+        Map<GalasaPropertyName, CPSProperty> filteredProperties = new HashMap<GalasaPropertyName, CPSProperty>();
+        for (Map.Entry<GalasaPropertyName, CPSProperty> entry : properties.entrySet()) {
+            GalasaPropertyName key = entry.getKey();
+            for (String infix : infixes){
+				if (key.getFullyQualifiedName().contains(infix)&& !filteredProperties.containsKey(key)){
+                    filteredProperties.put(entry.getKey(), entry.getValue());
+	            }
+			}
+        }
+        return filteredProperties;
+    }
+
     /*
      * Property Create
      */

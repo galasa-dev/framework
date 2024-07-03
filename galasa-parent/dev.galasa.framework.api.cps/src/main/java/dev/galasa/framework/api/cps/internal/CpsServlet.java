@@ -11,10 +11,6 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import dev.galasa.framework.api.cps.internal.routes.AddPropertyInNamespaceRoute;
-import dev.galasa.framework.api.cps.internal.routes.AllNamespaceRoute;
-import dev.galasa.framework.api.cps.internal.routes.AllPropertiesInNamesapceFilteredRoute;
-import dev.galasa.framework.api.cps.internal.routes.AllPropertiesInNamespaceRoute;
 import dev.galasa.framework.api.cps.internal.routes.NamespacesRoute;
 import dev.galasa.framework.api.cps.internal.routes.PropertyRoute;
 import dev.galasa.framework.api.cps.internal.routes.PropertyUpdateRoute;
@@ -53,13 +49,10 @@ public class CpsServlet extends BaseServlet {
 
 		super.init();
 		
-		addRoute(new NamespacesRoute(getResponseBuilder(), framework));
-		addRoute(new PropertyUpdateRoute(getResponseBuilder(), framework));
-		addRoute(new PropertyRoute(getResponseBuilder(), framework));
-		addRoute(new AllNamespaceRoute(getResponseBuilder(), framework));
-		addRoute(new AllPropertiesInNamespaceRoute(getResponseBuilder(), framework));
-		addRoute(new AllPropertiesInNamesapceFilteredRoute(getResponseBuilder(), framework));
-		addRoute(new AddPropertyInNamespaceRoute(getResponseBuilder(), framework));
+		addRoute(new NamespacesRoute(getResponseBuilder(),framework));
+		addRoute(new PropertyUpdateRoute(getResponseBuilder(),framework));
+		addRoute(new PropertyRoute(getResponseBuilder(),framework));
+
 	}
 
 }
