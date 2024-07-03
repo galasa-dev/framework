@@ -26,14 +26,16 @@ public class AuthTokensDetailsRoute extends BaseRoute {
     private IAuthStoreService authStoreService;
     private DexGrpcClient dexGrpcClient;
 
+    // Regex to match /auth/tokens/{tokenid} and /auth/tokens/{tokenid}/, where {tokenid}
+    // is an ID that can contain only alphanumeric characters, underscores (_), and dashes (-)
+    private static final String PATH = "\\/tokens\\/[a-zA-Z0-9\\-\\_]+";
+
     public AuthTokensDetailsRoute(
         ResponseBuilder responseBuilder,
         DexGrpcClient dexGrpcClient,
         IAuthStoreService authStoreService
     ) {
-        // Regex to match /auth/tokens/{tokenid} and /auth/tokens/{tokenid}/, where {tokenid}
-        // is an ID that can contain only alphanumeric characters, underscores (_), and dashes (-)
-        super(responseBuilder, "\\/tokens\\/[a-zA-Z0-9\\-\\_]+");
+        super(responseBuilder, PATH);
         this.dexGrpcClient = dexGrpcClient;
         this.authStoreService = authStoreService;
     }

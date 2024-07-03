@@ -84,12 +84,14 @@ public class BaseServlet extends HttpServlet {
             errorString = ex.getMessage();
             httpStatusCode = ex.getHttpFailureCode();
             logger.error(errorString, ex);
-            getResponseBuilder().buildResponse(req, res, "application/json", errorString, httpStatusCode);
         } catch (Throwable t) {
             // We didn't expect this failure to arrive. So deliver a generic error message.
             errorString = new ServletError(GAL5000_GENERIC_API_ERROR).toJsonString();
             httpStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
             logger.error(errorString, t);
+        }
+
+        if (!errorString.isEmpty()) {
             getResponseBuilder().buildResponse(req, res, "application/json", errorString, httpStatusCode);
         }
     }
