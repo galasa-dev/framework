@@ -122,7 +122,7 @@ public class TestRunner {
         try {
             this.produceEvents = isProduceEventsFeatureFlagTrue();
         } catch (ConfigurationPropertyStoreException e) {
-            throw new TestRunException("Problem loading the CPS property for event production.");
+            throw new TestRunException("Problem reading the CPS property to check if framework event production has been activated.");
         }
 
         IRun run = this.framework.getTestRun();
@@ -656,13 +656,15 @@ public class TestRunner {
             logger.debug("Producing a test run lifecycle status change event.");
 
             String message = String.format("Galasa test run %s is now in status: %s.", framework.getTestRunName(), status.toString());
-            TestRunLifecycleStatusChangedEvent testRunLifecycleStatusChangedEvent = new TestRunLifecycleStatusChangedEvent(Instant.now().toString(), message);
+            TestRunLifecycleStatusChangedEvent testRunLifecycleStatusChangedEvent = new TestRunLifecycleStatusChangedEvent(this.cps, Instant.now().toString(), message);
             String topic = testRunLifecycleStatusChangedEvent.getTopic();
 
-            try {
-                framework.getEventsService().produceEvent(topic, testRunLifecycleStatusChangedEvent);
-            } catch (EventsException e) {
-                throw new TestRunException("Failed to publish a test run lifecycle status change event to the Events Service", e);
+            if (topic != null) {
+                try {
+                    framework.getEventsService().produceEvent(topic, testRunLifecycleStatusChangedEvent);
+                } catch (EventsException e) {
+                    throw new TestRunException("Failed to publish a test run lifecycle status changed event to the Events Service", e);
+                }
             }
         }
 
