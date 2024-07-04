@@ -127,11 +127,11 @@ public class DexGrpcClient {
         com.coreos.dex.api.DexOuterClass.DeleteClientReq.Builder deleteClientReqBuilder = DeleteClientReq.newBuilder();
         deleteClientReqBuilder.setId(clientId);
 
-        // Send the gRPC call to delete the Dex client
-        DeleteClientReq deleteClientReq = deleteClientReqBuilder.build();
-
         try {
+            // Send the gRPC call to delete the Dex client
+            DeleteClientReq deleteClientReq = deleteClientReqBuilder.build();
             DeleteClientResp deleteClientResp = sendDeleteClientRequest(deleteClientReq);
+
             if (deleteClientResp.getNotFound()) {
                 logger.info("Dex client does not exist, continuing");
             } else {
@@ -159,10 +159,11 @@ public class DexGrpcClient {
         revokeRefreshReqBuilder.setClientId(clientId);
         revokeRefreshReqBuilder.setUserId(userId);
 
-        // Send the gRPC call to delete the Dex client
-        RevokeRefreshReq revokeRefreshReq = revokeRefreshReqBuilder.build();
         try {
+            // Send the gRPC call to delete the Dex client
+            RevokeRefreshReq revokeRefreshReq = revokeRefreshReqBuilder.build();
             RevokeRefreshResp revokeRefreshResp = sendRevokeRefreshRequest(revokeRefreshReq);
+
             if (revokeRefreshResp.getNotFound()) {
                 logger.info("Refresh token does not exist, continuing");
             } else {

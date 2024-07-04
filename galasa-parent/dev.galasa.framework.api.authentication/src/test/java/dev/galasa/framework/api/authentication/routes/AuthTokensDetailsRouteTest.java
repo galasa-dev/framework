@@ -10,15 +10,11 @@ import static org.assertj.core.api.Assertions.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
 
 import org.junit.Test;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 
 import dev.galasa.framework.api.authentication.internal.routes.AuthTokensDetailsRoute;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
@@ -34,14 +30,6 @@ import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
 
 public class AuthTokensDetailsRouteTest extends BaseServletTest {
-
-    private String createMockJwt(String userId) {
-        Algorithm mockJwtSigningAlgorithm = Algorithm.HMAC256("dummysecret");
-        return JWT.create()
-            .withSubject(userId)
-            .withIssuedAt(Instant.EPOCH)
-            .sign(mockJwtSigningAlgorithm);
-    }
 
     @Test
     public void testAuthTokensDetailsRouteRegexMatchesExpectedPaths() throws Exception {
@@ -91,10 +79,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
 
-        String mockJwt = createMockJwt(owner.getLoginId());
-
-        Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
         // When...
@@ -130,10 +115,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
 
-        String mockJwt = createMockJwt(owner.getLoginId());
-
-        Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
@@ -165,10 +147,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
 
-        String mockJwt = createMockJwt(owner.getLoginId());
-
-        Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
@@ -200,10 +179,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
 
-        String mockJwt = createMockJwt(owner.getLoginId());
-
-        Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
         // When...
@@ -234,10 +210,39 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
 
-        String mockJwt = createMockJwt(owner.getLoginId());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
-        Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
+        // When...
+        servlet.init();
+        servlet.doDelete(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(authStoreService.getTokens()).hasSize(0);
+    }
+
+    @Test
+    public void testDeleteAuthTokensWithMissingDexUserIdContinuesToDeleteToken() throws Exception {
+        // Given...
+        String tokenId = "id123";
+        String description = "test token";
+        String clientId = "my-client";
+        Instant creationTime = Instant.now();
+        IInternalUser owner = new InternalUser("username", null);
+
+        List<IInternalAuthToken> tokens = new ArrayList<>();
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+
+        // Simulate a scenario where no refresh tokens are stored in Dex, so this should throw an error when trying to revoke the refresh token
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+        mockDexGrpcClient.addDexClient(clientId, "my-secret", "http://a-callback-url");
+        mockDexGrpcClient.addMockRefreshToken(owner.getLoginId(), clientId);
+
+        MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
         // When...
