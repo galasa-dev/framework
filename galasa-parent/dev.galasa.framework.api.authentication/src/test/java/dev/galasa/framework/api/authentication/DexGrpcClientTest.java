@@ -79,6 +79,7 @@ public class DexGrpcClientTest {
         // Force the mock client to throw a StatusRuntimeException
         String clientId = "error";
         MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer", clientId, "secret", "http://callback");
+        client.setThrowError(true);
 
         // When...
         Throwable thrown = catchThrowable(() -> {
@@ -107,12 +108,12 @@ public class DexGrpcClientTest {
     }
 
     @Test
-    public void testDeleteClientWithNonExistantClientThrowsException() throws Exception {
+    public void testDeleteClientWithFailingClientDeletionThrowsException() throws Exception {
         // Given...
         MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer", "a-client", "secret", "http://callback");
-        client.addDexClient("anotherclient", "anothersecret", "http://another-callback-url");
+        client.setThrowError(true);
 
-        assertThat(client.getDexClients()).hasSize(2);
+        assertThat(client.getDexClients()).hasSize(1);
 
         // When...
         Throwable thrown = catchThrowableOfType(() -> {
@@ -120,14 +121,15 @@ public class DexGrpcClientTest {
         }, InternalServletException.class);
 
         // Then...
-        assertThat(thrown.getMessage()).contains("GAL5063E", "Failed to delete client with the given ID");
-        assertThat(client.getDexClients()).hasSize(2);
+        assertThat(thrown.getMessage()).contains("GAL5063E", "Internal server error", "Failed to delete Dex client with the given ID");
+        assertThat(client.getDexClients()).hasSize(1);
     }
 
     @Test
-    public void testRevokeRefreshWithNonExistantClientThrowsException() throws Exception {
+    public void testRevokeRefreshWithFailingRevokeOperationThrowsException() throws Exception {
         // Given...
         MockDexGrpcClient client = new MockDexGrpcClient("http://my.issuer");
+        client.setThrowError(true);
 
         // When...
         Throwable thrown = catchThrowableOfType(() -> {

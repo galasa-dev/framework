@@ -129,14 +129,18 @@ public class DexGrpcClient {
 
         // Send the gRPC call to delete the Dex client
         DeleteClientReq deleteClientReq = deleteClientReqBuilder.build();
-        DeleteClientResp clientResp = sendDeleteClientRequest(deleteClientReq);
 
-        if (!clientResp.getNotFound()) {
-            logger.info("Dex client successfully deleted");
-        } else {
-            // Something went wrong, the client with the given ID couldn't be found
+        try {
+            DeleteClientResp deleteClientResp = sendDeleteClientRequest(deleteClientReq);
+            if (deleteClientResp.getNotFound()) {
+                logger.info("Dex client does not exist, continuing");
+            } else {
+                logger.info("Dex client successfully deleted");
+            }
+        } catch (StatusRuntimeException ex) {
+            // Something went wrong, the client with the given ID couldn't be deleted
             ServletError error = new ServletError(GAL5063_FAILED_TO_DELETE_CLIENT);
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -157,14 +161,17 @@ public class DexGrpcClient {
 
         // Send the gRPC call to delete the Dex client
         RevokeRefreshReq revokeRefreshReq = revokeRefreshReqBuilder.build();
-        RevokeRefreshResp clientResp = sendRevokeRefreshRequest(revokeRefreshReq);
-
-        if (!clientResp.getNotFound()) {
-            logger.info("Refresh token successfully revoked");
-        } else {
-            // Something went wrong, the refresh token for the given client and user couldn't be found
+        try {
+            RevokeRefreshResp revokeRefreshResp = sendRevokeRefreshRequest(revokeRefreshReq);
+            if (revokeRefreshResp.getNotFound()) {
+                logger.info("Refresh token does not exist, continuing");
+            } else {
+                logger.info("Refresh token successfully revoked");
+            }
+        } catch (StatusRuntimeException ex) {
+            // Something went wrong, the refresh token for the given client and user couldn't be revoked
             ServletError error = new ServletError(GAL5064_FAILED_TO_REVOKE_TOKEN);
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex);
         }
     }
 

@@ -181,7 +181,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
     }
 
     @Test
-    public void testDeleteAuthTokensWithMissingDexClientReturnsError() throws Exception {
+    public void testDeleteAuthTokensWithMissingDexClientDoesNotReturnError() throws Exception {
         // Given...
         String tokenId = "id123";
         String description = "test token";
@@ -204,19 +204,18 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-        ServletOutputStream outStream = servletResponse.getOutputStream();
 
         // When...
         servlet.init();
         servlet.doDelete(mockRequest, servletResponse);
 
         // Then...
-        assertThat(servletResponse.getStatus()).isEqualTo(404);
-        checkErrorStructure(outStream.toString(), 5063, "GAL5063E", "Failed to delete client with the given ID");
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(authStoreService.getTokens()).hasSize(0);
     }
 
     @Test
-    public void testDeleteAuthTokensWithMissingDexRefreshTokenReturnsError() throws Exception {
+    public void testDeleteAuthTokensWithMissingDexRefreshTokenDoesNotReturnError() throws Exception {
         // Given...
         String tokenId = "id123";
         String description = "test token";
@@ -239,14 +238,13 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         Map<String, String> headers = Map.of("Authorization", "Bearer " + mockJwt);
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE", headers);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-        ServletOutputStream outStream = servletResponse.getOutputStream();
 
         // When...
         servlet.init();
         servlet.doDelete(mockRequest, servletResponse);
 
         // Then...
-        assertThat(servletResponse.getStatus()).isEqualTo(404);
-        checkErrorStructure(outStream.toString(), 5064, "GAL5064E", "Failed to revoke the token with the given ID");
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(authStoreService.getTokens()).hasSize(0);
     }
 }
