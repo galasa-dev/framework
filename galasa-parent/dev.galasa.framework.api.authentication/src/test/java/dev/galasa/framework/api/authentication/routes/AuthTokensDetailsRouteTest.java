@@ -24,13 +24,14 @@ import dev.galasa.framework.api.authentication.internal.routes.AuthTokensDetails
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.InternalUser;
 import dev.galasa.framework.api.common.mocks.MockAuthStoreService;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
-import dev.galasa.framework.spi.auth.User;
+import dev.galasa.framework.spi.auth.IInternalUser;
 
 public class AuthTokensDetailsRouteTest extends BaseServletTest {
 
@@ -78,7 +79,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
-        User owner = new User("username");
+        IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
         tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
@@ -113,7 +114,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
-        User owner = new User("username");
+        IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
         tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
@@ -152,7 +153,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
-        User owner = new User("username");
+        IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
         tokens.add(new MockInternalAuthToken("a-different-token", description, creationTime, owner, clientId));
@@ -187,7 +188,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
-        User owner = new User("username");
+        IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
         tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
@@ -221,7 +222,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
-        User owner = new User("username");
+        IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
         tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));

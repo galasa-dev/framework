@@ -140,7 +140,7 @@ public class DexGrpcClient {
         } catch (StatusRuntimeException ex) {
             // Something went wrong, the client with the given ID couldn't be deleted
             ServletError error = new ServletError(GAL5063_FAILED_TO_DELETE_CLIENT);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex);
         }
     }
 

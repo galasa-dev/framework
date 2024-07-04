@@ -17,6 +17,7 @@ dependencies {
     testFixturesImplementation 'org.assertj:assertj-core:3.16.1'
     testFixturesImplementation 'com.google.code.gson:gson:2.10.1'
     testFixturesImplementation(project(':dev.galasa.framework'))
+    testFixturesImplementation(project(':dev.galasa.framework.api.beans'))
     testFixturesImplementation 'javax.validation:validation-api:2.0.1.Final'
 
 }

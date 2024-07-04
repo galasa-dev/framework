@@ -22,5 +22,5 @@ public interface IInternalAuthToken {
 
     Instant getCreationTime();
 
-    User getOwner();
+    IInternalUser getOwner();
 }
