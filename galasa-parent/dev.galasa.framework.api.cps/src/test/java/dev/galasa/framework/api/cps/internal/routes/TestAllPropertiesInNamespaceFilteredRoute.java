@@ -250,7 +250,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
 	@Test
-	public void TestGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
+	public void TestGetNamespacesWithFrameworkWithDataNoMatchReturnsOk() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/prefix/prop/suffix/erty","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -265,7 +265,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[]");
+		assertThat(outStream.toString()).isEqualTo("{}");
 	}
 
     @Test
@@ -284,7 +284,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[\n  {\n    \"name\": \"property.1\",\n    \"value\": \"value1\"\n  }\n]");
+		assertThat(outStream.toString()).isEqualTo("{\n  \"name\": \"property.1\",\n  \"value\": \"value1\"\n}");
 	}
    
     @Test

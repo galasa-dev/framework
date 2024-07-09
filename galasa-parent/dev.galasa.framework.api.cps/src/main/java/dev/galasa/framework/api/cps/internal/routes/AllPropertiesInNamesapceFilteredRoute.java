@@ -14,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.JsonObject;
+
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -64,7 +66,7 @@ public class AllPropertiesInNamesapceFilteredRoute extends CPSRoute {
     }
 
     private String getNamespaceProperties( QueryParameters queryParams) throws InternalServletException{
-        String properties = "";
+        JsonObject responseProperty = new JsonObject();
          try {
             nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
             CPSFacade cps = new CPSFacade(framework);
@@ -75,11 +77,17 @@ public class AllPropertiesInNamesapceFilteredRoute extends CPSRoute {
             }
             List<String> infixes = queryParams.getMultipleString("infix", null);
             Map<GalasaPropertyName, CPSProperty> propertiesMap = getProperties(namespace, prefix, suffix, infixes);
-            properties = buildPropertiesResponseBody(propertiesMap);
+            //Get First Property From propertiesMap and send it as a response
+            if ( propertiesMap.size() > 0 ){
+                CPSProperty property = propertiesMap.entrySet().iterator().next().getValue();
+                responseProperty.addProperty("name", property.getName());
+                responseProperty.addProperty("value", property.getValue());
+            }
+
         }catch (FrameworkException f){
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, f);
         }
-        return properties;
+        return gson.toJson(responseProperty);
     }
 }
