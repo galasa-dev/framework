@@ -1,3 +1,8 @@
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package dev.galasa.framework.api.authentication.internal.routes;
 
 import java.io.IOException;
@@ -24,13 +29,14 @@ import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.IBeanValidator;
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.InternalUser;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
-import dev.galasa.framework.spi.auth.User;
+import dev.galasa.framework.spi.auth.IInternalUser;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -44,6 +50,9 @@ public class AuthRoute extends BaseRoute {
     private static final String ID_TOKEN_KEY      = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
 
+    // Regex to match endpoint /auth and /auth/
+    private static final String PATH_PATTERN = "\\/?";
+
     private static final IBeanValidator<TokenPayload> validator = new TokenPayloadValidator();
 
     public AuthRoute(
@@ -53,8 +62,7 @@ public class AuthRoute extends BaseRoute {
         IAuthStoreService authStoreService,
         Environment env
     ) {
-        // Regex to match endpoint /auth and /auth/
-        super(responseBuilder, "\\/?");
+        super(responseBuilder, PATH_PATTERN);
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = dexGrpcClient;
         this.authStoreService = authStoreService;
@@ -217,7 +225,7 @@ public class AuthRoute extends BaseRoute {
     private void addTokenToAuthStore(String clientId, String jwt, String description) throws InternalServletException {
         logger.info("Storing new token record in the auth store");
         JwtWrapper jwtWrapper = new JwtWrapper(jwt, env);
-        User user = new User(jwtWrapper.getUsername());
+        IInternalUser user = new InternalUser(jwtWrapper.getUsername(), jwtWrapper.getSubject());
 
         try {
             authStoreService.storeToken(clientId, description, user);

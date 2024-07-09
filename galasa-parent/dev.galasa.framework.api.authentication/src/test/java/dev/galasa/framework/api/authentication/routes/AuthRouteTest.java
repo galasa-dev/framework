@@ -37,7 +37,7 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpSession;
 import dev.galasa.framework.api.common.mocks.MockTimeService;
 import dev.galasa.framework.api.common.mocks.MockFramework;
-import dev.galasa.framework.spi.auth.IAuthToken;
+import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class AuthRouteTest extends BaseServletTest {
@@ -232,10 +232,10 @@ public class AuthRouteTest extends BaseServletTest {
         assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJsonObject));
 
         // A record of the newly-created token should have been added to the auth store
-        List<IAuthToken> tokens = mockAuthStoreService.getTokens();
+        List<IInternalAuthToken> tokens = mockAuthStoreService.getTokens();
         assertThat(tokens).hasSize(1);
 
-        IAuthToken newToken = tokens.get(0);
+        IInternalAuthToken newToken = tokens.get(0);
         assertThat(newToken.getDescription()).isEqualTo(tokenDescription);
         assertThat(newToken.getCreationTime()).isEqualTo(tokenCreationTime);
         assertThat(newToken.getOwner().getLoginId()).isEqualTo(userName);
