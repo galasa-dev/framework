@@ -306,7 +306,7 @@ paths:
       - $ref: '#/components/parameters/ClientApiVersion'
     delete:
       operationId: deleteToken
-      summary: Deletes a token which is used for authenticating with the Galasa API server.
+      summary: Revokes a token which is used for authenticating with the Galasa API server.
       description: |
         Revokes access for a preivously generated token through specifing the token ID.
 
