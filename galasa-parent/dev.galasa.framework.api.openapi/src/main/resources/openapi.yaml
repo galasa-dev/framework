@@ -324,12 +324,12 @@ paths:
           type: string
       responses:
         '200':
-          description: Action Message
+          description: Success message indicating that the given token has been revoked
           content:
             text/plain:
               schema:
                 type: string
-              example: Successfully deleted token with tokenId from the database
+              example: Successfully revoked token with ID 'tokenId'
         '401':
           description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
@@ -342,6 +342,18 @@ paths:
                     error_code: 5401
                     error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
                   summary: The request was unauthenticated so is unauthorized.
+        '404':
+          description: Could not find an existing auth token with the given ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                notfounderror:
+                  value:
+                    error_code: 5064
+                    error_message: "GAL5064E: Failed to revoke the token with the given ID. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"
+                  summary: The given token ID in the request did not correspond to an existing token record stored in the Galasa auth store.
         '500':
           description: Internal Server Error
           content:
@@ -2032,7 +2044,7 @@ components:
           description: The authorization code to be exchanged for a JWT, mutually exclusive with "refresh_token".
         description:
           type: string
-          description: A single-line description to be associated with the Galasa auth token.
+          description: Optional. A single-line description to be associated with the Galasa personal access token being created for the first time.
     AuthTokens:
       type: object
       properties:
