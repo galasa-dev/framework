@@ -23,7 +23,7 @@ public interface IGherkinExecutable {
 
     void registerManager(@NotNull IGherkinManager manager) throws TestRunException;
 
-    void registerExecutionMethod(@NotNull Method method, Object owner) throws TestRunException;
+    void registerExecutionMethod(@NotNull Method method, IStatementOwner owner) throws TestRunException;
 
     String getValue();
 
