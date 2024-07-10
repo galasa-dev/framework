@@ -7,9 +7,10 @@ package dev.galasa.framework.api.common.mocks;
 
 import java.time.Instant;
 
-import dev.galasa.framework.api.common.AuthToken;
+import dev.galasa.framework.api.beans.AuthToken;
+import dev.galasa.framework.api.common.InternalUser;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
-import dev.galasa.framework.spi.auth.User;
+import dev.galasa.framework.spi.auth.IInternalUser;
 
 public class MockInternalAuthToken implements IInternalAuthToken {
 
@@ -17,9 +18,9 @@ public class MockInternalAuthToken implements IInternalAuthToken {
     private String description;
     private String dexClientId;
     private Instant creationTime;
-    private User owner;
+    private IInternalUser owner;
 
-    public MockInternalAuthToken(String tokenId, String description, Instant creationTime, User owner, String dexClientId) {
+    public MockInternalAuthToken(String tokenId, String description, Instant creationTime, IInternalUser owner, String dexClientId) {
         this.tokenId = tokenId;
         this.description = description;
         this.dexClientId = dexClientId;
@@ -31,7 +32,8 @@ public class MockInternalAuthToken implements IInternalAuthToken {
         this.tokenId = tokenToCopy.getTokenId();
         this.description = tokenToCopy.getDescription();
         this.creationTime = tokenToCopy.getCreationTime();
-        this.owner = tokenToCopy.getOwner();
+        String loginId = tokenToCopy.getOwner().getLoginId();
+        this.owner = new InternalUser(loginId, loginId);
     }
 
     @Override
@@ -55,7 +57,7 @@ public class MockInternalAuthToken implements IInternalAuthToken {
     }
 
     @Override
-    public User getOwner() {
+    public IInternalUser getOwner() {
         return owner;
     }
 }
