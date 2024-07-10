@@ -16,9 +16,7 @@ jobs:
             
             - name: Build openapi2beans
               run: |
-               docker run --rm ghcr.io/jaydee029/openapi2beans:main -v ${{ github.workspace }}:/workspace/git \ 
-               generate \
-               --yaml /workspace/git/${{ env.YAML_LOCATION }} \  
+               docker run --rm -v ${{ github.workspace }}:/workspace/git ghcr.io/jaydee029/openapi2beans:main generate --yaml /workspace/git/${{ env.YAML_LOCATION }} \  
                --output /workspace/git/${{ env.OUTPUT_LOCATION }} \ 
                --package ${{ env.PACKAGE }}
 
