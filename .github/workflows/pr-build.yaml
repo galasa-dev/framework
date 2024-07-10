@@ -16,9 +16,9 @@ jobs:
             
             - name: Build openapi2beans
               run: |
-               docker run --rm -v ${{ github.workspace }}:/workspace/git ghcr.io/jaydee029/openapi2beans:main generate --yaml /workspace/git/${{ env.YAML_LOCATION }} --output /workspace/git/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
+               docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/jaydee029/openapi2beans:main generate --yaml var/workspace/${{ env.YAML_LOCATION }} --output var/workspace/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
 
               env:
-                YAML_LOCATION: "${{github.workspace}}/galasa-parent/dev.galasa.framework.api.openapi/src/main/build/openapi.yaml"  # Update this path
+                YAML_LOCATION: "galasa-parent/dev.galasa.framework.api.openapi/src/main/build/openapi.yaml"  # Update this path
                 OUTPUT_LOCATION: "generated-beans"
                 PACKAGE: "generated.beans"
