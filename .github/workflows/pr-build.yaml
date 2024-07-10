@@ -36,8 +36,7 @@ jobs:
             
             - name: Test and Build Gradle
               run: |
-               ls ${{github.workspace}}/generated-beans
-               gradle clean build \
+               gradle -b galasa-parent/build.gradle clean build \
                -PsourceMaven=https://repo.maven.apache.org/maven2/  \
                -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-               -PtargetMaven=https://maven.pkg.github.com/jaydee029/gradle/
+               -PtargetMaven=https://maven.pkg.github.com/jaydee029/framework/
