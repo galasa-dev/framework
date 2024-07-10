@@ -6,13 +6,24 @@ on:
         branches: [main]
 
 jobs:
-    Build-openapi2beans-gradle:
-        name: Build openapi2beans and framework
+    Build-using-openapi2beans-and-gradle:
+        name: Build framework using openapi2beans and gradle
         runs-on: ubuntu-latest
 
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
+            
+            - name: Setup JDK 
+              uses: actions/setup-java@v4
+              with:
+                java-version: '11'
+                distribution: 'semeru'
+              
+            - name: Setup Gradle
+              uses: gradle/actions/setup-gradle@v3
+              with:
+                gradle-version: 6.9.2
             
             - name: Build openapi2beans
               run: |
@@ -22,3 +33,11 @@ jobs:
                 YAML_LOCATION: "galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml"  # Update this path
                 OUTPUT_LOCATION: "generated-beans"
                 PACKAGE: "generated.beans"
+            
+            - name: Test and Build Gradle
+              run: |
+               ls ${{github.workspace}}/generated-beans
+               gradle clean build \
+               -PsourceMaven=https://repo.maven.apache.org/maven2/  \
+               -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+               -PtargetMaven=https://maven.pkg.github.com/jaydee029/gradle/
