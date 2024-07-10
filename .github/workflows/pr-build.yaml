@@ -19,6 +19,6 @@ jobs:
                docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/jaydee029/openapi2beans:main generate --yaml var/workspace/${{ env.YAML_LOCATION }} --output var/workspace/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
 
               env:
-                YAML_LOCATION: "galasa-parent/dev.galasa.framework.api.openapi/src/main/build/openapi.yaml"  # Update this path
+                YAML_LOCATION: "galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml"  # Update this path
                 OUTPUT_LOCATION: "generated-beans"
                 PACKAGE: "generated.beans"
