@@ -1,0 +1,32 @@
+name: PR Build
+
+on:
+    workflow_dispatch:
+    pull_request:
+        branches: [main]
+
+jobs:
+    Build-openapi2beans-gradle:
+        name: Build openapi2beans and framework
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+            
+            - name: Build openapi2beans
+              run: |
+               docker pull ghcr.io/jaydee029/openapi2beans:main
+               docker run \
+               --rm \
+               -v ${{ github.workspace }}:/workspace/git \  
+               ghcr.io/jaydee029/openapi2beans:main \
+               generate \
+               --yaml /workspace/git/${{ env.YAML_LOCATION }} \  
+               --output /workspace/git/${{ env.OUTPUT_LOCATION }} \ 
+               --package ${{ env.PACKAGE }}
+
+              env:
+                YAML_LOCATION: "galasa-parent/dev.galasa.framework.api.openapi/src/main/build/openapi.yaml"  # Update this path
+                OUTPUT_LOCATION: "generated-beans"
+                PACKAGE: "generated.beans"
