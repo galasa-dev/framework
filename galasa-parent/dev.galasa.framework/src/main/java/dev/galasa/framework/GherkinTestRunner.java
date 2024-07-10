@@ -45,7 +45,7 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.language.GalasaTest;
-import dev.galasa.framework.spi.language.gherkin.GherkinScenario;
+import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
@@ -309,7 +309,7 @@ public class GherkinTestRunner {
     private void logStatementsNotRecognisedByAnyManager(GherkinTest gherkinTest) {
         logger.error("The following Gherkin statements have not been registered to a Manager");
         
-        for(GherkinScenario scenario : gherkinTest.getScenarios()) {
+        for(GherkinMethod scenario : gherkinTest.getScenarios()) {
             logger.info("    Scenario: " + scenario.getName());
             for(IGherkinExecutable executable : scenario.getExecutables()) {
                 Object owner = executable.getOwner();

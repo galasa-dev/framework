@@ -28,9 +28,9 @@ import dev.galasa.framework.spi.teststructure.TestGherkinMethod;
  * A GherkinMethod is really a Gherkin Scenario.
  * It has a name, and a number of Statements(steps) which can be executed.
  */
-public class GherkinScenario {
+public class GherkinMethod {
 
-    private Log logger  = LogFactory.getLog(GherkinScenario.class);
+    private Log logger  = LogFactory.getLog(GherkinMethod.class);
 
     private String name;
     private transient List<IGherkinExecutable> executables;
@@ -40,7 +40,7 @@ public class GherkinScenario {
     
     private TestGherkinMethod testStructureMethod;
 
-    public GherkinScenario(String name, String testName) {
+    public GherkinMethod(String name, String testName) {
         this.name = name;
         this.executables = new ArrayList<>();
         this.testName = testName;
@@ -50,7 +50,7 @@ public class GherkinScenario {
     }
 
     public void addStep(String statement) throws TestRunException {
-        this.executables.add(GherkinStep.get(statement));
+        this.executables.add(GherkinStatement.get(statement));
     }
 
     public String getName() {

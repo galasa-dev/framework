@@ -13,13 +13,13 @@ import java.util.List;
  */
 public class GherkinFeature {
 
-    private List<GherkinScenario> scenarios = new ArrayList<>();
+    private List<GherkinMethod> scenarios = new ArrayList<>();
 
     private String name ;
 
     private GherkinVariables variables = new GherkinVariables();
 
-    public List<GherkinScenario> getScenarios() {
+    public List<GherkinMethod> getScenarios() {
         return this.scenarios;
     }
 

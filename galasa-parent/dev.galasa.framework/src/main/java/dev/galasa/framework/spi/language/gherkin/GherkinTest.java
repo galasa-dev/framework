@@ -59,7 +59,7 @@ public class GherkinTest {
         this.feature = parseFeature(lines);
 
         List<TestGherkinMethod> structureMethods = new ArrayList<TestGherkinMethod>(this.feature.getScenarios().size());
-        for(GherkinScenario scenario : this.feature.getScenarios()) {
+        for(GherkinMethod scenario : this.feature.getScenarios()) {
             structureMethods.add(scenario.getStructure());
         }
 
@@ -88,13 +88,13 @@ public class GherkinTest {
         return this.feature.getName();
     }
 
-    public List<GherkinScenario> getScenarios() {
+    public List<GherkinMethod> getScenarios() {
         return this.feature.getScenarios();
     }
 
     public List<IGherkinExecutable> getAllExecutables() {
         List<IGherkinExecutable> allExecutables = new ArrayList<>();
-        for(GherkinScenario scenario : this.feature.getScenarios()) {
+        for(GherkinMethod scenario : this.feature.getScenarios()) {
             allExecutables.addAll(scenario.getExecutables());
         }
         return allExecutables;
@@ -131,7 +131,7 @@ public class GherkinTest {
             throw new TestRunException("Unable to inform managers of start of test class", e);
         }
 
-        for (GherkinScenario method : this.feature.getScenarios()) {
+        for (GherkinMethod method : this.feature.getScenarios()) {
             if(this.feature.getVariables().getNumberOfInstances() >= 1){
                 method.invoke(managers, this.feature.getVariables().getVariableInstance(0));
             } else{
@@ -143,7 +143,7 @@ public class GherkinTest {
             }
         }
 
-        for (GherkinScenario method : this.feature.getScenarios()) {
+        for (GherkinMethod method : this.feature.getScenarios()) {
             Result methodResult = method.getResult();
             if (methodResult != null && methodResult.isFailed()) {
                 this.result = Result.failed("A Test failed");

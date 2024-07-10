@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.language.gherkin.GherkinFeature;
-import dev.galasa.framework.spi.language.gherkin.GherkinScenario;
+import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.parser.*;
 import dev.galasa.framework.spi.language.gherkin.xform.ParseTreeTransform;
 
@@ -62,7 +62,7 @@ public class TestParseTreeTransform {
 
         // Then...
         assertThat(feature).isNotNull();
-        List<GherkinScenario> scenarios = feature.getScenarios();
+        List<GherkinMethod> scenarios = feature.getScenarios();
         assertThat(scenarios).isNotNull().hasSize(1);
     }
 
@@ -89,10 +89,10 @@ public class TestParseTreeTransform {
 
         // Then...
         assertThat(feature).isNotNull();
-        List<GherkinScenario> scenarios = feature.getScenarios();
+        List<GherkinMethod> scenarios = feature.getScenarios();
         assertThat(scenarios).isNotNull().hasSize(1);
 
-        GherkinScenario scenario1 = scenarios.get(0);
+        GherkinMethod scenario1 = scenarios.get(0);
         assertThat(scenario1.getName()).isEqualTo("scenario1");
         List<IGherkinExecutable> executables = scenario1.getExecutables();
         assertThat(executables).hasSize(3);
@@ -122,7 +122,7 @@ public class TestParseTreeTransform {
 
         // Then...
         assertThat(feature).isNotNull();
-        List<GherkinScenario> scenarios = feature.getScenarios();
+        List<GherkinMethod> scenarios = feature.getScenarios();
         assertThat(scenarios).isNotNull().hasSize(2);
 
         assertThat(scenarios.get(0).getName()).isEqualTo("scenario1");

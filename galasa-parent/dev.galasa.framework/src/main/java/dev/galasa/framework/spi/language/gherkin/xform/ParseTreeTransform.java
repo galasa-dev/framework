@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.spi.language.gherkin.GherkinFeature;
-import dev.galasa.framework.spi.language.gherkin.GherkinScenario;
+import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.GherkinVariables;
 import dev.galasa.framework.spi.language.gherkin.parser.ParseToken;
 
@@ -61,7 +61,7 @@ public class ParseTreeTransform extends ParseTreeVisitorBase {
     public void postVisitScenario(ParseToken token) throws TestRunException {
         // <scenario> ::= SCENARIO_START <stepList>
         String scenarioName = token.getText();
-        GherkinScenario scenario = new GherkinScenario(scenarioName,feature.getName());
+        GherkinMethod scenario = new GherkinMethod(scenarioName,feature.getName());
 
         this.feature.getScenarios().add(scenario);
 
@@ -90,7 +90,7 @@ public class ParseTreeTransform extends ParseTreeVisitorBase {
         for( int instance = 0 ; instance < instancesToProcess ; instance +=1 ) {
             // The scenario is instance 'n'. One scenario for each line in the data table.
             String instanceScenarioName = token.getText() + "-"+Integer.toString(instance);
-            GherkinScenario scenario = new GherkinScenario(instanceScenarioName,feature.getName());
+            GherkinMethod scenario = new GherkinMethod(instanceScenarioName,feature.getName());
 
             // Add the steps to the scenario.
             for (ParseToken stepToken : steps) {
