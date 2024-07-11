@@ -88,7 +88,7 @@ public class GherkinTest {
         return this.feature.getName();
     }
 
-    public List<GherkinMethod> getScenarios() {
+    public List<GherkinMethod> getMethods() {
         return this.feature.getScenarios();
     }
 

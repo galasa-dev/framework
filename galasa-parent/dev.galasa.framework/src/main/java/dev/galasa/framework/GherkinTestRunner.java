@@ -210,7 +210,7 @@ public class GherkinTestRunner {
             return;
         }
 
-        if(gherkinTest.getName() == null || gherkinTest.getScenarios().size() == 0) {
+        if(gherkinTest.getName() == null || gherkinTest.getMethods().size() == 0) {
             throw new TestRunException("Feature file is invalid at URI: " + run.getGherkin());
         }
             
@@ -309,7 +309,7 @@ public class GherkinTestRunner {
     private void logStatementsNotRecognisedByAnyManager(GherkinTest gherkinTest) {
         logger.error("The following Gherkin statements have not been registered to a Manager");
         
-        for(GherkinMethod scenario : gherkinTest.getScenarios()) {
+        for(GherkinMethod scenario : gherkinTest.getMethods()) {
             logger.info("    Scenario: " + scenario.getName());
             for(IGherkinExecutable executable : scenario.getExecutables()) {
                 Object owner = executable.getOwner();
