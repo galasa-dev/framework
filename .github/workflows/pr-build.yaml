@@ -34,7 +34,7 @@ jobs:
                 OUTPUT_LOCATION: "generated-beans"
                 PACKAGE: "generated.beans"
             
-            - name: Test and Build Gradle
+            - name: Test and Build Framework
               run: |
                gradle -b galasa-parent/build.gradle clean build \
                -PsourceMaven=https://repo.maven.apache.org/maven2/  \
