@@ -90,14 +90,18 @@ public class OpenApiRoute extends BaseRoute {
     }
 
     private String validateContentType(String requestedContentType) throws InternalServletException {
-        String contentType = requestedContentType;
-
         // Throw a 'Bad Request' error if an invalid content type was requested or if no content type was set
-        if (requestedContentType == null || !SUPPORTED_CONTENT_TYPES.contains(contentType)) {
-            ServletError error = new ServletError(GAL5070_INVALID_CONTENT_TYPE_REQUESTED, String.join(", ", SUPPORTED_CONTENT_TYPES));
+        String supportedContentTypesStr = String.join(", ", SUPPORTED_CONTENT_TYPES);
+        if (requestedContentType == null || requestedContentType.isEmpty()) {
+            ServletError error = new ServletError(GAL5071_NO_CONTENT_TYPE_SET, supportedContentTypesStr);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);            
+        }
+
+        if (!SUPPORTED_CONTENT_TYPES.contains(requestedContentType)) {
+            ServletError error = new ServletError(GAL5070_INVALID_CONTENT_TYPE_REQUESTED, supportedContentTypesStr);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
-        return contentType;
+        return requestedContentType;
     }
 
     private String convertYamlToJson(String yamlContent) {

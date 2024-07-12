@@ -101,7 +101,8 @@ public enum ServletErrorMessage {
     GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS                (5066, "E: No such token with the given ID exists. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
 
     // OpenAPI Servlet...
-    GAL5070_INVALID_CONTENT_TYPE_REQUESTED            (5070, "E: Invalid ''Content-Type'' value set. Supported response types are: [{0}]. Ensure the ''Content-Type'' header in your request contains a valid value and try again"),
+    GAL5070_INVALID_CONTENT_TYPE_REQUESTED            (5070, "E: Invalid ''Content-Type'' header value set. Supported response types are: [{0}]. Ensure the ''Content-Type'' header in your request contains a valid value and try again"),
+    GAL5071_NO_CONTENT_TYPE_SET                       (5071, "E: Missing ''Content-Type'' header in request. Supported response types are: [{0}]. Ensure the ''Content-Type'' header in your request contains a valid value and try again"),
     ;
 
 
