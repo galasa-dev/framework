@@ -99,6 +99,9 @@ public enum ServletErrorMessage {
     GAL5064_FAILED_TO_REVOKE_TOKEN                    (5064, "E: Failed to revoke the token with the given ID. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     GAL5065_FAILED_TO_GET_TOKEN_ID_FROM_URL           (5065, "E: Failed to retrieve a token ID from the request path. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS                (5066, "E: No such token with the given ID exists. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
+
+    // OpenAPI Servlet...
+    GAL5070_INVALID_CONTENT_TYPE_REQUESTED            (5070, "E: Invalid ''Content-Type'' value set. Supported response types are: [{0}]. Ensure the ''Content-Type'' header in your request contains a valid value and try again"),
     ;
 
 

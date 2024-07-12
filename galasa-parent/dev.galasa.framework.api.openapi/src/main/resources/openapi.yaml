@@ -6,21 +6,15 @@
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
-  version : "0.36.0"
+  version: "0.36.0"
   description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
   contact:
     url: https://galasa.dev/support
 
 servers:
-  - url: '/'
-  - url: 'http://{server}:{port}'
-    variables:
-      server:
-        default: localhost
-      port:
-        default: "8080"
+  - url: '{API_SERVER_URL}'
 security:
-  - JwtAuth : []
+  - JwtAuth: []
 paths:
 ##################################################################################
 # Authentication API
@@ -1116,6 +1110,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+
+##################################################################################
+# OpenAPI API
+##################################################################################
+  /openapi:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getOpenApiSpec
+      security: []
+      summary: Retrieve the API server's OpenAPI specification
+      description: |
+        Returns the OpenAPI specification of the Galasa API server for this ecosystem.
+
+        Requires a 'Content-Type' header set to either 'application/yaml' or 'application/json' for the endpoint to serve the OpenAPI specification in YAML or JSON format, respectively.
+      tags:
+        - OpenAPI API
+      responses:
+        '200':
+          description: The Galasa API server's OpenAPI specification in YAML or JSON format
+          content:
+            application/yaml:
+              schema:
+                type: object
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid or missing Content-Type request header value set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidContentTypeError:
+                  value:
+                    error_code: 5070
+                    error_message: "GAL5070E: Invalid 'Content-Type' value set. Supported response types are: [application/yaml, application/json]. Ensure the ''Content-Type'' header in your request contains a valid value and try again."
+                  summary: The request did not contain a supported 'Content-Type' header value
 
 ##################################################################################
 # Resources API

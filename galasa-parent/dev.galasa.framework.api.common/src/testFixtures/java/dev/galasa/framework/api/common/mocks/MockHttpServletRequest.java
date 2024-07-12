@@ -40,6 +40,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String payload;
     private String method = "GET"; 
     private String contextPath = "/api";
+    private String contentType = "application/json";
 
     private MockHttpSession session;
 
@@ -171,6 +172,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    @Override
     public Object getAttribute(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getAttribute'");
     }
@@ -193,11 +203,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public long getContentLengthLong() {
         throw new UnsupportedOperationException("Unimplemented method 'getContentLengthLong'");
-    }
-
-    @Override
-    public String getContentType() {
-        throw new UnsupportedOperationException("Unimplemented method 'getContentType'");
     }
 
     @Override
