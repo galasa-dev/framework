@@ -9,6 +9,7 @@ env:
     REGISTRY: ghcr.io
     NAMESPACE: jaydee029
     IMAGE_TAG: main 
+    
 jobs:
     Build-using-openapi2beans-and-gradle:
         name: Build framework using openapi2beans and gradle
@@ -72,7 +73,7 @@ jobs:
             
             - name: Generate Swagger docs
               run: |
-               java -jar swagger-codegen-cli.jar generate -i /galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml -l html2 -o docs/generated/galasaapi
+               java -jar swagger-codegen-cli.jar generate -i galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml -l html2 -o docs/generated/galasaapi
             
             - name: Login to Github Container Regitery
               uses: docker/login-action@v3
