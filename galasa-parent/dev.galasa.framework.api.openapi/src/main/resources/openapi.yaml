@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
-  version: "0.36.0"
+  version : "0.36.0"
   description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
   contact:
     url: https://galasa.dev/support
@@ -1149,6 +1149,18 @@ paths:
                     error_code: 5070
                     error_message: "GAL5070E: Invalid 'Content-Type' value set. Supported response types are: [application/yaml, application/json]. Ensure the ''Content-Type'' header in your request contains a valid value and try again."
                   summary: The request did not contain a supported 'Content-Type' header value
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
 
 ##################################################################################
 # Resources API

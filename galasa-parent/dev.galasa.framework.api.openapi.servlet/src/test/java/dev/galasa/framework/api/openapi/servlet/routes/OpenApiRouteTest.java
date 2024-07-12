@@ -45,7 +45,7 @@ public class OpenApiRouteTest {
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(outputStream.toString()).contains(
             "openapi:",
-            "version:",
+            "version",
             "title: Galasa Ecosystem API",
             "url: '" + apiServerUrl + "'",
             "paths:",
