@@ -47,7 +47,7 @@ public class OpenApiRoute extends BaseRoute {
 
     private Log logger = LogFactory.getLog(this.getClass());
     private String apiServerUrl;
-    
+
     public OpenApiRoute(ResponseBuilder responseBuilder, String apiServerUrl) throws IOException {
         super(responseBuilder, "");
         this.apiServerUrl = apiServerUrl;
@@ -94,7 +94,7 @@ public class OpenApiRoute extends BaseRoute {
         String supportedContentTypesStr = String.join(", ", SUPPORTED_CONTENT_TYPES);
         if (requestedContentType == null || requestedContentType.isEmpty()) {
             ServletError error = new ServletError(GAL5071_NO_CONTENT_TYPE_SET, supportedContentTypesStr);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);            
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
         if (!SUPPORTED_CONTENT_TYPES.contains(requestedContentType)) {
