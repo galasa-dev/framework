@@ -70,7 +70,7 @@ jobs:
             
             - name: Install swagger cli
               run: |
-               wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.41/swagger-codegen-cli-2.4.41.jar -O swagger-codegen-cli.jar
+               wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/3.0.41/swagger-codegen-cli-2.4.41.jar -O swagger-codegen-cli.jar
             
             - name: Generate Swagger docs
               run: |
