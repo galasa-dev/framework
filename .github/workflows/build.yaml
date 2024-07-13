@@ -42,7 +42,7 @@ jobs:
             - name: Test, Build and Publish Framework
               env:
                 GITHUB_ACTOR: ${{github.actor}}
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GITHUB_TOKEN: ${{ github.token }}
                 ORG_GRADLE_PROJECT_signingKeyId:  ${{ secrets.GPG_KEY }}
                 ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SECRET }}
                 ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
