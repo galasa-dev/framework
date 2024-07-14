@@ -50,9 +50,8 @@ jobs:
                gradle -b galasa-parent/build.gradle check publish \
                -PsourceMaven=https://repo.maven.apache.org/maven2/  \
                -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-               -PtargetMaven=https://maven.pkg.github.com/${{env.NAMESPACE}}/framework/
-               -PjacocoEnabled=true
-               -PisMainOrRelease=true
+               -PtargetMaven=https://maven.pkg.github.com/${{env.NAMESPACE}}/framework/  -PjacocoEnabled=true -PisMainOrRelease=true
+               
             
     Build-Documentation:
         name: Build framework using openapi2beans and gradle
@@ -70,7 +69,7 @@ jobs:
             
             - name: Install swagger cli
               run: |
-               wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/3.0.41/swagger-codegen-cli-2.4.41.jar -O swagger-codegen-cli.jar
+               wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/3.0.0-rc0/swagger-codegen-cli-3.0.0-rc0.jar -O swagger-codegen-cli.jar
             
             - name: Generate Swagger docs
               run: |
