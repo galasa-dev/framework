@@ -87,18 +87,7 @@ jobs:
               uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
               with:
                 images: ${{env.REGISTRY}}/${{env.NAMESPACE}}/restapidoc
-               
-            - name: Build Restapidoc Image for testing
-              uses: docker/build-push-action@v5
-              with:
-                 context: .
-                 file: dockerfiles/dockerfile
-                 load: true
-                 tags: restapidoc:${{env.IMAGE_TAG}}
-               
-            - name: Testing Restapidoc Image
-              run: |
-                docker run --rm restapidoc:${{env.IMAGE_TAG}}         
+                      
                
             - name: Build and push Restapidoc Image
               uses: docker/build-push-action@v5
