@@ -26,6 +26,7 @@ public enum UnauthenticatedRoute {
     BOOTSTRAP("/bootstrap", HttpMethod.GET),
     BOOTSTRAP_EXTERNAL("/bootstrap/external", HttpMethod.GET),
     HEALTH("/health", HttpMethod.GET),
+    OPENAPI("/openapi", HttpMethod.GET),
     ;
 
     private String route;
