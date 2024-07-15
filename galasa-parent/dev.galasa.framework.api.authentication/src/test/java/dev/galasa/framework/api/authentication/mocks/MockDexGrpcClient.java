@@ -29,6 +29,8 @@ public class MockDexGrpcClient extends DexGrpcClient {
     private List<Client> dexClients = new ArrayList<>();
     private List<String> refreshTokens = new ArrayList<>();
 
+    private boolean throwError = false;
+
     public MockDexGrpcClient(String issuerHostname, String clientId, String clientSecret, String callbackUrl) {
         super(issuerHostname, "http://my-ecosystem");
         addDexClient(clientId, clientSecret, callbackUrl);
@@ -47,6 +49,7 @@ public class MockDexGrpcClient extends DexGrpcClient {
     // Mock out the response from Dex's gRPC API
     @Override
     public CreateClientResp sendCreateClientRequest(CreateClientReq createClientReq) {
+        checkThrowError();
         Builder createClientRespBuilder = CreateClientResp.newBuilder();
         if (dexClients != null && !dexClients.isEmpty()) {
             createClientRespBuilder.setClient(dexClients.get(0));
@@ -56,20 +59,19 @@ public class MockDexGrpcClient extends DexGrpcClient {
 
     @Override
     public GetClientResp sendGetClientRequest(GetClientReq getClientReq) {
+        checkThrowError();
         com.coreos.dex.api.DexOuterClass.GetClientResp.Builder getClientRespBuilder = GetClientResp.newBuilder();
         if (dexClients != null && !dexClients.isEmpty()) {
             Client dexClient = dexClients.get(0);
-            if (dexClient.getId().equals("error")) {
-                throw new StatusRuntimeException(Status.UNKNOWN);
-            } else {
-                getClientRespBuilder.setClient(dexClient);
-            }
+
+            getClientRespBuilder.setClient(dexClient);
         }
         return getClientRespBuilder.build();
     }
 
     @Override
     public DeleteClientResp sendDeleteClientRequest(DeleteClientReq deleteClientReq) {
+        checkThrowError();
         com.coreos.dex.api.DexOuterClass.DeleteClientResp.Builder deleteClientRespBuilder = DeleteClientResp.newBuilder();
         String clientId = deleteClientReq.getId();
         Client clientToRemove = getDexClient(clientId);
@@ -84,6 +86,7 @@ public class MockDexGrpcClient extends DexGrpcClient {
 
     @Override
     public RevokeRefreshResp sendRevokeRefreshRequest(RevokeRefreshReq revokeRefreshReq) {
+        checkThrowError();
         com.coreos.dex.api.DexOuterClass.RevokeRefreshResp.Builder builder = RevokeRefreshResp.newBuilder();
         String clientId = revokeRefreshReq.getClientId();
         builder.setNotFound(true);
@@ -133,5 +136,15 @@ public class MockDexGrpcClient extends DexGrpcClient {
 
     public List<String> getRefreshTokens() {
         return refreshTokens;
+    }
+
+    public void setThrowError(boolean throwError) {
+        this.throwError = throwError;
+    }
+
+    private void checkThrowError() throws StatusRuntimeException {
+        if (throwError) {
+            throw new StatusRuntimeException(Status.UNKNOWN);
+        }
     }
 }

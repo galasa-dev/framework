@@ -27,15 +27,17 @@ import dev.galasa.framework.api.authentication.internal.routes.AuthTokensRoute;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
 import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
-import dev.galasa.framework.api.common.AuthToken;
+import dev.galasa.framework.api.beans.AuthToken;
+import dev.galasa.framework.api.beans.User;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.InternalUser;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockInternalAuthToken;
 import dev.galasa.framework.api.common.mocks.MockTimeService;
 import dev.galasa.framework.api.common.mocks.MockAuthStoreService;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
-import dev.galasa.framework.spi.auth.User;
+import dev.galasa.framework.spi.auth.IInternalUser;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
@@ -127,7 +129,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
-        User owner = new User("username");
+        IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = List.of(
             new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId)
@@ -165,7 +167,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
-        User owner = new User("username");
+        IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = List.of(
             new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId)

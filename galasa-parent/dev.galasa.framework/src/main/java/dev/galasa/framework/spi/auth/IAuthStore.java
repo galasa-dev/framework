@@ -25,7 +25,7 @@ public interface IAuthStore {
      * @param owner       the details of the user that the token belongs to.
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
-    void storeToken(String clientId, String description, User owner) throws AuthStoreException;
+    void storeToken(String clientId, String description, IInternalUser owner) throws AuthStoreException;
 
     /**
      * Deletes an existing token record from the auth store's tokens database.

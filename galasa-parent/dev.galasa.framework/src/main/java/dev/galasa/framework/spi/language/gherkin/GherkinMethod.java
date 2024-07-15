@@ -24,6 +24,10 @@ import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.language.GalasaMethod;
 import dev.galasa.framework.spi.teststructure.TestGherkinMethod;
 
+/**
+ * A GherkinMethod is really a Gherkin Scenario.
+ * It has a name, and a number of Statements(steps) which can be executed.
+ */
 public class GherkinMethod {
 
     private Log logger  = LogFactory.getLog(GherkinMethod.class);
@@ -45,7 +49,7 @@ public class GherkinMethod {
         this.testStructureMethod.setMethodName(name);
     }
 
-    public void addStatement(String statement) throws TestRunException {
+    public void addStep(String statement) throws TestRunException {
         this.executables.add(GherkinStatement.get(statement));
     }
 

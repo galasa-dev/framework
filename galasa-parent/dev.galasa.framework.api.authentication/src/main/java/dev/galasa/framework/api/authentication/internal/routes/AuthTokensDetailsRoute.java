@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.authentication.JwtWrapper;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -24,6 +23,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
+import dev.galasa.framework.spi.auth.IInternalUser;
 
 public class AuthTokensDetailsRoute extends BaseRoute {
     private IAuthStoreService authStoreService;
@@ -48,8 +48,7 @@ public class AuthTokensDetailsRoute extends BaseRoute {
             HttpServletRequest request, HttpServletResponse response)
             throws FrameworkException {
         String tokenId = getTokenIdFromUrl(pathInfo);
-        String dexUserId = new JwtWrapper(request).getSubject();
-        revokeToken(tokenId, dexUserId);
+        revokeToken(tokenId);
 
         String responseBody = "Successfully revoked token with ID '" + tokenId + "'";
         return getResponseBuilder().buildResponse(request, response, "text/plain", responseBody, HttpServletResponse.SC_OK);
@@ -69,7 +68,7 @@ public class AuthTokensDetailsRoute extends BaseRoute {
         }
     }
 
-    private void revokeToken(String tokenId, String userId) throws InternalServletException {
+    private void revokeToken(String tokenId) throws InternalServletException {
         try {
             logger.info("Attempting to revoke token with ID '" + tokenId + "'");
 
@@ -82,9 +81,13 @@ public class AuthTokensDetailsRoute extends BaseRoute {
             // Delete the Dex client associated with the token
             String dexClientId = tokenToRevoke.getDexClientId();
             dexGrpcClient.deleteClient(dexClientId);
-
-            // Revoke the refresh token
-            dexGrpcClient.revokeRefreshToken(userId, dexClientId);
+            
+            IInternalUser tokenOwner = tokenToRevoke.getOwner();
+            String dexUserId = tokenOwner.getDexUserId();
+            if (dexUserId != null) {
+                // Revoke the refresh token
+                dexGrpcClient.revokeRefreshToken(dexUserId, dexClientId);
+            }
 
             // Delete the token's record in the auth store
             authStoreService.deleteToken(tokenId);

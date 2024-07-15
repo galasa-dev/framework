@@ -34,3 +34,7 @@ docs/generated/
 # A folder scripts can put things into without fear of them being checked-in.
 temp/
 *.proto
+
+# Ignore the OpenAPI spec that is automatically placed into the 
+# resources folder to be served up by the OpenAPI servlet
+**/dev.galasa.framework.api.openapi.servlet/**/openapi.yaml

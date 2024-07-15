@@ -12,15 +12,11 @@ info:
     url: https://galasa.dev/support
 
 servers:
-  - url: '/'
-  - url: 'http://{server}:{port}'
-    variables:
-      server:
-        default: localhost
-      port:
-        default: "8080"
+  # A value for the following URL is injected in the OpenAPI servlet for the /openapi endpoint.
+  # Any changes to this must be reflected in the OpenAPI servlet
+  - url: '{API_SERVER_URL}'
 security:
-  - JwtAuth : []
+  - JwtAuth: []
 paths:
 ##################################################################################
 # Authentication API
@@ -1097,7 +1093,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GalasaProperty'
+                $ref: '#/components/schemas/CpsProperty'
         '401':
           description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
           content:
@@ -1116,6 +1112,62 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JsonError'
+
+##################################################################################
+# OpenAPI API
+##################################################################################
+  /openapi:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getOpenApiSpec
+      security: []
+      summary: Retrieve the API server's OpenAPI specification
+      description: |
+        Returns the OpenAPI specification of the Galasa API server for this ecosystem.
+
+        The OpenAPI specification can be returned in either YAML or JSON format, based on the value provided in the
+        'Accept' HTTP header in requests to this endpoint. As such, the supported response content types are
+        'application/yaml' or 'application/json'. By default, a JSON representation of the OpenAPI specification
+        will be returned if the 'Accept' header is omitted or if it is set to 'application/*' or '*/*'.
+      tags:
+        - OpenAPI API
+      responses:
+        '200':
+          description: The Galasa API server's OpenAPI specification in YAML or JSON format
+          content:
+            application/yaml:
+              schema:
+                type: object
+            application/json:
+              schema:
+                type: object
+        '406':
+          description: Unsupported content type in 'Accept' request header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                unsupportedContentTypeError:
+                  value:
+                    error_code: 5070
+                    error_message: |
+                      GAL5070E: Unsupported 'Accept' header value set. Supported response types are: [application/yaml, application/json].
+                      Ensure the 'Accept' header in your request contains a valid value and try again.
+                  summary: The request did not contain a supported content type in its 'Accept' header
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
 
 ##################################################################################
 # Resources API
