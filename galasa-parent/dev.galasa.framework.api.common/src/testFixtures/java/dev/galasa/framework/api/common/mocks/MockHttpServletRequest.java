@@ -180,6 +180,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
         this.contentType = contentType;
     }
 
+    public void setHeader(String header, String value) {
+        this.headerMap.put(header, value);
+    }
+
     @Override
     public Object getAttribute(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getAttribute'");
