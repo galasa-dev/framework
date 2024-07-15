@@ -55,4 +55,3 @@ ext.includeInIsolated     = true
 ext.includeInBOM          = false
 ext.includeInCodeCoverage = true
 ext.includeInJavadoc      = false
-

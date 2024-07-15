@@ -25,15 +25,15 @@ import dev.galasa.framework.api.openapi.servlet.routes.OpenApiRoute;
     "osgi.http.whiteboard.servlet.pattern=/openapi/*" }, name = "Galasa OpenAPI servlet")
 public class OpenApiServlet extends BaseServlet {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     protected Environment env = new SystemEnvironment();
 
-	protected Log logger = LogFactory.getLog(this.getClass());
+    protected Log logger = LogFactory.getLog(this.getClass());
 
     @Override
-	public void init() throws ServletException {
-		super.init();
+    public void init() throws ServletException {
+        super.init();
 
         try {
             String apiServerUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
@@ -44,6 +44,5 @@ public class OpenApiServlet extends BaseServlet {
         } catch (IOException ex) {
             throw new ServletException("Failed to initialise OpenAPI servlet", ex);
         }
-
-	}
+    }
 }

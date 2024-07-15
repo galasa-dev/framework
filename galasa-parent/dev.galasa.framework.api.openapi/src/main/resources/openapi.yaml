@@ -1147,7 +1147,9 @@ paths:
                 invalidContentTypeError:
                   value:
                     error_code: 5070
-                    error_message: "GAL5070E: Invalid 'Content-Type' value set. Supported response types are: [application/yaml, application/json]. Ensure the ''Content-Type'' header in your request contains a valid value and try again."
+                    error_message: |
+                      GAL5070E: Invalid 'Content-Type' value set. Supported response types are: [application/yaml, application/json].
+                      Ensure the 'Content-Type' header in your request contains a valid value and try again.
                   summary: The request did not contain a supported 'Content-Type' header value
         '500':
           description: Internal Server Error
