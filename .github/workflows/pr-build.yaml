@@ -11,8 +11,8 @@ env:
     IMAGE_TAG: main 
 
 jobs:
-    Build-using-openapi2beans-and-gradle:
-        name: Build framework using openapi2beans and gradle
+    build-framework:
+        name: Build Framework using openapi2beans and Gradle
         runs-on: ubuntu-latest
 
         steps:
