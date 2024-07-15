@@ -1126,7 +1126,10 @@ paths:
       description: |
         Returns the OpenAPI specification of the Galasa API server for this ecosystem.
 
-        Requires a 'Content-Type' header set to either 'application/yaml' or 'application/json' for the endpoint to serve the OpenAPI specification in YAML or JSON format, respectively.
+        The OpenAPI specification can be returned in either YAML or JSON format, based on the value provided in the
+        'Accept' HTTP header in requests to this endpoint. As such, the supported response content types are
+        'application/yaml' or 'application/json'. By default, a JSON representation of the OpenAPI specification
+        will be returned if the 'Accept' header is omitted or if it is set to 'application/*' or '*/*'.
       tags:
         - OpenAPI API
       responses:
