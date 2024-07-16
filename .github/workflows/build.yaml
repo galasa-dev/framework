@@ -30,9 +30,13 @@ jobs:
               with:
                 gradle-version: 6.9.2
 
+            - name: Log into GitHub Container Registry
+              run: | 
+               echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             - name: Build openapi2beans
               run: |
-               docker run --rm -v ${{ github.workspace }}:/var/workspace ${{env.REGISTRY}}/${{env.NAMESPACE}}/openapi2beans:${{env.IMAGE_TAG}} generate --yaml var/workspace/${{ env.YAML_LOCATION }} --output var/workspace/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
+               docker run --rm -v ${{ github.workspace }}:/var/workspace ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/openapi2beans:${{ env.IMAGE_TAG }} generate --yaml var/workspace/${{ env.YAML_LOCATION }} --output var/workspace/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
               env:
                 YAML_LOCATION: "galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml"  # Update this path
                 OUTPUT_LOCATION: "galasa-parent/dev.galasa.framework.api.beans/src/main/java"
@@ -40,7 +44,7 @@ jobs:
 
             - name: Test, Build and Publish Framework
               env:
-                GITHUB_ACTOR: ${{github.actor}}
+                GITHUB_ACTOR: ${{ github.actor }}
                 GITHUB_TOKEN: ${{ github.token }}
                 ORG_GRADLE_PROJECT_signingKeyId:  ${{ secrets.GPG_KEYID }}
                 ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
@@ -49,7 +53,7 @@ jobs:
                gradle -b galasa-parent/build.gradle check publish \
                -PsourceMaven=https://development.galasa.dev/main/maven-repo/maven/ \
                -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-               -PtargetMaven=https://maven.pkg.github.com/${{env.NAMESPACE}}/framework/ \
+               -PtargetMaven=https://maven.pkg.github.com/${{ env.NAMESPACE }}/framework/ \
                -PjacocoEnabled=true \
                -PisMainOrRelease=true
 
@@ -78,7 +82,7 @@ jobs:
             - name: Login to Github Container Registry
               uses: docker/login-action@v3
               with:
-                registry: ${{env.REGISTRY}}
+                registry: ${{ env.REGISTRY }}
                 username: ${{ github.actor }}
                 password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -86,7 +90,7 @@ jobs:
               id: metadata
               uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
               with:
-                images: ${{env.REGISTRY}}/${{env.NAMESPACE}}/restapidocsite
+                images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/restapidocsite
 
             - name: Build and push Restapidoc Image
               id: build

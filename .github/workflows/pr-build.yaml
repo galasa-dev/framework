@@ -30,9 +30,13 @@ jobs:
               with:
                 gradle-version: 6.9.2
 
+            - name: Log into GitHub Container Registry
+              run: | 
+               echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             - name: Build openapi2beans
               run: |
-               docker run --rm -v ${{ github.workspace }}:/var/workspace ${{env.REGISTRY}}/${{env.NAMESPACE}}/openapi2beans:${{env.IMAGE_TAG}} generate --yaml var/workspace/${{ env.YAML_LOCATION }} --output var/workspace/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
+               docker run --rm -v ${{ github.workspace }}:/var/workspace ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/openapi2beans:${{ env.IMAGE_TAG }} generate --yaml var/workspace/${{ env.YAML_LOCATION }} --output var/workspace/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
               env:
                 YAML_LOCATION: "galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml"  # Update this path
                 OUTPUT_LOCATION: "galasa-parent/dev.galasa.framework.api.beans/src/main/java"
@@ -43,4 +47,4 @@ jobs:
                gradle -b galasa-parent/build.gradle clean build \
                -PsourceMaven=https://development.galasa.dev/main/maven-repo/maven/ \
                -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-               -PtargetMaven=https://maven.pkg.github.com/${{env.NAMESPACE}}/framework/
+               -PtargetMaven=https://maven.pkg.github.com/${{ env.NAMESPACE }}/framework/
