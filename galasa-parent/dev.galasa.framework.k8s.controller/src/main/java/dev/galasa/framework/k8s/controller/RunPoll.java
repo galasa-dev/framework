@@ -49,6 +49,7 @@ import io.prometheus.client.Counter;
 public class RunPoll implements Runnable {
 
     private static final String RAS_TOKEN_ENV = "GALASA_RAS_TOKEN";
+    private static final String EVENT_TOKEN_ENV = "GALASA_EVENT_STREAMS_TOKEN";
 
     private final Log                        logger           = LogFactory.getLog(getClass());
 
@@ -257,6 +258,7 @@ public class RunPoll implements Runnable {
             // envs.add(createValueEnv("GALASA_ENGINE_TYPE", engineLabel));
             envs.add(createValueEnv("MAX_HEAP", Integer.toString(this.settings.getEngineMemory()) + "m"));
             envs.add(createValueEnv(RAS_TOKEN_ENV, env.getenv(RAS_TOKEN_ENV)));
+            envs.add(createValueEnv(EVENT_TOKEN_ENV, env.getenv(EVENT_TOKEN_ENV)));
             //
             // envs.add(createSecretEnv("GALASA_SERVER_USER", "galasa-secret",
             // "galasa-server-username"));

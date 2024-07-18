@@ -71,6 +71,16 @@ public class CpsServletTest extends BaseServletTest {
 		this.resp = new MockHttpServletResponse(writer, outStream);
 	}
 
+	protected void setServlet( String path,String namespace, String value, String method, MockIConfigurationPropertyStoreService store){
+		setServlet(namespace);
+		ServletOutputStream outStream = new MockServletOutputStream();
+        PrintWriter writer = new PrintWriter(outStream);
+		IFramework framework = new MockFramework(store);
+		this.servlet.setFramework(framework);
+		this.req = new MockHttpServletRequest(path, value, method);
+		this.resp = new MockHttpServletResponse(writer, outStream);
+	}
+
 	protected MockCpsServlet getServlet(){
 		return this.servlet;
 	}

@@ -68,7 +68,7 @@ public class GherkinVariables {
 
     // TODO: Explain why these are not Map<String,String> as everything else is typed this way
     /**
-     * Gets the map of variable instances. ie: A 'row' of data values, whcih can be accessed
+     * Gets the map of variable instances. ie: A 'row' of data values, which can be accessed
      * from the map using the column header in the Gherkin table.
      * @param instance The instance number. zero-based. Instance 0 corresponds to the first line of the 
      * Gherkin table data.

@@ -38,6 +38,7 @@ import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.EventsException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -49,6 +50,8 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
+import dev.galasa.framework.spi.events.TestHeartbeatStoppedEvent;
+import dev.galasa.framework.spi.events.TestRunLifecycleStatusChangedEvent;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
@@ -120,7 +123,7 @@ public class TestRunner {
         try {
             this.produceEvents = isProduceEventsFeatureFlagTrue();
         } catch (ConfigurationPropertyStoreException e) {
-            throw new TestRunException("Problem loading the CPS property for event production.");
+            throw new TestRunException("Problem reading the CPS property to check if framework event production has been activated.");
         }
 
         IRun run = this.framework.getTestRun();
@@ -650,10 +653,6 @@ public class TestRunner {
 
     private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
 
-        if (this.produceEvents) {
-            logger.debug("Producing a test lifecycle status change event.");
-        }
-
         this.testStructure.setStatus(status.toString());
         if ("finished".equals(status.toString())) {
             updateResult();
@@ -669,6 +668,30 @@ public class TestRunner {
             }
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update status", e);
+        }
+
+        try {
+            produceTestRunLifecycleStatusChangedEvent(status);
+        } catch (TestRunException e) {
+            logger.error("Unable to produce a test run lifecycle status changed event to the Events Service", e);
+        }
+    }
+
+    private void produceTestRunLifecycleStatusChangedEvent(TestRunLifecycleStatus status) throws TestRunException {
+        if (this.produceEvents) {
+            logger.debug("Producing a test run lifecycle status change event.");
+
+            String message = String.format("Galasa test run %s is now in status: %s.", framework.getTestRunName(), status.toString());
+            TestRunLifecycleStatusChangedEvent testRunLifecycleStatusChangedEvent = new TestRunLifecycleStatusChangedEvent(this.cps, Instant.now().toString(), message);
+            String topic = testRunLifecycleStatusChangedEvent.getTopic();
+
+            if (topic != null) {
+                try {
+                    framework.getEventsService().produceEvent(topic, testRunLifecycleStatusChangedEvent);
+                } catch (EventsException e) {
+                    throw new TestRunException("Failed to publish a test run lifecycle status changed event to the Events Service", e);
+                }
+            }
         }
     }
 
@@ -698,6 +721,30 @@ public class TestRunner {
             dss.delete("run." + run.getName() + ".heartbeat");
         } catch (DynamicStatusStoreException e) {
             logger.error("Unable to delete heartbeat", e);
+        }
+
+        try {
+            produceTestHeartbeatStoppedEvent();
+        } catch (TestRunException e) {
+            logger.error("Unable to produce a test heartbeat stopped event to the Events Service", e);
+        }
+    }
+
+    private void produceTestHeartbeatStoppedEvent() throws TestRunException {
+        if (this.produceEvents) {
+            logger.debug("Producing a test heartbeat stopped event.");
+
+            String message = String.format("Galasa test run %s's heartbeat has been stopped.", framework.getTestRunName());
+            TestHeartbeatStoppedEvent testHeartbeatStoppedEvent = new TestHeartbeatStoppedEvent(this.cps, Instant.now().toString(), message);
+            String topic = testHeartbeatStoppedEvent.getTopic();
+
+            if (topic != null) {
+                try {
+                    framework.getEventsService().produceEvent(topic, testHeartbeatStoppedEvent);
+                } catch (EventsException e) {
+                    throw new TestRunException("Failed to publish a test heartbeat stopped event to the Events Service", e);
+                }
+            }
         }
     }
 

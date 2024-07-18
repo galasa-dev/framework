@@ -27,19 +27,21 @@ import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.JwtWrapper;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.internal.TokenPayloadValidator;
+import dev.galasa.framework.api.beans.AuthToken;
 import dev.galasa.framework.api.beans.TokenPayload;
-import dev.galasa.framework.api.common.AuthToken;
+import dev.galasa.framework.api.beans.User;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.IBeanValidator;
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.InternalUser;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
-import dev.galasa.framework.spi.auth.IAuthToken;
-import dev.galasa.framework.spi.auth.User;
+import dev.galasa.framework.spi.auth.IInternalAuthToken;
+import dev.galasa.framework.spi.auth.IInternalUser;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 public class AuthTokensRoute extends BaseRoute {
@@ -52,6 +54,9 @@ public class AuthTokensRoute extends BaseRoute {
     private static final String ID_TOKEN_KEY      = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
 
+    // Regex to match /auth/tokens and /auth/tokens/ only
+    private static final String PATH_PATTERN = "\\/tokens\\/?";
+
     private static final IBeanValidator<TokenPayload> validator = new TokenPayloadValidator();
 
     public AuthTokensRoute(
@@ -61,8 +66,7 @@ public class AuthTokensRoute extends BaseRoute {
         IAuthStoreService authStoreService,
         Environment env
     ) {
-        // Regex to match /auth/tokens only
-        super(responseBuilder, "\\/tokens\\/?");
+        super(responseBuilder, PATH_PATTERN);
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = dexGrpcClient;
         this.authStoreService = authStoreService;
@@ -83,16 +87,17 @@ public class AuthTokensRoute extends BaseRoute {
         List<AuthToken> tokensToReturn = new ArrayList<>();
         try {
             // Retrieve all the tokens and put them into a mutable list before sorting them based on their creation time
-            List<IAuthToken> tokens = new ArrayList<>(authStoreService.getTokens());
-            Collections.sort(tokens, Comparator.comparing(IAuthToken::getCreationTime));
+            List<IInternalAuthToken> tokens = new ArrayList<>(authStoreService.getTokens());
+            Collections.sort(tokens, Comparator.comparing(IInternalAuthToken::getCreationTime));
 
             // Convert the token received from the auth store into the token bean that will be returned as JSON
-            for (IAuthToken token : tokens) {
+            for (IInternalAuthToken token : tokens) {
+                User user = new User(token.getOwner().getLoginId());
                 tokensToReturn.add(new AuthToken(
                     token.getTokenId(),
                     token.getDescription(),
                     token.getCreationTime(),
-                    token.getOwner())
+                    user)
                 );
             }
         } catch (AuthStoreException e) {
@@ -162,7 +167,7 @@ public class AuthTokensRoute extends BaseRoute {
      */
     private String getTokensAsJsonString(List<AuthToken> tokens) {
         JsonArray tokensArray = new JsonArray();
-        for (IAuthToken token : tokens) {
+        for (AuthToken token : tokens) {
             String tokenJson = gson.toJson(token);
             tokensArray.add(JsonParser.parseString(tokenJson));
         }
@@ -218,7 +223,7 @@ public class AuthTokensRoute extends BaseRoute {
     private void addTokenToAuthStore(String clientId, String jwt, String description) throws InternalServletException {
         logger.info("Storing new token record in the auth store");
         JwtWrapper jwtWrapper = new JwtWrapper(jwt, env);
-        User user = new User(jwtWrapper.getUsername());
+        IInternalUser user = new InternalUser(jwtWrapper.getUsername(), jwtWrapper.getSubject());
 
         try {
             authStoreService.storeToken(clientId, description, user);
