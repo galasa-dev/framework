@@ -48,6 +48,7 @@ jobs:
                 ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
               run: |
                gradle -b galasa-parent/build.gradle check publish \
+               -Dorg.gradle.jvmargs=-Xmx5120M \
                -PsourceMaven=https://repo.maven.apache.org/maven2/  \
                -PcentralMaven=https://repo.maven.apache.org/maven2/ \
                -PtargetMaven=https://maven.pkg.github.com/${{env.NAMESPACE}}/framework/  -PjacocoEnabled=true -PisMainOrRelease=true

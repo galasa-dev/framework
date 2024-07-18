@@ -37,6 +37,7 @@ jobs:
             - name: Test and Build Framework
               run: |
                gradle -b galasa-parent/build.gradle clean build \
+               -Dorg.gradle.jvmargs=-Xmx5120M \
                -PsourceMaven=https://repo.maven.apache.org/maven2/  \
                -PcentralMaven=https://repo.maven.apache.org/maven2/ \
                -PtargetMaven=https://maven.pkg.github.com/jaydee029/framework/
