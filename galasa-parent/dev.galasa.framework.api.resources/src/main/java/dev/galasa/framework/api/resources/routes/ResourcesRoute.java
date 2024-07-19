@@ -89,9 +89,26 @@ public class ResourcesRoute  extends BaseRoute{
         return errors;
     }
 
+    /**
+     * Checks the json element to make sure it is not a NULL value or an empty object
+     * @param element The json element we want to check
+     * @throws InternalServletException
+     */
+    private void checkJsonElementIsValidJSON(JsonElement element) throws InternalServletException{
+        if ( element.isJsonNull()){
+            ServletError error = new ServletError(GAL5067_NULL_RESOURCE_IN_BODY);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        if ( element.getAsJsonObject().entrySet().isEmpty()){
+            ServletError error = new ServletError(GAL5068_EMPTY_JSON_RESOURCE_IN_BODY);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
+
     protected void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{
         for (JsonElement element: jsonArray){
             try {
+                checkJsonElementIsValidJSON(element);
                 JsonObject resource = element.getAsJsonObject();
                 String kind = resource.get("kind").getAsString();
                 switch (kind){
@@ -104,14 +121,10 @@ public class ResourcesRoute  extends BaseRoute{
                 }
             } catch(InternalServletException s){
                 errors.add(s.getMessage());
-            } catch(Exception e){
-                ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
             }
         }
     }
     
-
     private boolean checkGalasaPropertyJsonStructure(JsonObject propertyJson) throws InternalServletException{
         List<String> validationErrors = new ArrayList<String>();
         if (propertyJson.has("apiVersion")&& propertyJson.has("metadata")&&propertyJson.has("data")){
