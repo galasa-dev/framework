@@ -7,6 +7,7 @@ package dev.galasa.framework.api.runs.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -267,6 +268,30 @@ public class TestGroupRunsRoute extends RunsServletTest {
         String expectedJson = generateExpectedJson(runs, "true");
         assertThat(resp.getStatus()).isEqualTo(200);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
+    }
+
+    @Test
+    public void TestGetUUIDGroupNameRunsWithValidBodyAndBadAcceptHeaderReturnsError() throws Exception {
+        // Given...
+		String groupName = "framework";
+        addRun("name1", "type1", "requestor1", "test1", "FINISHED","bundle1", "testClass1", groupName);
+        Map<String, String> headers = new HashMap<String,String>();
+        headers.put("Accept", "text/html");
+
+        setServlet("/"+groupName, groupName, runs,null, "GET", headers);
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(412);
+        assertThat(outStream.toString()).contains("GAL5412",
+            "E: Error occured when trying to access the endpoint '/"+groupName+"'. The request caontains a header 'Accept' which does not match the expected value(s): 'application/json, application/*, */*'.");
     }
 
     @Test
@@ -634,6 +659,31 @@ public class TestGroupRunsRoute extends RunsServletTest {
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
 
+    @Test
+    public void TestPostUUIDGroupNameRunsWithValidBodyAndBadAcceptHeaderReturnsError() throws Exception {
+        // Given...
+		String groupName = "8149dc91-dabc-461a-b9e8-6f11a4455f59";
+        String[] classes = new String[]{"Class1/name", "Class2/name"};
+        String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, "testRequestor");
+        Map<String, String> headers = new HashMap<String,String>();
+        headers.put("Accept", "text/html");
+
+        setServlet("/"+groupName, groupName, payload, "POST", headers);
+		MockRunsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(412);
+        assertThat(outStream.toString()).contains("GAL5412",
+            "E: Error occured when trying to access the endpoint '/"+groupName+"'. The request caontains a header 'Accept' which does not match the expected value(s): 'application/json, application/*, */*'.");
+    }
+
     /*
      * Authorization Tests
      */
@@ -725,7 +775,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
 		String groupName = "8149dc91-dabc-461a-b9e8-6f11a4455f59";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
         String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, "testRequestor");
-
+        
         setServlet("/"+groupName, groupName, payload, "POST", headerMap);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
