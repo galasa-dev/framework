@@ -43,6 +43,7 @@ public enum ServletErrorMessage {
     GAL5404_UNRESOLVED_ENDPOINT_ERROR                 (5404,"E: Error occured when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
     GAL5405_METHOD_NOT_ALLOWED                        (5405,"E: Error occured when trying to access the endpoint ''{0}''. The method ''{1}'' is not allowed."),
     GAL5411_NO_REQUEST_BODY                           (5411,"E: Error occured when trying to access the endpoint ''{0}''. The request body is empty."),
+    GAL5412_HEADER_REQUIRED                           (5412,"E: Error occured when trying to access the endpoint ''{0}''. The request caontains a header ''{1}'' which does not match the expected value(s): ''{2}''."),
 
     //CPS Namespaces...
     GAL5015_INTERNAL_CPS_ERROR                        (5015,"E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."),

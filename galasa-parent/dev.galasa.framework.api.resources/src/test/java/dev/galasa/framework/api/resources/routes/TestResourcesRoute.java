@@ -7,7 +7,9 @@ package dev.galasa.framework.api.resources.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
@@ -1320,6 +1322,64 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(output).contains("GAL5067E: Error occured. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
         checkPropertyInNamespace(namespace, propertyname, value);
         checkPropertyInNamespace(namespace, propertynametwo, valuetwo);
+    }
+
+    @Test
+    public void TestHandlePOSTwithNoDataReturnsOK() throws Exception {
+        // Given...
+		String propertyJSON = "{\n \"action\":\"apply\", \"data\":[]\n}";
+		setServlet("/", "framework", propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json"); 
+        assertThat(output).isEqualTo("");
+    }
+
+    @Test
+    public void TestHandlePOSTwithDataBadAcceptReturnsOK() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "property.5";
+        String value = "value5";
+        String propertynametwo = "property.17";
+        String valuetwo = "value1";
+        String apiVersion = "galasa-dev/v1alpha1";
+        String action = "delete";
+        String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
+        String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
+		String propertyJSON = "{\n \"action\":\""+action+"\", \"data\":["+propertyone+","+propertytwo+"]\n}";
+        Map<String, String> headers = new HashMap<String,String>();
+        headers.put("Accept", "application/xml");
+		setServlet("/", "framework", propertyJSON , "POST", headers);
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(412);
+		assertThat(resp.getContentType()).isEqualTo("application/json"); 
+        assertThat(output).contains("GAL5412",
+            "E: Error occured when trying to access the endpoint '/'. The request caontains a header 'Accept' which does not match the expected value(s): 'application/json, application/*, */*'.");
+        checkPropertyNotInNamespace(namespace, propertyname, value);
+        checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
     }
 
 }

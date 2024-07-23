@@ -57,6 +57,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
         this.pathInfo = pathInfo;
     }
 
+    public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo, Map<String, String> headerMap) {
+        this.parameterMap = parameterMap;
+        this.pathInfo = pathInfo;
+        this.headerMap = headerMap;
+    }
+
     public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo, MockHttpSession session) {
         this(parameterMap, pathInfo);
         this.session = session;

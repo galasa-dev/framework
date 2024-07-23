@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.gson.JsonElement;
+
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
@@ -91,6 +93,30 @@ public abstract class BaseRoute implements IRoute {
         }
         return valid;
     }
+    
+    /**
+     * 
+     * 
+     * @param request the HTTP request to be parsed
+     * @throws InternalServletException if the Accepts header does not match the expected values
+     */
+    protected void checkRequestorAcceptContent(HttpServletRequest request) throws InternalServletException {
+        boolean isValid = false;
+        String accepts = request.getHeader("Accept");
+        if (accepts != null){
+            String[] acceptsList = accepts.split(",");
+            // Split on the comma separator in case it contains multiple MIME types example: Accept: application/json;q=0.9, */*;q=0.8
+            for (String header :acceptsList){
+                if (header.contains("*/*") || header.contains("application/*") || header.contains("application/json")){
+                    isValid = true;
+                }
+            }
+            if (!isValid){
+                ServletError error = new ServletError(GAL5412_HEADER_REQUIRED, request.getPathInfo(), "Accept" , "application/json, application/*, */*");
+                throw new InternalServletException(error, HttpServletResponse.SC_PRECONDITION_FAILED);
+            }
+        }
+    }
 
     /**
      * Parses a given HTTP request's body into a bean object
@@ -114,4 +140,21 @@ public abstract class BaseRoute implements IRoute {
         }
         return gson.fromJson(sbRequestBody.toString(), clazz);
     }
+
+    /**
+     * Checks the json element to make sure it is not a NULL value or an empty object
+     * @param element The json element we want to check
+     * @throws InternalServletException
+     */
+    protected void checkJsonElementIsValidJSON(JsonElement element) throws InternalServletException{
+        if ( element.isJsonNull()){
+            ServletError error = new ServletError(GAL5067_NULL_RESOURCE_IN_BODY);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        if ( element.getAsJsonObject().entrySet().isEmpty()){
+            ServletError error = new ServletError(GAL5068_EMPTY_JSON_RESOURCE_IN_BODY);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
+
 }
