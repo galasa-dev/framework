@@ -4,7 +4,10 @@ on:
     workflow_dispatch:
     pull_request:
         branches: [main]
-
+env:
+  REGISTERY: ghcr.io
+  NAMESPACE: galasa-dev
+  
 jobs:
     Build-using-openapi2beans-and-gradle:
         name: Build framework using openapi2beans and gradle
@@ -19,6 +22,10 @@ jobs:
               with:
                 java-version: '11'
                 distribution: 'semeru'
+            
+            - name: Print githash
+              run: |
+                echo $GITHUB_SHA > ./framework.githash
               
             - name: Setup Gradle
               uses: gradle/actions/setup-gradle@v3
@@ -40,4 +47,16 @@ jobs:
                -Dorg.gradle.jvmargs=-Xmx5120M \
                -PsourceMaven=https://repo.maven.apache.org/maven2/  \
                -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-               -PtargetMaven=https://maven.pkg.github.com/jaydee029/framework/
+               -PtargetMaven=${{ github.workspace }}/repo
+               
+            - name: Build framework Image for testing
+              uses: docker/build-push-action@v5
+              with:
+                context: .
+                file: dockerfiles/dockerfile.framework
+                load: true
+                tags: framework:test
+                build-args: |
+                  dockerRepository=harbor.galasa.dev
+                  tag=main
+            
