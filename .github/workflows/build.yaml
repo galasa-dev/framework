@@ -63,18 +63,18 @@ jobs:
                 username: ${{ github.actor }}
                 password: ${{ secrets.GITHUB_TOKEN }}
        
-            - name: Extract metadata for Gradle image
+            - name: Extract metadata for framework image
               id: metadata
               uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
               with:
                 images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/framework-maven-artefacts
        
-            - name: Build Gradle image for development Maven registry
+            - name: Build Framework image for development Maven registry
               id: build
               uses: docker/build-push-action@v5
               with:
                 context: .
-                file: dockerfiles/framework.gradle
+                file: dockerfiles/dockerfile.framework
                 push: true
                 tags: ${{ steps.metadata.outputs.tags }}
                 labels: ${{ steps.metadata.outputs.labels }}
