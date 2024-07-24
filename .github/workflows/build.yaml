@@ -86,7 +86,7 @@ jobs:
               env: 
                   ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
               run: |
-                  docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app actions run main-maven-repos restart --kind Deployment --resource-name framework-main --server argocd.galasa.dev
+                  docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app actions run gh-maven-repos restart --kind Deployment --resource-name framework-gh --server argocd.galasa.dev
                     
             
     Build-Documentation:
