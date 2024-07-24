@@ -43,7 +43,7 @@ jobs:
             
             - name: Test and Build Framework
               run: |
-               gradle -b galasa-parent/build.gradle clean build \
+               gradle -b galasa-parent/build.gradle check publish \
                -Dorg.gradle.jvmargs=-Xmx5120M \
                -PsourceMaven=https://repo.maven.apache.org/maven2/  \
                -PcentralMaven=https://repo.maven.apache.org/maven2/ \
