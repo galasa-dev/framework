@@ -207,6 +207,15 @@ api:
     isolated:     true
     codecoverage: false
 
+  - artifact: dev.galasa.framework.api.openapi.servlet
+    version: 0.36.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
   - artifact: dev.galasa.framework.api.ras
     version: 0.34.0
     obr:          true
