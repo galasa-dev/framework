@@ -1,9 +1,8 @@
 name: PR Build
 
 on:
-    workflow_dispatch:
-    pull_request:
-        branches: [main]
+  pull_request:
+    branches: [main]
 env:
   REGISTERY: ghcr.io
   NAMESPACE: galasa-dev

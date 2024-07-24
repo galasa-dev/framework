@@ -1,9 +1,8 @@
 name: Main Build
 
 on:
-    workflow_dispatch:
-    pull_request:
-        branches: [main]
+  push:
+     branches: [main]
 
 env:
     REGISTRY: ghcr.io
@@ -64,25 +63,31 @@ jobs:
                 username: ${{ github.actor }}
                 password: ${{ secrets.GITHUB_TOKEN }}
        
-            - name: Extract metadata for Gradle image
+            - name: Extract metadata for framework image
               id: metadata
               uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
               with:
                 images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/framework-maven-artefacts
        
-            - name: Build Gradle image for development Maven registry
+            - name: Build Framework image for development Maven registry
               id: build
               uses: docker/build-push-action@v5
               with:
                 context: .
-                file: dockerfiles/framework.gradle
+                file: dockerfiles/dockerfile.framework
                 push: true
                 tags: ${{ steps.metadata.outputs.tags }}
                 labels: ${{ steps.metadata.outputs.labels }}
                 build-args: |
                   dockerRepository=harbor.galasa.dev
                   tag=${{ env.IMAGE_TAG }}
-               
+            
+            - name: Recycle application in ArgoCD
+              env: 
+                  ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+              run: |
+                  docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app actions run main-maven-repos restart --kind Deployment --resource-name framework-main --server argocd.galasa.dev
+                    
             
     Build-Documentation:
         name: Build framework using openapi2beans and gradle
