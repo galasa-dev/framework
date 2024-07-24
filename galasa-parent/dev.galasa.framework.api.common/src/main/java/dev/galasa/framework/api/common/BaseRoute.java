@@ -21,6 +21,9 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class BaseRoute implements IRoute {
 
@@ -95,24 +98,35 @@ public abstract class BaseRoute implements IRoute {
     }
     
     /**
+     * Checks if the HTTP Request contains an "Accept" and if the 
      * 
-     * 
-     * @param request the HTTP request to be parsed
-     * @throws InternalServletException if the Accepts header does not match the expected values
+     * @param request the HTTP request to be validated
+     * @param alternateAcceptValues The values of the Accept header that should be included in the place of the application/json values
+     * @throws InternalServletException if the Accept header does not match the expected values
      */
-    protected void checkRequestorAcceptContent(HttpServletRequest request) throws InternalServletException {
+    protected void checkRequestorAcceptContent(HttpServletRequest request, String... alternateAcceptValues) throws InternalServletException {
         boolean isValid = false;
         String accepts = request.getHeader("Accept");
         if (accepts != null){
-            String[] acceptsList = accepts.split(",");
+            List<String> acceptsList = new ArrayList<String>();
+            if (alternateAcceptValues.length > 0 ){
+                acceptsList.addAll(Arrays.asList(alternateAcceptValues));
+            } else {
+                acceptsList.add("application/json");
+                acceptsList.add("application/*");
+            }
+            acceptsList.add("*/*");
+            String [] headerList = accepts.split(",");
             // Split on the comma separator in case it contains multiple MIME types example: Accept: application/json;q=0.9, */*;q=0.8
-            for (String header :acceptsList){
-                if (header.contains("*/*") || header.contains("application/*") || header.contains("application/json")){
+            for (String header :headerList){
+
+                if (acceptsList.contains(header.trim().split(";")[0])){
                     isValid = true;
+                    break;
                 }
             }
             if (!isValid){
-                ServletError error = new ServletError(GAL5412_HEADER_REQUIRED, request.getPathInfo(), "Accept" , "application/json, application/*, */*");
+                ServletError error = new ServletError(GAL5412_HEADER_REQUIRED, request.getPathInfo(), "Accept" , String.join(" , ", acceptsList));
                 throw new InternalServletException(error, HttpServletResponse.SC_PRECONDITION_FAILED);
             }
         }

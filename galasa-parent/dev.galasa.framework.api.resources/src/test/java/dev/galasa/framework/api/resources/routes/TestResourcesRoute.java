@@ -1377,7 +1377,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(status).isEqualTo(412);
 		assertThat(resp.getContentType()).isEqualTo("application/json"); 
         assertThat(output).contains("GAL5412",
-            "E: Error occured when trying to access the endpoint '/'. The request caontains a header 'Accept' which does not match the expected value(s): 'application/json, application/*, */*'.");
+            "E: Error occured when trying to access the endpoint '/'. The request contains the header 'Accept' which does not match the expected value(s): 'application/json , application/* , */*'.");
         checkPropertyNotInNamespace(namespace, propertyname, value);
         checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
     }

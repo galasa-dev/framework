@@ -43,6 +43,7 @@ public class RequestorRoute extends RunsRoute {
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
     throws ServletException, IOException, FrameworkException {
+        checkRequestorAcceptContent(req);
         this.sortQueryParameterChecker = new RasQueryParameters(queryParams);
         String outputString = retrieveRequestors(queryParams);
         return getResponseBuilder().buildResponse(req, response, "application/json", outputString, HttpServletResponse.SC_OK); 

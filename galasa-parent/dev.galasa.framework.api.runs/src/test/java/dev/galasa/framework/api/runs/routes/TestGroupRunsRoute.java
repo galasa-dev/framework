@@ -291,7 +291,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Then...
         assertThat(resp.getStatus()).isEqualTo(412);
         assertThat(outStream.toString()).contains("GAL5412",
-            "E: Error occured when trying to access the endpoint '/"+groupName+"'. The request caontains a header 'Accept' which does not match the expected value(s): 'application/json, application/*, */*'.");
+            "E: Error occured when trying to access the endpoint '/"+groupName+"'. The request contains the header 'Accept' which does not match the expected value(s): 'application/json , application/* , */*'.");
     }
 
     @Test
@@ -681,7 +681,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Then...
         assertThat(resp.getStatus()).isEqualTo(412);
         assertThat(outStream.toString()).contains("GAL5412",
-            "E: Error occured when trying to access the endpoint '/"+groupName+"'. The request caontains a header 'Accept' which does not match the expected value(s): 'application/json, application/*, */*'.");
+            "E: Error occured when trying to access the endpoint '/"+groupName+"'. The request contains the header 'Accept' which does not match the expected value(s): 'application/json , application/* , */*'.");
     }
 
     /*

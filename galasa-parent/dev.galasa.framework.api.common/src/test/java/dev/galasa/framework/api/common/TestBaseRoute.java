@@ -271,6 +271,76 @@ public class TestBaseRoute {
     }
 
     @Test
+    public void TestcheckRequestorAcceptContentTextPlainHeaderReturnsOK() throws Exception {
+        // Given...
+        String content = "{\"my\":\"content\"}";
+        BaseRoute route = new MockBaseRoute();
+        MockHttpServletRequest request = new MockHttpServletRequest("/mypath", content, "GET");
+        request.setHeader("Accept", "text/plain");
+ 
+        // When...
+        Throwable thrown = catchThrowable( () -> { 
+            route.checkRequestorAcceptContent(request, "text/plain");
+        });
+
+        // Then...
+        assertThat(thrown).isNull();
+    }
+
+    @Test
+    public void TestcheckRequestorAcceptContentMultipleHeaderReturnsOK() throws Exception {
+        // Given...
+        String content = "{\"my\":\"content\"}";
+        BaseRoute route = new MockBaseRoute();
+        MockHttpServletRequest request = new MockHttpServletRequest("/mypath", content, "GET");
+        request.setHeader("Accept", "text/plain , application/json");
+ 
+        // When...
+        Throwable thrown = catchThrowable( () -> { 
+            route.checkRequestorAcceptContent(request);
+        });
+
+        // Then...
+        assertThat(thrown).isNull();
+    }
+
+    @Test
+    public void TestcheckRequestorAcceptContentMultipleWeightedHeaderReturnsOK() throws Exception {
+        // Given...
+        String content = "{\"my\":\"content\"}";
+        BaseRoute route = new MockBaseRoute();
+        MockHttpServletRequest request = new MockHttpServletRequest("/mypath", content, "GET");
+        request.setHeader("Accept", "text/plain;q=0.9 , application/json;q=0.8");
+ 
+        // When...
+        Throwable thrown = catchThrowable( () -> { 
+            route.checkRequestorAcceptContent(request);
+        });
+
+        // Then...
+        assertThat(thrown).isNull();
+    }
+
+    @Test
+    public void TestcheckRequestorAcceptContentJsonHeaderWithTextPlainReturnsError() throws Exception {
+        // Given...
+        String content = "{\"my\":\"content\"}";
+        BaseRoute route = new MockBaseRoute();
+        MockHttpServletRequest request = new MockHttpServletRequest("/mypath", content, "GET");
+        request.setHeader("Accept", "application/json");
+ 
+        // When...
+        Throwable thrown = catchThrowable( () -> { 
+            route.checkRequestorAcceptContent(request, "text/plain");
+        });
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5412",
+            "E: Error occured when trying to access the endpoint '/mypath'. The request contains the header 'Accept' which does not match the expected value(s): 'text/plain , */*'.");
+    }
+
+    @Test
     public void TestcheckRequestorAcceptContentApplicationYamlHeaderReturnsException() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
@@ -286,6 +356,6 @@ public class TestBaseRoute {
         // Then...
         assertThat(thrown).isNotNull();
         assertThat(thrown.getMessage()).contains("GAL5412",
-            "E: Error occured when trying to access the endpoint '/mypath'. The request caontains a header 'Accept' which does not match the expected value(s): 'application/json, application/*, */*'.");
+            "E: Error occured when trying to access the endpoint '/mypath'. The request contains the header 'Accept' which does not match the expected value(s): 'application/json , application/* , */*'.");
     }
 }
