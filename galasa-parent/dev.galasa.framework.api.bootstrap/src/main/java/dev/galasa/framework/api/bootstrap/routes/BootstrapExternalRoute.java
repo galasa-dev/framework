@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.common.BaseRoute;
+import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.QueryParameters;
 
@@ -31,6 +32,9 @@ public class BootstrapExternalRoute extends BaseRoute {
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
             HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
+
+        validateAcceptHeader(request, MimeType.TEXT_PLAIN);
+
         Properties properties = new Properties();
         properties.store(response.getWriter(), "Galasa Bootstrap Properties");
         response = getResponseBuilder().buildResponseHeaders(request, response, "text/plain", HttpServletResponse.SC_OK);

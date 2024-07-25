@@ -140,7 +140,8 @@ public abstract class BaseRoute implements IRoute {
 
     /**
      * Checks if a given HTTP request contains an "Accept" header and if the values of that 
-     * header are part of the default or the supplied list
+     * header are part of the default or the supplied list. If no supported types are given,
+     * then "application/json" will be assumed as the default supported type.
      * 
      * @param request the HTTP request to be validated
      * @param supportedTypes the MIME types that are supported by the route
