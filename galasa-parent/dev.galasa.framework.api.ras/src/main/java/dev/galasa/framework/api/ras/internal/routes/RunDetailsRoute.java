@@ -52,7 +52,7 @@ public class RunDetailsRoute extends RunsRoute {
 
    @Override
    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
-      checkRequestorAcceptContent(req, MimeType.APPLICATION_JSON);
+      validateAcceptHeader(req, MimeType.APPLICATION_JSON);
       String runId = getRunIdFromPath(pathInfo);
       try{
          RasRunResult run = getRunFromFramework(runId);
@@ -66,7 +66,7 @@ public class RunDetailsRoute extends RunsRoute {
 
    @Override
    public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest request, HttpServletResponse response) throws DynamicStatusStoreException, FrameworkException, IOException {
-      checkRequestorAcceptContent(request, MimeType.TEXT_PLAIN);
+      validateAcceptHeader(request, MimeType.TEXT_PLAIN);
       String runId = getRunIdFromPath(pathInfo);
       String runName = getRunNameFromRunId(runId);
 

@@ -65,7 +65,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
-        checkRequestorAcceptContent(req, MimeType.APPLICATION_JSON);
+        validateAcceptHeader(req, MimeType.APPLICATION_JSON);
         Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);

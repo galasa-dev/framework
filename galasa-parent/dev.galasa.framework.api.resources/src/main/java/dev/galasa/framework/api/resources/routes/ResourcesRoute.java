@@ -61,7 +61,7 @@ public class ResourcesRoute  extends BaseRoute{
     @Override
      public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters, 
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {  
-        checkRequestorAcceptContent(request, MimeType.APPLICATION_JSON);
+        validateAcceptHeader(request, MimeType.APPLICATION_JSON);
         checkRequestHasContent(request);
         ServletInputStream body = request.getInputStream();
         String jsonBody = new String (body.readAllBytes(),StandardCharsets.UTF_8);

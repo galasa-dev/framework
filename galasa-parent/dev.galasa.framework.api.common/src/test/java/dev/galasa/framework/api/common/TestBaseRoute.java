@@ -214,7 +214,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request);
+            route.validateAcceptHeader(request);
         });
 
         // Then...
@@ -231,7 +231,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, MimeType.APPLICATION_JSON);
+            route.validateAcceptHeader(request, MimeType.APPLICATION_JSON);
         });
 
         // Then...
@@ -248,7 +248,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
+            route.validateAcceptHeader(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -265,7 +265,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
+            route.validateAcceptHeader(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -282,7 +282,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, MimeType.TEXT_PLAIN);
+            route.validateAcceptHeader(request, MimeType.TEXT_PLAIN);
         });
 
         // Then...
@@ -299,7 +299,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
+            route.validateAcceptHeader(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -316,7 +316,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
+            route.validateAcceptHeader(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -333,7 +333,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, MimeType.TEXT_PLAIN);
+            route.validateAcceptHeader(request, MimeType.TEXT_PLAIN);
         });
 
         // Then...
@@ -352,7 +352,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
+            route.validateAcceptHeader(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -371,7 +371,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
+            route.validateAcceptHeader(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -388,7 +388,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, TEXT_PLAIN);
+            route.validateAcceptHeader(request, TEXT_PLAIN);
         });
 
         // Then...
@@ -405,7 +405,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
+            route.validateAcceptHeader(request, APPLICATION_JSON);
         });
 
         // Then...

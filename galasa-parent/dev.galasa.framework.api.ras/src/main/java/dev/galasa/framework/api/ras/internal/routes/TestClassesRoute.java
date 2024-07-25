@@ -48,7 +48,7 @@ public class TestClassesRoute extends RunsRoute {
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
     throws ServletException, IOException, FrameworkException {
-        checkRequestorAcceptContent(req, MimeType.APPLICATION_JSON);
+        validateAcceptHeader(req, MimeType.APPLICATION_JSON);
         this.sortQueryParameterChecker = new RasQueryParameters(queryParams);
         String outputString = TestClasses();
         return getResponseBuilder().buildResponse(req, response, "application/json", outputString, HttpServletResponse.SC_OK); 

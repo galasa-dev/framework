@@ -49,7 +49,7 @@ public class NamespacesRoute extends CPSRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
-        checkRequestorAcceptContent(req, MimeType.APPLICATION_JSON);
+        validateAcceptHeader(req, MimeType.APPLICATION_JSON);
         String namespaces = getNamespaces(req.getRequestURI());
 		return getResponseBuilder().buildResponse(req, response, "application/json", namespaces, HttpServletResponse.SC_OK); 
     }

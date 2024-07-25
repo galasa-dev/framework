@@ -42,7 +42,7 @@ public class AllNamespaceRoute extends CPSRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, FrameworkException {
-        checkRequestorAcceptContent(req, MimeType.APPLICATION_JSON);
+        validateAcceptHeader(req, MimeType.APPLICATION_JSON);
         String namespaces = getNamespaces();
 		return getResponseBuilder().buildResponse(req, response, "application/json", namespaces, HttpServletResponse.SC_OK); 
     }

@@ -125,7 +125,7 @@ public abstract class BaseRoute implements IRoute {
     /**
      * Checks the json element to make sure it is not a NULL value or an empty object
      * @param element The json element we want to check
-     * @throws InternalServletException
+     * @throws InternalServletException if the json element is empty or null
      */
     protected void checkJsonElementIsValidJSON(JsonElement element) throws InternalServletException{
         if ( element.isJsonNull()){
@@ -139,16 +139,20 @@ public abstract class BaseRoute implements IRoute {
     }
 
     /**
-     * Checks if the HTTP Request contains an "Accept" and if the values of that header are part of the default or the supplied list
+     * Checks if a given HTTP request contains an "Accept" header and if the values of that 
+     * header are part of the default or the supplied list
      * 
      * @param request the HTTP request to be validated
-     * @param supportedTypes The values of the Accept header that should be included in the place of the application/json values
-     * @throws InternalServletException if the Accept header does not match the expected values
+     * @param supportedTypes the MIME types that are supported by the route
+     * @throws InternalServletException if an unsupported Accept header value was provided
      */
-    protected void checkRequestorAcceptContent(HttpServletRequest request, MimeType... supportedTypes) throws InternalServletException {
-        List<MimeType> supportedMimeTypes = new ArrayList<>();
+    protected void validateAcceptHeader(HttpServletRequest request, MimeType... supportedTypes) throws InternalServletException {
+        List<MimeType> supportedMimeTypes;
         if (supportedTypes != null) {
             supportedMimeTypes = Arrays.asList(supportedTypes);
+        } else {
+            // Default to supporting application/json
+            supportedMimeTypes = List.of(APPLICATION_JSON);
         }
         getResponseType(request.getHeader("Accept"), APPLICATION_JSON, supportedMimeTypes);
     }

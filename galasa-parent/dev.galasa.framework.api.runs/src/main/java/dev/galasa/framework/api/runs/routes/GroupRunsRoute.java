@@ -45,7 +45,7 @@ public class GroupRunsRoute extends GroupRuns{
 
     public HttpServletResponse handleGetRequest(String groupName, QueryParameters queryParams, HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException, FrameworkException{
-        checkRequestorAcceptContent(request, MimeType.APPLICATION_JSON);
+        validateAcceptHeader(request, MimeType.APPLICATION_JSON);
         List<IRun> runs = getRuns(groupName.substring(1));
         if (runs != null){
             ScheduleStatus serializedRuns = serializeRuns(runs);
@@ -59,7 +59,7 @@ public class GroupRunsRoute extends GroupRuns{
     public HttpServletResponse handlePostRequest(String groupName, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
     throws ServletException, IOException, FrameworkException {
         String requestor;
-        checkRequestorAcceptContent(request, MimeType.APPLICATION_JSON);
+        validateAcceptHeader(request, MimeType.APPLICATION_JSON);
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
         try {

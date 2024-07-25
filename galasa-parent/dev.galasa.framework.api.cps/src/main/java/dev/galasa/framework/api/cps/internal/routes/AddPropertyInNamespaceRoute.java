@@ -49,7 +49,7 @@ public class AddPropertyInNamespaceRoute extends CPSRoute {
     @Override
     public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
             throws ServletException, FrameworkException, IOException {
-        checkRequestorAcceptContent(req, MimeType.APPLICATION_JSON);
+        validateAcceptHeader(req, MimeType.APPLICATION_JSON);
         getPropertyDetailsFromURL(pathInfo);
         checkNamespaceExists(namespaceName);
         checkRequestHasContent(req);
