@@ -289,9 +289,10 @@ public class TestGroupRunsRoute extends RunsServletTest {
         servlet.doGet(req, resp);
 
         // Then...
-        assertThat(resp.getStatus()).isEqualTo(412);
-        assertThat(outStream.toString()).contains("GAL5412",
-            "E: Error occured when trying to access the endpoint '/"+groupName+"'. The request contains the header 'Accept' which does not match the expected value(s): 'application/json , application/* , */*'.");
+		assertThat(resp.getStatus()).isEqualTo(406);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		checkErrorStructure(outStream.toString(), 5070,
+			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
     }
 
     @Test
@@ -679,9 +680,9 @@ public class TestGroupRunsRoute extends RunsServletTest {
         servlet.doPost(req, resp);
 
         // Then...
-        assertThat(resp.getStatus()).isEqualTo(412);
-        assertThat(outStream.toString()).contains("GAL5412",
-            "E: Error occured when trying to access the endpoint '/"+groupName+"'. The request contains the header 'Accept' which does not match the expected value(s): 'application/json , application/* , */*'.");
+        assertThat(resp.getStatus()).isEqualTo(406);
+        assertThat(outStream.toString()).contains("GAL5070",
+            "E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
     }
 
     /*

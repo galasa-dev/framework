@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.openapi.servlet.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.MimeType.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +22,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -36,9 +38,7 @@ public class OpenApiRoute extends BaseRoute {
     private static final String OPENAPI_SERVER_TEMPLATE = "{API_SERVER_URL}";
     private static final String OPENAPI_FILE_NAME = "openapi.yaml";
 
-    private static final String APPLICATION_JSON = "application/json";
-    private static final String APPLICATION_YAML = "application/yaml";
-    private static final List<String> SUPPORTED_CONTENT_TYPES = List.of(APPLICATION_YAML, APPLICATION_JSON);
+    private static final List<MimeType> SUPPORTED_CONTENT_TYPES = List.of(APPLICATION_YAML, APPLICATION_JSON);
 
     private static final GalasaGson gson = new GalasaGson();
 
@@ -65,11 +65,11 @@ public class OpenApiRoute extends BaseRoute {
 
         logger.info("OpenApiRoute: handleGetRequest() Entered");
         String requestAcceptedTypes = request.getHeader("Accept");
-        String responseContentType = getResponseType(requestAcceptedTypes, SUPPORTED_CONTENT_TYPES);
+        String responseContentType = getResponseType(requestAcceptedTypes, APPLICATION_JSON, SUPPORTED_CONTENT_TYPES);
 
         // Convert the YAML contents into a JSON string if the user expects a JSON response
         String responseContents = openApiYamlContents;
-        if (responseContentType.equals(APPLICATION_JSON)) {
+        if (responseContentType.equals(APPLICATION_JSON.toString())) {
             responseContents = openApiJsonContents;
         }
 

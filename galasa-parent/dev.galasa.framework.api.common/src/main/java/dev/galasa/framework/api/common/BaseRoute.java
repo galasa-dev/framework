@@ -14,11 +14,10 @@ import org.apache.commons.logging.LogFactory;
 
 import com.google.gson.JsonElement;
 
-import dev.galasa.framework.api.common.resources.AcceptContentType;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
-import static dev.galasa.framework.api.common.resources.AcceptContentType.*;
+import static dev.galasa.framework.api.common.MimeType.*;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.BufferedReader;
@@ -99,133 +98,6 @@ public abstract class BaseRoute implements IRoute {
         }
         return valid;
     }
-    
-    /**
-     * Checks if the HTTP Request contains an "Accept" and if the values of that header are part of the default or the supplied list
-     * 
-     * @param request the HTTP request to be validated
-     * @param supportedTypes The values of the Accept header that should be included in the place of the application/json values
-     * @throws InternalServletException if the Accept header does not match the expected values
-     */
-    protected void checkRequestorAcceptContent(HttpServletRequest request, AcceptContentType... supportedTypes) throws InternalServletException {
-        boolean isValid = false;
-        String accepts = request.getHeader("Accept");
-        if (accepts != null) {
-            if (supportedTypes == null || supportedTypes.length == 0) {
-                supportedTypes = new AcceptContentType[] { APPLICATION_JSON };
-            }
-            String[] headerList = accepts.split(",");
-
-            for (AcceptContentType type : supportedTypes) {
-                for (String header : headerList) {
-                    // Split on the comma separator in case it contains multiple MIME types example: Accept: application/json;q=0.9, */*;q=0.8
-                    if (type.isInHeader(header.trim().split(";")[0])) {
-                        isValid = true;
-                        break;
-                    }
-                }
-            }
-            if (!isValid) {
-                String supportedTypesStr = Arrays.stream(supportedTypes)
-                    .map(AcceptContentType::toString)
-                    .collect(Collectors.joining(", "));
-
-                ServletError error = new ServletError(GAL5070_UNSUPPORTED_CONTENT_TYPE_REQUESTED, supportedTypesStr);
-                throw new InternalServletException(error, HttpServletResponse.SC_NOT_ACCEPTABLE);
-            }
-        }
-    }
-
-    protected String getResponseType(String requestedAcceptTypes, AcceptContentType... supportedTypes) throws InternalServletException {
-        // If no "Accept" header value is set, then use the given default type
-        String responseContentType = APPLICATION_JSON.toString();
-        if (supportedTypes == null || supportedTypes.length == 0) {
-            supportedTypes = new AcceptContentType[] { APPLICATION_JSON };
-        }
-
-        if (requestedAcceptTypes != null) {
-
-            // Find the matching types that are supported by the server and were requested by the client
-            List<ContentType> supportedAcceptTypes = getSupportedTypesFromAcceptHeader(requestedAcceptTypes, supportedTypes);
-
-            if (!supportedAcceptTypes.isEmpty()) {
-                String responseType = supportedAcceptTypes.get(0).getType();
-
-                // If something like "application/*" or "*/*" are given, then we'll still use the default type
-                if (!responseType.contains("*")) {
-                    responseContentType = responseType;
-                }
-            } else {
-                // The "Accept" header only contained types that aren't supported, so throw an error
-                String supportedContentTypesStr = Arrays.stream(supportedTypes)
-                    .map(AcceptContentType::toString)
-                    .collect(Collectors.joining(", "));
-
-                ServletError error = new ServletError(GAL5070_UNSUPPORTED_CONTENT_TYPE_REQUESTED, supportedContentTypesStr);
-                throw new InternalServletException(error, HttpServletResponse.SC_NOT_ACCEPTABLE);
-            }
-        }
-        return responseContentType;
-    }
-
-    private List<ContentType> getSupportedTypesFromAcceptHeader(String acceptHeaderContent, AcceptContentType... supportedTypes) {
-        List<ContentType> supportedAcceptTypes = new ArrayList<>();
-        List<ContentType> parsedAcceptTypes = parseAcceptHeader(acceptHeaderContent);
-
-        for (ContentType acceptType : parsedAcceptTypes) {
-            String contentType = acceptType.getType();
-
-            for (AcceptContentType supportedType : supportedTypes) {
-                if (supportedType.isInHeader(contentType)) {
-                    supportedAcceptTypes.add(acceptType);
-                }
-            }
-        }
-
-        // Sort the supported types based on their quality values
-        supportedAcceptTypes = supportedAcceptTypes.stream()
-            .sorted((acceptType1, acceptType2) -> Double.compare(acceptType2.getQuality(), acceptType1.getQuality()))
-            .collect(Collectors.toList());
-
-        return supportedAcceptTypes;
-    }
-
-    /**
-     * Parses the value of an "Accept" HTTP header into a map of content types and their associated quality value,
-     * used to assign the priority of given types. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
-     * for details on "Accept" headers
-     *
-     * @param acceptHeader the value of an "Accept" header, potentially a comma-separated list
-     * @return a map of content types and quality values
-     */
-    private List<ContentType> parseAcceptHeader(String acceptHeader) {
-        List<ContentType> contentTypes = new ArrayList<>();
-
-        // Multiple content types may have been set, so split them into tokens
-        String[] acceptHeaderTokens = acceptHeader.split(",");
-
-        for (String token : acceptHeaderTokens) {
-
-            // Some content types may be in the form "<content-type>;q=<priority>", so split them into their sub-parts
-            // For example: "Accept: application/json;q=0.8, application/yaml;q=0.9"
-            String[] tokenParts = token.trim().split(";q=");
-            String type = tokenParts[0].trim();
-
-            // If no quality value was given, it defaults to 1 (see https://developer.mozilla.org/en-US/docs/Glossary/Quality_values)
-            double quality = 1;
-            if (tokenParts.length == 2) {
-                try {
-                    quality = Double.parseDouble(tokenParts[1].trim());
-                } catch (NumberFormatException ex) {
-                    logger.warn("Could not parse quality value for content type '" + tokenParts[0] + "', setting quality to 0");
-                    quality = 0;
-                }
-            }
-            contentTypes.add(new ContentType(type, quality));
-        }
-        return contentTypes;
-    }
-
 
     /**
      * Parses a given HTTP request's body into a bean object
@@ -266,4 +138,107 @@ public abstract class BaseRoute implements IRoute {
         }
     }
 
+    /**
+     * Checks if the HTTP Request contains an "Accept" and if the values of that header are part of the default or the supplied list
+     * 
+     * @param request the HTTP request to be validated
+     * @param supportedTypes The values of the Accept header that should be included in the place of the application/json values
+     * @throws InternalServletException if the Accept header does not match the expected values
+     */
+    protected void checkRequestorAcceptContent(HttpServletRequest request, MimeType... supportedTypes) throws InternalServletException {
+        List<MimeType> supportedMimeTypes = new ArrayList<>();
+        if (supportedTypes != null) {
+            supportedMimeTypes = Arrays.asList(supportedTypes);
+        }
+        getResponseType(request.getHeader("Accept"), APPLICATION_JSON, supportedMimeTypes);
+    }
+
+    protected String getResponseType(String requestedAcceptTypes, MimeType defaultType, List<MimeType> supportedTypes) throws InternalServletException {
+        // If no "Accept" header value is set, then use the given default type
+        String responseContentType = defaultType.toString();
+        if (requestedAcceptTypes != null) {
+
+            // Find the matching types that are supported by the server and were requested by the client
+            List<AcceptContentType> supportedAcceptTypes = getSupportedTypesFromAcceptHeader(requestedAcceptTypes, supportedTypes);
+
+            if (!supportedAcceptTypes.isEmpty()) {
+                String responseType = supportedAcceptTypes.get(0).getType();
+
+                // If something like "application/*" or "*/*" is given, then we'll use the default subtype for the wildcard type
+                if (responseType.contains("*")) {
+                    responseContentType = WildcardMimeType.getFromString(responseType).getDefaultSubtype();
+                } else {
+                    responseContentType = responseType;
+                }
+            } else {
+                // The "Accept" header only contained types that aren't supported, so throw an error
+                String supportedContentTypesStr = supportedTypes.stream()
+                    .map(MimeType::toString)
+                    .collect(Collectors.joining(", "));
+
+                ServletError error = new ServletError(GAL5070_UNSUPPORTED_CONTENT_TYPE_REQUESTED, supportedContentTypesStr);
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_ACCEPTABLE);
+            }
+        }
+        return responseContentType;
+    }
+
+    private List<AcceptContentType> getSupportedTypesFromAcceptHeader(String acceptHeaderContent, List<MimeType> supportedTypes) {
+        List<AcceptContentType> supportedAcceptTypes = new ArrayList<>();
+        List<AcceptContentType> parsedAcceptTypes = parseAcceptHeader(acceptHeaderContent);
+
+        for (AcceptContentType acceptType : parsedAcceptTypes) {
+            String contentType = acceptType.getType();
+
+            for (MimeType supportedType : supportedTypes) {
+                if (supportedType.matchesType(contentType)) {
+                    supportedAcceptTypes.add(acceptType);
+                    break;
+                }
+            }
+        }
+
+        // Sort the supported types based on their quality values
+        supportedAcceptTypes = supportedAcceptTypes.stream()
+            .sorted((acceptType1, acceptType2) -> Double.compare(acceptType2.getQuality(), acceptType1.getQuality()))
+            .collect(Collectors.toList());
+
+        return supportedAcceptTypes;
+    }
+
+    /**
+     * Parses the value of an "Accept" HTTP header into a map of content types and their associated quality value,
+     * used to assign the priority of given types. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
+     * for details on "Accept" headers
+     *
+     * @param acceptHeader the value of an "Accept" header, potentially a comma-separated list
+     * @return a map of content types and quality values
+     */
+    private List<AcceptContentType> parseAcceptHeader(String acceptHeader) {
+        List<AcceptContentType> contentTypes = new ArrayList<>();
+
+        // Multiple content types may have been set, so split them into tokens
+        String[] acceptHeaderTokens = acceptHeader.split(",");
+
+        for (String token : acceptHeaderTokens) {
+
+            // Some content types may be in the form "<content-type>;q=<priority>", so split them into their sub-parts
+            // For example: "Accept: application/json;q=0.8, application/yaml;q=0.9"
+            String[] tokenParts = token.trim().split(";");
+            String type = tokenParts[0].trim();
+
+            // If no quality value was given, it defaults to 1 (see https://developer.mozilla.org/en-US/docs/Glossary/Quality_values)
+            double quality = 1;
+            if (tokenParts.length == 2) {
+                try {
+                    quality = Double.parseDouble(tokenParts[1].replace("q=", "").trim());
+                } catch (NumberFormatException ex) {
+                    logger.warn("Could not parse quality value for content type '" + tokenParts[0] + "', setting quality to 0");
+                    quality = 0;
+                }
+            }
+            contentTypes.add(new AcceptContentType(type, quality));
+        }
+        return contentTypes;
+    }
 }

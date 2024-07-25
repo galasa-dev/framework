@@ -581,9 +581,9 @@ public class TestResultNamesRoute extends RasServletTest{
 		servlet.doGet(req,resp);
 
 		//Then...
-		assertThat(resp.getStatus()).isEqualTo(412);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
-		checkErrorStructure(outStream.toString(), 5412, "GAL5412",
-			"E: Error occured when trying to access the endpoint '/resultnames'. The request contains the header 'Accept' which does not match the expected value(s): 'application/json , application/* , */*'.");
+		assertThat(resp.getStatus()).isEqualTo(406);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		checkErrorStructure(outStream.toString(), 5070,
+			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
 	}
 }

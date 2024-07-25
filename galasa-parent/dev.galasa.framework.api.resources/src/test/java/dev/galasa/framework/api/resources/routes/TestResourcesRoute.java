@@ -1372,12 +1372,10 @@ public class TestResourcesRoute extends ResourcesServletTest{
         servlet.doPost(req, resp);
 
         // Then...
-        Integer status = resp.getStatus();
-        String output = outStream.toString();
-        assertThat(status).isEqualTo(412);
-		assertThat(resp.getContentType()).isEqualTo("application/json"); 
-        assertThat(output).contains("GAL5412",
-            "E: Error occured when trying to access the endpoint '/'. The request contains the header 'Accept' which does not match the expected value(s): 'application/json , application/* , */*'.");
+		assertThat(resp.getStatus()).isEqualTo(406);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		checkErrorStructure(outStream.toString(), 5070,
+			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
         checkPropertyNotInNamespace(namespace, propertyname, value);
         checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
     }

@@ -13,8 +13,9 @@ import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.resources.AcceptContentType;
 
+import static dev.galasa.framework.api.common.MimeType.APPLICATION_JSON;
+import static dev.galasa.framework.api.common.MimeType.TEXT_PLAIN;
 import static org.assertj.core.api.Assertions.*;
 
 public class TestBaseRoute {
@@ -205,7 +206,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentNoHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentNoHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -221,7 +222,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentAllowAllHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentAllowAllHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -230,7 +231,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, AcceptContentType.APPLICATION_JSON);
+            route.checkRequestorAcceptContent(request, MimeType.APPLICATION_JSON);
         });
 
         // Then...
@@ -238,7 +239,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentApllicationAllHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentApplicationAllHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -247,7 +248,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request);
+            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -255,7 +256,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentApplicationJsonHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentApplicationJsonHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -264,7 +265,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request);
+            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -272,7 +273,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentTextPlainHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentTextPlainHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -281,7 +282,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, AcceptContentType.TEXT_PLAIN);
+            route.checkRequestorAcceptContent(request, MimeType.TEXT_PLAIN);
         });
 
         // Then...
@@ -289,7 +290,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentMultipleHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentMultipleHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -298,7 +299,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request);
+            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -306,7 +307,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentMultipleWeightedHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentMultipleWeightedHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -315,7 +316,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request);
+            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -323,7 +324,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentJsonHeaderWithTextPlainReturnsError() throws Exception {
+    public void TestCheckRequestorAcceptContentJsonHeaderWithTextPlainReturnsError() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -332,7 +333,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, AcceptContentType.TEXT_PLAIN);
+            route.checkRequestorAcceptContent(request, MimeType.TEXT_PLAIN);
         });
 
         // Then...
@@ -342,7 +343,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentApplicationYamlHeaderReturnsException() throws Exception {
+    public void TestCheckRequestorAcceptContentApplicationYamlHeaderReturnsException() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -351,7 +352,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request);
+            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -361,7 +362,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentAnyHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentAnyHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -370,7 +371,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request);
+            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
         });
 
         // Then...
@@ -378,7 +379,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentTextHeaderAnyAllowedReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentTextHeaderAnyAllowedReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -387,7 +388,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request);
+            route.checkRequestorAcceptContent(request, TEXT_PLAIN);
         });
 
         // Then...
@@ -395,7 +396,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void TestcheckRequestorAcceptContentTextHeaderExplicitAnyReturnsError() throws Exception {
+    public void TestCheckRequestorAcceptContentTextHeaderExplicitAnyReturnsError() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -404,7 +405,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, null);
+            route.checkRequestorAcceptContent(request, APPLICATION_JSON);
         });
 
         // Then...
