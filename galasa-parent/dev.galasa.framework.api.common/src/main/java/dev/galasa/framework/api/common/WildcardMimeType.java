@@ -22,7 +22,7 @@ public enum WildcardMimeType {
     public static WildcardMimeType getFromString(String typeAsString) {
         WildcardMimeType match = null;
         for (WildcardMimeType type : values()) {
-            if (type.toString().equalsIgnoreCase(typeAsString)) {
+            if (type.toString().equalsIgnoreCase(typeAsString.trim())) {
                 match = type;
                 break;
             }

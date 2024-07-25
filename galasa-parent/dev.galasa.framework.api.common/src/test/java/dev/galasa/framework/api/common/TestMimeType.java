@@ -5,7 +5,8 @@
  */
 package dev.galasa.framework.api.common;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
+import static dev.galasa.framework.api.common.MimeType.*;
 
 import org.junit.Test;
 
@@ -13,52 +14,41 @@ public class TestMimeType {
 
     @Test
     public void testMimeTypeJsonReturnString() throws Exception {
-        assertThat(MimeType.APPLICATION_JSON.toString()).isEqualTo("application/json");
+        assertThat(APPLICATION_JSON.toString()).isEqualTo("application/json");
+        assertThat(TEXT_PLAIN.toString()).isEqualTo("text/plain");
     }
 
     @Test
     public void testMimeTypeYamlReturnString() throws Exception {
-        assertThat(MimeType.APPLICATION_YAML.toString()).isEqualTo("application/yaml");
+        assertThat(APPLICATION_YAML.toString()).isEqualTo("application/yaml");
     }
 
     @Test
     public void testMimeTypeTextReturnString() throws Exception {
-        assertThat(MimeType.TEXT_PLAIN.toString()).isEqualTo("text/plain");
+        assertThat(TEXT_PLAIN.toString()).isEqualTo("text/plain");
     }
 
     @Test
     public void testMimeTypeJsonReturnTrue() throws Exception {
-        // Given...
-        MimeType contentType = MimeType.APPLICATION_JSON;
-
-        // Then...
-        assertThat(contentType.matchesType("application/json")).isTrue();
-        assertThat(contentType.matchesType("application/*")).isTrue();
-        assertThat(contentType.matchesType("*/*")).isTrue();
+        assertThat(APPLICATION_JSON.matchesType("application/json")).isTrue();
+        assertThat(APPLICATION_JSON.matchesType("application/*")).isTrue();
+        assertThat(APPLICATION_JSON.matchesType("*/*")).isTrue();
     }
 
     @Test
     public void testMimeTypeYamlReturnTrue() throws Exception {
-        // Given...
-        MimeType contentType = MimeType.APPLICATION_YAML;
-
-        // Then...
-        assertThat(contentType.matchesType("application/yaml")).isTrue();
-        assertThat(contentType.matchesType("application/*")).isTrue();
-        assertThat(contentType.matchesType("*/*")).isTrue();
+        assertThat(APPLICATION_YAML.matchesType("application/yaml")).isTrue();
+        assertThat(APPLICATION_YAML.matchesType("application/*")).isTrue();
+        assertThat(APPLICATION_YAML.matchesType("*/*")).isTrue();
     }
 
     @Test
     public void testMimeTypeTextReturnTrue() throws Exception {
-        // Given...
-        MimeType contentType = MimeType.TEXT_PLAIN;
-
-        // Then...
-        assertThat(contentType.matchesType("text/plain")).isTrue();
-        assertThat(contentType.matchesType("text/plain   ")).isTrue();
-        assertThat(contentType.matchesType(" text/plain   ")).isTrue();
-        assertThat(contentType.matchesType("text/*")).isTrue();
-        assertThat(contentType.matchesType("*/*")).isTrue();
+        assertThat(TEXT_PLAIN.matchesType("text/plain")).isTrue();
+        assertThat(TEXT_PLAIN.matchesType("text/plain   ")).isTrue();
+        assertThat(TEXT_PLAIN.matchesType(" text/plain   ")).isTrue();
+        assertThat(TEXT_PLAIN.matchesType("text/*")).isTrue();
+        assertThat(TEXT_PLAIN.matchesType("*/*")).isTrue();
     }
 
     @Test
