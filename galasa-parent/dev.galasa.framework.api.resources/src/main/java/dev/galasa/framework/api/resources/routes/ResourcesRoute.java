@@ -66,7 +66,7 @@ public class ResourcesRoute  extends BaseRoute{
         body.close();
         List<String> errorsList = processRequest(jsonBody);
         if (errorsList.size() >0){
-            response = getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
+            response = getResponseBuilder().buildResponse(request, response, "application/json", getErrorsAsJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
         } else {
             response = getResponseBuilder().buildResponse(request, response, "application/json", "", HttpServletResponse.SC_OK);
         }
@@ -103,6 +103,21 @@ public class ResourcesRoute  extends BaseRoute{
             ServletError error = new ServletError(GAL5068_EMPTY_JSON_RESOURCE_IN_BODY);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
+    }
+
+    /**
+     * Convert the List of Error Strings into JSON Objects 
+     * and add them to a JSON array to be sent in the response to the client
+     * 
+     * @param errorsList List of Errors to be converted to JSON objects
+     * @return String containing the JSON Array of Errors
+     */
+    protected String getErrorsAsJson(List<String> errorsList){
+        JsonArray json = new JsonArray();
+        for (String error : errorsList){
+            json.add( gson.fromJson(error, JsonObject.class));
+        }
+        return gson.toJson(json);
     }
 
     protected void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{
