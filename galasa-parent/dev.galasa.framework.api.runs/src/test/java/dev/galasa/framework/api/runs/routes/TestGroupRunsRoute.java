@@ -776,7 +776,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
 		String groupName = "8149dc91-dabc-461a-b9e8-6f11a4455f59";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
         String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, "testRequestor");
-        
+
         setServlet("/"+groupName, groupName, payload, "POST", headerMap);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
