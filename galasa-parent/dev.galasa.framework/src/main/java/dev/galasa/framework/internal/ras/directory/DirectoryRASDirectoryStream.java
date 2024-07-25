@@ -17,7 +17,7 @@ import java.util.Iterator;
 /**
  * Used with the Directory RAS to produce directory listings
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class DirectoryRASDirectoryStream implements DirectoryStream<Path> {

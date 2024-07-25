@@ -16,7 +16,7 @@ package dev.galasa.framework.spi;
  * any certificates to be loaded before the initialisation of anything else.
  * </p>
  * 
- * @author James Davies
+ *  
  *
  */
 public interface ICertificateStore {

@@ -18,7 +18,7 @@ import dev.galasa.framework.spi.IFrameworkInitialisation;
 /**
  * 
  * 
- * @author Bruce Abbott
+ *  
  */
 @Component(service = { IDynamicStatusStoreRegistration.class })
 public class FpfDynamicStatusStoreRegistration implements IDynamicStatusStoreRegistration {

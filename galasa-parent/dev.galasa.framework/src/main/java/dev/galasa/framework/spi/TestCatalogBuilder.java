@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
  * during the test catalog build process to append information to the test class
  * entry, and the overall test catalog json file.
  * 
- * @author Michael Baylis
+ *  
  *
  */
 @Retention(RUNTIME)

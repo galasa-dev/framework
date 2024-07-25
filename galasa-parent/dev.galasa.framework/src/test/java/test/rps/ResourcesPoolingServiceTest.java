@@ -23,7 +23,7 @@ import dev.galasa.framework.spi.ResourcePoolingServiceException;
  * This test method creates resource tests strings and checks the behaviour of
  * generating resources.
  * 
- * @author James Davies
+ *  
  */
 public class ResourcesPoolingServiceTest {
 

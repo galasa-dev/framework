@@ -28,7 +28,7 @@ import dev.galasa.framework.spi.IFramework;
  *
  * Does not require authentication
  *
- * @author Michael Baylis
+ *  
  *
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {

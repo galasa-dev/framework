@@ -18,7 +18,7 @@ import dev.galasa.framework.spi.creds.ICredentialsStoreRegistration;
 /**
  * 
  * 
- * @author Bruce Abbott
+ *  
  */
 @Component(service = { ICredentialsStoreRegistration.class })
 public class FileCredentialsRegistration implements ICredentialsStoreRegistration {

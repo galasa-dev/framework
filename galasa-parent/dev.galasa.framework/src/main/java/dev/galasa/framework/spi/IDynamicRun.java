@@ -17,7 +17,7 @@ package dev.galasa.framework.spi;
  * prefixed 'dss.framework.run.R12343'
  * </p>
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IDynamicRun {

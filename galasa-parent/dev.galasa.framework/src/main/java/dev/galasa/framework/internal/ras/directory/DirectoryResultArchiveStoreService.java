@@ -32,7 +32,7 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 /**
  * A RAS Service for storing the result archive store
  *
- * @author Michael Baylis
+ *  
  *
  */
 @Component(service = { IResultArchiveStoreService.class })

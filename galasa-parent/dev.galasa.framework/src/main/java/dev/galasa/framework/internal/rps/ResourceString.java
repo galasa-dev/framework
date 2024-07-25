@@ -21,7 +21,7 @@ import dev.galasa.framework.spi.ResourcePoolingServiceException;
 /**
  * This class creates the resource string defintion build up of ICharacters.
  * 
- * @author James Davies
+ *  
  */
 public class ResourceString {
     private List<ICharacter> string = new ArrayList<>();

@@ -22,7 +22,7 @@ package dev.galasa.framework.spi;
  * </p>
  * 
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IResultArchiveStoreService extends IResultArchiveStore {

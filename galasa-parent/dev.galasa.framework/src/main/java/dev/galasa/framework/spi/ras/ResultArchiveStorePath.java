@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 /**
  * Create a Result Archive Store specific version of the Path
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class ResultArchiveStorePath implements Path {

@@ -31,7 +31,7 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
  * This test class checks that exceptions are behavoing as expected.
  * </p>
  * 
- * @author James Davies
+ *  
  */
 public class ExceptionsTest {
 

@@ -19,7 +19,7 @@ package dev.galasa.framework.spi;
  * do so and then register itself in the Framework.
  * </p>
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IDynamicStatusStore extends IDynamicStatusStoreKeyAccess {

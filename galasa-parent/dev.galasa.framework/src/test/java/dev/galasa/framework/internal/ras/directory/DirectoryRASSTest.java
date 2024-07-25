@@ -39,7 +39,7 @@ import dev.galasa.ResultArchiveStoreFileAttributeView;
 /**
  * Test the Directory based Result Archive Store
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class DirectoryRASSTest {

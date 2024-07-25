@@ -27,7 +27,7 @@ import dev.galasa.framework.spi.DynamicStatusStoreException;
  * class in functional
  * </p>
  * 
- * @author Bruce Abbott
+ *  
  */
 
 public class FrameworkDynamicStatusStoreServiceTest {

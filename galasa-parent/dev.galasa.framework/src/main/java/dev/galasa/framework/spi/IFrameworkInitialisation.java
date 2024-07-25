@@ -19,7 +19,7 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
  * should only be called during test run and server initialisation.
  * </p>
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IFrameworkInitialisation {
