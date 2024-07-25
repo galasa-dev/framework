@@ -8,6 +8,7 @@ package dev.galasa.framework.api.resources.routes;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -25,6 +26,7 @@ import com.google.gson.JsonParser;
 import dev.galasa.framework.api.resources.ResourcesServletTest;
 import dev.galasa.framework.api.resources.mocks.MockResourcesServlet;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class TestResourcesRoute extends ResourcesServletTest{
 
@@ -1380,4 +1382,83 @@ public class TestResourcesRoute extends ResourcesServletTest{
         checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
     }
 
+    @Test
+    public void TestGetErrorsAsJsonReturnsJsonString() throws Exception{
+        // Given...
+        List<String> errors = new ArrayList<String>();
+        errors.add("{\"error_code\":5030,\"error_message\":\"GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.\"}");
+        errors.add("{\"error_code\":5030,\"error_message\":\"GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.\"}");
+        setServlet("framework");
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+
+        // When...
+        String json = resourcesRoute.getErrorsAsJson(errors);
+        
+        // Then...
+        // Generate Expected JSON
+        JsonArray expectedJsonArray = new JsonArray();
+        JsonObject errorProp5 = new JsonObject();
+        errorProp5.addProperty("error_code" , 5030);
+        errorProp5.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
+        JsonObject errorProp1 = new JsonObject();
+        errorProp1.addProperty("error_code" , 5030);
+        errorProp1.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        expectedJsonArray.add(errorProp5);
+        expectedJsonArray.add(errorProp1);
+        GalasaGson gson = new GalasaGson();
+        String expectedJson =gson.toJson(expectedJsonArray);
+        assertThat(json).isEqualTo(expectedJson);
+    }
+
+
+    @Test
+    public void TestHandlePOSTwithDeleteMultipleExistingPropertiesRaisesExceptionsReturnsErrorArray() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "property.5";
+        String value = "value5";
+        String propertynametwo = "property.1";
+        String valuetwo = "value1";
+        String apiVersion = "galasa-dev/v1alpha1";
+        String action = "delete";
+        String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
+        String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
+		String propertyJSON = "{\n \"action\":\""+action+"\", \"data\":["+propertyone+","+propertytwo+"]\n}";
+        Map<String, String> headers = new HashMap<String,String>();
+        headers.put("Accept", "application/xml");
+		setServlet("/", "framework", propertyJSON , "POST", headers);
+		setServlet("/", null, propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        // Generate Expected JSON
+        JsonArray expectedJsonArray = new JsonArray();
+        JsonObject errorProp5 = new JsonObject();
+        errorProp5.addProperty("error_code" , 5030);
+        errorProp5.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
+        JsonObject errorProp1 = new JsonObject();
+        errorProp1.addProperty("error_code" , 5030);
+        errorProp1.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        expectedJsonArray.add(errorProp5);
+        expectedJsonArray.add(errorProp1);
+        GalasaGson gson = new GalasaGson();
+        String expectedJson =gson.toJson(expectedJsonArray);
+        
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(400);
+		assertThat(resp.getContentType()).isEqualTo("application/json"); 
+        assertThat(output).isEqualTo(expectedJson);
+        checkPropertyNotInNamespace(namespace, propertyname, value);
+        checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
+    }
 }
