@@ -1,6 +1,6 @@
 ARG dockerRepository
 ARG tag
-FROM ${dockerRepository}/galasadev/galasa-maven:${tag}
+FROM ${dockerRepository}/galasa-dev/maven-maven-artefacts:${tag}
 
 COPY repo/ /usr/local/apache2/htdocs/
 COPY framework.githash /usr/local/apache2/htdocs/framework.githash

@@ -56,7 +56,7 @@ jobs:
           load: true
           tags: framework:test
           build-args: |
-            dockerRepository=harbor.galasa.dev
+            dockerRepository=ghcr.io
             tag=main
 
   build-rest-api-documentation:
