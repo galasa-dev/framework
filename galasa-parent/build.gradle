@@ -12,6 +12,10 @@ plugins {
 version = "0.36.0"
 
 signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     sign publishing.publications
 }
 
@@ -35,6 +39,9 @@ allprojects {
         mavenLocal()
         maven {
             url "https://development.galasa.dev/main/maven-repo/maven/"
+        }
+        maven {
+            url "https://development.galasa.dev/gh/maven-repo/maven/"
         }
         mavenCentral()
     }
@@ -330,8 +337,8 @@ publishing {
 
             if ("$targetMaven".startsWith('http')) {
                 credentials {
-                    username System.getenv('MAVENUSERNAME')
-                    password System.getenv('MAVENPASSWORD')
+                    username System.getenv('GITHUB_ACTOR')
+                    password System.getenv('GITHUB_TOKEN')
                 }
             }
         }
