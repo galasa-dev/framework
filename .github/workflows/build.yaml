@@ -80,7 +80,7 @@ jobs:
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           build-args: |
-            dockerRepository=harbor.galasa.dev
+            dockerRepository=ghcr.io
             tag=${{ env.IMAGE_TAG }}
       
       - name: Recycle application in ArgoCD
