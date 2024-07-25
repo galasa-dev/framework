@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.regex.Pattern;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 
+import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
 
@@ -223,6 +225,48 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		assertThat(outStream.toString()).isEqualTo("[\n  \"framework\",\n  \"secure\"\n]");
 	}
 
+	@Test
+	public void TestGetNamespacesWithAcceptHeaderWithFrameworkWithDataReturnsOk() throws Exception{
+		// Given...
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "application/json");
+		setServlet("/namespace","framework",null, "GET", new MockIConfigurationPropertyStoreService(), headerMap);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+	
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(outStream.toString()).isEqualTo("[\n  \"framework\",\n  \"secure\"\n]");
+	}
+
+	@Test
+	public void TestGetNamespacesWithBadAcceptHeaderWithFrameworkWithDataReturnsOk() throws Exception{
+		// Given...
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "application/yaml");
+		setServlet("/namespace","framework",null, "GET", new MockIConfigurationPropertyStoreService(), headerMap);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+	
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(412);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+		checkErrorStructure(outStream.toString(), 5412, "GAL5412",
+			"E: Error occured when trying to access the endpoint '/namespace'. The request contains the header 'Accept' which does not match the expected value(s): 'application/json , application/* , */*'.");   
+	}
     @Test
 	public void TestGetNamespacesWithFrameworkNullNamespacesReturnsError() throws Exception{
 		// Given...

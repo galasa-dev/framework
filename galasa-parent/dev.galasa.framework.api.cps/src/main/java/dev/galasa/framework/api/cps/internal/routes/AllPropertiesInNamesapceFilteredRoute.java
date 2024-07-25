@@ -46,6 +46,7 @@ public class AllPropertiesInNamesapceFilteredRoute extends CPSRoute {
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
             throws ServletException, FrameworkException {
+        checkRequestorAcceptContent(req);
         getPropertyDetailsFromURL(pathInfo);
         String properties = getNamespaceProperties(queryParams);
         checkNamespaceExists(namespaceName);

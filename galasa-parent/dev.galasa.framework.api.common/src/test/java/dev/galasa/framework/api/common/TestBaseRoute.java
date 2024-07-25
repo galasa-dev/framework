@@ -13,6 +13,7 @@ import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
+import dev.galasa.framework.api.common.resources.AcceptContentType;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -229,7 +230,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request);
+            route.checkRequestorAcceptContent(request, AcceptContentType.APPLICATION_JSON);
         });
 
         // Then...
@@ -280,7 +281,7 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, "text/plain");
+            route.checkRequestorAcceptContent(request, AcceptContentType.TEXT_PLAIN);
         });
 
         // Then...
@@ -331,13 +332,13 @@ public class TestBaseRoute {
  
         // When...
         Throwable thrown = catchThrowable( () -> { 
-            route.checkRequestorAcceptContent(request, "text/plain");
+            route.checkRequestorAcceptContent(request, AcceptContentType.TEXT_PLAIN);
         });
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5412",
-            "E: Error occured when trying to access the endpoint '/mypath'. The request contains the header 'Accept' which does not match the expected value(s): 'text/plain , */*'.");
+        assertThat(thrown.getMessage()).contains("GAL5070",
+            "E: Unsupported 'Accept' header value set. Supported response types are: [text/plain]. Ensure the 'Accept' header in your request contains a valid value and try again");
     }
 
     @Test
@@ -355,7 +356,60 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5412",
-            "E: Error occured when trying to access the endpoint '/mypath'. The request contains the header 'Accept' which does not match the expected value(s): 'application/json , application/* , */*'.");
+        assertThat(thrown.getMessage()).contains("GAL5070",
+            "E: Unsupported 'Accept' header value set. Supported response types are: [application/json]. Ensure the 'Accept' header in your request contains a valid value and try again");
+    }
+
+    @Test
+    public void TestcheckRequestorAcceptContentAnyHeaderReturnsOK() throws Exception {
+        // Given...
+        String content = "{\"my\":\"content\"}";
+        BaseRoute route = new MockBaseRoute();
+        MockHttpServletRequest request = new MockHttpServletRequest("/mypath", content, "PUT");
+        request.setHeader("Accept", "*/*");
+ 
+        // When...
+        Throwable thrown = catchThrowable( () -> { 
+            route.checkRequestorAcceptContent(request);
+        });
+
+        // Then...
+        assertThat(thrown).isNull();
+    }
+
+    @Test
+    public void TestcheckRequestorAcceptContentTextHeaderAnyAllowedReturnsOK() throws Exception {
+        // Given...
+        String content = "{\"my\":\"content\"}";
+        BaseRoute route = new MockBaseRoute();
+        MockHttpServletRequest request = new MockHttpServletRequest("/mypath", content, "PUT");
+        request.setHeader("Accept", "text/plain , */*");
+ 
+        // When...
+        Throwable thrown = catchThrowable( () -> { 
+            route.checkRequestorAcceptContent(request);
+        });
+
+        // Then...
+        assertThat(thrown).isNull();
+    }
+
+    @Test
+    public void TestcheckRequestorAcceptContentTextHeaderExplicitAnyReturnsError() throws Exception {
+        // Given...
+        String content = "{\"my\":\"content\"}";
+        BaseRoute route = new MockBaseRoute();
+        MockHttpServletRequest request = new MockHttpServletRequest("/mypath", content, "PUT");
+        request.setHeader("Accept", "text/*");
+ 
+        // When...
+        Throwable thrown = catchThrowable( () -> { 
+            route.checkRequestorAcceptContent(request, null);
+        });
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL5070",
+            "E: Unsupported 'Accept' header value set. Supported response types are: [application/json]. Ensure the 'Accept' header in your request contains a valid value and try again");
     }
 }

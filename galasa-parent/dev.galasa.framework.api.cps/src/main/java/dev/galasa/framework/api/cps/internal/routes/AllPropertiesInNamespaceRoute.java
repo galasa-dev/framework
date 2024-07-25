@@ -37,6 +37,7 @@ public class AllPropertiesInNamespaceRoute extends CPSRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, FrameworkException {
+        checkRequestorAcceptContent(req);
         String namespace = getNamespaceNameFromURL(pathInfo);
         String properties = getNamespaceProperties(namespace);
         checkNamespaceExists(namespace);

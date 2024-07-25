@@ -581,7 +581,6 @@ public class TestResultNamesRoute extends RasServletTest{
 		servlet.doGet(req,resp);
 
 		//Then...
-		//Then...
 		assertThat(resp.getStatus()).isEqualTo(412);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 		checkErrorStructure(outStream.toString(), 5412, "GAL5412",

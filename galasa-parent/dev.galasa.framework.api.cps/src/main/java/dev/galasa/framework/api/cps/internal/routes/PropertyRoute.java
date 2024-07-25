@@ -42,6 +42,7 @@ public class PropertyRoute extends CPSRoute{
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
+        checkRequestorAcceptContent(req);
         String namespace = getNamespaceFromURL(pathInfo);
         String properties = getNamespaceProperties(namespace, queryParams);
         checkNamespaceExists(namespace);
@@ -79,6 +80,7 @@ public class PropertyRoute extends CPSRoute{
             throws  IOException, FrameworkException {
         String namespaceName = getNamespaceFromURL(pathInfo);
         checkRequestHasContent(request);
+        checkRequestorAcceptContent(request);
         ServletInputStream body = request.getInputStream();
         String jsonString = new String (body.readAllBytes(),StandardCharsets.UTF_8);
         body.close();
