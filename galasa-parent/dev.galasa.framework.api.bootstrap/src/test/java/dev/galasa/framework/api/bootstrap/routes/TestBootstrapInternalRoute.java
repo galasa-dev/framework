@@ -140,7 +140,7 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
         // Then...
         assertThat(resp.getStatus()).isEqualTo(406);
         assertThat(resp.getContentType()).isEqualTo("application/json");
-        checkErrorStructure(outStream.toString(), 5070, "Unsupported 'Accept' header value set. Supported response types are: [text/plain]");
+        checkErrorStructure(outStream.toString(), 5406, "Unsupported 'Accept' header value set. Supported response types are: [text/plain]");
     }
 
     @Test

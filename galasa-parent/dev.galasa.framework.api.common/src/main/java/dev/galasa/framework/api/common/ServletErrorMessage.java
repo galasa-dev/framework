@@ -42,8 +42,8 @@ public enum ServletErrorMessage {
     GAL5401_UNAUTHORIZED                              (5401,"E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."),
     GAL5404_UNRESOLVED_ENDPOINT_ERROR                 (5404,"E: Error occured when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
     GAL5405_METHOD_NOT_ALLOWED                        (5405,"E: Error occured when trying to access the endpoint ''{0}''. The method ''{1}'' is not allowed."),
+    GAL5406_UNSUPPORTED_CONTENT_TYPE_REQUESTED        (5406, "E: Unsupported ''Accept'' header value set. Supported response types are: [{0}]. Ensure the ''Accept'' header in your request contains a valid value and try again"),
     GAL5411_NO_REQUEST_BODY                           (5411,"E: Error occured when trying to access the endpoint ''{0}''. The request body is empty."),
-    GAL5412_HEADER_REQUIRED                           (5412,"E: Error occured when trying to access the endpoint ''{0}''. The request contains the header ''{1}'' which does not match the expected value(s): ''{2}''."),
 
     //CPS Namespaces...
     GAL5015_INTERNAL_CPS_ERROR                        (5015,"E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."),
@@ -104,7 +104,6 @@ public enum ServletErrorMessage {
     GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS                (5066, "E: No such token with the given ID exists. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
 
     // OpenAPI Servlet...
-    GAL5070_UNSUPPORTED_CONTENT_TYPE_REQUESTED       (5070, "E: Unsupported ''Accept'' header value set. Supported response types are: [{0}]. Ensure the ''Accept'' header in your request contains a valid value and try again"),
     GAL5071_FAILED_TO_PARSE_YAML_INTO_JSON           (5071, "E: Internal server error. Failed to convert OpenAPI specification from YAML into JSON. Report the problem to your Galasa Ecosystem owner"),
     ;
 

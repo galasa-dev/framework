@@ -1374,7 +1374,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         // Then...
 		assertThat(resp.getStatus()).isEqualTo(406);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		checkErrorStructure(outStream.toString(), 5070,
+		checkErrorStructure(outStream.toString(), 5406,
 			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
         checkPropertyNotInNamespace(namespace, propertyname, value);
         checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);

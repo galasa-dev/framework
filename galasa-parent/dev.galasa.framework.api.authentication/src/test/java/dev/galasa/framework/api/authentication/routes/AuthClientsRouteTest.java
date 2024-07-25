@@ -106,7 +106,7 @@ public class AuthClientsRouteTest extends BaseServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(406);
-        checkErrorStructure(outStream.toString(), 5070, "GAL5070E", "Unsupported 'Accept' header value set. Supported response types are: [application/json]");
+        checkErrorStructure(outStream.toString(), 5406, "GAL5406E", "Unsupported 'Accept' header value set. Supported response types are: [application/json]");
     }
 
     @Test

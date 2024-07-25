@@ -1704,9 +1704,9 @@ components:
           examples:
             unsupportedContentTypeError:
               value:
-                error_code: 5070
+                error_code: 5406
                 error_message: |
-                  GAL5070E: Unsupported 'Accept' header value set. Supported response types are: [application/json].
+                  GAL5406E: Unsupported 'Accept' header value set. Supported response types are: [application/json].
                   Ensure the 'Accept' header in your request contains a valid value and try again.
               summary: The request did not contain a supported MIME type in its 'Accept' header
   schemas:

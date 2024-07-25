@@ -338,7 +338,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5070",
+        assertThat(thrown.getMessage()).contains("GAL5406",
             "E: Unsupported 'Accept' header value set. Supported response types are: [text/plain]. Ensure the 'Accept' header in your request contains a valid value and try again");
     }
 
@@ -357,7 +357,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5070",
+        assertThat(thrown.getMessage()).contains("GAL5406",
             "E: Unsupported 'Accept' header value set. Supported response types are: [application/json]. Ensure the 'Accept' header in your request contains a valid value and try again");
     }
 
@@ -410,7 +410,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5070",
+        assertThat(thrown.getMessage()).contains("GAL5406",
             "E: Unsupported 'Accept' header value set. Supported response types are: [application/json]. Ensure the 'Accept' header in your request contains a valid value and try again");
     }
 }

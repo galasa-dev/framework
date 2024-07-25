@@ -230,7 +230,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(406);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
-        checkErrorStructure(outStream.toString(), 5070, "Unsupported 'Accept' header value set. Supported response types are: [application/json]");
+        checkErrorStructure(outStream.toString(), 5406, "Unsupported 'Accept' header value set. Supported response types are: [application/json]");
     }
 
     @Test

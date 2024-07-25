@@ -183,7 +183,7 @@ public abstract class BaseRoute implements IRoute {
                     .map(MimeType::toString)
                     .collect(Collectors.joining(", "));
 
-                ServletError error = new ServletError(GAL5070_UNSUPPORTED_CONTENT_TYPE_REQUESTED, supportedContentTypesStr);
+                ServletError error = new ServletError(GAL5406_UNSUPPORTED_CONTENT_TYPE_REQUESTED, supportedContentTypesStr);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_ACCEPTABLE);
             }
         }

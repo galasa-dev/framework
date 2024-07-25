@@ -291,7 +291,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
         // Then...
 		assertThat(resp.getStatus()).isEqualTo(406);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		checkErrorStructure(outStream.toString(), 5070,
+		checkErrorStructure(outStream.toString(), 5406,
 			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
     }
 
@@ -681,7 +681,7 @@ public class TestGroupRunsRoute extends RunsServletTest {
 
         // Then...
         assertThat(resp.getStatus()).isEqualTo(406);
-        assertThat(outStream.toString()).contains("GAL5070",
+        assertThat(outStream.toString()).contains("GAL5406",
             "E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
     }
 
