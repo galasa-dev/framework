@@ -155,6 +155,8 @@ public abstract class BaseRoute implements IRoute {
             // Default to supporting application/json
             supportedMimeTypes = List.of(APPLICATION_JSON);
         }
+
+        // Try to get a response type using the accepted MIME types given in the "Accept" header
         getResponseType(request.getHeader("Accept"), APPLICATION_JSON, supportedMimeTypes);
     }
 
