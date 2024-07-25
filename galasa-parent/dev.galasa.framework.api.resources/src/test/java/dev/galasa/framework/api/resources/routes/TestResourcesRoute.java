@@ -24,6 +24,7 @@ import com.google.gson.JsonParser;
 import dev.galasa.framework.api.resources.ResourcesServletTest;
 import dev.galasa.framework.api.resources.mocks.MockResourcesServlet;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class TestResourcesRoute extends ResourcesServletTest{
 
@@ -1336,10 +1337,20 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         // When...
         String json = resourcesRoute.getErrorsAsJson(errors);
-
+        
         // Then...
-        String expectedJson = "[\n  {\n    \"error_code\": 5030,\n    \"error_message\": \"GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.\"\n  },"
-            +"\n  {\n    \"error_code\": 5030,\n    \"error_message\": \"GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.\"\n  }\n]";
+        // Generate Expected JSON
+        JsonArray expectedJsonArray = new JsonArray();
+        JsonObject errorProp5 = new JsonObject();
+        errorProp5.addProperty("error_code" , 5030);
+        errorProp5.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
+        JsonObject errorProp1 = new JsonObject();
+        errorProp1.addProperty("error_code" , 5030);
+        errorProp1.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        expectedJsonArray.add(errorProp5);
+        expectedJsonArray.add(errorProp1);
+        GalasaGson gson = new GalasaGson();
+        String expectedJson =gson.toJson(expectedJsonArray);
         assertThat(json).isEqualTo(expectedJson);
 
 
@@ -1370,8 +1381,19 @@ public class TestResourcesRoute extends ResourcesServletTest{
         servlet.doPost(req, resp);
 
         // Then...
-        String expectedJson = "[\n  {\n    \"error_code\": 5030,\n    \"error_message\": \"GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.\"\n  },"
-            +"\n  {\n    \"error_code\": 5030,\n    \"error_message\": \"GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.\"\n  }\n]";
+        // Generate Expected JSON
+        JsonArray expectedJsonArray = new JsonArray();
+        JsonObject errorProp5 = new JsonObject();
+        errorProp5.addProperty("error_code" , 5030);
+        errorProp5.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
+        JsonObject errorProp1 = new JsonObject();
+        errorProp1.addProperty("error_code" , 5030);
+        errorProp1.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        expectedJsonArray.add(errorProp5);
+        expectedJsonArray.add(errorProp1);
+        GalasaGson gson = new GalasaGson();
+        String expectedJson =gson.toJson(expectedJsonArray);
+        
         Integer status = resp.getStatus();
         String output = outStream.toString();
         assertThat(status).isEqualTo(400);

@@ -106,9 +106,10 @@ public class ResourcesRoute  extends BaseRoute{
     }
 
     /**
+     * Convert the List of Error Strings into JSON Objects 
+     * and add them to a JSON array to be sent in the response to the client
      * 
-     * 
-     * @param errorsList
+     * @param errorsList List of Errors to be converted to JSON objects
      * @return String containing the JSON Array of Errors
      */
     protected String getErrorsAsJson(List<String> errorsList){
