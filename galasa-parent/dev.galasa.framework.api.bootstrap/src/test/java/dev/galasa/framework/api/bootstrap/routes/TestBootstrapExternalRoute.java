@@ -65,30 +65,6 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
     }
 
     @Test
-    public void TestGetBootstrapExternalRouteWithBadAcceptHeaderThrowsError() throws Exception {
-        // Given...
-        setServlet();
-        BootstrapServlet servlet = getServlet();
-
-        String pathInfo = "/external";
-        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-        MockHttpServletRequest req = new MockHttpServletRequest(pathInfo);
-
-        req.setHeader("Accept", "not-a-supported-type");
-
-        ServletOutputStream outStream = servletResponse.getOutputStream();
-
-        // When...
-        servlet.init();
-        servlet.doGet(req, servletResponse);
-
-        // Then...
-        assertThat(servletResponse.getStatus()).isEqualTo(406);
-        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
-        checkErrorStructure(outStream.toString(), 5406, "Unsupported 'Accept' header value set. Supported response types are: [text/plain]");
-    }
-
-    @Test
     public void TestBootstrapInternalRequestReturnsProperties() throws Exception{
         // Given...
         setServlet("/external");

@@ -20,7 +20,6 @@ import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.beans.GalasaProperty;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -49,7 +48,6 @@ public class AddPropertyInNamespaceRoute extends CPSRoute {
     @Override
     public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
             throws ServletException, FrameworkException, IOException {
-        validateAcceptHeader(req, MimeType.APPLICATION_JSON);
         getPropertyDetailsFromURL(pathInfo);
         checkNamespaceExists(namespaceName);
         checkRequestHasContent(req);

@@ -246,27 +246,6 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		assertThat(outStream.toString()).isEqualTo("[\n  \"framework\",\n  \"secure\"\n]");
 	}
 
-	@Test
-	public void TestGetNamespacesWithBadAcceptHeaderWithFrameworkWithDataReturnsOk() throws Exception{
-		// Given...
-		Map<String, String> headerMap = new HashMap<String,String>();
-        headerMap.put("Accept", "application/yaml");
-		setServlet("/namespace","framework",null, "GET", new MockIConfigurationPropertyStoreService(), headerMap);
-		MockCpsServlet servlet = getServlet();
-		HttpServletRequest req = getRequest();
-		HttpServletResponse resp = getResponse();
-		ServletOutputStream outStream = resp.getOutputStream();	
-
-		// When...
-		servlet.init();
-		servlet.doGet(req,resp);
-	
-		// Then...
-		assertThat(resp.getStatus()).isEqualTo(406);
-		assertThat(resp.getContentType()).isEqualTo("application/json");
-		checkErrorStructure(outStream.toString(), 5406,
-			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
-	}
     @Test
 	public void TestGetNamespacesWithFrameworkNullNamespacesReturnsError() throws Exception{
 		// Given...

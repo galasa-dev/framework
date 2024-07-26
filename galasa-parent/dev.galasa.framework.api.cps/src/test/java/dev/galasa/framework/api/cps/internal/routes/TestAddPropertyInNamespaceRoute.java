@@ -340,46 +340,6 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
 		); 
     }
 
-    @Test
-    public void TestGetNamespacesPUTRequestWithBadAcceptHeaderReturnsError() throws Exception{
-        // Given...
-        String namespace = "framework";
-        String propertyName = "property.6";
-        String value = "value6";
-        String json = "{\"name\":\""+propertyName+"\", \"value\":\""+value+"\"}";
-        Map<String, String> headerMap = new HashMap<String,String>();
-        headerMap.put("Accept", "text/html");
-        MockIConfigurationPropertyStoreService store = new MockIConfigurationPropertyStoreService(namespace){
-            @Override
-            public @Null String getProperty(@NotNull String prefix, @NotNull String suffix, String... infixes)
-            throws ConfigurationPropertyStoreException {
-            for (Map.Entry<String,String> property : properties.entrySet()){
-                String key = property.getKey();
-                String match = prefix+"."+suffix;
-                if (key.contains(match)){
-                    return property.getValue();
-                }
-            }
-            return null;
-            }
-        };
-        setServlet("/namespace/framework/property/"+propertyName, namespace, json, "PUT", store, headerMap);
-        MockCpsServlet servlet = getServlet();
-        HttpServletRequest req = getRequest();
-        HttpServletResponse resp = getResponse();
-        ServletOutputStream outStream = resp.getOutputStream();	
-                
-        // When...
-        servlet.init();
-        servlet.doPut(req,resp);
-
-        // Then...
-		assertThat(resp.getStatus()).isEqualTo(406);
-		assertThat(resp.getContentType()).isEqualTo("application/json");
-		checkErrorStructure(outStream.toString(), 5406,
-			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
-    }
-
 	/*
 	 * TEST - HANDLE POST REQUEST - should error as this method is not supported by this API end-point
 	 */
