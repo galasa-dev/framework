@@ -101,8 +101,6 @@ paths:
                     error_code: 5400
                     error_message: "E: Error occured when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required body properties are missing
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /auth/callback:
@@ -169,8 +167,6 @@ paths:
                 $ref: '#/components/schemas/DexClient'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /auth/tokens:
@@ -196,8 +192,6 @@ paths:
                 $ref: '#/components/schemas/AuthTokens'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
@@ -231,8 +225,6 @@ paths:
                     error_code: 5400
                     error_message: "E: Error occured when trying to execute request '/auth/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required body properties are missing
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /auth/tokens/{tokenId}:
@@ -278,8 +270,6 @@ paths:
                     error_code: 5064
                     error_message: "GAL5064E: Failed to revoke the token with the given ID. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"
                   summary: The given token ID in the request did not correspond to an existing token record stored in the Galasa auth store.
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -313,8 +303,6 @@ paths:
                   $ref: '#/components/schemas/Namespace'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
   #--------------------------------------
@@ -378,8 +366,6 @@ paths:
                   $ref: '#/components/schemas/GalasaProperty'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '404':
           description: Bad Request
           content:
@@ -430,8 +416,6 @@ paths:
               example: Successfully created property propertyName in namespace
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '404':
           description: Bad Request
           content:
@@ -532,8 +516,6 @@ paths:
                   summary: Property found in write only namespace
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '404':
           description: Bad Request
           content:
@@ -593,8 +575,6 @@ paths:
               example: Successfully updated property propertyName in namespace
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '404':
           description: Bad Request
           content:
@@ -664,8 +644,6 @@ paths:
               example: Successfully deleted property propertyName in namespace
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '404':
           description: Bad Request
           content:
@@ -708,8 +686,6 @@ paths:
                   type: string
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /cps/namespace/{namespace}:
@@ -753,8 +729,6 @@ paths:
                     error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An error occured when trying to retrieve the CPS namespaces
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
@@ -817,8 +791,6 @@ paths:
                 $ref: '#/components/schemas/CpsProperty'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /cps/namespace/{namespace}/property/{property}:
@@ -873,8 +845,6 @@ paths:
                 $ref: '#/components/schemas/CpsProperty'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -957,8 +927,6 @@ paths:
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -999,8 +967,6 @@ paths:
                 $ref: '#/components/schemas/Requestors'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -1037,8 +1003,6 @@ paths:
                 $ref: '#/components/schemas/ResultNames'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -1232,8 +1196,6 @@ paths:
                     error_code: 5002
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
                   summary: An error occured when trying to retrieve a specific run  using a runId
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
           examples:
@@ -1281,8 +1243,6 @@ paths:
                 $ref: '#/components/schemas/Run'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -1356,8 +1316,6 @@ paths:
                   summary: The run in the request has already completed and can not be cancelled
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           description: Internal Server Error
           content:
@@ -1412,8 +1370,6 @@ paths:
                 type: string
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -1462,8 +1418,6 @@ paths:
                     error_code: 5002
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
                   summary: An error occured when trying to retrieve a specific run using a runId
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -1575,8 +1529,6 @@ paths:
                 $ref: '#/components/schemas/TestClasses'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -1612,8 +1564,6 @@ paths:
                 $ref: '#/components/schemas/TestRuns'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
     post:
       summary: Submit test runs
       description: |
@@ -1646,8 +1596,6 @@ paths:
                 $ref: '#/components/schemas/TestRuns'
         '401':
           $ref: "#/components/responses/Unauthorized"
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
 ##################################################################################
 # Bootstrap API
 ##################################################################################
@@ -1667,8 +1615,6 @@ paths:
             text/plain:
               schema:
                 type: string
-        '406':
-          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
