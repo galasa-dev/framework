@@ -13,18 +13,9 @@ import org.junit.Test;
 public class TestMimeType {
 
     @Test
-    public void testMimeTypeJsonReturnString() throws Exception {
+    public void testMimeTypeToStringReturnExpectedString() throws Exception {
         assertThat(APPLICATION_JSON.toString()).isEqualTo("application/json");
-        assertThat(TEXT_PLAIN.toString()).isEqualTo("text/plain");
-    }
-
-    @Test
-    public void testMimeTypeYamlReturnString() throws Exception {
         assertThat(APPLICATION_YAML.toString()).isEqualTo("application/yaml");
-    }
-
-    @Test
-    public void testMimeTypeTextReturnString() throws Exception {
         assertThat(TEXT_PLAIN.toString()).isEqualTo("text/plain");
     }
 
