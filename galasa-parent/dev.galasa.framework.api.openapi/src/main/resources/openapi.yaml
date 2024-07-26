@@ -739,14 +739,20 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/GalasaProperty'
-        '400':
-          description: The namespace/prefix/suffix uses invalid characters or is badly formed.
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JsonError'
-        '401':
-          $ref: "#/components/responses/Unauthorized"
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror:
+                  value:
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
         '406':
           $ref: '#/components/responses/UnsupportedMimeType'
         '500':
@@ -1801,11 +1807,6 @@ components:
               description: |
                 The value of the property, maximum length of approximately 1,500,000 characters.
                 It cannot be a blank value.
-    JsonError:
-      type: object
-      properties:
-        error:
-          type: string
     APIErrorArray:
       type: array
       description: An array of API Errors relating to the resources that failed to complete as expected
