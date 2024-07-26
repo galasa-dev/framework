@@ -712,7 +712,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteDELETENoFrameworkReturnsError() throws Exception{
         // Given...
-		setServlet("/namespace1/properties/property1", null, null, "DELETE");
+		setServlet("/namespace1/properties/property.1", null, null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
@@ -746,7 +746,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 
         // When...
         servlet.init();
-        servlet.doGet(req, resp);
+        servlet.doDelete(req, resp);
 
         // Then...
         // We expect data back
@@ -764,7 +764,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     @Test
     public void TestPropertyRouteDELETEBadNamespaceReturnsError() throws Exception{
         // Given...
-		setServlet("/error/properties/property1", null, null, "DELETE");
+		setServlet("/error/properties/property.1", null, null, "DELETE");
 		MockCpsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();
