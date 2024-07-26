@@ -49,7 +49,7 @@ public class AuthTokensDetailsRoute extends BaseRoute {
             HttpServletRequest request, HttpServletResponse response)
             throws FrameworkException {
 
-        validateAcceptHeader(request, MimeType.APPLICATION_JSON);
+        validateAcceptHeader(request, MimeType.TEXT_PLAIN);
 
         String tokenId = getTokenIdFromUrl(pathInfo);
         revokeToken(tokenId);

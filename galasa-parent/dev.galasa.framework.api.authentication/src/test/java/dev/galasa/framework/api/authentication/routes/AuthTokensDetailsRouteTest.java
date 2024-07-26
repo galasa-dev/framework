@@ -114,7 +114,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE");
 
-        mockRequest.setHeader("Accept", "application/json");
+        mockRequest.setHeader("Accept", "text/plain");
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
@@ -161,7 +161,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(406);
-        checkErrorStructure(outStream.toString(), 5406, "GAL5406E", "Unsupported 'Accept' header value set. Supported response types are: [application/json]");
+        checkErrorStructure(outStream.toString(), 5406, "GAL5406E", "Unsupported 'Accept' header value set. Supported response types are: [text/plain]");
     }
 
     @Test
