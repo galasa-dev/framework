@@ -27,7 +27,7 @@ import dev.galasa.ICredentials;
  * store is functional.
  * </p>
  *
- * @author Bruce Abbott
+ *  
  */
 public class FrameworkCredentialsTest {
 

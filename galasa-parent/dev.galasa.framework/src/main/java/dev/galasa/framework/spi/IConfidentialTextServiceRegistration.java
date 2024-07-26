@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
  * registered passwords, usernames, keys and other confidnetial texts so that
  * they can be obscured inside logs and outputs.
  * 
- * @author James Davies
+ *  
  */
 public interface IConfidentialTextServiceRegistration {
 

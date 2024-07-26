@@ -27,7 +27,7 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
  * FPF class is functional.
  * </p>
  * 
- * @author James Davies
+ *  
  */
 
 public class FpfConfigurationPropertyStoreTest {

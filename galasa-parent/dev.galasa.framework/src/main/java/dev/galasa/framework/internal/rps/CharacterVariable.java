@@ -19,7 +19,7 @@ import dev.galasa.framework.internal.rps.tree.SimpleNode;
  * This class implements the ICharacter interface and retruns the appropiate
  * responses for a variable character.
  * 
- * @author James Davies
+ *  
  */
 public class CharacterVariable implements ICharacter {
     private char                 character;

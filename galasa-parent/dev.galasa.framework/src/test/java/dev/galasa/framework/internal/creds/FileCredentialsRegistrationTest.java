@@ -27,7 +27,7 @@ import dev.galasa.framework.spi.creds.CredentialsException;
  * Store.
  * </p>
  *
- * @author Bruce Abbott
+ *  
  */
 public class FileCredentialsRegistrationTest {
 

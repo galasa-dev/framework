@@ -13,7 +13,7 @@ import java.util.List;
  * from the active managers.
  * </p>
  *
- * @author Richard Somers
+ *  
  *
  */
 public interface ILoggingManager {

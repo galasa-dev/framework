@@ -46,7 +46,7 @@ import org.junit.Before;
  * Used to test the FrameworkFileProperty class functionality.
  * </p>
  * 
- * @author James Davies
+ *  
  *
  */
 public class FrameworkPropertyFileTest {

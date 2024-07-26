@@ -28,7 +28,7 @@ import java.util.Set;
 /**
  * Dummy RAS provider to be extended by other RAS services
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class ResultArchiveStoreFileSystemProvider extends FileSystemProvider {

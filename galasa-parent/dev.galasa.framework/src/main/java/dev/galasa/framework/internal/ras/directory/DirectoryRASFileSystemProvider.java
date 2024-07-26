@@ -44,7 +44,7 @@ import dev.galasa.SetContentType;
  * The Directory RAS Provider for stored artifacts, that does most of the work
  * on the local filesystem
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystemProvider {

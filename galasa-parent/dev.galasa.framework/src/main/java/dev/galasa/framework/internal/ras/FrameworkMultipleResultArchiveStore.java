@@ -20,7 +20,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 /**
  * Stub for multiple Result Archive Stores.
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class FrameworkMultipleResultArchiveStore implements IResultArchiveStoreService {

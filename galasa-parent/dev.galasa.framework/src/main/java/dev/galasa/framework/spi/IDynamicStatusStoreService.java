@@ -28,7 +28,7 @@ package dev.galasa.framework.spi;
  * {@link IFramework#getDynamicStatusStoreService(String)}.
  * </p>
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IDynamicStatusStoreService extends IDynamicStatusStoreKeyAccess {

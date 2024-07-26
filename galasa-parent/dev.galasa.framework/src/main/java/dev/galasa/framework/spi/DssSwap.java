@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  * This DSS action request that property is swapped with another value.  If the old value does 
  * not match with what is already present, the transaction will fail.
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public class DssSwap implements IDssAction {

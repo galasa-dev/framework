@@ -30,7 +30,7 @@ import dev.galasa.ICredentials;
  * encrypted or not
  * </p>
  * 
- * @author Bruce Abbott
+ *  
  */
 
 public class FileCredentialsStore implements ICredentialsStore {

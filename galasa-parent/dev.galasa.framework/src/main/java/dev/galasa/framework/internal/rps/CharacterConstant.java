@@ -11,7 +11,7 @@ import dev.galasa.framework.internal.rps.tree.SimpleNode;
  * This class implements the IChacter interface and retruns the appropiate
  * responses for a constant character.
  * 
- * @author James Davies
+ *  
  */
 
 public class CharacterConstant implements ICharacter {

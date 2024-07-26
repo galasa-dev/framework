@@ -19,7 +19,7 @@ import dev.galasa.framework.spi.ConfidentialTextException;
  * This test class ensures that confidential texts that have been registered are
  * reomved from text.
  * 
- * @author James Davies
+ *  
  */
 public class ConfidentialTextServiceTest {
 

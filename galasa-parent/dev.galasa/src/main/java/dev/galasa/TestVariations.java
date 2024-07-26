@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 /**
  * Indicates the test has multiple Test Variations
  * 
- * @author Michael Baylis
+ *  
  *
  */
 @Retention(RUNTIME)

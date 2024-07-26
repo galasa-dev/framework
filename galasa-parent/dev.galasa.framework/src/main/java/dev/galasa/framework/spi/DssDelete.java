@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
  * is provided,  then this will be checked before deleting and fail the transaction if the 
  * values are different
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public class DssDelete implements IDssAction {

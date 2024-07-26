@@ -22,7 +22,7 @@ import dev.galasa.framework.internal.rps.ResourceString;
  * generate resources to a number of specifications. When params are not given,
  * defaults are used.
  * 
- * @author James Davies
+ *  
  */
 public class FrameworkResourcePoolingService implements IResourcePoolingService {
     private static final int           DEFAULTNUMBEROFRESOURCES    = 10;
