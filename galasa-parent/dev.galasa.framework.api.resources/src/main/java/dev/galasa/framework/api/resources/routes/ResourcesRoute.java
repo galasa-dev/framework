@@ -26,7 +26,6 @@ import com.google.gson.JsonObject;
 import dev.galasa.framework.api.beans.GalasaProperty;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -61,7 +60,6 @@ public class ResourcesRoute  extends BaseRoute{
     @Override
      public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters, 
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {  
-        validateAcceptHeader(request, MimeType.APPLICATION_JSON);
         checkRequestHasContent(request);
         ServletInputStream body = request.getInputStream();
         String jsonBody = new String (body.readAllBytes(),StandardCharsets.UTF_8);

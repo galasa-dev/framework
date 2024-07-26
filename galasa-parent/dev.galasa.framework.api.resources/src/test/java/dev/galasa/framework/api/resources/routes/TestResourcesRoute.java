@@ -1349,40 +1349,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithDataBadAcceptReturnsOK() throws Exception {
-        // Given...
-		String namespace = "framework";
-        String propertyname = "property.5";
-        String value = "value5";
-        String propertynametwo = "property.17";
-        String valuetwo = "value1";
-        String apiVersion = "galasa-dev/v1alpha1";
-        String action = "delete";
-        String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
-        String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
-		String propertyJSON = "{\n \"action\":\""+action+"\", \"data\":["+propertyone+","+propertytwo+"]\n}";
-        Map<String, String> headers = new HashMap<String,String>();
-        headers.put("Accept", "application/xml");
-		setServlet("/", "framework", propertyJSON , "POST", headers);
-		MockResourcesServlet servlet = getServlet();
-		HttpServletRequest req = getRequest();
-		HttpServletResponse resp = getResponse();
-        ServletOutputStream outStream = resp.getOutputStream();
-
-        // When...
-        servlet.init();
-        servlet.doPost(req, resp);
-
-        // Then...
-		assertThat(resp.getStatus()).isEqualTo(406);
-		assertThat(resp.getContentType()).isEqualTo("application/json");
-		checkErrorStructure(outStream.toString(), 5406,
-			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
-        checkPropertyNotInNamespace(namespace, propertyname, value);
-        checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
-    }
-
-    @Test
     public void TestGetErrorsAsJsonReturnsJsonString() throws Exception{
         // Given...
         List<String> errors = new ArrayList<String>();

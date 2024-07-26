@@ -30,7 +30,6 @@ import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.IBeanValidator;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.InternalUser;
-import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -124,8 +123,6 @@ public class AuthRoute extends BaseRoute {
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
         logger.info("AuthRoute: handlePostRequest() entered.");
-
-        validateAcceptHeader(request, MimeType.APPLICATION_JSON);
 
         // Check that the request body contains the required payload
         TokenPayload requestPayload = parseRequestBody(request, TokenPayload.class);

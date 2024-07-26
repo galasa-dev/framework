@@ -7,7 +7,6 @@ package dev.galasa.framework.api.runs.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -268,31 +267,6 @@ public class TestGroupRunsRoute extends RunsServletTest {
         String expectedJson = generateExpectedJson(runs, "true");
         assertThat(resp.getStatus()).isEqualTo(200);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
-    }
-
-    @Test
-    public void TestGetUUIDGroupNameRunsWithValidBodyAndBadAcceptHeaderReturnsError() throws Exception {
-        // Given...
-		String groupName = "framework";
-        addRun("name1", "type1", "requestor1", "test1", "FINISHED","bundle1", "testClass1", groupName);
-        Map<String, String> headers = new HashMap<String,String>();
-        headers.put("Accept", "text/html");
-
-        setServlet("/"+groupName, groupName, runs,null, "GET", headers);
-		MockRunsServlet servlet = getServlet();
-		HttpServletRequest req = getRequest();
-		HttpServletResponse resp = getResponse();
-        ServletOutputStream outStream = resp.getOutputStream();
-
-        // When...
-        servlet.init();
-        servlet.doGet(req, resp);
-
-        // Then...
-		assertThat(resp.getStatus()).isEqualTo(406);
-		assertThat(resp.getContentType()).isEqualTo("application/json");
-		checkErrorStructure(outStream.toString(), 5406,
-			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
     }
 
     @Test
@@ -658,31 +632,6 @@ public class TestGroupRunsRoute extends RunsServletTest {
         String expectedJson = generateExpectedJson(runs, "false");
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
-    }
-
-    @Test
-    public void TestPostUUIDGroupNameRunsWithValidBodyAndBadAcceptHeaderReturnsError() throws Exception {
-        // Given...
-		String groupName = "8149dc91-dabc-461a-b9e8-6f11a4455f59";
-        String[] classes = new String[]{"Class1/name", "Class2/name"};
-        String payload = generatePayload(classes, "requestorType", "user1", "this.test.stream", groupName, "testRequestor");
-        Map<String, String> headers = new HashMap<String,String>();
-        headers.put("Accept", "text/html");
-
-        setServlet("/"+groupName, groupName, payload, "POST", headers);
-		MockRunsServlet servlet = getServlet();
-		HttpServletRequest req = getRequest();
-		HttpServletResponse resp = getResponse();
-        ServletOutputStream outStream = resp.getOutputStream();
-
-        // When...
-        servlet.init();
-        servlet.doPost(req, resp);
-
-        // Then...
-        assertThat(resp.getStatus()).isEqualTo(406);
-        assertThat(outStream.toString()).contains("GAL5406",
-            "E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
     }
 
     /*

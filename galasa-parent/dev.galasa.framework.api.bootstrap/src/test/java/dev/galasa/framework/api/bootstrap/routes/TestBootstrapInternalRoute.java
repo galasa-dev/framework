@@ -117,33 +117,6 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
     }
 
     @Test
-    public void TestBootstrapInternalRequestWithBadAcceptHeaderThrowsError() throws Exception {
-        // Given...
-        Map<String, Object> properties = Map.of(
-            "framework.config.store", "mystore",
-            "framework.testcatalog.url", "myeco.dev/testcatalog"
-        );
-
-        setServlet();
-        MockBootstrapServlet servlet = getServlet();
-		MockHttpServletRequest req = new MockHttpServletRequest("");
-
-        req.setHeader("Accept", "not-a-supported-type");
-
-		MockHttpServletResponse resp = new MockHttpServletResponse();
-        ServletOutputStream outStream = resp.getOutputStream();
-
-        // When...
-        servlet.activate(properties);
-        servlet.doGet(req, resp);
-
-        // Then...
-        assertThat(resp.getStatus()).isEqualTo(406);
-        assertThat(resp.getContentType()).isEqualTo("application/json");
-        checkErrorStructure(outStream.toString(), 5406, "Unsupported 'Accept' header value set. Supported response types are: [text/plain]");
-    }
-
-    @Test
     public void TestBootstrapInternalRequestWithNoPropertiesReturnsHeaderOnly() throws Exception {
         // Given...
         Map<String, Object> properties = new HashMap<>();

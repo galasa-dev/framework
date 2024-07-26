@@ -17,7 +17,6 @@ import dev.galasa.framework.api.authentication.internal.DexClient;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -45,8 +44,6 @@ public class AuthClientsRoute extends BaseRoute {
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
         logger.info("handlePostRequest() entered");
-
-        validateAcceptHeader(request, MimeType.APPLICATION_JSON);
 
         Client newDexClient = dexGrpcClient.createClient(AuthCallbackRoute.getExternalAuthCallbackUrl());
         if (newDexClient == null) {

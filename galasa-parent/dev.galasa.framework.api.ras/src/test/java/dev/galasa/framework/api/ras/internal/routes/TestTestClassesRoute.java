@@ -514,31 +514,4 @@ public class TestTestClassesRoute extends RasServletTest{
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 	}
-
-	@Test
-	public void testTestClassesWithTenTestBadAcceptHeaderReturnsOK() throws Exception {
-		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10);
-		//Build Http query parameters
-		Map<String, String> headerMap = new HashMap<String,String>();
-		headerMap.put("Accept","*/json");
-        Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/testclasses", headerMap);
-		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
-
-		RasServlet servlet = mockServletEnvironment.getServlet();
-		HttpServletRequest req = mockServletEnvironment.getRequest();
-		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ServletOutputStream outStream = resp.getOutputStream();
-
-		//When...
-		servlet.init();
-		servlet.doGet(req,resp);
-
-		//Then...
-		assertThat(resp.getStatus()).isEqualTo(406);
-		assertThat(resp.getContentType()).isEqualTo("application/json");
-		checkErrorStructure(outStream.toString(), 5406,
-			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
-	}
 }
