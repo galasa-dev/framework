@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.cps.internal.routes;
+import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
 import dev.galasa.framework.api.cps.internal.routes.TestNamespacesRoute;
@@ -11,6 +12,7 @@ import dev.galasa.framework.api.cps.internal.routes.TestNamespacesRoute;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
@@ -213,6 +215,52 @@ public class TestNamespacesRoute extends CpsServletTest{
 		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
 		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
 		"\n]");
+	}
+
+	@Test
+	public void TestGetNamespacesWithFrameworkWithDataAcceptHeaderReturnsOk() throws Exception{
+		// Given...
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "application/json");
+		setServlet("/","framework",null, "GET", new MockIConfigurationPropertyStoreService("framework"), headerMap);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+	
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(outStream.toString()).isEqualTo("[\n"+
+		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
+		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
+		"\n]");
+	}
+
+	@Test
+	public void TestGetNamespacesWithFrameworkWithDataBadAcceptHeaderReturnsOk() throws Exception{
+		// Given...
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "applctn/json");
+		setServlet("/","framework",null, "GET", new MockIConfigurationPropertyStoreService("framework"), headerMap);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+	
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(406);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		checkErrorStructure(outStream.toString(), 5406,
+			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
 	}
 
 	@Test

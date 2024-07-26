@@ -2063,4 +2063,65 @@ public class TestRunQuery extends RasServletTest {
 
 		assertThat(checker).isNotNull();
     }
+
+	@Test
+	public void testNoQueryNotSortedWithAcceptHeaderWithDBServiceReturnsOK() throws Exception {
+		// Given...
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		String[] pageSize = {"100"};
+		String[] pageNo = {"1"};
+
+		Map<String, String> headerMap = new HashMap<String,String>();
+		headerMap.put("Accept","application/json");
+
+		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs", headerMap);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// We expect an empty page back, because the API server couldn't find any results
+		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
+		assertThat(resp.getStatus()==200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
+	public void testNoQueryNotSortedWithBadAcceptHeaderWithDBServiceReturnsOK() throws Exception {
+		// Given...
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+
+		Map<String, String> headerMap = new HashMap<String,String>();
+		headerMap.put("Accept","text/plain");
+
+		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs", headerMap);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(406);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		checkErrorStructure(outStream.toString(), 5406,
+			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
+	}
 }

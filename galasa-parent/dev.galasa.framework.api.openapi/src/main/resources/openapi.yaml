@@ -66,17 +66,7 @@ paths:
                     error_message: "E: Error occured when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required query parameters are missing
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
     
     # POST /auth is deprecated in favour of POST /auth/tokens and will be removed in a future release
     post:
@@ -111,18 +101,10 @@ paths:
                     error_code: 5400
                     error_message: "E: Error occured when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required body properties are missing
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
   /auth/callback:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
@@ -186,29 +168,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/DexClient'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
   /auth/tokens:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
@@ -231,29 +195,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthTokens'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
     post:
       operationId: createToken
       summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
@@ -285,18 +231,10 @@ paths:
                     error_code: 5400
                     error_message: "E: Error occured when trying to execute request '/auth/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required body properties are missing
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
   /auth/tokens/{tokenId}:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
@@ -327,17 +265,7 @@ paths:
                 type: string
               example: Successfully revoked token with ID 'tokenId'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
         '404':
           description: Could not find an existing auth token with the given ID
           content:
@@ -350,18 +278,10 @@ paths:
                     error_code: 5064
                     error_message: "GAL5064E: Failed to revoke the token with the given ID. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"
                   summary: The given token ID in the request did not correspond to an existing token record stored in the Galasa auth store.
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
 
 ##################################################################################
 # CPS API
@@ -392,34 +312,11 @@ paths:
                 items:
                   $ref: '#/components/schemas/Namespace'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
-                cpserror:
-                  value:
-                    error_code: 5015
-                    error_message: "GAL5015E: Error occured when trying to access the Configuration Property Store. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to retrieve the CPS namespaces
+          $ref: '#/components/responses/InternalServerError'
   #--------------------------------------
   # List all properties for a given Namespace in CPS
   # Create a new property
@@ -480,17 +377,9 @@ paths:
                 items:
                   $ref: '#/components/schemas/GalasaProperty'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '404':
           description: Bad Request
           content:
@@ -504,17 +393,7 @@ paths:
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. Namespace 'xyz' is not available."
                   summary: An error occured when trying to retrieve the CPS namespaces
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
     post:
       operationId: createCpsProperty
       summary: Create a new CPS property
@@ -550,17 +429,9 @@ paths:
                 type: string
               example: Successfully created property propertyName in namespace
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '404':
           description: Bad Request
           content:
@@ -591,17 +462,7 @@ paths:
                     error_message: "GAL5411E: Error occured when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
                   summary: An error occured when no value was supplied in the request body
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
   #--------------------------------------
   # Read, Update and Delete a CPS property
   #--------------------------------------
@@ -670,17 +531,9 @@ paths:
                       value: '*********'
                   summary: Property found in write only namespace
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '404':
           description: Bad Request
           content:
@@ -694,17 +547,7 @@ paths:
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An error occured when trying to retrieve the CPS namespaces
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
     put:
       operationId: updateCpsProperty
       summary: Update existing CPS property
@@ -749,17 +592,9 @@ paths:
                 type: string
               example: Successfully updated property propertyName in namespace
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '404':
           description: Bad Request
           content:
@@ -790,17 +625,7 @@ paths:
                     error_message: "GAL5411E: Error occured when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
                   summary: An error occured when no value was supplied in the request body
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
     delete:
       operationId: deleteCpsProperty
       summary: Delete existing CPS property
@@ -838,17 +663,9 @@ paths:
                 type: string
               example: Successfully deleted property propertyName in namespace
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '404':
           description: Bad Request
           content:
@@ -867,17 +684,7 @@ paths:
                     error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
                   summary: An error occured because the property does not exist
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
 ##################################################################################
 # Deprecated CPS API
 ##################################################################################
@@ -900,23 +707,11 @@ paths:
                 items:
                   type: string
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+          $ref: '#/components/responses/InternalServerError'
   /cps/namespace/{namespace}:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
@@ -944,30 +739,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/GalasaProperty'
-        '400':
-          description: The namespace/prefix/suffix uses invalid characters or is badly formed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
               examples:
-                unauthorizederror:
+                namespaceerror:
                   value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An error occured when trying to retrieve the CPS namespaces
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+          $ref: '#/components/responses/InternalServerError'
   /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
@@ -1027,23 +816,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/CpsProperty'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+          $ref: '#/components/responses/InternalServerError'
   /cps/namespace/{namespace}/property/{property}:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
@@ -1095,23 +872,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/CpsProperty'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+          $ref: '#/components/responses/InternalServerError'
 
 ##################################################################################
 # OpenAPI API
@@ -1144,31 +909,9 @@ paths:
               schema:
                 type: object
         '406':
-          description: Unsupported content type in 'Accept' request header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unsupportedContentTypeError:
-                  value:
-                    error_code: 5070
-                    error_message: |
-                      GAL5070E: Unsupported 'Accept' header value set. Supported response types are: [application/yaml, application/json].
-                      Ensure the 'Accept' header in your request contains a valid value and try again.
-                  summary: The request did not contain a supported content type in its 'Accept' header
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
 
 ##################################################################################
 # Resources API
@@ -1213,29 +956,11 @@ paths:
                   - error_code: 5016
                     error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
 
 
 ##################################################################################
@@ -1273,23 +998,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Requestors'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+          $ref: '#/components/responses/InternalServerError'
 
 
   #--------------------------------------
@@ -1323,23 +1036,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResultNames'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+          $ref: '#/components/responses/InternalServerError'
 
 
   #--------------------------------------
@@ -1518,17 +1219,7 @@ paths:
                     error_message: "GAL5006E: Error parsing the query parameters. Duplicate instances of query parameter 'size' found in the request URL. Expecting only one."
                   summary: An error occured parsing duplicate parameter
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
         '404':
           description: Not Found
           content:
@@ -1541,28 +1232,21 @@ paths:
                     error_code: 5002
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
                   summary: An error occured when trying to retrieve a specific run  using a runId
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
-                runerror:
-                  value:
-                    error_code: 5003
-                    error_message: "GAL5003E: Error retrieving runs. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to retireve the runs
-                pageerror:
-                  value:
-                    error_code: 5004
-                    error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to return a results page
+          $ref: '#/components/responses/InternalServerError'
+          examples:
+            runerror:
+              value:
+                error_code: 5003
+                error_message: "GAL5003E: Error retrieving runs. Report the problem to your Galasa Ecosystem owner."
+              summary: An error occured when trying to retireve the runs
+            pageerror:
+              value:
+                error_code: 5004
+                error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
+              summary: An error occured when trying to return a results page
 
 
   #--------------------------------------
@@ -1596,23 +1280,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Run'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+          $ref: '#/components/responses/InternalServerError'
 
   #--------------------------------------
   # Update the status of an active test
@@ -1683,17 +1355,9 @@ paths:
                     error_message: "GAL5050E: Error occured when trying to cancel the run 'U123'. The run has already completed."
                   summary: The run in the request has already completed and can not be cancelled
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
           description: Internal Server Error
           content:
@@ -1747,23 +1411,11 @@ paths:
               schema:
                 type: string
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+          $ref: '#/components/responses/InternalServerError'
 
 
   #--------------------------------------
@@ -1797,17 +1449,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ArtifactIndex'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
         '404':
           description: Not Found
           content:
@@ -1819,19 +1461,11 @@ paths:
                   value:
                     error_code: 5002
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
-                  summary: An error occured when trying to retrieve a specific run  using a runId
+                  summary: An error occured when trying to retrieve a specific run using a runId
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+          $ref: '#/components/responses/InternalServerError'
 
 
   #--------------------------------------
@@ -1873,17 +1507,7 @@ paths:
                 format: binary
               example: attachment; filename="cps.properties"
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
         '404':
           description: Not Found
           content:
@@ -1897,7 +1521,7 @@ paths:
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-a1b2c3d4e5f6g7h8i9'."
                   summary: An error occured when trying to retrieve a specific run  using a runId
         '500':
-          description: Internal Server
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1950,23 +1574,11 @@ paths:
              schema:
                 $ref: '#/components/schemas/TestClasses'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+          $ref: '#/components/responses/InternalServerError'
 
 ##################################################################################
 # Runs API
@@ -1999,17 +1611,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/TestRuns'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
     post:
       summary: Submit test runs
       description: |
@@ -2041,17 +1645,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/TestRuns'
         '401':
-          description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIError'
-              examples:
-                unauthorizederror:
-                  value:
-                    error_code: 5401
-                    error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
-                  summary: The request was unauthenticated so is unauthorized.
+          $ref: "#/components/responses/Unauthorized"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
 ##################################################################################
 # Bootstrap API
 ##################################################################################
@@ -2071,17 +1667,54 @@ paths:
             text/plain:
               schema:
                 type: string
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
         '500':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
+          $ref: '#/components/responses/InternalServerError'
 
 ##################################################################################
 # Components
 ##################################################################################
 components:
+  responses:
+    InternalServerError:
+      description: An internal server error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          examples:
+            genericerror:
+              value:
+                error_code: 5000
+                error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+              summary: An error occured when trying to access the endpoint
+    Unauthorized:
+      description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          examples:
+            unauthorizederror:
+              value:
+                error_code: 5401
+                error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+              summary: The request was unauthenticated so is unauthorized
+    UnsupportedMimeType:
+      description: Unsupported MIME type in 'Accept' request header
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          examples:
+            unsupportedContentTypeError:
+              value:
+                error_code: 5406
+                error_message: |
+                  GAL5406E: Unsupported 'Accept' header value set. Supported response types are: [application/json].
+                  Ensure the 'Accept' header in your request contains a valid value and try again.
+              summary: The request did not contain a supported MIME type in its 'Accept' header
   schemas:
     AuthProperties:
       type: object
@@ -2174,11 +1807,6 @@ components:
               description: |
                 The value of the property, maximum length of approximately 1,500,000 characters.
                 It cannot be a blank value.
-    JsonError:
-      type: object
-      properties:
-        error:
-          type: string
     APIErrorArray:
       type: array
       description: An array of API Errors relating to the resources that failed to complete as expected

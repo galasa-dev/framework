@@ -80,6 +80,10 @@ public class CpsServletTest extends BaseServletTest {
 		this.req = new MockHttpServletRequest(path, value, method);
 		this.resp = new MockHttpServletResponse(writer, outStream);
 	}
+	protected void setServlet( String path,String namespace, String value, String method, MockIConfigurationPropertyStoreService store, Map<String,String> headerMap){
+		setServlet(path,namespace, value, method, store);
+		this.req = new MockHttpServletRequest(path, value, method, headerMap);
+	}
 
 	protected MockCpsServlet getServlet(){
 		return this.servlet;

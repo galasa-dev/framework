@@ -26,6 +26,7 @@ import com.google.gson.JsonObject;
 import dev.galasa.framework.api.beans.GalasaProperty;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -60,6 +61,7 @@ public class ResourcesRoute  extends BaseRoute{
     @Override
      public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters, 
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {  
+        validateAcceptHeader(request, MimeType.APPLICATION_JSON);
         checkRequestHasContent(request);
         ServletInputStream body = request.getInputStream();
         String jsonBody = new String (body.readAllBytes(),StandardCharsets.UTF_8);
@@ -89,21 +91,6 @@ public class ResourcesRoute  extends BaseRoute{
         return errors;
     }
 
-    /**
-     * Checks the json element to make sure it is not a NULL value or an empty object
-     * @param element The json element we want to check
-     * @throws InternalServletException
-     */
-    private void checkJsonElementIsValidJSON(JsonElement element) throws InternalServletException{
-        if ( element.isJsonNull()){
-            ServletError error = new ServletError(GAL5067_NULL_RESOURCE_IN_BODY);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
-        if ( element.getAsJsonObject().entrySet().isEmpty()){
-            ServletError error = new ServletError(GAL5068_EMPTY_JSON_RESOURCE_IN_BODY);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
-    }
 
     /**
      * Convert the List of Error Strings into JSON Objects 

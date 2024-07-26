@@ -7,6 +7,7 @@ package dev.galasa.framework.api.authentication.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.io.OutputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +91,77 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(200);
         assertThat(authStoreService.getTokens()).hasSize(0);
+    }
+
+    @Test
+    public void testDeleteAuthTokensWithGoodAcceptHeaderRevokesTokenOK() throws Exception {
+        // Given...
+        String tokenId = "id123";
+        String description = "test token";
+        String clientId = "my-client";
+        Instant creationTime = Instant.now();
+        IInternalUser owner = new InternalUser("username", "dexId");
+
+        List<IInternalAuthToken> tokens = new ArrayList<>();
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+        mockDexGrpcClient.addDexClient(clientId, "my-secret", "http://a-callback-url");
+        mockDexGrpcClient.addMockRefreshToken(owner.getLoginId(), clientId);
+
+        MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE");
+
+        mockRequest.setHeader("Accept", "text/plain");
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+        // When...
+        assertThat(authStoreService.getTokens()).hasSize(1);
+        servlet.init();
+        servlet.doDelete(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(authStoreService.getTokens()).hasSize(0);
+    }
+
+    @Test
+    public void testDeleteAuthTokensWithBadAcceptHeaderThrowsError() throws Exception {
+        // Given...
+        String tokenId = "id123";
+        String description = "test token";
+        String clientId = "my-client";
+        Instant creationTime = Instant.now();
+        IInternalUser owner = new InternalUser("username", "dexId");
+
+        List<IInternalAuthToken> tokens = new ArrayList<>();
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+        mockDexGrpcClient.addDexClient(clientId, "my-secret", "http://a-callback-url");
+        mockDexGrpcClient.addMockRefreshToken(owner.getLoginId(), clientId);
+
+        MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE");
+
+        mockRequest.setHeader("Accept", "not-supported!");
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        OutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        assertThat(authStoreService.getTokens()).hasSize(1);
+        servlet.init();
+        servlet.doDelete(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(406);
+        checkErrorStructure(outStream.toString(), 5406, "GAL5406E", "Unsupported 'Accept' header value set. Supported response types are: [text/plain]");
     }
 
     @Test

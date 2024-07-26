@@ -240,6 +240,58 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 
 	@Test
+	public void testRunResultWithLogAcceptHeaderReturnsOK() throws Exception {
+		//Given..
+		String runId = "runA";
+        String runLog = "hello world";
+		List<IRunResult> mockRunResults = generateTestData(runId, "testName", runLog);
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "text/plain");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(new HashMap<>(), "/runs/" + runId + "/runlog", headerMap);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(runLog);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+	}
+
+	@Test
+	public void testRunResultWithLogAcceptHeaderMultipleReturnsOK() throws Exception {
+		//Given..
+		String runId = "runA";
+        String runLog = "hello world";
+		List<IRunResult> mockRunResults = generateTestData(runId, "testName", runLog);
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "text/plain");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(new HashMap<>(), "/runs/" + runId + "/runlog", headerMap);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(runLog);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+	}
+
+	@Test
 	public void testRunResultWithEmptyLogReturnsEmptyLogOK() throws Exception {
 		//Given..
 		String runId = "runA";
@@ -260,6 +312,33 @@ public class TestRunLogRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEmpty();
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
+	}
+
+	@Test
+	public void testRunResultWithLogBadAcceptHeaderReturnsError() throws Exception {
+		//Given..
+		String runId = "runA";
+        String runLog = "hello world";
+		List<IRunResult> mockRunResults = generateTestData(runId, "testName", runLog);
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "*/json");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(new HashMap<>(), "/runs/" + runId + "/runlog", headerMap);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(406);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		checkErrorStructure(outStream.toString(), 5406,
+			"E: Unsupported 'Accept' header value set. Supported response types are: [text/plain]");
 	}
 
 	@Test

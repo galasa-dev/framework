@@ -557,4 +557,82 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 	}
+
+	@Test
+	public void testNoArtifactsToListWithAcceptHeaderGivesRootArtifacts() throws Exception {
+		//Given..
+		String runName = "testA";
+		MockFileSystem mockFileSystem = new MockFileSystem();
+		MockPath mockArtifactsPath = new MockPath("/" + runName + "/artifacts",mockFileSystem);
+		mockFileSystem.createDirectories(mockArtifactsPath);
+
+		String runId = "xxxxx678xxxxx";
+        String runLog = "log";
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runLog);
+
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "application/json");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/artifacts", headerMap);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(200);
+
+		String jsonString = outStream.toString();
+		JsonElement jsonElement = JsonParser.parseString(jsonString);
+		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
+
+		JsonArray jsonArray = jsonElement.getAsJsonArray();
+		assertThat(jsonArray.size()).isEqualTo(4);
+
+        checkRootArtifactsJson(jsonString);
+        String expectedJson = generateExpectedJsonArtifacts(new ArrayList<>());
+		assertThat(jsonString).contains(expectedJson);
+
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
+	public void testNoArtifactsToListWithBadAcceptHeaderReturnsError() throws Exception {
+		//Given..
+		String runName = "testA";
+		MockFileSystem mockFileSystem = new MockFileSystem();
+		MockPath mockArtifactsPath = new MockPath("/" + runName + "/artifacts",mockFileSystem);
+		mockFileSystem.createDirectories(mockArtifactsPath);
+
+		String runId = "xxxxx678xxxxx";
+        String runLog = "log";
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runLog);
+
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "random/*");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/artifacts", headerMap);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(406);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		checkErrorStructure(outStream.toString(), 5406,
+			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
+	}
 }

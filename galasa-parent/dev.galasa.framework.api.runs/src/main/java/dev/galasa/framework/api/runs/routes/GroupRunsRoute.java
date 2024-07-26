@@ -17,6 +17,7 @@ import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -44,6 +45,7 @@ public class GroupRunsRoute extends GroupRuns{
 
     public HttpServletResponse handleGetRequest(String groupName, QueryParameters queryParams, HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException, FrameworkException{
+        validateAcceptHeader(request, MimeType.APPLICATION_JSON);
         List<IRun> runs = getRuns(groupName.substring(1));
         if (runs != null){
             ScheduleStatus serializedRuns = serializeRuns(runs);
@@ -57,6 +59,7 @@ public class GroupRunsRoute extends GroupRuns{
     public HttpServletResponse handlePostRequest(String groupName, QueryParameters queryParameters, HttpServletRequest request , HttpServletResponse response)
     throws ServletException, IOException, FrameworkException {
         String requestor;
+        validateAcceptHeader(request, MimeType.APPLICATION_JSON);
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
         try {

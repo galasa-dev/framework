@@ -81,6 +81,14 @@ public class ResourcesServletTest extends BaseServletTest {
 		this.resp = new MockHttpServletResponse(writer, outStream);
 	}
 
+	protected void setServlet( String path,String namespace, String value, String method, Map<String,String> headerMap){
+		setServlet(namespace);
+		ServletOutputStream outStream = new MockServletOutputStream();
+        PrintWriter writer = new PrintWriter(outStream);
+		this.req = new MockHttpServletRequest(path, value, method, headerMap);
+		this.resp = new MockHttpServletResponse(writer, outStream);
+	}
+
 	protected MockResourcesServlet getServlet(){
 		return this.servlet;
 	}

@@ -161,6 +161,79 @@ public class AuthTokensRouteTest extends BaseServletTest {
     }
 
     @Test
+    public void testGetAuthTokensWithGoodAcceptHeaderReturnsTokensOK() throws Exception {
+        // Given...
+        String tokenId = "id123";
+        String description = "test token";
+        String clientId = "my-client";
+        Instant creationTime = Instant.now();
+        IInternalUser owner = new InternalUser("username", "dexId");
+
+        List<IInternalAuthToken> tokens = List.of(
+            new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId)
+        );
+        MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(new MockFramework(authStoreService));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", "", "GET");
+
+        mockRequest.setHeader("Accept", "application/json");
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        Map<String, String> expectedTokenFields = Map.of(
+            "token_id", tokenId,
+            "description", description,
+            "creation_time", creationTime.toString()
+        );
+
+        checkJsonArrayStructure(getJsonArrayFromJson(output, "tokens").toString(), expectedTokenFields);
+    }
+
+    @Test
+    public void testGetAuthTokensWithBadAcceptHeaderThrowsError() throws Exception {
+        // Given...
+        String tokenId = "id123";
+        String description = "test token";
+        String clientId = "my-client";
+        Instant creationTime = Instant.now();
+        IInternalUser owner = new InternalUser("username", "dexId");
+
+        List<IInternalAuthToken> tokens = List.of(
+            new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId)
+        );
+        MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(new MockFramework(authStoreService));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", "", "GET");
+
+        mockRequest.setHeader("Accept", "not-a-supported-type");
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(406);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+        checkErrorStructure(outStream.toString(), 5406, "Unsupported 'Accept' header value set. Supported response types are: [application/json]");
+    }
+
+    @Test
     public void testGetAuthTokensWithAuthStoreExceptionThrowsInternalServletException() throws Exception {
         // Given...
         String tokenId = "id123";

@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -44,6 +45,7 @@ public class PropertyUpdateRoute extends CPSRoute {
      */
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+        validateAcceptHeader(req, MimeType.APPLICATION_JSON);
         String namespace = getNamespaceFromURL(pathInfo);
         String propertyName = getPropertyNameFromURL(pathInfo);
         checkNamespaceExists(namespace);
@@ -82,6 +84,7 @@ public class PropertyUpdateRoute extends CPSRoute {
             throws  IOException, FrameworkException {
         String namespaceName = getNamespaceFromURL(pathInfo);
         String name = getPropertyNameFromURL(pathInfo);
+        validateAcceptHeader(request, MimeType.TEXT_PLAIN);
         checkRequestHasContent(request);
         ServletInputStream body = request.getInputStream();
         String jsonString = new String (body.readAllBytes(),StandardCharsets.UTF_8);
@@ -100,6 +103,7 @@ public class PropertyUpdateRoute extends CPSRoute {
     public HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response)
             throws FrameworkException {
+        validateAcceptHeader(request, MimeType.TEXT_PLAIN);
         String namespace = getNamespaceFromURL(pathInfo);
         String property = getPropertyNameFromURL(pathInfo);
         deleteProperty(namespace, property);

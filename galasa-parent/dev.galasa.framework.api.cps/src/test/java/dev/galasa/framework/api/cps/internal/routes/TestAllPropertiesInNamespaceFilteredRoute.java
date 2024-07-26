@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.regex.Pattern;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 
+import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
 
@@ -64,7 +66,6 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
         assertThat(matches).isFalse();
     }
 
-
     @Test
     public void TestPathRegexIncompletePathReturnsFalse(){
         //Given...
@@ -77,7 +78,6 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
         //Then...
         assertThat(matches).isFalse();
     }
-
 
 	@Test
     public void TestPathRegexHalfPathReturnsFalse(){
@@ -266,6 +266,49 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(outStream.toString()).isEqualTo("{}");
+	}
+
+	@Test
+	public void TestGetNamespacesWithFrameworkWithDataNoMatchAcceptHeaderReturnsOk() throws Exception{
+		// Given...
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "application/json");
+		setServlet("/namespace/framework/prefix/prop/suffix/erty","framework",null, "GET", new MockIConfigurationPropertyStoreService("framework"), headerMap);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+	
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		assertThat(outStream.toString()).isEqualTo("{}");
+	}
+
+	@Test
+	public void TestGetNamespacesWithFrameworkWithDataNoMatchBadAcceptHeaderReturnsOk() throws Exception{
+		// Given...
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "text/json");
+		setServlet("/namespace/framework/prefix/prop/suffix/erty","framework",null, "GET", new MockIConfigurationPropertyStoreService("framework"), headerMap);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+	
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(406);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		checkErrorStructure(outStream.toString(), 5406,
+			"E: Unsupported 'Accept' header value set. Supported response types are: [application/json]");
 	}
 
     @Test

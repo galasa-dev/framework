@@ -5,18 +5,14 @@
  */
 package dev.galasa.framework.api.bootstrap.routes;
 
+import dev.galasa.framework.api.bootstrap.BootstrapServlet;
 import dev.galasa.framework.api.bootstrap.BootstrapServletTest;
 import dev.galasa.framework.api.bootstrap.mocks.MockBootstrapServlet;
-import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.spi.FrameworkException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,22 +21,71 @@ import org.junit.Test;
 public class TestBootstrapExternalRoute extends BootstrapServletTest {
 
     @Test
-    public void TestBootstrapExternalRouteHandleGetRequestReturnsOK () throws ServletException, IOException, FrameworkException{
+    public void TestBootstrapExternalRouteHandleGetRequestReturnsOK() throws Exception {
         // Given...
-        String pathInfo = "/bootstrap/external";
-        ResponseBuilder responseBuilder = new ResponseBuilder();
-        BootstrapExternalRoute route = new BootstrapExternalRoute(responseBuilder);
-        HttpServletResponse response = (HttpServletResponse) new MockHttpServletResponse();
-        HttpServletRequest req = (HttpServletRequest) new MockHttpServletRequest(pathInfo);
+        setServlet();
+        BootstrapServlet servlet = getServlet();
+
+        String pathInfo = "/external";
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockHttpServletRequest req = new MockHttpServletRequest(pathInfo);
         ServletOutputStream outStream = response.getOutputStream();
 
         // When...
-        response = route.handleGetRequest(pathInfo,null,req,response);
+        servlet.init();
+        servlet.doGet(req, response);
 
         // Then...
         String output = outStream.toString();
         assertThat(output).contains("#Galasa Bootstrap Properties");
         assertThat(output).doesNotContain("framework");
+    }
+
+    @Test
+    public void TestGetBootstrapExternalRouteWithGoodAcceptHeaderReturnsOK() throws Exception {
+        // Given...
+        setServlet();
+        BootstrapServlet servlet = getServlet();
+
+        String pathInfo = "/external";
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockHttpServletRequest req = new MockHttpServletRequest(pathInfo);
+        ServletOutputStream outStream = response.getOutputStream();
+
+        req.setHeader("Accept", "text/plain");
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, response);
+
+        // Then...
+        String output = outStream.toString();
+        assertThat(output).contains("#Galasa Bootstrap Properties");
+        assertThat(output).doesNotContain("framework");
+    }
+
+    @Test
+    public void TestGetBootstrapExternalRouteWithBadAcceptHeaderThrowsError() throws Exception {
+        // Given...
+        setServlet();
+        BootstrapServlet servlet = getServlet();
+
+        String pathInfo = "/external";
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        MockHttpServletRequest req = new MockHttpServletRequest(pathInfo);
+
+        req.setHeader("Accept", "not-a-supported-type");
+
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(req, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(406);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+        checkErrorStructure(outStream.toString(), 5406, "Unsupported 'Accept' header value set. Supported response types are: [text/plain]");
     }
 
     @Test

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -48,6 +49,7 @@ public class NamespacesRoute extends CPSRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+        validateAcceptHeader(req, MimeType.APPLICATION_JSON);
         String namespaces = getNamespaces(req.getRequestURI());
 		return getResponseBuilder().buildResponse(req, response, "application/json", namespaces, HttpServletResponse.SC_OK); 
     }

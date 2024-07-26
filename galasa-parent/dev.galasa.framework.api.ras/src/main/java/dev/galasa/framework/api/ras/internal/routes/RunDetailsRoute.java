@@ -21,6 +21,7 @@ import dev.galasa.framework.api.ras.internal.common.RunActionJson;
 import dev.galasa.framework.api.ras.internal.common.RunActionStatus;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -51,6 +52,7 @@ public class RunDetailsRoute extends RunsRoute {
 
    @Override
    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+      validateAcceptHeader(req, MimeType.APPLICATION_JSON);
       String runId = getRunIdFromPath(pathInfo);
       try{
          RasRunResult run = getRunFromFramework(runId);
@@ -64,6 +66,7 @@ public class RunDetailsRoute extends RunsRoute {
 
    @Override
    public HttpServletResponse handlePutRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest request, HttpServletResponse response) throws DynamicStatusStoreException, FrameworkException, IOException {
+      validateAcceptHeader(request, MimeType.TEXT_PLAIN);
       String runId = getRunIdFromPath(pathInfo);
       String runName = getRunNameFromRunId(runId);
 
