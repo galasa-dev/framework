@@ -15,9 +15,10 @@ configurations {
 
 }
 
-version = '0.34.0'
+version = '0.36.0'
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes (
             "Main-Class": "dev.galasa.boot.Launcher",
