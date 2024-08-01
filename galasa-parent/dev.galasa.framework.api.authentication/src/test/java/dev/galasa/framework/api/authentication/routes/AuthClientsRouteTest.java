@@ -81,4 +81,38 @@ public class AuthClientsRouteTest extends BaseServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
     }
+
+    @Test
+    public void testAuthClientsPostRequestWithGoodAcceptHeaderReturnsClient() throws Exception {
+        // Given...
+        String clientId = "my-client-id";
+        String clientSecret = "my-client-secret"; // Mock value, not a secret //pragma: allowlist secret
+        String redirectUri = "http://my.app/callback";
+
+        DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer.url", clientId, clientSecret, redirectUri);
+
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockDexGrpcClient);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/clients", "", "POST");
+
+        mockRequest.setHeader("Accept", "text/*, application/json");
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "client_id": "my-client-id",
+        // }
+        JsonObject expectedJson = new JsonObject();
+        expectedJson.addProperty("client_id", clientId);
+
+        assertThat(servletResponse.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
+    }
 }

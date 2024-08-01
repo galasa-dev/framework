@@ -89,21 +89,6 @@ public class ResourcesRoute  extends BaseRoute{
         return errors;
     }
 
-    /**
-     * Checks the json element to make sure it is not a NULL value or an empty object
-     * @param element The json element we want to check
-     * @throws InternalServletException
-     */
-    private void checkJsonElementIsValidJSON(JsonElement element) throws InternalServletException{
-        if ( element.isJsonNull()){
-            ServletError error = new ServletError(GAL5067_NULL_RESOURCE_IN_BODY);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
-        if ( element.getAsJsonObject().entrySet().isEmpty()){
-            ServletError error = new ServletError(GAL5068_EMPTY_JSON_RESOURCE_IN_BODY);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
-    }
 
     /**
      * Convert the List of Error Strings into JSON Objects 

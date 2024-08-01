@@ -520,4 +520,41 @@ public class TestResultNamesRoute extends RasServletTest{
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 	}
+
+	@Test
+	public void testResultNamesWithAcceptheaderTenTestsFiveResultsWithSortAscendingReturnsOK() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestData(10);
+		//Build Http query parameters
+
+        Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		parameterMap.put("sort", new String[] {"resultnames:asc"});
+		Map<String, String> headerMap = new HashMap<String,String>();
+        headerMap.put("Accept", "application/json");
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/resultnames", headerMap);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		//Then...
+		// Expecting:
+        //[
+		//  "EnvFail",
+		//  "Failed",
+		//  "Ignored",
+        //  "Passed",
+		//  "UNKNOWN"
+        //]
+		String expectedJson = generateExpectedJSON(mockInputRunResults, false);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat( resp.getContentType()).isEqualTo("application/json");
+	}
 }

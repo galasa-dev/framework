@@ -68,6 +68,11 @@ public class RunsServletTest extends BaseServletTest {
 		this.req = new MockHttpServletRequest(path, value, method, headerMap);
 	}
 
+    protected void setServlet(String path, String groupName, List<IRun> runs, String value, String method, Map<String, String> headerMap){
+		setServlet(path, groupName, runs);
+		this.req = new MockHttpServletRequest(path, value, method, headerMap);
+	}
+
 	protected MockRunsServlet getServlet(){
 		return this.servlet;
 	}

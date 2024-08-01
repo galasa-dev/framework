@@ -146,10 +146,12 @@ public abstract class CPSRoute extends BaseRoute {
         GalasaProperty galasaProperty = beanSerialiser.getPropertyFromJsonString(jsonString);
         CPSFacade cps = new CPSFacade(framework);
         CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
+        nameValidator.assertNamespaceCharPatternIsValid(galasaProperty.getNamespace());
         if (namespace.isHidden()) {
             ServletError error = new ServletError(GAL5016_INVALID_NAMESPACE_ERROR,namespaceName);  
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
+        nameValidator.assertPropertyNameCharPatternIsValid(galasaProperty.getName());
         CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
         if(!checkPropertyNamespaceMatchesURLNamespace(property, namespaceName)){
             ServletError error = new ServletError(GAL5028_PROPERTY_NAMESPACE_DOES_NOT_MATCH_ERROR,property.getNamespace(), namespaceName);  

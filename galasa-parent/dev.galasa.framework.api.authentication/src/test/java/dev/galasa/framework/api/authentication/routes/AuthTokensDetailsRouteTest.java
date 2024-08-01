@@ -93,6 +93,41 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
     }
 
     @Test
+    public void testDeleteAuthTokensWithGoodAcceptHeaderRevokesTokenOK() throws Exception {
+        // Given...
+        String tokenId = "id123";
+        String description = "test token";
+        String clientId = "my-client";
+        Instant creationTime = Instant.now();
+        IInternalUser owner = new InternalUser("username", "dexId");
+
+        List<IInternalAuthToken> tokens = new ArrayList<>();
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+        mockDexGrpcClient.addDexClient(clientId, "my-secret", "http://a-callback-url");
+        mockDexGrpcClient.addMockRefreshToken(owner.getLoginId(), clientId);
+
+        MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(null, mockDexGrpcClient, new MockFramework(authStoreService));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens/" + tokenId, "", "DELETE");
+
+        mockRequest.setHeader("Accept", "text/plain");
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+        // When...
+        assertThat(authStoreService.getTokens()).hasSize(1);
+        servlet.init();
+        servlet.doDelete(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(authStoreService.getTokens()).hasSize(0);
+    }
+
+    @Test
     public void testDeleteAuthTokensWithFailingAuthStoreAccessThrowsError() throws Exception {
         // Given...
         String tokenId = "id123";
