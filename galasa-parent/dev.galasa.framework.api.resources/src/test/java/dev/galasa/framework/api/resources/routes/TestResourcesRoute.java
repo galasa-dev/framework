@@ -7,8 +7,10 @@ package dev.galasa.framework.api.resources.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
@@ -1325,6 +1327,28 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
+    public void TestHandlePOSTwithNoDataReturnsOK() throws Exception {
+        // Given...
+		String propertyJSON = "{\n \"action\":\"apply\", \"data\":[]\n}";
+		setServlet("/", "framework", propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json"); 
+        assertThat(output).isEqualTo("");
+    }
+
+    @Test
     public void TestGetErrorsAsJsonReturnsJsonString() throws Exception{
         // Given...
         List<String> errors = new ArrayList<String>();
@@ -1352,8 +1376,6 @@ public class TestResourcesRoute extends ResourcesServletTest{
         GalasaGson gson = new GalasaGson();
         String expectedJson =gson.toJson(expectedJsonArray);
         assertThat(json).isEqualTo(expectedJson);
-
-
     }
 
 
@@ -1370,6 +1392,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
         String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
 		String propertyJSON = "{\n \"action\":\""+action+"\", \"data\":["+propertyone+","+propertytwo+"]\n}";
+        Map<String, String> headers = new HashMap<String,String>();
+        headers.put("Accept", "application/xml");
+		setServlet("/", "framework", propertyJSON , "POST", headers);
 		setServlet("/", null, propertyJSON , "POST");
 		MockResourcesServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();

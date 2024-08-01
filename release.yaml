@@ -154,7 +154,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.bootstrap
-    version: 0.34.0
+    version: 0.36.0
     obr:          true
     mvp:          false
     bom:          false
@@ -217,7 +217,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.ras
-    version: 0.34.0
+    version: 0.36.0
     obr:          true
     mvp:          false
     bom:          false
@@ -235,7 +235,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.runs
-    version: 0.34.0
+    version: 0.36.0
     obr:          true
     mvp:          false
     bom:          false

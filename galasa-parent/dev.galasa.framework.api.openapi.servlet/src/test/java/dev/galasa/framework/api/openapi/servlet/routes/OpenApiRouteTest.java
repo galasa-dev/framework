@@ -157,7 +157,7 @@ public class OpenApiRouteTest {
         // Then...
         ServletOutputStream outputStream = response.getOutputStream();
         assertThat(response.getStatus()).isEqualTo(406);
-        assertThat(outputStream.toString()).contains("GAL5070E", "Unsupported 'Accept' header value set");
+        assertThat(outputStream.toString()).contains("GAL5406E", "Unsupported 'Accept' header value set");
     }
 
     @Test
@@ -180,7 +180,7 @@ public class OpenApiRouteTest {
         // Then...
         ServletOutputStream outputStream = response.getOutputStream();
         assertThat(response.getStatus()).isEqualTo(406);
-        assertThat(outputStream.toString()).contains("GAL5070E", "Unsupported 'Accept' header value set");
+        assertThat(outputStream.toString()).contains("GAL5406E", "Unsupported 'Accept' header value set");
     }
 
     @Test

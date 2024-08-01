@@ -65,6 +65,8 @@ Please note that the version numbers in these commmands will need to be updated 
 export GALASA_OBR_VERSION=0.32.0
 export GALASA_BOOT_JAR_VERSION=0.32.0
 export GALASA_EXTERNAL_API_URL="http://localhost:8080"
+export GALASA_USERNAME_CLAIMS="preferred_username,name,sub"
+export GALASA_ALLOWED_ORIGINS="*"
 
 # The GALASA_DEX_ISSUER environment variable must match the "issuer" value
 # within your local Dex server's configuration
