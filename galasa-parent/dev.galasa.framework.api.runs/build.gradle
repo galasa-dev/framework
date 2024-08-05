@@ -1,6 +1,5 @@
 plugins {
     id 'biz.aQute.bnd.builder'
-    id 'org.openapi.generator' version '5.0.1'
     id 'galasa.api.server'
 }
 
@@ -13,20 +12,6 @@ dependencies {
     implementation project(':dev.galasa.framework.api.common')
     implementation project(':dev.galasa.framework.api.authentication')
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
-}
-
-openApiGenerate {
-    generatorName = "typescript-rxjs"
-    inputSpec = "$projectDir/openapi.yaml".toString()
-    outputDir = "$buildDir/openapi/".toString()
-    additionalProperties = [
-        npmName: "galasa-runs-api-ts-rxjs",
-        npmRepository: System.getenv('NPM_REPO'),
-        npmVersion: System.getenv('NPM_VERSION'),
-        snapshot: System.getenv('NPM_SNAPSHOT'),
-        supportsES6: "false",
-        modelPropertyNaming: "original"
-    ]
 }
 
 // Note: These values are consumed by the parent build process

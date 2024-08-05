@@ -42,6 +42,7 @@ task fetchOpenApiYaml(type: Copy) {
 // Make sure that the openapi.yaml file is in the "resources" folder
 // before Gradle processes the resources for this subproject
 processResources.dependsOn fetchOpenApiYaml
+sourcesJar.dependsOn fetchOpenApiYaml
 
 // Note: These values are consumed by the parent build process
 // They indicate which packages of functionality this OSGi bundle should be delivered inside,
