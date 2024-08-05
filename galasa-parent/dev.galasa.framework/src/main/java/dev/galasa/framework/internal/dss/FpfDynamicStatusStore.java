@@ -29,7 +29,7 @@ import dev.galasa.framework.spi.IFrameworkPropertyFileWatcher;
  * store for the Dynamic Status Store.
  * </p>
  * 
- * @author Bruce Abbott
+ *  
  */
 public class FpfDynamicStatusStore implements IDynamicStatusStore {
     private FrameworkPropertyFile fpf;

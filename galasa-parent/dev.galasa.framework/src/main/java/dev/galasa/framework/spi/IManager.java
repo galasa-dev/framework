@@ -25,7 +25,7 @@ import dev.galasa.framework.spi.language.GalasaTest;
  * {@link org.osgi.service.component.annotations.Component} annotation.
  * </p>
  *
- * @author Michael Baylis
+ *  
  *
  */
 public interface IManager {

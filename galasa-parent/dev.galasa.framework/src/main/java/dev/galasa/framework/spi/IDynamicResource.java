@@ -15,7 +15,7 @@ package dev.galasa.framework.spi;
  * avoid the need to have manager specific code in the Web UI or Eclipse plugin.
  * </p>
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IDynamicResource extends IDynamicStatusStoreKeyAccess {

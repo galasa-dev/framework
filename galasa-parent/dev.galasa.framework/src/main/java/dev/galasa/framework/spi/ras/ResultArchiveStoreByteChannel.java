@@ -13,7 +13,7 @@ import java.nio.channels.SeekableByteChannel;
 /**
  * Dummy Byte Channel for a null Result Archive Store
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class ResultArchiveStoreByteChannel implements SeekableByteChannel {

@@ -10,7 +10,7 @@ import java.nio.file.attribute.FileAttribute;
 /**
  * Used to set the File Type for a Stored Artifact in the Result Archive Store
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class ResultArchiveStoreContentType implements FileAttribute<String> {

@@ -31,7 +31,7 @@ import dev.galasa.framework.spi.creds.ICredentialsService;
  * bundle will always be started before any other Galasa bundle.
  * </p>
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IFramework {

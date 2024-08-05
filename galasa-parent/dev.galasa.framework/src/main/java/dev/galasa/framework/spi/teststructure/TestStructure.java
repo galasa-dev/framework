@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
  * This class represents the Test Class structure, ie it's test methods, order
  * of execution and their status
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class TestStructure {

@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
  * property already exists, the transaction will fail.
  * If you want to add a property whether it exists or not, use DssUpdate
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public class DssResourceAdd extends DssAdd implements IDssResourceAction {

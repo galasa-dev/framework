@@ -27,7 +27,7 @@ import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 /**
  * Provides the common key access to the DSS
  * 
- * @author Bruce Abbott
+ *  
  */
 
 public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAccess {

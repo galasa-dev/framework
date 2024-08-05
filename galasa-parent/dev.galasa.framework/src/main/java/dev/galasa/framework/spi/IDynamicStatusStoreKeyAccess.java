@@ -31,7 +31,7 @@ import javax.validation.constraints.Null;
  * {@link IFramework#getDynamicStatusStoreService(String)}.
  * </p>
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IDynamicStatusStoreKeyAccess {

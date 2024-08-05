@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
  * This test class ensures that a constant character has constant behaviour,
  * always returning the same chracter.
  * 
- * @author James Davies
+ *  
  */
 public class CharacterConstantTest {
 

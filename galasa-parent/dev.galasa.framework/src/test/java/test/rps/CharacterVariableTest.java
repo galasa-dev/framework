@@ -25,7 +25,7 @@ import dev.galasa.framework.internal.rps.tree.SimpleNode;
  * This test class ensures the correct behaviour is shown from a variable
  * character for the given methods in ICharacter.
  * 
- * @author James Davies
+ *  
  */
 public class CharacterVariableTest {
 

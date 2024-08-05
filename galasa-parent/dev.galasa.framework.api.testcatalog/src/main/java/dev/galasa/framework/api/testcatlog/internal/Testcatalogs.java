@@ -43,7 +43,7 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 /**
  * Basic Test Catalog store
  * 
- * @author Michael Baylis
+ *  
  *
  */
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {

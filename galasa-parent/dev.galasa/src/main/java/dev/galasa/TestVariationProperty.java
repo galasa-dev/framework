@@ -12,7 +12,7 @@ import java.lang.annotation.Retention;
 /**
  * Provide a CPS property to set for a test variation
  * 
- * @author Michael Baylis
+ *  
  *
  */
 @Retention(RUNTIME)

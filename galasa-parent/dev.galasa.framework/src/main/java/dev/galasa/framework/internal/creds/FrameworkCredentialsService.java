@@ -23,8 +23,8 @@ import dev.galasa.ICredentialsUsernamePassword;
  * values from the Credentials Store.
  * </p>
  * 
- * @author Bruce Abbott
- * @author Michael Baylis
+ *  
+ *  
  */
 public class FrameworkCredentialsService implements ICredentialsService {
     private final ICredentialsStore  credsStore;

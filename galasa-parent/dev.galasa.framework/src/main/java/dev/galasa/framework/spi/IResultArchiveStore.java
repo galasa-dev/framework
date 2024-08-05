@@ -32,7 +32,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
  * {@link IFramework#getResultArchiveStore()}.
  * </p>
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IResultArchiveStore {

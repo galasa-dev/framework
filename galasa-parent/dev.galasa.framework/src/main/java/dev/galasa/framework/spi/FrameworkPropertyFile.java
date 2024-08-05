@@ -47,7 +47,7 @@ import dev.galasa.framework.spi.IFrameworkPropertyFileWatcher.Event;
  * and the watchng of values inside the properties.
  * </p>
  * 
- * @author James Davies
+ *  
  *
  */
 

@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Create a Result Archive Store specific File System
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class ResultArchiveStoreFileSystem extends FileSystem {
