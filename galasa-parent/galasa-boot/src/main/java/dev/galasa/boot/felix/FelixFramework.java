@@ -910,7 +910,7 @@ public class FelixFramework {
             }
 
             if (!isBundleActive(bundleSymbolicName)) {
-                String msg = MessageFormat.format("Bundle %s failed to install and activate",bundleSymbolicName);
+                String msg = MessageFormat.format("Bundle ''{0}'' failed to install and activate",bundleSymbolicName);
                 throw new LauncherException(msg);
             }
 
