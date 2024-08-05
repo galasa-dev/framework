@@ -33,7 +33,7 @@ import javax.servlet.http.Part;
 
 public class MockHttpServletRequest implements HttpServletRequest {
 
-    private Map<String, String[]> parameterMap;
+    private Map<String, String[]> parameterMap = new HashMap<>();
     private Map<String, String> headerMap = new HashMap<>();
     private MockServletInputStream inputStream;
     private String pathInfo;
@@ -55,6 +55,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo) {
         this.parameterMap = parameterMap;
         this.pathInfo = pathInfo;
+    }
+
+    public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo, Map<String, String> headerMap) {
+        this.parameterMap = parameterMap;
+        this.pathInfo = pathInfo;
+        this.headerMap = headerMap;
     }
 
     public MockHttpServletRequest(Map<String, String[]> parameterMap, String pathInfo, MockHttpSession session) {

@@ -87,6 +87,8 @@ public class PropertyUpdateRoute extends CPSRoute {
         String jsonString = new String (body.readAllBytes(),StandardCharsets.UTF_8);
         body.close();
         checkNameMatchesRequest(name, jsonString);
+        nameValidator.assertNamespaceCharPatternIsValid(namespaceName);
+        nameValidator.assertPropertyNameCharPatternIsValid(name);
         checkNamespaceExists(namespaceName);
         CPSProperty property = applyPropertyToStore(jsonString, namespaceName, true);
         String responseBody = String.format("Successfully updated property %s in %s",property.getName(), property.getNamespace());
@@ -102,6 +104,8 @@ public class PropertyUpdateRoute extends CPSRoute {
             throws FrameworkException {
         String namespace = getNamespaceFromURL(pathInfo);
         String property = getPropertyNameFromURL(pathInfo);
+        nameValidator.assertNamespaceCharPatternIsValid(namespace);
+        nameValidator.assertPropertyNameCharPatternIsValid(property);
         deleteProperty(namespace, property);
         String responseBody = String.format("Successfully deleted property %s in %s",property, namespace);
         return getResponseBuilder().buildResponse(request, response, "text/plain", responseBody, HttpServletResponse.SC_OK);

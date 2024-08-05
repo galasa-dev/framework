@@ -11,11 +11,11 @@ package dev.galasa.framework.api.common;
  *
  * For more information on the "Accept" header, see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
  */
-public class ContentType {
+public class AcceptContentType {
     private String type;
     private double quality;
 
-    public ContentType(String type, double quality) {
+    public AcceptContentType(String type, double quality) {
         this.type = type;
         this.quality = quality;
     }

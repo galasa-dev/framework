@@ -66,7 +66,7 @@ public class ResourcesRoute  extends BaseRoute{
         body.close();
         List<String> errorsList = processRequest(jsonBody);
         if (errorsList.size() >0){
-            response = getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
+            response = getResponseBuilder().buildResponse(request, response, "application/json", getErrorsAsJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
         } else {
             response = getResponseBuilder().buildResponse(request, response, "application/json", "", HttpServletResponse.SC_OK);
         }
@@ -89,9 +89,26 @@ public class ResourcesRoute  extends BaseRoute{
         return errors;
     }
 
+
+    /**
+     * Convert the List of Error Strings into JSON Objects 
+     * and add them to a JSON array to be sent in the response to the client
+     * 
+     * @param errorsList List of Errors to be converted to JSON objects
+     * @return String containing the JSON Array of Errors
+     */
+    protected String getErrorsAsJson(List<String> errorsList){
+        JsonArray json = new JsonArray();
+        for (String error : errorsList){
+            json.add( gson.fromJson(error, JsonObject.class));
+        }
+        return gson.toJson(json);
+    }
+
     protected void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{
         for (JsonElement element: jsonArray){
             try {
+                checkJsonElementIsValidJSON(element);
                 JsonObject resource = element.getAsJsonObject();
                 String kind = resource.get("kind").getAsString();
                 switch (kind){
@@ -104,14 +121,10 @@ public class ResourcesRoute  extends BaseRoute{
                 }
             } catch(InternalServletException s){
                 errors.add(s.getMessage());
-            } catch(Exception e){
-                ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
-                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
             }
         }
     }
     
-
     private boolean checkGalasaPropertyJsonStructure(JsonObject propertyJson) throws InternalServletException{
         List<String> validationErrors = new ArrayList<String>();
         if (propertyJson.has("apiVersion")&& propertyJson.has("metadata")&&propertyJson.has("data")){

@@ -12,6 +12,10 @@ plugins {
 version = "0.36.0"
 
 signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     sign publishing.publications
 }
 
@@ -35,6 +39,9 @@ allprojects {
         mavenLocal()
         maven {
             url "https://development.galasa.dev/main/maven-repo/maven/"
+        }
+        maven {
+            url "https://development.galasa.dev/gh/maven-repo/maven/"
         }
         mavenCentral()
     }
@@ -116,9 +123,9 @@ configurations {
     release_metadata
 }
 
-def overallManifestFilePath = "$buildDir/release.yaml"
-def frameworkManifestFilePath = "$buildDir/framework-release.yaml"
-def apiManifestFilePath = "$buildDir/api-release.yaml"
+def overallManifestFilePath = layout.buildDirectory.file("release.yaml").get().asFile.path
+def frameworkManifestFilePath = layout.buildDirectory.file("framework-release.yaml").get().asFile.path
+def apiManifestFilePath = layout.buildDirectory.file("api-release.yaml").get().asFile.path
 
 def overallHeader = """#
 # Copyright contributors to the Galasa project
@@ -330,8 +337,8 @@ publishing {
 
             if ("$targetMaven".startsWith('http')) {
                 credentials {
-                    username System.getenv('MAVENUSERNAME')
-                    password System.getenv('MAVENPASSWORD')
+                    username System.getenv('GITHUB_ACTOR')
+                    password System.getenv('GITHUB_TOKEN')
                 }
             }
         }

@@ -29,6 +29,10 @@ repositories {
 }
 
 signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     sign publishing.publications
 }
 
@@ -37,9 +41,9 @@ tasks.withType(Sign) {
 }
 
 task gitHash(dependsOn : 'classes') {
-    def dir    = file("${buildDir}/githash")
-    def meta   = file("${buildDir}/githash/META-INF")
-    def result = file("${buildDir}/githash/META-INF/git.hash")
+    def dir    = layout.buildDirectory.dir("githash").get().asFile
+    def meta   = layout.buildDirectory.dir("githash/META-INF").get().asFile
+    def result = layout.buildDirectory.file("githash/META-INF/git.hash").get().asFile
 
     outputs.dir meta
     tasks.jar.dependsOn('gitHash')
@@ -106,8 +110,8 @@ publishing {
 
             if ("$targetMaven".startsWith('http')) {
                 credentials {
-                    username System.getenv('MAVENUSERNAME')
-                    password System.getenv('MAVENPASSWORD')
+                    username System.getenv('GITHUB_ACTOR')
+                    password System.getenv('GITHUB_TOKEN')
                 }
             }
         }

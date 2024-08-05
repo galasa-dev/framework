@@ -22,9 +22,10 @@ configurations {
     conf
 }
 
+def openapiFile = layout.projectDirectory.file("src/main/resources/openapi.yaml").asFile
 // Validating a single specification
 openApiValidate {
-    inputSpec.set("$projectDir/src/main/resources/openapi.yaml")
+    inputSpec.set(openapiFile.path)
     recommend.set(true)
 }
 
@@ -34,7 +35,7 @@ tasks.named('processResources') {
 
 // Publish the openapi.yaml on it's own as a special artifact.
 // So if someone downloads this as a dependency, they don't have to unzip anything.
-def openapiYaml = artifacts.add('conf', file("$projectDir/src/main/resources/openapi.yaml" )) {}
+def openapiYaml = artifacts.add('conf', openapiFile) {}
 
 publishing {
     publications {

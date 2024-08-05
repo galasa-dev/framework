@@ -36,6 +36,7 @@ public class BootstrapInternalRoute extends BaseRoute {
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
             HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
+
         Properties actualBootstrap = new Properties();
         synchronized (this.configurationProperties) {
             actualBootstrap.putAll(this.configurationProperties);

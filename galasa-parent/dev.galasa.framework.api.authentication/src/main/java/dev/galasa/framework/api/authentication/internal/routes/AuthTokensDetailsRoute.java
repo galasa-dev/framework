@@ -47,6 +47,7 @@ public class AuthTokensDetailsRoute extends BaseRoute {
     public HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters,
             HttpServletRequest request, HttpServletResponse response)
             throws FrameworkException {
+
         String tokenId = getTokenIdFromUrl(pathInfo);
         revokeToken(tokenId);
 

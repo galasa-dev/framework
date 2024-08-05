@@ -7,7 +7,10 @@ package dev.galasa.framework.api.resources.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
@@ -23,6 +26,7 @@ import com.google.gson.JsonParser;
 import dev.galasa.framework.api.resources.ResourcesServletTest;
 import dev.galasa.framework.api.resources.mocks.MockResourcesServlet;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class TestResourcesRoute extends ResourcesServletTest{
 
@@ -510,13 +514,12 @@ public class TestResourcesRoute extends ResourcesServletTest{
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
-         Throwable thrown = catchThrowable(() -> {
-            resourcesRoute.processDataArray(propertyJson, "apply");
-        });
+        resourcesRoute.processDataArray(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
 
         //Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner.");
+        assertThat(errors.size()).isEqualTo(3);
+        checkErrorListContainsError(errors,"GAL5068E: Error occured. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
     
@@ -538,7 +541,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         List<String> errors = resourcesRoute.errors;
 
         //Then...
-        assertThat(errors.size() > 0).isTrue();
+        assertThat(errors.size()).isEqualTo(1);
         checkErrorListContainsError(errors,"GAL5400E: Error occured when trying to execute request ");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
@@ -561,11 +564,31 @@ public class TestResourcesRoute extends ResourcesServletTest{
         List<String> errors = resourcesRoute.errors;
 
         //Then...
-        assertThat(errors.size() > 0).isTrue();
+        assertThat(errors.size()).isEqualTo(1);
         checkErrorListContainsError(errors,"GAL5026E: Error occured. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
             " This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level." +
             " You may have to upgrade/downgrade your client program.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
+    public void TestProcessDataArrayNullJsonObjectReturnsError() throws Exception{
+        //Given...
+        String namespace = "framework";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = "[null]";
+        JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
+
+        //When...
+        resourcesRoute.processDataArray(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors.size()).isEqualTo(1);
+        checkErrorListContainsError(errors,"GAL5067E: Error occured. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
     }
 
     @Test
@@ -588,6 +611,35 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors.size()).isEqualTo(0);
         checkPropertyInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
+    public void TestProcessDataArrayThreeBadJsonReturnsErrors() throws Exception{
+        //Given...
+        String namespace = "framework";
+        String propertyname = "property.name";
+        String value = "value";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+        String jsonString = "[null, {\"kind\":\"GalasaProperty\",\"apiVersion\":\"galasa-dev/v1alpha1\","+namespace+"."+propertyname+":"+value+"},"+
+            "{\"kind\":\"GalasaProperly\",\"apiVersion\":\"v1alpha1\","+namespace+"."+propertyname+":"+value+"},{}]";
+        JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
+
+        //When...
+        resourcesRoute.processDataArray(propertyJson, "apply");
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors.size()).isEqualTo(4);
+        checkErrorListContainsError(errors,"GAL5067E: Error occured. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
+        checkErrorListContainsError(errors,"GAL5400E: Error occured when trying to execute request ");
+        checkErrorListContainsError(errors,"GAL5026E: Error occured. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
+            " This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level." +
+            " You may have to upgrade/downgrade your client program.");
+        checkErrorListContainsError(errors,"GAL5068E: Error occured. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
+        checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
     @Test
@@ -1241,4 +1293,138 @@ public class TestResourcesRoute extends ResourcesServletTest{
         checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
     }
 
+    @Test
+    public void TestHandlePOSTwithApplyMultipleExistingAndNewAndNullPropertiesReturnsError() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "new.property";
+        String value = "value6";
+        String propertynametwo = "property.1";
+        String valuetwo = "newvalue";
+        String apiVersion = "galasa-dev/v1alpha1";
+        String action = "apply";
+        String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
+        String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
+		String propertyJSON = "{\n \"action\":\""+action+"\", \"data\":[null,"+propertyone+","+propertytwo+"]\n}";
+		setServlet("/", namespace, propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(400);
+		assertThat(resp.getContentType()).isEqualTo("application/json"); 
+        assertThat(output).contains("GAL5067E: Error occured. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
+        checkPropertyInNamespace(namespace, propertyname, value);
+        checkPropertyInNamespace(namespace, propertynametwo, valuetwo);
+    }
+
+    @Test
+    public void TestHandlePOSTwithNoDataReturnsOK() throws Exception {
+        // Given...
+		String propertyJSON = "{\n \"action\":\"apply\", \"data\":[]\n}";
+		setServlet("/", "framework", propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json"); 
+        assertThat(output).isEqualTo("");
+    }
+
+    @Test
+    public void TestGetErrorsAsJsonReturnsJsonString() throws Exception{
+        // Given...
+        List<String> errors = new ArrayList<String>();
+        errors.add("{\"error_code\":5030,\"error_message\":\"GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.\"}");
+        errors.add("{\"error_code\":5030,\"error_message\":\"GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.\"}");
+        setServlet("framework");
+        MockResourcesServlet servlet = getServlet();
+        IFramework framework = servlet.getFramework();
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, framework);
+
+        // When...
+        String json = resourcesRoute.getErrorsAsJson(errors);
+        
+        // Then...
+        // Generate Expected JSON
+        JsonArray expectedJsonArray = new JsonArray();
+        JsonObject errorProp5 = new JsonObject();
+        errorProp5.addProperty("error_code" , 5030);
+        errorProp5.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
+        JsonObject errorProp1 = new JsonObject();
+        errorProp1.addProperty("error_code" , 5030);
+        errorProp1.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        expectedJsonArray.add(errorProp5);
+        expectedJsonArray.add(errorProp1);
+        GalasaGson gson = new GalasaGson();
+        String expectedJson =gson.toJson(expectedJsonArray);
+        assertThat(json).isEqualTo(expectedJson);
+    }
+
+
+    @Test
+    public void TestHandlePOSTwithDeleteMultipleExistingPropertiesRaisesExceptionsReturnsErrorArray() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyname = "property.5";
+        String value = "value5";
+        String propertynametwo = "property.1";
+        String valuetwo = "value1";
+        String apiVersion = "galasa-dev/v1alpha1";
+        String action = "delete";
+        String propertyone = generatePropertyJSON(namespace, propertyname, value, apiVersion);
+        String propertytwo = generatePropertyJSON(namespace, propertynametwo, valuetwo, apiVersion);
+		String propertyJSON = "{\n \"action\":\""+action+"\", \"data\":["+propertyone+","+propertytwo+"]\n}";
+        Map<String, String> headers = new HashMap<String,String>();
+        headers.put("Accept", "application/xml");
+		setServlet("/", "framework", propertyJSON , "POST", headers);
+		setServlet("/", null, propertyJSON , "POST");
+		MockResourcesServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        // Generate Expected JSON
+        JsonArray expectedJsonArray = new JsonArray();
+        JsonObject errorProp5 = new JsonObject();
+        errorProp5.addProperty("error_code" , 5030);
+        errorProp5.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
+        JsonObject errorProp1 = new JsonObject();
+        errorProp1.addProperty("error_code" , 5030);
+        errorProp1.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        expectedJsonArray.add(errorProp5);
+        expectedJsonArray.add(errorProp1);
+        GalasaGson gson = new GalasaGson();
+        String expectedJson =gson.toJson(expectedJsonArray);
+        
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(400);
+		assertThat(resp.getContentType()).isEqualTo("application/json"); 
+        assertThat(output).isEqualTo(expectedJson);
+        checkPropertyNotInNamespace(namespace, propertyname, value);
+        checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
+    }
 }

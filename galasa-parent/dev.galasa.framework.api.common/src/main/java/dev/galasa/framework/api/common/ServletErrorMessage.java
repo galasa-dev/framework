@@ -42,6 +42,7 @@ public enum ServletErrorMessage {
     GAL5401_UNAUTHORIZED                              (5401,"E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."),
     GAL5404_UNRESOLVED_ENDPOINT_ERROR                 (5404,"E: Error occured when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
     GAL5405_METHOD_NOT_ALLOWED                        (5405,"E: Error occured when trying to access the endpoint ''{0}''. The method ''{1}'' is not allowed."),
+    GAL5406_UNSUPPORTED_CONTENT_TYPE_REQUESTED        (5406, "E: Unsupported ''Accept'' header value set. Supported response types are: [{0}]. Ensure the ''Accept'' header in your request contains a valid value and try again"),
     GAL5411_NO_REQUEST_BODY                           (5411,"E: Error occured when trying to access the endpoint ''{0}''. The request body is empty."),
 
     //CPS Namespaces...
@@ -81,6 +82,8 @@ public enum ServletErrorMessage {
     GAL5025_UNSUPPORTED_ACTION                        (5025, "E: Error occured. The field 'action' in the request body is invalid. The 'action' value''{0}'' supplied is not supported. Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
     GAL5026_UNSUPPORTED_RESOURCE_TYPE                 (5026, "E: Error occured. The field 'kind' in the request body is invalid. The value ''{0}'' is not supported. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
     GAL5027_UNSUPPORTED_API_VERSION                   (5027, "E: Error occured. The field 'apiVersion' in the request body is invalid. The value ''{0}'' is not a supported version. Currently the ecosystem accepts the ''{1}'' api version. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
+    GAL5067_NULL_RESOURCE_IN_BODY                     (5067, "E: Error occured. A ''NULL'' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator."),
+    GAL5068_EMPTY_JSON_RESOURCE_IN_BODY               (5068, "E: Error occured. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator."),
 
     // Auth APIs...
     GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
@@ -101,7 +104,6 @@ public enum ServletErrorMessage {
     GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS                (5066, "E: No such token with the given ID exists. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
 
     // OpenAPI Servlet...
-    GAL5070_UNSUPPORTED_CONTENT_TYPE_REQUESTED       (5070, "E: Unsupported ''Accept'' header value set. Supported response types are: [{0}]. Ensure the ''Accept'' header in your request contains a valid value and try again"),
     GAL5071_FAILED_TO_PARSE_YAML_INTO_JSON           (5071, "E: Internal server error. Failed to convert OpenAPI specification from YAML into JSON. Report the problem to your Galasa Ecosystem owner"),
     ;
 

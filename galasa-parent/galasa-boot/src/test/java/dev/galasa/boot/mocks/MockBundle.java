@@ -25,6 +25,7 @@ public class MockBundle implements Bundle {
 
     private String symbolicName;
     private BundleContext bundleContext;
+    private int bundleState = Bundle.ACTIVE;
 
     public MockBundle(String symbolicName) {
         this.symbolicName = symbolicName;
@@ -42,7 +43,11 @@ public class MockBundle implements Bundle {
 
     @Override
     public int getState() {
-        return Bundle.ACTIVE;
+        return bundleState;
+    }
+
+    public void setState(int bundleState) {
+        this.bundleState = bundleState;
     }
 
     @Override
