@@ -363,7 +363,7 @@ public class TestRunManagers {
             }
 
             if (!isBundleActive(bundleSymbolicName)) {
-                String msg = MessageFormat.format("Bundle %s failed to install and activate",bundleSymbolicName);
+                String msg = MessageFormat.format("Bundle ''{0}'' failed to install and activate",bundleSymbolicName);
                 throw new FrameworkException(msg);
             }
 
