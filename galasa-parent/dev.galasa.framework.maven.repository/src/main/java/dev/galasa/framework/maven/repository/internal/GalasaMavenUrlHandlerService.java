@@ -7,6 +7,7 @@ package dev.galasa.framework.maven.repository.internal;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -332,7 +333,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
             connection.connect();
             Files.copy(connection.getInputStream(), localArtifact, StandardCopyOption.REPLACE_EXISTING);
         } catch (FileNotFoundException e) {
-            logger.trace("Release artifact "+ urlRemoteFile+" failed to download. File not found.",e );
+            logger.trace("Release artifact "+ urlRemoteFile+" failed to download. File not found." );
             return false;
         } catch (Exception e) {
             // Re-throw any exception after tracing it.
