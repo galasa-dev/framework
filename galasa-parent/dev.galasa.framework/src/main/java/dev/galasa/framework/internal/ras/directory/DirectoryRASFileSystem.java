@@ -11,7 +11,7 @@ import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider;
 /**
  * The Directory RAS File System, basically use the shared generic version
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class DirectoryRASFileSystem extends ResultArchiveStoreFileSystem {

@@ -13,7 +13,7 @@ import java.nio.file.attribute.FileTime;
 /**
  * For use with the dummy RAS file system
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class ResultArchiveStoreBasicAttributesView implements BasicFileAttributeView {

@@ -22,8 +22,8 @@ import dev.galasa.framework.spi.IFramework;
  * This class is used to drive the registered CPS service, and retireve values
  * from the CPS Store, impletmenting the IConfiguration interface.
  * 
- * @author James Davies
- * @author Matthew Chivers
+ *  
+ *  
  */
 public class FrameworkConfigurationPropertyService implements IConfigurationPropertyStoreService {
     private String                      namespace;

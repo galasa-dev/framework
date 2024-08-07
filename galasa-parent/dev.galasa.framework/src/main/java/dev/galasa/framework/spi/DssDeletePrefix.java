@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 /**
  * This DSS action request that all properties with this prefix are deleted.
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public class DssDeletePrefix implements IDssAction {

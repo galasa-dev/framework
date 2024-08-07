@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 /**
  * Provides a summary text to add to the test catalog
  * 
- * @author Michael Baylis
+ *  
  *
  */
 @Retention(RUNTIME)

@@ -19,7 +19,7 @@ import dev.galasa.framework.spi.IFrameworkInitialisation;
 /**
  * 
  * 
- * @author James Davies
+ *  
  */
 @Component(service = { IConfigurationPropertyStoreRegistration.class })
 public class FpfConfigurationPropertyRegistration implements IConfigurationPropertyStoreRegistration {

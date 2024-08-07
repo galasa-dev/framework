@@ -20,7 +20,7 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 /**
  * A RAS Registration
  *
- * @author Michael Baylis
+ *  
  *
  */
 @Component(service = { IResultArchiveStoreRegistration.class })

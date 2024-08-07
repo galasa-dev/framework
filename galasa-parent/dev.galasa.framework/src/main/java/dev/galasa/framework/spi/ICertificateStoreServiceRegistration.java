@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
  * certificate store that is a non local file. Overrides are expected to be used 
  * for any local certificates if they are required for execution.
  * 
- * @author jamesdavies
+ *  
  *
  */
 public interface ICertificateStoreServiceRegistration {

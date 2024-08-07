@@ -25,7 +25,7 @@ import dev.galasa.framework.spi.FrameworkPropertyFileException;
  * Test the Framework DSS Stub. Most of the functionality will exist in the
  * service, so this is just a quick drive of the stub code.
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class FpfDynamicStatusStoreTest {

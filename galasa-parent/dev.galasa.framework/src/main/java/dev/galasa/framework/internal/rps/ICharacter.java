@@ -18,7 +18,7 @@ package dev.galasa.framework.internal.rps;
  * example above the J A T P characters being constant and the other four
  * characters being variable.
  * 
- * @author James Davies
+ *  
  */
 public interface ICharacter {
 

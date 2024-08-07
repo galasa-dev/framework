@@ -29,7 +29,7 @@ import dev.galasa.framework.spi.language.GalasaTest;
  * An abstract manager which attempts to provide all the boilerplate code
  * necessary to write a Manager in Galasa.
  *
- * @author Michael Baylis
+ *  
  *
  */
 public abstract class AbstractManager implements IManager {

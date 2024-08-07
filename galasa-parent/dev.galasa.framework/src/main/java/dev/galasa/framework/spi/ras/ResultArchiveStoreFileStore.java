@@ -13,7 +13,7 @@ import java.nio.file.attribute.FileStoreAttributeView;
 /**
  * Dummy File Store if needed
  *
- * @author Michael Baylis
+ *  
  *
  */
 public class ResultArchiveStoreFileStore extends FileStore {

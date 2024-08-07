@@ -14,7 +14,7 @@ import dev.galasa.framework.spi.ras.RasTestClass;
 
 /**
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IResultArchiveStoreDirectoryService {

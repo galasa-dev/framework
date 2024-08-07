@@ -8,7 +8,7 @@ package dev.galasa.framework.spi;
 /**
  * IDssAction is the basis for all updates to the Dynamic Status Store properties
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public interface IDssAction {

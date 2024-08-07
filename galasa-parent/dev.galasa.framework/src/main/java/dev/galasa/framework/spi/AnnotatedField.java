@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
  * Represents annotated fields that the AbstractManager finds on behalf of
  * Managers
  * 
- * @author Michael Baylis
+ *  
  *
  */
 public class AnnotatedField {

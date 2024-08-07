@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 /**
  * Used to tag a test.  These tags can be used when requesting tests for running, eg from Jenkins
  * 
- * @author Michael Baylis
+ *  
  *
  */
 @Retention(RUNTIME)

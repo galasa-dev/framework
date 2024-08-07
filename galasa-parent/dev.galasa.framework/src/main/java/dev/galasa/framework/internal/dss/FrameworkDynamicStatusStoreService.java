@@ -21,7 +21,7 @@ import dev.galasa.framework.spi.IFramework;
  * Store as the only DSS.
  * </p>
  * 
- * @author Bruce Abbott
+ *  
  */
 
 public class FrameworkDynamicStatusStoreService extends FrameworkDynamicStoreKeyAccess

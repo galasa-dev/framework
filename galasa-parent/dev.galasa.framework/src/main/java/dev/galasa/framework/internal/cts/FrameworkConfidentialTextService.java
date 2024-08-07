@@ -19,7 +19,7 @@ import dev.galasa.framework.spi.IConfidentialTextService;
  * can remove usernames, passwords, keys,etc, from logs and console outputs if
  * the work is registered.
  * 
- * @author James Davies
+ *  
  */
 public class FrameworkConfidentialTextService implements IConfidentialTextService {
     private List<ConfidentialText> confidentialTexts = new ArrayList<>();

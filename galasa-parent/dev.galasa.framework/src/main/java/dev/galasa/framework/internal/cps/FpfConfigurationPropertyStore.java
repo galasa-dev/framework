@@ -24,8 +24,8 @@ import dev.galasa.framework.spi.IConfigurationPropertyStore;
  * Configuration property store as the only CPS.
  * </p>
  * 
- * @author James Davies
- * @author Matthew Chivers
+ *  
+ *  
  */
 
 public class FpfConfigurationPropertyStore implements IConfigurationPropertyStore {

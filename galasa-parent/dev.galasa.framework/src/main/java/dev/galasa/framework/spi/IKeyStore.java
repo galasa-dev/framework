@@ -11,7 +11,7 @@ import java.security.KeyStore;
 /**
  * A class to represent a Java Keystore and allow for easy appending and generation
  * 
- * @author jamesdavies
+ *  
  *
  */
 public interface IKeyStore {
