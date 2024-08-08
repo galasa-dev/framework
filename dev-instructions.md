@@ -47,7 +47,7 @@ Add this to your `.zprofile`:
   # Created the couchdb password using this:
   #export COUCHDB_PASSWORD=$(openssl rand -base64 10)
   #echo "Couchdb password for $COUCHDB_USER is $COUCHDB_PASSWORD"
-  export COUCHDB_PASSWORD="1234asdwergf_asdasd"
+  export COUCHDB_PASSWORD="????????????????????"
   export COUCHDB_TOKEN=$(echo -n "${COUCHDB_USER}:${COUCHDB_PASSWORD}" | base64)
 
   export GALASA_RAS_TOKEN=${COUCHDB_TOKEN}

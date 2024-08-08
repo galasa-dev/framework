@@ -461,6 +461,8 @@ public class TestRunner {
             // *** Record all the CPS properties that were accessed
             recordCPSProperties(frameworkInitialisation);
 
+            saveCPSOverridesAsArtifact(overrideProperties);
+
             // *** If this was a local run, then we will want to remove the run properties
             // from the DSS immediately
             // *** for automation, we will let the core manager clean up after a while
@@ -817,22 +819,31 @@ public class TestRunner {
         return this.cps;
     }
 
-    private void recordCPSProperties(FrameworkInitialisation frameworkInitialisation) {
-        try {
-            Properties record = this.framework.getRecordProperties();
+    private void saveCPSOverridesAsArtifact(Properties overrideProperties) {
+        savePropertiesAsArtifactFile(overrideProperties, "cps_overrides.properties");
+    }
 
+    private void recordCPSProperties(FrameworkInitialisation frameworkInitialisation) {
+        Properties record = this.framework.getRecordProperties();
+        savePropertiesAsArtifactFile(record, "cps_record.properties");
+    }
+
+    private void savePropertiesAsArtifactFile(Properties props, String filename) {
+        try {
             ArrayList<String> propertyNames = new ArrayList<>();
-            propertyNames.addAll(record.stringPropertyNames());
+            propertyNames.addAll(props.stringPropertyNames());
             Collections.sort(propertyNames);
 
             StringBuilder sb = new StringBuilder();
             String currentNamespace = null;
             for (String propertyName : propertyNames) {
+                // Ignore empty property names. Shouldn't happen anyway, but just in case.
                 propertyName = propertyName.trim();
                 if (propertyName.isEmpty()) {
                     continue;
                 }
 
+                // Separate the groups of properties with a new line between namespaces.
                 String[] parts = propertyName.split("\\.");
                 if (!parts[0].equals(currentNamespace)) {
                     if (currentNamespace != null) {
@@ -843,16 +854,16 @@ public class TestRunner {
 
                 sb.append(propertyName);
                 sb.append("=");
-                sb.append(record.getProperty(propertyName));
+                sb.append(props.getProperty(propertyName));
                 sb.append("\n");
             }
             IResultArchiveStore ras = this.framework.getResultArchiveStore();
             Path rasRoot = ras.getStoredArtifactsRoot();
-            Path rasProperties = rasRoot.resolve("framework").resolve("cps_record.properties");
+            Path rasProperties = rasRoot.resolve("framework").resolve(filename);
             Files.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
             Files.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            logger.error("Failed to save the recorded properties", e);
+            logger.error("Failed to save the properties to file "+filename+" - ignoring.", e);
         }
     }
 

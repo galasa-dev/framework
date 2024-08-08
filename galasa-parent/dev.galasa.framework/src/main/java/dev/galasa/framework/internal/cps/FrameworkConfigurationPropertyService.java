@@ -197,16 +197,17 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
 
         value = overrides.getProperty(key);
         if (value != null) {
-            record.put(key, value);
+            recordCPSActivity(key, value);
             return value;
         }
-        value = cpsStore.getProperty(key);
 
+        value = cpsStore.getProperty(key);
         if (value != null) {
-            record.put(key, value);
+            recordCPSActivity(key, value);
             return value;
         }
-        record.put(key, "*** MISSING ***");
+
+        recordCPSActivity(key, "*** MISSING ***");
         return null;
     }
 
@@ -275,7 +276,7 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
             String value = (String) entry.getValue();
             
             if (key.startsWith(fullPrefix)) {
-                this.record.setProperty(key, value);
+                recordCPSActivity(key, value);
                 
                 key = key.substring(this.namespace.length() + 1);
                 returnValues.put(key, value);
@@ -291,7 +292,7 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
             String unPrefixedKey = key.substring(this.namespace.length() + 1);
             
             if (!returnValues.containsKey(unPrefixedKey)) {
-                this.record.setProperty(key, value);
+                recordCPSActivity(key, value);
                 
                 returnValues.put(unPrefixedKey, value);
             }
@@ -300,5 +301,7 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
         return returnValues;
     }
 
-
+    private void recordCPSActivity(String key, String valueUsed) {
+        this.record.setProperty(key, valueUsed);
+    }
 }
