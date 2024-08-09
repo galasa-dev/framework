@@ -7,13 +7,8 @@ package dev.galasa.framework;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,36 +26,26 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.SharedEnvironment;
 import dev.galasa.Test;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
-import dev.galasa.framework.spi.EventsException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
-import dev.galasa.framework.spi.IResultArchiveStore;
-import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
-import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
-import dev.galasa.framework.spi.events.TestHeartbeatStoppedEvent;
-import dev.galasa.framework.spi.events.TestRunLifecycleStatusChangedEvent;
 import dev.galasa.framework.spi.language.GalasaTest;
-import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 
 /**
  * Run the supplied test class
  */
 @Component(service = { TestRunner.class })
-public class TestRunner {
+public class TestRunner extends AbstractTestRunner {
 
     private enum RunType {
         TEST,
@@ -79,23 +64,13 @@ public class TestRunner {
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
     private IMavenRepository                   mavenRepository;
 
-    private TestRunHeartbeat                   heartbeat;
-
-    private IConfigurationPropertyStoreService cps;
-    private IDynamicStatusStoreService         dss;
-    private IResultArchiveStore                ras;
-    private IRun                               run;
-
-    private TestStructure                      testStructure = new TestStructure();
-
     private RunType                            runType;
 
-    private boolean                            isRunOK = true;
-    private boolean                            resourcesAvailable = true;
 
-    private IFramework                          framework;
 
-    private boolean produceEvents;
+
+
+
 
     /**
      * Run the supplied test class
@@ -106,63 +81,20 @@ public class TestRunner {
      */
     public void runTest(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {
 
-        // *** Initialise the framework services
-        FrameworkInitialisation frameworkInitialisation = null;
-        try {
-            frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, true);
-            cps = frameworkInitialisation.getFramework().getConfigurationPropertyService("framework");
-            dss = frameworkInitialisation.getFramework().getDynamicStatusStoreService("framework");
-            run = frameworkInitialisation.getFramework().getTestRun();
-            ras = frameworkInitialisation.getFramework().getResultArchiveStore();
-        } catch (Exception e) {
-            throw new TestRunException("Unable to initialise the Framework Services", e);
-        }
-
-        this.framework = frameworkInitialisation.getFramework();
-
-        try {
-            this.produceEvents = isProduceEventsFeatureFlagTrue();
-        } catch (ConfigurationPropertyStoreException e) {
-            throw new TestRunException("Problem reading the CPS property to check if framework event production has been activated.");
-        }
-
-        IRun run = this.framework.getTestRun();
-        if (run == null) {
-            throw new TestRunException("Unable to locate run properties");
-        }
+        super.init(bootstrapProperties, overrideProperties);
 
         String testBundleName = run.getTestBundleName();
         String testClassName = run.getTestClassName();
 
-        //*** Load the overrides if present
-        try {
-            String prefix = "run." + run.getName() + ".override.";
-            Map<String, String> runOverrides = dss.getPrefix(prefix);
-            for(Entry<String, String> entry : runOverrides.entrySet()) {
-                String key = entry.getKey().substring(prefix.length());
-                String value = entry.getValue();
-                overrideProperties.put(key, value);
-            }
-        } catch(Exception e) {
-            throw new TestRunException("Problem loading overrides from the run properties", e);
-        }
+        loadOverrideProperties(overrideProperties);
 
         String testRepository = null;
         String testOBR = null;
         String stream = AbstractManager.nulled(run.getStream());
 
-        this.testStructure.setRunName(run.getName());
-        this.testStructure.setQueued(run.getQueued());
-        this.testStructure.setStartTime(Instant.now());
-        this.testStructure.setRequestor(AbstractManager.defaultString(run.getRequestor(), "unknown"));
-        writeTestStructure();
-        
-        String rasRunId = this.ras.calculateRasRunId();
-        try {
-            this.dss.put("run." + run.getName() + ".rasrunid", rasRunId);
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Failed to update rasrunid", e);
-        }
+        setUnknownTestState(run);
+        allocateRasRunId();
+
 
         if (stream != null) {
             logger.debug("Loading test stream " + stream);
@@ -489,15 +421,7 @@ public class TestRunner {
         frameworkInitialisation.shutdownFramework();
     }
 
-    private boolean isProduceEventsFeatureFlagTrue() throws ConfigurationPropertyStoreException {
-        boolean produceEvents = false;
-        String produceEventsProp = this.cps.getProperty("produce", "events");
-        if (produceEventsProp != null) {
-            logger.debug("CPS property framework.produce.events was found and is set to: " + produceEventsProp);
-            produceEvents = Boolean.parseBoolean(produceEventsProp);
-        }
-        return produceEvents;
-    }
+
 
     private void generateEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
         if(isRunOK){
@@ -644,133 +568,12 @@ public class TestRunner {
         until = until.plus(totalDelay, ChronoUnit.SECONDS);
 
         HashMap<String, String> properties = new HashMap<>();
-        properties.put("run." + run.getName() + ".status", "waiting");
-        properties.put("run." + run.getName() + ".wait.until", until.toString());
+        properties.put(getDSSKeyString("status"), "waiting");
+        properties.put(getDSSKeyString("wait.until"), until.toString());
         try {
             this.dss.put(properties);
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Unable to place run in waiting state", e);
-        }
-    }
-
-    private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
-
-        this.testStructure.setStatus(status.toString());
-        if ("finished".equals(status.toString())) {
-            updateResult();
-            this.testStructure.setEndTime(Instant.now());
-        }
-
-        writeTestStructure();
-
-        try {
-            this.dss.put("run." + run.getName() + ".status", status.toString());
-            if (timestamp != null) {
-                this.dss.put("run." + run.getName() + "." + timestamp, Instant.now().toString());
-            }
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Failed to update status", e);
-        }
-
-        try {
-            produceTestRunLifecycleStatusChangedEvent(status);
-        } catch (TestRunException e) {
-            logger.error("Unable to produce a test run lifecycle status changed event to the Events Service", e);
-        }
-    }
-
-    private void produceTestRunLifecycleStatusChangedEvent(TestRunLifecycleStatus status) throws TestRunException {
-        if (this.produceEvents) {
-            logger.debug("Producing a test run lifecycle status change event.");
-
-            String message = String.format("Galasa test run %s is now in status: %s.", framework.getTestRunName(), status.toString());
-            TestRunLifecycleStatusChangedEvent testRunLifecycleStatusChangedEvent = new TestRunLifecycleStatusChangedEvent(this.cps, Instant.now().toString(), message);
-            String topic = testRunLifecycleStatusChangedEvent.getTopic();
-
-            if (topic != null) {
-                try {
-                    framework.getEventsService().produceEvent(topic, testRunLifecycleStatusChangedEvent);
-                } catch (EventsException e) {
-                    throw new TestRunException("Failed to publish a test run lifecycle status changed event to the Events Service", e);
-                }
-            }
-        }
-    }
-
-    private void updateResult() throws TestRunException {
-        try {
-            if (this.testStructure.getResult() == null) {
-                this.testStructure.setResult("UNKNOWN");
-            }
-            this.dss.put("run." + run.getName() + ".result", this.testStructure.getResult());
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Failed to update result", e);
-        }
-    }
-
-    private void stopHeartbeat() {
-        if (this.heartbeat == null) {
-            return;
-        }
-
-        heartbeat.shutdown();
-        try {
-            heartbeat.join(2000);
-        } catch (Exception e) {
-        }
-
-        try {
-            dss.delete("run." + run.getName() + ".heartbeat");
-        } catch (DynamicStatusStoreException e) {
-            logger.error("Unable to delete heartbeat", e);
-        }
-
-        try {
-            produceTestHeartbeatStoppedEvent();
-        } catch (TestRunException e) {
-            logger.error("Unable to produce a test heartbeat stopped event to the Events Service", e);
-        }
-    }
-
-    private void produceTestHeartbeatStoppedEvent() throws TestRunException {
-        if (this.produceEvents) {
-            logger.debug("Producing a test heartbeat stopped event.");
-
-            String message = String.format("Galasa test run %s's heartbeat has been stopped.", framework.getTestRunName());
-            TestHeartbeatStoppedEvent testHeartbeatStoppedEvent = new TestHeartbeatStoppedEvent(this.cps, Instant.now().toString(), message);
-            String topic = testHeartbeatStoppedEvent.getTopic();
-
-            if (topic != null) {
-                try {
-                    framework.getEventsService().produceEvent(topic, testHeartbeatStoppedEvent);
-                } catch (EventsException e) {
-                    throw new TestRunException("Failed to publish a test heartbeat stopped event to the Events Service", e);
-                }
-            }
-        }
-    }
-
-    private void writeTestStructure() {
-        try {
-            this.ras.updateTestStructure(testStructure);
-        } catch (ResultArchiveStoreException e) {
-            logger.warn("Unable to write the test structure to the RAS", e);
-        }
-
-    }
-
-    private void deleteRunProperties(@NotNull IFramework framework) {
-
-        IRun run = framework.getTestRun();
-
-        if (!run.isLocal()) { // *** Not interested in non-local runs
-            return;
-        }
-
-        try {
-            framework.getFrameworkRuns().delete(run.getName());
-        } catch (FrameworkException e) {
-            logger.error("Failed to delete run properties");
         }
     }
 
@@ -809,62 +612,6 @@ public class TestRunner {
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
-    }
-
-    protected IFramework getFramework() {
-        return this.framework;
-    }
-
-    public IConfigurationPropertyStoreService getCPS() {
-        return this.cps;
-    }
-
-    private void saveCPSOverridesAsArtifact(Properties overrideProperties) {
-        savePropertiesAsArtifactFile(overrideProperties, "cps_overrides.properties");
-    }
-
-    private void recordCPSProperties(FrameworkInitialisation frameworkInitialisation) {
-        Properties record = this.framework.getRecordProperties();
-        savePropertiesAsArtifactFile(record, "cps_record.properties");
-    }
-
-    private void savePropertiesAsArtifactFile(Properties props, String filename) {
-        try {
-            ArrayList<String> propertyNames = new ArrayList<>();
-            propertyNames.addAll(props.stringPropertyNames());
-            Collections.sort(propertyNames);
-
-            StringBuilder sb = new StringBuilder();
-            String currentNamespace = null;
-            for (String propertyName : propertyNames) {
-                // Ignore empty property names. Shouldn't happen anyway, but just in case.
-                propertyName = propertyName.trim();
-                if (propertyName.isEmpty()) {
-                    continue;
-                }
-
-                // Separate the groups of properties with a new line between namespaces.
-                String[] parts = propertyName.split("\\.");
-                if (!parts[0].equals(currentNamespace)) {
-                    if (currentNamespace != null) {
-                        sb.append("\n");
-                    }
-                    currentNamespace = parts[0];
-                }
-
-                sb.append(propertyName);
-                sb.append("=");
-                sb.append(props.getProperty(propertyName));
-                sb.append("\n");
-            }
-            IResultArchiveStore ras = this.framework.getResultArchiveStore();
-            Path rasRoot = ras.getStoredArtifactsRoot();
-            Path rasProperties = rasRoot.resolve("framework").resolve(filename);
-            Files.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
-            Files.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            logger.error("Failed to save the properties to file "+filename+" - ignoring.", e);
-        }
     }
 
 }
