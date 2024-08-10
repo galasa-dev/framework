@@ -9,8 +9,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -35,6 +37,7 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.events.TestHeartbeatStoppedEvent;
 import dev.galasa.framework.spi.events.TestRunLifecycleStatusChangedEvent;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import dev.galasa.framework.spi.utils.DssUtils;
 
 public class AbstractTestRunner {
     
@@ -58,6 +61,11 @@ public class AbstractTestRunner {
 
     protected boolean isRunOK = true;
     protected boolean resourcesAvailable = true;
+
+    public static class Stream {
+        String testRepository = null;
+        String testOBR = null;
+    }
 
     protected void init(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {
         try {
@@ -307,6 +315,42 @@ public class AbstractTestRunner {
             this.dss.put(getDSSKeyString("rasrunid"), rasRunId);
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update rasrunid", e);
+        }
+    }
+
+    protected void markWaiting(@NotNull IFramework framework) throws TestRunException {
+        int initialDelay = 600;
+        int randomDelay = 180;
+
+        DssUtils.incrementMetric(dss, "metrics.runs.made.to.wait");
+
+        try {
+            String sInitialDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "delay"));
+            String sRandomDelay = AbstractManager.nulled(this.cps.getProperty("waiting.random", "delay"));
+
+            if (sInitialDelay != null) {
+                initialDelay = Integer.parseInt(sInitialDelay);
+            }
+            if (sRandomDelay != null) {
+                randomDelay = Integer.parseInt(sRandomDelay);
+            }
+        } catch (Exception e) {
+            logger.error("Problem reading delay properties", e);
+        }
+
+        int totalDelay = initialDelay + framework.getRandom().nextInt(randomDelay);
+        logger.info("Placing this run on waiting for " + totalDelay + " seconds");
+
+        Instant until = Instant.now();
+        until = until.plus(totalDelay, ChronoUnit.SECONDS);
+
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put(getDSSKeyString("status"), "waiting");
+        properties.put(getDSSKeyString("wait.until"), until.toString());
+        try {
+            this.dss.put(properties);
+        } catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Unable to place run in waiting state", e);
         }
     }
 }

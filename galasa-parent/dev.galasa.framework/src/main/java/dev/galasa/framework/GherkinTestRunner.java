@@ -7,14 +7,7 @@ package dev.galasa.framework;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +23,6 @@ import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.language.GalasaTest;
@@ -85,15 +77,6 @@ public class GherkinTestRunner extends AbstractTestRunner {
             try {
                 testRepository = this.cps.getProperty("test.stream", "repo", stream);
                 testOBR = this.cps.getProperty("test.stream", "obr", stream);
-
-                //*** TODO remove this code in 0.9.0 - renames stream to test.stream to be consistent #198
-                if (testRepository == null) {
-                    testRepository = this.cps.getProperty("stream", "repo", stream);
-                }
-                if (testOBR == null) {
-                    testOBR = this.cps.getProperty("stream", "obr", stream);
-                }
-                //*** TODO remove above code in 0.9.0
             } catch (Exception e) {
                 logger.error("Unable to load stream " + stream + " settings", e);
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
@@ -367,42 +350,6 @@ public class GherkinTestRunner extends AbstractTestRunner {
             } finally {
                 updateStatus(TestRunLifecycleStatus.RUNDONE, null);
             }
-        }
-    }
-
-    private void markWaiting(@NotNull IFramework framework) throws TestRunException {
-        int initialDelay = 600;
-        int randomDelay = 180;
-
-        DssUtils.incrementMetric(dss, "metrics.runs.made.to.wait");
-
-        try {
-            String sInitialDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "delay"));
-            String sRandomDelay = AbstractManager.nulled(this.cps.getProperty("waiting.random", "delay"));
-
-            if (sInitialDelay != null) {
-                initialDelay = Integer.parseInt(sInitialDelay);
-            }
-            if (sRandomDelay != null) {
-                randomDelay = Integer.parseInt(sRandomDelay);
-            }
-        } catch (Exception e) {
-            logger.error("Problem reading delay properties", e);
-        }
-
-        int totalDelay = initialDelay + framework.getRandom().nextInt(randomDelay);
-        logger.info("Placing this run on waiting for " + totalDelay + " seconds");
-
-        Instant until = Instant.now();
-        until = until.plus(totalDelay, ChronoUnit.SECONDS);
-
-        HashMap<String, String> properties = new HashMap<>();
-        properties.put(getDSSKeyString("status"), "waiting");
-        properties.put(getDSSKeyString("wait.until"), until.toString());
-        try {
-            this.dss.put(properties);
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Unable to place run in waiting state", e);
         }
     }
 
