@@ -61,6 +61,7 @@ public class BundleManagement {
     }
 
     public static void loadAllGherkinManagerBundles(RepositoryAdmin repositoryAdmin, BundleContext bundleContext) throws FrameworkException {
+        
         logger.trace("Installing manager bundles");
         Resolver resolver = repositoryAdmin.resolver();
         String filterString = "(symbolicname=*)";

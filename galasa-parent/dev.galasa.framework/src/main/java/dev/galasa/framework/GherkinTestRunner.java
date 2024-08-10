@@ -71,25 +71,24 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
         try {
             BundleManagement.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
+
+            if(gherkinTest.getName() == null || gherkinTest.getMethods().size() == 0) {
+                throw new TestRunException("Feature file is invalid at URI: " + run.getGherkin());
+            }
+
+            logger.info("Run test: " + gherkinTest.getName());
+
+            try {
+                heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
+                heartbeat.start();
+            } catch (DynamicStatusStoreException e1) {
+                throw new TestRunException("Unable to initialise the heartbeat");
+            }
+
         } catch (Exception e) {
-            logger.error("Unable to load the managers obr", e);
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
             frameworkInitialisation.shutdownFramework();
             return;
-        }
-
-        if(gherkinTest.getName() == null || gherkinTest.getMethods().size() == 0) {
-            throw new TestRunException("Feature file is invalid at URI: " + run.getGherkin());
-        }
-            
-        logger.info("Run test: " + gherkinTest.getName());
-
-        try {
-            heartbeat = new TestRunHeartbeat(frameworkInitialisation.getFramework());
-            heartbeat.start();
-        } catch (DynamicStatusStoreException e1) {
-            frameworkInitialisation.shutdownFramework();
-            throw new TestRunException("Unable to initialise the heartbeat");
         }
 
         if (run.isLocal()) {

@@ -64,10 +64,6 @@ public class TestRunner extends AbstractTestRunner {
     private RunType                            runType;
 
 
-
-
-
-
     /**
      * Run the supplied test class
      * 
@@ -84,7 +80,6 @@ public class TestRunner extends AbstractTestRunner {
 
         loadOverrideProperties(overrideProperties);
 
-
         setUnknownTestState(run);
         allocateRasRunId();
 
@@ -99,10 +94,8 @@ public class TestRunner extends AbstractTestRunner {
             return;
         }
 
-        logger.debug("Getting test annotations..");
-        Test testAnnotation = testClass.getAnnotation(Test.class);
-        logger.debug("Test annotations.. got");
-
+        Test testAnnotation = getTestAnnotations(testClass);
+        
         SharedEnvironment sharedEnvironmentAnnotation = testClass.getAnnotation(SharedEnvironment.class);
 
         logger.debug("Checking testAnnotation and sharedEnvironmentAnnotation");
@@ -618,4 +611,10 @@ public class TestRunner extends AbstractTestRunner {
         return testClass;
     }
 
+    private Test getTestAnnotations(Class<?> testClass) {
+        logger.debug("Getting test annotations..");
+        Test testAnnotations = testClass.getAnnotation(Test.class);
+        logger.debug("Test annotations.. got");
+        return testAnnotations;
+    }
 }
