@@ -53,7 +53,7 @@ public class AbstractTestRunner {
 
     protected IFramework                         framework;
 
-    protected TestRunHeartbeat heartbeat;
+    protected TestRunHeartbeat heartbeat = null ;
 
     protected TestStructure testStructure = new TestStructure();
     
@@ -185,8 +185,8 @@ public class AbstractTestRunner {
         savePropertiesAsArtifactFile(overrideProperties, "cps_overrides.properties");
     }
 
-    protected void recordCPSProperties(FrameworkInitialisation frameworkInitialisation) {
-        Properties record = this.framework.getRecordProperties();
+    protected void recordCPSProperties(IFramework framework) {
+        Properties record = framework.getRecordProperties();
         savePropertiesAsArtifactFile(record, "cps_record.properties");
     }
 
@@ -237,7 +237,7 @@ public class AbstractTestRunner {
         return this.cps;
     }
 
-    protected void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
+    protected void updateStatus(TestRunLifecycleStatus status, String timestampDSSPropSuffix) throws TestRunException {
         Instant now = Instant.now();
 
         this.testStructure.setStatus(status.toString());
@@ -250,8 +250,8 @@ public class AbstractTestRunner {
 
         try {
             this.dss.put(getDSSKeyString("status"), status.toString());
-            if (timestamp != null) {
-                this.dss.put(getDSSKeyString(timestamp), now.toString());
+            if (timestampDSSPropSuffix != null) {
+                this.dss.put(getDSSKeyString(timestampDSSPropSuffix), now.toString());
             }
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update status", e);

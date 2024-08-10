@@ -31,12 +31,16 @@ import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
+import dev.galasa.framework.spi.IDynamicStatusStoreService;
+import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.utils.DssUtils;
+import dev.galasa.framework.spi.teststructure.TestStructure;
+
 
 /**
  * Run the supplied test class
@@ -85,251 +89,181 @@ public class TestRunner extends AbstractTestRunner {
 
         Class<?> testClass;
 
-        try {
-            loadRequiredBundles( run, repositoryAdmin, this.mavenRepository, testBundleName, cps);
-            testClass = loadTestClass(testClassName, testBundleName);
-        } catch(Throwable t) {
-            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-            frameworkInitialisation.shutdownFramework();
-            return;
-        }
+        try { // Make sure that the framework is shut down in a finally clause.
 
-        Test testAnnotation = getTestAnnotations(testClass);
-        
-        SharedEnvironment sharedEnvironmentAnnotation = testClass.getAnnotation(SharedEnvironment.class);
-
-        logger.debug("Checking testAnnotation and sharedEnvironmentAnnotation");
-        if (testAnnotation == null && sharedEnvironmentAnnotation == null) {
-            logger.debug("Test annotation is null and it's not a shared environment. Throwing TestRunException...");
-            throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is not annotated with either the dev.galasa @Test or @SharedEnvironment annotations");
-        } else if (testAnnotation != null && sharedEnvironmentAnnotation != null) {
-            logger.debug("Test annotation is non-null and shared environment annotation is non-null. Throwing TestRunException...");
-            throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is annotated with both the dev.galasa @Test and @SharedEnvironment annotations");
-        }
-        
-
-        if (testAnnotation != null) {
-            logger.info("Run test: " + testBundleName + "/" + testClassName);
-            this.runType = RunType.TEST;
-        } else {
-            logger.info("Shared Environment class: " + testBundleName + "/" + testClassName);
-        }
-
-
-        if (sharedEnvironmentAnnotation != null) {
             try {
-                SharedEnvironmentRunType seType = this.framework.getSharedEnvironmentRunType();
-                if (seType != null) {
-                    switch(seType) {
-                        case BUILD:
-                            this.runType = RunType.SHARED_ENVIRONMENT_BUILD;
-                            break;
-                        case DISCARD:
-                            this.runType = RunType.SHARED_ENVIRONMENT_DISCARD;
-                            break;
-                        default:
-                            String msg = "Unknown Shared Environment phase, '" + seType + "', needs to be BUILD or DISCARD";
-                            logger.error(msg);
-                            throw new TestRunException(msg);
-                    }
-                } else {
-                    String msg = "Unknown Shared Environment phase, needs to be BUILD or DISCARD";
-                    logger.error(msg);
-                    throw new TestRunException(msg);
-                }
-            } catch(TestRunException e) {
-                String msg = "TestRunException caught. "+e.getMessage()+" Re-throwing.";
-                logger.error(msg);
-                throw e;
-            } catch(Exception e) {
-                String msg = "Exception caught. "+e.getMessage()+" Re-throwing.";
-                logger.error(msg);
-                throw new TestRunException("Unable to determine the phase of the shared environment", e);
-            }
-        }
-
-        logger.debug("Test runType is "+this.runType.toString());
-        if (this.runType == RunType.TEST) {
-            try {
-                heartbeat = new TestRunHeartbeat(this.framework);
-                logger.debug("starting heartbeat");
-                heartbeat.start();
-                logger.debug("heartbeat started ok");
-            } catch (DynamicStatusStoreException e1) {
-                String msg = "DynamicStatusStoreException Exception caught. "+e1.getMessage()+" Shutting down and Re-throwing.";
-                logger.error(msg);
-                frameworkInitialisation.shutdownFramework();
-                throw new TestRunException("Unable to initialise the heartbeat");
-            }
-
-            if (run.isLocal()) {
-                logger.debug("It's a local test");
-                DssUtils.incrementMetric(dss, "metrics.runs.local");
-            } else {
-                logger.debug("It's an automated test");
-                DssUtils.incrementMetric(dss, "metrics.runs.automated");
-            }
-        } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-            int expireHours = sharedEnvironmentAnnotation.expireAfterHours();
-            Instant expire = Instant.now().plus(expireHours, ChronoUnit.HOURS);
-            try {
-                this.dss.put("run." + this.run.getName() + ".shared.environment.expire", expire.toString());
-            } catch (DynamicStatusStoreException e) {
-                String msg = "DynamicStatusStoreException Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
-                logger.error(msg);
-                deleteRunProperties(this.framework);
-                frameworkInitialisation.shutdownFramework();
-                throw new TestRunException("Unable to set the shared environment expire time",e);
-            }
-        }
-
-        logger.debug("state changing to started.");
-        updateStatus(TestRunLifecycleStatus.STARTED, "started");
-
-        // *** Try to load the Core Manager bundle, even if the test doesn't use it, and if not already active
-        if (!BundleManagement.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
-            try {
-                BundleManagement.loadBundle(repositoryAdmin, bundleContext, "dev.galasa.core.manager");
-            } catch (FrameworkException e) {
-                logger.warn("Tried to load the Core Manager bundle, but failed, test can continue without it",e);
-            }
-        }
-
-        logger.debug("Bundle is loaded ok.");
-
-        // *** Initialise the Managers ready for the test run
-        TestRunManagers managers = null;
-        try {
-            managers = new TestRunManagers(this.framework, new GalasaTest(testClass));
-        } catch (FrameworkException e) {
-            String msg = "FrameworkException Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
-            logger.error(msg);
-            frameworkInitialisation.shutdownFramework();
-            throw new TestRunException("Problem initialising the Managers for a test run", e);
-        }
-
-        logger.debug("Test managers ok.");
-
-        try {
-            if (managers.anyReasonTestClassShouldBeIgnored()) {
-                logger.debug("managers.anyReasonTestClassShouldBeIgnored() is true. Shutting down.");
-                stopHeartbeat();
+                loadRequiredBundles( run, repositoryAdmin, this.mavenRepository, testBundleName, cps);
+                testClass = loadTestClass(testClassName, testBundleName);
+            } catch(Throwable t) {
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
-                return; // TODO handle ignored classes
+                return;
             }
-        } catch (FrameworkException e) {
-            String msg = "Problem asking Managers for an ignore reason";
-            logger.error(msg+" "+e.getMessage());
-            throw new TestRunException(msg, e);
-        }
-        logger.debug("Test class should not be ignored.");
 
-        
-        TestClassWrapper testClassWrapper;
-        try { 
+            Test testAnnotation = getTestAnnotations(testClass);
             
-            testClassWrapper = new TestClassWrapper(this, testBundleName, testClass, testStructure);
-        } catch(ConfigurationPropertyStoreException e) {
-            String msg = "Problem with the CPS when adding a wrapper";
-            logger.error(msg+" "+e.getMessage());
-            throw new TestRunException(msg,e);
-        }
+            SharedEnvironment sharedEnvironmentAnnotation = testClass.getAnnotation(SharedEnvironment.class);
 
-        logger.debug("Parsing test class...");
-        testClassWrapper.parseTestClass();
+            validateAnnotations(testAnnotation, sharedEnvironmentAnnotation, testClassName, testBundleName);
 
-        logger.debug("Instantiating test class...");
-        testClassWrapper.instantiateTestClass();
+            if (testAnnotation != null) {
+                logger.info("Run test: " + testBundleName + "/" + testClassName);
+                this.runType = RunType.TEST;
+            } else {
+                logger.info("Shared Environment class: " + testBundleName + "/" + testClassName);
+            }
 
-        if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-            logger.debug("Checking active managers to see if they support shared env build...");
-            //*** Check all the active Managers to see if they support a shared environment build
-            boolean invalidManager = false;
-            for(IManager manager : managers.getActiveManagers()) {
-                if (!manager.doYouSupportSharedEnvironments()) {
-                    logger.error("Manager " + manager.getClass().getName() + " does not support Shared Environments");
-                    invalidManager = true;
+            if (sharedEnvironmentAnnotation != null) {
+                this.runType = getSharedEnvRunType(this.runType, this.framework);
+            }
+
+            logger.debug("Test runType is "+this.runType.toString());
+            if (this.runType == RunType.TEST) {
+                
+                heartbeat = startNewHeartbeat(this.framework);
+
+                incrementTestMetric(run.isLocal(), dss);
+
+            } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
+                int expireHours = sharedEnvironmentAnnotation.expireAfterHours();
+                Instant expire = Instant.now().plus(expireHours, ChronoUnit.HOURS);
+                try {
+                    this.dss.put("run." + this.run.getName() + ".shared.environment.expire", expire.toString());
+                } catch (DynamicStatusStoreException e) {
+                    String msg = "DynamicStatusStoreException Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
+                    logger.error(msg);
+                    deleteRunProperties(this.framework);
+                    throw new TestRunException("Unable to set the shared environment expire time",e);
                 }
             }
 
-            if (invalidManager) {
-                logger.error("There are Managers that do not support Shared Environment builds");
-                testClassWrapper.setResult(Result.failed("Invalid Shared Environment build"));
-                testStructure.setResult(testClassWrapper.getResult().getName());
-                isRunOK = false;
-            }
-        }
-        logger.debug("isRunOK: "+Boolean.toString(isRunOK));
+            try { // make sure heartbeat is stopped at some point.
 
-        logger.debug("Generating environment...");
-        try {
-            generateEnvironment(testClassWrapper, managers);
-        } catch(Exception e) {
-            logger.fatal("Error within test runner",e);
-            this.isRunOK = false;
-        }
+                logger.debug("state changing to started.");
+                updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
-        logger.debug("isRunOK: "+Boolean.toString(isRunOK)+" runType: "+runType.toString());
+                loadCoreManagerBundle(bundleContext, repositoryAdmin);
 
-        if (!isRunOK || this.runType == RunType.TEST || this.runType == RunType.SHARED_ENVIRONMENT_DISCARD) {
-            logger.debug("Test did not run OK... or runtype is not "+RunType.SHARED_ENVIRONMENT_BUILD.toString());
-            updateStatus(TestRunLifecycleStatus.ENDING, null);
-            managers.endOfTestRun();
+                logger.debug("Bundle is loaded ok.");
 
-            boolean markedWaiting = false;
+                TestRunManagers managers = initialiseManagers(this.framework, testClass);
 
-            if (!resourcesAvailable && !run.isLocal()) {
-                markWaiting(this.framework);
-                logger.info("Placing queue on the waiting list");
-                markedWaiting = true;
-            } else {
-                if (this.runType == RunType.SHARED_ENVIRONMENT_DISCARD) {
-                    this.testStructure.setResult("Discarded");
+                logger.debug("Test managers ok.");
+
+                try { // Make sure managers are cleaned up.
                     try {
-                        this.dss.deletePrefix("run." + this.run.getName() + ".shared.environment");
-                    } catch (DynamicStatusStoreException e) {
-                        logger.error("Problem cleaning shared environment properties", e);
+                        if (managers.anyReasonTestClassShouldBeIgnored()) {
+                            logger.debug("managers.anyReasonTestClassShouldBeIgnored() is true. Shutting down.");
+                            
+                            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+                            return; // TODO handle ignored classes
+                        }
+                    } catch (FrameworkException e) {
+                        String msg = "Problem asking Managers for an ignore reason";
+                        logger.error(msg+" "+e.getMessage());
+                        throw new TestRunException(msg, e);
+                    }
+                    logger.debug("Test class should not be ignored.");
+                    TestClassWrapper testClassWrapper = createNewTestClassWrapper(this, testBundleName, testClass, testStructure);
+
+
+                    logger.debug("Parsing test class...");
+                    testClassWrapper.parseTestClass();
+
+                    logger.debug("Instantiating test class...");
+                    testClassWrapper.instantiateTestClass();
+
+                    if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
+                        logger.debug("Checking active managers to see if they support shared env build...");
+                        //*** Check all the active Managers to see if they support a shared environment build
+                        boolean invalidManager = false;
+                        for(IManager manager : managers.getActiveManagers()) {
+                            if (!manager.doYouSupportSharedEnvironments()) {
+                                logger.error("Manager " + manager.getClass().getName() + " does not support Shared Environments");
+                                invalidManager = true;
+                            }
+                        }
+
+                        if (invalidManager) {
+                            logger.error("There are Managers that do not support Shared Environment builds");
+                            testClassWrapper.setResult(Result.failed("Invalid Shared Environment build"));
+                            testStructure.setResult(testClassWrapper.getResult().getName());
+                            isRunOK = false;
+                        }
+                    }
+                    logger.debug("isRunOK: "+Boolean.toString(isRunOK));
+
+                    logger.debug("Generating environment...");
+                    try {
+                        generateEnvironment(testClassWrapper, managers);
+                    } catch(Exception e) {
+                        logger.fatal("Error within test runner",e);
+                        this.isRunOK = false;
+                    }
+
+                    logger.debug("isRunOK: "+Boolean.toString(isRunOK)+" runType: "+runType.toString());
+
+                    if (!isRunOK || this.runType == RunType.TEST || this.runType == RunType.SHARED_ENVIRONMENT_DISCARD) {
+                        logger.debug("Test did not run OK... or runtype is not "+RunType.SHARED_ENVIRONMENT_BUILD.toString());
+                        updateStatus(TestRunLifecycleStatus.ENDING, null);
+
+                        managers.endOfTestRun();
+
+                        boolean markedWaiting = false;
+
+                        if (!resourcesAvailable && !run.isLocal()) {
+                            markWaiting(this.framework);
+                            logger.info("Placing queue on the waiting list");
+                            markedWaiting = true;
+                        } else {
+                            if (this.runType == RunType.SHARED_ENVIRONMENT_DISCARD) {
+                                this.testStructure.setResult("Discarded");
+                                cleanUpSharedEnvironmentProperties(this.dss ,this.run.getName());
+                            }
+                            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+                        }
+
+                        // *** Record all the CPS properties that were accessed
+                        recordCPSProperties(this.framework);
+
+                        saveCPSOverridesAsArtifact(overrideProperties);
+
+                        // *** If this was a local run, then we will want to remove the run properties
+                        // from the DSS immediately
+                        // *** for automation, we will let the core manager clean up after a while
+                        // *** Local runs will have access to the run details via a view,
+                        // *** But automation runs will only exist in the RAS if we delete them, so need
+                        // to give
+                        // *** time for things like jenkins and other run requesters to obtain the
+                        // result and RAS id before
+                        // *** deleting, default is to keep the automation run properties for 5 minutes
+                        if (!markedWaiting) {
+                            deleteRunProperties(this.framework);
+                        }
+                    } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
+                        recordCPSProperties(this.framework);
+                        updateStatus(TestRunLifecycleStatus.UP, "built");
+                    } else {
+                        logger.error("Unrecognised end condition");
+                    }
+
+                } finally {
+                    if (managers!=null) {
+                        logger.debug("Cleaning up managers...");
+                        managers.shutdown(); // Can't throw exception, so original exception will make it through.
                     }
                 }
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+            } finally {
+                if (heartbeat!=null) {
+                    logger.debug("Stopping heartbeat...");
+                    stopHeartbeat(); // Can't throw exception, so original exception will make it through.
+                }
             }
 
-            logger.debug("Stopping heartbeat...");
-            stopHeartbeat();
-
-            // *** Record all the CPS properties that were accessed
-            recordCPSProperties(frameworkInitialisation);
-
-            saveCPSOverridesAsArtifact(overrideProperties);
-
-            // *** If this was a local run, then we will want to remove the run properties
-            // from the DSS immediately
-            // *** for automation, we will let the core manager clean up after a while
-            // *** Local runs will have access to the run details via a view,
-            // *** But automation runs will only exist in the RAS if we delete them, so need
-            // to give
-            // *** time for things like jenkins and other run requesters to obtain the
-            // result and RAS id before
-            // *** deleting, default is to keep the automation run properties for 5 minutes
-            if (!markedWaiting) {
-                deleteRunProperties(this.framework);
-            }
-        } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-            recordCPSProperties(frameworkInitialisation);
-            updateStatus(TestRunLifecycleStatus.UP, "built");
-        } else {
-            logger.error("Unrecognised end condition");
+        } finally {
+            logger.debug("Cleaning up framework...");
+            frameworkInitialisation.shutdownFramework(); // Can't throw exception, so original exception will make it through.
         }
-
-        logger.debug("Cleaning up managers...");
-        managers.shutdown();
-
-        logger.debug("Cleaning up framework...");
-        frameworkInitialisation.shutdownFramework();
     }
-
-
 
     private void generateEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
         if(isRunOK){
@@ -617,4 +551,126 @@ public class TestRunner extends AbstractTestRunner {
         logger.debug("Test annotations.. got");
         return testAnnotations;
     }
+
+    private void validateAnnotations(Test testAnnotation, SharedEnvironment sharedEnvironmentAnnotation, String testClassName, String testBundleName) throws TestRunException {
+        logger.debug("Checking testAnnotation and sharedEnvironmentAnnotation");
+        if (testAnnotation == null && sharedEnvironmentAnnotation == null) {
+            logger.debug("Test annotation is null and it's not a shared environment. Throwing TestRunException...");
+            throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is not annotated with either the dev.galasa @Test or @SharedEnvironment annotations");
+        } else if (testAnnotation != null && sharedEnvironmentAnnotation != null) {
+            logger.debug("Test annotation is non-null and shared environment annotation is non-null. Throwing TestRunException...");
+            throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is annotated with both the dev.galasa @Test and @SharedEnvironment annotations");
+        }
+    }
+
+    private RunType getSharedEnvRunType( RunType currentRunType , IFramework framework ) throws TestRunException {
+        
+        RunType runType = currentRunType;
+        try {
+            SharedEnvironmentRunType sharedEnvRunType = framework.getSharedEnvironmentRunType();
+            if (sharedEnvRunType != null) {
+                switch(sharedEnvRunType) {
+                    case BUILD:
+                        runType = RunType.SHARED_ENVIRONMENT_BUILD;
+                        break;
+                    case DISCARD:
+                        runType = RunType.SHARED_ENVIRONMENT_DISCARD;
+                        break;
+                    default:
+                        String msg = "Unknown Shared Environment phase, '" + sharedEnvRunType + "', needs to be BUILD or DISCARD";
+                        logger.error(msg);
+                        throw new TestRunException(msg);
+                }
+            } else {
+                String msg = "Unknown Shared Environment phase, needs to be BUILD or DISCARD";
+                logger.error(msg);
+                throw new TestRunException(msg);
+            }
+        } catch(TestRunException e) {
+            String msg = "TestRunException caught. "+e.getMessage()+" Re-throwing.";
+            logger.error(msg);
+            throw e;
+        } catch(Exception e) {
+            String msg = "Exception caught. "+e.getMessage()+" Re-throwing.";
+            logger.error(msg);
+            throw new TestRunException("Unable to determine the phase of the shared environment", e);
+        }
+        return runType;
+    }
+
+    private TestRunHeartbeat startNewHeartbeat(IFramework framework) throws TestRunException {
+        TestRunHeartbeat heartbeat ;
+        try {
+            heartbeat = new TestRunHeartbeat(this.framework);
+            logger.debug("starting heartbeat");
+            heartbeat.start();
+            logger.debug("heartbeat started ok");
+        } catch (DynamicStatusStoreException e1) {
+            String msg = "DynamicStatusStoreException Exception caught. "+e1.getMessage()+" Shutting down and Re-throwing.";
+            logger.error(msg);
+            throw new TestRunException("Unable to initialise the heartbeat",e1);
+        }
+        return heartbeat ;
+    }
+
+    private void incrementTestMetric(boolean isLocal, IDynamicStatusStoreService dss) {
+        if (isLocal) {
+            logger.debug("It's a local test");
+            DssUtils.incrementMetric(dss, "metrics.runs.local");
+        } else {
+            logger.debug("It's an automated test");
+            DssUtils.incrementMetric(dss, "metrics.runs.automated");
+        }
+    }
+
+    private void loadCoreManagerBundle(BundleContext bundleContext, RepositoryAdmin repositoryAdmin) {
+        // *** Try to load the Core Manager bundle, even if the test doesn't use it, and if not already active
+        if (!BundleManagement.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
+            try {
+                BundleManagement.loadBundle(repositoryAdmin, bundleContext, "dev.galasa.core.manager");
+            } catch (FrameworkException e) {
+                logger.warn("Tried to load the Core Manager bundle, but failed, test can continue without it",e);
+            }
+        }
+    }
+
+    private TestRunManagers initialiseManagers(IFramework framework, Class<?> testClass) throws TestRunException {
+        // *** Initialise the Managers ready for the test run
+        TestRunManagers managers = null;
+
+        try {
+            managers = new TestRunManagers(this.framework, new GalasaTest(testClass));
+        } catch (FrameworkException e) {
+            String msg = "FrameworkException Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
+            logger.error(msg);
+            throw new TestRunException("Problem initialising the Managers for a test run", e);
+        }
+        return managers;
+    }
+
+    private TestClassWrapper createNewTestClassWrapper(
+        TestRunner testRunner, 
+        String testBundleName, 
+        Class<?> testClass, 
+        TestStructure testStructure
+    ) throws TestRunException {
+
+        TestClassWrapper testClassWrapper;
+        try { 
+            testClassWrapper = new TestClassWrapper(testRunner, testBundleName, testClass, testStructure);
+        } catch(ConfigurationPropertyStoreException e) {
+            String msg = "Problem with the CPS when adding a wrapper";
+            logger.error(msg+" "+e.getMessage());
+            throw new TestRunException(msg,e);
+        }
+        return testClassWrapper;
+    }
+
+    private void cleanUpSharedEnvironmentProperties(IDynamicStatusStoreService dss, String runName) {
+    try {
+        dss.deletePrefix("run." + runName + ".shared.environment");
+    } catch (DynamicStatusStoreException e) {
+        logger.error("Problem cleaning shared environment properties", e);
+    }
+}
 }

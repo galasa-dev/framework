@@ -151,7 +151,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
         stopHeartbeat();
 
         // *** Record all the CPS properties that were accessed
-        recordCPSProperties(frameworkInitialisation);
+        recordCPSProperties(this.framework);
 
         // *** If this was a local run, then we will want to remove the run properties
         // from the DSS immediately
