@@ -30,7 +30,9 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
+import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IManager;
+import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.language.GalasaTest;
@@ -66,7 +68,6 @@ public class TestRunner extends AbstractTestRunner {
 
 
 
-
     /**
      * Run the supplied test class
      * 
@@ -83,88 +84,16 @@ public class TestRunner extends AbstractTestRunner {
 
         loadOverrideProperties(overrideProperties);
 
-        String testRepository = null;
-        String testOBR = null;
-        String stream = AbstractManager.nulled(run.getStream());
 
         setUnknownTestState(run);
         allocateRasRunId();
 
-
-        if (stream != null) {
-            logger.debug("Loading test stream " + stream);
-            try {
-                testRepository = this.cps.getProperty("test.stream", "repo", stream);
-                testOBR = this.cps.getProperty("test.stream", "obr", stream);
-            } catch (Exception e) {
-                logger.error("Unable to load stream " + stream + " settings", e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
-                return;
-            }
-        }
-
-        String overrideRepo = AbstractManager.nulled(run.getRepository());
-        if (overrideRepo != null) {
-            testRepository = overrideRepo;
-        }
-        String overrideOBR = AbstractManager.nulled(run.getOBR());
-        if (overrideOBR != null) {
-            testOBR = overrideOBR;
-        }
-
-        if (testRepository != null) {
-            logger.debug("Loading test maven repository " + testRepository);
-            try {
-                String[] repos = testRepository.split("\\,");
-                for(String repo : repos) {
-                    repo = repo.trim();
-                    if (!repo.isEmpty()) {
-                        this.mavenRepository.addRemoteRepository(new URL(repo));
-                    }
-                }
-            } catch (MalformedURLException e) {
-                logger.error("Unable to add remote maven repository " + testRepository, e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
-                return;
-            }
-        }
-
-        if (testOBR != null) {
-            logger.debug("Loading test obr repository " + testOBR);
-            try {
-                String[] testOBRs = testOBR.split("\\,");
-                for(String obr : testOBRs) {
-                    obr = obr.trim();
-                    if (!obr.isEmpty()) {
-                        repositoryAdmin.addRepository(obr);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Unable to load specified OBR " + testOBR, e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
-                return;
-            }
-        }
-
-        try {
-            BundleManagement.loadBundle(repositoryAdmin, bundleContext, testBundleName);
-        } catch (Exception e) {
-            logger.error("Unable to load the test bundle " + testBundleName, e);
-            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-            frameworkInitialisation.shutdownFramework();
-            return;
-        }
-        
         Class<?> testClass;
+
         try {
-            logger.debug("Loading test class... " + testClassName);
-            testClass = getTestClass(testBundleName, testClassName);
-            logger.debug("Test class " + testClassName + " loaded OK.");
+            loadRequiredBundles( run, repositoryAdmin, this.mavenRepository, testBundleName, cps);
+            testClass = loadTestClass(testClassName, testBundleName);
         } catch(Throwable t) {
-            logger.error("Problem locating test " + testBundleName + "/" + testClassName, t);
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
             frameworkInitialisation.shutdownFramework();
             return;
@@ -562,6 +491,131 @@ public class TestRunner extends AbstractTestRunner {
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
+    }
+
+
+    private String getTestRepository(IRun run, String streamName, IConfigurationPropertyStoreService cps) throws ConfigurationPropertyStoreException {
+        String testRepository = null;
+        if (streamName != null) {
+            logger.debug("Loading test stream " + streamName);
+            try {
+                testRepository = cps.getProperty("test.stream", "repo", streamName);
+            } catch (ConfigurationPropertyStoreException e) {
+                logger.error("Unable to load stream repo " + streamName + " settings", e);
+                throw e;
+            }
+        }
+
+        String overrideRepo = AbstractManager.nulled(run.getRepository());
+        if (overrideRepo != null) {
+            testRepository = overrideRepo;
+        }
+        return testRepository;
+    }
+
+    private String getTestOBR(IRun run, String streamName,  IConfigurationPropertyStoreService cps) throws ConfigurationPropertyStoreException {
+        String testOBR = null ;
+        if (streamName != null) {
+            logger.debug("Loading test stream " + streamName);
+            try {
+                testOBR = cps.getProperty("test.stream", "obr", streamName);
+            } catch (Exception e) {
+                logger.error("Unable to load stream OBR " + streamName + " settings", e);
+                throw e;
+            }
+        }
+
+        String overrideOBR = AbstractManager.nulled(run.getOBR());
+        if (overrideOBR != null) {
+            testOBR = overrideOBR;
+        }
+        return testOBR;
+    }
+
+    private void loadTestMavenRepository(String testRepository, IMavenRepository mavenRepository) throws MalformedURLException { 
+
+        logger.debug("Loading test maven repository " + testRepository);
+        try {
+            String[] repos = testRepository.split("\\,");
+            for(String repo : repos) {
+                repo = repo.trim();
+                if (!repo.isEmpty()) {
+                    mavenRepository.addRemoteRepository(new URL(repo));
+                }
+            }
+        } catch (MalformedURLException e) {
+            logger.error("Unable to add remote maven repository " + testRepository, e);
+            throw e;
+        }
+    }
+
+    private void loadTestOBRRepository(String testOBR, RepositoryAdmin repositoryAdmin) throws Exception {
+        logger.debug("Loading test obr repository " + testOBR);
+        try {
+            String[] testOBRs = testOBR.split("\\,");
+            for(String obr : testOBRs) {
+                obr = obr.trim();
+                if (!obr.isEmpty()) {
+                    repositoryAdmin.addRepository(obr);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Unable to load specified OBR " + testOBR, e);
+            throw e;
+        }
+    }
+
+    private void loadTestBundle(
+        RepositoryAdmin repositoryAdmin,
+        BundleContext bundleContext,
+        String testBundleName 
+    ) throws Exception {
+
+        try {
+            BundleManagement.loadBundle(repositoryAdmin, bundleContext, testBundleName);
+        } catch( Exception e) {
+            logger.error("Unable to load the test bundle " + testBundleName, e);
+            throw e;
+        }
+    }
+
+    private void loadRequiredBundles(
+        IRun run, 
+        RepositoryAdmin repositoryAdmin , 
+        IMavenRepository mavenRepository, 
+        String testBundleName,
+        IConfigurationPropertyStoreService cps 
+     ) throws Exception {
+
+        String streamName = AbstractManager.nulled(run.getStream());
+        String testRepository ;
+        String testOBR = null;
+
+        testRepository = getTestRepository(run,streamName,cps);
+        testOBR = getTestOBR(run,streamName,cps);
+
+        if (testRepository != null) {
+            loadTestMavenRepository(testRepository, mavenRepository);
+        }
+
+        if (testOBR != null) {
+            loadTestOBRRepository(testOBR,repositoryAdmin);
+        }
+
+        loadTestBundle(repositoryAdmin, bundleContext, testBundleName);
+    }
+
+    private Class<?> loadTestClass(String testClassName, String testBundleName) throws Throwable {
+        Class<?> testClass;
+        try {
+            logger.debug("Loading test class... " + testClassName);
+            testClass = getTestClass(testBundleName, testClassName);
+            logger.debug("Test class " + testClassName + " loaded OK.");
+        } catch(Throwable t) {
+            logger.error("Problem locating test " + testBundleName + "/" + testClassName, t);
+            throw t;
+        }
+        return testClass;
     }
 
 }

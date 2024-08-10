@@ -20,6 +20,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
@@ -65,70 +66,8 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
         loadOverrideProperties(overrideProperties);
 
-        String testRepository = null;
-        String testOBR = null;
-        String stream = AbstractManager.nulled(run.getStream());
-
         setUnknownTestState(run);
         allocateRasRunId();
-
-        if (stream != null) {
-            logger.debug("Loading test stream " + stream);
-            try {
-                testRepository = this.cps.getProperty("test.stream", "repo", stream);
-                testOBR = this.cps.getProperty("test.stream", "obr", stream);
-            } catch (Exception e) {
-                logger.error("Unable to load stream " + stream + " settings", e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
-                return;
-            }
-        }
-
-        String overrideRepo = AbstractManager.nulled(run.getRepository());
-        if (overrideRepo != null) {
-            testRepository = overrideRepo;
-        }
-        String overrideOBR = AbstractManager.nulled(run.getOBR());
-        if (overrideOBR != null) {
-            testOBR = overrideOBR;
-        }
-
-        if (testRepository != null) {
-            logger.debug("Loading test maven repository " + testRepository);
-            try {
-                String[] repos = testRepository.split("\\,");
-                for(String repo : repos) {
-                    repo = repo.trim();
-                    if (!repo.isEmpty()) {
-                        this.mavenRepository.addRemoteRepository(new URL(repo));
-                    }
-                }
-            } catch (MalformedURLException e) {
-                logger.error("Unable to add remote maven repository " + testRepository, e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
-                return;
-            }
-        }
-
-        if (testOBR != null) {
-            logger.debug("Loading test obr repository " + testOBR);
-            try {
-                String[] testOBRs = testOBR.split("\\,");
-                for(String obr : testOBRs) {
-                    obr = obr.trim();
-                    if (!obr.isEmpty()) {
-                        repositoryAdmin.addRepository(obr);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Unable to load specified OBR " + testOBR, e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
-                return;
-            }
-        }
 
         try {
             BundleManagement.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);

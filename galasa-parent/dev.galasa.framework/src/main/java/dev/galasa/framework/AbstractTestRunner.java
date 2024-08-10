@@ -62,10 +62,6 @@ public class AbstractTestRunner {
     protected boolean isRunOK = true;
     protected boolean resourcesAvailable = true;
 
-    public static class Stream {
-        String testRepository = null;
-        String testOBR = null;
-    }
 
     protected void init(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {
         try {
@@ -353,4 +349,5 @@ public class AbstractTestRunner {
             throw new TestRunException("Unable to place run in waiting state", e);
         }
     }
+
 }
