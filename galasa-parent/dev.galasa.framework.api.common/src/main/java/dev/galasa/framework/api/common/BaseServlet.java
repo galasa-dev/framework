@@ -31,12 +31,12 @@ public class BaseServlet extends HttpServlet {
 
     static final GalasaGson gson = new GalasaGson();
 
-    private final Map<String, IRoute> routes = new HashMap<>();
+    private final Map<Pattern, IRoute> routes = new HashMap<>();
 
     private ResponseBuilder responseBuilder = new ResponseBuilder();
 
     protected void addRoute(IRoute route) {
-        String path = route.getPath();
+        Pattern path = route.getPath();
         logger.info("Base servlet adding route " + path);
         routes.put(path, route);
     }
@@ -107,12 +107,12 @@ public class BaseServlet extends HttpServlet {
         QueryParameters queryParameters = new QueryParameters(req.getParameterMap());
 
         boolean pathMatched = false;
-        for (Map.Entry<String, IRoute> entry : routes.entrySet()) {
+        for (Map.Entry<Pattern, IRoute> entry : routes.entrySet()) {
 
-            String routePattern = entry.getKey();
+            Pattern routePattern = entry.getKey();
             IRoute route = entry.getValue();
 
-            Matcher matcher = Pattern.compile(routePattern).matcher(url);
+            Matcher matcher = routePattern.matcher(url);
 
             if (matcher.matches()) {
                 pathMatched = true;

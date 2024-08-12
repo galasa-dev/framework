@@ -103,7 +103,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
     @Test
     public void testAuthTokensRouteRegexMatchesOnlyTokens(){
         //Given...
-        String tokensRoutePath = new AuthTokensRoute(null, null, null, null, null).getPath();
+        String tokensRoutePath = new AuthTokensRoute(null, null, null, null, null).getPath().toString();
 
         //When...
         Pattern tokensRoutePattern = Pattern.compile(tokensRoutePath);
