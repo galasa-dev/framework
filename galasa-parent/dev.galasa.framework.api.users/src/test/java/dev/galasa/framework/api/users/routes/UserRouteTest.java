@@ -62,11 +62,11 @@ public class UserRouteTest extends BaseServletTest {
         // Given...
         UsersServlet servlet = new UsersServlet();
 
-        String expectedString = "me";
+        String requestorLoginId = "me";
 
         Map<String, String[]> queryParams = new HashMap<>();
 
-        queryParams.put("name", new String[] { expectedString });
+        queryParams.put("name", new String[] { requestorLoginId });
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
 
@@ -83,15 +83,16 @@ public class UserRouteTest extends BaseServletTest {
         // "login_id": "testRequestor",
         // }]
 
-        List<JsonObject> users = new ArrayList<>();
-
-        JsonObject expectedJsonObject = new JsonObject();
-        expectedJsonObject.addProperty("login_id", "testRequestor");
-
-        users.add(expectedJsonObject);
+        String gotBackPayload = outStream.toString();
+        String expectedPayload = 
+            "[\n"+
+            "  {\n"+
+            "    \"login_id\": \"testRequestor\"\n"+
+            "  }\n"+
+            "]";
 
         assertThat(servletResponse.getStatus()).isEqualTo(200);
-        assertThat(outStream.toString()).isEqualTo(gson.toJson(users));
+        assertThat(gotBackPayload).isEqualTo(expectedPayload);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
     }
 
