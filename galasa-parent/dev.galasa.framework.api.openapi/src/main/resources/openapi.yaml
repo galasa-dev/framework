@@ -323,7 +323,7 @@ paths:
                 missingparametererror:
                   value:
                     error_code: 5400
-                    error_message: "E: Error occured when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                    error_message: "E: Error occured when trying to execute request '/users'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required query parameters are missing
 ##################################################################################
 # CPS API

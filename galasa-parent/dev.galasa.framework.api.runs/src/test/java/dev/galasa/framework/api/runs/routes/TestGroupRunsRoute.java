@@ -21,14 +21,7 @@ import dev.galasa.framework.api.runs.RunsServletTest;
 import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
 
 public class TestGroupRunsRoute extends RunsServletTest{
-    // This JWT contains the following claims:
-    // {
-    //   "preferred_username": "testRequestor",
-    //   "sub": "requestorId",
-    //   "name": "Jack Skellington",
-    //   "iat": 1516239022
-    // }
-
+    
     private String jwt = BaseServletTest.DUMMY_JWT; // Mock JWT, not a secret //pragma: allowlist secret
     private Map<String, String> headerMap = Map.of("Authorization", "Bearer "+jwt);
 

@@ -59,7 +59,7 @@ public class UsersRouteTest extends BaseServletTest {
 
         Map<String, String[]> queryParams = new HashMap<>();
 
-        queryParams.put("name", new String[] { requestorLoginId });
+        queryParams.put("loginId", new String[] { requestorLoginId });
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
 

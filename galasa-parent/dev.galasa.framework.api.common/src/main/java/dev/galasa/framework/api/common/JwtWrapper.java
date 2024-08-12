@@ -22,11 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import dev.galasa.framework.api.common.Environment;
-import dev.galasa.framework.api.common.EnvironmentVariables;
-import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.common.SystemEnvironment;
 
 public class JwtWrapper {
 

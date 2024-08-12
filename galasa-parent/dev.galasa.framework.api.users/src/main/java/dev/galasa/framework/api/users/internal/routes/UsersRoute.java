@@ -20,6 +20,7 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.users.UsersServlet;
 import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.framework.api.beans.generated.UserData;
 
@@ -49,11 +50,11 @@ public class UsersRoute extends BaseRoute {
 
         logger.info("UserRoute: handleGetRequest() entered.");
 
-        String nameString = queryParams.getSingleString("name", null);
+        String loginId = queryParams.getSingleString(UsersServlet.USER_PARAM, null);
         UserData userData = new UserData();
 
         // Make sure the required query parameters exist
-        if (nameString == null) {
+        if (loginId == null) {
             ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -69,8 +70,7 @@ public class UsersRoute extends BaseRoute {
         String payloadContent = gson.toJson(usersList);
 
         return getResponseBuilder().buildResponse(
-            request, response, "application/json", payloadContent , HttpServletResponse.SC_OK
-        );
+                request, response, "application/json", payloadContent, HttpServletResponse.SC_OK);
     }
 
     private String returnExtractedUsername(HttpServletRequest servletRequest, Environment env)

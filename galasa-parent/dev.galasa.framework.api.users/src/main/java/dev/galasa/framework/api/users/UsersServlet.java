@@ -27,6 +27,8 @@ public class UsersServlet extends BaseServlet {
     @Reference
     protected IFramework framework;
 
+    public static final String USER_PARAM = "loginId"; 
+
     private static final long serialVersionUID = 1L;
 
     private Log logger = LogFactory.getLog(getClass());
