@@ -23,17 +23,12 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.users.UsersServlet;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
-public class UserRouteTest extends BaseServletTest{
+public class UserRouteTest extends BaseServletTest {
 
-    private String jwt ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0UmVxdWVzdG9yIiwic3ViIjoicmVxdWVzdG9ySWQiLCJuYW1lIjoiSmFjayBTa2VsbGluZ3RvbiIsImlhdCI6MTUxNjIzOTAyMn0.kW1arFknbywrtRrxsLjB2MiXcM6oSgnUrOpuAlE5dhk"; // Mock JWT, not a secret //pragma: allowlist secret
-    Map<String, String> headerMap = Map.of("Authorization", "Bearer "+jwt);
+    private String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0UmVxdWVzdG9yIiwic3ViIjoicmVxdWVzdG9ySWQiLCJuYW1lIjoiSmFjayBTa2VsbGluZ3RvbiIsImlhdCI6MTUxNjIzOTAyMn0.kW1arFknbywrtRrxsLjB2MiXcM6oSgnUrOpuAlE5dhk"; //Dummy JWT                                                                                                                                                                                                                                            // secret
+    Map<String, String> headerMap = Map.of("Authorization", "Bearer " + jwt);
 
     private static final GalasaGson gson = new GalasaGson();
-
-    @Test 
-    public void testShouldRunAndPassSuccessfully() throws Exception{
-        assertThat(true).isEqualTo(true);
-    }
 
     @Test
     public void testUsersGetRequestWithMissingNameParamReturnsBadRequest() throws Exception {
@@ -45,7 +40,7 @@ public class UserRouteTest extends BaseServletTest{
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
-        // When...    
+        // When...
         servlet.init();
         servlet.doGet(mockRequest, servletResponse);
 
@@ -54,7 +49,8 @@ public class UserRouteTest extends BaseServletTest{
         // {
         // "error_code" : 5400,
         // "error_message" : "GAL5400E: Error occured when trying to execute request
-        // '/users/name'. Please check your request parameters or report the problem to your
+        // '/users/name'. Please check your request parameters or report the problem to
+        // your
         // Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
@@ -65,12 +61,12 @@ public class UserRouteTest extends BaseServletTest{
     public void testUsersGetRequestReturnsArrayOfUsersReturns_OK() throws Exception {
         // Given...
         UsersServlet servlet = new UsersServlet();
-        
+
         String expectedString = "me";
 
         Map<String, String[]> queryParams = new HashMap<>();
 
-        queryParams.put("name", new String[]{expectedString});
+        queryParams.put("name", new String[] { expectedString });
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
 
@@ -83,18 +79,16 @@ public class UserRouteTest extends BaseServletTest{
 
         // Then...
         // Expecting an array of json objects:
-        //[{
-        //   "login_id": "testRequestor",
-        //}]
+        // [{
+        // "login_id": "testRequestor",
+        // }]
 
         List<JsonObject> users = new ArrayList<>();
-
 
         JsonObject expectedJsonObject = new JsonObject();
         expectedJsonObject.addProperty("login_id", "testRequestor");
 
         users.add(expectedJsonObject);
-
 
         assertThat(servletResponse.getStatus()).isEqualTo(200);
         assertThat(outStream.toString()).isEqualTo(gson.toJson(users));
