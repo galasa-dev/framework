@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package dev.galasa.framework.api.authentication;
+package dev.galasa.framework.api.common;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
