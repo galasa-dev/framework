@@ -16,10 +16,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 
+import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.runs.RunsServletTest;
 import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
 
-public class TestGroupRunsRoute extends RunsServletTest {
+public class TestGroupRunsRoute extends RunsServletTest{
     // This JWT contains the following claims:
     // {
     //   "preferred_username": "testRequestor",
@@ -27,7 +28,8 @@ public class TestGroupRunsRoute extends RunsServletTest {
     //   "name": "Jack Skellington",
     //   "iat": 1516239022
     // }
-    private String jwt ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0UmVxdWVzdG9yIiwic3ViIjoicmVxdWVzdG9ySWQiLCJuYW1lIjoiSmFjayBTa2VsbGluZ3RvbiIsImlhdCI6MTUxNjIzOTAyMn0.kW1arFknbywrtRrxsLjB2MiXcM6oSgnUrOpuAlE5dhk"; // Mock JWT, not a secret //pragma: allowlist secret
+
+    private String jwt = BaseServletTest.DUMMY_JWT; // Mock JWT, not a secret //pragma: allowlist secret
     private Map<String, String> headerMap = Map.of("Authorization", "Bearer "+jwt);
 
     /*

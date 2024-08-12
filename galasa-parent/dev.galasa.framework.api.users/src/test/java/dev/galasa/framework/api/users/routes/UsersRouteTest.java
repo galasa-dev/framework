@@ -7,13 +7,9 @@ package dev.galasa.framework.api.users.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.ServletOutputStream;
-
-import com.google.gson.JsonObject;
 
 import org.junit.Test;
 
@@ -21,14 +17,11 @@ import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.users.UsersServlet;
-import dev.galasa.framework.spi.utils.GalasaGson;
 
-public class UserRouteTest extends BaseServletTest {
+public class UsersRouteTest extends BaseServletTest {
 
-    private String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0UmVxdWVzdG9yIiwic3ViIjoicmVxdWVzdG9ySWQiLCJuYW1lIjoiSmFjayBTa2VsbGluZ3RvbiIsImlhdCI6MTUxNjIzOTAyMn0.kW1arFknbywrtRrxsLjB2MiXcM6oSgnUrOpuAlE5dhk"; //Dummy JWT                                                                                                                                                                                                                                            // secret
-    Map<String, String> headerMap = Map.of("Authorization", "Bearer " + jwt);
+    Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
-    private static final GalasaGson gson = new GalasaGson();
 
     @Test
     public void testUsersGetRequestWithMissingNameParamReturnsBadRequest() throws Exception {
