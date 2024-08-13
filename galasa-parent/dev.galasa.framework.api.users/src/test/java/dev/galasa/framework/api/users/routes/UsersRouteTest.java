@@ -14,9 +14,12 @@ import javax.servlet.ServletOutputStream;
 import org.junit.Test;
 
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.EnvironmentVariables;
+import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.users.UsersServlet;
+import dev.galasa.framework.api.users.mocks.MockUsersServlet;
 
 public class UsersRouteTest extends BaseServletTest {
 
@@ -53,7 +56,10 @@ public class UsersRouteTest extends BaseServletTest {
     @Test
     public void testUsersGetRequestReturnsArrayOfUsersReturns_OK() throws Exception {
         // Given...
-        UsersServlet servlet = new UsersServlet();
+        MockUsersServlet servlet = new MockUsersServlet();
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+        servlet.setEnvironment(env);
 
         String requestorLoginId = "me";
 
