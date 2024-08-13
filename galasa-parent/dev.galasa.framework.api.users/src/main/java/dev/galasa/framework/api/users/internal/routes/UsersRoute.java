@@ -34,8 +34,8 @@ public class UsersRoute extends BaseRoute {
     // Regex to match endpoint /users and /users/
     private static final String path = "\\/users?";
 
-    protected IFramework framework;
-    protected Environment env;
+    private IFramework framework;
+    private Environment env;
 
     public UsersRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) {
         super(responseBuilder, path);
@@ -50,23 +50,23 @@ public class UsersRoute extends BaseRoute {
 
         logger.info("UserRoute: handleGetRequest() entered.");
 
-        String loginId = queryParams.getSingleString(UsersServlet.USER_PARAM, null);
+        String loginId = queryParams.getSingleString(UsersServlet.QUERY_PARAM_LOGIN_ID, null);
         UserData userData = new UserData();
 
-        // Make sure the required query parameters exist
-        if (loginId == null) {
+        String extractedUsernameFromToken = returnExtractedUsername(request, env);
+
+        // Make sure the required query parameters exist, further checks to verify
+        // username isnt an empty string or a null value
+        if (loginId != "me" || extractedUsernameFromToken == null) {
             ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
-
-        String extractedUsernameFromToken = returnExtractedUsername(request, env);
 
         userData.setLoginId(extractedUsernameFromToken);
 
         List<UserData> usersList = new ArrayList<>();
         usersList.add(userData);
 
-        // converting our UserData class to JsonObject
         String payloadContent = gson.toJson(usersList);
 
         return getResponseBuilder().buildResponse(
@@ -76,7 +76,12 @@ public class UsersRoute extends BaseRoute {
     private String returnExtractedUsername(HttpServletRequest servletRequest, Environment env)
             throws InternalServletException {
 
+        // getHeader() retruns null if header not present
         String tokenInHeader = servletRequest.getHeader("Authorization");
+
+        if (tokenInHeader == null || tokenInHeader.length() < 1) {
+            return null;
+        }
 
         String[] splits = tokenInHeader.split(" ");
 

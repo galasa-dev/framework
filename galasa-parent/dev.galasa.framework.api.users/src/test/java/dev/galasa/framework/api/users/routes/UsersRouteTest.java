@@ -25,14 +25,17 @@ public class UsersRouteTest extends BaseServletTest {
 
     Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
-
     @Test
     public void testUsersGetRequestWithMissingNameParamReturnsBadRequest() throws Exception {
         // Given...
         UsersServlet servlet = new UsersServlet();
 
+        String requestorLoginId = "notMe";
         Map<String, String[]> queryParams = new HashMap<>();
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users");
+
+        queryParams.put("loginId", new String[] { requestorLoginId });
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
@@ -51,6 +54,74 @@ public class UsersRouteTest extends BaseServletTest {
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occured when trying to execute request");
+    }
+
+    @Test
+    public void testUsersGetRequestWithJwtUsernameNullReturnsBadRequest() throws Exception {
+        // Given...
+        MockUsersServlet servlet = new MockUsersServlet();
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, null);
+        servlet.setEnvironment(env);
+
+        String requestorLoginId = "me";
+        Map<String, String[]> queryParams = new HashMap<>();
+
+        queryParams.put("loginId", new String[] { requestorLoginId });
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5058,
+        // [""GAL5058E: Unable to retrieve a username from the given JWT. No JWT claims
+        // to retrieve a username from were provided.
+        // This could be because the Galasa Ecosystem is badly configured.
+        // Report the problem to your Galasa Ecosystem owner.""]
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5058, "GAL5058E", "Unable to retrieve a username from the given JWT");
+    }
+
+    @Test
+    public void testUsersGetRequestWithJwtUsernameEmptyStringReturnsBadRequest() throws Exception {
+        // Given...
+        MockUsersServlet servlet = new MockUsersServlet();
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "");
+        servlet.setEnvironment(env);
+
+        String requestorLoginId = "me";
+        Map<String, String[]> queryParams = new HashMap<>();
+
+        queryParams.put("loginId", new String[] { requestorLoginId });
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5058,
+        // [""GAL5058E: Unable to retrieve a username from the given JWT. No JWT claims
+        // to retrieve a username from were provided.
+        // This could be because the Galasa Ecosystem is badly configured.
+        // Report the problem to your Galasa Ecosystem owner.""]
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5058, "GAL5058E", "Unable to retrieve a username from the given JWT");
     }
 
     @Test
@@ -83,12 +154,11 @@ public class UsersRouteTest extends BaseServletTest {
         // }]
 
         String gotBackPayload = outStream.toString();
-        String expectedPayload = 
-            "[\n"+
-            "  {\n"+
-            "    \"login_id\": \"testRequestor\"\n"+
-            "  }\n"+
-            "]";
+        String expectedPayload = "[\n" +
+                "  {\n" +
+                "    \"login_id\": \"testRequestor\"\n" +
+                "  }\n" +
+                "]";
 
         assertThat(servletResponse.getStatus()).isEqualTo(200);
         assertThat(gotBackPayload).isEqualTo(expectedPayload);

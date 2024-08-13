@@ -25,9 +25,9 @@ import dev.galasa.framework.spi.IFramework;
 public class UsersServlet extends BaseServlet {
 
     @Reference
-    protected IFramework framework;
+    private IFramework framework;
 
-    public static final String USER_PARAM = "loginId"; 
+    public static final String QUERY_PARAM_LOGIN_ID = "loginId";
 
     private static final long serialVersionUID = 1L;
 
@@ -53,6 +53,5 @@ public class UsersServlet extends BaseServlet {
 
         logger.info("Galasa Users API initialised");
     }
-
 
 }
