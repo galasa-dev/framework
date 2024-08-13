@@ -28,7 +28,10 @@ public class UsersRouteTest extends BaseServletTest {
     @Test
     public void testUsersGetRequestWithMissingNameParamReturnsBadRequest() throws Exception {
         // Given...
-        UsersServlet servlet = new UsersServlet();
+        MockUsersServlet servlet = new MockUsersServlet();
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+        servlet.setEnvironment(env);
 
         String requestorLoginId = "notMe";
         Map<String, String[]> queryParams = new HashMap<>();
