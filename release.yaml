@@ -251,3 +251,12 @@ api:
     javadoc:      false
     isolated:     true
     codecoverage: true
+
+  - artifact: dev.galasa.framework.api.users
+    version: 0.37.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
