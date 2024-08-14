@@ -6,7 +6,7 @@
 openapi: 3.0.3
 info:
   title: Galasa Ecosystem API
-  version : "0.36.0"
+  version : "0.37.0"
   description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
   contact:
     url: https://galasa.dev/support
@@ -63,7 +63,7 @@ paths:
                 missingparametererror:
                   value:
                     error_code: 5400
-                    error_message: "E: Error occured when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                    error_message: "E: Error occured when trying to execute request '/user'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required query parameters are missing
         '500':
           $ref: '#/components/responses/InternalServerError'
@@ -273,6 +273,58 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An error occured when trying to access the endpoint
+                  
+##################################################################################
+# Users API
+##################################################################################
+  /users:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getUserByName
+      summary: Returns user details by extracting claims from token
+      tags:
+      - Users API
+      security: []
+      parameters:
+        - name: name
+          in: query
+          description: The name of the client, extracted from the token. #Me is a special keyword reserved to return details about currently logged in user.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of User Data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserData'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/users'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required query parameters are missing
 ##################################################################################
 # CPS API
 ##################################################################################
@@ -1860,6 +1912,12 @@ components:
           type: string
           enum: [nil,"cancelled"]
     User:
+      type: object
+      properties:
+        login_id:
+          type: string
+          description: The ID representing the user's username.
+    UserData:
       type: object
       properties:
         login_id:

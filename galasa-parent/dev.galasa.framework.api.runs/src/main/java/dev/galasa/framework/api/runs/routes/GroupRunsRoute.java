@@ -12,7 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.authentication.JwtWrapper;
+import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.api.common.Environment;
