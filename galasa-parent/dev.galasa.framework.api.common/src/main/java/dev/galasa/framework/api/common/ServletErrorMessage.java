@@ -108,7 +108,7 @@ public enum ServletErrorMessage {
 
     // User APIs...
     GAL5081_INVALID_QUERY_PARAM_VALUE                 (5081, "E: A request to get the user details for a particular user failed. The query parameter provided is not valid. Supported values for the ‘loginId’ query parameter are : ‘me’. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program."),
-    GAL5082_NO_LOGINID_PARAM_PROVIDED                 (5082, "E: A request to get the user details failed. The request did not supply a `loginId` filter. A `loginId` query parameter with a value of : ‘me’ was expected. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program.")
+    GAL5082_NO_LOGINID_PARAM_PROVIDED                 (5082, "E: A request to get the user details failed. The request did not supply a ‘loginId’ filter. A ‘loginId’ query parameter with a value of : ‘me’ was expected. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program.")
     ;
 
 

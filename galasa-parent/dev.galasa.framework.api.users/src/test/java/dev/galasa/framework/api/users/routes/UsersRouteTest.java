@@ -88,7 +88,7 @@ public class UsersRouteTest extends BaseServletTest {
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(outStream.toString(), 5082, "GAL5082",
-                "A request to get the user details failed. The request did not supply a `loginId` filter. A `loginId` query parameter with a value of : ‘me’ was expected.");
+                "A request to get the user details failed. The request did not supply a ‘loginId’ filter. A ‘loginId’ query parameter with a value of : ‘me’ was expected");
     }
 
     @Test
