@@ -71,7 +71,7 @@ public class UsersRoute extends BaseRoute {
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
         
-        if (!loginId.equalsIgnoreCase(QUERY_PARAMETER_LOGIN_ID_VALUE_MYSELF)) {
+        if (!loginId.trim().equalsIgnoreCase(QUERY_PARAMETER_LOGIN_ID_VALUE_MYSELF)) {
             ServletError error = new ServletError(GAL5081_INVALID_QUERY_PARAM_VALUE, servletPath);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
