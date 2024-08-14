@@ -2,15 +2,41 @@ name: Main build
 
 on:
   workflow_dispatch:
+    inputs:
+      jacocoEnabled:
+        description: 'Enable Jacoco code coverage (set to "false" for release builds)'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+      isMainOrRelease:
+        description: 'This build is for the main branch or a release (set to "false" for development branch builds)'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
   push:
      branches: [main]
 
 env:
   REGISTRY: ghcr.io
   NAMESPACE: galasa-dev
-  IMAGE_TAG: main 
+  BRANCH: ${{ github.ref_name }}
+  ARGO_APP_BRANCH: gh # TODO: remove this parameter and just use env.BRANCH once we update development.galasa.dev/main with these workflows.
     
 jobs:
+  log-github-ref:
+    name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log GitHub ref of workflow
+        run: |
+          echo "This workflow is running on GitHub ref ${{ env.BRANCH }}"
+
   build-framework:
     name: Build Framework using openapi2beans and gradle
     runs-on: ubuntu-latest
@@ -36,13 +62,14 @@ jobs:
       
       - name: Build servlet beans with openapi2beans
         run: |
-          docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/${{env.NAMESPACE}}/openapi2beans:main generate --yaml var/workspace/${{ env.YAML_LOCATION }} --output var/workspace/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
+          docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi2beans:main generate --yaml var/workspace/${{ env.YAML_LOCATION }} --output var/workspace/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
         env:
           YAML_LOCATION: "galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml"
           OUTPUT_LOCATION: "galasa-parent/dev.galasa.framework.api.beans/src/main/java"
           PACKAGE: "dev.galasa.framework.api.beans.generated"
       
       - name: Build Framework source code
+        if: github.event_name == 'push'
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -52,11 +79,28 @@ jobs:
         run: |
           gradle -b galasa-parent/build.gradle check publish \
           -Dorg.gradle.jvmargs=-Xmx5120M \
-          -PsourceMaven=https://development.galasa.dev/gh/maven-repo/maven/ \
+          -PsourceMaven=https://development.galasa.dev/${{ env.ARGO_APP_BRANCH }}/maven-repo/maven/ \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
           -PtargetMaven=${{ github.workspace }}/repo \
           -PjacocoEnabled=true \
           -PisMainOrRelease=true
+
+      - name: Build Framework source code
+        if: github.event_name == 'workflow_dispatch' # Use the input values provided by the workflow dispatch.
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_GRADLE_PROJECT_signingKeyId:  ${{ secrets.GPG_KEYID }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          gradle -b galasa-parent/build.gradle check publish \
+          -Dorg.gradle.jvmargs=-Xmx5120M \
+          -PsourceMaven=https://development.galasa.dev/${{ env.ARGO_APP_BRANCH }}/maven-repo/maven/ \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/repo \
+          -PjacocoEnabled=${{ inputs.jacocoEnabled }} \
+          -PisMainOrRelease=${{ inputs.isMainOrRelease }}
         
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
@@ -82,19 +126,19 @@ jobs:
           labels: ${{ steps.metadata.outputs.labels }}
           build-args: |
             dockerRepository=ghcr.io
-            tag=${{ env.IMAGE_TAG }}
+            tag=${{ env.BRANCH }}
       
       - name: Recycle application in ArgoCD
         env: 
             ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app actions run gh-maven-repos restart --kind Deployment --resource-name framework-gh --server argocd.galasa.dev
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app actions run ${{ env.ARGO_APP_BRANCH }}-maven-repos restart --kind Deployment --resource-name framework-${{ env.ARGO_APP_BRANCH }} --server argocd.galasa.dev
 
       - name: Wait for app health in ArgoCD
         env: 
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app wait gh-maven-repos --resource apps:Deployment:framework-gh --health --server argocd.galasa.dev
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app wait ${{ env.ARGO_APP_BRANCH }}-maven-repos --resource apps:Deployment:framework-${{ env.ARGO_APP_BRANCH }} --health --server argocd.galasa.dev
 
               
   build-rest-api-documentation:
@@ -145,13 +189,13 @@ jobs:
         env: 
             ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app actions run gh-maven-repos restart --kind Deployment --resource-name restapidocsite-gh --server argocd.galasa.dev
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app actions run ${{ env.ARGO_APP_BRANCH }}-maven-repos restart --kind Deployment --resource-name restapidocsite-${{ env.ARGO_APP_BRANCH }} --server argocd.galasa.dev
 
       - name: Wait for app health in ArgoCD
         env: 
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app wait gh-maven-repos --resource apps:Deployment:restapidocsite-gh --health --server argocd.galasa.dev
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app wait ${{ env.ARGO_APP_BRANCH }}-maven-repos --resource apps:Deployment:restapidocsite-${{ env.ARGO_APP_BRANCH }} --health --server argocd.galasa.dev
 
   trigger-extensions-workflow:
     name: Trigger Extensions workflow
@@ -160,7 +204,15 @@ jobs:
 
     steps:
       - name: Trigger Extensions workflow dispatch event with GitHub CLI
+        if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
         run: |
           gh workflow run build.yaml --repo https://github.com/galasa-dev/extensions
+
+      - name: Trigger Extensions workflow dispatch event with GitHub CLI
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/extensions --ref ${{ env.BRANCH }} -f jacocoEnabled=${{ inputs.jacocoEnabled }} -f isMainOrRelease=${{ inputs.isMainOrRelease }}
