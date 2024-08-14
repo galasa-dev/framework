@@ -34,6 +34,8 @@ public class UsersRoute extends BaseRoute {
     // Regex to match endpoint /users and /users/
     private static final String path = "\\/users?";
 
+    public static final String QUERY_PARAMETER_LOGIN_ID_VALUE_MYSELF = "me";
+
     private IFramework framework;
     private Environment env;
 
@@ -50,22 +52,9 @@ public class UsersRoute extends BaseRoute {
 
         logger.info("UserRoute: handleGetRequest() entered.");
 
-        String loginId = queryParams.getSingleString(UsersServlet.QUERY_PARAM_LOGIN_ID, null);
-        UserData userData = new UserData();
+        validateQueryParam(queryParams, request.getServletPath());
 
-        String extractedUsernameFromToken = returnExtractedUsername(request, env);
-
-        // Make sure the required query parameters exist, further checks to verify
-        // username isnt an empty string or a null value
-        if (loginId != "me" || extractedUsernameFromToken == null) {
-            ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
-
-        userData.setLoginId(extractedUsernameFromToken);
-
-        List<UserData> usersList = new ArrayList<>();
-        usersList.add(userData);
+        List<UserData> usersList = getUsersList(request);
 
         String payloadContent = gson.toJson(usersList);
 
@@ -73,23 +62,34 @@ public class UsersRoute extends BaseRoute {
                 request, response, "application/json", payloadContent, HttpServletResponse.SC_OK);
     }
 
-    private String returnExtractedUsername(HttpServletRequest servletRequest, Environment env)
-            throws InternalServletException {
+    private void validateQueryParam(QueryParameters queryParams, String servletPath) throws InternalServletException {
 
-        // getHeader() retruns null if header not present
-        String tokenInHeader = servletRequest.getHeader("Authorization");
+        String loginId = queryParams.getSingleString(UsersServlet.QUERY_PARAM_LOGIN_ID, null);
 
-        if (tokenInHeader == null || tokenInHeader.length() < 1) {
-            return null;
+        if(loginId == null){
+            ServletError error = new ServletError(GAL5082_NO_LOGINID_PARAM_PROVIDED, servletPath);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
-
-        String[] splits = tokenInHeader.split(" ");
-
-        JwtWrapper jwtWrapper = new JwtWrapper(splits[1], env);
-
-        String username = jwtWrapper.getUsername();
-
-        return username;
-
+        
+        if (!loginId.equalsIgnoreCase(QUERY_PARAMETER_LOGIN_ID_VALUE_MYSELF)) {
+            ServletError error = new ServletError(GAL5081_INVALID_QUERY_PARAM_VALUE, servletPath);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
     }
+
+    private List<UserData> getUsersList(HttpServletRequest request) throws InternalServletException {
+
+        UserData userData = new UserData();
+        JwtWrapper jwtWrapper = new JwtWrapper(request, env);
+
+        String extractedUsernameFromToken = jwtWrapper.getUsername();
+
+        userData.setLoginId(extractedUsernameFromToken);
+
+        List<UserData> usersList = new ArrayList<>();
+        usersList.add(userData);
+
+        return usersList;
+    }
+
 }

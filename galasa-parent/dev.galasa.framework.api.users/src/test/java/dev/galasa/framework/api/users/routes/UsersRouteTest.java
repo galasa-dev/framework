@@ -18,7 +18,6 @@ import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.users.UsersServlet;
 import dev.galasa.framework.api.users.mocks.MockUsersServlet;
 
 public class UsersRouteTest extends BaseServletTest {
@@ -26,7 +25,7 @@ public class UsersRouteTest extends BaseServletTest {
     Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
     @Test
-    public void testUsersGetRequestWithMissingNameParamReturnsBadRequest() throws Exception {
+    public void testUsersGetRequestWithBadParamNameReturnsBadRequest() throws Exception {
         // Given...
         MockUsersServlet servlet = new MockUsersServlet();
         MockEnvironment env = new MockEnvironment();
@@ -49,14 +48,47 @@ public class UsersRouteTest extends BaseServletTest {
         // Then...
         // Expecting this json:
         // {
-        // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occured when trying to execute request
-        // '/users/name'. Please check your request parameters or report the problem to
-        // your
-        // Galasa Ecosystem owner."
+        // "error_code" : 5081,
+        // "error_message" : "A request to get the user details for a particular user failed.
+        // The query parameter provided is not valid.
+        // Supported values for the ‘loginId’ query parameter are : ‘me’."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occured when trying to execute request");
+        checkErrorStructure(outStream.toString(), 5081, "GAL5081",
+                "A request to get the user details for a particular user failed. The query parameter provided is not valid. Supported values for the ‘loginId’ query parameter are : ‘me’.");
+    }
+
+    @Test
+    public void testUsersGetRequestWithMiisongOrNullParamReturnsBadRequest() throws Exception {
+        // Given...
+        MockUsersServlet servlet = new MockUsersServlet();
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+        servlet.setEnvironment(env);
+
+        String requestorLoginId = null;
+        Map<String, String[]> queryParams = new HashMap<>();
+
+        queryParams.put("loginId", new String[] { requestorLoginId });
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        // Expecting this json:
+        // {
+        // "error_code" : 5082,
+        // "error_message" : "A request to get the user details failed. The request did not supply a `loginId` filter.
+        //  A `loginId` query parameter with a value of : ‘me’ was expected....."
+        // }
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5082, "GAL5082",
+                "A request to get the user details failed. The request did not supply a `loginId` filter. A `loginId` query parameter with a value of : ‘me’ was expected.");
     }
 
     @Test
