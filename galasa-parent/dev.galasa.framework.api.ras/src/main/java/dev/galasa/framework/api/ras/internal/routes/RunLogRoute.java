@@ -9,7 +9,6 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +37,7 @@ public class RunLogRoute extends RunsRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
-        Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
+        Matcher matcher = this.getPath().matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);
         String runLog = getRunlog(runId);
