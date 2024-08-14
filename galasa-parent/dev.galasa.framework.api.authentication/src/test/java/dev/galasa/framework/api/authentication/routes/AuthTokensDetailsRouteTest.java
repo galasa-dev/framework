@@ -34,7 +34,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
     @Test
     public void testAuthTokensDetailsRouteRegexMatchesExpectedPaths() throws Exception {
         //Given...
-        String tokensDetailsRoutePath = new AuthTokensDetailsRoute(null, null, null).getPath();
+        String tokensDetailsRoutePath = new AuthTokensDetailsRoute(null, null, null).getPath().toString();
 
         //When...
         Pattern routePattern = Pattern.compile(tokensDetailsRoutePath);
