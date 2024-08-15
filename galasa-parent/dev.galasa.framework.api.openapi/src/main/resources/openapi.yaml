@@ -1916,13 +1916,13 @@ components:
       properties:
         login_id:
           type: string
-          description: The ID representing the user's username.
+          description: The ID representing the user's username. Used for authenticating and token creation.
     UserData:
       type: object
       properties:
         login_id:
           type: string
-          description: The ID representing the user's username.
+          description: The ID representing the user's username. Returned from queries about users.
     Requestors:
       type: object
       properties:
