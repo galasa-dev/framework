@@ -292,15 +292,15 @@ paths:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
     get:
-      operationId: getUserByName
-      summary: Returns user details by extracting claims from token
+      operationId: getUserByLoginId
+      summary: Returns the details of the requesting user. 
       tags:
       - Users API
       security: []
       parameters:
         - name: loginId
           in: query
-          description: The loginId of the client, extracted from the token. #Me is a special keyword reserved to return details about currently logged in user.
+          description: The loginId of the user whose details will be returned. #If the keyword of 'me' is used, the details of the requesting user will be returned.
           required: true
           schema:
             type: string
