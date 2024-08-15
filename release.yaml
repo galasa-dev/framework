@@ -259,3 +259,4 @@ api:
     bom:          false
     javadoc:      false
     isolated:     true
+    codecoverage: true
