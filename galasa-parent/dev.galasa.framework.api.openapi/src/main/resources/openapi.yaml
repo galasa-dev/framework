@@ -298,9 +298,9 @@ paths:
       - Users API
       security: []
       parameters:
-        - name: name
+        - name: loginId
           in: query
-          description: The name of the client, extracted from the token. #Me is a special keyword reserved to return details about currently logged in user.
+          description: The loginId of the client, extracted from the token. #Me is a special keyword reserved to return details about currently logged in user.
           required: true
           schema:
             type: string
