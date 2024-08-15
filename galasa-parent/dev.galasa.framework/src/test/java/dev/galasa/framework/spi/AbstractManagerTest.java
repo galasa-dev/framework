@@ -69,7 +69,7 @@ public class AbstractManagerTest {
 
         @GenerateAnnotatedField(annotation = TestFieldAnnotation.class)
         public Long createLong(Field field, List<Annotation> annotations) {
-            return new Long(5);
+            return 5L;
         }
 
         @GenerateAnnotatedField(annotation = TestFieldAnnotation.class)
@@ -116,7 +116,7 @@ public class AbstractManagerTest {
         Assert.assertNull("field5 is present, shouldnt be", testClass.field5);
         Assert.assertNotNull("field6 is missing", testClass.field6);
 
-        Assert.assertEquals("field1 filled incorrect", new Long(5), testClass.field1);
+        Assert.assertEquals("field1 filled incorrect", (Long)5L, testClass.field1);
         Assert.assertEquals("field2 filled incorrect", "boo", testClass.field2);
         Assert.assertEquals("field6 filled incorrect", "eeeeek", testClass.field6);
     }

@@ -5,35 +5,31 @@
  */
 package dev.galasa.framework.mocks;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Dictionary;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.Map.Entry;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.BundleListener;
-import org.osgi.framework.Filter;
-import org.osgi.framework.FrameworkListener;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceFactory;
-import org.osgi.framework.ServiceListener;
-import org.osgi.framework.ServiceObjects;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.*;
 
 public class MockBundleContext implements BundleContext{
 
     private Map<String,MockServiceReference<?>> services ;
 
+    private List<Bundle> loadedBundles;
+
     /**
      * @param services A map. The key is the interface/class name. 
      */
     public MockBundleContext(Map<String,MockServiceReference<?>> services) {
+        this(services,new ArrayList<>());
+    }
+
+    public MockBundleContext(
+        Map<String,MockServiceReference<?>> services,
+        List<Bundle> loadedBundles
+    ) {
         this.services = services;
+        this.loadedBundles = loadedBundles;
     }
 
     @Override
@@ -63,7 +59,9 @@ public class MockBundleContext implements BundleContext{
 
     @Override
     public Bundle[] getBundles() {
-        throw new UnsupportedOperationException("Unimplemented method 'getBundles'");
+        Bundle[] result = new Bundle[loadedBundles.size()];
+        loadedBundles.toArray(result);
+        return result;
     }
 
     @Override

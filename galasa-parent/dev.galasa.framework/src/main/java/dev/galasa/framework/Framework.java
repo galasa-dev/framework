@@ -37,7 +37,7 @@ import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
 @Component(immediate = true, scope = ServiceScope.SINGLETON)
-public class Framework implements IFramework {
+public class Framework implements IShutableFramework {
 
     private final static Log                   logger           = LogFactory.getLog(Framework.class);
 
@@ -389,6 +389,11 @@ public class Framework implements IFramework {
 
         this.testRunLogCapture = new TestRunLogCapture(this);
 
+    }
+
+    @Override
+    public void shutdown() throws FrameworkException {
+        shutdown(null);
     }
 
     public void shutdown(Log shutdownLogger) throws FrameworkException {
