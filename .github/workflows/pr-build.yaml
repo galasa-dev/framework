@@ -46,7 +46,8 @@ jobs:
           -Dorg.gradle.jvmargs=-Xmx5120M \
           -PsourceMaven=https://development.galasa.dev/gh/maven-repo/maven/ \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-          -PtargetMaven=${{ github.workspace }}/repo
+          -PtargetMaven=${{ github.workspace }}/repo \
+          --info
           
       - name: Build Framework image for testing
         uses: docker/build-push-action@v5

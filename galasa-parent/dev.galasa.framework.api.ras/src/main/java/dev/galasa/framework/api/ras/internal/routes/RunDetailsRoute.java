@@ -10,7 +10,6 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
@@ -105,7 +104,7 @@ public class RunDetailsRoute extends RunsRoute {
    }
 
    private String getRunIdFromPath(String pathInfo) throws InternalServletException {
-      Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
+      Matcher matcher = this.getPath().matcher(pathInfo);
       matcher.matches();
       String runId = matcher.group(1);
       return runId;

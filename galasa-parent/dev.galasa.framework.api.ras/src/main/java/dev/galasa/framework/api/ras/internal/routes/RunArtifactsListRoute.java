@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -64,7 +63,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
-        Matcher matcher = Pattern.compile(this.getPath()).matcher(pathInfo);
+        Matcher matcher = this.getPath().matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);
         return getResponseBuilder().buildResponse(req, res, "application/json", retrieveResults(runId), HttpServletResponse.SC_OK);

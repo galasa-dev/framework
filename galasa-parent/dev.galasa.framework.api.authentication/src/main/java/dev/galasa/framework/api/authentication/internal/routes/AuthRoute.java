@@ -21,7 +21,7 @@ import com.google.common.net.HttpHeaders;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.authentication.IOidcProvider;
-import dev.galasa.framework.api.authentication.JwtWrapper;
+import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.internal.TokenPayloadValidator;
 import dev.galasa.framework.api.beans.TokenPayload;
