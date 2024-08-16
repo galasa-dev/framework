@@ -32,6 +32,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
+import dev.galasa.framework.spi.ras.RasSortField;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
@@ -44,7 +45,6 @@ import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 /*
  * Implementation to query the ecosystem for a set of runs that match the default or supplied criteria
  */
@@ -71,9 +71,7 @@ public class RunQueryRoute extends RunsRoute {
 		return getResponseBuilder().buildResponse(req, res, "application/json", outputString, HttpServletResponse.SC_OK);
 	}
 
-	protected String retrieveResults(
-		RasQueryParameters queryParams
-	) throws InternalServletException {
+	private String retrieveResults(RasQueryParameters queryParams) throws InternalServletException {
 
 		int pageNum = queryParams.getPageNumber();
 		int pageSize = queryParams.getPageSize();
@@ -87,40 +85,47 @@ public class RunQueryRoute extends RunsRoute {
 		List<String> runIds = queryParams.getRunIds();
 
 		if (runIds != null && runIds.size() > 0) {
-
-
-			IRunResult run = null;
-			for (String runId : runIds) {
-				try {
-					run = getRunByRunId(runId.trim());
-
-					if (run != null) {
-						runs.add(RunResultUtility.toRunResult(run, true));
-					}
-				} catch (ResultArchiveStoreException e) {
-					ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
-					throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
-				}
-			}
-
+            runs = getRunsByIds(runIds);
 		} else {
-
-			List<IRasSearchCriteria> critList = getCriteria(queryParams);
-
-			try {
-				runs = getRuns(critList);
-			} catch (Exception e) {
-				ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
-				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
-			}
+            runs = getRunsByCriteria(pageSize, getCriteria(queryParams));
 		}
+        
+        List<RasSortField> sortValues = queryParams.getSortValues(List.of("to:desc"));
+		runs = sortResults(runs, queryParams, sortValues);
 
-		runs = sortResults(runs, queryParams, queryParams.getSortValue("to:desc"));
-
-		String responseBodyJson = buildResponseBody(runs,pageNum,pageSize);
-
-		return responseBodyJson;
+		return buildResponseBody(runs, pageNum, pageSize);
 	}
+
+
+    private List<RasRunResult> getRunsByCriteria(int pageSize, List<IRasSearchCriteria> criteriaList) throws InternalServletException {
+        List<RasRunResult> runs = new ArrayList<>();
+
+        try {
+            runs = getRuns(pageSize, criteriaList);
+        } catch (Exception e) {
+            ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+        }
+        return runs;
+    }
+
+    private List<RasRunResult> getRunsByIds(List<String> runIds) throws InternalServletException {
+        List<RasRunResult> runs = new ArrayList<>();
+
+        for (String runId : runIds) {
+            try {
+                IRunResult run = getRunByRunId(runId.trim());
+
+                if (run != null) {
+                    runs.add(RunResultUtility.toRunResult(run, true));
+                }
+            } catch (ResultArchiveStoreException e) {
+                ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
+            }
+        }
+        return runs;
+    }
 
 	private List<IRasSearchCriteria> getCriteria(RasQueryParameters queryParams) throws InternalServletException {
 
@@ -133,9 +138,9 @@ public class RunQueryRoute extends RunsRoute {
 
 		Instant to = queryParams.getToTime();
 
-		Instant noQueryFrom = Instant.now().minus(24,ChronoUnit.HOURS);
+		Instant defaultFromQuery = Instant.now().minus(24,ChronoUnit.HOURS);
 		// from will error if no runname is specified as it is a mandatory field
-		Instant from = getWorkingFromValue(queryParams, noQueryFrom);
+		Instant from = getQueriedFromTime(queryParams, defaultFromQuery);
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,status,to, from, runName);
 		return criteria ;
@@ -248,7 +253,7 @@ public class RunQueryRoute extends RunsRoute {
 	}
 
 
-	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
+	private List<RasRunResult> getRuns(int maxResults, List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 
 		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
 
@@ -257,7 +262,7 @@ public class RunQueryRoute extends RunsRoute {
 		// Collect all the runs from all the RAS stores into a single list
 		List<IRunResult> runs = new ArrayList<>();
 		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
-			runs.addAll(directoryService.getRuns(criteria));
+			runs.addAll(directoryService.getRuns(maxResults, criteria));
 		}
 
 		// Convert each result to the required format
@@ -331,68 +336,68 @@ public class RunQueryRoute extends RunsRoute {
 		}
 	}
 
-	public List<RasRunResult> sortResults(
+	private List<RasRunResult> sortResults(
 		List<RasRunResult> unsortedRuns,
 		RasQueryParameters queryParams,
-		String sortValue
+		List<RasSortField> sortValues
 	) throws InternalServletException {
 
 		// shallow-clone the input list so we don't change it.
 		List<RasRunResult> runs = new ArrayList<RasRunResult>();
 		runs.addAll(unsortedRuns);
 
-		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
+        Comparator<RasRunResult> runsComparator = buildRunsComparator(queryParams, sortValues);
+        if (runsComparator == null) {
+            runsComparator = Comparator.nullsLast(new SortByEndTime().reversed());
+        }
 
-		// Checking ascending or descending for sorting
-		return sortData(runs, queryParams, sortValue);
-
+        Collections.sort(runs, runsComparator);
+        return runs;
 	}
 
-	public List<RasRunResult> sortData(List<RasRunResult> runs, RasQueryParameters queryParams, @NotNull String sortValue) throws InternalServletException {
+    private Comparator<RasRunResult> buildRunsComparator(RasQueryParameters queryParams, List<RasSortField> sortValues) throws InternalServletException {
+        Comparator<RasRunResult> runsComparator = null;
+        for (RasSortField sortField : sortValues) {
+            Comparator<RasRunResult> comparator = null;
 
-		if (queryParams.validateSortValue() || !queryParams.validateSortValue()){
-			if (sortValue.toLowerCase().startsWith("to") ) {
-				boolean isAscending = queryParams.isAscending("to");
-				if (isAscending) {
-					Collections.reverse(runs);
-				}
-			} else if (sortValue.toLowerCase().startsWith("testclass")) {
-				boolean isAscending = queryParams.isAscending("testclass");
-				if (isAscending) {
-					Collections.sort(runs, new SortByTestClass());
-				} else {
-					Collections.sort(runs, new SortByTestClass());
-					Collections.reverse(runs);
-				}
+            if (sortField.getFieldName().equals("to")) {
+                comparator = new SortByEndTime();
+            } else if (sortField.getFieldName().equals("testclass")) {
+                comparator = new SortByTestClass();
+            } else if (sortField.getFieldName().equals("result")) {
+                comparator = new SortByResult();
+            }
 
-			} else if (sortValue.toLowerCase().startsWith("result")) {
-				boolean isAscending = queryParams.isAscending("result");
-				if (isAscending) {
-					Collections.sort(runs, new SortByResult());
-				} else {
-					Collections.sort(runs, new SortByResult());
-					Collections.reverse(runs);
-				}
-			}
-		}
-		return runs;
-	}
+            if (comparator != null) {
+                // Reverse the comparator if the direction is "desc"
+                if (!queryParams.isAscending(sortField)) {
+                    comparator = comparator.reversed();
+                }
 
+                // Ensure null values appear last
+                comparator = Comparator.nullsLast(comparator);
 
-	public Instant getWorkingFromValue (RasQueryParameters params , Instant defaultFromTimestamp) throws InternalServletException{
+                if (runsComparator == null) {
+                    runsComparator = comparator;
+                } else {
+                    runsComparator = runsComparator.thenComparing(comparator);
+                }
+            }
+        }
+        return runsComparator;
+    }
+
+	Instant getQueriedFromTime(RasQueryParameters params, Instant defaultFromTimestamp) throws InternalServletException {
 		int querysize = params.getSize();
-		Instant from = null ;
-		if (querysize > 0){
-			if (!params.checkFromTimeOrRunNamePresent()){
+		Instant from = defaultFromTimestamp;
+		if (querysize > 0) {
+			if (!params.isFromTimeOrRunNamePresent()) {
 				//  RULE: Throw exception because a query exists but no from date has been supplied
 				// EXCEPT: When a runname is present in the query
-					ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
-					throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 			}
 			from = params.getFromTime();
-		}else {
-			// The default for 'from' is now-24 hours. If no query parameters are specified
-			from = defaultFromTimestamp;
 		}
 		return from;
 	}

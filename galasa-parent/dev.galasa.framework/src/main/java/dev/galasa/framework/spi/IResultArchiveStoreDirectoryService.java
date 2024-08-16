@@ -26,6 +26,9 @@ public interface IResultArchiveStoreDirectoryService {
     
     @NotNull
     List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
+    
+    @NotNull
+    List<IRunResult> getRuns(int maxResults, @NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
 
     /**
      * Get requestors

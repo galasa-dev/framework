@@ -69,6 +69,12 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
     }
 
     @Override
+    public @NotNull List<IRunResult> getRuns(int maxResults, @NotNull IRasSearchCriteria... searchCriteria)
+            throws ResultArchiveStoreException {
+        return getRuns(searchCriteria);
+    }
+
+    @Override
     public @NotNull String getName() {
         return "Local " + this.baseDirectory.toString();
     }
@@ -219,6 +225,4 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
             return null; // Ignore errors as this run id may not belong to this RAS  
         }
     }
-
-
 }

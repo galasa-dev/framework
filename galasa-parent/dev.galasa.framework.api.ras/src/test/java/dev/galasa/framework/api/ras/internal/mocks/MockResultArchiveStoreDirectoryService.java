@@ -54,6 +54,11 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 	}
 
 	@Override
+	public @NotNull List<IRunResult> getRuns(int maxResults, @NotNull IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
+        return getRuns(searchCriterias);
+	}
+
+	@Override
 	public @NotNull List<String> getRequestors() throws ResultArchiveStoreException {
 		List<String> requestors = new ArrayList<>();
 		for (IRunResult run : this.getRunsResults){
