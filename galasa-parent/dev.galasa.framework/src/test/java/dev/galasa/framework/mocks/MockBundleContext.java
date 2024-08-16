@@ -31,6 +31,8 @@ public class MockBundleContext implements BundleContext{
         this.services = services;
         this.loadedBundles = loadedBundles;
     }
+    
+    // --------------- un-implemented methods follow --------------------
 
     @Override
     public String getProperty(String key) {

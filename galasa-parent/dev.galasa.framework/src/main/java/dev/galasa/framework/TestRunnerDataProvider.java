@@ -7,6 +7,9 @@ package dev.galasa.framework;
 
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import dev.galasa.framework.internal.runner.RealAnnotationExtractor;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -24,7 +27,9 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     private IRun                               run;
     private IShutableFramework                 framework;
     private Properties                         overrideProperties;
+    private IFileSystem                        fileSystem;
 
+    private Log                                logger        = LogFactory.getLog(TestRunnerDataProvider.class);
     public TestRunnerDataProvider(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {
         
         FrameworkInitialisation frameworkInitialisation = null;
@@ -40,6 +45,7 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
         
         run = framework.getTestRun();
         ras = framework.getResultArchiveStore();
+        fileSystem = new FileSystem();
 
         this.overrideProperties = overrideProperties;
 
@@ -95,6 +101,11 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
             throw new TestRunException(msg,e);
         }
         return managers;
+    }
+
+    @Override
+    public IFileSystem getFileSystem() {
+        return this.fileSystem;
     }
 
 }

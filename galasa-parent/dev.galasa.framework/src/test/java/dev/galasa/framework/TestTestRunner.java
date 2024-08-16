@@ -42,8 +42,9 @@ public class TestTestRunner {
         boolean TEST_IS_LOCAL_RUN_TRUE = true;
         boolean IGNORE_TEST_CLASS_FALSE = false;
 
+        MockFileSystem mockFileSystem = new MockFileSystem();
         Properties overrideProps = new Properties();
-        MockIResultArchiveStore ras = new MockIResultArchiveStore("myRunId"); 
+        MockIResultArchiveStore ras = new MockIResultArchiveStore("myRunId", mockFileSystem ); 
 
         MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService() {
             @Override
@@ -153,7 +154,8 @@ public class TestTestRunner {
             overrideProps,
             mockAnnotationExtractor,
             mockBundleManager,
-            mockTestRunManagers
+            mockTestRunManagers,
+            mockFileSystem
         );
 
         // When...
@@ -165,10 +167,10 @@ public class TestTestRunner {
 
         assertThat(framework.isShutDown()).isTrue();
 
-        assertThat(mockBundleManager.getLoadedBundleSymbolicNames()).hasSize(1);
+        assertThat(mockBundleManager.getLoadedBundleSymbolicNames()).hasSize(2).contains("myTestBundle","dev.galasa.core.manager");
 
         assertThat(mockTestRunManagers.calledCountEndOfTestRun).as("End of test run was not announced").isEqualTo(1);
-        assertThat(dss.data).as("dss was not left in an empty state!").isEmpty();
+        assertThat(dss.data).as("dss had more than metrics debris inside").hasSize(1).containsKey("metrics.runs.local");
         assertThat(mockTestRunManagers.calledCountShudown).as("Manager not shut down").isEqualTo(1);
         assertThat(mockTestRunManagers.calledCountProvisionGenerate).as("Manager not given a chance to provision").isEqualTo(1);
         assertThat(mockTestRunManagers.calledCountProvisionBuild).as("Manager not get a chance to build").isEqualTo(1);

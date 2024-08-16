@@ -4,6 +4,7 @@ import java.util.Properties;
 
 import dev.galasa.framework.IAnnotationExtractor;
 import dev.galasa.framework.IBundleManager;
+import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.ITestRunManagers;
 import dev.galasa.framework.ITestRunnerDataProvider;
 import dev.galasa.framework.TestRunException;
@@ -26,6 +27,7 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
     private IAnnotationExtractor annotationExtractor;
     private IBundleManager bundleManager;
     private ITestRunManagers testRunManagers;
+    private IFileSystem fileSystem;
 
     public MockTestRunnerDataProvider(
         IConfigurationPropertyStoreService cps,
@@ -36,7 +38,8 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
         Properties                         overrideProperties,
         IAnnotationExtractor annotationExtractor,
         IBundleManager bundleManager,
-        ITestRunManagers testRunManagers
+        ITestRunManagers testRunManagers,
+        IFileSystem fileSystem
     ) {
         this.cps = cps;
         this.dss = dss;
@@ -47,6 +50,7 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
         this.bundleManager = bundleManager ;
         this.annotationExtractor = annotationExtractor;
         this.testRunManagers = testRunManagers ;
+        this.fileSystem = fileSystem;
     }
 
     @Override
@@ -85,5 +89,10 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
     @Override
     public ITestRunManagers createTestRunManagers(GalasaTest galasaTest) throws TestRunException {
         return testRunManagers ;
+    }
+
+    @Override
+    public IFileSystem getFileSystem() {
+        return this.fileSystem;
     }
 }

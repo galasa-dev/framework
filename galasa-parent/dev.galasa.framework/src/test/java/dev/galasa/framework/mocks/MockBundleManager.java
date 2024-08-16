@@ -30,8 +30,10 @@ public class MockBundleManager implements IBundleManager {
 
     @Override
     public boolean isBundleActive(BundleContext bundleContext, String bundleSymbolicName) {
-        throw new UnsupportedOperationException("Unimplemented method 'isBundleActive'");
+        return loadedSymbolicNames.contains(bundleSymbolicName);
     }
+
+    // --------------- un-implemented methods follow --------------------
 
     @Override
     public void loadAllGherkinManagerBundles(RepositoryAdmin repositoryAdmin, BundleContext bundleContext)

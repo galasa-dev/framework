@@ -100,6 +100,8 @@ public class TestRunner {
 
     private boolean produceEvents;
 
+    private IFileSystem fileSystem;
+
 
     /**
      * Run the supplied test class
@@ -121,6 +123,7 @@ public class TestRunner {
         this.ras = dataProvider.getRAS();
         this.dss = dataProvider.getDSS();
         this.bundleManager = dataProvider.getBundleManager();
+        this.fileSystem = dataProvider.getFileSystem();
 
         Properties overrideProperties = dataProvider.getOverrideProperties();
 
@@ -351,9 +354,9 @@ public class TestRunner {
         updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
         // *** Try to load the Core Manager bundle, even if the test doesn't use it, and if not already active
-        if (!BundleManagement.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
+        if (!bundleManager.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
             try {
-                BundleManagement.loadBundle(repositoryAdmin, bundleContext, "dev.galasa.core.manager");
+                bundleManager.loadBundle(repositoryAdmin, bundleContext, "dev.galasa.core.manager");
             } catch (FrameworkException e) {
                 logger.warn("Tried to load the Core Manager bundle, but failed, test can continue without it",e);
             }
@@ -464,7 +467,7 @@ public class TestRunner {
             stopHeartbeat();
 
             // *** Record all the CPS properties that were accessed
-            recordCPSProperties();
+            recordCPSProperties(this.fileSystem);
 
             // *** If this was a local run, then we will want to remove the run properties
             // from the DSS immediately
@@ -479,7 +482,7 @@ public class TestRunner {
                 deleteRunProperties(this.framework);
             }
         } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-            recordCPSProperties();
+            recordCPSProperties(this.fileSystem);
             updateStatus(TestRunLifecycleStatus.UP, "built");
         } else {
             logger.error("Unrecognised end condition");
@@ -822,7 +825,7 @@ public class TestRunner {
         return this.cps;
     }
 
-    private void recordCPSProperties() {
+    private void recordCPSProperties(IFileSystem fileSystem) {
         try {
             Properties record = this.framework.getRecordProperties();
 
@@ -854,8 +857,8 @@ public class TestRunner {
             IResultArchiveStore ras = this.framework.getResultArchiveStore();
             Path rasRoot = ras.getStoredArtifactsRoot();
             Path rasProperties = rasRoot.resolve("framework").resolve("cps_record.properties");
-            Files.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
-            Files.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
+            fileSystem.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
+            fileSystem.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             logger.error("Failed to save the recorded properties", e);
         }

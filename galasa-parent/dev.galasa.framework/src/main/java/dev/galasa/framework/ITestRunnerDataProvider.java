@@ -24,4 +24,5 @@ public interface ITestRunnerDataProvider {
     public IAnnotationExtractor getAnnotationExtractor();
     public Properties getOverrideProperties();
     public ITestRunManagers createTestRunManagers(GalasaTest galasaTest) throws TestRunException;
+    public IFileSystem getFileSystem();
 }

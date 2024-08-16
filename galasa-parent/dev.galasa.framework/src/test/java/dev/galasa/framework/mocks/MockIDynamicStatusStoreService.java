@@ -36,6 +36,11 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
         data.remove(key);
     }
 
+    @Override
+    public @Null String get(@NotNull String key) throws DynamicStatusStoreException {
+        return data.get(key);
+    }
+
     // ------------------- un-implemented methods follow --------------------
 
     @Override
@@ -55,10 +60,7 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
                throw new UnsupportedOperationException("Unimplemented method 'putSwap'");
     }
 
-    @Override
-    public @Null String get(@NotNull String key) throws DynamicStatusStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'get'");
-    }
+
 
     @Override
     public @NotNull Map<String, String> getPrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {

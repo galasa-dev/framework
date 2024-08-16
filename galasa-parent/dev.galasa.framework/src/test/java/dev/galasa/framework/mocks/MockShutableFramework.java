@@ -91,6 +91,11 @@ public class MockShutableFramework implements IShutableFramework {
         return frameworkRuns ;
     }
 
+    @Override
+    public Properties getRecordProperties() {
+        return new Properties();
+    }
+
     // ----------------- un-implemented methods follow -------------------
 
     @Override
@@ -148,13 +153,6 @@ public class MockShutableFramework implements IShutableFramework {
     public Random getRandom() {
                throw new UnsupportedOperationException("Unimplemented method 'getRandom'");
     }
-
-    @Override
-    public Properties getRecordProperties() {
-               throw new UnsupportedOperationException("Unimplemented method 'getRecordProperties'");
-    }
-
-    @Override
     public URL getApiUrl(@NotNull Api api) throws FrameworkException {
                throw new UnsupportedOperationException("Unimplemented method 'getApiUrl'");
     }

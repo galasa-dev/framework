@@ -21,16 +21,21 @@ import static org.assertj.core.api.Assertions.*;
 public class MockIResultArchiveStore implements IResultArchiveStore {
 
     List<TestStructure> testStructureHistory = new ArrayList<>();
+    MockFileSystem mockFS ;
+    StringBuffer runLog = new StringBuffer();
     private String runId ;
 
-    public MockIResultArchiveStore(String runId) {
+    public MockIResultArchiveStore(String runId, MockFileSystem mockFileSystem) {
         this.runId = runId;
+        this.mockFS = mockFileSystem;
     }
 
     @Override
     public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
         assertThat(testStructure).isNotNull();
         testStructureHistory.add(testStructure);
+
+        mockFS.setFileContents(mockFS.getPath("/my/stored/artifacts/root/framework/cps_record.properties"), "Dummy test content");
     }
 
     @Override
@@ -44,7 +49,20 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
 
     @Override
     public void flush() {
-        // Do nothing.
+        Path logFilePath = mockFS.getPath("/my/stored/artifacts/root/run.log");
+        mockFS.setFileContents(logFilePath, runLog.toString());
+    }
+
+    @Override
+    public Path getStoredArtifactsRoot() {
+        return mockFS.getPath("/my/stored/artifacts/root");
+    }
+
+    @Override
+    public void writeLog(@NotNull List<String> messages) throws ResultArchiveStoreException {
+        for (String line : messages) {
+            runLog.append(line);
+        }
     }
 
     // --------------- un-implemented methods follow --------------------
@@ -52,16 +70,6 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
     @Override
     public void writeLog(@NotNull String message) throws ResultArchiveStoreException {
                throw new UnsupportedOperationException("Unimplemented method 'writeLog'");
-    }
-
-    @Override
-    public void writeLog(@NotNull List<String> messages) throws ResultArchiveStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'writeLog'");
-    }
-
-    @Override
-    public Path getStoredArtifactsRoot() {
-               throw new UnsupportedOperationException("Unimplemented method 'getStoredArtifactsRoot'");
     }
 
 
