@@ -36,8 +36,14 @@ import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
+// I know that the IFramework class isn't strictly necessary, but it does seem to make a
+// difference to whether the OSGi framework can load it or not.
+// Something about it only looking for implementations of IFramework explicitly, rather than
+// looking for all the things which are super-interfaces of IFramework also.
+// So we leave in the IFramework below, and supress any warning we might get.
+@SuppressWarnings("unused")
 @Component(immediate = true, scope = ServiceScope.SINGLETON)
-public class Framework implements IShutableFramework {
+public class Framework implements IFramework, IShutableFramework {
 
     private final static Log                   logger           = LogFactory.getLog(Framework.class);
 
