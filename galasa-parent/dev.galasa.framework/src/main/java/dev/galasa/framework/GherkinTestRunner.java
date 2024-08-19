@@ -60,6 +60,7 @@ public class GherkinTestRunner {
     private Log logger = LogFactory.getLog(GherkinTestRunner.class);
 
     private BundleContext bundleContext;
+    private IBundleManager bundleManager = new BundleManager();
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
     private RepositoryAdmin repositoryAdmin;
@@ -202,7 +203,7 @@ public class GherkinTestRunner {
         }
 
         try {
-            BundleManagement.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
+            bundleManager.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
         } catch (Exception e) {
             logger.error("Unable to load the managers obr", e);
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");

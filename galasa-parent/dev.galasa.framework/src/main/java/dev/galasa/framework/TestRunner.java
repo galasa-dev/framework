@@ -72,6 +72,7 @@ public class TestRunner {
     private Log                                logger        = LogFactory.getLog(TestRunner.class);
 
     private BundleContext                      bundleContext;
+    private IBundleManager bundleManager = new BundleManager();
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
     private RepositoryAdmin                    repositoryAdmin;
@@ -232,7 +233,7 @@ public class TestRunner {
         }
 
         try {
-            BundleManagement.loadBundle(repositoryAdmin, bundleContext, testBundleName);
+            bundleManager.loadBundle(repositoryAdmin, bundleContext, testBundleName);
         } catch (Exception e) {
             logger.error("Unable to load the test bundle " + testBundleName, e);
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
@@ -347,9 +348,9 @@ public class TestRunner {
         updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
         // *** Try to load the Core Manager bundle, even if the test doesn't use it, and if not already active
-        if (!BundleManagement.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
+        if (!bundleManager.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
             try {
-                BundleManagement.loadBundle(repositoryAdmin, bundleContext, "dev.galasa.core.manager");
+                bundleManager.loadBundle(repositoryAdmin, bundleContext, "dev.galasa.core.manager");
             } catch (FrameworkException e) {
                 logger.warn("Tried to load the Core Manager bundle, but failed, test can continue without it",e);
             }
