@@ -24,6 +24,7 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasRunResultPage;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaBundle;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
@@ -76,6 +77,9 @@ public class RunQueryRoute extends RunsRoute {
 		int pageNum = queryParams.getPageNumber();
 		int pageSize = queryParams.getPageSize();
 
+        boolean includePageToken = queryParams.getIncludePageToken();
+        String pageToken = queryParams.getPageToken();
+
 		List<RasRunResult> runs = new ArrayList<>();
 
 		/* Get list of Run Ids from the URL -
@@ -84,29 +88,49 @@ public class RunQueryRoute extends RunsRoute {
 
 		List<String> runIds = queryParams.getRunIds();
 
-		if (runIds != null && runIds.size() > 0) {
-            runs = getRunsByIds(runIds);
-		} else {
-            runs = getRunsByCriteria(pageSize, getCriteria(queryParams));
-		}
-        
+        // Default to sorting in descending order based on the "end time" of runs
         List<RasSortField> sortValues = queryParams.getSortValues(List.of("to:desc"));
-		runs = sortResults(runs, queryParams, sortValues);
 
-		return buildResponseBody(runs, pageNum, pageSize);
+        RasRunResultPage runsPage = null;
+        String responseJson = null;
+        try {
+            if (runIds != null && runIds.size() > 0) {
+                runs = getRunsByIds(runIds);
+            } else {
+                List<IRasSearchCriteria> criteria = getCriteria(queryParams);
+                if (includePageToken || pageToken != null) {
+                    runsPage = getRunsPage(pageToken, pageSize, formatSortValues(sortValues), criteria);
+                    runs = convertRunsToRunResults(runsPage.getRuns());
+                } else {
+                    runs = getRuns(criteria);
+                }
+            }
+    
+            runs = sortResults(runs, queryParams, sortValues);
+    
+            if (runsPage == null) {
+                responseJson = buildResponseBody(runs, pageNum, pageSize);
+            } else {
+                responseJson = buildResponseBody(runs, runsPage.getNextPageToken());
+            }
+        } catch (ResultArchiveStoreException e) {
+            ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);   
+        }
+
+        return responseJson;
 	}
 
-
-    private List<RasRunResult> getRunsByCriteria(int pageSize, List<IRasSearchCriteria> criteriaList) throws InternalServletException {
-        List<RasRunResult> runs = new ArrayList<>();
-
-        try {
-            runs = getRuns(pageSize, criteriaList);
-        } catch (Exception e) {
-            ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+    private List<RasSortField> formatSortValues(List<RasSortField> sortValues) {
+        if (!sortValues.isEmpty()) {
+            for (RasSortField sortValue : sortValues) {
+                // The "to" sort parameter corresponds to a run's "endTime" field
+                if (sortValue.getFieldName().equals("to")) {
+                    sortValue.setFieldName("endTime");
+                }
+            }
         }
-        return runs;
+        return sortValues;
     }
 
     private List<RasRunResult> getRunsByIds(List<String> runIds) throws InternalServletException {
@@ -138,9 +162,9 @@ public class RunQueryRoute extends RunsRoute {
 
 		Instant to = queryParams.getToTime();
 
-		Instant defaultFromQuery = Instant.now().minus(24,ChronoUnit.HOURS);
+		Instant defaultFromTime = Instant.now().minus(24,ChronoUnit.HOURS);
 		// from will error if no runname is specified as it is a mandatory field
-		Instant from = getQueriedFromTime(queryParams, defaultFromQuery);
+		Instant from = getQueriedFromTime(queryParams, defaultFromTime);
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,status,to, from, runName);
 		return criteria ;
@@ -148,43 +172,42 @@ public class RunQueryRoute extends RunsRoute {
 
 	private String buildResponseBody(List<RasRunResult> runs, int pageNum, int pageSize) throws InternalServletException {
 
-		List<JsonObject> returnArray = new ArrayList<>();
-
 		//Splits up the pages based on the page size
 		List<List<RasRunResult>> paginatedResults = ListUtils.partition(runs, pageSize);
 
-		int numPages = paginatedResults.size();
+		//Building the object to be returned by the API and splitting
+        JsonObject runsPage = null;
+        try {
+            if ((pageNum == 1) && paginatedResults.isEmpty()) {
+                // No results at all, so return one page saying that.
+                runsPage = pageToJson(runs, runs.size(), 1, pageSize,1);
+            } else {
+                runsPage = pageToJson(
+                    paginatedResults.get(pageNum - 1),
+                    runs.size(),
+                    pageNum,
+                    pageSize,
+                    paginatedResults.size()
+                );
+            }
+        } catch (IndexOutOfBoundsException e) {
+            ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
+        }
+        return gson.toJson(runsPage);
+	}
 
-		int pageIndex = 1;
+	private String buildResponseBody(List<RasRunResult> runs, String nextPageToken) throws InternalServletException {
 
 		//Building the object to be returned by the API and splitting
+        JsonObject pageJson = new JsonObject();
 
-		if (!paginatedResults.isEmpty()) {
-			for(List<RasRunResult> thisPageResults : paginatedResults) {
-				JsonObject obj = pageToJson(thisPageResults,runs.size(),pageIndex,pageSize,numPages);
-				returnArray.add(obj);
-				pageIndex+=1;
-			}
-		}else{
-			// No results at all, so return one page saying that.
-			JsonObject obj = pageToJson(runs,runs.size(),pageIndex,pageSize,1);
-			returnArray.add(obj);
-		}
+        JsonElement tree = gson.toJsonTree(runs);
+        pageJson.addProperty("amountOfRuns", runs.size());
+        pageJson.addProperty("nextPageToken", nextPageToken);
+        pageJson.add("runs", tree);
 
-		String json = "";
-
-		if (returnArray.isEmpty()) {
-			// No items to return, so json list will be empty.
-			json = "[]";
-		} else {
-			try {
-				json = gson.toJson(returnArray.get(pageNum-1));
-			} catch (Exception e) {
-				ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
-				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
-			}
-		}
-		return json;
+        return gson.toJson(pageJson);
 	}
 
 	private List<IRasSearchCriteria> getCriteria(
@@ -238,10 +261,10 @@ public class RunQueryRoute extends RunsRoute {
 		return critList;
 	}
 
-	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageIndex, int pageSize, int numPages) {
+	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageNum, int pageSize, int numPages) {
 		JsonObject obj = new JsonObject();
 
-		obj.addProperty("pageNum", pageIndex);
+		obj.addProperty("pageNum", pageNum);
 		obj.addProperty("pageSize", pageSize);
 		obj.addProperty("numPages", numPages);
 		obj.addProperty("amountOfRuns", totalRuns);
@@ -252,8 +275,7 @@ public class RunQueryRoute extends RunsRoute {
 		return obj;
 	}
 
-
-	private List<RasRunResult> getRuns(int maxResults, List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
+	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException, InternalServletException {
 
 		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
 
@@ -262,18 +284,44 @@ public class RunQueryRoute extends RunsRoute {
 		// Collect all the runs from all the RAS stores into a single list
 		List<IRunResult> runs = new ArrayList<>();
 		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
-			runs.addAll(directoryService.getRuns(maxResults, criteria));
+			runs.addAll(directoryService.getRuns(criteria));
 		}
 
-		// Convert each result to the required format
-		List<RasRunResult> runResults = new ArrayList<>();
-		for(IRunResult run : runs) {
-			runResults.add(RunResultUtility.toRunResult(run, true));
-		}
+		List<RasRunResult> runResults = convertRunsToRunResults(runs);
 
 		return runResults;
 	}
 
+	private RasRunResultPage getRunsPage(String pageToken, int maxResults, List<RasSortField> sortFields, List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
+
+		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
+
+		critList.toArray(criteria);
+        
+		// Collect all the runs from all the RAS stores into a single list
+		List<IRunResult> runs = new ArrayList<>();
+        String nextPageToken = null;
+		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
+            RasRunResultPage runsPage = directoryService.getRunsPage(maxResults, sortFields, pageToken, criteria);
+			runs.addAll(runsPage.getRuns());
+            
+            String nextRunsToken = runsPage.getNextPageToken();
+            if (nextRunsToken != null) {
+                nextPageToken = nextRunsToken;
+            }
+		}
+
+		return new RasRunResultPage(runs, nextPageToken);
+	}
+
+    private List<RasRunResult> convertRunsToRunResults(List<IRunResult> runs) throws ResultArchiveStoreException {
+        // Convert each result to the required format
+        List<RasRunResult> runResults = new ArrayList<>();
+        for (IRunResult run : runs) {
+            runResults.add(RunResultUtility.toRunResult(run, true));
+        }
+        return runResults;
+    }
 
 
 	class SortByEndTime implements Comparator<RasRunResult> {

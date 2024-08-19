@@ -10,6 +10,8 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasRunResultPage;
+import dev.galasa.framework.spi.ras.RasSortField;
 import dev.galasa.framework.spi.ras.RasTestClass;
 
 /**
@@ -28,7 +30,7 @@ public interface IResultArchiveStoreDirectoryService {
     List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
     
     @NotNull
-    List<IRunResult> getRuns(int maxResults, @NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
+    RasRunResultPage getRunsPage(int maxResults, List<RasSortField> sortFields, String pageToken, @NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
 
     /**
      * Get requestors

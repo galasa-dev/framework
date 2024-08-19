@@ -12,26 +12,19 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasRunResultPage;
+import dev.galasa.framework.spi.ras.RasSortField;
 import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class MockResultArchiveStoreDirectoryService implements IResultArchiveStoreDirectoryService {
 
     private List<IRunResult> getRunsResults ;
+    private String nextPageToken;
 
     public MockResultArchiveStoreDirectoryService(List<IRunResult> getRunsResults) {
         this.getRunsResults = getRunsResults ;
     }
-
-	@Override
-	public @NotNull String getName() {
-		throw new UnsupportedOperationException("Unimplemented method 'getName'");
-	}
-
-	@Override
-	public boolean isLocal() {
-		throw new UnsupportedOperationException("Unimplemented method 'isLocal'");
-	}
 
 	private void applySearchCriteria( IRasSearchCriteria searchCriteria) throws ResultArchiveStoreException{
 		List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
@@ -54,8 +47,8 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 	}
 
 	@Override
-	public @NotNull List<IRunResult> getRuns(int maxResults, @NotNull IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
-        return getRuns(searchCriterias);
+	public @NotNull RasRunResultPage getRunsPage(int maxResults, List<RasSortField> sortFields, String pageToken, @NotNull IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
+        return new RasRunResultPage(getRuns(searchCriterias), nextPageToken);
 	}
 
 	@Override
@@ -113,5 +106,18 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 		}
 		throw new ResultArchiveStoreException("Run id not found in mock getRunById().");
 	}
-    
+
+    public void setNextPageToken(String nextPageToken) {
+        this.nextPageToken = nextPageToken;
+    }
+
+	@Override
+	public @NotNull String getName() {
+		throw new UnsupportedOperationException("Unimplemented method 'getName'");
+	}
+
+	@Override
+	public boolean isLocal() {
+		throw new UnsupportedOperationException("Unimplemented method 'isLocal'");
+	}
 }

@@ -98,6 +98,14 @@ public class RasQueryParameters {
         return generalQueryParams.getSingleString("runname", null);
     }
 
+    public String getPageToken() throws InternalServletException {
+        return generalQueryParams.getSingleString("pageToken", null);
+    }
+
+    public boolean getIncludePageToken() throws InternalServletException {
+        return generalQueryParams.getSingleBoolean("includePageToken", false);
+    }
+
     public List<RasSortField> getSortValues() throws InternalServletException {
         return getSortValues(null);
     }

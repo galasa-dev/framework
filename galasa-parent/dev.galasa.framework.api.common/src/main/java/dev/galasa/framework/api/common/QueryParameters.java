@@ -106,6 +106,22 @@ public class QueryParameters {
 	/**
 	 * @param queryParameterName
 	 * @param defaultValue Returned if there are no occurrances of the query parameter.
+	 * @return the value of the given query parameter as a boolean
+	 * @throws InternalServletException when there are multiple values of this query parameter
+	 */
+    public boolean getSingleBoolean(String queryParameterName, boolean defaultValue) throws InternalServletException {
+		boolean returnedValue = defaultValue;
+		String paramValueStr = getSingleString(queryParameterName, Boolean.toString(defaultValue));
+
+		if (paramValueStr != null) {
+            returnedValue = Boolean.parseBoolean(paramValueStr.trim());
+		}
+		return returnedValue;
+	}
+
+	/**
+	 * @param queryParameterName
+	 * @param defaultValue Returned if there are no occurrances of the query parameter.
 	 * @return
 	 * @throws InternalServletException when there are multiple values of this query parameter, or
 	 * when the value of the query parameter is not a valid date-time.
