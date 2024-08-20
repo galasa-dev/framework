@@ -77,8 +77,8 @@ public class RunQueryRoute extends RunsRoute {
 		int pageNum = queryParams.getPageNumber();
 		int pageSize = queryParams.getPageSize();
 
-        boolean includePageToken = queryParams.getIncludePageToken();
-        String pageToken = queryParams.getPageToken();
+        boolean includeCursor = queryParams.getIncludeCursor();
+        String pageCursor = queryParams.getPageCursor();
 
 		List<RasRunResult> runs = new ArrayList<>();
 
@@ -89,7 +89,7 @@ public class RunQueryRoute extends RunsRoute {
 		List<String> runIds = queryParams.getRunIds();
 
         // Default to sorting in descending order based on the "end time" of runs
-        List<RasSortField> sortValues = queryParams.getSortValues(List.of("to:desc"));
+        RasSortField sortValue = queryParams.getSortValue("to:desc");
 
         RasRunResultPage runsPage = null;
         String responseJson = null;
@@ -98,20 +98,20 @@ public class RunQueryRoute extends RunsRoute {
                 runs = getRunsByIds(runIds);
             } else {
                 List<IRasSearchCriteria> criteria = getCriteria(queryParams);
-                if (includePageToken || pageToken != null) {
-                    runsPage = getRunsPage(pageToken, pageSize, formatSortValues(sortValues), criteria);
+                if (includeCursor || pageCursor != null) {
+                    runsPage = getRunsPage(pageCursor, pageSize, formatSortField(sortValue), criteria);
                     runs = convertRunsToRunResults(runsPage.getRuns());
                 } else {
                     runs = getRuns(criteria);
                 }
             }
     
-            runs = sortResults(runs, queryParams, sortValues);
+            runs = sortResults(runs, queryParams, sortValue);
     
             if (runsPage == null) {
                 responseJson = buildResponseBody(runs, pageNum, pageSize);
             } else {
-                responseJson = buildResponseBody(runs, runsPage.getNextPageToken());
+                responseJson = buildResponseBody(runs, runsPage.getNextCursor());
             }
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
@@ -121,16 +121,15 @@ public class RunQueryRoute extends RunsRoute {
         return responseJson;
 	}
 
-    private List<RasSortField> formatSortValues(List<RasSortField> sortValues) {
-        if (!sortValues.isEmpty()) {
-            for (RasSortField sortValue : sortValues) {
-                // The "to" sort parameter corresponds to a run's "endTime" field
-                if (sortValue.getFieldName().equals("to")) {
-                    sortValue.setFieldName("endTime");
-                }
+    private RasSortField formatSortField(RasSortField sortValue) {
+        RasSortField sortField = sortValue;
+        if (sortValue != null) {
+            // The "to" sort parameter corresponds to a run's "endTime" field
+            if (sortValue.getFieldName().equals("to")) {
+                sortField.setFieldName("endTime");
             }
         }
-        return sortValues;
+        return sortField;
     }
 
     private List<RasRunResult> getRunsByIds(List<String> runIds) throws InternalServletException {
@@ -197,14 +196,14 @@ public class RunQueryRoute extends RunsRoute {
         return gson.toJson(runsPage);
 	}
 
-	private String buildResponseBody(List<RasRunResult> runs, String nextPageToken) throws InternalServletException {
+	private String buildResponseBody(List<RasRunResult> runs, String nextCursor) throws InternalServletException {
 
 		//Building the object to be returned by the API and splitting
         JsonObject pageJson = new JsonObject();
 
         JsonElement tree = gson.toJsonTree(runs);
         pageJson.addProperty("amountOfRuns", runs.size());
-        pageJson.addProperty("nextPageToken", nextPageToken);
+        pageJson.addProperty("nextCursor", nextCursor);
         pageJson.add("runs", tree);
 
         return gson.toJson(pageJson);
@@ -292,7 +291,7 @@ public class RunQueryRoute extends RunsRoute {
 		return runResults;
 	}
 
-	private RasRunResultPage getRunsPage(String pageToken, int maxResults, List<RasSortField> sortFields, List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
+	private RasRunResultPage getRunsPage(String pageCursor, int maxResults, RasSortField primarySort, List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 
 		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
 
@@ -300,18 +299,18 @@ public class RunQueryRoute extends RunsRoute {
         
 		// Collect all the runs from all the RAS stores into a single list
 		List<IRunResult> runs = new ArrayList<>();
-        String nextPageToken = null;
+        String nextCursor = null;
 		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
-            RasRunResultPage runsPage = directoryService.getRunsPage(maxResults, sortFields, pageToken, criteria);
+            RasRunResultPage runsPage = directoryService.getRunsPage(maxResults, primarySort, pageCursor, criteria);
 			runs.addAll(runsPage.getRuns());
             
-            String nextRunsToken = runsPage.getNextPageToken();
+            String nextRunsToken = runsPage.getNextCursor();
             if (nextRunsToken != null) {
-                nextPageToken = nextRunsToken;
+                nextCursor = nextRunsToken;
             }
 		}
 
-		return new RasRunResultPage(runs, nextPageToken);
+		return new RasRunResultPage(runs, nextCursor);
 	}
 
     private List<RasRunResult> convertRunsToRunResults(List<IRunResult> runs) throws ResultArchiveStoreException {
@@ -387,14 +386,14 @@ public class RunQueryRoute extends RunsRoute {
 	private List<RasRunResult> sortResults(
 		List<RasRunResult> unsortedRuns,
 		RasQueryParameters queryParams,
-		List<RasSortField> sortValues
+		RasSortField sortValue
 	) throws InternalServletException {
 
 		// shallow-clone the input list so we don't change it.
 		List<RasRunResult> runs = new ArrayList<RasRunResult>();
 		runs.addAll(unsortedRuns);
 
-        Comparator<RasRunResult> runsComparator = buildRunsComparator(queryParams, sortValues);
+        Comparator<RasRunResult> runsComparator = buildRunsComparator(queryParams, sortValue);
         if (runsComparator == null) {
             runsComparator = Comparator.nullsLast(new SortByEndTime().reversed());
         }
@@ -403,34 +402,25 @@ public class RunQueryRoute extends RunsRoute {
         return runs;
 	}
 
-    private Comparator<RasRunResult> buildRunsComparator(RasQueryParameters queryParams, List<RasSortField> sortValues) throws InternalServletException {
+    private Comparator<RasRunResult> buildRunsComparator(RasQueryParameters queryParams, RasSortField sortField) throws InternalServletException {
         Comparator<RasRunResult> runsComparator = null;
-        for (RasSortField sortField : sortValues) {
-            Comparator<RasRunResult> comparator = null;
 
-            if (sortField.getFieldName().equals("to")) {
-                comparator = new SortByEndTime();
-            } else if (sortField.getFieldName().equals("testclass")) {
-                comparator = new SortByTestClass();
-            } else if (sortField.getFieldName().equals("result")) {
-                comparator = new SortByResult();
+        if (sortField.getFieldName().equals("to")) {
+            runsComparator = new SortByEndTime();
+        } else if (sortField.getFieldName().equals("testclass")) {
+            runsComparator = new SortByTestClass();
+        } else if (sortField.getFieldName().equals("result")) {
+            runsComparator = new SortByResult();
+        }
+
+        if (runsComparator != null) {
+            // Reverse the comparator if the direction is "desc"
+            if (!queryParams.isAscending(sortField)) {
+                runsComparator = runsComparator.reversed();
             }
 
-            if (comparator != null) {
-                // Reverse the comparator if the direction is "desc"
-                if (!queryParams.isAscending(sortField)) {
-                    comparator = comparator.reversed();
-                }
-
-                // Ensure null values appear last
-                comparator = Comparator.nullsLast(comparator);
-
-                if (runsComparator == null) {
-                    runsComparator = comparator;
-                } else {
-                    runsComparator = runsComparator.thenComparing(comparator);
-                }
-            }
+            // Ensure null values appear last
+            runsComparator = Comparator.nullsLast(runsComparator);
         }
         return runsComparator;
     }

@@ -1096,10 +1096,6 @@ paths:
 
             Use '{FIELD-NAME}:asc' to sort in ascending order.
             Use '{FIELD-NAME}:desc' to sort in descending order.
-
-            You can use multiple instances of this query parameter, or specify
-            multiple sort orders using one query parameter, and a comma-separated
-            list of sort orders.
           required: true
           schema:
             type: string
@@ -1200,6 +1196,26 @@ paths:
           schema:
             type: string
           example: U1578
+        
+        # Temporary feature flag to enable cursor-based pagination
+        - name: includeCursor
+          in: query
+          description: |
+            A boolean flag to enable cursor-based pagination and return the next page cursor
+            in the response. If omitted, it will default to false.
+          schema:
+            type: string
+          example: 'true'
+        - name: cursor
+          in: query
+          description: |
+            The cursor representing the page of runs to be retrieved. This is a unique value that is specific
+            to a query and is included in responses, allowing you to navigate through pages of runs.
+            If omitted, the first page of runs for the given query will be returned and the response
+            will display the cursor for the next page of runs.
+          schema:
+            type: string
+          example: g2wAAAACaAJkAA5zdGFydG
       responses:
         '200':
           description: Array of Run Objects
@@ -2036,6 +2052,8 @@ components:
           type: integer
         amountOfRuns:
           type: integer
+        nextCursor:
+          type: string
         runs:
           type: array
           items:

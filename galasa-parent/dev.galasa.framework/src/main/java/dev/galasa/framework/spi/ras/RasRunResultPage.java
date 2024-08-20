@@ -17,11 +17,11 @@ import dev.galasa.framework.spi.IRunResult;
 public class RasRunResultPage {
     
     private List<IRunResult> runs;
-    private String nextPageToken;
+    private String nextCursor;
 
-    public RasRunResultPage(List<IRunResult> runs, String nextPageToken) {
+    public RasRunResultPage(List<IRunResult> runs, String nextCursor) {
         this.runs = runs;
-        this.nextPageToken = nextPageToken;
+        this.nextCursor = nextCursor;
     }
 
     public List<IRunResult> getRuns() {
@@ -32,11 +32,11 @@ public class RasRunResultPage {
         this.runs = runs;
     }
 
-    public String getNextPageToken() {
-        return nextPageToken;
+    public String getNextCursor() {
+        return nextCursor;
     }
 
-    public void setNextPageToken(String nextPageToken) {
-        this.nextPageToken = nextPageToken;
+    public void setNextCursor(String nextCursor) {
+        this.nextCursor = nextCursor;
     }
 }

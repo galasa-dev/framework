@@ -98,47 +98,36 @@ public class RasQueryParameters {
         return generalQueryParams.getSingleString("runname", null);
     }
 
-    public String getPageToken() throws InternalServletException {
-        return generalQueryParams.getSingleString("pageToken", null);
+    public String getPageCursor() throws InternalServletException {
+        return generalQueryParams.getSingleString("cursor", null);
     }
 
-    public boolean getIncludePageToken() throws InternalServletException {
-        return generalQueryParams.getSingleBoolean("includePageToken", false);
+    public boolean getIncludeCursor() throws InternalServletException {
+        return generalQueryParams.getSingleBoolean("includeCursor", false);
     }
 
-    public List<RasSortField> getSortValues() throws InternalServletException {
-        return getSortValues(null);
+    public RasSortField getSortValue() throws InternalServletException {
+        return getSortValue(null);
     }
 
-    public List<RasSortField> getSortValues(List<String> defaultSortValues) throws InternalServletException {
-        List<String> sortValues = generalQueryParams.getMultipleString("sort", defaultSortValues);
-        List<RasSortField> rasSortValues = null;
-        if (sortValues != null) {
-            rasSortValues = new ArrayList<>();
-            validateSortValues(sortValues);
-    
-            for (String sortValuePair : sortValues) {
-                String[] sortValueParts = sortValuePair.split(":");
-    
-                rasSortValues.add(new RasSortField(sortValueParts[0].toLowerCase(), sortValueParts[1].toLowerCase()));
-            }
+    public RasSortField getSortValue(String defaultSortValue) throws InternalServletException {
+        String sortValue = generalQueryParams.getSingleString("sort", defaultSortValue);
+        RasSortField rasSortValue = null;
+        if (sortValue != null) {
+            validateSortValue(sortValue);
+
+            String[] sortValueParts = sortValue.split(":");
+            rasSortValue = new RasSortField(sortValueParts[0].toLowerCase(), sortValueParts[1].toLowerCase());
         }
-        return rasSortValues;
+        return rasSortValue;
     }
 
     public RasSortField getSortValueByName(String sortFieldName) throws InternalServletException {
-        List<RasSortField> sortValues = getSortValues();
-        RasSortField fieldToReturn = null;
-
-        if (sortValues != null) {
-            for (RasSortField sortField : sortValues) {
-                if (sortField.getFieldName().equals(sortFieldName)) {
-                    fieldToReturn = sortField;
-                    break;
-                }
-            }
+        RasSortField sortValue = getSortValue();
+        if (sortValue != null && !sortValue.getFieldName().equals(sortFieldName)) {
+            sortValue = null;
         }
-        return fieldToReturn;
+        return sortValue;
     }
 
     public List<String> getRunIds() {
@@ -196,19 +185,13 @@ public class RasQueryParameters {
         return sortDirectionMap.get(sortField.getSortDirection());
 	}
 
-    private boolean isSortValueValid(String sortValue) {
+    private void validateSortValue(String sortValue) throws InternalServletException {
         String[] sortValueParts = sortValue.split(":");
 
-        return (sortValueParts.length == 2) && (sortDirectionMap.containsKey(sortValueParts[1].toLowerCase()));
-    }
-
-    public void validateSortValues(List<String> sortValues) throws InternalServletException {
-        for (String sortValuePair : sortValues) {
-            if (!isSortValueValid(sortValuePair)) {
-                ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, sortValuePair);
-                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-            }
+        if (sortValueParts.length != 2 || !sortDirectionMap.containsKey(sortValueParts[1].toLowerCase())) {
+            ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, sortValue);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
-	}
+    }
 
 }

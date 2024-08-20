@@ -170,13 +170,13 @@ public class TestRunQuery extends RasServletTest {
 		return gson.toJson(jsonResult);
 	}
 
-	private String generateExpectedJson(List<IRunResult> mockInputRunResults, String nextPageToken) throws ResultArchiveStoreException {
+	private String generateExpectedJson(List<IRunResult> mockInputRunResults, String nextCursor) throws ResultArchiveStoreException {
 		
         JsonObject jsonResult = new JsonObject();
         JsonArray runsJson = createRunsJsonArray(mockInputRunResults);
 
         jsonResult.addProperty("amountOfRuns", mockInputRunResults.size());
-        jsonResult.addProperty("nextPageToken", nextPageToken);
+        jsonResult.addProperty("nextCursor", nextCursor);
         jsonResult.add("runs", runsJson);
 		return gson.toJson(jsonResult);
 	}
@@ -2137,20 +2137,20 @@ public class TestRunQuery extends RasServletTest {
 	}
 
 	@Test
-	public void testQueryWithIncludePageTokenReturnsResultsWithNextTokenOK() throws Exception {
+	public void testQueryWithIncludeCursorReturnsResultsWithNextTokenOK() throws Exception {
 		// Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
 
         // Build query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(null,100,null, null,null, 72, null);;
-        parameterMap = addQueryParameter(parameterMap, "includePageToken", "true");
+        parameterMap = addQueryParameter(parameterMap, "includeCursor", "true");
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
         MockResultArchiveStoreDirectoryService mockRasService = (MockResultArchiveStoreDirectoryService) mockServletEnvironment.getDirectoryService().get(0);
 
-        String nextPageToken = "next-page";
-        mockRasService.setNextPageToken(nextPageToken);
+        String nextCursor = "next-page";
+        mockRasService.setNextCursor(nextCursor);
 
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
@@ -2162,27 +2162,23 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		String expectedJson = generateExpectedJson(mockInputRunResults, nextPageToken);
+		String expectedJson = generateExpectedJson(mockInputRunResults, nextCursor);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
-	public void testQueryWithPageTokenReturnsResultsWithNextTokenOK() throws Exception {
+	public void testQueryWithInvalidIncludeCursorValueThrowsError() throws Exception {
 		// Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
 
         // Build query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(null,100,null, null,null, 72, null);;
-        parameterMap = addQueryParameter(parameterMap, "pageToken", "iwantthispage");
+        parameterMap = addQueryParameter(parameterMap, "includeCursor", "notaboolean");
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
-        MockResultArchiveStoreDirectoryService mockRasService = (MockResultArchiveStoreDirectoryService) mockServletEnvironment.getDirectoryService().get(0);
-
-        String nextPageToken = "next-page";
-        mockRasService.setNextPageToken(nextPageToken);
 
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
@@ -2194,7 +2190,38 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		String expectedJson = generateExpectedJson(mockInputRunResults, nextPageToken);
+		assertThat(resp.getStatus()).isEqualTo(400);
+		assertThat(outStream.toString()).contains("GAL5090E", "Error parsing the query parameter 'includeCursor'", "Expecting a boolean");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
+	public void testQueryWithCursorReturnsResultsWithNextTokenOK() throws Exception {
+		// Given..
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
+
+        // Build query parameters
+		Map<String, String[]> parameterMap = setQueryParameter(null,100,null, null,null, 72, null);;
+        parameterMap = addQueryParameter(parameterMap, "cursor", "iwantthispage");
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+        MockResultArchiveStoreDirectoryService mockRasService = (MockResultArchiveStoreDirectoryService) mockServletEnvironment.getDirectoryService().get(0);
+
+        String nextCursor = "next-page";
+        mockRasService.setNextCursor(nextCursor);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		String expectedJson = generateExpectedJson(mockInputRunResults, nextCursor);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");

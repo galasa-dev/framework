@@ -71,7 +71,7 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
     }
 
     @Override
-    public @NotNull RasRunResultPage getRunsPage(int maxResults, List<RasSortField> sortFields, String pageToken, @NotNull IRasSearchCriteria... searchCriteria)
+    public @NotNull RasRunResultPage getRunsPage(int maxResults, RasSortField primarySort, String pageToken, @NotNull IRasSearchCriteria... searchCriteria)
             throws ResultArchiveStoreException {
         return new RasRunResultPage(getRuns(searchCriteria), null);
     }

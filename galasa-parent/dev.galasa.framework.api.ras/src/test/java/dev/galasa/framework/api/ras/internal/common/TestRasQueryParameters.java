@@ -361,18 +361,17 @@ public class TestRasQueryParameters extends RasServletTest{
     }
 
     @Test
-    public void testSortFieldNoValueThrowsError() throws Exception {
+    public void testSortFieldNoValueReturnsDefaultNull() throws Exception {
         // Given...
         Map<String,String[]> map = new HashMap<String,String[]>();
         map.put("sort", new String[] {""} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
         // When...
-        InternalServletException thrown = catchThrowableOfType(() -> params.getSortValues(), InternalServletException.class);
+        RasSortField sortField = params.getSortValue();
 
         // Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5011E: Error parsing the query parameters", "sort value '' not recognised");
+        assertThat(sortField).isNull();
     }
 
     @Test
@@ -390,26 +389,5 @@ public class TestRasQueryParameters extends RasServletTest{
 
         // Then...
         assertThat(returnedParameters).isEqualTo(queryParams);
-    }
-
-    @Test
-    public void testGetCommaSeparatedSortValuesReturnsValuesOk() throws Exception {
-        // Given...
-        Map<String,String[]> map = new HashMap<String,String[]>();
-        map.put("sort", new String[] { "to:asc,runname:desc,result:asc" });
-        RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-
-        // When...
-        List<RasSortField> sortValues = params.getSortValues();
-
-        // Then...
-        List<RasSortField> expectedSortValues = List.of(
-            new RasSortField("to", "asc"),
-            new RasSortField("runname", "desc"),
-            new RasSortField("result", "asc")
-        );
-
-        assertThat(sortValues).hasSize(3);
-        assertThat(sortValues).usingRecursiveComparison().isEqualTo(expectedSortValues);
     }
 }

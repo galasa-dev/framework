@@ -20,7 +20,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 public class MockResultArchiveStoreDirectoryService implements IResultArchiveStoreDirectoryService {
 
     private List<IRunResult> getRunsResults ;
-    private String nextPageToken;
+    private String nextCursor;
 
     public MockResultArchiveStoreDirectoryService(List<IRunResult> getRunsResults) {
         this.getRunsResults = getRunsResults ;
@@ -47,8 +47,8 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 	}
 
 	@Override
-	public @NotNull RasRunResultPage getRunsPage(int maxResults, List<RasSortField> sortFields, String pageToken, @NotNull IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
-        return new RasRunResultPage(getRuns(searchCriterias), nextPageToken);
+	public @NotNull RasRunResultPage getRunsPage(int maxResults, RasSortField primarySort, String pageCursor, @NotNull IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
+        return new RasRunResultPage(getRuns(searchCriterias), nextCursor);
 	}
 
 	@Override
@@ -107,8 +107,8 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 		throw new ResultArchiveStoreException("Run id not found in mock getRunById().");
 	}
 
-    public void setNextPageToken(String nextPageToken) {
-        this.nextPageToken = nextPageToken;
+    public void setNextCursor(String nextCursor) {
+        this.nextCursor = nextCursor;
     }
 
 	@Override

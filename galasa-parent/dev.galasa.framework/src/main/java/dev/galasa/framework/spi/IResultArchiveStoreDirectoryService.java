@@ -30,7 +30,7 @@ public interface IResultArchiveStoreDirectoryService {
     List<IRunResult> getRuns(@NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
     
     @NotNull
-    RasRunResultPage getRunsPage(int maxResults, List<RasSortField> sortFields, String pageToken, @NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
+    RasRunResultPage getRunsPage(int maxResults, RasSortField primarySort, String pageCursor, @NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
 
     /**
      * Get requestors
