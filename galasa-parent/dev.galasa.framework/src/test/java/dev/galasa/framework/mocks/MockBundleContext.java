@@ -31,33 +31,6 @@ public class MockBundleContext implements BundleContext{
         this.services = services;
         this.loadedBundles = loadedBundles;
     }
-    
-    // --------------- un-implemented methods follow --------------------
-
-    @Override
-    public String getProperty(String key) {
-        throw new UnsupportedOperationException("Unimplemented method 'getProperty'");
-    }
-
-    @Override
-    public Bundle getBundle() {
-        throw new UnsupportedOperationException("Unimplemented method 'getBundle'");
-    }
-
-    @Override
-    public Bundle installBundle(String location, InputStream input) throws BundleException {
-        throw new UnsupportedOperationException("Unimplemented method 'installBundle'");
-    }
-
-    @Override
-    public Bundle installBundle(String location) throws BundleException {
-        throw new UnsupportedOperationException("Unimplemented method 'installBundle'");
-    }
-
-    @Override
-    public Bundle getBundle(long id) {
-        throw new UnsupportedOperationException("Unimplemented method 'getBundle'");
-    }
 
     @Override
     public Bundle[] getBundles() {
@@ -65,68 +38,7 @@ public class MockBundleContext implements BundleContext{
         loadedBundles.toArray(result);
         return result;
     }
-
-    @Override
-    public void addServiceListener(ServiceListener listener, String filter) throws InvalidSyntaxException {
-        throw new UnsupportedOperationException("Unimplemented method 'addServiceListener'");
-    }
-
-    @Override
-    public void addServiceListener(ServiceListener listener) {
-        throw new UnsupportedOperationException("Unimplemented method 'addServiceListener'");
-    }
-
-    @Override
-    public void removeServiceListener(ServiceListener listener) {
-        throw new UnsupportedOperationException("Unimplemented method 'removeServiceListener'");
-    }
-
-    @Override
-    public void addBundleListener(BundleListener listener) {
-        throw new UnsupportedOperationException("Unimplemented method 'addBundleListener'");
-    }
-
-    @Override
-    public void removeBundleListener(BundleListener listener) {
-        throw new UnsupportedOperationException("Unimplemented method 'removeBundleListener'");
-    }
-
-    @Override
-    public void addFrameworkListener(FrameworkListener listener) {
-        throw new UnsupportedOperationException("Unimplemented method 'addFrameworkListener'");
-    }
-
-    @Override
-    public void removeFrameworkListener(FrameworkListener listener) {
-        throw new UnsupportedOperationException("Unimplemented method 'removeFrameworkListener'");
-    }
-
-    @Override
-    public ServiceRegistration<?> registerService(String[] clazzes, Object service, Dictionary<String, ?> properties) {
-        throw new UnsupportedOperationException("Unimplemented method 'registerService'");
-    }
-
-    @Override
-    public ServiceRegistration<?> registerService(String clazz, Object service, Dictionary<String, ?> properties) {
-        throw new UnsupportedOperationException("Unimplemented method 'registerService'");
-    }
-
-    @Override
-    public <S> ServiceRegistration<S> registerService(Class<S> clazz, S service, Dictionary<String, ?> properties) {
-        throw new UnsupportedOperationException("Unimplemented method 'registerService'");
-    }
-
-    @Override
-    public <S> ServiceRegistration<S> registerService(Class<S> clazz, ServiceFactory<S> factory,
-            Dictionary<String, ?> properties) {
-        throw new UnsupportedOperationException("Unimplemented method 'registerService'");
-    }
-
-    @Override
-    public ServiceReference<?>[] getServiceReferences(String clazz, String filter) throws InvalidSyntaxException {
-        throw new UnsupportedOperationException("Unimplemented method 'getServiceReferences'");
-    }
-
+    
     @Override
     public ServiceReference<?>[] getAllServiceReferences(String clazz, String filter) throws InvalidSyntaxException {
         int count = 0;
@@ -181,6 +93,94 @@ public class MockBundleContext implements BundleContext{
 
         S result = ((MockServiceReference<S>)reference).getService();
         return result;
+    }
+
+    // --------------- un-implemented methods follow --------------------
+
+    @Override
+    public String getProperty(String key) {
+        throw new UnsupportedOperationException("Unimplemented method 'getProperty'");
+    }
+
+    @Override
+    public Bundle getBundle() {
+        throw new UnsupportedOperationException("Unimplemented method 'getBundle'");
+    }
+
+    @Override
+    public Bundle installBundle(String location, InputStream input) throws BundleException {
+        throw new UnsupportedOperationException("Unimplemented method 'installBundle'");
+    }
+
+    @Override
+    public Bundle installBundle(String location) throws BundleException {
+        throw new UnsupportedOperationException("Unimplemented method 'installBundle'");
+    }
+
+    @Override
+    public Bundle getBundle(long id) {
+        throw new UnsupportedOperationException("Unimplemented method 'getBundle'");
+    }
+    
+    @Override
+    public void addServiceListener(ServiceListener listener, String filter) throws InvalidSyntaxException {
+        throw new UnsupportedOperationException("Unimplemented method 'addServiceListener'");
+    }
+
+    @Override
+    public void addServiceListener(ServiceListener listener) {
+        throw new UnsupportedOperationException("Unimplemented method 'addServiceListener'");
+    }
+
+    @Override
+    public void removeServiceListener(ServiceListener listener) {
+        throw new UnsupportedOperationException("Unimplemented method 'removeServiceListener'");
+    }
+
+    @Override
+    public void addBundleListener(BundleListener listener) {
+        throw new UnsupportedOperationException("Unimplemented method 'addBundleListener'");
+    }
+
+    @Override
+    public void removeBundleListener(BundleListener listener) {
+        throw new UnsupportedOperationException("Unimplemented method 'removeBundleListener'");
+    }
+    
+    @Override
+    public void addFrameworkListener(FrameworkListener listener) {
+        throw new UnsupportedOperationException("Unimplemented method 'addFrameworkListener'");
+    }
+
+    @Override
+    public void removeFrameworkListener(FrameworkListener listener) {
+        throw new UnsupportedOperationException("Unimplemented method 'removeFrameworkListener'");
+    }
+
+    @Override
+    public ServiceRegistration<?> registerService(String[] clazzes, Object service, Dictionary<String, ?> properties) {
+        throw new UnsupportedOperationException("Unimplemented method 'registerService'");
+    }
+
+    @Override
+    public ServiceRegistration<?> registerService(String clazz, Object service, Dictionary<String, ?> properties) {
+        throw new UnsupportedOperationException("Unimplemented method 'registerService'");
+    }
+
+    @Override
+    public <S> ServiceRegistration<S> registerService(Class<S> clazz, S service, Dictionary<String, ?> properties) {
+        throw new UnsupportedOperationException("Unimplemented method 'registerService'");
+    }
+
+    @Override
+    public <S> ServiceRegistration<S> registerService(Class<S> clazz, ServiceFactory<S> factory,
+            Dictionary<String, ?> properties) {
+        throw new UnsupportedOperationException("Unimplemented method 'registerService'");
+    }
+
+    @Override
+    public ServiceReference<?>[] getServiceReferences(String clazz, String filter) throws InvalidSyntaxException {
+        throw new UnsupportedOperationException("Unimplemented method 'getServiceReferences'");
     }
 
     @Override
