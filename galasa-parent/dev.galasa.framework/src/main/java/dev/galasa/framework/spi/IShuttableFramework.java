@@ -5,6 +5,6 @@
  */
 package dev.galasa.framework.spi;
 
-public interface IShutableFramework extends IFramework {
+public interface IShuttableFramework extends IFramework {
     public void shutdown() throws FrameworkException ;
 }

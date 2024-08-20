@@ -25,7 +25,7 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     private IDynamicStatusStoreService         dss;
     private IResultArchiveStore                ras;
     private IRun                               run;
-    private IShutableFramework                 framework;
+    private IShuttableFramework                 framework;
     private Properties                         overrideProperties;
     private IFileSystem                        fileSystem;
 
@@ -71,7 +71,7 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     }
     
     @Override
-    public IShutableFramework getFramework() {
+    public IShuttableFramework getFramework() {
         return this.framework;
     }
     

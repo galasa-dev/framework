@@ -12,7 +12,7 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.IShutableFramework;
+import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.language.GalasaTest;
 
 public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
@@ -21,7 +21,7 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
     private IDynamicStatusStoreService         dss;
     private IResultArchiveStore                ras;
     private IRun                               run;
-    private IShutableFramework                 framework;
+    private IShuttableFramework                 framework;
     private Properties                         overrideProperties;
 
     private IAnnotationExtractor annotationExtractor;
@@ -34,7 +34,7 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
         IDynamicStatusStoreService         dss,
         IResultArchiveStore                ras,
         IRun                               run,
-        IShutableFramework                 framework,
+        IShuttableFramework                 framework,
         Properties                         overrideProperties,
         IAnnotationExtractor annotationExtractor,
         IBundleManager bundleManager,
@@ -70,7 +70,7 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
         return ras;
     }
     @Override
-    public IShutableFramework getFramework() {
+    public IShuttableFramework getFramework() {
         return framework;
     }
     @Override

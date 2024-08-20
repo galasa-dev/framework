@@ -11,7 +11,7 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.IShutableFramework;
+import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.language.GalasaTest;
 
 public interface ITestRunnerDataProvider {
@@ -19,7 +19,7 @@ public interface ITestRunnerDataProvider {
     public IConfigurationPropertyStoreService getCPS();
     public IDynamicStatusStoreService getDSS();
     public IResultArchiveStore getRAS();
-    public IShutableFramework getFramework();
+    public IShuttableFramework getFramework();
     public IBundleManager getBundleManager();
     public IAnnotationExtractor getAnnotationExtractor();
     public Properties getOverrideProperties();

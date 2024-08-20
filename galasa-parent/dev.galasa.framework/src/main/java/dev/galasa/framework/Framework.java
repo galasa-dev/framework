@@ -43,7 +43,7 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
 // So we leave in the IFramework below, and supress any warning we might get.
 @SuppressWarnings("unused")
 @Component(immediate = true, scope = ServiceScope.SINGLETON)
-public class Framework implements IFramework, IShutableFramework {
+public class Framework implements IFramework, IShuttableFramework {
 
     private final static Log                   logger           = LogFactory.getLog(Framework.class);
 

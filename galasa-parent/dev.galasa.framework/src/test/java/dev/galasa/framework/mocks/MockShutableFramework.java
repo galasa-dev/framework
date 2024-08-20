@@ -23,7 +23,7 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.IShutableFramework;
+import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
@@ -32,7 +32,7 @@ import dev.galasa.framework.spi.creds.ICredentialsService;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class MockShutableFramework implements IShutableFramework {
+public class MockShutableFramework implements IShuttableFramework {
 
     private boolean isShutDown = false;
     private IResultArchiveStore ras ;

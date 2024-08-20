@@ -47,7 +47,7 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.IShutableFramework;
+import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
@@ -95,7 +95,7 @@ public class TestRunner {
     private boolean                            isRunOK = true;
     private boolean                            resourcesAvailable = true;
 
-    private IShutableFramework                 framework;
+    private IShuttableFramework                 framework;
     private IBundleManager bundleManager;
 
     private boolean produceEvents;

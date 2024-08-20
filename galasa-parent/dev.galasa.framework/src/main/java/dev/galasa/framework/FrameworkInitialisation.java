@@ -401,7 +401,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         return this.framework;
     }
 
-    public @NotNull IShutableFramework getShutableFramework() {
+    public @NotNull IShuttableFramework getShutableFramework() {
         return this.framework;
     }
 
