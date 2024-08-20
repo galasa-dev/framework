@@ -162,8 +162,71 @@ public class TestTestRunner {
         runner.runTest(testRunData);
 
         /// Then...
+
+        // Check the RAS history
         List<TestStructure> rasHistory = ras.getTestStructureHistory();
-        assertThat(rasHistory).hasSize(9).extracting("status").contains("finished","finished");
+        assertThat(rasHistory).hasSize(9);
+
+        // initial setup.
+        assertThat(rasHistory.get(0)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun",null,null, null, "daffyduck", null,null);
+
+        // status = started
+        assertThat(rasHistory.get(1)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun",null,null, null, "daffyduck", "started",null);
+
+        // status = generating
+        assertThat(rasHistory.get(2)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun","myTestBundle","dev.galasa.framework.MyActualTestClass", "MyActualTestClass", "daffyduck", "generating",null);
+
+        // status = building
+        assertThat(rasHistory.get(3)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun","myTestBundle","dev.galasa.framework.MyActualTestClass", "MyActualTestClass", "daffyduck", "building",null);
+
+        // status = provstart
+        assertThat(rasHistory.get(4)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun","myTestBundle","dev.galasa.framework.MyActualTestClass", "MyActualTestClass", "daffyduck", "provstart",null);
+
+        // status = running
+        assertThat(rasHistory.get(5)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun","myTestBundle","dev.galasa.framework.MyActualTestClass", "MyActualTestClass", "daffyduck", "running",null);
+
+        // status = rundone
+        assertThat(rasHistory.get(6)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun","myTestBundle","dev.galasa.framework.MyActualTestClass", "MyActualTestClass", "daffyduck", "rundone","Passed");
+
+        // status = ending
+        assertThat(rasHistory.get(7)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun","myTestBundle","dev.galasa.framework.MyActualTestClass", "MyActualTestClass", "daffyduck", "ending","Passed");
+
+        // status = finished
+        assertThat(rasHistory.get(8)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun","myTestBundle","dev.galasa.framework.MyActualTestClass", "MyActualTestClass", "daffyduck", "finished","Passed");
+
+
+        // Check the DSS history
+        assertThat(dss.history).as("history of activity within the DSS indicates it was used an unexpected number of times").hasSize(7);
+
+        assertThat(dss.history.get(0)).extracting("operation","key")
+            .containsExactly(MockIDynamicStatusStoreService.DssHistoryRecordType.PUT, "run.myTestRun.heartbeat");
+
+        assertThat(dss.history.get(1)).extracting("operation","key")
+            .containsExactly(MockIDynamicStatusStoreService.DssHistoryRecordType.PUT, "run.myTestRun.heartbeat");
+
+        assertThat(dss.history.get(2)).extracting("operation","key")
+            .containsExactly(MockIDynamicStatusStoreService.DssHistoryRecordType.PUT, "metrics.runs.local");
+
+        assertThat(dss.history.get(3)).extracting("operation","key")
+            .containsExactly(MockIDynamicStatusStoreService.DssHistoryRecordType.DELETE, "run.myTestRun.method.name");
+
+        assertThat(dss.history.get(4)).extracting("operation","key")
+            .containsExactly(MockIDynamicStatusStoreService.DssHistoryRecordType.DELETE, "run.myTestRun.method.total");
+
+        assertThat(dss.history.get(5)).extracting("operation","key")
+            .containsExactly(MockIDynamicStatusStoreService.DssHistoryRecordType.DELETE, "run.myTestRun.method.current");
+
+        assertThat(dss.history.get(6)).extracting("operation","key")
+            .containsExactly(MockIDynamicStatusStoreService.DssHistoryRecordType.DELETE, "run.myTestRun.heartbeat");
 
         assertThat(framework.isShutDown()).isTrue();
 

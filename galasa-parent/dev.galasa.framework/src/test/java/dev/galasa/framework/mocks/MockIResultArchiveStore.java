@@ -33,7 +33,8 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
     @Override
     public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
         assertThat(testStructure).isNotNull();
-        testStructureHistory.add(testStructure);
+        TestStructure historyRecord = new TestStructure(testStructure);
+        testStructureHistory.add(historyRecord);
 
         mockFS.setFileContents(mockFS.getPath("/my/stored/artifacts/root/framework/cps_record.properties"), "Dummy test content");
     }

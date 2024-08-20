@@ -5,10 +5,9 @@
  */
 package dev.galasa.framework.mocks;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -23,16 +22,40 @@ import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 
 public class MockIDynamicStatusStoreService implements IDynamicStatusStoreService {
 
+    public static enum DssHistoryRecordType {
+        PUT, DELETE
+    }
+
+    public static class DssHistoryRecord {
+        public DssHistoryRecordType operation ;
+        public String key ;
+        public String value;
+
+        public DssHistoryRecord(DssHistoryRecordType operation, String key) {
+            this(operation,key,null);
+        }
+
+        public DssHistoryRecord(DssHistoryRecordType operation, String key, String value) {
+            this.operation = operation;
+            this.key = key; 
+            this.value = value;
+        }
+    }
+
+    public List<DssHistoryRecord> history = new ArrayList<>();
+
     public Map<String,String> data = new HashMap<>();
 
     @Override
     public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue) {
+        history.add( new DssHistoryRecord(DssHistoryRecordType.PUT, key , newValue));
         data.put(key,newValue);
         return true;
     }
 
     @Override
     public void delete(@NotNull String key) throws DynamicStatusStoreException {
+        history.add( new DssHistoryRecord(DssHistoryRecordType.DELETE, key ));
         data.remove(key);
     }
 

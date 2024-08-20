@@ -18,7 +18,7 @@ public interface IBundleManager {
      * Is the supplied active in the OSGi framework
      * @param bundleContext
      * @param bundleSymbolicName
-     * @return true if it is ib the or false
+     * @return true if it is active or false otherwise.
      */
     public boolean isBundleActive(BundleContext bundleContext, String bundleSymbolicName);
 
