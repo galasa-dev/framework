@@ -77,6 +77,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
         run: |
+          set -o pipefail
           gradle -b galasa-parent/build.gradle check publish --info \
           -Dorg.gradle.jvmargs=-Xmx5120M \
           -PsourceMaven=https://development.galasa.dev/${{ env.ARGO_APP_BRANCH }}/maven-repo/maven/ \
@@ -94,6 +95,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
         run: |
+          set -o pipefail
           gradle -b galasa-parent/build.gradle check publish --info \
           -Dorg.gradle.jvmargs=-Xmx5120M \
           -PsourceMaven=https://development.galasa.dev/${{ env.ARGO_APP_BRANCH }}/maven-repo/maven/ \
