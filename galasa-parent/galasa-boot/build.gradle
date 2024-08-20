@@ -47,7 +47,7 @@ dependencies {
     implementation project (':dev.galasa.framework.maven.repository')
     embedImplementation project (':dev.galasa.framework.maven.repository.spi')
 
-    embedImplementation 'org.apache.felix:org.apache.felix.framework:7.0.0'
+    embedImplementation 'org.apache.felix:org.apache.felix.framework:7.0.5'
     embedImplementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
     implementation 'org.apache.felix:org.apache.felix.scr:2.1.14'
 

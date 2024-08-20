@@ -32,7 +32,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class UsersRoute extends BaseRoute {
 
     // Regex to match endpoint /users and /users/
-    private static final String path = "\\/users?";
+    private static final String path = "\\/?";
 
     public static final String QUERY_PARAMETER_LOGIN_ID_VALUE_MYSELF = "me";
 
