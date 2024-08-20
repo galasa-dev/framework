@@ -12,6 +12,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.WatchService;
+import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
@@ -186,6 +187,25 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
 	}
 
     @Override
+    public Path createFile(Path path, FileAttribute<?>... attrs) throws IOException {
+        createFile(path);
+        return path;
+    }
+
+    @Override
+    public void write(Path path, byte[] bytes) throws IOException {
+        Node node = this.files.get(path.toString());
+        if (node != null) {
+            node.contents = bytes;
+        } else {
+            createNode(path, false);
+            write(path,bytes);
+        }
+    }
+
+    // -------------- Un-implemented methods follow ------------------
+
+    @Override
     public void close() throws IOException {
         throw new UnsupportedOperationException("Unimplemented method 'close'");
     }
@@ -234,4 +254,6 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
     public WatchService newWatchService() throws IOException {
         throw new UnsupportedOperationException("Unimplemented method 'newWatchService'");
     }
+
+
 }

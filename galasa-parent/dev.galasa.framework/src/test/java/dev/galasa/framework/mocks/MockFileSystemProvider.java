@@ -77,7 +77,7 @@ public class MockFileSystemProvider extends FileSystemProvider {
     @Override
     public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
         if (!mockFS.exists(path)) {
-            throw new IOException("File not found!");
+            throw new IOException("File not found! "+path.toString());
         }
 
         byte[] contents = mockFS.getContentsAsBytes(path);

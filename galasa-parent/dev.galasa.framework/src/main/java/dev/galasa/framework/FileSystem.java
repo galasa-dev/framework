@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 import java.util.stream.Stream;
 
 public class FileSystem implements IFileSystem {
@@ -63,5 +64,15 @@ public class FileSystem implements IFileSystem {
             contentType = "text/plain";
         }
         return contentType;
+    }
+
+    @Override
+    public Path createFile(Path path, FileAttribute<?>... attrs) throws IOException {
+        return Files.createFile(path, attrs);
+    }
+
+    @Override
+    public void write(Path path, byte[] bytes) throws IOException {
+        Files.write(path,bytes);
     }
 }
