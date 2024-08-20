@@ -7,6 +7,7 @@ package dev.galasa.framework;
 
 import java.util.Properties;
 
+import dev.galasa.framework.internal.runner.BundleManager;
 import dev.galasa.framework.internal.runner.RealAnnotationExtractor;
 import dev.galasa.framework.spi.*;
 import dev.galasa.framework.spi.language.GalasaTest;
