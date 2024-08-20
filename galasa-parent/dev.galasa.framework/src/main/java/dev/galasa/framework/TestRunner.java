@@ -33,6 +33,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.SharedEnvironment;
 import dev.galasa.Test;
+import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
