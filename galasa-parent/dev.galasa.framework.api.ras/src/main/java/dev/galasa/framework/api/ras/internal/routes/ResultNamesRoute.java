@@ -53,7 +53,7 @@ public class ResultNamesRoute extends RunsRoute {
         List<String> resultsList = getResultNames();
 
 		try {
-            if (queryParams.getSortValue() != null ) {
+            if (queryParams.getSortValue() !=null ){
 			    if (!queryParams.isAscending("resultnames")) {
 				    Collections.reverse(resultsList);
                 }

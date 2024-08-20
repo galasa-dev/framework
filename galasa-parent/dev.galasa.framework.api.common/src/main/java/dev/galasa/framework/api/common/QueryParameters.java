@@ -104,7 +104,7 @@ public class QueryParameters {
 	}
 
     /**
-     * @param queryParameterName
+     * @param queryParameterName the query parameter to retrieve the value of
      * @param defaultValue Returned if there are no occurrances of the query parameter.
      * @return the value of the given query parameter as a boolean
      * @throws InternalServletException when there are multiple values of this query parameter
@@ -119,7 +119,7 @@ public class QueryParameters {
                 ServletError error = new ServletError(GAL5090_INVALID_QUERY_PARAM_NOT_BOOLEAN, queryParameterName, paramValueStr);
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             } else {
-                returnedValue = Boolean.parseBoolean(paramValueStr.trim());
+                returnedValue = Boolean.parseBoolean(trimmedParamValue);
             }
         }
         return returnedValue;

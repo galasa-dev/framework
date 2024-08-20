@@ -114,10 +114,7 @@ public class RasQueryParameters {
         String sortValue = generalQueryParams.getSingleString("sort", defaultSortValue);
         RasSortField rasSortValue = null;
         if (sortValue != null) {
-            validateSortValue(sortValue);
-
-            String[] sortValueParts = sortValue.split(":");
-            rasSortValue = new RasSortField(sortValueParts[0].toLowerCase(), sortValueParts[1].toLowerCase());
+            rasSortValue = getValidatedSortValue(sortValue);
         }
         return rasSortValue;
     }
@@ -185,13 +182,14 @@ public class RasQueryParameters {
         return sortDirectionMap.get(sortField.getSortDirection());
 	}
 
-    private void validateSortValue(String sortValue) throws InternalServletException {
+    private RasSortField getValidatedSortValue(String sortValue) throws InternalServletException {
         String[] sortValueParts = sortValue.split(":");
 
         if (sortValueParts.length != 2 || !sortDirectionMap.containsKey(sortValueParts[1].toLowerCase())) {
             ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, sortValue);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
+        return new RasSortField(sortValueParts[0].toLowerCase(), sortValueParts[1].toLowerCase());
     }
 
 }

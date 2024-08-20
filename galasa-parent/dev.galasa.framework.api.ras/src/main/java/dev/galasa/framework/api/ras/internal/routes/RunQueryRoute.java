@@ -85,7 +85,6 @@ public class RunQueryRoute extends RunsRoute {
 		/* Get list of Run Ids from the URL -
 		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
-
 		List<String> runIds = queryParams.getRunIds();
 
         // Default to sorting in descending order based on the "end time" of runs
@@ -122,8 +121,10 @@ public class RunQueryRoute extends RunsRoute {
 	}
 
     private RasSortField formatSortField(RasSortField sortValue) {
-        RasSortField sortField = sortValue;
+        RasSortField sortField = null;
         if (sortValue != null) {
+            sortField = new RasSortField(sortValue.getFieldName(), sortValue.getSortDirection());
+
             // The "to" sort parameter corresponds to a run's "endTime" field
             if (sortValue.getFieldName().equals("to")) {
                 sortField.setFieldName("endTime");
