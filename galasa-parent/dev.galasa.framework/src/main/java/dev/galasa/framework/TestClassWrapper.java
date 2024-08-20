@@ -181,7 +181,7 @@ public class TestClassWrapper {
      * 
      * @throws TestRunException
      */
-    public void runTestMethods(@NotNull TestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
+    public void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
 
         logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of test class "
                 + testClass.getName() + LOG_START_LINE + LOG_ASTERS);

@@ -65,75 +65,6 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         getBundleContext(), new FileSystem(), new SystemEnvironment());
     }
 
-
-
-    private static BundleContext getBundleContext() {
-        return FrameworkUtil.getBundle(FrameworkInitialisation.class).getBundleContext();
-    }
-
-    /**
-     * Obtain the location of the galasa home directory
-     * @return a String representing the location of the users Galasa home directory
-     */
-    public String getGalasaHome(Environment env) {
-        // 1st: If GALASA_HOME is set as a system property then use that,
-        // 2nd: If GALASA_HOME is set as a system environment variable, then use that.
-        // 3rd: otherwise we use the calling users' home folder.
-        String GALASA_HOME = "GALASA_HOME";
-        String home = env.getProperty(GALASA_HOME);
-        if( (home == null) || (home.trim().isEmpty())) {
-            home = env.getenv(GALASA_HOME);
-            if( (home == null) || (home.trim().isEmpty())) {
-                String userHome = env.getProperty(USER_HOME);
-                if ( userHome != null ) {
-                    logger.info("System property "+USER_HOME+" ("+userHome+") used to set value of home location.");
-                    home = userHome + "/.galasa";
-                } else {
-                    // On windows, the USERPROFILE environment variable will be set to C:/User/Name or similar.
-                    String userProfile = env.getenv("USERPROFILE");
-                    if (userProfile != null) {
-                        logger.info("System property USERPROFILE ("+userProfile+") used to set value of home location.");
-                        home = userProfile + "/.galasa";
-                    } else {
-                        // Just in case, fall back on a trusty default.
-                        logger.info("Defaulting home to ~/.galasa");
-                        home = "~/.galasa";
-                    }
-                }
-                
-            } else {
-                logger.info("Environment variable GALASA_HOME used to set value of home location.");
-            }
-        } else {
-            logger.info("System property GALASA_HOME used to set value of home location.");
-            // The system property value may be surrounded by " characters.
-            // If so, strip them off.
-            // We allow this because a path with strings in would be split
-            // into separate system properties otherwise.
-            home = stripLeadingAndTrailingQuotes(home);
-        }
-        logger.info("Galasa home location is "+home);
-
-        return home;
-    }
-
-    /**
-     * String the first double-quote and the last double-quote off
-     * the begining and end of a string.
-     * @param input
-     * @return The stripped (or unaltered) string.
-     */
-    String stripLeadingAndTrailingQuotes(String input ) {
-        String output = input ;
-        if (output.startsWith("\"")) {
-            output = output.replaceFirst("\"", "");
-        }
-        if (output.endsWith("\"")) {
-            output = output.substring(0,output.length()-1);
-        }
-        return output;
-    }
-
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
         Properties overrideProperties, 
@@ -227,6 +158,76 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             }
         }
     }
+
+
+    private static BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(FrameworkInitialisation.class).getBundleContext();
+    }
+
+    /**
+     * Obtain the location of the galasa home directory
+     * @return a String representing the location of the users Galasa home directory
+     */
+    public String getGalasaHome(Environment env) {
+        // 1st: If GALASA_HOME is set as a system property then use that,
+        // 2nd: If GALASA_HOME is set as a system environment variable, then use that.
+        // 3rd: otherwise we use the calling users' home folder.
+        String GALASA_HOME = "GALASA_HOME";
+        String home = env.getProperty(GALASA_HOME);
+        if( (home == null) || (home.trim().isEmpty())) {
+            home = env.getenv(GALASA_HOME);
+            if( (home == null) || (home.trim().isEmpty())) {
+                String userHome = env.getProperty(USER_HOME);
+                if ( userHome != null ) {
+                    logger.info("System property "+USER_HOME+" ("+userHome+") used to set value of home location.");
+                    home = userHome + "/.galasa";
+                } else {
+                    // On windows, the USERPROFILE environment variable will be set to C:/User/Name or similar.
+                    String userProfile = env.getenv("USERPROFILE");
+                    if (userProfile != null) {
+                        logger.info("System property USERPROFILE ("+userProfile+") used to set value of home location.");
+                        home = userProfile + "/.galasa";
+                    } else {
+                        // Just in case, fall back on a trusty default.
+                        logger.info("Defaulting home to ~/.galasa");
+                        home = "~/.galasa";
+                    }
+                }
+                
+            } else {
+                logger.info("Environment variable GALASA_HOME used to set value of home location.");
+            }
+        } else {
+            logger.info("System property GALASA_HOME used to set value of home location.");
+            // The system property value may be surrounded by " characters.
+            // If so, strip them off.
+            // We allow this because a path with strings in would be split
+            // into separate system properties otherwise.
+            home = stripLeadingAndTrailingQuotes(home);
+        }
+        logger.info("Galasa home location is "+home);
+
+        return home;
+    }
+
+    /**
+     * String the first double-quote and the last double-quote off
+     * the begining and end of a string.
+     * @param input
+     * @return The stripped (or unaltered) string.
+     */
+    String stripLeadingAndTrailingQuotes(String input ) {
+        String output = input ;
+        if (output.startsWith("\"")) {
+            output = output.replaceFirst("\"", "");
+        }
+        if (output.endsWith("\"")) {
+            output = output.substring(0,output.length()-1);
+        }
+        return output;
+    }
+
+    
 
     /**
      * Submit the run and return the run name.
@@ -397,6 +398,10 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      */
     @Override
     public @NotNull IFramework getFramework() {
+        return this.framework;
+    }
+
+    public @NotNull IShuttableFramework getShutableFramework() {
         return this.framework;
     }
 
