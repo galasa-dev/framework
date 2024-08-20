@@ -99,18 +99,16 @@ public class RunQueryRoute extends RunsRoute {
                 List<IRasSearchCriteria> criteria = getCriteria(queryParams);
                 if (includeCursor || pageCursor != null) {
                     runsPage = getRunsPage(pageCursor, pageSize, formatSortField(sortValue), criteria);
-                    runs = convertRunsToRunResults(runsPage.getRuns());
                 } else {
                     runs = getRuns(criteria);
                 }
             }
     
-            runs = sortResults(runs, queryParams, sortValue);
-    
             if (runsPage == null) {
+                runs = sortResults(runs, queryParams, sortValue);
                 responseJson = buildResponseBody(runs, pageNum, pageSize);
             } else {
-                responseJson = buildResponseBody(runs, runsPage.getNextCursor());
+                responseJson = buildResponseBody(runsPage);
             }
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
@@ -197,14 +195,15 @@ public class RunQueryRoute extends RunsRoute {
         return gson.toJson(runsPage);
 	}
 
-	private String buildResponseBody(List<RasRunResult> runs, String nextCursor) throws InternalServletException {
+	private String buildResponseBody(RasRunResultPage runsPage) throws ResultArchiveStoreException {
 
 		//Building the object to be returned by the API and splitting
-        JsonObject pageJson = new JsonObject();
+        JsonObject pageJson = new JsonObject();        
 
+        List<RasRunResult> runs = convertRunsToRunResults(runsPage.getRuns());
         JsonElement tree = gson.toJsonTree(runs);
         pageJson.addProperty("amountOfRuns", runs.size());
-        pageJson.addProperty("nextCursor", nextCursor);
+        pageJson.addProperty("nextCursor", runsPage.getNextCursor());
         pageJson.add("runs", tree);
 
         return gson.toJson(pageJson);
@@ -414,15 +413,14 @@ public class RunQueryRoute extends RunsRoute {
             runsComparator = new SortByResult();
         }
 
-        if (runsComparator != null) {
-            // Reverse the comparator if the direction is "desc"
-            if (!queryParams.isAscending(sortField)) {
-                runsComparator = runsComparator.reversed();
-            }
-
-            // Ensure null values appear last
-            runsComparator = Comparator.nullsLast(runsComparator);
+        // Reverse the comparator if the direction is "desc"
+        if (runsComparator != null && !queryParams.isAscending(sortField)) {
+            runsComparator = runsComparator.reversed();
         }
+
+        // Ensure null values appear last
+        runsComparator = Comparator.nullsLast(runsComparator);
+
         return runsComparator;
     }
 
