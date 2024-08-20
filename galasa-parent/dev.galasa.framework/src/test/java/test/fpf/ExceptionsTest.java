@@ -110,7 +110,7 @@ public class ExceptionsTest {
         boolean caught = false;
         File nOfile = new File("/tmp/nope");
         try {
-            FrameworkPropertyFile fpf = new FrameworkPropertyFile(nOfile.toURI());
+            new FrameworkPropertyFile(nOfile.toURI()); // Return value not used by this test.
         } catch (FrameworkPropertyFileException e) {
             caught = true;
         }
@@ -310,6 +310,7 @@ public class ExceptionsTest {
      */
     private static class Watcher implements IFrameworkPropertyFileWatcher {
 
+        // TODO: What is this doing ? 
         private Event  event;
         private String key;
         private String newValue;

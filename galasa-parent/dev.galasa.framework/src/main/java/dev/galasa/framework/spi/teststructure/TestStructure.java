@@ -6,7 +6,7 @@
 package dev.galasa.framework.spi.teststructure;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -41,6 +41,39 @@ public class TestStructure {
     private List<String>     logRecordIds;
 
     private List<String>     artifactRecordIds;
+
+    public TestStructure() {
+    }
+
+    public TestStructure( TestStructure source ) {
+        if (source!=null) {
+            this.runName = source.runName;
+            this.bundle = source.bundle;
+            this.testName = source.testName;
+            this.testShortName = source.testShortName;
+            this.requestor = source.requestor;
+            this.status = source.status;
+            this.result = source.result;
+            this.queued = source.queued;
+            this.endTime = source.endTime;
+            if (source.methods != null) {
+                this.methods = new ArrayList<TestMethod>();
+                this.methods.addAll(source.methods);
+            }
+            if (source.gherkinMethods!= null) {
+                this.gherkinMethods = new ArrayList<TestGherkinMethod>();
+                this.gherkinMethods.addAll(source.gherkinMethods);
+            }
+            if (source.logRecordIds != null) {
+                this.logRecordIds = new ArrayList<String>();
+                this.logRecordIds.addAll(source.logRecordIds);
+            }
+            if (source.artifactRecordIds != null ) {
+                this.artifactRecordIds = new ArrayList<String>();
+                this.artifactRecordIds.addAll(source.artifactRecordIds);
+            }
+        }
+    }
 
     public String getBundle() {
         return bundle;

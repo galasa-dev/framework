@@ -14,8 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
-import dev.galasa.framework.internal.ras.directory.DirectoryRASDirectoryService;
-import dev.galasa.framework.internal.ras.directory.DirectoryRASRunResult;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;

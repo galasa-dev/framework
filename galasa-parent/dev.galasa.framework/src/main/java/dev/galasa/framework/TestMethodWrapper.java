@@ -46,7 +46,7 @@ public class TestMethodWrapper {
         return;
     }
 
-    public void invoke(@NotNull TestRunManagers managers, Object testClassObject, boolean continueOnTestFailure) throws TestRunException {
+    public void invoke(@NotNull ITestRunManagers managers, Object testClassObject, boolean continueOnTestFailure) throws TestRunException {
         // run all the @Befores before the test method
         for (GenericMethodWrapper before : this.befores) {
             before.invoke(managers, testClassObject, testMethod);
