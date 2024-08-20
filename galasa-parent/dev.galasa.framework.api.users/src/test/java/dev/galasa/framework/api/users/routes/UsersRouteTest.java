@@ -37,7 +37,7 @@ public class UsersRouteTest extends BaseServletTest {
 
         queryParams.put("loginId", new String[] { requestorLoginId });
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null, headerMap);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
@@ -59,7 +59,7 @@ public class UsersRouteTest extends BaseServletTest {
     }
 
     @Test
-    public void testUsersGetRequestWithMiisongOrNullParamReturnsBadRequest() throws Exception {
+    public void testUsersGetRequestWithMissingOrNullParamReturnsBadRequest() throws Exception {
         // Given...
         MockUsersServlet servlet = new MockUsersServlet();
         MockEnvironment env = new MockEnvironment();
@@ -71,7 +71,7 @@ public class UsersRouteTest extends BaseServletTest {
 
         queryParams.put("loginId", new String[] { requestorLoginId });
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null, headerMap);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
@@ -104,7 +104,7 @@ public class UsersRouteTest extends BaseServletTest {
 
         queryParams.put("loginId", new String[] { requestorLoginId });
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null, headerMap);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
@@ -138,7 +138,7 @@ public class UsersRouteTest extends BaseServletTest {
 
         queryParams.put("loginId", new String[] { requestorLoginId });
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null, headerMap);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
@@ -173,7 +173,7 @@ public class UsersRouteTest extends BaseServletTest {
 
         queryParams.put("loginId", new String[] { requestorLoginId });
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/users", headerMap);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null, headerMap);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
