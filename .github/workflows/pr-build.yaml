@@ -46,7 +46,16 @@ jobs:
           -Dorg.gradle.jvmargs=-Xmx5120M \
           -PsourceMaven=https://development.galasa.dev/gh/maven-repo/maven/ \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-          -PtargetMaven=${{ github.workspace }}/repo 
+          -PtargetMaven=${{ github.workspace }}/repo \
+          --info
+      
+      - name: Upload test output as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: unit-tests
+          path: /home/runner/work/framework/framework/galasa-parent/*/index.html
+          retention-days: 7
+          if-no-files-found: ignore
           
       - name: Build Framework image for testing
         uses: docker/build-push-action@v5
