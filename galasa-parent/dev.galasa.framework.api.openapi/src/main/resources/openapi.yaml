@@ -296,7 +296,6 @@ paths:
       summary: Returns the details of the requesting user. 
       tags:
       - Users API
-      security: []
       parameters:
         - name: loginId
           in: query
