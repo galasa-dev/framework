@@ -8,6 +8,7 @@ package dev.galasa.framework.mocks;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -203,6 +204,12 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         }
     }
 
+
+    @Override
+    public List<String> readLines(URI uri) throws IOException {
+        throw new UnsupportedOperationException("Unimplemented method 'readLines'");
+    }
+
     // -------------- Un-implemented methods follow ------------------
 
     @Override
@@ -254,6 +261,4 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
     public WatchService newWatchService() throws IOException {
         throw new UnsupportedOperationException("Unimplemented method 'newWatchService'");
     }
-
-
 }

@@ -10,6 +10,6 @@ import java.util.List;
 
 import dev.galasa.framework.TestRunException;
 
-public interface IGherkinFileReader {
+public interface IFileLineReader {
     public List<String> readLines(URI gherkinUri) throws TestRunException ;
 }

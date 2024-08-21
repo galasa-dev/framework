@@ -15,6 +15,8 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.framework.spi.language.gherkin.parser.*;
 import dev.galasa.framework.spi.language.gherkin.xform.ParseTreeTransform;
 import dev.galasa.framework.spi.language.gherkin.xform.ParseTreeVisitorPrinter;
+import dev.galasa.framework.FileSystem;
+import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.FrameworkException;
@@ -47,14 +49,16 @@ public class GherkinTest {
 
 
     public GherkinTest(IRun run, TestStructure testStructure) throws TestRunException {
-        this(run,testStructure, new GherkinFileReader() );
+        this(run,testStructure, new FileSystem() );
     }
 
-    protected GherkinTest(IRun run, TestStructure testStructure, IGherkinFileReader fileReader) throws TestRunException {
+    public GherkinTest(IRun run, TestStructure testStructure, IFileSystem fs) throws TestRunException {
 
         this.testStructure = testStructure;
 
-        List<String> lines = getGherkinFeatureTextLines(run,fileReader);
+        IFileLineReader reader = new FileLineReader(fs);
+
+        List<String> lines = getGherkinFeatureTextLines(run,reader);
 
         this.feature = parseFeature(lines);
 
@@ -178,7 +182,7 @@ public class GherkinTest {
     }
 
 
-    private List<String> getGherkinFeatureTextLines(IRun run, IGherkinFileReader fileReader) throws TestRunException {
+    private List<String> getGherkinFeatureTextLines(IRun run, IFileLineReader fileReader) throws TestRunException {
 
         String gherkinUriString = run.getGherkin();
         if (gherkinUriString == null) {

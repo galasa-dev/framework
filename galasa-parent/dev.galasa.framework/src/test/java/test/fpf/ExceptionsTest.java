@@ -5,7 +5,7 @@
  */
 package test.fpf;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,14 +107,11 @@ public class ExceptionsTest {
      */
     @Test
     public void testExceptionOfNOfileExists() {
-        boolean caught = false;
         File nOfile = new File("/tmp/nope");
-        try {
-            new FrameworkPropertyFile(nOfile.toURI()); // Return value not used by this test.
-        } catch (FrameworkPropertyFileException e) {
-            caught = true;
-        }
-        assertTrue("Did not throw expected exception", caught);
+        catchThrowableOfType( ()->
+            { 
+                new FrameworkPropertyFile(nOfile.toURI()); 
+            }, FrameworkPropertyFileException.class);
     }
 
     /**
@@ -124,16 +121,15 @@ public class ExceptionsTest {
      */
     @Test
     public void testExceptionOfFailedSet() throws IOException {
-        boolean caught = false;
         File file = File.createTempFile("toBeDeleted", ".properties");
-        try {
-            FrameworkPropertyFile fpf = new FrameworkPropertyFile(file.toURI());
-            file.delete();
-            fpf.set("No", "BiggerNo");
-        } catch (FrameworkPropertyFileException e) {
-            caught = true;
-        }
-        assertTrue("Did not throw expected exception", caught);
+        catchThrowableOfType( ()->
+            { 
+                FrameworkPropertyFile fpf = new FrameworkPropertyFile(file.toURI());
+                file.delete();
+                fpf.set("No", "BiggerNo");
+            }, 
+       FrameworkPropertyFileException.class 
+        );
     }
 
     /**
@@ -143,21 +139,18 @@ public class ExceptionsTest {
      */
     @Test
     public void testExceptionOfFailedSetMap() throws IOException {
-        boolean caught = false;
         File file = File.createTempFile("toBeDeleted", ".properties");
 
         Map<String, String> map = new HashMap<String, String>();
         map.put("key", "value");
         map.put("key2", "value");
 
-        try {
+        catchThrowableOfType( ()->
+        { 
             FrameworkPropertyFile fpf = new FrameworkPropertyFile(file.toURI());
             file.delete();
             fpf.set(map);
-        } catch (FrameworkPropertyFileException e) {
-            caught = true;
-        }
-        assertTrue("Did not throw expected exception", caught);
+        } , FrameworkPropertyFileException.class );
     }
 
     /**
@@ -167,17 +160,15 @@ public class ExceptionsTest {
      */
     @Test
     public void testExceptionOffaileddelete() throws IOException {
-        boolean caught = false;
+        
         File file = File.createTempFile("toBeDeleted", ".properties");
-        try {
+        catchThrowableOfType( ()->
+        { 
             FrameworkPropertyFile fpf = new FrameworkPropertyFile(file.toURI());
             file.delete();
             fpf.destroy();
             fpf.delete("Test1");
-        } catch (FrameworkPropertyFileException e) {
-            caught = true;
-        }
-        assertTrue("Did not throw expected exception", caught);
+        } , FrameworkPropertyFileException.class );
     }
 
     /**
@@ -188,22 +179,19 @@ public class ExceptionsTest {
      */
     @Test
     public void testExceptionOfFailedDeleteSet() throws IOException {
-        boolean caught = false;
         File file = File.createTempFile("toBeDeleted", ".properties");
 
         Set<String> set = new HashSet<String>();
         set.add("One");
         set.add("two");
         ;
-        try {
+        catchThrowableOfType( ()->
+        { 
             FrameworkPropertyFile fpf = new FrameworkPropertyFile(file.toURI());
             file.delete();
             fpf.destroy();
             fpf.delete(set);
-        } catch (FrameworkPropertyFileException e) {
-            caught = true;
-        }
-        assertTrue("Did not throw expected exception", caught);
+        } , FrameworkPropertyFileException.class );
     }
 
     /**
@@ -213,18 +201,16 @@ public class ExceptionsTest {
      */
     @Test
     public void testExceptionOfFailedUnwatch() throws IOException {
-        boolean caught = false;
+
         File file = File.createTempFile("toBeDeleted", ".properties");
-        try {
+        catchThrowableOfType( ()->
+        { 
             FrameworkPropertyFile fpf = new FrameworkPropertyFile(file.toURI());
             UUID uuid = fpf.watch(new Watcher(), "Test1");
             file.delete();
             fpf.destroy();
             fpf.unwatch(uuid);
-        } catch (FrameworkPropertyFileException e) {
-            caught = true;
-        }
-        assertTrue("Did not throw expected exception", caught);
+        } , FrameworkPropertyFileException.class );
     }
 
     /**
@@ -235,17 +221,14 @@ public class ExceptionsTest {
      */
     @Test
     public void testExceptionOfFailedAtomicSet() throws IOException {
-        boolean caught = false;
         File file = File.createTempFile("toBeDeleted", ".properties");
-        try {
+        catchThrowableOfType( ()->
+        { 
             FrameworkPropertyFile fpf = new FrameworkPropertyFile(file.toURI());
             file.delete();
             fpf.destroy();
             fpf.setAtomic("Test1", "ItDoesntMatter", "Nothing else matters");
-        } catch (FrameworkPropertyFileException e) {
-            caught = true;
-        }
-        assertTrue("Did not throw expected exception", caught);
+        } , FrameworkPropertyFileException.class );
     }
 
     /**
@@ -256,23 +239,20 @@ public class ExceptionsTest {
      */
     @Test
     public void testExceptionOfFailedAtomicSetMap() throws IOException {
-        boolean caught = false;
         File file = File.createTempFile("toBeDeleted", ".properties");
 
         Map<String, String> map = new HashMap<String, String>();
         map.put("key", "value");
         map.put("key2", "value");
 
-        try {
+        catchThrowableOfType( ()->
+        { 
             FrameworkPropertyFile fpf = new FrameworkPropertyFile(file.toURI());
             file.delete();
             fpf.destroy();
             fpf.setAtomic("Test1", "ItDoesntMatter", "Nothing else matters", map);
 
-        } catch (FrameworkPropertyFileException e) {
-            caught = true;
-        }
-        assertTrue("Did not throw expected exception", caught);
+        } , FrameworkPropertyFileException.class );
     }
 
     /**
@@ -297,9 +277,8 @@ public class ExceptionsTest {
             fpf.onStart(observer);
             fpf.onStop(observer);
         } catch (Exception e) {
-            assertTrue("Non used methods have been implemented", false);
+            fail("Non used methods have been implemented");
         }
-        assertTrue("Unused methods responded as epxpected", true);
     }
 
     /**
