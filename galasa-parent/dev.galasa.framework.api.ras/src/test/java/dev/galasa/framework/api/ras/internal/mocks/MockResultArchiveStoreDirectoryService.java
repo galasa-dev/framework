@@ -12,26 +12,19 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasRunResultPage;
+import dev.galasa.framework.spi.ras.RasSortField;
 import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class MockResultArchiveStoreDirectoryService implements IResultArchiveStoreDirectoryService {
 
     private List<IRunResult> getRunsResults ;
+    private String nextCursor;
 
     public MockResultArchiveStoreDirectoryService(List<IRunResult> getRunsResults) {
         this.getRunsResults = getRunsResults ;
     }
-
-	@Override
-	public @NotNull String getName() {
-		throw new UnsupportedOperationException("Unimplemented method 'getName'");
-	}
-
-	@Override
-	public boolean isLocal() {
-		throw new UnsupportedOperationException("Unimplemented method 'isLocal'");
-	}
 
 	private void applySearchCriteria( IRasSearchCriteria searchCriteria) throws ResultArchiveStoreException{
 		List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
@@ -51,6 +44,11 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 			applySearchCriteria(searchCriteria);
 		}
 		return this.getRunsResults;
+	}
+
+	@Override
+	public @NotNull RasRunResultPage getRunsPage(int maxResults, RasSortField primarySort, String pageCursor, @NotNull IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
+        return new RasRunResultPage(getRuns(searchCriterias), nextCursor);
 	}
 
 	@Override
@@ -108,5 +106,18 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 		}
 		throw new ResultArchiveStoreException("Run id not found in mock getRunById().");
 	}
-    
+
+    public void setNextCursor(String nextCursor) {
+        this.nextCursor = nextCursor;
+    }
+
+	@Override
+	public @NotNull String getName() {
+		throw new UnsupportedOperationException("Unimplemented method 'getName'");
+	}
+
+	@Override
+	public boolean isLocal() {
+		throw new UnsupportedOperationException("Unimplemented method 'isLocal'");
+	}
 }
