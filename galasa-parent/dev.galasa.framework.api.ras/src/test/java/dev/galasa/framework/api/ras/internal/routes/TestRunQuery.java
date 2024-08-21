@@ -13,7 +13,6 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 import org.junit.Test;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import dev.galasa.framework.api.ras.internal.RasServlet;
@@ -69,9 +68,8 @@ public class TestRunQuery extends RasServletTest {
 		return map;
 	}
 
-	private Map<String, String[]> setQueryParameter (Integer page, Integer size,String sort, String runname, String requestor, Integer agemin, Integer agemax){
+	private Map<String, String[]> setQueryParameter (Integer size,String sort, String runname, String requestor, Integer agemin, Integer agemax){
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		parameterMap = addQueryIntParameter(parameterMap, "page", page);
 		parameterMap = addQueryIntParameter(parameterMap, "size", size);
 		parameterMap = addQueryParameter(parameterMap, "sort", sort);
 		parameterMap = addQueryParameter(parameterMap, "runname", runname);
@@ -146,29 +144,6 @@ public class TestRunQuery extends RasServletTest {
         }
         return runsJson;
     }
-
-	private String generateExpectedJson(List<IRunResult> mockInputRunResults, int pageSize, int pageNum) throws ResultArchiveStoreException {
-        List<List<IRunResult>> pagedRuns = ListUtils.partition(mockInputRunResults, pageSize);
-		
-        JsonObject jsonResult = new JsonObject();
-        jsonResult.addProperty("pageNum", pageNum);
-        jsonResult.addProperty("pageSize", pageSize);
-
-        JsonArray runsJson = new JsonArray();
-        if (!pagedRuns.isEmpty()) {
-            jsonResult.addProperty("numPages", pagedRuns.size());
-
-            runsJson = createRunsJsonArray(pagedRuns.get(pageNum - 1));
-
-        } else {
-            jsonResult.addProperty("numPages", 1);
-        }
-
-        jsonResult.addProperty("amountOfRuns", mockInputRunResults.size());
-        jsonResult.add("runs", runsJson);
-
-		return gson.toJson(jsonResult);
-	}
 
 	private String generateExpectedJson(List<IRunResult> mockInputRunResults, String nextCursor, int pageSize) throws ResultArchiveStoreException {
 		
@@ -407,7 +382,7 @@ public class TestRunQuery extends RasServletTest {
 	@Test
 	public void testQueryWithRequestorNotSortedButNoDBServiceReturnsError() throws Exception {
 		// Given...
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,"mickey", 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,null, null,"mickey", 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap,"/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(null,mockRequest);
@@ -469,7 +444,6 @@ public class TestRunQuery extends RasServletTest {
 		// Given...
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		int pageSize = 100;
-		int pageNo = 1;
 
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
 
@@ -487,7 +461,7 @@ public class TestRunQuery extends RasServletTest {
 
 		// Then...
 		// We expect an empty page back, because the API server couldn't find any results
-		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -496,7 +470,7 @@ public class TestRunQuery extends RasServletTest {
 	@Test
 	public void testQueryWithRequestorNotSortedWithEmptyDBServiceReturnsOK() throws Exception {
 		// Given...
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,"mickey", 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,null, null,"mickey", 72, null);
 
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
 
@@ -508,7 +482,6 @@ public class TestRunQuery extends RasServletTest {
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
 		int pageSize = 100;
-		int pageNo = 1;
 
 		// When...
 		servlet.init();
@@ -524,7 +497,7 @@ public class TestRunQuery extends RasServletTest {
 		//   "runs": [
 		// 	 ]
 		//   }
-		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -535,13 +508,12 @@ public class TestRunQuery extends RasServletTest {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
 		int pageSize = 100;
-		int pageNo = 1;
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
@@ -568,7 +540,7 @@ public class TestRunQuery extends RasServletTest {
 		// 	   }
 		// 	]
 		// }
-		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -579,7 +551,7 @@ public class TestRunQuery extends RasServletTest {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2,1);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -633,13 +605,12 @@ public class TestRunQuery extends RasServletTest {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
 		int pageSize = 100;
-		int pageNo = 1;
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
@@ -666,7 +637,7 @@ public class TestRunQuery extends RasServletTest {
 		// 	   }
 		// 	]
 		// }
-		String expectedJson = generateExpectedJson(mockInputRunResults ,pageSize, pageNo);
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -677,7 +648,7 @@ public class TestRunQuery extends RasServletTest {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 48);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null ,null, null, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,null, null ,null, null, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -705,7 +676,7 @@ public class TestRunQuery extends RasServletTest {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 15);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(null,null,null, null ,null, null, null);
+		Map<String, String[]> parameterMap = setQueryParameter(null,null, null ,null, null, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -741,9 +712,8 @@ public class TestRunQuery extends RasServletTest {
 		//Build Http query parameters
 		IRunResult run = mockInputRunResults.get(1);
         int pageSize = 100;
-        int pageNum = 1;
 
-		Map<String, String[]> parameterMap = setQueryParameter(pageNum,pageSize,null,run.getTestStructure().getRunName(),null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize,null,run.getTestStructure().getRunName(),null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -768,7 +738,7 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 0,
 		//   "runs": []
 		// }
-		String expectedJson = generateExpectedJson(expectedRun, pageSize, pageNum);
+		String expectedJson = generateExpectedJson(expectedRun, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -782,8 +752,7 @@ public class TestRunQuery extends RasServletTest {
 		IRunResult run = mockInputRunResults.get(5);
 
         int pageSize = 100;
-        int pageNum = 1;
-		Map<String, String[]> parameterMap = setQueryParameter(pageNum,pageSize,null,run.getTestStructure().getRunName(),null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize,null,run.getTestStructure().getRunName(),null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -808,7 +777,7 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 0,
 		//   "runs": []
 		// }
-		String expectedJson = generateExpectedJson(expectedRun, pageSize, pageNum);
+		String expectedJson = generateExpectedJson(expectedRun, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -822,8 +791,7 @@ public class TestRunQuery extends RasServletTest {
 		IRunResult run = mockInputRunResults.get(5);
 
         int pageSize = 100;
-        int pageNum = 1;
-		Map<String, String[]> parameterMap = setQueryParameter(pageNum,pageSize,null,run.getTestStructure().getRunName(),null, 24, null);
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize,null,run.getTestStructure().getRunName(),null, 24, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -847,7 +815,7 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 0,
 		//   "runs": []
 		// }
-		String expectedJson = generateExpectedJson(expectedRun, pageSize, pageNum);
+		String expectedJson = generateExpectedJson(expectedRun, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -859,7 +827,7 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,5,1);
 		//Build Http query parameters
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,null,requestor, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,null,null,requestor, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -917,7 +885,7 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,5,2);
 
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(2,5,null,null,null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(5,null,null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -978,8 +946,7 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,5,1);
 		//Build Http query parameters
         int pageSize = 5;
-        int pageNum = 3;
-		Map<String, String[]> parameterMap = setQueryParameter(pageNum,pageSize,null,null,null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize,null,null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1017,39 +984,9 @@ public class TestRunQuery extends RasServletTest {
 		// 	   }
 		// 	]
 		// }
-        Collections.reverse(mockInputRunResults);
-
-		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNum);
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
-		assertThat(resp.getContentType()).isEqualTo("application/json");
-	}
-
-	@Test
-	public void testQueryWithRequestorNotSortedWithDBServiceTwentyRecordsPageSizeFivePageFiveReturnsError() throws Exception {
-		//Given..
-		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,3,1);
-		//Build Http query parameters
-		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
-		Map<String, String[]> parameterMap = setQueryParameter(5,5,null,null,requestor, 72, null);
-
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
-
-		RasServlet servlet = mockServletEnvironment.getServlet();
-		HttpServletRequest req = mockServletEnvironment.getRequest();
-		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ServletOutputStream outStream = resp.getOutputStream();
-
-		//When...
-		servlet.init();
-		servlet.doGet(req,resp);
-
-		//Then...
-		assertThat(resp.getStatus()).isEqualTo(400);
-
-		checkErrorStructure(outStream.toString(), 5004, "GAL5004E: ", "Error retrieving page.");
-
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
@@ -1059,7 +996,7 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,10,1);
 		//Build Http query parameters
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"result:asc",null,requestor, null, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"result:asc",null,requestor, null, null);
 		String[] fromTime = {"erroneousValue"};
 		parameterMap.put("from", fromTime);
 
@@ -1093,7 +1030,7 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,10,1);
 		//Build Http query parameters
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,null,requestor, null, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,null,null,requestor, null, null);
 		String[] toTime = {"erroneousValue"};
 		parameterMap.put("to", toTime);
 
@@ -1135,7 +1072,7 @@ public class TestRunQuery extends RasServletTest {
 
 		//Build Http query parameters
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,null,requestor, 72, null);;
+		Map<String, String[]> parameterMap = setQueryParameter(100,null,null,requestor, 72, null);
 		String[] runId = {"erroneousrunId"};
 		parameterMap.put("runId", runId);
 
@@ -1175,18 +1112,6 @@ public class TestRunQuery extends RasServletTest {
 		parameterMap.put("size", pageSize);
 
 		testQueryParametersReturnsError(parameterMap ,5005, "GAL5005E:","'size'","Invalid","NonIntegerErroneousValue");
-	}
-
-	@Test
-	public void testQueryWithNonIntegerPageNumberReturnsError () throws Exception {
-
-		//Build Http query parameters
-		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-
-		String[] pageNumber = {"NonIntegerErroneousValue"}; // << This is what should cause the failure.
-		parameterMap.put("page", pageNumber);
-
-		testQueryParametersReturnsError(parameterMap ,5005, "GAL5005E:","'page'","Invalid","NonIntegerErroneousValue");
 	}
 
 	@Test
@@ -1233,13 +1158,12 @@ public class TestRunQuery extends RasServletTest {
 
 		//Given...
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(null,null,"result:asc",null, null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(null,"result:asc",null, null, 72, null);
 		// Two results should return all the results
 		String[] results = new String[] {"Passed,Failed"};
 		parameterMap.put("result",  results);
 
 		int pageSize = 100;
-		int pageNo = 1;
 
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,10,1);
 
@@ -1256,7 +1180,7 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		//Then...
-		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
  		assertThat(outStream.toString()).isEqualTo(expectedJson);
@@ -1267,13 +1191,12 @@ public class TestRunQuery extends RasServletTest {
 
 		//Given...
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(null,null,"result:asc",null, null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(null,"result:asc",null, null, 72, null);
 		// Two results should return all the results
 		String[] statuses = new String[] {"building,running"};
 		parameterMap.put("status",  statuses);
 
 		int pageSize = 100;
-		int pageNo = 1;
 
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,10,1);
 
@@ -1290,7 +1213,7 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		//Then...
-		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
  		assertThat(outStream.toString()).isEqualTo(expectedJson);
@@ -1349,19 +1272,6 @@ public class TestRunQuery extends RasServletTest {
 	}
 
 	@Test
-	public void testQueryWithMultiplePageNumReturnsError () throws Exception {
-
-		//Build Http query parameters
-		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-
-		// Two page numbers ! should be invalid !
-		String[] pageNums = new String[] {"5","10"};
-		parameterMap.put("page",  pageNums);
-
-		testQueryParametersReturnsError(parameterMap ,5006, "GAL5006E:","'page'","Duplicate");
-	}
-
-	@Test
 	public void testQueryWithFromDateAndToDateNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 72);
@@ -1372,7 +1282,7 @@ public class TestRunQuery extends RasServletTest {
 		excludedRuns.addAll(mockInputRunResults);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,null, null, 72, 36);
+		Map<String, String[]> parameterMap = setQueryParameter(100,null,null, null, 72, 36);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1415,7 +1325,7 @@ public class TestRunQuery extends RasServletTest {
 		excludedRuns.addAll(mockInputRunResults);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:desc",null, null, 72, 36);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"to:desc",null, null, 72, 36);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1460,7 +1370,7 @@ public class TestRunQuery extends RasServletTest {
 		excludedRuns.addAll(mockInputRunResults);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:asc",null, null, 72, 36);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"to:asc",null, null, 72, 36);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1505,7 +1415,7 @@ public class TestRunQuery extends RasServletTest {
 		excludedRuns.addAll(mockInputRunResults);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"result:desc",null, null, 72, 36);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"result:desc",null, null, 72, 36);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1550,7 +1460,7 @@ public class TestRunQuery extends RasServletTest {
 		excludedRuns.addAll(mockInputRunResults);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"result:asc",null, null, 72, 36);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"result:asc",null, null, 72, 36);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1591,7 +1501,7 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(10,2, 48);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"testclass:desc",null, null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"testclass:desc",null, null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1635,7 +1545,7 @@ public class TestRunQuery extends RasServletTest {
 		excludedRuns.addAll(mockInputRunResults);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"testclass:asc",null, null, 72, 36);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"testclass:asc",null, null, 72, 36);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1675,7 +1585,7 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> mockInputRunResults =  generateTestDataAscendingTime(10,2, 48);
 
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"badsort",null, null, 72, 36);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"badsort",null, null, 72, 36);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1709,7 +1619,7 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> mockInputRunResults =  generateTestDataAscendingTime(10,2, 48);
 
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:erroneoussort",null, null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"to:erroneoussort",null, null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1730,40 +1640,6 @@ public class TestRunQuery extends RasServletTest {
 	}
 
 	@Test
-	public void testQueryWithFromDateBadSortKeyWithDBServiceTenRecordsReturnsOkUnsorted() throws Exception {
-		//Given..
-		List<IRunResult> mockInputRunResults =  generateTestDataAscendingTime(10,2, 48);
-
-		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"erroneoussort:desc",null, null, 72, null);
-
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
-
-		RasServlet servlet = mockServletEnvironment.getServlet();
-		HttpServletRequest req = mockServletEnvironment.getRequest();
-		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ServletOutputStream outStream = resp.getOutputStream();
-
-		//When...
-		servlet.init();
-		servlet.doGet(req,resp);
-
-		//Then...
-		// Expecting:
-		//  {
-		//   "pageNum": 1,
-		//   "pageSize": 100,
-		//   "numPages": 1,
-		//   "amountOfRuns": 10,
-		//   "runs": [...]
-		// }
-		assertThat(resp.getStatus()).isEqualTo(400);
-        assertThat(outStream.toString()).contains("GAL5011E", "Error parsing the query parameters", "sort value 'erroneoussort' not recognised");
-		assertThat(resp.getContentType()).isEqualTo("application/json");
-	}
-
-	@Test
 	public void testQueryWithFromResultNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(8,0, 72);
@@ -1772,7 +1648,7 @@ public class TestRunQuery extends RasServletTest {
 		excludedRuns.addAll(mockInputRunResults);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:asc",null, null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"to:asc",null, null, 72, null);
 		parameterMap.put("result", new String[] {"Passed"});
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -1816,7 +1692,7 @@ public class TestRunQuery extends RasServletTest {
 		IRunResult run = expectedInputRunResults.get(0);
 		String testName = run.getTestStructure().getTestName().toString();
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:asc",null, null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"to:asc",null, null, 72, null);
 		parameterMap.put("testname", new String[] {testName});
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -1860,7 +1736,7 @@ public class TestRunQuery extends RasServletTest {
 		IRunResult run = expectedInputRunResults.get(0);
 		String bundle = run.getTestStructure().getBundle();
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:asc",null, null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(100,"to:asc",null, null, 72, null);
 		parameterMap.put("bundle", new String[] {bundle});
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -1904,8 +1780,7 @@ public class TestRunQuery extends RasServletTest {
 		
         // Build query parameters
         int pageSize = 100;
-        int pageNum = 1;
-		Map<String, String[]> parameterMap = setQueryParameter(pageNum,pageSize,"to:asc",null, null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize,"to:asc",null, null, 72, null);
 		parameterMap.put("runId", new String[] {runid});
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -1929,7 +1804,7 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 10,
 		//   "runs": [...]
 		// }
-		String expectedRunNames = generateExpectedJson(expectedInputRunResults, pageSize, pageNum);
+		String expectedRunNames = generateExpectedJson(expectedInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedRunNames);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -1948,8 +1823,7 @@ public class TestRunQuery extends RasServletTest {
 		
         //Build query parameters
         int pageSize = 100;
-        int pageNum = 1;
-		Map<String, String[]> parameterMap = setQueryParameter(pageNum, pageSize, null, null, null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize, null, null, null, 72, null);
 		parameterMap.put("runId", new String[] {runid+","+runid1});
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -1974,7 +1848,7 @@ public class TestRunQuery extends RasServletTest {
 		//   "runs": [...]
 		// }
         Collections.reverse(expectedInputRunResults);
-		String expectedRunNames = generateExpectedJson(expectedInputRunResults, pageSize, pageNum);
+		String expectedRunNames = generateExpectedJson(expectedInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedRunNames);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -1991,10 +1865,8 @@ public class TestRunQuery extends RasServletTest {
 		IRunResult run1 = expectedInputRunResults.get(1);
 		String runid1 = run1.getRunId();
 		
-        //Build Http query parameters
         int pageSize = 100;
-        int pageNum = 1;
-		Map<String, String[]> parameterMap = setQueryParameter(pageNum, pageSize, null, null, null, null, null);
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize, null, null, null, null, null);
 		parameterMap.put("runId", new String[] {runid+","+runid1});
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -2019,7 +1891,7 @@ public class TestRunQuery extends RasServletTest {
 		//   "runs": [...]
 		// }
         Collections.reverse(expectedInputRunResults);
-		String expectedRunNames = generateExpectedJson(expectedInputRunResults, pageSize, pageNum);
+		String expectedRunNames = generateExpectedJson(expectedInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedRunNames);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -2104,7 +1976,6 @@ public class TestRunQuery extends RasServletTest {
 		// Given...
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		int pageSize = 100;
-		int pageNo = 1;
 
 		Map<String, String> headerMap = new HashMap<String,String>();
 		headerMap.put("Accept","application/json");
@@ -2125,7 +1996,7 @@ public class TestRunQuery extends RasServletTest {
 
 		// Then...
 		// We expect an empty page back, because the API server couldn't find any results
-		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -2138,7 +2009,7 @@ public class TestRunQuery extends RasServletTest {
 
         // Build query parameters
         int pageSize = 100;
-		Map<String, String[]> parameterMap = setQueryParameter(null,pageSize,null, null,null, 72, null);;
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize,null, null,null, 72, null);
         parameterMap = addQueryParameter(parameterMap, "includeCursor", "true");
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -2165,40 +2036,13 @@ public class TestRunQuery extends RasServletTest {
 	}
 
 	@Test
-	public void testQueryWithInvalidIncludeCursorValueThrowsError() throws Exception {
-		// Given..
-		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
-
-        // Build query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(null,100,null, null,null, 72, null);;
-        parameterMap = addQueryParameter(parameterMap, "includeCursor", "notaboolean");
-
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
-		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
-
-		RasServlet servlet = mockServletEnvironment.getServlet();
-		HttpServletRequest req = mockServletEnvironment.getRequest();
-		HttpServletResponse resp = mockServletEnvironment.getResponse();
-		ServletOutputStream outStream = resp.getOutputStream();
-
-		// When...
-		servlet.init();
-		servlet.doGet(req,resp);
-
-		// Then...
-		assertThat(resp.getStatus()).isEqualTo(400);
-		assertThat(outStream.toString()).contains("GAL5090E", "Error parsing the query parameter 'includeCursor'", "Expecting a boolean");
-		assertThat(resp.getContentType()).isEqualTo("application/json");
-	}
-
-	@Test
 	public void testQueryWithCursorReturnsResultsWithNextTokenOK() throws Exception {
 		// Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
 
         // Build query parameters
         int pageSize = 100;
-		Map<String, String[]> parameterMap = setQueryParameter(null,pageSize,null, null,null, 72, null);;
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize,null, null,null, 72, null);
         parameterMap = addQueryParameter(parameterMap, "cursor", "iwantthispage");
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -2224,6 +2068,34 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
+	@Test
+	public void testQueryWithBadCursorThrowsError() throws Exception {
+		// Given..
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
+
+        // Build query parameters
+        int pageSize = 100;
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize,null, null,null, 72, null);
+        parameterMap = addQueryParameter(parameterMap, "cursor", "error");
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(500);
+		assertThat(outStream.toString()).contains("GAL5003E", "Error retrieving runs");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
     @Test
 	public void testQueryWithUnknownSortThrowsError() throws Exception {
 		// Given..
@@ -2239,9 +2111,8 @@ public class TestRunQuery extends RasServletTest {
 
         // Build query parameters
         int pageSize = 100;
-        int pageNum = 1;
         String unknownSort = "unknown:desc";
-		Map<String, String[]> parameterMap = setQueryParameter(pageNum, pageSize,unknownSort, null,null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize, unknownSort, null,null, 72, null);
         parameterMap.put("runId", new String[] { runId1 + "," + runId2 });
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -2285,9 +2156,8 @@ public class TestRunQuery extends RasServletTest {
 
         // Build query parameters
         int pageSize = 100;
-        int pageNum = 1;
         String sort = "from:asc";
-		Map<String, String[]> parameterMap = setQueryParameter(pageNum, pageSize, sort, null,null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize, sort, null,null, 72, null);
         parameterMap.put("runId", new String[] { runId1 + "," + runId2 + "," + runId3 });
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -2309,7 +2179,7 @@ public class TestRunQuery extends RasServletTest {
             testRun3
         );
 
-        String expectedJson = generateExpectedJson(expectedOrderedRunResults, pageSize, pageNum);
+        String expectedJson = generateExpectedJson(expectedOrderedRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -2338,9 +2208,8 @@ public class TestRunQuery extends RasServletTest {
 
         // Build query parameters
         int pageSize = 100;
-        int pageNum = 1;
         String sort = "from:desc";
-		Map<String, String[]> parameterMap = setQueryParameter(pageNum, pageSize, sort, null,null, 72, null);
+		Map<String, String[]> parameterMap = setQueryParameter(pageSize, sort, null,null, 72, null);
         parameterMap.put("runId", new String[] { runId1 + "," + runId2 + "," + runId3 });
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -2362,7 +2231,7 @@ public class TestRunQuery extends RasServletTest {
             testRun1
         );
 
-        String expectedJson = generateExpectedJson(expectedOrderedRunResults, pageSize, pageNum);
+        String expectedJson = generateExpectedJson(expectedOrderedRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");

@@ -102,10 +102,6 @@ public class RasQueryParameters {
         return generalQueryParams.getSingleString("cursor", null);
     }
 
-    public boolean getIncludeCursor() throws InternalServletException {
-        return generalQueryParams.getSingleBoolean("includeCursor", false);
-    }
-
     public RasSortField getSortValue() throws InternalServletException {
         return getSortValue(null);
     }
