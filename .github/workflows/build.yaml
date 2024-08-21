@@ -77,13 +77,14 @@ jobs:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          gradle -b galasa-parent/build.gradle check publish \
+          set -o pipefail
+          gradle -b galasa-parent/build.gradle check publish --info \
           -Dorg.gradle.jvmargs=-Xmx5120M \
           -PsourceMaven=https://development.galasa.dev/${{ env.ARGO_APP_BRANCH }}/maven-repo/maven/ \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
           -PtargetMaven=${{ github.workspace }}/repo \
           -PjacocoEnabled=true \
-          -PisMainOrRelease=true
+          -PisMainOrRelease=true 2>&1 | tee build.log
 
       - name: Build Framework source code
         if: github.event_name == 'workflow_dispatch' # Use the input values provided by the workflow dispatch.
@@ -94,13 +95,21 @@ jobs:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          gradle -b galasa-parent/build.gradle check publish \
+          set -o pipefail
+          gradle -b galasa-parent/build.gradle check publish --info \
           -Dorg.gradle.jvmargs=-Xmx5120M \
           -PsourceMaven=https://development.galasa.dev/${{ env.ARGO_APP_BRANCH }}/maven-repo/maven/ \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
           -PtargetMaven=${{ github.workspace }}/repo \
           -PjacocoEnabled=${{ inputs.jacocoEnabled }} \
-          -PisMainOrRelease=${{ inputs.isMainOrRelease }}
+          -PisMainOrRelease=${{ inputs.isMainOrRelease }} 2>&1 | tee build.log
+
+      - name: Upload Gradle Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-log
+          path: build.log
         
       - name: Login to Github Container Registry
         uses: docker/login-action@v3

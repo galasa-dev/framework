@@ -14,6 +14,7 @@ public enum ServletErrorMessage {
     GAL5004_ERROR_RETRIEVING_PAGE                     (5004,"E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."),
     GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER           (5005,"E: Error parsing the query parameter ''{0}'' in the request URL. Invalid value ''{1}''. Expecting an integer."),
     GAL5006_INVALID_QUERY_PARAM_DUPLICATES            (5006,"E: Error parsing the query parameters. Duplicate instances of query parameter ''{0}'' found in the request URL. Expecting only one."),
+    GAL5090_INVALID_QUERY_PARAM_NOT_BOOLEAN           (5090,"E: Error parsing the query parameter ''{0}'' in the request URL. Invalid value ''{1}''. Expecting a boolean."),
 
     GAL5010_FROM_DATE_IS_REQUIRED                     (5010,"E: Error parsing the query parameters. 'from' time is a mandatory field if no 'runname' is supplied."),
     GAL5011_SORT_VALUE_NOT_RECOGNIZED                 (5011,"E: Error parsing the query parameters. 'sort' value ''{0}'' not recognised. Expected query parameter in the format 'sort={fieldName}:{order}' where order is 'asc' for ascending or 'desc' for descending."),

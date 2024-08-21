@@ -10,14 +10,17 @@ import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 import org.junit.Test;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.ras.internal.mocks.*;
+import dev.galasa.framework.mocks.MockPath;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -33,15 +36,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class TestRunQuery extends RasServletTest {
+
+    private GalasaGson gson = new GalasaGson();
 
 	private Map<String, String[]> addQueryParameter ( Map<String, String[]> map, String key, String value){
 		if (value != null){
@@ -76,24 +81,37 @@ public class TestRunQuery extends RasServletTest {
 		return parameterMap;
 	}
 
-	public List<IRunResult> generateTestData (int resSize, int passTests ,int hoursDeducted){
+    private IRunResult createTestRun(Instant queuedTime, Instant startTime, Instant endTime) {
+        String runId = RandomStringUtils.randomAlphanumeric(16);
+        String runName = RandomStringUtils.randomAlphanumeric(5);
+        String testShortName = RandomStringUtils.randomAlphanumeric(5);
+        String requestor = RandomStringUtils.randomAlphanumeric(8);
+        String bundleName = RandomStringUtils.randomAlphanumeric(16);
+
+        TestStructure testStructure = new TestStructure();
+        testStructure.setRunName(runName);
+        testStructure.setRequestor(requestor);
+        testStructure.setTestShortName(testShortName);
+        testStructure.setBundle(bundleName);
+        testStructure.setTestName(testShortName + "." + RandomStringUtils.randomAlphanumeric(8));
+        testStructure.setQueued(queuedTime);
+        testStructure.setStartTime(startTime);
+        testStructure.setEndTime(endTime);
+
+        Path artifactsRoot = new MockPath("/", mockFileSystem);
+        String log = RandomStringUtils.randomAlphanumeric(6);
+        return new MockRunResult(runId, testStructure, artifactsRoot, log);
+    }
+
+	private List<IRunResult> generateTestDataAscendingTime(int resSize, int passTests, int hoursDeducted) throws ResultArchiveStoreException {
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
 		int passCount = 0;
 		// Build the results the DB will return.
 		for(int c =0 ; c < resSize; c++){
-			String runName = RandomStringUtils.randomAlphanumeric(5);
-			String testShortName = RandomStringUtils.randomAlphanumeric(5);
-			String requestor = RandomStringUtils.randomAlphanumeric(8);
-			String runId = RandomStringUtils.randomAlphanumeric(16);
-			TestStructure testStructure = new TestStructure();
-			testStructure.setRunName(runName);
-			testStructure.setRequestor(requestor);
-			testStructure.setTestShortName(testShortName);
-			testStructure.setBundle(RandomStringUtils.randomAlphanumeric(16));
-			testStructure.setTestName(testShortName + "." + RandomStringUtils.randomAlphanumeric(8));
-			testStructure.setQueued(Instant.now().minus(hoursDeducted, ChronoUnit.HOURS).minus(c, ChronoUnit.MINUTES));
-			testStructure.setStartTime(Instant.now().minus(hoursDeducted, ChronoUnit.HOURS).minus(c, ChronoUnit.MINUTES));
-			testStructure.setEndTime(Instant.now().minus(hoursDeducted, ChronoUnit.HOURS).minus(c, ChronoUnit.MINUTES));
+            Instant baseTime = Instant.now().minus(hoursDeducted, ChronoUnit.HOURS).minus(c, ChronoUnit.MINUTES);
+            IRunResult mockRun = createTestRun(baseTime, baseTime, baseTime);
+
+            TestStructure testStructure = mockRun.getTestStructure();
 			if (passCount < passTests){
 				testStructure.setResult("Passed");
 				testStructure.setStatus("running");
@@ -102,15 +120,12 @@ public class TestRunQuery extends RasServletTest {
 				testStructure.setResult("Failed");
 				testStructure.setStatus("building");
 			}
-			Path artifactRoot = Paths.get(RandomStringUtils.randomAlphanumeric(12));
-			String log = RandomStringUtils.randomAlphanumeric(6);
-			IRunResult result = new MockRunResult( runId, testStructure, artifactRoot , log);
-			mockInputRunResults.add(0,result);
+			mockInputRunResults.add(0, mockRun);
 		}
 		return mockInputRunResults;
 	}
 
-	public List<String> generateExpectedRunNames(List<IRunResult> expectedRunResults) throws ResultArchiveStoreException{
+	private List<String> generateExpectedRunNames(List<IRunResult> expectedRunResults) throws ResultArchiveStoreException {
 		List <String> runnames = new ArrayList<String>();
 		for (IRunResult run : expectedRunResults){
 			runnames.add(run.getTestStructure().getRunName().toString());
@@ -119,59 +134,51 @@ public class TestRunQuery extends RasServletTest {
 		return runnames;
 	}
 
-	public String generateExpectedJson (List<IRunResult> mockInputRunResults, String[] pageSize,String[] pageNo) throws ResultArchiveStoreException{
-		int resSize = Integer.parseInt(pageSize[0]);
-		double numPages = Math.ceil((double)mockInputRunResults.size()/resSize);
-		if (numPages == 0) {
-			numPages = 1;
-		}
-		String jsonResult = "{\n"+
-							"  \"pageNum\": "+pageNo[0]+",\n"+
-							"  \"pageSize\": "+pageSize[0]+",\n"+
-							"  \"numPages\": "+(int)numPages+",\n"+
-							"  \"amountOfRuns\": "+mockInputRunResults.size()+",\n"+
-							"  \"runs\": [";
-		if (mockInputRunResults.size()>0){
-			int iter;
-			if (resSize < mockInputRunResults.size() ){
-				iter = resSize;
-			}else{
-				iter= mockInputRunResults.size();
-			}
-			int pagedResult = (Integer.parseInt(pageNo[0])-1)*resSize;
-			for ( int c= 0; c< iter; c++ ){
-				String runData ="";
-				if (0<c && c<iter){
-					runData =",\n";
-				}else if(c==0){
-					runData ="\n";
-				}
-				try {
-					runData = runData+ "    {\n"+
-						   "      \"runId\": \""+mockInputRunResults.get(c+pagedResult).getRunId()+"\",\n"+
-						   "      \"testStructure\": {\n"+
-						   "        \"runName\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getRunName()+"\",\n"+
-						   "        \"bundle\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getBundle()+"\",\n"+
-						   "        \"testName\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getTestName()+"\",\n"+
-						   "        \"testShortName\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getTestShortName()+"\",\n"+
-						   "        \"requestor\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getRequestor()+"\",\n"+
-						   "        \"status\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getStatus()+"\",\n"+
-						   "        \"result\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getResult()+"\",\n"+
-						   "        \"queued\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getQueued()+"\",\n"+
-						   "        \"startTime\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getStartTime()+"\",\n"+
-						   "        \"endTime\": \""+mockInputRunResults.get(c+pagedResult).getTestStructure().getEndTime()+"\"\n"+
-						   "      }\n"+
-						   "    }";
-				} catch (ResultArchiveStoreException e) {
-					fail("Problem creating the test data we want to compare against.", e);
-				}
-				jsonResult = jsonResult+runData;
-			}
-			jsonResult= jsonResult+"\n  ]\n}";
-		}else{
-			jsonResult= jsonResult+"]\n}";
-		}
-		return jsonResult;
+    private JsonArray createRunsJsonArray(List<IRunResult> mockRuns) throws ResultArchiveStoreException {
+        JsonArray runsJson = new JsonArray();
+        for (IRunResult run : mockRuns) {
+            JsonObject runJson = new JsonObject();
+            runJson.addProperty("runId", run.getRunId());
+
+            JsonElement testStructureJson = gson.toJsonTree(run.getTestStructure());
+            runJson.add("testStructure", testStructureJson);
+            runsJson.add(runJson);
+        }
+        return runsJson;
+    }
+
+	private String generateExpectedJson(List<IRunResult> mockInputRunResults, int pageSize, int pageNum) throws ResultArchiveStoreException {
+        List<List<IRunResult>> pagedRuns = ListUtils.partition(mockInputRunResults, pageSize);
+		
+        JsonObject jsonResult = new JsonObject();
+        jsonResult.addProperty("pageNum", pageNum);
+        jsonResult.addProperty("pageSize", pageSize);
+
+        JsonArray runsJson = new JsonArray();
+        if (!pagedRuns.isEmpty()) {
+            jsonResult.addProperty("numPages", pagedRuns.size());
+
+            runsJson = createRunsJsonArray(pagedRuns.get(pageNum - 1));
+
+        } else {
+            jsonResult.addProperty("numPages", 1);
+        }
+
+        jsonResult.addProperty("amountOfRuns", mockInputRunResults.size());
+        jsonResult.add("runs", runsJson);
+
+		return gson.toJson(jsonResult);
+	}
+
+	private String generateExpectedJson(List<IRunResult> mockInputRunResults, String nextCursor) throws ResultArchiveStoreException {
+		
+        JsonObject jsonResult = new JsonObject();
+        JsonArray runsJson = createRunsJsonArray(mockInputRunResults);
+
+        jsonResult.addProperty("amountOfRuns", mockInputRunResults.size());
+        jsonResult.addProperty("nextCursor", nextCursor);
+        jsonResult.add("runs", runsJson);
+		return gson.toJson(jsonResult);
 	}
 
 	private void testQueryParametersReturnsError(
@@ -180,7 +187,7 @@ public class TestRunQuery extends RasServletTest {
 		String... expectedErrorMsgSubStrings
 	) throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,10,1);
 
 		String[] sortValues = {"result:asc"};
 		parameterMap.put("sort", sortValues );
@@ -198,7 +205,7 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		//Then...
-		assertThat(resp.getStatus()==400);
+		assertThat(resp.getStatus()).isEqualTo(400);
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -206,7 +213,7 @@ public class TestRunQuery extends RasServletTest {
 			expectedErrorMsgSubStrings
 		);
 
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	private boolean checkIfSameOrder(String[] sortedList, String expectedResultString, String sortedElement){
@@ -416,8 +423,8 @@ public class TestRunQuery extends RasServletTest {
 
 		// Then...
 		// We expect an error back, because the API server couldn't find any RAS database to query
-		assertThat(resp.getStatus()==500);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getStatus()).isEqualTo(500);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -444,8 +451,8 @@ public class TestRunQuery extends RasServletTest {
 
 		// Then...
 		// We expect an error back, because the API server couldn't find any RAS database to query
-		assertThat(resp.getStatus()==500);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getStatus()).isEqualTo(500);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -460,8 +467,8 @@ public class TestRunQuery extends RasServletTest {
 	public void testNoQueryNotSortedWithDBServiceReturnsOK() throws Exception {
 		// Given...
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		String[] pageSize = {"100"};
-		String[] pageNo = {"1"};
+		int pageSize = 100;
+		int pageNo = 1;
 
 		List<IRunResult> mockInputRunResults= new ArrayList<IRunResult>();
 
@@ -480,9 +487,9 @@ public class TestRunQuery extends RasServletTest {
 		// Then...
 		// We expect an empty page back, because the API server couldn't find any results
 		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
@@ -499,8 +506,8 @@ public class TestRunQuery extends RasServletTest {
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
 		ServletOutputStream outStream = resp.getOutputStream();
-		String[] pageSize = {"100"};
-		String[] pageNo = {"1"};
+		int pageSize = 100;
+		int pageNo = 1;
 
 		// When...
 		servlet.init();
@@ -517,23 +524,23 @@ public class TestRunQuery extends RasServletTest {
 		// 	 ]
 		//   }
 		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceWithOneRecordReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(1,1,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		String[] pageSize = {"100"};
-		String[] pageNo = {"1"};
+		int pageSize = 100;
+		int pageNo = 1;
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
@@ -561,15 +568,15 @@ public class TestRunQuery extends RasServletTest {
 		// 	]
 		// }
 		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
 
@@ -610,27 +617,28 @@ public class TestRunQuery extends RasServletTest {
 		// 	]
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(mockInputRunResults);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
 		Collections.sort(expectedRunNames, Collections.reverseOrder());
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateNotSortedWithDBServiceWithOneRecordReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(1,1,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
 
-		String[] pageSize = {"100"};
-		String[] pageNo = {"1"};
+		int pageSize = 100;
+		int pageNo = 1;
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
 		HttpServletResponse resp = mockServletEnvironment.getResponse();
@@ -658,15 +666,15 @@ public class TestRunQuery extends RasServletTest {
 		// 	]
 		// }
 		String expectedJson = generateExpectedJson(mockInputRunResults ,pageSize, pageNo);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithoutFromDateOrRunNameNotSortedWithDBServiceTenRecordsReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 48);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null, null ,null, null, null);
 
@@ -686,15 +694,15 @@ public class TestRunQuery extends RasServletTest {
 		// Expecting:
 
 		//Then...
-		assertThat(resp.getStatus()==400);
-		assertThat( outStream.toString() ).contains("GAL5010E: Error parsing the query parameters. from time is a mandatory field if no runname is supplied.");
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getStatus()).isEqualTo(400);
+		assertThat(outStream.toString()).contains("GAL5010E: Error parsing the query parameters. from time is a mandatory field if no runname is supplied.");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testNoQueryWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 15);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 15);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(null,null,null, null ,null, null, null);
 
@@ -715,22 +723,26 @@ public class TestRunQuery extends RasServletTest {
 
 		//Then...
 		List<String> expectedRunNames = generateExpectedRunNames(mockInputRunResults);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
 		Collections.sort(expectedRunNames, Collections.reverseOrder());
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithoutFromDateWithRunNameNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 48);
 		//Build Http query parameters
 		IRunResult run = mockInputRunResults.get(1);
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,run.getTestStructure().getRunName(),null, 72, null);
+        int pageSize = 100;
+        int pageNum = 1;
+
+		Map<String, String[]> parameterMap = setQueryParameter(pageNum,pageSize,null,run.getTestStructure().getRunName(),null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -755,19 +767,22 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 0,
 		//   "runs": []
 		// }
-		String expectedJson = generateExpectedJson(expectedRun,parameterMap.get("size"),parameterMap.get("page"));
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		String expectedJson = generateExpectedJson(expectedRun, pageSize, pageNum);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateAndRunnameNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 48);
 		//Build Http query parameters
 		IRunResult run = mockInputRunResults.get(5);
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,run.getTestStructure().getRunName(),null, 72, null);
+
+        int pageSize = 100;
+        int pageNum = 1;
+		Map<String, String[]> parameterMap = setQueryParameter(pageNum,pageSize,null,run.getTestStructure().getRunName(),null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -792,19 +807,22 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 0,
 		//   "runs": []
 		// }
-		String expectedJson = generateExpectedJson(expectedRun,parameterMap.get("size"),parameterMap.get("page"));
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		String expectedJson = generateExpectedJson(expectedRun, pageSize, pageNum);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateAndRunnameOutsideNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 48);
 		//Build Http query parameters
 		IRunResult run = mockInputRunResults.get(5);
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,run.getTestStructure().getRunName(),null, 24, null);
+
+        int pageSize = 100;
+        int pageNum = 1;
+		Map<String, String[]> parameterMap = setQueryParameter(pageNum,pageSize,null,run.getTestStructure().getRunName(),null, 24, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -828,16 +846,16 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 0,
 		//   "runs": []
 		// }
-		String expectedJson = generateExpectedJson(expectedRun,parameterMap.get("size"),parameterMap.get("page"));
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		String expectedJson = generateExpectedJson(expectedRun, pageSize, pageNum);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTenRecordsPageSizeFiveReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,5,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,5,1);
 		//Build Http query parameters
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,null,requestor, 72, null);
@@ -881,19 +899,21 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> expectedRunResults = new ArrayList<IRunResult>(); ;
 		expectedRunResults.add(mockInputRunResults.get(0));
 		List<String> expectedRunNames = generateExpectedRunNames(expectedRunResults);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
+        String actualOutput = outStream.toString();
+
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
 		Collections.sort(expectedRunNames, Collections.reverseOrder());
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTenRecordsPageSizeFivePageTwoReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,5,2);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,5,2);
 
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(2,5,null,null,null, 72, null);
@@ -938,22 +958,27 @@ public class TestRunQuery extends RasServletTest {
 		IRasSearchCriteria[] criteria = {};
 		List<IRunResult> runsInMockRas = mockrasDirectoryService.getRuns(criteria);
 		List<String> orderedRunNames = generateExpectedRunNames(runsInMockRas);
-		List<String> expectedRunNames = orderedRunNames.subList(5, 10) ;
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
-		//Collections.sort(expectedRunNames, Collections.reverseOrder());
+        Collections.reverse(orderedRunNames);
+    
+		List<String> expectedRunNames = orderedRunNames.subList(5, 10);
+        String actualOutput = outStream.toString();
+
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTwentyRecordsPageSizeFivePageThreeReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,5,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,5,1);
 		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(3,5,null,null,null, 72, null);
+        int pageSize = 5;
+        int pageNum = 3;
+		Map<String, String[]> parameterMap = setQueryParameter(pageNum,pageSize,null,null,null, 72, null);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -991,16 +1016,18 @@ public class TestRunQuery extends RasServletTest {
 		// 	   }
 		// 	]
 		// }
-		String expectedJson = generateExpectedJson(mockInputRunResults,parameterMap.get("size"),parameterMap.get("page"));
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+        Collections.reverse(mockInputRunResults);
+
+		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNum);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithRequestorNotSortedWithDBServiceTwentyRecordsPageSizeFivePageFiveReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,3,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,3,1);
 		//Build Http query parameters
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
 		Map<String, String[]> parameterMap = setQueryParameter(5,5,null,null,requestor, 72, null);
@@ -1018,17 +1045,17 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		//Then...
-		assertThat(resp.getStatus()==500);
+		assertThat(resp.getStatus()).isEqualTo(400);
 
 		checkErrorStructure(outStream.toString(), 5004, "GAL5004E: ", "Error retrieving page.");
 
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithResultsSortedWithDBServiceTenRecordsPageSize100FalseFromDateReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,10,1);
 		//Build Http query parameters
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"result:asc",null,requestor, null, null);
@@ -1048,7 +1075,7 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		//Then...
-		assertThat(resp.getStatus()==500);
+		assertThat(resp.getStatus()).isEqualTo(400);
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -1056,13 +1083,13 @@ public class TestRunQuery extends RasServletTest {
 			"GAL5001E:","Error parsing the date-time field","'from'",fromTime[0]
 		);
 
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithResultsSortedWithDBServiceTenRecordsPageSize100FalseToDateReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,10,1);
 		//Build Http query parameters
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,null,requestor, null, null);
@@ -1082,7 +1109,7 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		//Then...
-		assertThat(resp.getStatus()==500);
+		assertThat(resp.getStatus()).isEqualTo(400);
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -1090,13 +1117,13 @@ public class TestRunQuery extends RasServletTest {
 			"GAL5001E:","Error parsing the date-time field","'to'",toTime[0]
 		);
 
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithResultsSortedWithDBServiceTenRecordsPageSize100FalseRunIDReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,10,1);
 
 		MockResultArchiveStoreDirectoryService storeWhichThrowsUp = new MockResultArchiveStoreDirectoryService(null) {
 			@Override
@@ -1125,7 +1152,7 @@ public class TestRunQuery extends RasServletTest {
 
 		//Then...
 		assertThat(resp.getStatus()==404);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 
 		checkErrorStructure(
 			outStream.toString(),
@@ -1210,10 +1237,10 @@ public class TestRunQuery extends RasServletTest {
 		String[] results = new String[] {"Passed,Failed"};
 		parameterMap.put("result",  results);
 
-		String[] pageSize = {"100"};
-		String[] pageNo = {"1"};
+		int pageSize = 100;
+		int pageNo = 1;
 
-		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,10,1);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1229,9 +1256,9 @@ public class TestRunQuery extends RasServletTest {
 
 		//Then...
 		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
-		assertThat(resp.getStatus()==200);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
- 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+ 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 	}
 
 	@Test
@@ -1244,10 +1271,10 @@ public class TestRunQuery extends RasServletTest {
 		String[] statuses = new String[] {"building,running"};
 		parameterMap.put("status",  statuses);
 
-		String[] pageSize = {"100"};
-		String[] pageNo = {"1"};
+		int pageSize = 100;
+		int pageNo = 1;
 
-		List<IRunResult> mockInputRunResults = generateTestData(20,10,1);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(20,10,1);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
@@ -1263,9 +1290,9 @@ public class TestRunQuery extends RasServletTest {
 
 		//Then...
 		String expectedJson = generateExpectedJson(mockInputRunResults,pageSize, pageNo);
-		assertThat(resp.getStatus()==200);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
- 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+ 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 	}
 
 	@Test
@@ -1336,9 +1363,9 @@ public class TestRunQuery extends RasServletTest {
 	@Test
 	public void testQueryWithFromDateAndToDateNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 72);
-		List<IRunResult> expectedInputRunResults = generateTestData(10,2, 48);
-		List<IRunResult> mockInputRunResults3 = generateTestData(10,2, 24);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 72);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(10,2, 48);
+		List<IRunResult> mockInputRunResults3 = generateTestDataAscendingTime(10,2, 24);
 		mockInputRunResults.addAll(mockInputRunResults3);
 		List<IRunResult> excludedRuns = new ArrayList<IRunResult>();
 		excludedRuns.addAll(mockInputRunResults);
@@ -1369,18 +1396,19 @@ public class TestRunQuery extends RasServletTest {
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
 		List<String> excludedRunNames = generateExpectedRunNames(excludedRuns);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
-		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
+		assertThat(actualOutput).doesNotContain(excludedRunNames);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateAndToDatetSortedToDescendingWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 72);
-		List<IRunResult> expectedInputRunResults = generateTestData(10,2, 48);
-		List<IRunResult> mockInputRunResults3 = generateTestData(10,2, 24);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 72);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(10,2, 48);
+		List<IRunResult> mockInputRunResults3 = generateTestDataAscendingTime(10,2, 24);
 		mockInputRunResults.addAll(mockInputRunResults3);
 		List<IRunResult> excludedRuns = new ArrayList<IRunResult>();
 		excludedRuns.addAll(mockInputRunResults);
@@ -1410,21 +1438,22 @@ public class TestRunQuery extends RasServletTest {
 		//   "runs": [...]
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
 		Collections.sort(expectedRunNames, Collections.reverseOrder());
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateAndToDatetSortedToAscendingWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 72);
-		List<IRunResult> expectedInputRunResults = generateTestData(10,2, 48);
-		List<IRunResult> mockInputRunResults3 = generateTestData(10,2, 24);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 72);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(10,2, 48);
+		List<IRunResult> mockInputRunResults3 = generateTestDataAscendingTime(10,2, 24);
 		mockInputRunResults.addAll(mockInputRunResults3);
 		List<IRunResult> excludedRuns = new ArrayList<IRunResult>();
 		excludedRuns.addAll(mockInputRunResults);
@@ -1454,21 +1483,22 @@ public class TestRunQuery extends RasServletTest {
 		//   "runs": [...]
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
 		Collections.sort(expectedRunNames, Collections.reverseOrder());
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateAndToDatetSortedResultDescendingWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 72);
-		List<IRunResult> expectedInputRunResults = generateTestData(10,2, 48);
-		List<IRunResult> mockInputRunResults3 = generateTestData(10,2, 24);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 72);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(10,2, 48);
+		List<IRunResult> mockInputRunResults3 = generateTestDataAscendingTime(10,2, 24);
 		mockInputRunResults.addAll(mockInputRunResults3);
 		List<IRunResult> excludedRuns = new ArrayList<IRunResult>();
 		excludedRuns.addAll(mockInputRunResults);
@@ -1498,21 +1528,22 @@ public class TestRunQuery extends RasServletTest {
 		//   "runs": [...]
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
 		Collections.sort(expectedRunNames, Collections.reverseOrder());
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateAndToDateResultSortedResultAscendingWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 72);
-		List<IRunResult> expectedInputRunResults = generateTestData(10,2, 48);
-		List<IRunResult> mockInputRunResults3 = generateTestData(10,2, 24);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 72);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(10,2, 48);
+		List<IRunResult> mockInputRunResults3 = generateTestDataAscendingTime(10,2, 24);
 		mockInputRunResults.addAll(mockInputRunResults3);
 		List<IRunResult> excludedRuns = new ArrayList<IRunResult>();
 		excludedRuns.addAll(mockInputRunResults);
@@ -1542,20 +1573,21 @@ public class TestRunQuery extends RasServletTest {
 		//   "runs": [...]
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
 		Collections.sort(expectedRunNames);
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateSortedTestclassDescendingWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 72);
-		List<IRunResult> expectedInputRunResults = generateTestData(10,2, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 72);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(10,2, 48);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"testclass:desc",null, null, 72, null);
@@ -1582,21 +1614,21 @@ public class TestRunQuery extends RasServletTest {
 		//   "runs": [...]
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).contains(expectedRunNames);
 		Collections.sort(expectedRunNames, Collections.reverseOrder());
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateAndToDateResultSortedTestclassAscendingWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(10,2, 72);
-		List<IRunResult> expectedInputRunResults = generateTestData(10,2, 48);
-		List<IRunResult> mockInputRunResults3 = generateTestData(10,2, 24);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,2, 72);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(10,2, 48);
+		List<IRunResult> mockInputRunResults3 = generateTestDataAscendingTime(10,2, 24);
 		mockInputRunResults.addAll(mockInputRunResults3);
 		List<IRunResult> excludedRuns = new ArrayList<IRunResult>();
 		excludedRuns.addAll(mockInputRunResults);
@@ -1626,19 +1658,20 @@ public class TestRunQuery extends RasServletTest {
 		//   "runs": [...]
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
 		Collections.sort(expectedRunNames);
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateAndToDateBadSortWithDBServiceTenRecordsReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults =  generateTestData(10,2, 48);
+		List<IRunResult> mockInputRunResults =  generateTestDataAscendingTime(10,2, 48);
 
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"badsort",null, null, 72, 36);
@@ -1664,15 +1697,15 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 10,
 		//   "runs": [...]
 		// }
-		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).contains("GAL5011E:","badsort");
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getStatus()).isEqualTo(400);
+		assertThat(outStream.toString()).contains("GAL5011E:","badsort");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateBadSortValueWithDBServiceTenRecordsReturnsError() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults =  generateTestData(10,2, 48);
+		List<IRunResult> mockInputRunResults =  generateTestDataAscendingTime(10,2, 48);
 
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:erroneoussort",null, null, 72, null);
@@ -1690,23 +1723,15 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		//Then...
-		// Expecting:
-		//  {
-		//   "pageNum": 1,
-		//   "pageSize": 100,
-		//   "numPages": 1,
-		//   "amountOfRuns": 10,
-		//   "runs": [...]
-		// }
-		assertThat(resp.getStatus()==500);
-		assertThat( outStream.toString() ).contains("GAL5011E:","to:erroneoussort");
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getStatus()).isEqualTo(400);
+		assertThat(outStream.toString()).contains("GAL5011E:","to:erroneoussort");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromDateBadSortKeyWithDBServiceTenRecordsReturnsOkUnsorted() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults =  generateTestData(10,2, 48);
+		List<IRunResult> mockInputRunResults =  generateTestDataAscendingTime(10,2, 48);
 
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(1,100,"erroneoussort:desc",null, null, 72, null);
@@ -1733,20 +1758,21 @@ public class TestRunQuery extends RasServletTest {
 		//   "runs": [...]
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(mockInputRunResults);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
 		Collections.sort(expectedRunNames, Collections.reverseOrder());
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, outStream.toString(), "runName"));
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromResultNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(8,0, 72);
-		List<IRunResult> expectedInputRunResults = generateTestData(2,2, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(8,0, 72);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(2,2, 48);
 		List<IRunResult> excludedRuns = new ArrayList<IRunResult>();
 		excludedRuns.addAll(mockInputRunResults);
 		mockInputRunResults.addAll(expectedInputRunResults);
@@ -1777,17 +1803,18 @@ public class TestRunQuery extends RasServletTest {
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
 		List<String> excludedRunNames = generateExpectedRunNames(excludedRuns);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
-		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
+		assertThat(actualOutput).doesNotContain(excludedRunNames);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromtestNameNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(9,2, 72);
-		List<IRunResult> expectedInputRunResults = generateTestData(1,1, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(9,2, 72);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(1,1, 48);
 		List<IRunResult> excludedRuns = new ArrayList<IRunResult>();
 		excludedRuns.addAll(mockInputRunResults);
 		mockInputRunResults.addAll(expectedInputRunResults);
@@ -1820,17 +1847,18 @@ public class TestRunQuery extends RasServletTest {
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
 		List<String> excludedRunNames = generateExpectedRunNames(excludedRuns);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
-		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
+		assertThat(actualOutput).doesNotContain(excludedRunNames);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromBundleNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(9,2, 72);
-		List<IRunResult> expectedInputRunResults = generateTestData(1,1, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(9,2, 72);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(1,1, 48);
 		List<IRunResult> excludedRuns = new ArrayList<IRunResult>();
 		excludedRuns.addAll(mockInputRunResults);
 		mockInputRunResults.addAll(expectedInputRunResults);
@@ -1863,22 +1891,26 @@ public class TestRunQuery extends RasServletTest {
 		// }
 		List<String> expectedRunNames = generateExpectedRunNames(expectedInputRunResults);
 		List<String> excludedRunNames = generateExpectedRunNames(excludedRuns);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).contains(expectedRunNames);
-		assertThat( outStream.toString() ).doesNotContain(excludedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+        String actualOutput = outStream.toString();
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
+		assertThat(actualOutput).doesNotContain(excludedRunNames);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromRunIdNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(9,2, 48);
-		List<IRunResult> expectedInputRunResults = generateTestData(1,1, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(9,2, 48);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(1,1, 48);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		IRunResult run = expectedInputRunResults.get(0);
 		String runid = run.getRunId();
-		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100,"to:asc",null, null, 72, null);
+		
+        // Build query parameters
+        int pageSize = 100;
+        int pageNum = 1;
+		Map<String, String[]> parameterMap = setQueryParameter(pageNum,pageSize,"to:asc",null, null, 72, null);
 		parameterMap.put("runId", new String[] {runid});
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -1902,24 +1934,27 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 10,
 		//   "runs": [...]
 		// }
-		String expectedRunNames = generateExpectedJson(expectedInputRunResults ,parameterMap.get("size"), parameterMap.get("page"));
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		String expectedRunNames = generateExpectedJson(expectedInputRunResults, pageSize, pageNum);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedRunNames);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithFromRunIdsNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(2,2, 48);
-		List<IRunResult> expectedInputRunResults = generateTestData(2,1, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(2,2, 48);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(2,1, 48);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		IRunResult run = expectedInputRunResults.get(0);
 		String runid = run.getRunId();
 		IRunResult run1 = expectedInputRunResults.get(1);
 		String runid1 = run1.getRunId();
-		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100, null, null, null, 72, null);
+		
+        //Build query parameters
+        int pageSize = 100;
+        int pageNum = 1;
+		Map<String, String[]> parameterMap = setQueryParameter(pageNum, pageSize, null, null, null, 72, null);
 		parameterMap.put("runId", new String[] {runid+","+runid1});
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -1943,24 +1978,28 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 10,
 		//   "runs": [...]
 		// }
-		String expectedRunNames = generateExpectedJson(expectedInputRunResults ,parameterMap.get("size"), parameterMap.get("page"));
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+        Collections.reverse(expectedInputRunResults);
+		String expectedRunNames = generateExpectedJson(expectedInputRunResults, pageSize, pageNum);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedRunNames);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
 	public void testQueryWithRunIdsNotSortedWithDBServiceTenRecordsReturnsOK() throws Exception {
 		//Given..
-		List<IRunResult> mockInputRunResults = generateTestData(2,2, 48);
-		List<IRunResult> expectedInputRunResults = generateTestData(2,1, 48);
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(2,2, 48);
+		List<IRunResult> expectedInputRunResults = generateTestDataAscendingTime(2,1, 48);
 		mockInputRunResults.addAll(expectedInputRunResults);
 		IRunResult run = expectedInputRunResults.get(0);
 		String runid = run.getRunId();
 		IRunResult run1 = expectedInputRunResults.get(1);
 		String runid1 = run1.getRunId();
-		//Build Http query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(1,100, null, null, null, null, null);
+		
+        //Build Http query parameters
+        int pageSize = 100;
+        int pageNum = 1;
+		Map<String, String[]> parameterMap = setQueryParameter(pageNum, pageSize, null, null, null, null, null);
 		parameterMap.put("runId", new String[] {runid+","+runid1});
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -1984,10 +2023,11 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 10,
 		//   "runs": [...]
 		// }
-		String expectedRunNames = generateExpectedJson(expectedInputRunResults ,parameterMap.get("size"), parameterMap.get("page"));
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedRunNames);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+        Collections.reverse(expectedInputRunResults);
+		String expectedRunNames = generateExpectedJson(expectedInputRunResults, pageSize, pageNum);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedRunNames);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
 	@Test
@@ -1997,7 +2037,7 @@ public class TestRunQuery extends RasServletTest {
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
 		Throwable thrown = catchThrowable( () -> {
-        	new RunQueryRoute( new ResponseBuilder(), null).getWorkingFromValue(params,Instant.now());
+        	new RunQueryRoute( new ResponseBuilder(), null).getQueriedFromTime(params,Instant.now());
         });
 
         assertThat(thrown).isNotNull();
@@ -2011,7 +2051,7 @@ public class TestRunQuery extends RasServletTest {
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
 		Throwable thrown = catchThrowable( () -> {
-            new RunQueryRoute( new ResponseBuilder(), null).getWorkingFromValue(params,Instant.now());
+            new RunQueryRoute( new ResponseBuilder(), null).getQueriedFromTime(params,Instant.now());
         });
 
         assertThat(thrown).isNotNull();
@@ -2025,7 +2065,7 @@ public class TestRunQuery extends RasServletTest {
 		String fromString = fromInstant.toString();
         map.put("from", new String[] {fromString} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNotNull();
         assertThat(checker).isEqualTo(fromInstant);
@@ -2039,7 +2079,7 @@ public class TestRunQuery extends RasServletTest {
         map.put("from", new String[] {fromString} );
 		map.put("runname", new String[] {"runname"} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNotNull();
         assertThat(checker).isEqualTo(fromInstant);
@@ -2050,7 +2090,7 @@ public class TestRunQuery extends RasServletTest {
         Map<String,String[]> map = new HashMap<String,String[]>();
         map.put("runname", new String[] {"runname"} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNull();
     }
@@ -2059,7 +2099,7 @@ public class TestRunQuery extends RasServletTest {
     public void testGetDefaultFromInstantIfNoQueryIsPresentNoQueryReturnsValue() throws Exception {
         Map<String,String[]> map = new HashMap<String,String[]>();
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getWorkingFromValue(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(),null).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNotNull();
     }
@@ -2068,8 +2108,8 @@ public class TestRunQuery extends RasServletTest {
 	public void testNoQueryNotSortedWithAcceptHeaderWithDBServiceReturnsOK() throws Exception {
 		// Given...
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
-		String[] pageSize = {"100"};
-		String[] pageNo = {"1"};
+		int pageSize = 100;
+		int pageNo = 1;
 
 		Map<String, String> headerMap = new HashMap<String,String>();
 		headerMap.put("Accept","application/json");
@@ -2091,8 +2131,99 @@ public class TestRunQuery extends RasServletTest {
 		// Then...
 		// We expect an empty page back, because the API server couldn't find any results
 		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
-		assertThat(resp.getStatus()==200);
-		assertThat( outStream.toString() ).isEqualTo(expectedJson);
-		assertThat( resp.getContentType()).isEqualTo("application/json");
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
+	public void testQueryWithIncludeCursorReturnsResultsWithNextTokenOK() throws Exception {
+		// Given..
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
+
+        // Build query parameters
+		Map<String, String[]> parameterMap = setQueryParameter(null,100,null, null,null, 72, null);;
+        parameterMap = addQueryParameter(parameterMap, "includeCursor", "true");
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+        MockResultArchiveStoreDirectoryService mockRasService = (MockResultArchiveStoreDirectoryService) mockServletEnvironment.getDirectoryService().get(0);
+
+        String nextCursor = "next-page";
+        mockRasService.setNextCursor(nextCursor);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		String expectedJson = generateExpectedJson(mockInputRunResults, nextCursor);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
+	public void testQueryWithInvalidIncludeCursorValueThrowsError() throws Exception {
+		// Given..
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
+
+        // Build query parameters
+		Map<String, String[]> parameterMap = setQueryParameter(null,100,null, null,null, 72, null);;
+        parameterMap = addQueryParameter(parameterMap, "includeCursor", "notaboolean");
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(400);
+		assertThat(outStream.toString()).contains("GAL5090E", "Error parsing the query parameter 'includeCursor'", "Expecting a boolean");
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
+	public void testQueryWithCursorReturnsResultsWithNextTokenOK() throws Exception {
+		// Given..
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
+
+        // Build query parameters
+		Map<String, String[]> parameterMap = setQueryParameter(null,100,null, null,null, 72, null);;
+        parameterMap = addQueryParameter(parameterMap, "cursor", "iwantthispage");
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+        MockResultArchiveStoreDirectoryService mockRasService = (MockResultArchiveStoreDirectoryService) mockServletEnvironment.getDirectoryService().get(0);
+
+        String nextCursor = "next-page";
+        mockRasService.setNextCursor(nextCursor);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		String expectedJson = generateExpectedJson(mockInputRunResults, nextCursor);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 }

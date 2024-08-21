@@ -42,12 +42,11 @@ jobs:
       
       - name: Build Framework source code
         run: |
-          gradle -b galasa-parent/build.gradle check publish \
+          gradle -b galasa-parent/build.gradle check publish --info \
           -Dorg.gradle.jvmargs=-Xmx5120M \
           -PsourceMaven=https://development.galasa.dev/gh/maven-repo/maven/ \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-          -PtargetMaven=${{ github.workspace }}/repo \
-          --info
+          -PtargetMaven=${{ github.workspace }}/repo 
           
       - name: Build Framework image for testing
         uses: docker/build-push-action@v5
