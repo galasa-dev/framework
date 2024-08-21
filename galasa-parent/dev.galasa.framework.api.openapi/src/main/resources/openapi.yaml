@@ -277,7 +277,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JsonError'
+                $ref: '#/components/schemas/APIError'
               examples:
                 genericerror:
                   value:
@@ -1164,16 +1164,6 @@ paths:
           schema:
             type: string
           example: dev.galasa.inttests.simbank.local.mvp.SimBankLocalJava11UbuntuMvp
-        - name: page
-          in: query
-          description: |
-            Deprecated (since 0.37.0) - Use the 'cursor' query parameter instead.
-            Causes a specific page in the available results to be returned.
-            The first page is page 1.
-            If omitted, then page 1 is returned.
-          schema:
-            type: integer
-          example: 2
         - name: size
           in: query
           description: |
