@@ -8,7 +8,6 @@ package dev.galasa.framework;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -34,6 +33,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.SharedEnvironment;
 import dev.galasa.Test;
+import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -47,6 +47,7 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
@@ -68,16 +69,17 @@ public class TestRunner {
         SHARED_ENVIRONMENT_DISCARD
     }
 
-
     private Log                                logger        = LogFactory.getLog(TestRunner.class);
 
     private BundleContext                      bundleContext;
 
+    // Field is protected so unit tests can inject a value here.
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
-    private RepositoryAdmin                    repositoryAdmin;
+    protected RepositoryAdmin                    repositoryAdmin;
 
+    // Field is protected so unit tests can inject a value here.
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
-    private IMavenRepository                   mavenRepository;
+    protected IMavenRepository                   mavenRepository;
 
     private TestRunHeartbeat                   heartbeat;
 
@@ -93,9 +95,13 @@ public class TestRunner {
     private boolean                            isRunOK = true;
     private boolean                            resourcesAvailable = true;
 
-    private IFramework                          framework;
+    private IShuttableFramework                 framework;
+    private IBundleManager bundleManager;
 
     private boolean produceEvents;
+
+    private IFileSystem fileSystem;
+
 
     /**
      * Run the supplied test class
@@ -105,20 +111,21 @@ public class TestRunner {
      * @throws TestRunException
      */
     public void runTest(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {
+        TestRunnerDataProvider data = new TestRunnerDataProvider(bootstrapProperties, overrideProperties);
+        runTest(data);
+    }
 
-        // *** Initialise the framework services
-        FrameworkInitialisation frameworkInitialisation = null;
-        try {
-            frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, true);
-            cps = frameworkInitialisation.getFramework().getConfigurationPropertyService("framework");
-            dss = frameworkInitialisation.getFramework().getDynamicStatusStoreService("framework");
-            run = frameworkInitialisation.getFramework().getTestRun();
-            ras = frameworkInitialisation.getFramework().getResultArchiveStore();
-        } catch (Exception e) {
-            throw new TestRunException("Unable to initialise the Framework Services", e);
-        }
+    public void runTest( ITestRunnerDataProvider dataProvider  ) throws TestRunException {
 
-        this.framework = frameworkInitialisation.getFramework();
+        this.run = dataProvider.getRun() ;
+        this.framework = dataProvider.getFramework();
+        this.cps = dataProvider.getCPS();
+        this.ras = dataProvider.getRAS();
+        this.dss = dataProvider.getDSS();
+        this.bundleManager = dataProvider.getBundleManager();
+        this.fileSystem = dataProvider.getFileSystem();
+
+        Properties overrideProperties = dataProvider.getOverrideProperties();
 
         try {
             this.produceEvents = isProduceEventsFeatureFlagTrue();
@@ -126,7 +133,6 @@ public class TestRunner {
             throw new TestRunException("Problem reading the CPS property to check if framework event production has been activated.");
         }
 
-        IRun run = this.framework.getTestRun();
         if (run == null) {
             throw new TestRunException("Unable to locate run properties");
         }
@@ -181,7 +187,7 @@ public class TestRunner {
             } catch (Exception e) {
                 logger.error("Unable to load stream " + stream + " settings", e);
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
+                shutdownFramework();
                 return;
             }
         }
@@ -208,7 +214,7 @@ public class TestRunner {
             } catch (MalformedURLException e) {
                 logger.error("Unable to add remote maven repository " + testRepository, e);
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
+                shutdownFramework();
                 return;
             }
         }
@@ -226,17 +232,17 @@ public class TestRunner {
             } catch (Exception e) {
                 logger.error("Unable to load specified OBR " + testOBR, e);
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
+                shutdownFramework();
                 return;
             }
         }
 
         try {
-            BundleManagement.loadBundle(repositoryAdmin, bundleContext, testBundleName);
+            this.bundleManager.loadBundle(repositoryAdmin, bundleContext, testBundleName);
         } catch (Exception e) {
             logger.error("Unable to load the test bundle " + testBundleName, e);
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-            frameworkInitialisation.shutdownFramework();
+            shutdownFramework();
             return;
         }
         
@@ -248,15 +254,16 @@ public class TestRunner {
         } catch(Throwable t) {
             logger.error("Problem locating test " + testBundleName + "/" + testClassName, t);
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-            frameworkInitialisation.shutdownFramework();
+            shutdownFramework();
             return;
         }
 
         logger.debug("Getting test annotations..");
-        Test testAnnotation = testClass.getAnnotation(Test.class);
+        IAnnotationExtractor annotationExtractor = dataProvider.getAnnotationExtractor();
+        Test testAnnotation = annotationExtractor.getAnnotation( testClass , Test.class);
         logger.debug("Test annotations.. got");
 
-        SharedEnvironment sharedEnvironmentAnnotation = testClass.getAnnotation(SharedEnvironment.class);
+        SharedEnvironment sharedEnvironmentAnnotation = annotationExtractor.getAnnotation( testClass, SharedEnvironment.class);
 
         logger.debug("Checking testAnnotation and sharedEnvironmentAnnotation");
         if (testAnnotation == null && sharedEnvironmentAnnotation == null) {
@@ -318,7 +325,7 @@ public class TestRunner {
             } catch (DynamicStatusStoreException e1) {
                 String msg = "DynamicStatusStoreException Exception caught. "+e1.getMessage()+" Shutting down and Re-throwing.";
                 logger.error(msg);
-                frameworkInitialisation.shutdownFramework();
+                shutdownFramework();
                 throw new TestRunException("Unable to initialise the heartbeat");
             }
 
@@ -338,7 +345,7 @@ public class TestRunner {
                 String msg = "DynamicStatusStoreException Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
                 logger.error(msg);
                 deleteRunProperties(this.framework);
-                frameworkInitialisation.shutdownFramework();
+                shutdownFramework();
                 throw new TestRunException("Unable to set the shared environment expire time",e);
             }
         }
@@ -347,9 +354,9 @@ public class TestRunner {
         updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
         // *** Try to load the Core Manager bundle, even if the test doesn't use it, and if not already active
-        if (!BundleManagement.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
+        if (!bundleManager.isBundleActive(bundleContext, "dev.galasa.core.manager")) {
             try {
-                BundleManagement.loadBundle(repositoryAdmin, bundleContext, "dev.galasa.core.manager");
+                bundleManager.loadBundle(repositoryAdmin, bundleContext, "dev.galasa.core.manager");
             } catch (FrameworkException e) {
                 logger.warn("Tried to load the Core Manager bundle, but failed, test can continue without it",e);
             }
@@ -358,13 +365,14 @@ public class TestRunner {
         logger.debug("Bundle is loaded ok.");
 
         // *** Initialise the Managers ready for the test run
-        TestRunManagers managers = null;
+        ITestRunManagers managers = null;
         try {
-            managers = new TestRunManagers(this.framework, new GalasaTest(testClass));
-        } catch (FrameworkException e) {
-            String msg = "FrameworkException Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
+            GalasaTest galasaTest = new GalasaTest(testClass);
+            managers = dataProvider.createTestRunManagers(galasaTest);
+        } catch (TestRunException e) {
+            String msg = "Exception Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
             logger.error(msg);
-            frameworkInitialisation.shutdownFramework();
+            shutdownFramework();
             throw new TestRunException("Problem initialising the Managers for a test run", e);
         }
 
@@ -375,7 +383,7 @@ public class TestRunner {
                 logger.debug("managers.anyReasonTestClassShouldBeIgnored() is true. Shutting down.");
                 stopHeartbeat();
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                frameworkInitialisation.shutdownFramework();
+                shutdownFramework();
                 return; // TODO handle ignored classes
             }
         } catch (FrameworkException e) {
@@ -459,7 +467,7 @@ public class TestRunner {
             stopHeartbeat();
 
             // *** Record all the CPS properties that were accessed
-            recordCPSProperties(frameworkInitialisation);
+            recordCPSProperties(this.fileSystem);
 
             // *** If this was a local run, then we will want to remove the run properties
             // from the DSS immediately
@@ -474,7 +482,7 @@ public class TestRunner {
                 deleteRunProperties(this.framework);
             }
         } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-            recordCPSProperties(frameworkInitialisation);
+            recordCPSProperties(this.fileSystem);
             updateStatus(TestRunLifecycleStatus.UP, "built");
         } else {
             logger.error("Unrecognised end condition");
@@ -484,7 +492,7 @@ public class TestRunner {
         managers.shutdown();
 
         logger.debug("Cleaning up framework...");
-        frameworkInitialisation.shutdownFramework();
+        shutdownFramework();
     }
 
     private boolean isProduceEventsFeatureFlagTrue() throws ConfigurationPropertyStoreException {
@@ -497,7 +505,7 @@ public class TestRunner {
         return produceEvents;
     }
 
-    private void generateEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
+    private void generateEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
         if(isRunOK){
             try {
                 updateStatus(TestRunLifecycleStatus.GENERATING, null);
@@ -520,7 +528,7 @@ public class TestRunner {
     }
 
 
-    private void createEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
+    private void createEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
         if (!isRunOK) {
             return;
         }
@@ -553,7 +561,7 @@ public class TestRunner {
     }
 
 
-    private void discardEnvironment(TestRunManagers managers) {
+    private void discardEnvironment(ITestRunManagers managers) {
         if (this.runType != RunType.SHARED_ENVIRONMENT_BUILD) {
             logger.info("Starting Provision Discard phase");
             managers.provisionDiscard();
@@ -561,7 +569,7 @@ public class TestRunner {
     }
 
 
-    private void runEnvironment(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
+    private void runEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
         if (isRunOK) {    
             try {
                 if (this.runType != RunType.SHARED_ENVIRONMENT_DISCARD) {
@@ -589,7 +597,7 @@ public class TestRunner {
         return;
     }
 
-    private void stopEnvironment(TestRunManagers managers) {
+    private void stopEnvironment(ITestRunManagers managers) {
         if (this.runType != RunType.SHARED_ENVIRONMENT_BUILD) {   
             logger.info("Starting Provision Stop phase");
             managers.provisionStop();
@@ -597,7 +605,7 @@ public class TestRunner {
     }
 
 
-    private void runTestClassWrapper(TestClassWrapper testClassWrapper, TestRunManagers managers) throws TestRunException {
+    private void runTestClassWrapper(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
         // Do nothing if the test run has already failed on setup.
         if (isRunOK) {
 
@@ -817,7 +825,7 @@ public class TestRunner {
         return this.cps;
     }
 
-    private void recordCPSProperties(FrameworkInitialisation frameworkInitialisation) {
+    private void recordCPSProperties(IFileSystem fileSystem) {
         try {
             Properties record = this.framework.getRecordProperties();
 
@@ -849,10 +857,18 @@ public class TestRunner {
             IResultArchiveStore ras = this.framework.getResultArchiveStore();
             Path rasRoot = ras.getStoredArtifactsRoot();
             Path rasProperties = rasRoot.resolve("framework").resolve("cps_record.properties");
-            Files.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
-            Files.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
+            fileSystem.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
+            fileSystem.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             logger.error("Failed to save the recorded properties", e);
+        }
+    }
+
+    private void shutdownFramework() {
+        try {
+            this.framework.shutdown();
+        } catch(Exception e) {
+            logger.fatal("Problem shutting down the Galasa framework",e);
         }
     }
 

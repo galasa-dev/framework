@@ -11,7 +11,6 @@ import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.language.gherkin.GherkinFeature;
 import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.parser.*;
-import dev.galasa.framework.spi.language.gherkin.xform.ParseTreeTransform;
 
 import java.util.List;
 import org.junit.Test;
