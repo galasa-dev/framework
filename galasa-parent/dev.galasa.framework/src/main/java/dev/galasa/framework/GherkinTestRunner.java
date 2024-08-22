@@ -255,26 +255,22 @@ public class GherkinTestRunner extends AbstractTestRunner {
     }
 
     private void generateEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
-        if (!isRunOK) {
-            return;
-        }
-
-        try {
-            updateStatus(TestRunLifecycleStatus.GENERATING, null);
-            logger.info("Starting Provision Generate phase");
-            managers.provisionGenerate();
-        } catch (Exception e) { 
-            logger.info("Provision Generate failed", e);
-            if (e instanceof FrameworkResourceUnavailableException) {
-                isResourcesAvailable = false;
+        if (isRunOK) {
+            try {
+                updateStatus(TestRunLifecycleStatus.GENERATING, null);
+                logger.info("Starting Provision Generate phase");
+                managers.provisionGenerate();
+                createEnvironment(testObject, managers);
+            } catch (Exception e) { 
+                logger.info("Provision Generate failed", e);
+                if (e instanceof FrameworkResourceUnavailableException) {
+                    isResourcesAvailable = false;
+                }
+                testObject.setResult(Result.envfail(e));
+                testStructure.setResult(testObject.getResult().getName());
+                isRunOK = false;
             }
-            testObject.setResult(Result.envfail(e));
-            testStructure.setResult(testObject.getResult().getName());
-            isRunOK = false;
-            return;
         }
-
-        createEnvironment(testObject, managers);
     }
 
 
@@ -360,81 +356,10 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
     }
 
-    private void markWaiting(@NotNull IFramework framework) throws TestRunException {
-        int initialDelay = 600;
-        int randomDelay = 180;
-
-        DssUtils.incrementMetric(dss, "metrics.runs.made.to.wait");
-
-        try {
-            String sInitialDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "delay"));
-            String sRandomDelay = AbstractManager.nulled(this.cps.getProperty("waiting.random", "delay"));
-
-            if (sInitialDelay != null) {
-                initialDelay = Integer.parseInt(sInitialDelay);
-            }
-            if (sRandomDelay != null) {
-                randomDelay = Integer.parseInt(sRandomDelay);
-            }
-        } catch (Exception e) {
-            logger.error("Problem reading delay properties", e);
-        }
-
-        int totalDelay = initialDelay + framework.getRandom().nextInt(randomDelay);
-        logger.info("Placing this run on waiting for " + totalDelay + " seconds");
-
-        Instant until = Instant.now();
-        until = until.plus(totalDelay, ChronoUnit.SECONDS);
-
-        HashMap<String, String> properties = new HashMap<>();
-        properties.put(getDSSKeyString("status"), "waiting");
-        properties.put(getDSSKeyString("wait.until"), until.toString());
-        try {
-            this.dss.put(properties);
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Unable to place run in waiting state", e);
-        }
-    }
-
-    private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
-        Instant time = Instant.now();
-
-        this.testStructure.setStatus(status.toString());
-        if (status == TestRunLifecycleStatus.FINISHED) {
-            updateResult();
-            this.testStructure.setEndTime(time);
-        }
-
-        writeTestStructure();
-
-        try {
-            this.dss.put(getDSSKeyString("status"), status.toString());
-            if (timestamp != null) {
-                this.dss.put(getDSSKeyString(timestamp), time.toString());
-            }
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Failed to update status", e);
-        }
-    }
-
-    private void updateResult() throws TestRunException {
-        try {
-            if (this.testStructure.getResult() == null) {
-                this.testStructure.setResult("UNKNOWN");
-            }
-            this.dss.put(getDSSKeyString("result"), this.testStructure.getResult());
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Failed to update result", e);
-        }
-    }
-
-
-
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
     }
-
 
 
 }

@@ -11,6 +11,7 @@ import org.osgi.framework.BundleContext;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
@@ -31,7 +32,9 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.events.TestHeartbeatStoppedEvent;
+import dev.galasa.framework.spi.events.TestRunLifecycleStatusChangedEvent;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import dev.galasa.framework.spi.utils.DssUtils;
 
 public class AbstractTestRunner {
 
@@ -260,4 +263,105 @@ public class AbstractTestRunner {
             }
         }
     }
+
+    protected void markWaiting(@NotNull IFramework framework) throws TestRunException {
+        int initialDelay = 600;
+        int randomDelay = 180;
+
+        DssUtils.incrementMetric(dss, "metrics.runs.made.to.wait");
+
+        try {
+            String sInitialDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "delay"));
+            String sRandomDelay = AbstractManager.nulled(this.cps.getProperty("waiting.random", "delay"));
+
+            if (sInitialDelay != null) {
+                initialDelay = Integer.parseInt(sInitialDelay);
+            }
+            if (sRandomDelay != null) {
+                randomDelay = Integer.parseInt(sRandomDelay);
+            }
+        } catch (Exception e) {
+            logger.error("Problem reading delay properties", e);
+        }
+
+        int totalDelay = initialDelay + framework.getRandom().nextInt(randomDelay);
+        logger.info("Placing this run on waiting for " + totalDelay + " seconds");
+
+        Instant until = Instant.now();
+        until = until.plus(totalDelay, ChronoUnit.SECONDS);
+
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put(getDSSKeyString("status"), "waiting");
+        properties.put(getDSSKeyString("wait.until"), until.toString());
+        try {
+            this.dss.put(properties);
+        } catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Unable to place run in waiting state", e);
+        }
+    }
+
+    protected void updateResult() throws TestRunException {
+        try {
+            if (this.testStructure.getResult() == null) {
+                this.testStructure.setResult("UNKNOWN");
+            }
+            this.dss.put("run." + run.getName() + ".result", this.testStructure.getResult());
+        } catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Failed to update result", e);
+        }
+    }
+
+    protected IFramework getFramework() {
+        return this.framework;
+    }
+
+    public IConfigurationPropertyStoreService getCPS() {
+        return this.cps;
+    }
+
+    protected void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
+        Instant time = Instant.now();
+
+        this.testStructure.setStatus(status.toString());
+        if ("finished".equals(status.toString())) {
+            updateResult();
+            this.testStructure.setEndTime(Instant.now());
+        }
+
+        writeTestStructure();
+
+        try {
+            this.dss.put(getDSSKeyString("status"), status.toString());
+            if (timestamp != null) {
+                this.dss.put(getDSSKeyString(timestamp), time.toString());
+            }
+        } catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Failed to update status", e);
+        }
+
+        try {
+            produceTestRunLifecycleStatusChangedEvent(status);
+        } catch (TestRunException e) {
+            logger.error("Unable to produce a test run lifecycle status changed event to the Events Service", e);
+        }
+    }
+
+    private void produceTestRunLifecycleStatusChangedEvent(TestRunLifecycleStatus status) throws TestRunException {
+        if (this.isProduceEventsEnabled) {
+            logger.debug("Producing a test run lifecycle status change event.");
+
+            String message = String.format("Galasa test run %s is now in status: %s.", framework.getTestRunName(), status.toString());
+            TestRunLifecycleStatusChangedEvent testRunLifecycleStatusChangedEvent = new TestRunLifecycleStatusChangedEvent(this.cps, Instant.now().toString(), message);
+            String topic = testRunLifecycleStatusChangedEvent.getTopic();
+
+            if (topic != null) {
+                try {
+                    framework.getEventsService().produceEvent(topic, testRunLifecycleStatusChangedEvent);
+                } catch (EventsException e) {
+                    throw new TestRunException("Failed to publish a test run lifecycle status changed event to the Events Service", e);
+                }
+            }
+        }
+    }
+
 }
