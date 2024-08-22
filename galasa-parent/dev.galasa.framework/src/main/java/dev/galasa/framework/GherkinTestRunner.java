@@ -10,8 +10,6 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -31,19 +29,14 @@ import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IGherkinExecutable;
-import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
-import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 
 
@@ -63,21 +56,9 @@ public class GherkinTestRunner extends AbstractTestRunner {
     // Field is protected so unit tests can inject a value here.
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
     protected IMavenRepository mavenRepository;
+ 
 
-    private TestRunHeartbeat heartbeat;
-
-    private IConfigurationPropertyStoreService cps;
-    private IDynamicStatusStoreService dss;
-    private IResultArchiveStore ras;
-    private IRun run;
-
-    private TestStructure testStructure = new TestStructure();
-
-    private IShuttableFramework                 framework;
     private GherkinTest gherkinTest;
-
-    private boolean runOk = true;
-    private boolean resourcesUnavailable = false;
 
     /**
      * Run the supplied test class
@@ -93,30 +74,9 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
     public void runTest( ITestRunnerDataProvider dataProvider  ) throws TestRunException {
 
-        this.run = dataProvider.getRun() ;
-        this.framework = dataProvider.getFramework();
-        this.cps = dataProvider.getCPS();
-        this.ras = dataProvider.getRAS();
-        this.dss = dataProvider.getDSS();
-        this.bundleManager = dataProvider.getBundleManager();
-        this.fileSystem = dataProvider.getFileSystem();
-
-        Properties overrideProperties = dataProvider.getOverrideProperties();
+        super.init(dataProvider);
 
         gherkinTest = new GherkinTest(run, testStructure,this.fileSystem);
-
-        //*** Load the overrides if present
-        try {
-            String prefix = getDSSKeyString("override.");
-            Map<String, String> runOverrides = dss.getPrefix(prefix);
-            for(Entry<String, String> entry : runOverrides.entrySet()) {
-                String key = entry.getKey().substring(prefix.length());
-                String value = entry.getValue();
-                overrideProperties.put(key, value);
-            }
-        } catch(Exception e) {
-            throw new TestRunException("Problem loading overrides from the run properties", e);
-        }
 
         String testRepository = null;
         String testOBR = null;
@@ -253,7 +213,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
             generateEnvironment(gherkinTest, managers);
         } catch(Exception e) {
             logger.fatal("Error within test runner",e);
-            this.runOk = false;
+            isRunOK = false;
         }
 
         updateStatus(TestRunLifecycleStatus.ENDING, null);
@@ -261,7 +221,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
         boolean markedWaiting = false;
 
-        if (resourcesUnavailable && !run.isLocal()) {
+        if ((!isResourcesAvailable) && !run.isLocal()) {
             markWaiting(this.framework);
             logger.info("Placing queue on the waiting list");
             markedWaiting = true;
@@ -311,7 +271,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
     }
 
     private void generateEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
-        if (!runOk) {
+        if (!isRunOK) {
             return;
         }
 
@@ -322,11 +282,11 @@ public class GherkinTestRunner extends AbstractTestRunner {
         } catch (Exception e) { 
             logger.info("Provision Generate failed", e);
             if (e instanceof FrameworkResourceUnavailableException) {
-                this.resourcesUnavailable = true;
+                isResourcesAvailable = false;
             }
             testObject.setResult(Result.envfail(e));
             testStructure.setResult(testObject.getResult().getName());
-            runOk = false;
+            isRunOK = false;
             return;
         }
 
@@ -335,7 +295,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
 
     private void createEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
-        if (!runOk) {
+        if (!isRunOK) {
             return;
         }
 
@@ -345,10 +305,10 @@ public class GherkinTestRunner extends AbstractTestRunner {
                 logger.info("Starting Provision Build phase");
                 managers.provisionBuild();
             } catch (FrameworkException e) {
-                this.runOk = false;
+                this.isRunOK = false;
                 logger.error("Provision build failed",e);
                 if (e instanceof FrameworkResourceUnavailableException) {
-                    this.resourcesUnavailable = true;
+                    isResourcesAvailable = false;
                 }
                 testObject.setResult(Result.envfail(e));
                 testStructure.setResult(testObject.getResult().getName());
@@ -369,7 +329,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
 
     private void runEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
-        if (!runOk) {
+        if (!isRunOK) {
             return;
         }
 
@@ -379,10 +339,10 @@ public class GherkinTestRunner extends AbstractTestRunner {
                 logger.info("Starting Provision Start phase");
                 managers.provisionStart();
             } catch (FrameworkException e) {
-                this.runOk = false;
+                this.isRunOK = false;
                 logger.error("Provision start failed",e);
                 if (e instanceof FrameworkResourceUnavailableException) {
-                    this.resourcesUnavailable = true;
+                    isResourcesAvailable = false;
                 }
                 testObject.setResult(Result.envfail(e));
                 testStructure.setResult(testObject.getResult().getName());
@@ -402,7 +362,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
 
     private void runGherkinTest(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
-        if (!runOk) {
+        if (!isRunOK) {
             return;
         }
 

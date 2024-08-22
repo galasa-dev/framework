@@ -10,8 +10,6 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -37,10 +35,8 @@ import dev.galasa.framework.spi.EventsException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
-import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -48,7 +44,6 @@ import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.events.TestHeartbeatStoppedEvent;
 import dev.galasa.framework.spi.events.TestRunLifecycleStatusChangedEvent;
 import dev.galasa.framework.spi.language.GalasaTest;
-import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 
 /**
@@ -73,24 +68,7 @@ public class TestRunner extends AbstractTestRunner {
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
     protected IMavenRepository                   mavenRepository;
 
-    private TestRunHeartbeat                   heartbeat;
-
-    private IConfigurationPropertyStoreService cps;
-    private IDynamicStatusStoreService         dss;
-    private IResultArchiveStore                ras;
-    private IRun                               run;
-
-    private TestStructure                      testStructure = new TestStructure();
-
     private RunType                            runType;
-
-    private boolean                            isRunOK = true;
-    private boolean                            resourcesAvailable = true;
-
-
-    private boolean produceEvents;
-
-
 
 
     /**
@@ -107,41 +85,10 @@ public class TestRunner extends AbstractTestRunner {
 
     public void runTest( ITestRunnerDataProvider dataProvider  ) throws TestRunException {
 
-        this.run = dataProvider.getRun() ;
-        this.framework = dataProvider.getFramework();
-        this.cps = dataProvider.getCPS();
-        this.ras = dataProvider.getRAS();
-        this.dss = dataProvider.getDSS();
-        this.bundleManager = dataProvider.getBundleManager();
-        this.fileSystem = dataProvider.getFileSystem();
-
-        Properties overrideProperties = dataProvider.getOverrideProperties();
-
-        try {
-            this.produceEvents = isProduceEventsFeatureFlagTrue();
-        } catch (ConfigurationPropertyStoreException e) {
-            throw new TestRunException("Problem reading the CPS property to check if framework event production has been activated.");
-        }
-
-        if (run == null) {
-            throw new TestRunException("Unable to locate run properties");
-        }
+        super.init(dataProvider);
 
         String testBundleName = run.getTestBundleName();
         String testClassName = run.getTestClassName();
-
-        //*** Load the overrides if present
-        try {
-            String prefix = "run." + run.getName() + ".override.";
-            Map<String, String> runOverrides = dss.getPrefix(prefix);
-            for(Entry<String, String> entry : runOverrides.entrySet()) {
-                String key = entry.getKey().substring(prefix.length());
-                String value = entry.getValue();
-                overrideProperties.put(key, value);
-            }
-        } catch(Exception e) {
-            throw new TestRunException("Problem loading overrides from the run properties", e);
-        }
 
         String testRepository = null;
         String testOBR = null;
@@ -428,7 +375,7 @@ public class TestRunner extends AbstractTestRunner {
 
             boolean markedWaiting = false;
 
-            if (!resourcesAvailable && !run.isLocal()) {
+            if (!isResourcesAvailable && !run.isLocal()) {
                 markWaiting(this.framework);
                 logger.info("Placing queue on the waiting list");
                 markedWaiting = true;
@@ -476,15 +423,7 @@ public class TestRunner extends AbstractTestRunner {
         shutdownFramework(framework);
     }
 
-    private boolean isProduceEventsFeatureFlagTrue() throws ConfigurationPropertyStoreException {
-        boolean produceEvents = false;
-        String produceEventsProp = this.cps.getProperty("produce", "events");
-        if (produceEventsProp != null) {
-            logger.debug("CPS property framework.produce.events was found and is set to: " + produceEventsProp);
-            produceEvents = Boolean.parseBoolean(produceEventsProp);
-        }
-        return produceEvents;
-    }
+
 
     private void generateEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
         if(isRunOK){
@@ -496,10 +435,10 @@ public class TestRunner extends AbstractTestRunner {
             } catch (Exception e) { 
                 logger.info("Provision Generate failed", e);
                 if (e instanceof FrameworkResourceUnavailableException) {
-                    this.resourcesAvailable = false;
+                    this.isResourcesAvailable = false;
                 }
                 testClassWrapper.setResult(Result.envfail(e));
-                if (resourcesAvailable) {
+                if (isResourcesAvailable) {
                     managers.testClassResult(testClassWrapper.getResult(), e);
                 }
                 testStructure.setResult(testClassWrapper.getResult().getName());
@@ -524,10 +463,10 @@ public class TestRunner extends AbstractTestRunner {
                     this.isRunOK = false;
                     logger.error("Provision build failed",e);
                     if (e instanceof FrameworkResourceUnavailableException) {
-                        this.resourcesAvailable = false;
+                        this.isResourcesAvailable = false;
                     }
                     testClassWrapper.setResult(Result.envfail(e));
-                    if (this.resourcesAvailable) {
+                    if (this.isResourcesAvailable) {
                         managers.testClassResult(testClassWrapper.getResult(), e);
                     }
                     testStructure.setResult(testClassWrapper.getResult().getName());
@@ -562,7 +501,7 @@ public class TestRunner extends AbstractTestRunner {
                         this.isRunOK = false;
                         logger.error("Provision start failed",e);
                         if (e instanceof FrameworkResourceUnavailableException) {
-                            this.resourcesAvailable = false;
+                            this.isResourcesAvailable = false;
                         }
                         testClassWrapper.setResult(Result.envfail(e));
                         testStructure.setResult(testClassWrapper.getResult().getName());
@@ -667,7 +606,7 @@ public class TestRunner extends AbstractTestRunner {
     }
 
     private void produceTestRunLifecycleStatusChangedEvent(TestRunLifecycleStatus status) throws TestRunException {
-        if (this.produceEvents) {
+        if (this.isProduceEventsEnabled) {
             logger.debug("Producing a test run lifecycle status change event.");
 
             String message = String.format("Galasa test run %s is now in status: %s.", framework.getTestRunName(), status.toString());
@@ -720,7 +659,7 @@ public class TestRunner extends AbstractTestRunner {
     }
 
     private void produceTestHeartbeatStoppedEvent() throws TestRunException {
-        if (this.produceEvents) {
+        if (this.isProduceEventsEnabled) {
             logger.debug("Producing a test heartbeat stopped event.");
 
             String message = String.format("Galasa test run %s's heartbeat has been stopped.", framework.getTestRunName());
