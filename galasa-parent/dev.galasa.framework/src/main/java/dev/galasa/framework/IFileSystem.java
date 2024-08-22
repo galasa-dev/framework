@@ -7,8 +7,10 @@ package dev.galasa.framework;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
+import java.util.List;
 import java.util.stream.Stream;
 
 public interface IFileSystem {
@@ -34,4 +36,6 @@ public interface IFileSystem {
     Path createFile(Path path, FileAttribute<?>... attrs) throws IOException;
 
     void write(Path rasProperties, byte[] bytes) throws IOException ;
+
+    List<String> readLines(URI uri) throws IOException ;
 }
