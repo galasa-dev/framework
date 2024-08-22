@@ -6,8 +6,11 @@
 package dev.galasa.framework.mocks;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -17,6 +20,8 @@ import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.stream.Stream;
+
+import org.apache.commons.io.IOUtils;
 
 import dev.galasa.framework.IFileSystem;
 
@@ -203,6 +208,23 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         }
     }
 
+
+    @Override
+    public List<String> readLines(URI uri) throws IOException {
+        String filePathStr = uri.getPath();
+        Path filePath = getPath(filePathStr);
+
+        if (!exists(filePath)) {
+            throw new FileNotFoundException("File "+filePathStr+" was not found");
+        }
+        String contents = getContentsAsString(filePath);
+
+        ByteArrayInputStream source = new ByteArrayInputStream(contents.getBytes());
+        InputStreamReader sourceReader = new InputStreamReader(source);
+        List<String> lines = IOUtils.readLines(sourceReader);
+        return lines ;
+    }
+
     // -------------- Un-implemented methods follow ------------------
 
     @Override
@@ -254,6 +276,4 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
     public WatchService newWatchService() throws IOException {
         throw new UnsupportedOperationException("Unimplemented method 'newWatchService'");
     }
-
-
 }

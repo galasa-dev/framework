@@ -19,9 +19,29 @@ public class MockRun implements IRun {
     private String testStreamRepoUrl;
     private String requestorName ;
     private boolean isRunLocal;
+    private String gherkinUrl;
 
-    public MockRun(String testBundleName, 
-    String testClassName, String testRunName , String testStream, String testStreamOBR, String testStreamRepoUrl, String requestorName, boolean isRunLocal ) {
+
+    public MockRun(
+        String testBundleName, 
+        String testClassName, String testRunName , 
+        String testStream, String testStreamOBR, 
+        String testStreamRepoUrl, String requestorName, 
+        boolean isRunLocal 
+    ) {
+        this( testBundleName, 
+            testClassName, testRunName , 
+            testStream, testStreamOBR, 
+            testStreamRepoUrl, requestorName, 
+            isRunLocal ,null);
+    }
+    public MockRun(
+        String testBundleName, 
+        String testClassName, String testRunName , 
+        String testStream, String testStreamOBR, 
+        String testStreamRepoUrl, String requestorName, 
+        boolean isRunLocal , String gherkinUrl
+    ) {
         this.testBundleName = testBundleName;
         this.testClassName = testClassName ;
         this.testRunName = testRunName;
@@ -30,8 +50,10 @@ public class MockRun implements IRun {
         this.testStreamRepoUrl = testStreamRepoUrl;
         this.requestorName = requestorName;
         this.isRunLocal = isRunLocal;
+        this.gherkinUrl = gherkinUrl;
     }
     
+
     @Override
     public String getTestBundleName() {
         return this.testBundleName;
@@ -76,6 +98,11 @@ public class MockRun implements IRun {
     @Override
     public boolean isLocal() {
         return this.isRunLocal ;
+    }
+
+    @Override
+    public String getGherkin() {
+        return this.gherkinUrl;
     }
 
     // ------------- un-implemented methods follow ----------------
@@ -133,11 +160,6 @@ public class MockRun implements IRun {
     @Override
     public boolean isSharedEnvironment() {
         throw new UnsupportedOperationException("Unimplemented method 'isSharedEnvironment'");
-    }
-
-    @Override
-    public String getGherkin() {
-        throw new UnsupportedOperationException("Unimplemented method 'getGherkin'");
     }
     
 }

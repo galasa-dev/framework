@@ -33,13 +33,9 @@ public class MockBundleManager implements IBundleManager {
         return loadedSymbolicNames.contains(bundleSymbolicName);
     }
 
-    // --------------- un-implemented methods follow --------------------
-
     @Override
     public void loadAllGherkinManagerBundles(RepositoryAdmin repositoryAdmin, BundleContext bundleContext)
             throws FrameworkException {
-        throw new UnsupportedOperationException("Unimplemented method 'loadAllGherkinManagerBundles'");
     }
 
-    
 }

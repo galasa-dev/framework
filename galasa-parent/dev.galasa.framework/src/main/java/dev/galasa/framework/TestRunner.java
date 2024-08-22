@@ -7,12 +7,8 @@ package dev.galasa.framework;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,7 +26,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.SharedEnvironment;
 import dev.galasa.Test;
 import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
@@ -47,7 +42,6 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
@@ -61,7 +55,7 @@ import dev.galasa.framework.spi.utils.DssUtils;
  * Run the supplied test class
  */
 @Component(service = { TestRunner.class })
-public class TestRunner {
+public class TestRunner extends AbstractTestRunner {
 
     private enum RunType {
         TEST,
@@ -70,8 +64,6 @@ public class TestRunner {
     }
 
     private Log                                logger        = LogFactory.getLog(TestRunner.class);
-
-    private BundleContext                      bundleContext;
 
     // Field is protected so unit tests can inject a value here.
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
@@ -95,12 +87,10 @@ public class TestRunner {
     private boolean                            isRunOK = true;
     private boolean                            resourcesAvailable = true;
 
-    private IShuttableFramework                 framework;
-    private IBundleManager bundleManager;
 
     private boolean produceEvents;
 
-    private IFileSystem fileSystem;
+
 
 
     /**
@@ -175,19 +165,10 @@ public class TestRunner {
             try {
                 testRepository = this.cps.getProperty("test.stream", "repo", stream);
                 testOBR = this.cps.getProperty("test.stream", "obr", stream);
-
-                //*** TODO remove this code in 0.9.0 - renames stream to test.stream to be consistent #198
-                if (testRepository == null) {
-                    testRepository = this.cps.getProperty("stream", "repo", stream);
-                }
-                if (testOBR == null) {
-                    testOBR = this.cps.getProperty("stream", "obr", stream);
-                }
-                //*** TODO remove above code in 0.9.0
             } catch (Exception e) {
                 logger.error("Unable to load stream " + stream + " settings", e);
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                shutdownFramework();
+                shutdownFramework(framework);
                 return;
             }
         }
@@ -214,7 +195,7 @@ public class TestRunner {
             } catch (MalformedURLException e) {
                 logger.error("Unable to add remote maven repository " + testRepository, e);
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                shutdownFramework();
+                shutdownFramework(framework);
                 return;
             }
         }
@@ -232,7 +213,7 @@ public class TestRunner {
             } catch (Exception e) {
                 logger.error("Unable to load specified OBR " + testOBR, e);
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                shutdownFramework();
+                shutdownFramework(this.framework);
                 return;
             }
         }
@@ -242,7 +223,7 @@ public class TestRunner {
         } catch (Exception e) {
             logger.error("Unable to load the test bundle " + testBundleName, e);
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-            shutdownFramework();
+            shutdownFramework(framework);
             return;
         }
         
@@ -254,7 +235,7 @@ public class TestRunner {
         } catch(Throwable t) {
             logger.error("Problem locating test " + testBundleName + "/" + testClassName, t);
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-            shutdownFramework();
+            shutdownFramework(framework);
             return;
         }
 
@@ -325,7 +306,7 @@ public class TestRunner {
             } catch (DynamicStatusStoreException e1) {
                 String msg = "DynamicStatusStoreException Exception caught. "+e1.getMessage()+" Shutting down and Re-throwing.";
                 logger.error(msg);
-                shutdownFramework();
+                shutdownFramework(framework);
                 throw new TestRunException("Unable to initialise the heartbeat");
             }
 
@@ -345,7 +326,7 @@ public class TestRunner {
                 String msg = "DynamicStatusStoreException Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
                 logger.error(msg);
                 deleteRunProperties(this.framework);
-                shutdownFramework();
+                shutdownFramework(framework);
                 throw new TestRunException("Unable to set the shared environment expire time",e);
             }
         }
@@ -372,7 +353,7 @@ public class TestRunner {
         } catch (TestRunException e) {
             String msg = "Exception Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
             logger.error(msg);
-            shutdownFramework();
+            shutdownFramework(framework);
             throw new TestRunException("Problem initialising the Managers for a test run", e);
         }
 
@@ -383,7 +364,7 @@ public class TestRunner {
                 logger.debug("managers.anyReasonTestClassShouldBeIgnored() is true. Shutting down.");
                 stopHeartbeat();
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                shutdownFramework();
+                shutdownFramework(framework);
                 return; // TODO handle ignored classes
             }
         } catch (FrameworkException e) {
@@ -467,7 +448,7 @@ public class TestRunner {
             stopHeartbeat();
 
             // *** Record all the CPS properties that were accessed
-            recordCPSProperties(this.fileSystem);
+            recordCPSProperties(this.fileSystem, this.framework, this.ras);
 
             // *** If this was a local run, then we will want to remove the run properties
             // from the DSS immediately
@@ -482,7 +463,7 @@ public class TestRunner {
                 deleteRunProperties(this.framework);
             }
         } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-            recordCPSProperties(this.fileSystem);
+            recordCPSProperties(this.fileSystem, this.framework, this.ras);
             updateStatus(TestRunLifecycleStatus.UP, "built");
         } else {
             logger.error("Unrecognised end condition");
@@ -492,7 +473,7 @@ public class TestRunner {
         managers.shutdown();
 
         logger.debug("Cleaning up framework...");
-        shutdownFramework();
+        shutdownFramework(framework);
     }
 
     private boolean isProduceEventsFeatureFlagTrue() throws ConfigurationPropertyStoreException {
@@ -824,52 +805,5 @@ public class TestRunner {
     public IConfigurationPropertyStoreService getCPS() {
         return this.cps;
     }
-
-    private void recordCPSProperties(IFileSystem fileSystem) {
-        try {
-            Properties record = this.framework.getRecordProperties();
-
-            ArrayList<String> propertyNames = new ArrayList<>();
-            propertyNames.addAll(record.stringPropertyNames());
-            Collections.sort(propertyNames);
-
-            StringBuilder sb = new StringBuilder();
-            String currentNamespace = null;
-            for (String propertyName : propertyNames) {
-                propertyName = propertyName.trim();
-                if (propertyName.isEmpty()) {
-                    continue;
-                }
-
-                String[] parts = propertyName.split("\\.");
-                if (!parts[0].equals(currentNamespace)) {
-                    if (currentNamespace != null) {
-                        sb.append("\n");
-                    }
-                    currentNamespace = parts[0];
-                }
-
-                sb.append(propertyName);
-                sb.append("=");
-                sb.append(record.getProperty(propertyName));
-                sb.append("\n");
-            }
-            IResultArchiveStore ras = this.framework.getResultArchiveStore();
-            Path rasRoot = ras.getStoredArtifactsRoot();
-            Path rasProperties = rasRoot.resolve("framework").resolve("cps_record.properties");
-            fileSystem.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
-            fileSystem.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            logger.error("Failed to save the recorded properties", e);
-        }
-    }
-
-    private void shutdownFramework() {
-        try {
-            this.framework.shutdown();
-        } catch(Exception e) {
-            logger.fatal("Problem shutting down the Galasa framework",e);
-        }
-    }
-
+    
 }
