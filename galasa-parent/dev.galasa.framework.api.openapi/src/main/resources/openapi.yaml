@@ -1163,6 +1163,7 @@ paths:
         - name: page
           in: query
           description: |
+            Deprecated (since 0.37.0) - Use the 'cursor' query parameter instead.
             Causes a specific page in the available results to be returned.
             The first page is page 1.
             If omitted, then page 1 is returned.
