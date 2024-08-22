@@ -46,8 +46,7 @@ jobs:
           -Dorg.gradle.jvmargs=-Xmx5120M \
           -PsourceMaven=https://development.galasa.dev/gh/maven-repo/maven/ \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-          -PtargetMaven=${{ github.workspace }}/repo \
-          --info
+          -PtargetMaven=${{ github.workspace }}/repo
       
       - name: Upload Jacoco Reports as artifact
         if: failure()
