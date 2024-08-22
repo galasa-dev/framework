@@ -8,6 +8,7 @@ package dev.galasa.framework.spi.language.gherkin;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -15,12 +16,13 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import dev.galasa.framework.TestRunException;
+import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 
 public class TestGherkinTest {
 
-    static class MockGherkinFileReader implements IGherkinFileReader {
+    static class MockGherkinFileSystem extends MockFileSystem {
 
         private List<String> lines;
 
@@ -30,7 +32,7 @@ public class TestGherkinTest {
         }
 
         @Override
-        public List<String> readLines(URI gherkinUri) throws TestRunException {
+        public List<String> readLines(URI gherkinUri) throws IOException {
             return lines ;
         }
     }
@@ -40,7 +42,7 @@ public class TestGherkinTest {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
         TestRunException ex = catchThrowableOfType( ()-> new GherkinTest(run,testStructure,gherkinReader),
             TestRunException.class );
         assertThat(ex).hasMessageContaining("Gherkin URI is not set");
@@ -53,7 +55,7 @@ public class TestGherkinTest {
         String INVALID_URI_NO_SCHEMA = "asd+23d3ddadw";
         run.setGherkin(INVALID_URI_NO_SCHEMA);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
         TestRunException ex = catchThrowableOfType( ()-> new GherkinTest(run,testStructure,gherkinReader),
             TestRunException.class );
         assertThat(ex).hasMessageContaining("does not contain a schema");
@@ -66,7 +68,7 @@ public class TestGherkinTest {
         String INVALID_URI_NON_FILE_SCHEMA = "http://asd23d3ddadw";
         run.setGherkin(INVALID_URI_NON_FILE_SCHEMA);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
         TestRunException ex = catchThrowableOfType( ()-> new GherkinTest(run,testStructure,gherkinReader),
             TestRunException.class );
         assertThat(ex).hasMessageContaining("Gherkin URI scheme","is not suported");
@@ -79,7 +81,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
         gherkinReader.setFeatureText("");
 
         TestRunException ex = catchThrowableOfType(
@@ -98,7 +100,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
 
         String gherkinFeatureText = new StringBuilder()
             .append("Feature: Browse the catalog and order\n")
@@ -131,7 +133,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
 
         String gherkinFeatureText = new StringBuilder()
             .append("Feature: Browse the catalog and order\n")
@@ -163,7 +165,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
 
         String gherkinFeatureText = new StringBuilder()
             .append("Feature: Browse the catalog and order\n")
@@ -192,7 +194,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
 
         String gherkinFeatureText = new StringBuilder()
             .append("Feature: Browse the catalog and order\n")
@@ -229,7 +231,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
 
         String gherkinFeatureText = new StringBuilder()
             .append("Feature: Browse the catalog and order\n")
@@ -271,7 +273,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
 
         String gherkinFeatureText = new StringBuilder()
             .append("Feature: Browse the catalog and order\n")
@@ -321,7 +323,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
 
         String gherkinFeatureText = new StringBuilder()
             .append("Feature: Browse the catalog and order\n")
@@ -375,7 +377,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
 
         String gherkinFeatureText = new StringBuilder()
             .append("Feature: Browse the catalog and order\n")
@@ -432,7 +434,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
 
         String gherkinFeatureText = new StringBuilder()
             .append("Feature: Browse the catalog and order\n")
@@ -486,7 +488,7 @@ public class TestGherkinTest {
         String GOOD_URI = "file://toSimpleSchema";
         run.setGherkin(GOOD_URI);
 
-        MockGherkinFileReader gherkinReader = new MockGherkinFileReader();
+        MockGherkinFileSystem gherkinReader = new MockGherkinFileSystem();
 
         String gherkinFeatureText = new StringBuilder()
             .append("Feature: Browse the catalog and order\n")

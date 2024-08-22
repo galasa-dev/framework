@@ -7,7 +7,6 @@ package dev.galasa.framework.mocks;
 
 
 import java.util.*;
-import java.util.Map.Entry;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -48,13 +47,20 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
 
     @Override
     public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue) {
-        history.add( new DssHistoryRecord(DssHistoryRecordType.PUT, key , newValue));
+        // Don't record heartbeat events in the history. They are random how many there would be 
+        // based on the speed of the heartbeat thread. So make it hard for unit tests to check
+        // results.
+        if (!key.endsWith(".heartbeat")) {
+            history.add( new DssHistoryRecord(DssHistoryRecordType.PUT, key , newValue));
+        }
         data.put(key,newValue);
         return true;
     }
 
     @Override
     public void delete(@NotNull String key) throws DynamicStatusStoreException {
+        // Heartbeat deletion events should be recorded, as they are a sign that cleanup
+        // is being done, so unit tests will want to check that.
         history.add( new DssHistoryRecord(DssHistoryRecordType.DELETE, key ));
         data.remove(key);
     }
@@ -82,8 +88,6 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
             @NotNull Map<String, String> others) throws DynamicStatusStoreException {
                throw new UnsupportedOperationException("Unimplemented method 'putSwap'");
     }
-
-
 
     @Override
     public @NotNull Map<String, String> getPrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {

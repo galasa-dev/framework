@@ -108,7 +108,7 @@ public class RunQueryRoute extends RunsRoute {
                 runs = sortResults(runs, queryParams, sortValue);
                 responseJson = buildResponseBody(runs, pageNum, pageSize);
             } else {
-                responseJson = buildResponseBody(runsPage);
+                responseJson = buildResponseBody(runsPage, pageSize);
             }
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
@@ -195,13 +195,14 @@ public class RunQueryRoute extends RunsRoute {
         return gson.toJson(runsPage);
 	}
 
-	private String buildResponseBody(RasRunResultPage runsPage) throws ResultArchiveStoreException {
+	private String buildResponseBody(RasRunResultPage runsPage, int pageSize) throws ResultArchiveStoreException {
 
 		//Building the object to be returned by the API and splitting
         JsonObject pageJson = new JsonObject();        
 
         List<RasRunResult> runs = convertRunsToRunResults(runsPage.getRuns());
         JsonElement tree = gson.toJsonTree(runs);
+        pageJson.addProperty("pageSize", pageSize);
         pageJson.addProperty("amountOfRuns", runs.size());
         pageJson.addProperty("nextCursor", runsPage.getNextCursor());
         pageJson.add("runs", tree);
@@ -394,9 +395,6 @@ public class RunQueryRoute extends RunsRoute {
 		runs.addAll(unsortedRuns);
 
         Comparator<RasRunResult> runsComparator = buildRunsComparator(queryParams, sortValue);
-        if (runsComparator == null) {
-            runsComparator = Comparator.nullsLast(new SortByEndTime().reversed());
-        }
 
         Collections.sort(runs, runsComparator);
         return runs;
@@ -405,16 +403,20 @@ public class RunQueryRoute extends RunsRoute {
     private Comparator<RasRunResult> buildRunsComparator(RasQueryParameters queryParams, RasSortField sortField) throws InternalServletException {
         Comparator<RasRunResult> runsComparator = null;
 
-        if (sortField.getFieldName().equals("to")) {
+        String sortFieldName = sortField.getFieldName();
+        if (sortFieldName.equals("to")) {
             runsComparator = new SortByEndTime();
-        } else if (sortField.getFieldName().equals("testclass")) {
+        } else if (sortFieldName.equals("testclass")) {
             runsComparator = new SortByTestClass();
-        } else if (sortField.getFieldName().equals("result")) {
+        } else if (sortFieldName.equals("result")) {
             runsComparator = new SortByResult();
+        } else {
+            ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, sortFieldName);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
         // Reverse the comparator if the direction is "desc"
-        if (runsComparator != null && !queryParams.isAscending(sortField)) {
+        if (!queryParams.isAscending(sortField)) {
             runsComparator = runsComparator.reversed();
         }
 
