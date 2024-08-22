@@ -319,7 +319,7 @@ public class AbstractTestRunner {
         return this.cps;
     }
 
-    protected void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
+    protected void updateStatus(TestRunLifecycleStatus status, String dssTimePropSuffix) throws TestRunException {
         Instant time = Instant.now();
 
         this.testStructure.setStatus(status.toString());
@@ -332,8 +332,8 @@ public class AbstractTestRunner {
 
         try {
             this.dss.put(getDSSKeyString("status"), status.toString());
-            if (timestamp != null) {
-                this.dss.put(getDSSKeyString(timestamp), time.toString());
+            if (dssTimePropSuffix != null) {
+                this.dss.put(getDSSKeyString(dssTimePropSuffix), time.toString());
             }
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update status", e);
