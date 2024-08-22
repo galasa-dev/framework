@@ -50,10 +50,11 @@ jobs:
           --info
       
       - name: Upload test output as artifact
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: unit-tests
-          path: /home/runner/work/framework/framework/galasa-parent/*/index.html
+          path: /home/runner/work/framework/framework/galasa-parent/**/build/reports/**/*.html
           retention-days: 7
           if-no-files-found: ignore
           
