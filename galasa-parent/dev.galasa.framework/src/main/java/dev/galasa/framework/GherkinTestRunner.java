@@ -37,6 +37,7 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 
 
@@ -82,11 +83,8 @@ public class GherkinTestRunner extends AbstractTestRunner {
         String testOBR = null;
         String stream = AbstractManager.nulled(run.getStream());
 
-        this.testStructure.setRunName(run.getName());
+        this.testStructure = createNewTestStructure(run);
         this.testStructure.setTestName(gherkinTest.getName());
-        this.testStructure.setQueued(run.getQueued());
-        this.testStructure.setStartTime(Instant.now());
-        this.testStructure.setRequestor(AbstractManager.defaultString(run.getRequestor(), "unknown"));
         writeTestStructure();
 
         if (stream != null) {
@@ -102,14 +100,8 @@ public class GherkinTestRunner extends AbstractTestRunner {
             }
         }
 
-        String overrideRepo = AbstractManager.nulled(run.getRepository());
-        if (overrideRepo != null) {
-            testRepository = overrideRepo;
-        }
-        String overrideOBR = AbstractManager.nulled(run.getOBR());
-        if (overrideOBR != null) {
-            testOBR = overrideOBR;
-        }
+        testRepository = getOverriddenValue(testRepository, run.getRepository());
+        testOBR = getOverriddenValue(testOBR, run.getOBR());
 
         if (testRepository != null) {
             logger.debug("Loading test maven repository " + testRepository);
@@ -444,56 +436,13 @@ public class GherkinTestRunner extends AbstractTestRunner {
         }
     }
 
-    private void stopHeartbeat() {
-        if (this.heartbeat == null) {
-            return;
-        }
 
-        heartbeat.shutdown();
-        try {
-            heartbeat.join(2000);
-        } catch (Exception e) {
-        }
-
-        try {
-            dss.delete(getDSSKeyString("heartbeat"));
-        } catch (DynamicStatusStoreException e) {
-            logger.error("Unable to delete heartbeat", e);
-        }
-    }
-
-    private void writeTestStructure() {
-        try {
-            this.ras.updateTestStructure(testStructure);
-        } catch (ResultArchiveStoreException e) {
-            logger.warn("Unable to write the test structure to the RAS", e);
-        }
-
-    }
-
-    private void deleteRunProperties(@NotNull IFramework framework) {
-
-        IRun run = framework.getTestRun();
-
-        if (!run.isLocal()) { // *** Not interested in non-local runs
-            return;
-        }
-
-        try {
-            framework.getFrameworkRuns().delete(run.getName());
-        } catch (FrameworkException e) {
-            logger.error("Failed to delete run properties");
-        }
-    }
 
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
     }
 
-    // method to replace repeating "run." + run.getName() + "."... where ... is the key suffix to be passed
-    private String getDSSKeyString(String keySuffix){
-        return "run." + run.getName() + "." + keySuffix;
-    }
+
 
 }

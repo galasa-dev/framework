@@ -10,18 +10,27 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 
+import javax.validation.constraints.NotNull;
+
 import dev.galasa.ResultArchiveStoreContentType;
+import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.EventsException;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IShuttableFramework;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.events.TestHeartbeatStoppedEvent;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class AbstractTestRunner {
@@ -39,7 +48,7 @@ public class AbstractTestRunner {
     protected IResultArchiveStore ras;
     protected IRun run;
 
-    protected TestStructure testStructure = new TestStructure();
+    protected TestStructure testStructure ;
 
     protected TestRunHeartbeat heartbeat;
 
@@ -154,6 +163,101 @@ public class AbstractTestRunner {
             }
         } catch(Exception e) {
             throw new TestRunException("Problem loading overrides from the run properties", e);
+        }
+    }
+
+
+    protected String getOverriddenValue(String existingValue, String possibleOverrideValue) {
+        String result = existingValue ;
+        String possibleNulledValue = AbstractManager.nulled(possibleOverrideValue);
+        if (possibleNulledValue != null) {
+            result = possibleNulledValue;
+        }
+        return result ;
+    }
+
+    protected TestStructure createNewTestStructure(IRun run) {
+        TestStructure testStructure = new TestStructure();
+
+        String runName = run.getName();
+        Instant queuedAt = run.getQueued();
+        String requestor = AbstractManager.defaultString(run.getRequestor(), "unknown");         
+
+        testStructure.setQueued(queuedAt);
+        testStructure.setStartTime(Instant.now());
+        testStructure.setRunName(runName);
+        testStructure.setRequestor(requestor);
+        return testStructure;
+    }
+
+    protected void writeTestStructure() {
+        try {
+            this.ras.updateTestStructure(testStructure);
+        } catch (ResultArchiveStoreException e) {
+            logger.warn("Unable to write the test structure to the RAS", e);
+        }
+    }
+
+    protected void deleteRunProperties(@NotNull IFramework framework) {
+
+        IRun run = framework.getTestRun();
+
+        if (!run.isLocal()) { // *** Not interested in non-local runs
+            return;
+        }
+
+        try {
+            framework.getFrameworkRuns().delete(run.getName());
+        } catch (FrameworkException e) {
+            logger.error("Failed to delete run properties");
+        }
+    }
+
+    // method to replace repeating "run." + run.getName() + "."... where ... is the key suffix to be passed
+    protected String getDSSKeyString(String keySuffix){
+        return "run." + run.getName() + "." + keySuffix;
+    }
+
+
+    protected void stopHeartbeat() {
+        if (this.heartbeat == null) {
+            return;
+        }
+
+        heartbeat.shutdown();
+        try {
+            heartbeat.join(2000);
+        } catch (Exception e) {
+        }
+
+        try {
+            dss.delete("run." + run.getName() + ".heartbeat");
+        } catch (DynamicStatusStoreException e) {
+            logger.error("Unable to delete heartbeat", e);
+        }
+
+        try {
+            produceTestHeartbeatStoppedEvent();
+        } catch (TestRunException e) {
+            logger.error("Unable to produce a test heartbeat stopped event to the Events Service", e);
+        }
+    }
+
+        private void produceTestHeartbeatStoppedEvent() throws TestRunException {
+        if (this.isProduceEventsEnabled) {
+            logger.debug("Producing a test heartbeat stopped event.");
+
+            String message = String.format("Galasa test run %s's heartbeat has been stopped.", framework.getTestRunName());
+            TestHeartbeatStoppedEvent testHeartbeatStoppedEvent = new TestHeartbeatStoppedEvent(this.cps, Instant.now().toString(), message);
+            String topic = testHeartbeatStoppedEvent.getTopic();
+
+            if (topic != null) {
+                try {
+                    framework.getEventsService().produceEvent(topic, testHeartbeatStoppedEvent);
+                } catch (EventsException e) {
+                    throw new TestRunException("Failed to publish a test heartbeat stopped event to the Events Service", e);
+                }
+            }
         }
     }
 }

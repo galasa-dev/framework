@@ -94,10 +94,7 @@ public class TestRunner extends AbstractTestRunner {
         String testOBR = null;
         String stream = AbstractManager.nulled(run.getStream());
 
-        this.testStructure.setRunName(run.getName());
-        this.testStructure.setQueued(run.getQueued());
-        this.testStructure.setStartTime(Instant.now());
-        this.testStructure.setRequestor(AbstractManager.defaultString(run.getRequestor(), "unknown"));
+        this.testStructure = createNewTestStructure(run);
         writeTestStructure();
         
         String rasRunId = this.ras.calculateRasRunId();
@@ -120,14 +117,8 @@ public class TestRunner extends AbstractTestRunner {
             }
         }
 
-        String overrideRepo = AbstractManager.nulled(run.getRepository());
-        if (overrideRepo != null) {
-            testRepository = overrideRepo;
-        }
-        String overrideOBR = AbstractManager.nulled(run.getOBR());
-        if (overrideOBR != null) {
-            testOBR = overrideOBR;
-        }
+        testRepository = getOverriddenValue(testRepository, run.getRepository());
+        testOBR = getOverriddenValue(testOBR, run.getOBR());
 
         if (testRepository != null) {
             logger.debug("Loading test maven repository " + testRepository);
@@ -634,71 +625,9 @@ public class TestRunner extends AbstractTestRunner {
         }
     }
 
-    private void stopHeartbeat() {
-        if (this.heartbeat == null) {
-            return;
-        }
 
-        heartbeat.shutdown();
-        try {
-            heartbeat.join(2000);
-        } catch (Exception e) {
-        }
 
-        try {
-            dss.delete("run." + run.getName() + ".heartbeat");
-        } catch (DynamicStatusStoreException e) {
-            logger.error("Unable to delete heartbeat", e);
-        }
 
-        try {
-            produceTestHeartbeatStoppedEvent();
-        } catch (TestRunException e) {
-            logger.error("Unable to produce a test heartbeat stopped event to the Events Service", e);
-        }
-    }
-
-    private void produceTestHeartbeatStoppedEvent() throws TestRunException {
-        if (this.isProduceEventsEnabled) {
-            logger.debug("Producing a test heartbeat stopped event.");
-
-            String message = String.format("Galasa test run %s's heartbeat has been stopped.", framework.getTestRunName());
-            TestHeartbeatStoppedEvent testHeartbeatStoppedEvent = new TestHeartbeatStoppedEvent(this.cps, Instant.now().toString(), message);
-            String topic = testHeartbeatStoppedEvent.getTopic();
-
-            if (topic != null) {
-                try {
-                    framework.getEventsService().produceEvent(topic, testHeartbeatStoppedEvent);
-                } catch (EventsException e) {
-                    throw new TestRunException("Failed to publish a test heartbeat stopped event to the Events Service", e);
-                }
-            }
-        }
-    }
-
-    private void writeTestStructure() {
-        try {
-            this.ras.updateTestStructure(testStructure);
-        } catch (ResultArchiveStoreException e) {
-            logger.warn("Unable to write the test structure to the RAS", e);
-        }
-
-    }
-
-    private void deleteRunProperties(@NotNull IFramework framework) {
-
-        IRun run = framework.getTestRun();
-
-        if (!run.isLocal()) { // *** Not interested in non-local runs
-            return;
-        }
-
-        try {
-            framework.getFrameworkRuns().delete(run.getName());
-        } catch (FrameworkException e) {
-            logger.error("Failed to delete run properties");
-        }
-    }
 
     /**
      * Get the test class from the supplied bundle
