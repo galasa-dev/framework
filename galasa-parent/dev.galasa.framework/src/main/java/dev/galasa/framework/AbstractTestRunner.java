@@ -246,7 +246,7 @@ public class AbstractTestRunner {
         }
     }
 
-        private void produceTestHeartbeatStoppedEvent() throws TestRunException {
+    private void produceTestHeartbeatStoppedEvent() throws TestRunException {
         if (this.isProduceEventsEnabled) {
             logger.debug("Producing a test heartbeat stopped event.");
 

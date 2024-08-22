@@ -9,10 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Properties;
-
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,15 +28,11 @@ import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
-import dev.galasa.framework.spi.EventsException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.SharedEnvironmentRunType;
-import dev.galasa.framework.spi.events.TestRunLifecycleStatusChangedEvent;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.utils.DssUtils;
 

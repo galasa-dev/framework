@@ -7,12 +7,7 @@ package dev.galasa.framework;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Properties;
-
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,7 +24,6 @@ import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.language.GalasaTest;
@@ -309,29 +303,27 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
 
     private void runEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
-        if (!isRunOK) {
-            return;
-        }
-
-        try {
+        if (isRunOK) {
             try {
-                updateStatus(TestRunLifecycleStatus.PROVSTART, null);
-                logger.info("Starting Provision Start phase");
-                managers.provisionStart();
-            } catch (FrameworkException e) {
-                this.isRunOK = false;
-                logger.error("Provision start failed",e);
-                if (e instanceof FrameworkResourceUnavailableException) {
-                    isResourcesAvailable = false;
+                try {
+                    updateStatus(TestRunLifecycleStatus.PROVSTART, null);
+                    logger.info("Starting Provision Start phase");
+                    managers.provisionStart();
+                } catch (FrameworkException e) {
+                    this.isRunOK = false;
+                    logger.error("Provision start failed",e);
+                    if (e instanceof FrameworkResourceUnavailableException) {
+                        isResourcesAvailable = false;
+                    }
+                    testObject.setResult(Result.envfail(e));
+                    testStructure.setResult(testObject.getResult().getName());
+                    return;
                 }
-                testObject.setResult(Result.envfail(e));
-                testStructure.setResult(testObject.getResult().getName());
-                return;
-            }
 
-            runGherkinTest(testObject, managers);
-        } finally {
-            stopEnvironment(managers);
+                runGherkinTest(testObject, managers);
+            } finally {
+                stopEnvironment(managers);
+            }
         }
     }
 
