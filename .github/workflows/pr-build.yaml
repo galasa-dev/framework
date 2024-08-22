@@ -49,7 +49,7 @@ jobs:
           -PtargetMaven=${{ github.workspace }}/repo \
           --info
       
-      - name: Upload test output as artifact
+      - name: Upload Jacoco Reports as artifact
         if: failure()
         uses: actions/upload-artifact@v3
         with:
