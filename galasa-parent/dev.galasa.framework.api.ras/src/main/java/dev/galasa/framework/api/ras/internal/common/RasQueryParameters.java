@@ -18,6 +18,8 @@ import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.spi.ras.RasSortField;
+
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 
@@ -96,18 +98,40 @@ public class RasQueryParameters {
         return generalQueryParams.getSingleString("runname", null);
     }
 
-    public String getSortValue() throws InternalServletException {
+    public String getPageCursor() throws InternalServletException {
+        return generalQueryParams.getSingleString("cursor", null);
+    }
+
+    public boolean getIncludeCursor() throws InternalServletException {
+        return generalQueryParams.getSingleBoolean("includeCursor", false);
+    }
+
+    public RasSortField getSortValue() throws InternalServletException {
         return getSortValue(null);
     }
 
-    public String getSortValue(String defaultValue) throws InternalServletException {
-        return generalQueryParams.getSingleString("sort",defaultValue);
+    public RasSortField getSortValue(String defaultSortValue) throws InternalServletException {
+        String sortValue = generalQueryParams.getSingleString("sort", defaultSortValue);
+        RasSortField rasSortValue = null;
+        if (sortValue != null) {
+            rasSortValue = getValidatedSortValue(sortValue);
+        }
+        return rasSortValue;
     }
-    public List<String> getRunIds( ) {
+
+    public RasSortField getSortValueByName(String sortFieldName) throws InternalServletException {
+        RasSortField sortValue = getSortValue();
+        if (sortValue != null && !sortValue.getFieldName().equals(sortFieldName)) {
+            sortValue = null;
+        }
+        return sortValue;
+    }
+
+    public List<String> getRunIds() {
         return generalQueryParams.getMultipleString("runId", new ArrayList<String>());
     }
 
-    public boolean checkFromTimeOrRunNamePresent() throws InternalServletException {
+    public boolean isFromTimeOrRunNamePresent() throws InternalServletException {
         return generalQueryParams.checkAtLeastOneQueryParameterPresent("from", "runname");
     }
 
@@ -145,45 +169,27 @@ public class RasQueryParameters {
         return this.generalQueryParams;
     }
 
-    public boolean isAscending(String fieldToSortBy) throws InternalServletException{
-        String sortValue = generalQueryParams.getSingleString("sort", null);
-		boolean isAscending = false;
-        if (sortValue != null){
-            try{
-                if(sortIsValidFormat(sortValue)) {
-                    isAscending = getSortDirection(fieldToSortBy,sortValue);
-                }else{
-                throw new Exception();
-                }
-            }catch (Exception e) {
-                ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED,sortValue);
-                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
-            }
-        }
-		return isAscending;
-	}
-
-    // note asc = true, desc = false
-    private boolean getSortDirection(String fieldToSortBy, String sortValue) {
+    public boolean isAscending(String sortFieldName) throws InternalServletException {
+        RasSortField sortField = getSortValueByName(sortFieldName);
         boolean isAscending = false;
-        String[] split = sortValue.split(":");
-            isAscending = sortDirectionMap.get(split[1].toLowerCase());
-        return isAscending;
-    }
-
-    // check if sort value has right formatting
-    private boolean sortIsValidFormat(String sortValue){
-        boolean isValid = false;
-        if(sortValue.contains(":")) {
-            if(sortValue.split(":").length == 2){
-                isValid = true;
-            }
+        if (sortField != null) {
+            isAscending = sortDirectionMap.get(sortField.getSortDirection());
         }
-        return isValid;
-    }
-
-    public boolean validateSortValue() throws InternalServletException{
-		return isAscending(null);
+        return isAscending;
 	}
+
+    public boolean isAscending(RasSortField sortField) throws InternalServletException {
+        return sortDirectionMap.get(sortField.getSortDirection());
+	}
+
+    private RasSortField getValidatedSortValue(String sortValue) throws InternalServletException {
+        String[] sortValueParts = sortValue.split(":");
+
+        if (sortValueParts.length != 2 || !sortDirectionMap.containsKey(sortValueParts[1].toLowerCase())) {
+            ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, sortValue);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        return new RasSortField(sortValueParts[0].toLowerCase(), sortValueParts[1].toLowerCase());
+    }
 
 }
