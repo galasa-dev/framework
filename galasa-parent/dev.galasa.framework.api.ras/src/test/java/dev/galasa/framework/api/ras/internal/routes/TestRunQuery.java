@@ -81,8 +81,7 @@ public class TestRunQuery extends RasServletTest {
 		return parameterMap;
 	}
 
-    private IRunResult createTestRun(Instant queuedTime, Instant startTime, Instant endTime) {
-        String runId = RandomStringUtils.randomAlphanumeric(16);
+    private IRunResult createTestRun(String runId, Instant queuedTime, Instant startTime, Instant endTime) {
         String runName = RandomStringUtils.randomAlphanumeric(5);
         String testShortName = RandomStringUtils.randomAlphanumeric(5);
         String requestor = RandomStringUtils.randomAlphanumeric(8);
@@ -108,8 +107,9 @@ public class TestRunQuery extends RasServletTest {
 		int passCount = 0;
 		// Build the results the DB will return.
 		for(int c =0 ; c < resSize; c++){
+            String runId = RandomStringUtils.randomAlphanumeric(16);
             Instant baseTime = Instant.now().minus(hoursDeducted, ChronoUnit.HOURS).minus(c, ChronoUnit.MINUTES);
-            IRunResult mockRun = createTestRun(baseTime, baseTime, baseTime);
+            IRunResult mockRun = createTestRun(runId, baseTime, baseTime, baseTime);
 
             TestStructure testStructure = mockRun.getTestStructure();
 			if (passCount < passTests){
@@ -170,11 +170,12 @@ public class TestRunQuery extends RasServletTest {
 		return gson.toJson(jsonResult);
 	}
 
-	private String generateExpectedJson(List<IRunResult> mockInputRunResults, String nextCursor) throws ResultArchiveStoreException {
+	private String generateExpectedJson(List<IRunResult> mockInputRunResults, String nextCursor, int pageSize) throws ResultArchiveStoreException {
 		
         JsonObject jsonResult = new JsonObject();
         JsonArray runsJson = createRunsJsonArray(mockInputRunResults);
 
+        jsonResult.addProperty("pageSize", pageSize);
         jsonResult.addProperty("amountOfRuns", mockInputRunResults.size());
         jsonResult.addProperty("nextCursor", nextCursor);
         jsonResult.add("runs", runsJson);
@@ -1757,14 +1758,8 @@ public class TestRunQuery extends RasServletTest {
 		//   "amountOfRuns": 10,
 		//   "runs": [...]
 		// }
-		List<String> expectedRunNames = generateExpectedRunNames(mockInputRunResults);
-        String actualOutput = outStream.toString();
-		assertThat(resp.getStatus()).isEqualTo(200);
-		assertThat(actualOutput).contains(expectedRunNames);
-		Collections.sort(expectedRunNames, Collections.reverseOrder());
-
-		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
-		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getStatus()).isEqualTo(400);
+        assertThat(outStream.toString()).contains("GAL5011E", "Error parsing the query parameters", "sort value 'erroneoussort' not recognised");
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 
@@ -2142,7 +2137,8 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
 
         // Build query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(null,100,null, null,null, 72, null);;
+        int pageSize = 100;
+		Map<String, String[]> parameterMap = setQueryParameter(null,pageSize,null, null,null, 72, null);;
         parameterMap = addQueryParameter(parameterMap, "includeCursor", "true");
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -2162,7 +2158,7 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		String expectedJson = generateExpectedJson(mockInputRunResults, nextCursor);
+		String expectedJson = generateExpectedJson(mockInputRunResults, nextCursor, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -2201,7 +2197,8 @@ public class TestRunQuery extends RasServletTest {
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
 
         // Build query parameters
-		Map<String, String[]> parameterMap = setQueryParameter(null,100,null, null,null, 72, null);;
+        int pageSize = 100;
+		Map<String, String[]> parameterMap = setQueryParameter(null,pageSize,null, null,null, 72, null);;
         parameterMap = addQueryParameter(parameterMap, "cursor", "iwantthispage");
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
@@ -2221,9 +2218,47 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		String expectedJson = generateExpectedJson(mockInputRunResults, nextCursor);
+		String expectedJson = generateExpectedJson(mockInputRunResults, nextCursor, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+    @Test
+	public void testQueryWithUnknownSortThrowsError() throws Exception {
+		// Given..
+        Instant time1 = Instant.EPOCH;
+        Instant time2 = Instant.ofEpochSecond(10);
+
+        String runId1 = "test1";
+        String runId2 = "test2";
+
+		List<IRunResult> mockInputRunResults = new ArrayList<>();
+        mockInputRunResults.add(createTestRun(runId1, time1, time1, time1));
+        mockInputRunResults.add(createTestRun(runId2, time2, time2, time2));
+
+        // Build query parameters
+        int pageSize = 100;
+        int pageNum = 1;
+        String unknownSort = "unknown:desc";
+		Map<String, String[]> parameterMap = setQueryParameter(pageNum, pageSize,unknownSort, null,null, 72, null);
+        parameterMap.put("runId", new String[] { runId1 + "," + runId2 });
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(400);
+		assertThat(outStream.toString()).contains("GAL5011E", "Error parsing the query parameters", "sort value 'unknown' not recognised");
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 }
