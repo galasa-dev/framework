@@ -17,8 +17,8 @@ import dev.galasa.framework.spi.language.gherkin.xform.ParseTreeTransform;
 import dev.galasa.framework.spi.language.gherkin.xform.ParseTreeVisitorPrinter;
 import dev.galasa.framework.FileSystem;
 import dev.galasa.framework.IFileSystem;
+import dev.galasa.framework.ITestRunManagers;
 import dev.galasa.framework.TestRunException;
-import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.IRun;
@@ -122,7 +122,7 @@ public class GherkinTest {
         this.result = result;
     }
 
-    public void runTestMethods(TestRunManagers managers) throws TestRunException {
+    public void runTestMethods(ITestRunManagers managers) throws TestRunException {
         String report = this.testStructure.gherkinReport(LOG_START_LINE);
         logger.trace("Test Class structure:-" + report);
 

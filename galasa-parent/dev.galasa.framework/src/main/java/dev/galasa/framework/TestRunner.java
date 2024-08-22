@@ -805,9 +805,5 @@ public class TestRunner extends AbstractTestRunner {
     public IConfigurationPropertyStoreService getCPS() {
         return this.cps;
     }
-
     
-
-
-
 }

@@ -188,7 +188,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
         }
 
         try {
-            BundleManagement.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
+            bundleManager.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
         } catch (Exception e) {
             logger.error("Unable to load the managers obr", e);
             updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
@@ -219,10 +219,12 @@ public class GherkinTestRunner extends AbstractTestRunner {
         updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
         // *** Initialise the Managers ready for the test run
-        TestRunManagers managers = null;
+        ITestRunManagers managers = null;
         try {
-            managers = new TestRunManagers(this.framework, new GalasaTest(gherkinTest));
-        } catch (FrameworkException e) {
+            managers = dataProvider.createTestRunManagers(new GalasaTest(gherkinTest));
+        } catch (TestRunException e) {
+            String msg = "Exception Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
+            logger.error(msg);
             shutdownFramework(framework);
             throw new TestRunException("Problem initialising the Managers for a test run", e);
         }
@@ -308,7 +310,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
         }
     }
 
-    private void generateEnvironment(GherkinTest testObject, TestRunManagers managers) throws TestRunException {
+    private void generateEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
         if (!runOk) {
             return;
         }
@@ -332,7 +334,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
     }
 
 
-    private void createEnvironment(GherkinTest testObject, TestRunManagers managers) throws TestRunException {
+    private void createEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
         if (!runOk) {
             return;
         }
@@ -360,13 +362,13 @@ public class GherkinTestRunner extends AbstractTestRunner {
     }
 
 
-    private void discardEnvironment(TestRunManagers managers) {
+    private void discardEnvironment(ITestRunManagers managers) {
         logger.info("Starting Provision Discard phase");
         managers.provisionDiscard();
     }
 
 
-    private void runEnvironment(GherkinTest testObject, TestRunManagers managers) throws TestRunException {
+    private void runEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
         if (!runOk) {
             return;
         }
@@ -393,13 +395,13 @@ public class GherkinTestRunner extends AbstractTestRunner {
         }
     }
 
-    private void stopEnvironment(TestRunManagers managers) {
+    private void stopEnvironment(ITestRunManagers managers) {
         logger.info("Starting Provision Stop phase");
         managers.provisionStop();
     }
 
 
-    private void runGherkinTest(GherkinTest testObject, TestRunManagers managers) throws TestRunException {
+    private void runGherkinTest(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
         if (!runOk) {
             return;
         }

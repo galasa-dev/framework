@@ -107,8 +107,6 @@ public class MockTestRunManagers implements ITestRunManagers {
         throw new UnsupportedOperationException("Unimplemented method 'getActiveManagers'");
     }
 
-
-
     @Override
     public void fillAnnotatedFields(Object testClassObject) throws FrameworkException {
         throw new UnsupportedOperationException("Unimplemented method 'fillAnnotatedFields'");
