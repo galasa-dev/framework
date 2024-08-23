@@ -7,14 +7,7 @@ package dev.galasa.framework;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,21 +24,11 @@ import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IGherkinExecutable;
-import dev.galasa.framework.spi.IResultArchiveStore;
-import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.Result;
-import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
-import dev.galasa.framework.spi.teststructure.TestStructure;
-import dev.galasa.framework.spi.utils.DssUtils;
-
 
 /**
  * Run the supplied test class
@@ -63,21 +46,9 @@ public class GherkinTestRunner extends AbstractTestRunner {
     // Field is protected so unit tests can inject a value here.
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
     protected IMavenRepository mavenRepository;
+ 
 
-    private TestRunHeartbeat heartbeat;
-
-    private IConfigurationPropertyStoreService cps;
-    private IDynamicStatusStoreService dss;
-    private IResultArchiveStore ras;
-    private IRun run;
-
-    private TestStructure testStructure = new TestStructure();
-
-    private IShuttableFramework                 framework;
     private GherkinTest gherkinTest;
-
-    private boolean runOk = true;
-    private boolean resourcesUnavailable = false;
 
     /**
      * Run the supplied test class
@@ -93,203 +64,164 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
     public void runTest( ITestRunnerDataProvider dataProvider  ) throws TestRunException {
 
-        this.run = dataProvider.getRun() ;
-        this.framework = dataProvider.getFramework();
-        this.cps = dataProvider.getCPS();
-        this.ras = dataProvider.getRAS();
-        this.dss = dataProvider.getDSS();
-        this.bundleManager = dataProvider.getBundleManager();
-        this.fileSystem = dataProvider.getFileSystem();
-
-        Properties overrideProperties = dataProvider.getOverrideProperties();
+        super.init(dataProvider);
 
         gherkinTest = new GherkinTest(run, testStructure,this.fileSystem);
 
-        //*** Load the overrides if present
-        try {
-            String prefix = getDSSKeyString("override.");
-            Map<String, String> runOverrides = dss.getPrefix(prefix);
-            for(Entry<String, String> entry : runOverrides.entrySet()) {
-                String key = entry.getKey().substring(prefix.length());
-                String value = entry.getValue();
-                overrideProperties.put(key, value);
-            }
-        } catch(Exception e) {
-            throw new TestRunException("Problem loading overrides from the run properties", e);
-        }
-
-        String testRepository = null;
-        String testOBR = null;
-        String stream = AbstractManager.nulled(run.getStream());
-
-        this.testStructure.setRunName(run.getName());
+        this.testStructure = createNewTestStructure(run);
         this.testStructure.setTestName(gherkinTest.getName());
-        this.testStructure.setQueued(run.getQueued());
-        this.testStructure.setStartTime(Instant.now());
-        this.testStructure.setRequestor(AbstractManager.defaultString(run.getRequestor(), "unknown"));
         writeTestStructure();
 
-        if (stream != null) {
-            logger.debug("Loading test stream " + stream);
-            try {
-                testRepository = this.cps.getProperty("test.stream", "repo", stream);
-                testOBR = this.cps.getProperty("test.stream", "obr", stream);
-            } catch (Exception e) {
-                logger.error("Unable to load stream " + stream + " settings", e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                shutdownFramework(framework);
-                return;
-            }
-        }
+        try {
 
-        String overrideRepo = AbstractManager.nulled(run.getRepository());
-        if (overrideRepo != null) {
-            testRepository = overrideRepo;
-        }
-        String overrideOBR = AbstractManager.nulled(run.getOBR());
-        if (overrideOBR != null) {
-            testOBR = overrideOBR;
-        }
+            String testRepository = null;
+            String testOBR = null;
+            String streamName = AbstractManager.nulled(run.getStream());
 
-        if (testRepository != null) {
-            logger.debug("Loading test maven repository " + testRepository);
-            try {
-                String[] repos = testRepository.split("\\,");
-                for(String repo : repos) {
-                    repo = repo.trim();
-                    if (!repo.isEmpty()) {
-                        this.mavenRepository.addRemoteRepository(new URL(repo));
-                    }
+            if (streamName != null) {
+                logger.debug("Loading test streamName " + streamName);
+                try {
+                    testRepository = this.cps.getProperty("test.streamName", "repo", streamName);
+                    testOBR = this.cps.getProperty("test.streamName", "obr", streamName);
+                } catch (Exception e) {
+                    logger.error("Unable to load streamName " + streamName + " settings", e);
+                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+                    return;
                 }
-            } catch (MalformedURLException e) {
-                logger.error("Unable to add remote maven repository " + testRepository, e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                shutdownFramework(framework);
-                return;
             }
-        }
 
-        if (testOBR != null) {
-            logger.debug("Loading test obr repository " + testOBR);
-            try {
-                String[] testOBRs = testOBR.split("\\,");
-                for(String obr : testOBRs) {
-                    obr = obr.trim();
-                    if (!obr.isEmpty()) {
-                        repositoryAdmin.addRepository(obr);
+            testRepository = getOverriddenValue(testRepository, run.getRepository());
+            testOBR = getOverriddenValue(testOBR, run.getOBR());
+
+            if (testRepository != null) {
+                logger.debug("Loading test maven repository " + testRepository);
+                try {
+                    String[] repos = testRepository.split("\\,");
+                    for(String repo : repos) {
+                        repo = repo.trim();
+                        if (!repo.isEmpty()) {
+                            this.mavenRepository.addRemoteRepository(new URL(repo));
+                        }
                     }
+                } catch (MalformedURLException e) {
+                    logger.error("Unable to add remote maven repository " + testRepository, e);
+                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+                    return;
                 }
+            }
+
+            if (testOBR != null) {
+                logger.debug("Loading test obr repository " + testOBR);
+                try {
+                    String[] testOBRs = testOBR.split("\\,");
+                    for(String obr : testOBRs) {
+                        obr = obr.trim();
+                        if (!obr.isEmpty()) {
+                            repositoryAdmin.addRepository(obr);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("Unable to load specified OBR " + testOBR, e);
+                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+                    return;
+                }
+            }
+
+            try {
+                bundleManager.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
             } catch (Exception e) {
-                logger.error("Unable to load specified OBR " + testOBR, e);
+                logger.error("Unable to load the managers obr", e);
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                shutdownFramework(framework);
                 return;
             }
-        }
 
-        try {
-            bundleManager.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
-        } catch (Exception e) {
-            logger.error("Unable to load the managers obr", e);
-            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-            shutdownFramework(framework);
-            return;
-        }
+            if(gherkinTest.getName() == null || gherkinTest.getMethods().size() == 0) {
+                throw new TestRunException("Feature file is invalid at URI: " + run.getGherkin());
+            }
+                
+            logger.info("Run test: " + gherkinTest.getName());
 
-        if(gherkinTest.getName() == null || gherkinTest.getMethods().size() == 0) {
-            throw new TestRunException("Feature file is invalid at URI: " + run.getGherkin());
-        }
-            
-        logger.info("Run test: " + gherkinTest.getName());
+            try {
+                heartbeat = new TestRunHeartbeat(framework);
+                heartbeat.start();
+            } catch (DynamicStatusStoreException e1) {
+                throw new TestRunException("Unable to initialise the heartbeat");
+            }
 
-        try {
-            heartbeat = new TestRunHeartbeat(framework);
-            heartbeat.start();
-        } catch (DynamicStatusStoreException e1) {
-            shutdownFramework(framework);
-            throw new TestRunException("Unable to initialise the heartbeat");
-        }
+            incrimentMetric(dss,run);
 
-        if (run.isLocal()) {
-            DssUtils.incrementMetric(dss, "metrics.runs.local");
-        } else {
-            DssUtils.incrementMetric(dss, "metrics.runs.automated");
-        }
+            updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
-        updateStatus(TestRunLifecycleStatus.STARTED, "started");
+            // *** Initialise the Managers ready for the test run
+            ITestRunManagers managers = null;
+            try {
+                managers = dataProvider.createTestRunManagers(new GalasaTest(gherkinTest));
+            } catch (TestRunException e) {
+                String msg = "Exception Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
+                logger.error(msg);
+                throw new TestRunException("Problem initialising the Managers for a test run", e);
+            }
 
-        // *** Initialise the Managers ready for the test run
-        ITestRunManagers managers = null;
-        try {
-            managers = dataProvider.createTestRunManagers(new GalasaTest(gherkinTest));
-        } catch (TestRunException e) {
-            String msg = "Exception Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
-            logger.error(msg);
-            shutdownFramework(framework);
-            throw new TestRunException("Problem initialising the Managers for a test run", e);
-        }
+            if(!gherkinTest.allMethodsRegistered()) {
+                logStatementsNotRecognisedByAnyManager(gherkinTest);
 
-        if(!gherkinTest.allMethodsRegistered()) {
-            logStatementsNotRecognisedByAnyManager(gherkinTest);
-
-            stopHeartbeat();
-            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-            shutdownFramework(framework);
-            throw new TestRunException("Not all methods in test are registered to a Manager");
-        }
-
-        try {
-            if (managers.anyReasonTestClassShouldBeIgnored()) {
                 stopHeartbeat();
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                shutdownFramework(framework);
-                return; // TODO handle ignored classes
+                throw new TestRunException("Not all methods in test are registered to a Manager");
             }
-        } catch (FrameworkException e) {
-            throw new TestRunException("Problem asking Managers for an ignore reason", e);
+
+            try {
+                if (managers.anyReasonTestClassShouldBeIgnored()) {
+                    stopHeartbeat();
+                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+                    return; // TODO handle ignored classes
+                }
+            } catch (FrameworkException e) {
+                throw new TestRunException("Problem asking Managers for an ignore reason", e);
+            }
+
+            try {
+                generateEnvironment(gherkinTest, managers);
+            } catch(Exception e) {
+                logger.fatal("Error within test runner",e);
+                isRunOK = false;
+            }
+
+            updateStatus(TestRunLifecycleStatus.ENDING, null);
+            managers.endOfTestRun();
+
+            boolean markedWaiting = false;
+
+            if ((!isResourcesAvailable) && !run.isLocal()) {
+                markWaiting(this.framework);
+                logger.info("Placing queue on the waiting list");
+                markedWaiting = true;
+            } else {
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+            }
+
+            stopHeartbeat();
+
+            // *** Record all the CPS properties that were accessed
+            recordCPSProperties(this.fileSystem, this.framework, this.ras);
+
+            // *** If this was a local run, then we will want to remove the run properties
+            // from the DSS immediately
+            // *** for automation, we will let the core manager clean up after a while
+            // *** Local runs will have access to the run details via a view,
+            // *** But automation runs will only exist in the RAS if we delete them, so need
+            // to give
+            // *** time for things like jenkins and other run requesters to obtain the
+            // result and RAS id before
+            // *** deleting, default is to keep the automation run properties for 5 minutes
+            if (!markedWaiting) {
+                deleteRunProperties(framework);
+            }
+
+            managers.shutdown();
+        } finally {
+            shutdownFramework(framework);
         }
-
-        try {
-            generateEnvironment(gherkinTest, managers);
-        } catch(Exception e) {
-            logger.fatal("Error within test runner",e);
-            this.runOk = false;
-        }
-
-        updateStatus(TestRunLifecycleStatus.ENDING, null);
-        managers.endOfTestRun();
-
-        boolean markedWaiting = false;
-
-        if (resourcesUnavailable && !run.isLocal()) {
-            markWaiting(this.framework);
-            logger.info("Placing queue on the waiting list");
-            markedWaiting = true;
-        } else {
-            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-        }
-
-        stopHeartbeat();
-
-        // *** Record all the CPS properties that were accessed
-        recordCPSProperties(this.fileSystem, this.framework, this.ras);
-
-        // *** If this was a local run, then we will want to remove the run properties
-        // from the DSS immediately
-        // *** for automation, we will let the core manager clean up after a while
-        // *** Local runs will have access to the run details via a view,
-        // *** But automation runs will only exist in the RAS if we delete them, so need
-        // to give
-        // *** time for things like jenkins and other run requesters to obtain the
-        // result and RAS id before
-        // *** deleting, default is to keep the automation run properties for 5 minutes
-        if (!markedWaiting) {
-            deleteRunProperties(framework);
-        }
-
-        managers.shutdown();
-
-        shutdownFramework(framework);
 
         return;
     }
@@ -311,31 +243,27 @@ public class GherkinTestRunner extends AbstractTestRunner {
     }
 
     private void generateEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
-        if (!runOk) {
-            return;
-        }
-
-        try {
-            updateStatus(TestRunLifecycleStatus.GENERATING, null);
-            logger.info("Starting Provision Generate phase");
-            managers.provisionGenerate();
-        } catch (Exception e) { 
-            logger.info("Provision Generate failed", e);
-            if (e instanceof FrameworkResourceUnavailableException) {
-                this.resourcesUnavailable = true;
+        if (isRunOK) {
+            try {
+                updateStatus(TestRunLifecycleStatus.GENERATING, null);
+                logger.info("Starting Provision Generate phase");
+                managers.provisionGenerate();
+                createEnvironment(testObject, managers);
+            } catch (Exception e) { 
+                logger.info("Provision Generate failed", e);
+                if (e instanceof FrameworkResourceUnavailableException) {
+                    isResourcesAvailable = false;
+                }
+                testObject.setResult(Result.envfail(e));
+                testStructure.setResult(testObject.getResult().getName());
+                isRunOK = false;
             }
-            testObject.setResult(Result.envfail(e));
-            testStructure.setResult(testObject.getResult().getName());
-            runOk = false;
-            return;
         }
-
-        createEnvironment(testObject, managers);
     }
 
 
     private void createEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
-        if (!runOk) {
+        if (!isRunOK) {
             return;
         }
 
@@ -345,10 +273,10 @@ public class GherkinTestRunner extends AbstractTestRunner {
                 logger.info("Starting Provision Build phase");
                 managers.provisionBuild();
             } catch (FrameworkException e) {
-                this.runOk = false;
+                this.isRunOK = false;
                 logger.error("Provision build failed",e);
                 if (e instanceof FrameworkResourceUnavailableException) {
-                    this.resourcesUnavailable = true;
+                    isResourcesAvailable = false;
                 }
                 testObject.setResult(Result.envfail(e));
                 testStructure.setResult(testObject.getResult().getName());
@@ -369,29 +297,27 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
 
     private void runEnvironment(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
-        if (!runOk) {
-            return;
-        }
-
-        try {
+        if (isRunOK) {
             try {
-                updateStatus(TestRunLifecycleStatus.PROVSTART, null);
-                logger.info("Starting Provision Start phase");
-                managers.provisionStart();
-            } catch (FrameworkException e) {
-                this.runOk = false;
-                logger.error("Provision start failed",e);
-                if (e instanceof FrameworkResourceUnavailableException) {
-                    this.resourcesUnavailable = true;
+                try {
+                    updateStatus(TestRunLifecycleStatus.PROVSTART, null);
+                    logger.info("Starting Provision Start phase");
+                    managers.provisionStart();
+                } catch (FrameworkException e) {
+                    this.isRunOK = false;
+                    logger.error("Provision start failed",e);
+                    if (e instanceof FrameworkResourceUnavailableException) {
+                        isResourcesAvailable = false;
+                    }
+                    testObject.setResult(Result.envfail(e));
+                    testStructure.setResult(testObject.getResult().getName());
+                    return;
                 }
-                testObject.setResult(Result.envfail(e));
-                testStructure.setResult(testObject.getResult().getName());
-                return;
-            }
 
-            runGherkinTest(testObject, managers);
-        } finally {
-            stopEnvironment(managers);
+                runGherkinTest(testObject, managers);
+            } finally {
+                stopEnvironment(managers);
+            }
         }
     }
 
@@ -402,7 +328,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
 
     private void runGherkinTest(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
-        if (!runOk) {
+        if (!isRunOK) {
             return;
         }
 
@@ -416,124 +342,10 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
     }
 
-    private void markWaiting(@NotNull IFramework framework) throws TestRunException {
-        int initialDelay = 600;
-        int randomDelay = 180;
-
-        DssUtils.incrementMetric(dss, "metrics.runs.made.to.wait");
-
-        try {
-            String sInitialDelay = AbstractManager.nulled(this.cps.getProperty("waiting.initial", "delay"));
-            String sRandomDelay = AbstractManager.nulled(this.cps.getProperty("waiting.random", "delay"));
-
-            if (sInitialDelay != null) {
-                initialDelay = Integer.parseInt(sInitialDelay);
-            }
-            if (sRandomDelay != null) {
-                randomDelay = Integer.parseInt(sRandomDelay);
-            }
-        } catch (Exception e) {
-            logger.error("Problem reading delay properties", e);
-        }
-
-        int totalDelay = initialDelay + framework.getRandom().nextInt(randomDelay);
-        logger.info("Placing this run on waiting for " + totalDelay + " seconds");
-
-        Instant until = Instant.now();
-        until = until.plus(totalDelay, ChronoUnit.SECONDS);
-
-        HashMap<String, String> properties = new HashMap<>();
-        properties.put(getDSSKeyString("status"), "waiting");
-        properties.put(getDSSKeyString("wait.until"), until.toString());
-        try {
-            this.dss.put(properties);
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Unable to place run in waiting state", e);
-        }
-    }
-
-    private void updateStatus(TestRunLifecycleStatus status, String timestamp) throws TestRunException {
-        Instant time = Instant.now();
-
-        this.testStructure.setStatus(status.toString());
-        if (status == TestRunLifecycleStatus.FINISHED) {
-            updateResult();
-            this.testStructure.setEndTime(time);
-        }
-
-        writeTestStructure();
-
-        try {
-            this.dss.put(getDSSKeyString("status"), status.toString());
-            if (timestamp != null) {
-                this.dss.put(getDSSKeyString(timestamp), time.toString());
-            }
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Failed to update status", e);
-        }
-    }
-
-    private void updateResult() throws TestRunException {
-        try {
-            if (this.testStructure.getResult() == null) {
-                this.testStructure.setResult("UNKNOWN");
-            }
-            this.dss.put(getDSSKeyString("result"), this.testStructure.getResult());
-        } catch (DynamicStatusStoreException e) {
-            throw new TestRunException("Failed to update result", e);
-        }
-    }
-
-    private void stopHeartbeat() {
-        if (this.heartbeat == null) {
-            return;
-        }
-
-        heartbeat.shutdown();
-        try {
-            heartbeat.join(2000);
-        } catch (Exception e) {
-        }
-
-        try {
-            dss.delete(getDSSKeyString("heartbeat"));
-        } catch (DynamicStatusStoreException e) {
-            logger.error("Unable to delete heartbeat", e);
-        }
-    }
-
-    private void writeTestStructure() {
-        try {
-            this.ras.updateTestStructure(testStructure);
-        } catch (ResultArchiveStoreException e) {
-            logger.warn("Unable to write the test structure to the RAS", e);
-        }
-
-    }
-
-    private void deleteRunProperties(@NotNull IFramework framework) {
-
-        IRun run = framework.getTestRun();
-
-        if (!run.isLocal()) { // *** Not interested in non-local runs
-            return;
-        }
-
-        try {
-            framework.getFrameworkRuns().delete(run.getName());
-        } catch (FrameworkException e) {
-            logger.error("Failed to delete run properties");
-        }
-    }
-
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
     }
 
-    // method to replace repeating "run." + run.getName() + "."... where ... is the key suffix to be passed
-    private String getDSSKeyString(String keySuffix){
-        return "run." + run.getName() + "." + keySuffix;
-    }
 
 }
