@@ -337,19 +337,19 @@ public class RunQueryRoute extends RunsRoute {
 
 		@Override
 		public int compare(RasRunResult a, RasRunResult b) {
-			Instant aEndTime = a.getTestStructure().getQueued();
-			Instant bEndTime = b.getTestStructure().getQueued();
+			Instant aQueuedTime = a.getTestStructure().getQueued();
+			Instant bQueuedTime = b.getTestStructure().getQueued();
 
-			if (aEndTime == null) {
-				if (bEndTime == null) {
+			if (aQueuedTime == null) {
+				if (bQueuedTime == null) {
 					return 0;
 				}
 				return -1;
 			}
-			if (bEndTime == null) {
+			if (bQueuedTime == null) {
 				return 1;
 			}
-			return aEndTime.compareTo(bEndTime);
+			return aQueuedTime.compareTo(bQueuedTime);
 		}
 	}
 
