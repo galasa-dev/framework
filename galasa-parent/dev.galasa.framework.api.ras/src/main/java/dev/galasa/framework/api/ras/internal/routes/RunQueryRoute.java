@@ -53,6 +53,13 @@ public class RunQueryRoute extends RunsRoute {
 
 	protected static final String path = "\\/runs\\/?";
 
+    // A mapping of sort keys to corresponding test structure fields
+    private final Map<String, String> sortKeyMap = Map.of(
+        "from", "queued",
+        "to", "endTime",
+        "testclass", "testName"
+    );
+
 	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints:
 		*  -> /ras/runs
@@ -87,8 +94,8 @@ public class RunQueryRoute extends RunsRoute {
 		Do not filter as well */
 		List<String> runIds = queryParams.getRunIds();
 
-        // Default to sorting in descending order based on the "end time" of runs
-        RasSortField sortValue = queryParams.getSortValue("to:desc");
+        // Default to sorting in descending order based on the "queued time" of runs
+        RasSortField sortValue = queryParams.getSortValue("from:desc");
 
         RasRunResultPage runsPage = null;
         String responseJson = null;
@@ -121,11 +128,14 @@ public class RunQueryRoute extends RunsRoute {
     private RasSortField formatSortField(RasSortField sortValue) {
         RasSortField sortField = null;
         if (sortValue != null) {
-            sortField = new RasSortField(sortValue.getFieldName(), sortValue.getSortDirection());
+            String sortFieldName = sortValue.getFieldName();
+            sortField = new RasSortField(sortFieldName, sortValue.getSortDirection());
 
-            // The "to" sort parameter corresponds to a run's "endTime" field
-            if (sortValue.getFieldName().equals("to")) {
-                sortField.setFieldName("endTime");
+            // Some sort keys map to different test structure fields (e.g. "from" maps to "queued"),
+            // so make sure we are sorting by the correct test structure field
+            String testStructureFieldName = sortKeyMap.get(sortFieldName);
+            if (testStructureFieldName != null) {
+                sortField.setFieldName(testStructureFieldName);
             }
         }
         return sortField;
@@ -323,6 +333,25 @@ public class RunQueryRoute extends RunsRoute {
         return runResults;
     }
 
+	class SortByQueuedTime implements Comparator<RasRunResult> {
+
+		@Override
+		public int compare(RasRunResult a, RasRunResult b) {
+			Instant aEndTime = a.getTestStructure().getQueued();
+			Instant bEndTime = b.getTestStructure().getQueued();
+
+			if (aEndTime == null) {
+				if (bEndTime == null) {
+					return 0;
+				}
+				return -1;
+			}
+			if (bEndTime == null) {
+				return 1;
+			}
+			return aEndTime.compareTo(bEndTime);
+		}
+	}
 
 	class SortByEndTime implements Comparator<RasRunResult> {
 
@@ -404,7 +433,9 @@ public class RunQueryRoute extends RunsRoute {
         Comparator<RasRunResult> runsComparator = null;
 
         String sortFieldName = sortField.getFieldName();
-        if (sortFieldName.equals("to")) {
+        if (sortFieldName.equals("from")) {
+            runsComparator = new SortByQueuedTime();
+        } else if (sortFieldName.equals("to")) {
             runsComparator = new SortByEndTime();
         } else if (sortFieldName.equals("testclass")) {
             runsComparator = new SortByTestClass();

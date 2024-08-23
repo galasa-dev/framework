@@ -2261,4 +2261,110 @@ public class TestRunQuery extends RasServletTest {
 		assertThat(outStream.toString()).contains("GAL5011E", "Error parsing the query parameters", "sort value 'unknown' not recognised");
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
+
+    @Test
+	public void testQueryWithSortByQueuedTimeAscendingReturnsRunsOk() throws Exception {
+		// Given..
+        Instant time1 = Instant.EPOCH;
+        Instant time2 = Instant.ofEpochSecond(10);
+        Instant time3 = Instant.ofEpochSecond(20);
+
+        String runId1 = "test1";
+        String runId2 = "test2";
+        String runId3 = "test3";
+
+        IRunResult testRun1 = createTestRun(runId1, time1, time1, time1);
+        IRunResult testRun2 = createTestRun(runId2, time2, time2, time2);
+        IRunResult testRun3 = createTestRun(runId3, time3, time3, time3);
+
+		List<IRunResult> mockInputRunResults = List.of(
+            testRun3,
+            testRun1,
+            testRun2
+        );
+
+        // Build query parameters
+        int pageSize = 100;
+        int pageNum = 1;
+        String sort = "from:asc";
+		Map<String, String[]> parameterMap = setQueryParameter(pageNum, pageSize, sort, null,null, 72, null);
+        parameterMap.put("runId", new String[] { runId1 + "," + runId2 + "," + runId3 });
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+        List<IRunResult> expectedOrderedRunResults = List.of(
+            testRun1,
+            testRun2,
+            testRun3
+        );
+
+        String expectedJson = generateExpectedJson(expectedOrderedRunResults, pageSize, pageNum);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+    @Test
+	public void testQueryWithSortByQueuedTimeDescendingReturnsRunsOk() throws Exception {
+		// Given..
+        Instant time1 = Instant.EPOCH;
+        Instant time2 = Instant.ofEpochSecond(10);
+        Instant time3 = Instant.ofEpochSecond(20);
+
+        String runId1 = "test1";
+        String runId2 = "test2";
+        String runId3 = "test3";
+
+        IRunResult testRun1 = createTestRun(runId1, time1, time1, time1);
+        IRunResult testRun2 = createTestRun(runId2, time2, time2, time2);
+        IRunResult testRun3 = createTestRun(runId3, time3, time3, time3);
+
+		List<IRunResult> mockInputRunResults = List.of(
+            testRun3,
+            testRun1,
+            testRun2
+        );
+
+        // Build query parameters
+        int pageSize = 100;
+        int pageNum = 1;
+        String sort = "from:desc";
+		Map<String, String[]> parameterMap = setQueryParameter(pageNum, pageSize, sort, null,null, 72, null);
+        parameterMap.put("runId", new String[] { runId1 + "," + runId2 + "," + runId3 });
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+        List<IRunResult> expectedOrderedRunResults = List.of(
+            testRun3,
+            testRun2,
+            testRun1
+        );
+
+        String expectedJson = generateExpectedJson(expectedOrderedRunResults, pageSize, pageNum);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
 }
