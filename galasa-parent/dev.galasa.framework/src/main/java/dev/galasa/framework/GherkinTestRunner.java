@@ -29,8 +29,6 @@ import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
-import dev.galasa.framework.spi.utils.DssUtils;
-
 
 /**
  * Run the supplied test class
@@ -70,23 +68,23 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
         gherkinTest = new GherkinTest(run, testStructure,this.fileSystem);
 
-        String testRepository = null;
-        String testOBR = null;
-        String stream = AbstractManager.nulled(run.getStream());
-
         this.testStructure = createNewTestStructure(run);
         this.testStructure.setTestName(gherkinTest.getName());
         writeTestStructure();
 
         try {
 
-            if (stream != null) {
-                logger.debug("Loading test stream " + stream);
+            String testRepository = null;
+            String testOBR = null;
+            String streamName = AbstractManager.nulled(run.getStream());
+
+            if (streamName != null) {
+                logger.debug("Loading test streamName " + streamName);
                 try {
-                    testRepository = this.cps.getProperty("test.stream", "repo", stream);
-                    testOBR = this.cps.getProperty("test.stream", "obr", stream);
+                    testRepository = this.cps.getProperty("test.streamName", "repo", streamName);
+                    testOBR = this.cps.getProperty("test.streamName", "obr", streamName);
                 } catch (Exception e) {
-                    logger.error("Unable to load stream " + stream + " settings", e);
+                    logger.error("Unable to load streamName " + streamName + " settings", e);
                     updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                     return;
                 }
@@ -150,11 +148,7 @@ public class GherkinTestRunner extends AbstractTestRunner {
                 throw new TestRunException("Unable to initialise the heartbeat");
             }
 
-            if (run.isLocal()) {
-                DssUtils.incrementMetric(dss, "metrics.runs.local");
-            } else {
-                DssUtils.incrementMetric(dss, "metrics.runs.automated");
-            }
+            incrimentMetric(dss,run);
 
             updateStatus(TestRunLifecycleStatus.STARTED, "started");
 

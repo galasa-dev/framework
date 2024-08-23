@@ -364,4 +364,34 @@ public class AbstractTestRunner {
         }
     }
 
+    protected void incrimentMetric(IDynamicStatusStoreService dss, IRun run) {
+        if (run.isLocal()) {
+            logger.debug("It's a local test");
+            DssUtils.incrementMetric(dss, "metrics.runs.local");
+        } else {
+            logger.debug("It's an automated test");
+            DssUtils.incrementMetric(dss, "metrics.runs.automated");
+        }
+    }
+
+
+    protected void storeRasRunIdInDss(IDynamicStatusStoreService dss, String rasRunId) throws TestRunException {
+        try {
+            this.dss.put("run." + run.getName() + ".rasrunid", rasRunId);
+        } catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Failed to update rasrunid", e);
+        }
+    }
+
+    public static class GalasaStream {
+        private String testRepository ;
+        private String testOBR ;
+        private String name ;
+
+        public GalasaStream(String streamName) {
+            this.name = streamName ;
+        }
+
+    }
+
 }
