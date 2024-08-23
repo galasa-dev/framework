@@ -5,8 +5,7 @@
  */
 package dev.galasa.framework;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Properties;
@@ -21,10 +20,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import dev.galasa.SharedEnvironment;
-import dev.galasa.Test;
 import dev.galasa.framework.internal.runner.FelixRepoAdminOBRAdder;
 import dev.galasa.framework.internal.runner.MavenRepositoryListBuilder;
+import dev.galasa.framework.internal.runner.RunType;
+import dev.galasa.framework.internal.runner.RunTypeDetails;
 import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
@@ -34,7 +33,6 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.Result;
-import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.language.GalasaTest;
 
 /**
@@ -43,11 +41,6 @@ import dev.galasa.framework.spi.language.GalasaTest;
 @Component(service = { TestRunner.class })
 public class TestRunner extends BaseTestRunner {
 
-    private enum RunType {
-        TEST,
-        SHARED_ENVIRONMENT_BUILD,
-        SHARED_ENVIRONMENT_DISCARD
-    }
 
     private Log                                logger        = LogFactory.getLog(TestRunner.class);
 
@@ -111,64 +104,8 @@ public class TestRunner extends BaseTestRunner {
             }
 
 
-
-            logger.debug("Getting test annotations..");
-            IAnnotationExtractor annotationExtractor = dataProvider.getAnnotationExtractor();
-            
-            Test testAnnotation = annotationExtractor.getAnnotation( testClass , Test.class);
-            logger.debug("Test annotations.. got");
-
-            SharedEnvironment sharedEnvironmentAnnotation = annotationExtractor.getAnnotation( testClass, SharedEnvironment.class);
-
-            logger.debug("Checking testAnnotation and sharedEnvironmentAnnotation");
-            if (testAnnotation == null && sharedEnvironmentAnnotation == null) {
-                logger.debug("Test annotation is null and it's not a shared environment. Throwing TestRunException...");
-                throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is not annotated with either the dev.galasa @Test or @SharedEnvironment annotations");
-            } else if (testAnnotation != null && sharedEnvironmentAnnotation != null) {
-                logger.debug("Test annotation is non-null and shared environment annotation is non-null. Throwing TestRunException...");
-                throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is annotated with both the dev.galasa @Test and @SharedEnvironment annotations");
-            }
-            
-
-            if (testAnnotation != null) {
-                logger.info("Run test: " + testBundleName + "/" + testClassName);
-                this.runType = RunType.TEST;
-            } else {
-                logger.info("Shared Environment class: " + testBundleName + "/" + testClassName);
-            }
-
-
-            if (sharedEnvironmentAnnotation != null) {
-                try {
-                    SharedEnvironmentRunType seType = this.framework.getSharedEnvironmentRunType();
-                    if (seType != null) {
-                        switch(seType) {
-                            case BUILD:
-                                this.runType = RunType.SHARED_ENVIRONMENT_BUILD;
-                                break;
-                            case DISCARD:
-                                this.runType = RunType.SHARED_ENVIRONMENT_DISCARD;
-                                break;
-                            default:
-                                String msg = "Unknown Shared Environment phase, '" + seType + "', needs to be BUILD or DISCARD";
-                                logger.error(msg);
-                                throw new TestRunException(msg);
-                        }
-                    } else {
-                        String msg = "Unknown Shared Environment phase, needs to be BUILD or DISCARD";
-                        logger.error(msg);
-                        throw new TestRunException(msg);
-                    }
-                } catch(TestRunException e) {
-                    String msg = "TestRunException caught. "+e.getMessage()+" Re-throwing.";
-                    logger.error(msg);
-                    throw e;
-                } catch(Exception e) {
-                    String msg = "Exception caught. "+e.getMessage()+" Re-throwing.";
-                    logger.error(msg);
-                    throw new TestRunException("Unable to determine the phase of the shared environment", e);
-                }
-            }
+            RunTypeDetails runTypeDetails = new RunTypeDetails(dataProvider.getAnnotationExtractor(), testClass, testBundleName, testClassName , framework);
+            this.runType = runTypeDetails.getDetectedRunType();
 
             logger.debug("Test runType is "+this.runType.toString());
             if (this.runType == RunType.TEST) {
@@ -179,7 +116,7 @@ public class TestRunner extends BaseTestRunner {
 
 
             } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-                int expireHours = sharedEnvironmentAnnotation.expireAfterHours();
+                int expireHours = runTypeDetails.getSharedEnvironmentExpireAfterHours();
                 Instant expire = Instant.now().plus(expireHours, ChronoUnit.HOURS);
                 try {
                     this.dss.put("run." + this.run.getName() + ".shared.environment.expire", expire.toString());
@@ -501,5 +438,5 @@ public class TestRunner extends BaseTestRunner {
             throw new TestRunException("Unable to load the test bundle " + testBundleName, e);
         }
     }
-    
+
 }
