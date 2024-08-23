@@ -12,6 +12,8 @@ import org.osgi.framework.BundleContext;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
@@ -19,6 +21,7 @@ import java.util.Map.Entry;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ResultArchiveStoreContentType;
+import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -36,9 +39,9 @@ import dev.galasa.framework.spi.events.TestRunLifecycleStatusChangedEvent;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 
-public class AbstractTestRunner {
+public class BaseTestRunner {
 
-    private Log logger = LogFactory.getLog(AbstractTestRunner.class);
+    private Log logger = LogFactory.getLog(BaseTestRunner.class);
 
     protected BundleContext bundleContext;
 
@@ -170,14 +173,7 @@ public class AbstractTestRunner {
     }
 
 
-    protected String getOverriddenValue(String existingValue, String possibleOverrideValue) {
-        String result = existingValue ;
-        String possibleNulledValue = AbstractManager.nulled(possibleOverrideValue);
-        if (possibleNulledValue != null) {
-            result = possibleNulledValue;
-        }
-        return result ;
-    }
+
 
     protected TestStructure createNewTestStructure(IRun run) {
         TestStructure testStructure = new TestStructure();
@@ -383,15 +379,6 @@ public class AbstractTestRunner {
         }
     }
 
-    public static class GalasaStream {
-        private String testRepository ;
-        private String testOBR ;
-        private String name ;
-
-        public GalasaStream(String streamName) {
-            this.name = streamName ;
-        }
-
-    }
-
 }
+
+

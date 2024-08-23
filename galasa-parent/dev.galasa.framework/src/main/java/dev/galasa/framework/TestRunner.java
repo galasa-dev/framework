@@ -23,6 +23,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import dev.galasa.SharedEnvironment;
 import dev.galasa.Test;
+import dev.galasa.framework.internal.runner.FelixRepoAdminOBRAdder;
+import dev.galasa.framework.internal.runner.MavenRepositoryListBuilder;
 import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
@@ -39,7 +41,7 @@ import dev.galasa.framework.spi.language.GalasaTest;
  * Run the supplied test class
  */
 @Component(service = { TestRunner.class })
-public class TestRunner extends AbstractTestRunner {
+public class TestRunner extends BaseTestRunner {
 
     private enum RunType {
         TEST,
@@ -89,58 +91,17 @@ public class TestRunner extends AbstractTestRunner {
             String rasRunId = this.ras.calculateRasRunId();
             storeRasRunIdInDss(dss, rasRunId);
 
-            String testRepository = null;
-            String testOBR = null;
-            String streamName = AbstractManager.nulled(run.getStream());
-
-            if (streamName != null) {
-                logger.debug("Loading test streamName " + streamName);
-                try {
-                    testRepository = this.cps.getProperty("test.streamName", "repo", streamName);
-                    testOBR = this.cps.getProperty("test.streamName", "obr", streamName);
-                } catch (Exception e) {
-                    logger.error("Unable to load streamName " + streamName + " settings", e);
-                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                    return;
-                }
+            try {
+                String streamName = AbstractManager.nulled(run.getStream());
+                new MavenRepositoryListBuilder(this.mavenRepository, this.cps)
+                    .addMavenRepositories(streamName, run.getRepository());
+                new FelixRepoAdminOBRAdder(this.repositoryAdmin, this.cps)
+                    .addOBRsToRepoAdmin(streamName, run.getOBR());
+            } catch (Exception ex) {
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+                throw new TestRunException(ex.getMessage(),ex);
             }
 
-            testRepository = getOverriddenValue(testRepository, run.getRepository());
-            testOBR = getOverriddenValue(testOBR, run.getOBR());
-
-            if (testRepository != null) {
-                logger.debug("Loading test maven repository " + testRepository);
-                try {
-                    String[] repos = testRepository.split("\\,");
-                    for(String repo : repos) {
-                        repo = repo.trim();
-                        if (!repo.isEmpty()) {
-                            this.mavenRepository.addRemoteRepository(new URL(repo));
-                        }
-                    }
-                } catch (MalformedURLException e) {
-                    logger.error("Unable to add remote maven repository " + testRepository, e);
-                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                    return;
-                }
-            }
-
-            if (testOBR != null) {
-                logger.debug("Loading test obr repository " + testOBR);
-                try {
-                    String[] testOBRs = testOBR.split("\\,");
-                    for(String obr : testOBRs) {
-                        obr = obr.trim();
-                        if (!obr.isEmpty()) {
-                            repositoryAdmin.addRepository(obr);
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("Unable to load specified OBR " + testOBR, e);
-                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                    return;
-                }
-            }
 
             try {
                 this.bundleManager.loadBundle(repositoryAdmin, bundleContext, testBundleName);
