@@ -1091,7 +1091,13 @@ paths:
           in: query
           description: |
             Sorts the returned runs based on the sort field.
-            Supports sorting fields 'to','result' and 'testclass'.
+            Supports sorting fields 'from', 'to', 'result' and 'testclass'.
+            
+            If omitted, runs will be sorted in descending order based on their 'queued' time,
+            which is equivalent to specifying 'from:desc' (i.e. latest queued run first, oldest last).
+
+            When sorting with 'to' or 'result', runs that have not yet finished will not
+            be included in responses from this endpoint.
 
             Use '{FIELD-NAME}:asc' to sort in ascending order.
             Use '{FIELD-NAME}:desc' to sort in descending order.
@@ -1100,9 +1106,7 @@ paths:
             type: string
           examples:
             single:
-              value: result:asc
-            multiple:
-              value: result:asc,testclass:desc
+              value: from:asc
         - name: result
           in: query
           description: |
