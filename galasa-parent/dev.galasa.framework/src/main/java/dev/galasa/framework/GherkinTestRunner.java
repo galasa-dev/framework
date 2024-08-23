@@ -84,8 +84,16 @@ public class GherkinTestRunner extends BaseTestRunner {
                     .addOBRsToRepoAdmin(streamName, run.getOBR());
 
 
+                // This is gherkin-test-runner-specific
                 loadGherkinManagerBundles(repositoryAdmin, bundleContext);
+                validateGherkinFeature(gherkinTest);
+                logger.info("Run test: " + gherkinTest.getName());
 
+                heartbeat = createBeatingHeart(framework);
+
+                incrimentMetric(dss,run);
+
+                updateStatus(TestRunLifecycleStatus.STARTED, "started");
                 
             } catch (Exception ex) {
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
@@ -94,22 +102,8 @@ public class GherkinTestRunner extends BaseTestRunner {
 
 
 
-            if(gherkinTest.getName() == null || gherkinTest.getMethods().size() == 0) {
-                throw new TestRunException("Feature file is invalid at URI: " + run.getGherkin());
-            }
-                
-            logger.info("Run test: " + gherkinTest.getName());
 
-            try {
-                heartbeat = new TestRunHeartbeat(framework);
-                heartbeat.start();
-            } catch (DynamicStatusStoreException e1) {
-                throw new TestRunException("Unable to initialise the heartbeat");
-            }
 
-            incrimentMetric(dss,run);
-
-            updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
             // *** Initialise the Managers ready for the test run
             ITestRunManagers managers = null;
@@ -285,7 +279,6 @@ public class GherkinTestRunner extends BaseTestRunner {
         managers.provisionStop();
     }
 
-
     private void runGherkinTest(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
         if (!isRunOK) {
             return;
@@ -306,13 +299,18 @@ public class GherkinTestRunner extends BaseTestRunner {
         this.bundleContext = context;
     }
 
-
     private void loadGherkinManagerBundles(RepositoryAdmin repositoryAdmin, BundleContext bundleContext) throws TestRunException {
         try {
             bundleManager.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
         } catch (Exception e) {
             logger.error("Unable to load the manager bundles", e);
             throw new TestRunException("Unable to load the manager bundles", e);
+        }
+    }
+
+    private void validateGherkinFeature(GherkinTest gherkinTest) throws TestRunException {
+        if(gherkinTest.getName() == null || gherkinTest.getMethods().size() == 0) {
+            throw new TestRunException("Feature file is invalid at URI: " + run.getGherkin());
         }
     }
 }

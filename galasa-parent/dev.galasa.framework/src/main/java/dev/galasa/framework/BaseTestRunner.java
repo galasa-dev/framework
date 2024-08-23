@@ -373,6 +373,17 @@ public class BaseTestRunner {
         }
     }
 
+
+    protected TestRunHeartbeat createBeatingHeart(IFramework framework) throws TestRunException {
+        TestRunHeartbeat heartbeat;
+        try {
+            heartbeat = new TestRunHeartbeat(framework);
+            heartbeat.start();
+        } catch (DynamicStatusStoreException ex) {
+            throw new TestRunException("Unable to initialise the heartbeat. "+ex.getMessage(), ex);
+        }
+        return heartbeat;
+    }
 }
 
 

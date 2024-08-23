@@ -89,6 +89,8 @@ public class TestRunner extends BaseTestRunner {
             String rasRunId = this.ras.calculateRasRunId();
             storeRasRunIdInDss(dss, rasRunId);
 
+            Class<?> testClass ;
+
             try {
                 
                 String streamName = AbstractManager.nulled(run.getStream());
@@ -98,8 +100,10 @@ public class TestRunner extends BaseTestRunner {
                     .addOBRsToRepoAdmin(streamName, run.getOBR());
 
 
+                // This is java-test-runner-specific
                 loadTestBundle(repositoryAdmin, bundleContext, testBundleName);
- 
+                testClass = getTestClass(bundleContext, testBundleName, testClassName);
+
 
             } catch (Exception ex) {
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
@@ -107,18 +111,6 @@ public class TestRunner extends BaseTestRunner {
             }
 
 
-
-            
-            Class<?> testClass;
-            try {
-                logger.debug("Loading test class... " + testClassName);
-                testClass = getTestClass(testBundleName, testClassName);
-                logger.debug("Test class " + testClassName + " loaded OK.");
-            } catch(Throwable t) {
-                logger.error("Problem locating test " + testBundleName + "/" + testClassName, t);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                return;
-            }
 
             logger.debug("Getting test annotations..");
             IAnnotationExtractor annotationExtractor = dataProvider.getAnnotationExtractor();
@@ -180,16 +172,8 @@ public class TestRunner extends BaseTestRunner {
 
             logger.debug("Test runType is "+this.runType.toString());
             if (this.runType == RunType.TEST) {
-                try {
-                    heartbeat = new TestRunHeartbeat(this.framework);
-                    logger.debug("starting heartbeat");
-                    heartbeat.start();
-                    logger.debug("heartbeat started ok");
-                } catch (DynamicStatusStoreException e1) {
-                    String msg = "DynamicStatusStoreException Exception caught. "+e1.getMessage()+" Shutting down and Re-throwing.";
-                    logger.error(msg);
-                    throw new TestRunException("Unable to initialise the heartbeat");
-                }
+
+                heartbeat = createBeatingHeart(framework);
 
                 incrimentMetric(dss,run);
 
@@ -477,10 +461,10 @@ public class TestRunner extends BaseTestRunner {
      * 
      * @param testBundleName
      * @param testClassName
-     * @return
+     * @return The test class from the bundle in the bundle context.
      * @throws TestRunException
      */
-    private Class<?> getTestClass(String testBundleName, String testClassName) throws TestRunException {
+    private Class<?> getTestClass(BundleContext bundleContext, String testBundleName, String testClassName) throws TestRunException {
         Class<?> testClazz = null;
         Bundle[] bundles = bundleContext.getBundles();
         boolean bundleFound = false;
