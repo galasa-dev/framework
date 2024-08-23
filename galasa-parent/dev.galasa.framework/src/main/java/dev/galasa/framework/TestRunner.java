@@ -31,6 +31,7 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
+import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.language.GalasaTest;
@@ -208,7 +209,7 @@ public class TestRunner extends BaseTestRunner {
 
             logger.debug("Generating environment...");
             try {
-                generateEnvironment(testClassWrapper, managers);
+                generateEnvironment(testClassWrapper, managers, this.dss, this.run.getName() , isRunOK);
             } catch(Exception e) {
                 logger.fatal("Error within test runner",e);
                 this.isRunOK = false;
@@ -275,13 +276,13 @@ public class TestRunner extends BaseTestRunner {
 
 
 
-    private void generateEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
+    private void generateEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers, IDynamicStatusStoreService dss, String runName , boolean isRunOK) throws TestRunException {
         if(isRunOK){
             try {
                 updateStatus(TestRunLifecycleStatus.GENERATING, null);
                 logger.info("Starting Provision Generate phase");
                 managers.provisionGenerate();
-                createEnvironment(testClassWrapper, managers);
+                createEnvironment(testClassWrapper, managers, dss, runName, isRunOK);
             } catch (Exception e) { 
                 logger.info("Provision Generate failed", e);
                 if (e instanceof FrameworkResourceUnavailableException) {
@@ -298,35 +299,41 @@ public class TestRunner extends BaseTestRunner {
     }
 
 
-    private void createEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
-        if (!isRunOK) {
-            return;
-        }
+    private void createEnvironment(
+        TestClassWrapper testClassWrapper, 
+        ITestRunManagers managers, 
+        IDynamicStatusStoreService dss, 
+        String runName, 
+        boolean isRunOK
+    ) throws TestRunException {
 
-        try {
-            if (this.runType == RunType.TEST || this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-                try {
-                    updateStatus(TestRunLifecycleStatus.BUILDING, null);
-                    logger.info("Starting Provision Build phase");
-                    managers.provisionBuild();
-                } catch (FrameworkException e) {
-                    this.isRunOK = false;
-                    logger.error("Provision build failed",e);
-                    if (e instanceof FrameworkResourceUnavailableException) {
-                        this.isResourcesAvailable = false;
+        if (isRunOK) {
+
+            try {
+                if (this.runType == RunType.TEST || this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
+                    try {
+                        updateStatus(TestRunLifecycleStatus.BUILDING, null);
+                        logger.info("Starting Provision Build phase");
+                        managers.provisionBuild();
+                    } catch (FrameworkException e) {
+                        this.isRunOK = false;
+                        logger.error("Provision build failed",e);
+                        if (e instanceof FrameworkResourceUnavailableException) {
+                            this.isResourcesAvailable = false;
+                        }
+                        testClassWrapper.setResult(Result.envfail(e));
+                        if (this.isResourcesAvailable) {
+                            managers.testClassResult(testClassWrapper.getResult(), e);
+                        }
+                        testStructure.setResult(testClassWrapper.getResult().getName());
+                        return;
                     }
-                    testClassWrapper.setResult(Result.envfail(e));
-                    if (this.isResourcesAvailable) {
-                        managers.testClassResult(testClassWrapper.getResult(), e);
-                    }
-                    testStructure.setResult(testClassWrapper.getResult().getName());
-                    return;
                 }
-            }
 
-            runEnvironment(testClassWrapper, managers);
-        } finally {
-            discardEnvironment(managers);
+                runEnvironment(testClassWrapper, managers, dss, runName);
+            } finally {
+                discardEnvironment(managers);
+            }
         }
     }
 
@@ -339,7 +346,7 @@ public class TestRunner extends BaseTestRunner {
     }
 
 
-    private void runEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
+    private void runEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers, IDynamicStatusStoreService dss , String runName) throws TestRunException {
         if (isRunOK) {    
             try {
                 if (this.runType != RunType.SHARED_ENVIRONMENT_DISCARD) {
@@ -358,8 +365,8 @@ public class TestRunner extends BaseTestRunner {
                         return;
                     }
                 }
-                
-                runTestClassWrapper(testClassWrapper, managers);
+
+                runTestClassWrapper(testClassWrapper, managers, dss, runName); 
             } finally {
                 stopEnvironment(managers);
             }
@@ -375,7 +382,7 @@ public class TestRunner extends BaseTestRunner {
     }
 
 
-    private void runTestClassWrapper(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
+    private void runTestClassWrapper(TestClassWrapper testClassWrapper, ITestRunManagers managers, IDynamicStatusStoreService dss , String runName) throws TestRunException {
         // Do nothing if the test run has already failed on setup.
         if (isRunOK) {
 
@@ -385,7 +392,7 @@ public class TestRunner extends BaseTestRunner {
                 updateStatus(TestRunLifecycleStatus.RUNNING, null);
                 try {
                     logger.info("Running the test class");
-                    testClassWrapper.runTestMethods(managers, this.dss, this.run.getName());
+                    testClassWrapper.runTestMethods(managers, dss, runName);
                 } finally {
                     updateStatus(TestRunLifecycleStatus.RUNDONE, null);
                 }
