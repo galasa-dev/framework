@@ -5,10 +5,7 @@
  */
 package dev.galasa.framework;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
@@ -85,18 +82,17 @@ public class GherkinTestRunner extends BaseTestRunner {
                     .addMavenRepositories(streamName, run.getRepository());
                 new FelixRepoAdminOBRAdder(this.repositoryAdmin, this.cps)
                     .addOBRsToRepoAdmin(streamName, run.getOBR());
+
+
+                loadGherkinManagerBundles(repositoryAdmin, bundleContext);
+
+                
             } catch (Exception ex) {
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 throw new TestRunException(ex.getMessage(),ex);
             }
 
-            try {
-                bundleManager.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
-            } catch (Exception e) {
-                logger.error("Unable to load the managers obr", e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                return;
-            }
+
 
             if(gherkinTest.getName() == null || gherkinTest.getMethods().size() == 0) {
                 throw new TestRunException("Feature file is invalid at URI: " + run.getGherkin());
@@ -311,4 +307,12 @@ public class GherkinTestRunner extends BaseTestRunner {
     }
 
 
+    private void loadGherkinManagerBundles(RepositoryAdmin repositoryAdmin, BundleContext bundleContext) throws TestRunException {
+        try {
+            bundleManager.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
+        } catch (Exception e) {
+            logger.error("Unable to load the manager bundles", e);
+            throw new TestRunException("Unable to load the manager bundles", e);
+        }
+    }
 }

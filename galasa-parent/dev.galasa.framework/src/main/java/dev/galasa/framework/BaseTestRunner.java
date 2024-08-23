@@ -12,8 +12,6 @@ import org.osgi.framework.BundleContext;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
@@ -21,7 +19,6 @@ import java.util.Map.Entry;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ResultArchiveStoreContentType;
-import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -171,9 +168,6 @@ public class BaseTestRunner {
             throw new TestRunException("Problem loading overrides from the run properties", e);
         }
     }
-
-
-
 
     protected TestStructure createNewTestStructure(IRun run) {
         TestStructure testStructure = new TestStructure();

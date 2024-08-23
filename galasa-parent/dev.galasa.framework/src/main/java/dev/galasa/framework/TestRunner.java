@@ -81,8 +81,6 @@ public class TestRunner extends BaseTestRunner {
         String testBundleName = run.getTestBundleName();
         String testClassName = run.getTestClassName();
 
-
-
         this.testStructure = createNewTestStructure(run);
         writeTestStructure();
             
@@ -92,24 +90,24 @@ public class TestRunner extends BaseTestRunner {
             storeRasRunIdInDss(dss, rasRunId);
 
             try {
+                
                 String streamName = AbstractManager.nulled(run.getStream());
                 new MavenRepositoryListBuilder(this.mavenRepository, this.cps)
                     .addMavenRepositories(streamName, run.getRepository());
                 new FelixRepoAdminOBRAdder(this.repositoryAdmin, this.cps)
                     .addOBRsToRepoAdmin(streamName, run.getOBR());
+
+
+                loadTestBundle(repositoryAdmin, bundleContext, testBundleName);
+ 
+
             } catch (Exception ex) {
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 throw new TestRunException(ex.getMessage(),ex);
             }
 
 
-            try {
-                this.bundleManager.loadBundle(repositoryAdmin, bundleContext, testBundleName);
-            } catch (Exception e) {
-                logger.error("Unable to load the test bundle " + testBundleName, e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                return;
-            }
+
             
             Class<?> testClass;
             try {
@@ -511,5 +509,13 @@ public class TestRunner extends BaseTestRunner {
         this.bundleContext = context;
     }
 
+    private void loadTestBundle(RepositoryAdmin repositoryAdmin, BundleContext bundleContext, String testBundleName) throws TestRunException {
+        try {
+            this.bundleManager.loadBundle(repositoryAdmin, bundleContext, testBundleName);
+        } catch (Exception e) {
+            logger.error("Unable to load the test bundle " + testBundleName, e);
+            throw new TestRunException("Unable to load the test bundle " + testBundleName, e);
+        }
+    }
     
 }
