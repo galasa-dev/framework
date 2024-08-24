@@ -62,7 +62,6 @@ public class BaseTestRunner {
 
     protected Properties overrideProperties;
 
-
     protected void init(ITestRunnerDataProvider dataProvider) throws TestRunException {
         this.run = dataProvider.getRun() ;
         this.framework = dataProvider.getFramework();
@@ -89,19 +88,41 @@ public class BaseTestRunner {
         }
     }
 
-    protected void recordCPSProperties(
+    protected void saveUsedCPSPropertiesToArtifact(
+        Properties props, 
         IFileSystem fileSystem, 
-        IFramework framework,
+        IResultArchiveStore ras
+    ) {;
+        String titleText = "The properties used by the test and managers.";
+        String fileName = "cps_record.properties";
+
+        savePropertiesToFile( ras, props , titleText , fileName , fileSystem );
+    }
+
+    protected void saveAllOverridesPassedToArtifact(
+        Properties overrides,
+        IFileSystem fileSystem,
         IResultArchiveStore ras
     ) {
-        try {
-            Properties record = this.framework.getRecordProperties();
+        String titleText = "The properties passed as overrides to the test";
+        String fileName = "overrides.properties";
 
+        savePropertiesToFile( ras , overrides, titleText, fileName , fileSystem);
+    }
+
+    private void savePropertiesToFile( IResultArchiveStore ras, Properties props, String titleText, String fileName , IFileSystem fileSystem) {
+        try {
             ArrayList<String> propertyNames = new ArrayList<>();
-            propertyNames.addAll(record.stringPropertyNames());
+            propertyNames.addAll(props.stringPropertyNames());
+
             Collections.sort(propertyNames);
 
             StringBuilder sb = new StringBuilder();
+
+            sb.append("# ");
+            sb.append(titleText);
+            sb.append("\n\n");
+
             String currentNamespace = null;
             for (String propertyName : propertyNames) {
                 propertyName = propertyName.trim();
@@ -109,6 +130,7 @@ public class BaseTestRunner {
                     continue;
                 }
 
+                // Put out a blank line between namespaces.
                 String[] parts = propertyName.split("\\.");
                 if (!parts[0].equals(currentNamespace)) {
                     if (currentNamespace != null) {
@@ -119,16 +141,16 @@ public class BaseTestRunner {
 
                 sb.append(propertyName);
                 sb.append("=");
-                sb.append(record.getProperty(propertyName));
+                sb.append(props.getProperty(propertyName));
                 sb.append("\n");
             }
             
             Path rasRoot = ras.getStoredArtifactsRoot();
-            Path rasProperties = rasRoot.resolve("framework").resolve("cps_record.properties");
+            Path rasProperties = rasRoot.resolve("framework").resolve(fileName);
             fileSystem.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
             fileSystem.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            logger.error("Failed to save the recorded properties", e);
+            logger.error("Failed to save the "+fileName+" properties. "+titleText, e);
         }
     }
 

@@ -243,8 +243,10 @@ public class TestRunner extends BaseTestRunner {
                 logger.debug("Stopping heartbeat...");
                 stopHeartbeat();
 
-                // *** Record all the CPS properties that were accessed
-                recordCPSProperties(this.fileSystem, this.framework, this.ras);
+                // Record all the CPS properties that were accessed
+                saveUsedCPSPropertiesToArtifact(this.framework.getRecordProperties(), this.fileSystem, this.ras);
+                // And all the overrides the test was passed.
+                saveAllOverridesPassedToArtifact(overrideProperties, this.fileSystem , this.ras);
 
                 // *** If this was a local run, then we will want to remove the run properties
                 // from the DSS immediately
@@ -259,7 +261,12 @@ public class TestRunner extends BaseTestRunner {
                     deleteRunProperties(this.framework);
                 }
             } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-                recordCPSProperties(this.fileSystem, this.framework, this.ras);
+
+                // Record all the CPS properties that were accessed
+                saveUsedCPSPropertiesToArtifact(this.framework.getRecordProperties(), this.fileSystem, this.ras);
+                // And all the overrides the test was passed.
+                saveAllOverridesPassedToArtifact(overrideProperties, this.fileSystem , this.ras);
+                
                 updateStatus(TestRunLifecycleStatus.UP, "built");
             } else {
                 logger.error("Unrecognised end condition");

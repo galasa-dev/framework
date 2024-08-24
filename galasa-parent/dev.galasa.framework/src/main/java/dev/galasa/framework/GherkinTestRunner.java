@@ -20,7 +20,6 @@ import dev.galasa.framework.internal.runner.MavenRepositoryListBuilder;
 import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IGherkinExecutable;
@@ -155,8 +154,10 @@ public class GherkinTestRunner extends BaseTestRunner {
 
             stopHeartbeat();
 
-            // *** Record all the CPS properties that were accessed
-            recordCPSProperties(this.fileSystem, this.framework, this.ras);
+            // Record all the CPS properties that were accessed
+            saveUsedCPSPropertiesToArtifact(this.framework.getRecordProperties(), this.fileSystem, this.ras);
+            // And all the overrides the test was passed.
+            saveAllOverridesPassedToArtifact(overrideProperties, this.fileSystem , this.ras);
 
             // *** If this was a local run, then we will want to remove the run properties
             // from the DSS immediately
