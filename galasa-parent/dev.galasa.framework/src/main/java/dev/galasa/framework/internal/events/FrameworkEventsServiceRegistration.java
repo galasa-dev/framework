@@ -31,6 +31,7 @@ public class FrameworkEventsServiceRegistration implements IEventsServiceRegistr
             URI cps = frameworkInitialisation.getBootstrapConfigurationPropertyStore();
 
             // If the CPS is a file, then register this version of the EventsService
+            // TODO: Why ? Don't we want to create events when the CPS is on the cluster ? We should explain why if this is the case.
             if (cps.getScheme().equals("file")) {
                 frameworkInitialisation.registerEventsService(new FrameworkEventsService());
             }
