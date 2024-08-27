@@ -88,6 +88,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         if (this.galasaHome == null) {
             this.galasaHome = getGalasaHome(env);
         }
+        logger.info("Galasa home folder is "+this.galasaHome);
 
         // *** Copy the the bootstrap properties to the override properties so that they
         // are available to the managers
@@ -610,7 +611,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             String credsProperty = overrideProperties.getProperty("framework.credentials.store");
             if((credsProperty != null) && !credsProperty.isEmpty()){
                 uriCredentialsStore = new URI(credsProperty);
-                logger.debug("Credentials Store is " + uriCredentialsStore.toString());
+                logger.debug("Credentials Store (1) is " + uriCredentialsStore.toString());
                 createIfMissing(uriCredentialsStore, fileSystem);
                 return uriCredentialsStore;
             }
@@ -618,7 +619,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             credsProperty = cpsFramework.getProperty("credentials", "store");
             if((credsProperty != null) && !credsProperty.isEmpty()){
                 uriCredentialsStore = new URI(credsProperty);
-                logger.debug("Credentials Store is " + uriCredentialsStore.toString());
+                logger.debug("Credentials Store (2) is " + uriCredentialsStore.toString());
                 createIfMissing(uriCredentialsStore, fileSystem);
                 return uriCredentialsStore;
             }
@@ -628,7 +629,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         } catch (final Exception e) {
             throw new FrameworkException("Unable to resolve the Credentials Store URI", e);
         }
-        logger.debug("Credentials Store is " + uriCredentialsStore.toString());
+        logger.debug("Credentials Store (3) is " + uriCredentialsStore.toString());
         return uriCredentialsStore;
     }
 
