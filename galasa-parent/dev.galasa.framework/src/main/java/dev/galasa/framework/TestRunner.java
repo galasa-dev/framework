@@ -94,12 +94,12 @@ public class TestRunner extends AbstractTestRunner {
             String streamName = AbstractManager.nulled(run.getStream());
 
             if (streamName != null) {
-                logger.debug("Loading test streamName " + streamName);
+                logger.debug("Loading test stream " + streamName);
                 try {
                     testRepository = this.cps.getProperty("test.stream", "repo", streamName);
                     testOBR = this.cps.getProperty("test.stream", "obr", streamName);
                 } catch (Exception e) {
-                    logger.error("Unable to load streamName " + streamName + " settings", e);
+                    logger.error("Unable to load stream " + streamName + " settings", e);
                     updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                     return;
                 }
