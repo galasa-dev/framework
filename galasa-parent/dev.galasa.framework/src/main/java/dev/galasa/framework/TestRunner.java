@@ -5,8 +5,7 @@
  */
 package dev.galasa.framework;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Properties;
@@ -21,8 +20,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import dev.galasa.SharedEnvironment;
-import dev.galasa.Test;
+import dev.galasa.framework.internal.runner.FelixRepoAdminOBRAdder;
+import dev.galasa.framework.internal.runner.MavenRepositoryListBuilder;
+import dev.galasa.framework.internal.runner.RunType;
+import dev.galasa.framework.internal.runner.RunTypeDetails;
 import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
@@ -30,22 +31,17 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
+import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.Result;
-import dev.galasa.framework.spi.SharedEnvironmentRunType;
 import dev.galasa.framework.spi.language.GalasaTest;
 
 /**
  * Run the supplied test class
  */
 @Component(service = { TestRunner.class })
-public class TestRunner extends AbstractTestRunner {
+public class TestRunner extends BaseTestRunner {
 
-    private enum RunType {
-        TEST,
-        SHARED_ENVIRONMENT_BUILD,
-        SHARED_ENVIRONMENT_DISCARD
-    }
 
     private Log                                logger        = LogFactory.getLog(TestRunner.class);
 
@@ -79,8 +75,6 @@ public class TestRunner extends AbstractTestRunner {
         String testBundleName = run.getTestBundleName();
         String testClassName = run.getTestClassName();
 
-
-
         this.testStructure = createNewTestStructure(run);
         writeTestStructure();
             
@@ -89,154 +83,41 @@ public class TestRunner extends AbstractTestRunner {
             String rasRunId = this.ras.calculateRasRunId();
             storeRasRunIdInDss(dss, rasRunId);
 
-            String testRepository = null;
-            String testOBR = null;
-            String streamName = AbstractManager.nulled(run.getStream());
-
-            if (streamName != null) {
-                logger.debug("Loading test stream " + streamName);
-                try {
-                    testRepository = this.cps.getProperty("test.stream", "repo", streamName);
-                    testOBR = this.cps.getProperty("test.stream", "obr", streamName);
-                } catch (Exception e) {
-                    logger.error("Unable to load stream " + streamName + " settings", e);
-                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                    return;
-                }
-            }
-
-            testRepository = getOverriddenValue(testRepository, run.getRepository());
-            testOBR = getOverriddenValue(testOBR, run.getOBR());
-
-            if (testRepository != null) {
-                logger.debug("Loading test maven repository " + testRepository);
-                try {
-                    String[] repos = testRepository.split("\\,");
-                    for(String repo : repos) {
-                        repo = repo.trim();
-                        if (!repo.isEmpty()) {
-                            this.mavenRepository.addRemoteRepository(new URL(repo));
-                        }
-                    }
-                } catch (MalformedURLException e) {
-                    logger.error("Unable to add remote maven repository " + testRepository, e);
-                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                    return;
-                }
-            }
-
-            if (testOBR != null) {
-                logger.debug("Loading test obr repository " + testOBR);
-                try {
-                    String[] testOBRs = testOBR.split("\\,");
-                    for(String obr : testOBRs) {
-                        obr = obr.trim();
-                        if (!obr.isEmpty()) {
-                            repositoryAdmin.addRepository(obr);
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("Unable to load specified OBR " + testOBR, e);
-                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                    return;
-                }
-            }
+            Class<?> testClass ;
 
             try {
-                this.bundleManager.loadBundle(repositoryAdmin, bundleContext, testBundleName);
-            } catch (Exception e) {
-                logger.error("Unable to load the test bundle " + testBundleName, e);
+                
+                String streamName = AbstractManager.nulled(run.getStream());
+                new MavenRepositoryListBuilder(this.mavenRepository, this.cps)
+                    .addMavenRepositories(streamName, run.getRepository());
+                new FelixRepoAdminOBRAdder(this.repositoryAdmin, this.cps)
+                    .addOBRsToRepoAdmin(streamName, run.getOBR());
+
+
+                // This is java-test-runner-specific
+                loadTestBundle(repositoryAdmin, bundleContext, testBundleName);
+                testClass = getTestClass(bundleContext, testBundleName, testClassName);
+
+
+            } catch (Exception ex) {
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                return;
-            }
-            
-            Class<?> testClass;
-            try {
-                logger.debug("Loading test class... " + testClassName);
-                testClass = getTestClass(testBundleName, testClassName);
-                logger.debug("Test class " + testClassName + " loaded OK.");
-            } catch(Throwable t) {
-                logger.error("Problem locating test " + testBundleName + "/" + testClassName, t);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                return;
-            }
-
-            logger.debug("Getting test annotations..");
-            IAnnotationExtractor annotationExtractor = dataProvider.getAnnotationExtractor();
-            
-            Test testAnnotation = annotationExtractor.getAnnotation( testClass , Test.class);
-            logger.debug("Test annotations.. got");
-
-            SharedEnvironment sharedEnvironmentAnnotation = annotationExtractor.getAnnotation( testClass, SharedEnvironment.class);
-
-            logger.debug("Checking testAnnotation and sharedEnvironmentAnnotation");
-            if (testAnnotation == null && sharedEnvironmentAnnotation == null) {
-                logger.debug("Test annotation is null and it's not a shared environment. Throwing TestRunException...");
-                throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is not annotated with either the dev.galasa @Test or @SharedEnvironment annotations");
-            } else if (testAnnotation != null && sharedEnvironmentAnnotation != null) {
-                logger.debug("Test annotation is non-null and shared environment annotation is non-null. Throwing TestRunException...");
-                throw new TestRunException("Class " + testBundleName + "/" + testClassName + " is annotated with both the dev.galasa @Test and @SharedEnvironment annotations");
-            }
-            
-
-            if (testAnnotation != null) {
-                logger.info("Run test: " + testBundleName + "/" + testClassName);
-                this.runType = RunType.TEST;
-            } else {
-                logger.info("Shared Environment class: " + testBundleName + "/" + testClassName);
+                throw new TestRunException(ex.getMessage(),ex);
             }
 
 
-            if (sharedEnvironmentAnnotation != null) {
-                try {
-                    SharedEnvironmentRunType seType = this.framework.getSharedEnvironmentRunType();
-                    if (seType != null) {
-                        switch(seType) {
-                            case BUILD:
-                                this.runType = RunType.SHARED_ENVIRONMENT_BUILD;
-                                break;
-                            case DISCARD:
-                                this.runType = RunType.SHARED_ENVIRONMENT_DISCARD;
-                                break;
-                            default:
-                                String msg = "Unknown Shared Environment phase, '" + seType + "', needs to be BUILD or DISCARD";
-                                logger.error(msg);
-                                throw new TestRunException(msg);
-                        }
-                    } else {
-                        String msg = "Unknown Shared Environment phase, needs to be BUILD or DISCARD";
-                        logger.error(msg);
-                        throw new TestRunException(msg);
-                    }
-                } catch(TestRunException e) {
-                    String msg = "TestRunException caught. "+e.getMessage()+" Re-throwing.";
-                    logger.error(msg);
-                    throw e;
-                } catch(Exception e) {
-                    String msg = "Exception caught. "+e.getMessage()+" Re-throwing.";
-                    logger.error(msg);
-                    throw new TestRunException("Unable to determine the phase of the shared environment", e);
-                }
-            }
+            RunTypeDetails runTypeDetails = new RunTypeDetails(dataProvider.getAnnotationExtractor(), testClass, testBundleName, testClassName , framework);
+            this.runType = runTypeDetails.getDetectedRunType();
 
             logger.debug("Test runType is "+this.runType.toString());
             if (this.runType == RunType.TEST) {
-                try {
-                    heartbeat = new TestRunHeartbeat(this.framework);
-                    logger.debug("starting heartbeat");
-                    heartbeat.start();
-                    logger.debug("heartbeat started ok");
-                } catch (DynamicStatusStoreException e1) {
-                    String msg = "DynamicStatusStoreException Exception caught. "+e1.getMessage()+" Shutting down and Re-throwing.";
-                    logger.error(msg);
-                    throw new TestRunException("Unable to initialise the heartbeat");
-                }
+
+                heartbeat = createBeatingHeart(framework);
 
                 incrimentMetric(dss,run);
 
 
             } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-                int expireHours = sharedEnvironmentAnnotation.expireAfterHours();
+                int expireHours = runTypeDetails.getSharedEnvironmentExpireAfterHours();
                 Instant expire = Instant.now().plus(expireHours, ChronoUnit.HOURS);
                 try {
                     this.dss.put("run." + this.run.getName() + ".shared.environment.expire", expire.toString());
@@ -328,7 +209,7 @@ public class TestRunner extends AbstractTestRunner {
 
             logger.debug("Generating environment...");
             try {
-                generateEnvironment(testClassWrapper, managers);
+                generateEnvironment(testClassWrapper, managers, this.dss, this.run.getName() , isRunOK);
             } catch(Exception e) {
                 logger.fatal("Error within test runner",e);
                 this.isRunOK = false;
@@ -362,8 +243,10 @@ public class TestRunner extends AbstractTestRunner {
                 logger.debug("Stopping heartbeat...");
                 stopHeartbeat();
 
-                // *** Record all the CPS properties that were accessed
-                recordCPSProperties(this.fileSystem, this.framework, this.ras);
+                // Record all the CPS properties that were accessed
+                saveUsedCPSPropertiesToArtifact(this.framework.getRecordProperties(), this.fileSystem, this.ras);
+                // And all the overrides the test was passed.
+                saveAllOverridesPassedToArtifact(overrideProperties, this.fileSystem , this.ras);
 
                 // *** If this was a local run, then we will want to remove the run properties
                 // from the DSS immediately
@@ -378,7 +261,12 @@ public class TestRunner extends AbstractTestRunner {
                     deleteRunProperties(this.framework);
                 }
             } else if (this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-                recordCPSProperties(this.fileSystem, this.framework, this.ras);
+
+                // Record all the CPS properties that were accessed
+                saveUsedCPSPropertiesToArtifact(this.framework.getRecordProperties(), this.fileSystem, this.ras);
+                // And all the overrides the test was passed.
+                saveAllOverridesPassedToArtifact(overrideProperties, this.fileSystem , this.ras);
+                
                 updateStatus(TestRunLifecycleStatus.UP, "built");
             } else {
                 logger.error("Unrecognised end condition");
@@ -395,13 +283,13 @@ public class TestRunner extends AbstractTestRunner {
 
 
 
-    private void generateEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
+    private void generateEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers, IDynamicStatusStoreService dss, String runName , boolean isRunOK) throws TestRunException {
         if(isRunOK){
             try {
                 updateStatus(TestRunLifecycleStatus.GENERATING, null);
                 logger.info("Starting Provision Generate phase");
                 managers.provisionGenerate();
-                createEnvironment(testClassWrapper, managers);
+                createEnvironment(testClassWrapper, managers, dss, runName, isRunOK);
             } catch (Exception e) { 
                 logger.info("Provision Generate failed", e);
                 if (e instanceof FrameworkResourceUnavailableException) {
@@ -418,35 +306,41 @@ public class TestRunner extends AbstractTestRunner {
     }
 
 
-    private void createEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
-        if (!isRunOK) {
-            return;
-        }
+    private void createEnvironment(
+        TestClassWrapper testClassWrapper, 
+        ITestRunManagers managers, 
+        IDynamicStatusStoreService dss, 
+        String runName, 
+        boolean isRunOK
+    ) throws TestRunException {
 
-        try {
-            if (this.runType == RunType.TEST || this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
-                try {
-                    updateStatus(TestRunLifecycleStatus.BUILDING, null);
-                    logger.info("Starting Provision Build phase");
-                    managers.provisionBuild();
-                } catch (FrameworkException e) {
-                    this.isRunOK = false;
-                    logger.error("Provision build failed",e);
-                    if (e instanceof FrameworkResourceUnavailableException) {
-                        this.isResourcesAvailable = false;
+        if (isRunOK) {
+
+            try {
+                if (this.runType == RunType.TEST || this.runType == RunType.SHARED_ENVIRONMENT_BUILD) {
+                    try {
+                        updateStatus(TestRunLifecycleStatus.BUILDING, null);
+                        logger.info("Starting Provision Build phase");
+                        managers.provisionBuild();
+                    } catch (FrameworkException e) {
+                        this.isRunOK = false;
+                        logger.error("Provision build failed",e);
+                        if (e instanceof FrameworkResourceUnavailableException) {
+                            this.isResourcesAvailable = false;
+                        }
+                        testClassWrapper.setResult(Result.envfail(e));
+                        if (this.isResourcesAvailable) {
+                            managers.testClassResult(testClassWrapper.getResult(), e);
+                        }
+                        testStructure.setResult(testClassWrapper.getResult().getName());
+                        return;
                     }
-                    testClassWrapper.setResult(Result.envfail(e));
-                    if (this.isResourcesAvailable) {
-                        managers.testClassResult(testClassWrapper.getResult(), e);
-                    }
-                    testStructure.setResult(testClassWrapper.getResult().getName());
-                    return;
                 }
-            }
 
-            runEnvironment(testClassWrapper, managers);
-        } finally {
-            discardEnvironment(managers);
+                runEnvironment(testClassWrapper, managers, dss, runName);
+            } finally {
+                discardEnvironment(managers);
+            }
         }
     }
 
@@ -459,7 +353,7 @@ public class TestRunner extends AbstractTestRunner {
     }
 
 
-    private void runEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
+    private void runEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers, IDynamicStatusStoreService dss , String runName) throws TestRunException {
         if (isRunOK) {    
             try {
                 if (this.runType != RunType.SHARED_ENVIRONMENT_DISCARD) {
@@ -478,8 +372,8 @@ public class TestRunner extends AbstractTestRunner {
                         return;
                     }
                 }
-                
-                runTestClassWrapper(testClassWrapper, managers);
+
+                runTestClassWrapper(testClassWrapper, managers, dss, runName); 
             } finally {
                 stopEnvironment(managers);
             }
@@ -495,7 +389,7 @@ public class TestRunner extends AbstractTestRunner {
     }
 
 
-    private void runTestClassWrapper(TestClassWrapper testClassWrapper, ITestRunManagers managers) throws TestRunException {
+    private void runTestClassWrapper(TestClassWrapper testClassWrapper, ITestRunManagers managers, IDynamicStatusStoreService dss , String runName) throws TestRunException {
         // Do nothing if the test run has already failed on setup.
         if (isRunOK) {
 
@@ -505,7 +399,7 @@ public class TestRunner extends AbstractTestRunner {
                 updateStatus(TestRunLifecycleStatus.RUNNING, null);
                 try {
                     logger.info("Running the test class");
-                    testClassWrapper.runTestMethods(managers, this.dss, this.run.getName());
+                    testClassWrapper.runTestMethods(managers, dss, runName);
                 } finally {
                     updateStatus(TestRunLifecycleStatus.RUNDONE, null);
                 }
@@ -518,10 +412,10 @@ public class TestRunner extends AbstractTestRunner {
      * 
      * @param testBundleName
      * @param testClassName
-     * @return
+     * @return The test class from the bundle in the bundle context.
      * @throws TestRunException
      */
-    private Class<?> getTestClass(String testBundleName, String testClassName) throws TestRunException {
+    private Class<?> getTestClass(BundleContext bundleContext, String testBundleName, String testClassName) throws TestRunException {
         Class<?> testClazz = null;
         Bundle[] bundles = bundleContext.getBundles();
         boolean bundleFound = false;
@@ -550,5 +444,13 @@ public class TestRunner extends AbstractTestRunner {
         this.bundleContext = context;
     }
 
-    
+    private void loadTestBundle(RepositoryAdmin repositoryAdmin, BundleContext bundleContext, String testBundleName) throws TestRunException {
+        try {
+            this.bundleManager.loadBundle(repositoryAdmin, bundleContext, testBundleName);
+        } catch (Exception e) {
+            logger.error("Unable to load the test bundle " + testBundleName, e);
+            throw new TestRunException("Unable to load the test bundle " + testBundleName, e);
+        }
+    }
+
 }

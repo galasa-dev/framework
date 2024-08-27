@@ -36,9 +36,9 @@ import dev.galasa.framework.spi.events.TestRunLifecycleStatusChangedEvent;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 
-public class AbstractTestRunner {
+public class BaseTestRunner {
 
-    private Log logger = LogFactory.getLog(AbstractTestRunner.class);
+    private Log logger = LogFactory.getLog(BaseTestRunner.class);
 
     protected BundleContext bundleContext;
 
@@ -61,7 +61,6 @@ public class AbstractTestRunner {
     protected boolean isProduceEventsEnabled;
 
     protected Properties overrideProperties;
-
 
     protected void init(ITestRunnerDataProvider dataProvider) throws TestRunException {
         this.run = dataProvider.getRun() ;
@@ -89,19 +88,41 @@ public class AbstractTestRunner {
         }
     }
 
-    protected void recordCPSProperties(
+    protected void saveUsedCPSPropertiesToArtifact(
+        Properties props, 
         IFileSystem fileSystem, 
-        IFramework framework,
+        IResultArchiveStore ras
+    ) {;
+        String titleText = "The properties used by the test and managers.";
+        String fileName = "cps_record.properties";
+
+        savePropertiesToFile( ras, props , titleText , fileName , fileSystem );
+    }
+
+    protected void saveAllOverridesPassedToArtifact(
+        Properties overrides,
+        IFileSystem fileSystem,
         IResultArchiveStore ras
     ) {
-        try {
-            Properties record = this.framework.getRecordProperties();
+        String titleText = "The properties passed as overrides to the test";
+        String fileName = "overrides.properties";
 
+        savePropertiesToFile( ras , overrides, titleText, fileName , fileSystem);
+    }
+
+    private void savePropertiesToFile( IResultArchiveStore ras, Properties props, String titleText, String fileName , IFileSystem fileSystem) {
+        try {
             ArrayList<String> propertyNames = new ArrayList<>();
-            propertyNames.addAll(record.stringPropertyNames());
+            propertyNames.addAll(props.stringPropertyNames());
+
             Collections.sort(propertyNames);
 
             StringBuilder sb = new StringBuilder();
+
+            sb.append("# ");
+            sb.append(titleText);
+            sb.append("\n\n");
+
             String currentNamespace = null;
             for (String propertyName : propertyNames) {
                 propertyName = propertyName.trim();
@@ -109,6 +130,7 @@ public class AbstractTestRunner {
                     continue;
                 }
 
+                // Put out a blank line between namespaces.
                 String[] parts = propertyName.split("\\.");
                 if (!parts[0].equals(currentNamespace)) {
                     if (currentNamespace != null) {
@@ -119,16 +141,16 @@ public class AbstractTestRunner {
 
                 sb.append(propertyName);
                 sb.append("=");
-                sb.append(record.getProperty(propertyName));
+                sb.append(props.getProperty(propertyName));
                 sb.append("\n");
             }
             
             Path rasRoot = ras.getStoredArtifactsRoot();
-            Path rasProperties = rasRoot.resolve("framework").resolve("cps_record.properties");
+            Path rasProperties = rasRoot.resolve("framework").resolve(fileName);
             fileSystem.createFile(rasProperties, ResultArchiveStoreContentType.TEXT);
             fileSystem.write(rasProperties, sb.toString().getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            logger.error("Failed to save the recorded properties", e);
+            logger.error("Failed to save the "+fileName+" properties. "+titleText, e);
         }
     }
 
@@ -167,16 +189,6 @@ public class AbstractTestRunner {
         } catch(Exception e) {
             throw new TestRunException("Problem loading overrides from the run properties", e);
         }
-    }
-
-
-    protected String getOverriddenValue(String existingValue, String possibleOverrideValue) {
-        String result = existingValue ;
-        String possibleNulledValue = AbstractManager.nulled(possibleOverrideValue);
-        if (possibleNulledValue != null) {
-            result = possibleNulledValue;
-        }
-        return result ;
     }
 
     protected TestStructure createNewTestStructure(IRun run) {
@@ -383,15 +395,17 @@ public class AbstractTestRunner {
         }
     }
 
-    public static class GalasaStream {
-        private String testRepository ;
-        private String testOBR ;
-        private String name ;
 
-        public GalasaStream(String streamName) {
-            this.name = streamName ;
+    protected TestRunHeartbeat createBeatingHeart(IFramework framework) throws TestRunException {
+        TestRunHeartbeat heartbeat;
+        try {
+            heartbeat = new TestRunHeartbeat(framework);
+            heartbeat.start();
+        } catch (DynamicStatusStoreException ex) {
+            throw new TestRunException("Unable to initialise the heartbeat. "+ex.getMessage(), ex);
         }
-
+        return heartbeat;
     }
-
 }
+
+
