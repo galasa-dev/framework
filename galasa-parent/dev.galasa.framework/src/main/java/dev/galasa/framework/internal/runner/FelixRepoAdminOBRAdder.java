@@ -32,11 +32,11 @@ public class FelixRepoAdminOBRAdder {
     private String getTestOBRFromStream(String streamName) throws TestRunException {
         String testOBR = null ;
         if (streamName != null) {
-            logger.debug("Loading test streamName " + streamName);
+            logger.debug("Loading test stream " + streamName);
             try {
-                testOBR = this.cps.getProperty("test.streamName", "obr", streamName);
+                testOBR = this.cps.getProperty("test.stream", "obr", streamName);
             } catch (Exception e) {
-                throw new TestRunException("Unable to load streamName " + streamName + " settings", e);
+                throw new TestRunException("Unable to load stream " + streamName + " settings", e);
             }
         }
         return testOBR ;

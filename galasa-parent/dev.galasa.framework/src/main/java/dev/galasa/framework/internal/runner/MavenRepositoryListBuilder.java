@@ -44,11 +44,11 @@ public class MavenRepositoryListBuilder {
     private String getTestRepositoryUrlFromStream(String streamName) throws TestRunException {
         String testRepository = null ;
         if (streamName != null) {
-            logger.debug("Loading test streamName " + streamName);
+            logger.debug("Loading test stream " + streamName);
             try {
-                testRepository = this.cps.getProperty("test.streamName", "repo", streamName);
+                testRepository = this.cps.getProperty("test.stream", "repo", streamName);
             } catch (Exception e) {
-                throw new TestRunException("Unable to load streamName " + streamName + " settings", e);
+                throw new TestRunException("Unable to load stream " + streamName + " settings", e);
             }
         }
         return testRepository;
