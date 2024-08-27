@@ -67,6 +67,7 @@ public class GherkinTest {
             structureMethods.add(scenario.getStructure());
         }
 
+        this.testStructure.setTestName(this.feature.getName());
         this.testStructure.setTestShortName(this.feature.getName());
         this.testStructure.setGherkinMethods(structureMethods);
     }
