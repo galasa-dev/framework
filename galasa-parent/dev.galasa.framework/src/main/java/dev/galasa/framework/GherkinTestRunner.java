@@ -5,10 +5,7 @@
  */
 package dev.galasa.framework;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
@@ -18,10 +15,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import dev.galasa.framework.internal.runner.FelixRepoAdminOBRAdder;
+import dev.galasa.framework.internal.runner.MavenRepositoryListBuilder;
 import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
 import dev.galasa.framework.spi.IGherkinExecutable;
@@ -34,7 +32,7 @@ import dev.galasa.framework.spi.language.gherkin.GherkinTest;
  * Run the supplied test class
  */
 @Component(service = { GherkinTestRunner.class })
-public class GherkinTestRunner extends AbstractTestRunner {
+public class GherkinTestRunner extends BaseTestRunner {
 
     private Log logger = LogFactory.getLog(GherkinTestRunner.class);
 
@@ -74,83 +72,33 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
         try {
 
-            String testRepository = null;
-            String testOBR = null;
-            String streamName = AbstractManager.nulled(run.getStream());
-
-            if (streamName != null) {
-                logger.debug("Loading test stream " + streamName);
-                try {
-                    testRepository = this.cps.getProperty("test.stream", "repo", streamName);
-                    testOBR = this.cps.getProperty("test.stream", "obr", streamName);
-                } catch (Exception e) {
-                    logger.error("Unable to load stream " + streamName + " settings", e);
-                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                    return;
-                }
-            }
-
-            testRepository = getOverriddenValue(testRepository, run.getRepository());
-            testOBR = getOverriddenValue(testOBR, run.getOBR());
-
-            if (testRepository != null) {
-                logger.debug("Loading test maven repository " + testRepository);
-                try {
-                    String[] repos = testRepository.split("\\,");
-                    for(String repo : repos) {
-                        repo = repo.trim();
-                        if (!repo.isEmpty()) {
-                            this.mavenRepository.addRemoteRepository(new URL(repo));
-                        }
-                    }
-                } catch (MalformedURLException e) {
-                    logger.error("Unable to add remote maven repository " + testRepository, e);
-                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                    return;
-                }
-            }
-
-            if (testOBR != null) {
-                logger.debug("Loading test obr repository " + testOBR);
-                try {
-                    String[] testOBRs = testOBR.split("\\,");
-                    for(String obr : testOBRs) {
-                        obr = obr.trim();
-                        if (!obr.isEmpty()) {
-                            repositoryAdmin.addRepository(obr);
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("Unable to load specified OBR " + testOBR, e);
-                    updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                    return;
-                }
-            }
+            String rasRunId = this.ras.calculateRasRunId();
+            storeRasRunIdInDss(dss, rasRunId);
 
             try {
-                bundleManager.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
-            } catch (Exception e) {
-                logger.error("Unable to load the managers obr", e);
-                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
-                return;
-            }
+                String streamName = AbstractManager.nulled(run.getStream());
+                new MavenRepositoryListBuilder(this.mavenRepository, this.cps)
+                    .addMavenRepositories(streamName, run.getRepository());
+                new FelixRepoAdminOBRAdder(this.repositoryAdmin, this.cps)
+                    .addOBRsToRepoAdmin(streamName, run.getOBR());
 
-            if(gherkinTest.getName() == null || gherkinTest.getMethods().size() == 0) {
-                throw new TestRunException("Feature file is invalid at URI: " + run.getGherkin());
-            }
+
+                // This is gherkin-test-runner-specific
+                loadGherkinManagerBundles(repositoryAdmin, bundleContext);
+                validateGherkinFeature(gherkinTest);
+                logger.info("Run test: " + gherkinTest.getName());
+
+                heartbeat = createBeatingHeart(framework);
+
+                incrimentMetric(dss,run);
+
+                updateStatus(TestRunLifecycleStatus.STARTED, "started");
                 
-            logger.info("Run test: " + gherkinTest.getName());
-
-            try {
-                heartbeat = new TestRunHeartbeat(framework);
-                heartbeat.start();
-            } catch (DynamicStatusStoreException e1) {
-                throw new TestRunException("Unable to initialise the heartbeat");
+            } catch (Exception ex) {
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+                throw new TestRunException(ex.getMessage(),ex);
             }
 
-            incrimentMetric(dss,run);
-
-            updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
             // *** Initialise the Managers ready for the test run
             ITestRunManagers managers = null;
@@ -202,8 +150,10 @@ public class GherkinTestRunner extends AbstractTestRunner {
 
             stopHeartbeat();
 
-            // *** Record all the CPS properties that were accessed
-            recordCPSProperties(this.fileSystem, this.framework, this.ras);
+            // Record all the CPS properties that were accessed
+            saveUsedCPSPropertiesToArtifact(this.framework.getRecordProperties(), this.fileSystem, this.ras);
+            // And all the overrides the test was passed.
+            saveAllOverridesPassedToArtifact(overrideProperties, this.fileSystem , this.ras);
 
             // *** If this was a local run, then we will want to remove the run properties
             // from the DSS immediately
@@ -326,7 +276,6 @@ public class GherkinTestRunner extends AbstractTestRunner {
         managers.provisionStop();
     }
 
-
     private void runGherkinTest(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
         if (!isRunOK) {
             return;
@@ -347,5 +296,18 @@ public class GherkinTestRunner extends AbstractTestRunner {
         this.bundleContext = context;
     }
 
+    private void loadGherkinManagerBundles(RepositoryAdmin repositoryAdmin, BundleContext bundleContext) throws TestRunException {
+        try {
+            bundleManager.loadAllGherkinManagerBundles(repositoryAdmin, bundleContext);
+        } catch (Exception e) {
+            logger.error("Unable to load the manager bundles", e);
+            throw new TestRunException("Unable to load the manager bundles", e);
+        }
+    }
 
+    private void validateGherkinFeature(GherkinTest gherkinTest) throws TestRunException {
+        if(gherkinTest.getName() == null || gherkinTest.getMethods().size() == 0) {
+            throw new TestRunException("Feature file is invalid at URI: " + run.getGherkin());
+        }
+    }
 }

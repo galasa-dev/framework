@@ -8,6 +8,7 @@ package dev.galasa.framework;
 import static org.assertj.core.api.Assertions.*;
 
 import java.lang.annotation.Annotation;
+import java.nio.file.Path;
 import java.util.*;
 
 import javax.validation.constraints.NotNull;
@@ -238,6 +239,12 @@ public class TestTestRunner {
         assertThat(mockTestRunManagers.calledCountEndOfTestClass).isEqualTo(1);
         assertThat(mockTestRunManagers.calledCountEndOfTestRun).isEqualTo(1);
         assertThat(mockTestRunManagers.calledCountAnyReasonTestMethodShouldBeIgnored).isEqualTo(1);
+
+        List<Path> listOfFiles = mockFileSystem.getListOfAllFiles();
+        assertThat(listOfFiles).hasSize(2);
+        assertThat(listOfFiles.get(0).toString()).isEqualTo("/my/stored/artifacts/root/framework/cps_record.properties");
+        assertThat(listOfFiles.get(1).toString()).isEqualTo("/my/stored/artifacts/root/framework/overrides.properties");
     }
     
+
 }
