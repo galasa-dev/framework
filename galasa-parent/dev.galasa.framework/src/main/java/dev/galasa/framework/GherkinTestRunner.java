@@ -64,10 +64,10 @@ public class GherkinTestRunner extends BaseTestRunner {
 
         super.init(dataProvider);
 
+        this.testStructure = createNewTestStructure(run);
+
         gherkinTest = new GherkinTest(run, testStructure,this.fileSystem);
 
-        this.testStructure = createNewTestStructure(run);
-        this.testStructure.setTestName(gherkinTest.getName());
         writeTestStructure();
 
         try {
@@ -98,10 +98,6 @@ public class GherkinTestRunner extends BaseTestRunner {
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 throw new TestRunException(ex.getMessage(),ex);
             }
-
-
-
-
 
 
             // *** Initialise the Managers ready for the test run
