@@ -10,9 +10,9 @@ import java.util.List;
 
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunLifecycleStatus;
-import dev.galasa.framework.internal.runner.IFrameworkEventsProducer;
+import dev.galasa.framework.internal.runner.ITestRunnerEventsProducer;
 
-public class MockFrameworkEventsProducer implements IFrameworkEventsProducer {
+public class MockTestRunnerEventsProducer implements ITestRunnerEventsProducer {
 
     /**
      * An event which has been produced by the events producer.

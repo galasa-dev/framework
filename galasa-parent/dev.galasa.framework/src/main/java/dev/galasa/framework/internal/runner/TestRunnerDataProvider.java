@@ -28,7 +28,7 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     private IShuttableFramework                framework;
     private Properties                         overrideProperties;
     private IFileSystem                        fileSystem;
-    private IFrameworkEventsProducer                   eventsProducer;
+    private ITestRunnerEventsProducer          eventsProducer;
 
     public TestRunnerDataProvider(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {
         
@@ -47,7 +47,7 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
         ras = framework.getResultArchiveStore();
         fileSystem = new FileSystem();
 
-        this.eventsProducer = new FrameworkEventsProducer( framework.getEventsService() , cps );
+        this.eventsProducer = new TestRunnerEventsProducer( framework.getEventsService() , cps );
         this.overrideProperties = overrideProperties;
 
     }
@@ -110,7 +110,7 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     }
 
     @Override 
-    public IFrameworkEventsProducer getEventsProducer() {
+    public ITestRunnerEventsProducer getEventsProducer() {
         return this.eventsProducer;
     }
 

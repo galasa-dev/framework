@@ -23,15 +23,15 @@ import dev.galasa.framework.spi.events.TestRunLifecycleStatusChangedEvent;
 /**
  * An implementation of something which publishes events through the OSGi registered events service.
  */
-public class FrameworkEventsProducer implements IFrameworkEventsProducer {
+public class TestRunnerEventsProducer implements ITestRunnerEventsProducer {
 
-    private Log logger = LogFactory.getLog(FrameworkEventsProducer.class);
+    private Log logger = LogFactory.getLog(TestRunnerEventsProducer.class);
     
     private IConfigurationPropertyStoreService cps;
     private IEventsService eventsService ;
     private boolean isEnabled = false;
     
-    public FrameworkEventsProducer(IEventsService eventsService, IConfigurationPropertyStoreService cps) throws TestRunException {
+    public TestRunnerEventsProducer(IEventsService eventsService, IConfigurationPropertyStoreService cps) throws TestRunException {
         this.eventsService = eventsService ;
         this.cps = cps ;
 

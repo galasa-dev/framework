@@ -20,7 +20,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.mocks.*;
-import dev.galasa.framework.mocks.MockFrameworkEventsProducer.ProducedEvent;
+import dev.galasa.framework.mocks.MockTestRunnerEventsProducer.ProducedEvent;
 import dev.galasa.framework.spi.*;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
@@ -147,7 +147,7 @@ public class TestTestRunner {
         
         MockTestRunManagers mockTestRunManagers = new MockTestRunManagers(IGNORE_TEST_CLASS_FALSE, testResult );
 
-        MockFrameworkEventsProducer mockEventsPublisher = new MockFrameworkEventsProducer();
+        MockTestRunnerEventsProducer mockEventsPublisher = new MockTestRunnerEventsProducer();
         
         MockTestRunnerDataProvider testRunData = new MockTestRunnerDataProvider(
             cps,

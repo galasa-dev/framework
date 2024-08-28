@@ -11,7 +11,7 @@ import dev.galasa.framework.TestRunLifecycleStatus;
 /**
  * Something which publishes information about important events in the system.
  */
-public interface IFrameworkEventsProducer {
+public interface ITestRunnerEventsProducer {
 
     boolean isEnabled();
 

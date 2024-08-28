@@ -19,7 +19,7 @@ import java.util.Map.Entry;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ResultArchiveStoreContentType;
-import dev.galasa.framework.internal.runner.IFrameworkEventsProducer;
+import dev.galasa.framework.internal.runner.ITestRunnerEventsProducer;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -56,7 +56,7 @@ public class BaseTestRunner {
     protected boolean isRunOK = true;
     protected boolean isResourcesAvailable = true;
 
-    private IFrameworkEventsProducer eventsProducer ;
+    private ITestRunnerEventsProducer eventsProducer ;
 
 
     protected Properties overrideProperties;
