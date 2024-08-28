@@ -20,6 +20,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.mocks.*;
+import dev.galasa.framework.mocks.MockTestRunnerEventsProducer.ProducedEvent;
 import dev.galasa.framework.spi.*;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
@@ -145,6 +146,8 @@ public class TestTestRunner {
         Result testResult = Result.passed();
         
         MockTestRunManagers mockTestRunManagers = new MockTestRunManagers(IGNORE_TEST_CLASS_FALSE, testResult );
+
+        MockTestRunnerEventsProducer mockEventsPublisher = new MockTestRunnerEventsProducer();
         
         MockTestRunnerDataProvider testRunData = new MockTestRunnerDataProvider(
             cps,
@@ -156,7 +159,8 @@ public class TestTestRunner {
             mockAnnotationExtractor,
             mockBundleManager,
             mockTestRunManagers,
-            mockFileSystem
+            mockFileSystem,
+            mockEventsPublisher
         );
 
         // When...
@@ -165,6 +169,7 @@ public class TestTestRunner {
         /// Then...
 
         // Check the RAS history
+        // We expect started->generating->building->provstart->running->rundone->ending->finished
         List<TestStructure> rasHistory = ras.getTestStructureHistory();
         assertThat(rasHistory).hasSize(9);
 
@@ -204,6 +209,7 @@ public class TestTestRunner {
         assertThat(rasHistory.get(8)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
             .containsExactly("myTestRun","myTestBundle","dev.galasa.framework.MyActualTestClass", "MyActualTestClass", "daffyduck", "finished","Passed");
 
+        
 
         // Check the DSS history
         assertThat(dss.history).as("history of activity within the DSS indicates it was used an unexpected number of times").hasSize(5);
@@ -244,7 +250,28 @@ public class TestTestRunner {
         assertThat(listOfFiles).hasSize(2);
         assertThat(listOfFiles.get(0).toString()).isEqualTo("/my/stored/artifacts/root/framework/cps_record.properties");
         assertThat(listOfFiles.get(1).toString()).isEqualTo("/my/stored/artifacts/root/framework/overrides.properties");
-    }
-    
 
+        // Check the events which were published by this test run.
+        // We expect started->generating->building->provstart->running->rundone->ending->(heartbeat stopped)->finished
+        List<ProducedEvent> events = mockEventsPublisher.getHistory();
+        assertThat(events).hasSize(9);
+        assertThat(events.get(0)).extracting("testRunName","eventType","testRunLifecycleStatus")
+            .contains(TEST_RUN_NAME,"TestRunLifecycleStatusChangedEvent",TestRunLifecycleStatus.STARTED);
+        assertThat(events.get(1)).extracting("testRunName","eventType","testRunLifecycleStatus")
+            .contains(TEST_RUN_NAME,"TestRunLifecycleStatusChangedEvent",TestRunLifecycleStatus.GENERATING);
+        assertThat(events.get(2)).extracting("testRunName","eventType","testRunLifecycleStatus")
+            .contains(TEST_RUN_NAME,"TestRunLifecycleStatusChangedEvent",TestRunLifecycleStatus.BUILDING);
+        assertThat(events.get(3)).extracting("testRunName","eventType","testRunLifecycleStatus")
+            .contains(TEST_RUN_NAME,"TestRunLifecycleStatusChangedEvent",TestRunLifecycleStatus.PROVSTART);
+        assertThat(events.get(4)).extracting("testRunName","eventType","testRunLifecycleStatus")
+            .contains(TEST_RUN_NAME,"TestRunLifecycleStatusChangedEvent",TestRunLifecycleStatus.RUNNING);
+        assertThat(events.get(5)).extracting("testRunName","eventType","testRunLifecycleStatus")
+            .contains(TEST_RUN_NAME,"TestRunLifecycleStatusChangedEvent",TestRunLifecycleStatus.RUNDONE);
+        assertThat(events.get(6)).extracting("testRunName","eventType","testRunLifecycleStatus")
+            .contains(TEST_RUN_NAME,"TestRunLifecycleStatusChangedEvent",TestRunLifecycleStatus.ENDING);
+        assertThat(events.get(7)).extracting("testRunName","eventType","testRunLifecycleStatus")
+            .contains(TEST_RUN_NAME,"TestRunLifecycleStatusChangedEvent",TestRunLifecycleStatus.FINISHED);
+        assertThat(events.get(8)).extracting("testRunName","eventType","testRunLifecycleStatus")
+            .contains(TEST_RUN_NAME,"TestHeartbeatStoppedEvent",null);
+    }
 }

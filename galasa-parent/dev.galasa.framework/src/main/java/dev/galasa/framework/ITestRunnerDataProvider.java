@@ -7,6 +7,7 @@ package dev.galasa.framework;
 
 import java.util.Properties;
 
+import dev.galasa.framework.internal.runner.ITestRunnerEventsProducer;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IResultArchiveStore;
@@ -25,4 +26,5 @@ public interface ITestRunnerDataProvider {
     public Properties getOverrideProperties();
     public ITestRunManagers createTestRunManagers(GalasaTest galasaTest) throws TestRunException;
     public IFileSystem getFileSystem();
+    public ITestRunnerEventsProducer getEventsProducer();
 }

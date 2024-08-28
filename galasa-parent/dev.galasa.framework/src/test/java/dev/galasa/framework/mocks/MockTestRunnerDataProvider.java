@@ -1,6 +1,5 @@
 package dev.galasa.framework.mocks;
 
-import java.util.List;
 import java.util.Properties;
 
 import dev.galasa.framework.IAnnotationExtractor;
@@ -9,9 +8,9 @@ import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.ITestRunManagers;
 import dev.galasa.framework.ITestRunnerDataProvider;
 import dev.galasa.framework.TestRunException;
+import dev.galasa.framework.internal.runner.ITestRunnerEventsProducer;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IShuttableFramework;
@@ -30,6 +29,7 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
     private IBundleManager bundleManager;
     private ITestRunManagers testRunManagers;
     private IFileSystem fileSystem;
+    private ITestRunnerEventsProducer eventsPublisher;
 
     public MockTestRunnerDataProvider(
         IConfigurationPropertyStoreService cps,
@@ -41,7 +41,8 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
         IAnnotationExtractor annotationExtractor,
         IBundleManager bundleManager,
         ITestRunManagers testRunManagers,
-        IFileSystem fileSystem
+        IFileSystem fileSystem,
+        ITestRunnerEventsProducer eventsPublisher
     ) {
         this.cps = cps;
         this.dss = dss;
@@ -53,6 +54,7 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
         this.annotationExtractor = annotationExtractor;
         this.testRunManagers = testRunManagers ;
         this.fileSystem = fileSystem;
+        this.eventsPublisher = eventsPublisher;
     }
 
     @Override
@@ -96,5 +98,10 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
     @Override
     public IFileSystem getFileSystem() {
         return this.fileSystem;
+    }
+
+    @Override
+    public ITestRunnerEventsProducer getEventsProducer() {
+        return this.eventsPublisher;
     }
 }

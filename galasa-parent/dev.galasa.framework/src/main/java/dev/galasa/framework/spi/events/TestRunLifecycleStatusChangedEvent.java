@@ -11,19 +11,24 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 
 public class TestRunLifecycleStatusChangedEvent extends Event {
 
-    private final String TOPIC;
+    private static String topic = null;
 
     public TestRunLifecycleStatusChangedEvent(IConfigurationPropertyStoreService cps, String timestamp, String message) throws TestRunException {
         super(timestamp, message);
         try {
-            this.TOPIC = cps.getProperty(this.getClass().getSimpleName().toLowerCase(), "name", "topic");
+            // Each test run could produce multiple (9) instances of this event, so the topic can be queried once and cached.
+            synchronized(this.getClass()) {
+                if (TestRunLifecycleStatusChangedEvent.topic == null) {
+                    TestRunLifecycleStatusChangedEvent.topic = cps.getProperty(this.getClass().getSimpleName().toLowerCase(), "name", "topic");
+                }
+            }
         } catch (ConfigurationPropertyStoreException e) {
             throw new TestRunException("There was a problem retrieving from the CPS the name of the topic to send TestRunLifecycleStatusChangedEvents.", e);
         }
     }
 
     public String getTopic() {
-        return this.TOPIC;
+        return TestRunLifecycleStatusChangedEvent.topic;
     }
     
 }
