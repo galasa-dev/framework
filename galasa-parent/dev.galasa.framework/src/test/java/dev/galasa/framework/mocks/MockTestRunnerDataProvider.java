@@ -8,7 +8,7 @@ import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.ITestRunManagers;
 import dev.galasa.framework.ITestRunnerDataProvider;
 import dev.galasa.framework.TestRunException;
-import dev.galasa.framework.internal.events.IEventsPublisher;
+import dev.galasa.framework.internal.runner.IFrameworkEventsProducer;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IResultArchiveStore;
@@ -29,7 +29,7 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
     private IBundleManager bundleManager;
     private ITestRunManagers testRunManagers;
     private IFileSystem fileSystem;
-    private IEventsPublisher eventsPublisher;
+    private IFrameworkEventsProducer eventsPublisher;
 
     public MockTestRunnerDataProvider(
         IConfigurationPropertyStoreService cps,
@@ -42,7 +42,7 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
         IBundleManager bundleManager,
         ITestRunManagers testRunManagers,
         IFileSystem fileSystem,
-        IEventsPublisher eventsPublisher
+        IFrameworkEventsProducer eventsPublisher
     ) {
         this.cps = cps;
         this.dss = dss;
@@ -101,7 +101,7 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
     }
 
     @Override
-    public IEventsPublisher getEventsPublisher() {
+    public IFrameworkEventsProducer getEventsProducer() {
         return this.eventsPublisher;
     }
 }

@@ -16,8 +16,6 @@ import dev.galasa.framework.ITestRunManagers;
 import dev.galasa.framework.ITestRunnerDataProvider;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
-import dev.galasa.framework.internal.events.EventsPublisher;
-import dev.galasa.framework.internal.events.IEventsPublisher;
 import dev.galasa.framework.spi.*;
 import dev.galasa.framework.spi.language.GalasaTest;
 
@@ -30,7 +28,7 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     private IShuttableFramework                framework;
     private Properties                         overrideProperties;
     private IFileSystem                        fileSystem;
-    private IEventsPublisher                   eventsPublisher;
+    private IFrameworkEventsProducer                   eventsProducer;
 
     public TestRunnerDataProvider(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {
         
@@ -49,7 +47,7 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
         ras = framework.getResultArchiveStore();
         fileSystem = new FileSystem();
 
-        this.eventsPublisher = new EventsPublisher( framework.getEventsService() , cps );
+        this.eventsProducer = new FrameworkEventsProducer( framework.getEventsService() , cps );
         this.overrideProperties = overrideProperties;
 
     }
@@ -112,8 +110,8 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     }
 
     @Override 
-    public IEventsPublisher getEventsPublisher() {
-        return this.eventsPublisher;
+    public IFrameworkEventsProducer getEventsProducer() {
+        return this.eventsProducer;
     }
 
 }

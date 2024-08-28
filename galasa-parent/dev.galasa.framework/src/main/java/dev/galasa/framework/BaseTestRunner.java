@@ -19,7 +19,7 @@ import java.util.Map.Entry;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ResultArchiveStoreContentType;
-import dev.galasa.framework.internal.events.IEventsPublisher;
+import dev.galasa.framework.internal.runner.IFrameworkEventsProducer;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -56,7 +56,7 @@ public class BaseTestRunner {
     protected boolean isRunOK = true;
     protected boolean isResourcesAvailable = true;
 
-    private IEventsPublisher eventsPublisher ;
+    private IFrameworkEventsProducer eventsProducer ;
 
 
     protected Properties overrideProperties;
@@ -72,9 +72,7 @@ public class BaseTestRunner {
 
         this.overrideProperties = dataProvider.getOverrideProperties();
 
-        boolean isProduceEventsEnabled = isProduceEventsFeatureFlagTrue();
-        this.eventsPublisher = dataProvider.getEventsPublisher();
-        this.eventsPublisher.setEnabled(isProduceEventsEnabled);
+        this.eventsProducer = dataProvider.getEventsProducer();
 
         checkRunIsSet(this.run);
 
@@ -155,19 +153,7 @@ public class BaseTestRunner {
         }
     }
 
-    private boolean isProduceEventsFeatureFlagTrue() throws TestRunException {
-        boolean produceEvents = false;
-        try {
-            String produceEventsProp = this.cps.getProperty("produce", "events");
-            if (produceEventsProp != null) {
-                logger.debug("CPS property framework.produce.events was found and is set to: " + produceEventsProp);
-                produceEvents = Boolean.parseBoolean(produceEventsProp);
-            }
-        } catch (ConfigurationPropertyStoreException ex) {
-            throw new TestRunException("Problem reading the CPS property to check if framework event production has been activated.",ex);
-        }
-        return produceEvents;
-    }
+
 
     private void checkRunIsSet(IRun run) throws TestRunException {
         if (run == null) {
@@ -253,7 +239,7 @@ public class BaseTestRunner {
         }
 
         try {
-            this.eventsPublisher.publishTestHeartbeatStoppedEvent(framework.getTestRunName());
+            this.eventsProducer.produceTestHeartbeatStoppedEvent(framework.getTestRunName());
         } catch (TestRunException e) {
             logger.error("Unable to produce a test heartbeat stopped event to the Events Service", e);
         }
@@ -336,11 +322,7 @@ public class BaseTestRunner {
             throw new TestRunException("Failed to update status", e);
         }
 
-        try {
-            this.eventsPublisher.publishTestRunLifecycleStatusChangedEvent(framework.getTestRunName(), status);
-        } catch (TestRunException e) {
-            logger.error("Unable to produce a test run lifecycle status changed event to the Events Service", e);
-        }
+        this.eventsProducer.produceTestRunLifecycleStatusChangedEvent(framework.getTestRunName(), status);
     }
 
     

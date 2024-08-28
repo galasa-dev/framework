@@ -20,7 +20,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.mocks.*;
-import dev.galasa.framework.mocks.MockEventsPublisher.PublishedEvent;
+import dev.galasa.framework.mocks.MockFrameworkEventsProducer.ProducedEvent;
 import dev.galasa.framework.spi.*;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
@@ -147,7 +147,7 @@ public class TestTestRunner {
         
         MockTestRunManagers mockTestRunManagers = new MockTestRunManagers(IGNORE_TEST_CLASS_FALSE, testResult );
 
-        MockEventsPublisher mockEventsPublisher = new MockEventsPublisher();
+        MockFrameworkEventsProducer mockEventsPublisher = new MockFrameworkEventsProducer();
         
         MockTestRunnerDataProvider testRunData = new MockTestRunnerDataProvider(
             cps,
@@ -253,7 +253,7 @@ public class TestTestRunner {
 
         // Check the events which were published by this test run.
         // We expect started->generating->building->provstart->running->rundone->ending->(heartbeat stopped)->finished
-        List<PublishedEvent> events = mockEventsPublisher.getHistory();
+        List<ProducedEvent> events = mockEventsPublisher.getHistory();
         assertThat(events).hasSize(9);
         assertThat(events.get(0)).extracting("testRunName","eventType","testRunLifecycleStatus")
             .contains(TEST_RUN_NAME,"TestRunLifecycleStatusChangedEvent",TestRunLifecycleStatus.STARTED);
