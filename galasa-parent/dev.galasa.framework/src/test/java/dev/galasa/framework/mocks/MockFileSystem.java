@@ -183,6 +183,18 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         return resultPaths;
     }
 
+    public List<Path> getListOfAllFiles() throws IOException {
+        List<Path> resultPaths = new ArrayList<>();
+        for (String pathStr : files.keySet()) {
+            Node node = files.get(pathStr);
+            if (!node.isFolder) {
+                MockPath mockPath = new MockPath(pathStr, this);
+                resultPaths.add(mockPath);
+            }
+        }
+        return resultPaths;
+    }
+
 	@Override
 	public InputStream newInputStream(Path folderPath) throws IOException {
         if (exists(folderPath)) {
