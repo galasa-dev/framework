@@ -19,6 +19,7 @@ import dev.galasa.framework.FileSystem;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.resources.routes.ResourcesRoute;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IFramework;
 /*
  * Proxy Servlet for the /resources/* endpoints
@@ -50,8 +51,12 @@ public class ResourcesServlet extends BaseServlet {
 
 		super.init();
 
-		addRoute(new ResourcesRoute(getResponseBuilder(),framework));
-
+		try {
+            addRoute(new ResourcesRoute(getResponseBuilder(), framework));
+        } catch (ConfigurationPropertyStoreException e) {
+            throw new ServletException("Failed to initialise Resources Servlet", e);
+        }
+        logger.info("Resources Servlet initialised");
 	}
 
     

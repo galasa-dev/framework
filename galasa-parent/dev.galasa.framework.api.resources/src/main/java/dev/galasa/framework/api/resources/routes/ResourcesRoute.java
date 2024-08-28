@@ -50,11 +50,11 @@ public class ResourcesRoute  extends BaseRoute{
     
     protected List<String> errors = new ArrayList<String>();
 
-    private IFramework framework;
+    private CPSFacade cps;
 
-    public ResourcesRoute(ResponseBuilder responseBuilder,  IFramework framework ) {
+    public ResourcesRoute(ResponseBuilder responseBuilder, IFramework framework) throws ConfigurationPropertyStoreException {
         super(responseBuilder, path);
-         this.framework = framework;
+        this.cps = new CPSFacade(framework);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ResourcesRoute  extends BaseRoute{
     }
 
     protected List<String> processRequest(String jsonBody) throws InternalServletException{
-        
+
         JsonObject body = gson.fromJson(jsonBody, JsonObject.class);
         String action = body.get("action").getAsString().toLowerCase().trim();
         if (validActions.contains(action)){
@@ -187,8 +187,8 @@ public class ResourcesRoute  extends BaseRoute{
                 String expectedApiVersion = GalasaProperty.DEFAULTAPIVERSION;
                 if (apiversion.equals(expectedApiVersion)) {
                     GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
-                    CPSFacade cps = new CPSFacade(framework);
                     CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
+
                     //getPropertyFromStore() will only return null if the property is in a hidden namespace
                     CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
 
