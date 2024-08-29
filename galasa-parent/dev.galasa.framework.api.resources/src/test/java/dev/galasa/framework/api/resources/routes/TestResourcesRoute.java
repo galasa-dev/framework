@@ -393,7 +393,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
         assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "The 'value' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.");
+            "The 'value' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -419,7 +419,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.size()).isEqualTo(3);
         assertThat(errors.get(0)).contains("GAL5040E: Invalid property name. Property name is missing or empty.");
         assertThat(errors.get(1)).contains("GAL5031E: Invalid namespace. Namespace is empty.");
-        assertThat(errors.get(2)).contains("GAL5024E: Error occured because the Galasa Property is invalid. 'The 'value' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.'");
+        assertThat(errors.get(2)).contains("GAL5024E: Error occured because the Galasa Property is invalid. 'The 'value' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.'");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -444,9 +444,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(2);
         assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "The 'metadata' field can not be empty. The fields 'name' and 'namespace' are mandaotry for the type GalasaProperty.");
+            "The 'metadata' field cannot be empty. The fields 'name' and 'namespace' are mandatory for the type GalasaProperty.");
         assertThat(errors.get(1)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
-            "The 'data' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.");
+            "The 'data' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 

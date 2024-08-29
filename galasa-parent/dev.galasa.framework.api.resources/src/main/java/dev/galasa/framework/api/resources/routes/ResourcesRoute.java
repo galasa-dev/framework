@@ -60,10 +60,13 @@ public class ResourcesRoute  extends BaseRoute{
     @Override
      public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters, 
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {  
+        logger.info("ResourcesRoute - handlePostRequest() entered");
         checkRequestHasContent(request);
+
         ServletInputStream body = request.getInputStream();
         String jsonBody = new String (body.readAllBytes(),StandardCharsets.UTF_8);
         body.close();
+
         List<String> errorsList = processRequest(jsonBody);
         if (errorsList.size() >0){
             response = getResponseBuilder().buildResponse(request, response, "application/json", getErrorsAsJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
@@ -71,12 +74,13 @@ public class ResourcesRoute  extends BaseRoute{
             response = getResponseBuilder().buildResponse(request, response, "application/json", "", HttpServletResponse.SC_OK);
         }
         errors.clear();
+
+        logger.info("ResourcesRoute - handlePostRequest() exiting");
         return response;
 
     }
 
     protected List<String> processRequest(String jsonBody) throws InternalServletException{
-
         JsonObject body = gson.fromJson(jsonBody, JsonObject.class);
         String action = body.get("action").getAsString().toLowerCase().trim();
         if (validActions.contains(action)){
@@ -149,7 +153,7 @@ public class ResourcesRoute  extends BaseRoute{
                     }
 
             } else {
-                String message = "The 'metadata' field can not be empty. The fields 'name' and 'namespace' are mandaotry for the type GalasaProperty.";
+                String message = "The 'metadata' field cannot be empty. The fields 'name' and 'namespace' are mandatory for the type GalasaProperty.";
                 ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
                 validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
             }
@@ -160,13 +164,13 @@ public class ResourcesRoute  extends BaseRoute{
                 if (data.has("value")){
                     String value = data.get("value").getAsString();
                     if (value == null || value.isBlank()) {
-                        String message = "The 'value' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.";
+                        String message = "The 'value' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.";
                         ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
                         validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
                     }
                 }
             } else {
-                String message = "The 'data' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.";
+                String message = "The 'data' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.";
                 ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
                 validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
             }
