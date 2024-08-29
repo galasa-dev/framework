@@ -8,14 +8,12 @@ package dev.galasa.framework.api.resources.routes;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -61,12 +59,8 @@ public class ResourcesRoute  extends BaseRoute{
      public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters, 
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {  
         logger.info("ResourcesRoute - handlePostRequest() entered");
-        checkRequestHasContent(request);
 
-        ServletInputStream body = request.getInputStream();
-        String jsonBody = new String (body.readAllBytes(),StandardCharsets.UTF_8);
-        body.close();
-
+        JsonObject jsonBody = parseRequestBody(request, JsonObject.class);
         List<String> errorsList = processRequest(jsonBody);
         if (errorsList.size() >0){
             response = getResponseBuilder().buildResponse(request, response, "application/json", getErrorsAsJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
@@ -80,8 +74,7 @@ public class ResourcesRoute  extends BaseRoute{
 
     }
 
-    protected List<String> processRequest(String jsonBody) throws InternalServletException{
-        JsonObject body = gson.fromJson(jsonBody, JsonObject.class);
+    protected List<String> processRequest(JsonObject body) throws InternalServletException{
         String action = body.get("action").getAsString().toLowerCase().trim();
         if (validActions.contains(action)){
             JsonArray jsonArray = body.get("data").getAsJsonArray();
