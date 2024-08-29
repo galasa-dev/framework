@@ -5,11 +5,18 @@
  */
 package dev.galasa.framework;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
+import java.util.List;
 import java.util.stream.Stream;
+
+import org.apache.commons.io.IOUtils;
 
 public class FileSystem implements IFileSystem {
     public FileSystem() {
@@ -63,5 +70,29 @@ public class FileSystem implements IFileSystem {
             contentType = "text/plain";
         }
         return contentType;
+    }
+
+    @Override
+    public Path createFile(Path path, FileAttribute<?>... attrs) throws IOException {
+        return Files.createFile(path, attrs);
+    }
+
+    @Override
+    public void write(Path path, byte[] bytes) throws IOException {
+        Files.write(path,bytes);
+    }
+
+    @Override
+    public List<String> readLines(URI uri) throws IOException {
+        List<String> lines ;
+        try {
+            File fileToRead = new File(uri);
+            lines = IOUtils.readLines(new FileReader(fileToRead));
+        } catch (IOException e) {
+            throw e ;
+        } catch (Exception e) {
+            throw new IOException(e.getMessage(), e);
+        }
+        return lines ;
     }
 }

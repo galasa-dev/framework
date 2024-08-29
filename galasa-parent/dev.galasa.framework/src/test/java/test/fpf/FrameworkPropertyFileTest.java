@@ -547,7 +547,6 @@ public class FrameworkPropertyFileTest {
     public void testAddNewWatchAndLookForDelete()
             throws FrameworkPropertyFileException, URISyntaxException, IOException, InterruptedException {
         String key = "watchTest";
-        String newValue = "AreYouWatching";
         String oldValue = "no";
 
         URI file = testProp.toURI();

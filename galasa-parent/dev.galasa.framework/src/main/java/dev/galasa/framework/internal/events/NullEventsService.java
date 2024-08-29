@@ -8,7 +8,7 @@ package dev.galasa.framework.internal.events;
 import dev.galasa.framework.spi.events.IEvent;
 import dev.galasa.framework.spi.IEventsService;
 
-public class FrameworkEventsService implements IEventsService {
+public class NullEventsService implements IEventsService {
 
     // The Events Service has no implementation for local runs...
 

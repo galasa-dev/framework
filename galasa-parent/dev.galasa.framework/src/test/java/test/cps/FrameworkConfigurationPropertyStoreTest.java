@@ -5,8 +5,8 @@
  */
 package test.cps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.*;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,11 +23,9 @@ import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 
 /**
- * <p>
  * This test class tests the behaviour of the
  * FrameworkConfigurationPropertyStore class. The purpose of the class is to
  * drive the registered CPS service.
- * </p>
  */
 public class FrameworkConfigurationPropertyStoreTest {
     File testProp;
@@ -45,9 +43,7 @@ public class FrameworkConfigurationPropertyStoreTest {
     }
 
     /**
-     * <p>
      * This test method ensures the object can be insantiated
-     * </p>
      * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
@@ -72,14 +68,13 @@ public class FrameworkConfigurationPropertyStoreTest {
 
         FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new MockFramework(), fpfcps,
                 overrides, record, "zos");
-        assertNotNull("Framework CPS could not bre created", test);
+
+        assertThat(test).as("Framework CPS could not bre created").isNotNull();
     }
 
     /**
-     * <p>
      * This test method does a simple get property check from a basic properties
      * file.
-     * </p>
      * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
@@ -100,15 +95,21 @@ public class FrameworkConfigurationPropertyStoreTest {
 
         FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new MockFramework(), fpfcps,
                 overrides, record, "zos");
-        assertEquals("Unexpected Value retrieved from CPS", "Waddup",
-                test.getProperty("image", "credentialid", "PLEXMA"));
+
+        String valueGotBack = test.getProperty("image", "credentialid", "PLEXMA");
+        assertThat(valueGotBack)
+                .as("Unexpected Value retrieved from CPS")
+                .isEqualTo("Waddup");
+
+        assertThat(record.get("zos.image.PLEXMA.credentialid._source"))
+                .as("Unexpected Value retrieved from CPS")
+                .isEqualTo("cps");
+
     }
 
     /**
-     * <p>
      * This test method ensures that the getProperty method retrieves the preferred
      * key when two viable options available.
-     * </p>
      * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
@@ -132,15 +133,20 @@ public class FrameworkConfigurationPropertyStoreTest {
 
         FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new MockFramework(), fpfcps,
                 overrides, record, "zos");
-        assertEquals("Unexpected Value retrieved from CPS", "Spoon",
-                test.getProperty("image", "credentialid", "PLEXMA", "MVMA"));
+
+        String valueGotBack = test.getProperty("image", "credentialid", "PLEXMA", "MVMA");
+        assertThat(valueGotBack)
+                .as("Unexpected Value retrieved from CPS")
+                .isEqualTo("Spoon");
+
+        assertThat(record.get("zos.image.PLEXMA.MVMA.credentialid._source"))
+                .as("Property access history indicates it came from the wrong source")
+                .isEqualTo("cps");
     }
 
     /**
-     * <p>
      * This test method ensures that the getProperty method checks the overrides and
      * retrieves the correct values over the CPS stored version.
-     * </p>
      * 
      * @throws ConfigurationPropertyStoreException
      * @throws IOException
@@ -165,8 +171,15 @@ public class FrameworkConfigurationPropertyStoreTest {
 
         FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new MockFramework(), fpfcps,
                 overrides, record, "zos");
-        assertEquals("Unexpected Value retrieved from CPS", "Sever2",
-                test.getProperty("image", "credentialid", "PLEXMA"));
+
+        String valueGotFromPropStoreService = test.getProperty("image", "credentialid", "PLEXMA");
+        assertThat(valueGotFromPropStoreService)
+                .as("Unexpected Value retrieved from CPS")
+                .isEqualTo("Sever2");
+
+        assertThat(record.getProperty("zos.image.PLEXMA.credentialid._source"))
+                .as("recorded property access history is saying the wrong source")
+                .isEqualTo("overrides");
     }
 
     @Test
@@ -188,7 +201,10 @@ public class FrameworkConfigurationPropertyStoreTest {
 
         FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new MockFramework(), fpfcps,
                 overrides, record, "zos");
-        assertEquals("Unexpected Value retrieved from CPS", "tab!=space", test.getProperty("image", "credentialid"));
+
+        assertThat(test.getProperty("image", "credentialid"))
+                .as("Unexpected Value retrieved from CPS")
+                .isEqualTo("tab!=space");
     }
 
     @Test
@@ -210,11 +226,19 @@ public class FrameworkConfigurationPropertyStoreTest {
 
         FrameworkConfigurationPropertyService test = new FrameworkConfigurationPropertyService(new MockFramework(), fpfcps,
                 overrides, record, "zos");
-        assertEquals("Unexpected Key retrieved from CPS", "zos.image.PLEXMA.MVMA.credentialid",
-                test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[0]);
-        assertEquals("Unexpected Key retrieved from CPS", "zos.image.PLEXMA.credentialid",
-                test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[1]);
-        assertEquals("Unexpected Key retrieved from CPS", "zos.image.credentialid",
-                test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[2]);
+
+        assertThat(test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[0])
+                .as("Unexpected Key retrieved from CPS")
+                .isEqualTo("zos.image.PLEXMA.MVMA.credentialid");
+
+        assertThat(test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[1])
+                .as("Unexpected Key retrieved from CPS")
+                .isEqualTo("zos.image.PLEXMA.credentialid");
+                
+        assertThat(test.reportPropertyVariants("image", "credentialid", "PLEXMA", "MVMA")[2])
+                .as("Unexpected Key retrieved from CPS")
+                .isEqualTo("zos.image.credentialid");
+
+        assertThat(record).hasSize(0);
     }
 }

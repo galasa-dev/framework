@@ -6,16 +6,22 @@
 package dev.galasa.framework.mocks;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.WatchService;
+import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.stream.Stream;
+
+import org.apache.commons.io.IOUtils;
 
 import dev.galasa.framework.IFileSystem;
 
@@ -177,6 +183,18 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         return resultPaths;
     }
 
+    public List<Path> getListOfAllFiles() throws IOException {
+        List<Path> resultPaths = new ArrayList<>();
+        for (String pathStr : files.keySet()) {
+            Node node = files.get(pathStr);
+            if (!node.isFolder) {
+                MockPath mockPath = new MockPath(pathStr, this);
+                resultPaths.add(mockPath);
+            }
+        }
+        return resultPaths;
+    }
+
 	@Override
 	public InputStream newInputStream(Path folderPath) throws IOException {
         if (exists(folderPath)) {
@@ -184,6 +202,42 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         }
         return null;
 	}
+
+    @Override
+    public Path createFile(Path path, FileAttribute<?>... attrs) throws IOException {
+        createFile(path);
+        return path;
+    }
+
+    @Override
+    public void write(Path path, byte[] bytes) throws IOException {
+        Node node = this.files.get(path.toString());
+        if (node != null) {
+            node.contents = bytes;
+        } else {
+            createNode(path, false);
+            write(path,bytes);
+        }
+    }
+
+
+    @Override
+    public List<String> readLines(URI uri) throws IOException {
+        String filePathStr = uri.getPath();
+        Path filePath = getPath(filePathStr);
+
+        if (!exists(filePath)) {
+            throw new FileNotFoundException("File "+filePathStr+" was not found");
+        }
+        String contents = getContentsAsString(filePath);
+
+        ByteArrayInputStream source = new ByteArrayInputStream(contents.getBytes());
+        InputStreamReader sourceReader = new InputStreamReader(source);
+        List<String> lines = IOUtils.readLines(sourceReader);
+        return lines ;
+    }
+
+    // -------------- Un-implemented methods follow ------------------
 
     @Override
     public void close() throws IOException {

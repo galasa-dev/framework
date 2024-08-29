@@ -16,8 +16,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ManagerException;
+import dev.galasa.framework.ITestRunManagers;
 import dev.galasa.framework.TestRunException;
-import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.Result;
@@ -61,7 +61,7 @@ public class GherkinMethod {
         return this.executables;
     }
 
-    public void invoke(TestRunManagers managers, Map<String, Object> testVariables) throws TestRunException {
+    public void invoke(ITestRunManagers managers, Map<String, Object> testVariables) throws TestRunException {
         try {
             managers.startOfTestMethod(new GalasaMethod(this));
 

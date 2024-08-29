@@ -24,6 +24,7 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasRunResultPage;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaBundle;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
@@ -32,6 +33,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
+import dev.galasa.framework.spi.ras.RasSortField;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
@@ -44,13 +46,19 @@ import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 /*
  * Implementation to query the ecosystem for a set of runs that match the default or supplied criteria
  */
 public class RunQueryRoute extends RunsRoute {
 
 	protected static final String path = "\\/runs\\/?";
+
+    // A mapping of sort keys to corresponding test structure fields
+    private final Map<String, String> sortKeyMap = Map.of(
+        "from", "queued",
+        "to", "endTime",
+        "testclass", "testName"
+    );
 
 	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework) {
 		/* Regex to match endpoints:
@@ -71,56 +79,85 @@ public class RunQueryRoute extends RunsRoute {
 		return getResponseBuilder().buildResponse(req, res, "application/json", outputString, HttpServletResponse.SC_OK);
 	}
 
-	protected String retrieveResults(
-		RasQueryParameters queryParams
-	) throws InternalServletException {
+	private String retrieveResults(RasQueryParameters queryParams) throws InternalServletException {
 
 		int pageNum = queryParams.getPageNumber();
 		int pageSize = queryParams.getPageSize();
+
+        boolean includeCursor = queryParams.getIncludeCursor();
+        String pageCursor = queryParams.getPageCursor();
 
 		List<RasRunResult> runs = new ArrayList<>();
 
 		/* Get list of Run Ids from the URL -
 		If a Run ID parameter list is present in the URL then only return that run / those runs
 		Do not filter as well */
-
 		List<String> runIds = queryParams.getRunIds();
 
-		if (runIds != null && runIds.size() > 0) {
+        // Default to sorting in descending order based on the "queued time" of runs
+        RasSortField sortValue = queryParams.getSortValue("from:desc");
 
+        RasRunResultPage runsPage = null;
+        String responseJson = null;
+        try {
+            if (runIds != null && runIds.size() > 0) {
+                runs = getRunsByIds(runIds);
+            } else {
+                List<IRasSearchCriteria> criteria = getCriteria(queryParams);
+                if (includeCursor || pageCursor != null) {
+                    runsPage = getRunsPage(pageCursor, pageSize, formatSortField(sortValue), criteria);
+                } else {
+                    runs = getRuns(criteria);
+                }
+            }
+    
+            if (runsPage == null) {
+                runs = sortResults(runs, queryParams, sortValue);
+                responseJson = buildResponseBody(runs, pageNum, pageSize);
+            } else {
+                responseJson = buildResponseBody(runsPage, pageSize);
+            }
+        } catch (ResultArchiveStoreException e) {
+            ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);   
+        }
 
-			IRunResult run = null;
-			for (String runId : runIds) {
-				try {
-					run = getRunByRunId(runId.trim());
-
-					if (run != null) {
-						runs.add(RunResultUtility.toRunResult(run, true));
-					}
-				} catch (ResultArchiveStoreException e) {
-					ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
-					throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
-				}
-			}
-
-		} else {
-
-			List<IRasSearchCriteria> critList = getCriteria(queryParams);
-
-			try {
-				runs = getRuns(critList);
-			} catch (Exception e) {
-				ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
-				throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
-			}
-		}
-
-		runs = sortResults(runs, queryParams, queryParams.getSortValue("to:desc"));
-
-		String responseBodyJson = buildResponseBody(runs,pageNum,pageSize);
-
-		return responseBodyJson;
+        return responseJson;
 	}
+
+    private RasSortField formatSortField(RasSortField sortValue) {
+        RasSortField sortField = null;
+        if (sortValue != null) {
+            String sortFieldName = sortValue.getFieldName();
+            sortField = new RasSortField(sortFieldName, sortValue.getSortDirection());
+
+            // Some sort keys map to different test structure fields (e.g. "from" maps to "queued"),
+            // so make sure we are sorting by the correct test structure field
+            String testStructureFieldName = sortKeyMap.get(sortFieldName);
+            if (testStructureFieldName != null) {
+                sortField.setFieldName(testStructureFieldName);
+            }
+        }
+        return sortField;
+    }
+
+    private List<RasRunResult> getRunsByIds(List<String> runIds) throws InternalServletException {
+        List<RasRunResult> runs = new ArrayList<>();
+
+        for (String runId : runIds) {
+            try {
+                IRunResult run = getRunByRunId(runId.trim());
+
+                if (run != null) {
+                    runs.add(RunResultUtility.toRunResult(run, true));
+                }
+            } catch (ResultArchiveStoreException e) {
+                ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
+            }
+        }
+        return runs;
+    }
 
 	private List<IRasSearchCriteria> getCriteria(RasQueryParameters queryParams) throws InternalServletException {
 
@@ -133,9 +170,9 @@ public class RunQueryRoute extends RunsRoute {
 
 		Instant to = queryParams.getToTime();
 
-		Instant noQueryFrom = Instant.now().minus(24,ChronoUnit.HOURS);
+		Instant defaultFromTime = Instant.now().minus(24,ChronoUnit.HOURS);
 		// from will error if no runname is specified as it is a mandatory field
-		Instant from = getWorkingFromValue(queryParams, noQueryFrom);
+		Instant from = getQueriedFromTime(queryParams, defaultFromTime);
 
 		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,status,to, from, runName);
 		return criteria ;
@@ -143,43 +180,44 @@ public class RunQueryRoute extends RunsRoute {
 
 	private String buildResponseBody(List<RasRunResult> runs, int pageNum, int pageSize) throws InternalServletException {
 
-		List<JsonObject> returnArray = new ArrayList<>();
-
 		//Splits up the pages based on the page size
 		List<List<RasRunResult>> paginatedResults = ListUtils.partition(runs, pageSize);
 
-		int numPages = paginatedResults.size();
+		//Building the object to be returned by the API and splitting
+        JsonObject runsPage = null;
+        try {
+            if ((pageNum == 1) && paginatedResults.isEmpty()) {
+                // No results at all, so return one page saying that.
+                runsPage = pageToJson(runs, runs.size(), 1, pageSize,1);
+            } else {
+                runsPage = pageToJson(
+                    paginatedResults.get(pageNum - 1),
+                    runs.size(),
+                    pageNum,
+                    pageSize,
+                    paginatedResults.size()
+                );
+            }
+        } catch (IndexOutOfBoundsException e) {
+            ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
+        }
+        return gson.toJson(runsPage);
+	}
 
-		int pageIndex = 1;
+	private String buildResponseBody(RasRunResultPage runsPage, int pageSize) throws ResultArchiveStoreException {
 
 		//Building the object to be returned by the API and splitting
+        JsonObject pageJson = new JsonObject();        
 
-		if (!paginatedResults.isEmpty()) {
-			for(List<RasRunResult> thisPageResults : paginatedResults) {
-				JsonObject obj = pageToJson(thisPageResults,runs.size(),pageIndex,pageSize,numPages);
-				returnArray.add(obj);
-				pageIndex+=1;
-			}
-		}else{
-			// No results at all, so return one page saying that.
-			JsonObject obj = pageToJson(runs,runs.size(),pageIndex,pageSize,1);
-			returnArray.add(obj);
-		}
+        List<RasRunResult> runs = convertRunsToRunResults(runsPage.getRuns());
+        JsonElement tree = gson.toJsonTree(runs);
+        pageJson.addProperty("pageSize", pageSize);
+        pageJson.addProperty("amountOfRuns", runs.size());
+        pageJson.addProperty("nextCursor", runsPage.getNextCursor());
+        pageJson.add("runs", tree);
 
-		String json = "";
-
-		if (returnArray.isEmpty()) {
-			// No items to return, so json list will be empty.
-			json = "[]";
-		} else {
-			try {
-				json = gson.toJson(returnArray.get(pageNum-1));
-			} catch (Exception e) {
-				ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
-				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
-			}
-		}
-		return json;
+        return gson.toJson(pageJson);
 	}
 
 	private List<IRasSearchCriteria> getCriteria(
@@ -233,10 +271,10 @@ public class RunQueryRoute extends RunsRoute {
 		return critList;
 	}
 
-	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageIndex, int pageSize, int numPages) {
+	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageNum, int pageSize, int numPages) {
 		JsonObject obj = new JsonObject();
 
-		obj.addProperty("pageNum", pageIndex);
+		obj.addProperty("pageNum", pageNum);
 		obj.addProperty("pageSize", pageSize);
 		obj.addProperty("numPages", numPages);
 		obj.addProperty("amountOfRuns", totalRuns);
@@ -247,8 +285,7 @@ public class RunQueryRoute extends RunsRoute {
 		return obj;
 	}
 
-
-	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
+	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException, InternalServletException {
 
 		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
 
@@ -260,16 +297,61 @@ public class RunQueryRoute extends RunsRoute {
 			runs.addAll(directoryService.getRuns(criteria));
 		}
 
-		// Convert each result to the required format
-		List<RasRunResult> runResults = new ArrayList<>();
-		for(IRunResult run : runs) {
-			runResults.add(RunResultUtility.toRunResult(run, true));
-		}
+		List<RasRunResult> runResults = convertRunsToRunResults(runs);
 
 		return runResults;
 	}
 
+	private RasRunResultPage getRunsPage(String pageCursor, int maxResults, RasSortField primarySort, List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {
 
+		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
+
+		critList.toArray(criteria);
+        
+		// Collect all the runs from all the RAS stores into a single list
+		List<IRunResult> runs = new ArrayList<>();
+        String nextCursor = null;
+		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
+            RasRunResultPage runsPage = directoryService.getRunsPage(maxResults, primarySort, pageCursor, criteria);
+			runs.addAll(runsPage.getRuns());
+            
+            String nextRunsToken = runsPage.getNextCursor();
+            if (nextRunsToken != null) {
+                nextCursor = nextRunsToken;
+            }
+		}
+
+		return new RasRunResultPage(runs, nextCursor);
+	}
+
+    private List<RasRunResult> convertRunsToRunResults(List<IRunResult> runs) throws ResultArchiveStoreException {
+        // Convert each result to the required format
+        List<RasRunResult> runResults = new ArrayList<>();
+        for (IRunResult run : runs) {
+            runResults.add(RunResultUtility.toRunResult(run, true));
+        }
+        return runResults;
+    }
+
+	class SortByQueuedTime implements Comparator<RasRunResult> {
+
+		@Override
+		public int compare(RasRunResult a, RasRunResult b) {
+			Instant aQueuedTime = a.getTestStructure().getQueued();
+			Instant bQueuedTime = b.getTestStructure().getQueued();
+
+			if (aQueuedTime == null) {
+				if (bQueuedTime == null) {
+					return 0;
+				}
+				return -1;
+			}
+			if (bQueuedTime == null) {
+				return 1;
+			}
+			return aQueuedTime.compareTo(bQueuedTime);
+		}
+	}
 
 	class SortByEndTime implements Comparator<RasRunResult> {
 
@@ -331,68 +413,61 @@ public class RunQueryRoute extends RunsRoute {
 		}
 	}
 
-	public List<RasRunResult> sortResults(
+	private List<RasRunResult> sortResults(
 		List<RasRunResult> unsortedRuns,
 		RasQueryParameters queryParams,
-		String sortValue
+		RasSortField sortValue
 	) throws InternalServletException {
 
 		// shallow-clone the input list so we don't change it.
 		List<RasRunResult> runs = new ArrayList<RasRunResult>();
 		runs.addAll(unsortedRuns);
 
-		Collections.sort(runs, Comparator.nullsLast(Comparator.nullsLast(new SortByEndTime())));
+        Comparator<RasRunResult> runsComparator = buildRunsComparator(queryParams, sortValue);
 
-		// Checking ascending or descending for sorting
-		return sortData(runs, queryParams, sortValue);
-
+        Collections.sort(runs, runsComparator);
+        return runs;
 	}
 
-	public List<RasRunResult> sortData(List<RasRunResult> runs, RasQueryParameters queryParams, @NotNull String sortValue) throws InternalServletException {
+    private Comparator<RasRunResult> buildRunsComparator(RasQueryParameters queryParams, RasSortField sortField) throws InternalServletException {
+        Comparator<RasRunResult> runsComparator = null;
 
-		if (queryParams.validateSortValue() || !queryParams.validateSortValue()){
-			if (sortValue.toLowerCase().startsWith("to") ) {
-				boolean isAscending = queryParams.isAscending("to");
-				if (isAscending) {
-					Collections.reverse(runs);
-				}
-			} else if (sortValue.toLowerCase().startsWith("testclass")) {
-				boolean isAscending = queryParams.isAscending("testclass");
-				if (isAscending) {
-					Collections.sort(runs, new SortByTestClass());
-				} else {
-					Collections.sort(runs, new SortByTestClass());
-					Collections.reverse(runs);
-				}
+        String sortFieldName = sortField.getFieldName();
+        if (sortFieldName.equals("from")) {
+            runsComparator = new SortByQueuedTime();
+        } else if (sortFieldName.equals("to")) {
+            runsComparator = new SortByEndTime();
+        } else if (sortFieldName.equals("testclass")) {
+            runsComparator = new SortByTestClass();
+        } else if (sortFieldName.equals("result")) {
+            runsComparator = new SortByResult();
+        } else {
+            ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, sortFieldName);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
 
-			} else if (sortValue.toLowerCase().startsWith("result")) {
-				boolean isAscending = queryParams.isAscending("result");
-				if (isAscending) {
-					Collections.sort(runs, new SortByResult());
-				} else {
-					Collections.sort(runs, new SortByResult());
-					Collections.reverse(runs);
-				}
-			}
-		}
-		return runs;
-	}
+        // Reverse the comparator if the direction is "desc"
+        if (!queryParams.isAscending(sortField)) {
+            runsComparator = runsComparator.reversed();
+        }
 
+        // Ensure null values appear last
+        runsComparator = Comparator.nullsLast(runsComparator);
 
-	public Instant getWorkingFromValue (RasQueryParameters params , Instant defaultFromTimestamp) throws InternalServletException{
+        return runsComparator;
+    }
+
+	Instant getQueriedFromTime(RasQueryParameters params, Instant defaultFromTimestamp) throws InternalServletException {
 		int querysize = params.getSize();
-		Instant from = null ;
-		if (querysize > 0){
-			if (!params.checkFromTimeOrRunNamePresent()){
+		Instant from = defaultFromTimestamp;
+		if (querysize > 0) {
+			if (!params.isFromTimeOrRunNamePresent()) {
 				//  RULE: Throw exception because a query exists but no from date has been supplied
 				// EXCEPT: When a runname is present in the query
-					ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
-					throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
+				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 			}
 			from = params.getFromTime();
-		}else {
-			// The default for 'from' is now-24 hours. If no query parameters are specified
-			from = defaultFromTimestamp;
 		}
 		return from;
 	}

@@ -28,8 +28,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import dev.galasa.framework.internal.ras.directory.DirectoryRASFileSystem;
-import dev.galasa.framework.internal.ras.directory.DirectoryRASFileSystemProvider;
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.ResultArchiveStoreFileAttributeView;
 
@@ -156,7 +154,7 @@ public class DirectoryFileSystemTest {
 
         int count = 0;
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(rasTestDirectory)) {
-            for (final Path entry : Files.newDirectoryStream(rasTestDirectory)) {
+            for (final Path entry : ds) {
                 count++;
                 files.remove(entry.toString());
             }

@@ -555,8 +555,8 @@ public class Launcher {
             throw new LauncherException("Unable to determine Java version - will exit");
         }
 
-        if(version.startsWith("11")){
-            logger.trace("Java version 11 validated");
+        if(version.startsWith("17") || version.startsWith("11")){
+            logger.trace("Java version " + version + " validated");
             return;
         }
 

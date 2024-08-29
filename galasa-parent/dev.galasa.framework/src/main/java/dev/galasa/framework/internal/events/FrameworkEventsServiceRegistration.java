@@ -30,9 +30,10 @@ public class FrameworkEventsServiceRegistration implements IEventsServiceRegistr
         try {
             URI cps = frameworkInitialisation.getBootstrapConfigurationPropertyStore();
 
-            // If the CPS is a file, then register this version of the EventsService
+            // If the CPS is a file, then the test run is local, so we don't want to use the kafka implementation,
+            // or generate any events at all. Register this version of the EventsService which just swallows events.
             if (cps.getScheme().equals("file")) {
-                frameworkInitialisation.registerEventsService(new FrameworkEventsService());
+                frameworkInitialisation.registerEventsService(new NullEventsService());
             }
         } catch (EventsException e) {
             throw e;

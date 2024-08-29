@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public abstract class BaseRoute implements IRoute {
@@ -35,14 +36,14 @@ public abstract class BaseRoute implements IRoute {
 
 	private final ResponseBuilder responseBuilder ;
 
-    private final String path;
+    private final Pattern path;
 
     public BaseRoute(ResponseBuilder responseBuilder, String path) {
-        this.path = path;
+        this.path = Pattern.compile(path);
 		this.responseBuilder = responseBuilder;
     }
 
-    public String getPath() {
+    public Pattern getPath() {
         return path;
     }
 

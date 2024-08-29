@@ -20,14 +20,11 @@ import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
-import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.utils.GalasaGson;
-
-import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class TestClassesRoute extends RunsRoute {
 
@@ -56,16 +53,13 @@ public class TestClassesRoute extends RunsRoute {
 
         List<RasTestClass> classArray = getTestClasses();
 
-		classArray.sort(Comparator.comparing(RasTestClass::getTestClass));
+        Comparator<RasTestClass> testClassComparator = Comparator.comparing(RasTestClass::getTestClass);
 
-        try {
-			if(!sortQueryParameterChecker.isAscending("testclass")) {
-				classArray.sort(Comparator.comparing(RasTestClass::getTestClass).reversed());
-			}
-		} catch (InternalServletException e) {
-			ServletError error = new ServletError(GAL5011_SORT_VALUE_NOT_RECOGNIZED, "testclass");
-			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
-		}
+        if (!sortQueryParameterChecker.isAscending("testclass")) {
+            testClassComparator = testClassComparator.reversed();
+        }
+
+        classArray.sort(testClassComparator);
 
         /* converting data to json */
 		JsonElement json = gson.toJsonTree(classArray);

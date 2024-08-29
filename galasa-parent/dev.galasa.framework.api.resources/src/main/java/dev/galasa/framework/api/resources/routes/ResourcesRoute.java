@@ -8,14 +8,12 @@ package dev.galasa.framework.api.resources.routes;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -35,7 +33,6 @@ import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.ResourceNameValidator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class ResourcesRoute  extends BaseRoute{
@@ -50,20 +47,19 @@ public class ResourcesRoute  extends BaseRoute{
     
     protected List<String> errors = new ArrayList<String>();
 
-    private IFramework framework;
+    private CPSFacade cps;
 
-    public ResourcesRoute(ResponseBuilder responseBuilder,  IFramework framework ) {
+    public ResourcesRoute(ResponseBuilder responseBuilder, CPSFacade cps) {
         super(responseBuilder, path);
-         this.framework = framework;
+        this.cps = cps;
     }
 
     @Override
      public HttpServletResponse handlePostRequest(String pathInfo, QueryParameters queryParameters, 
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {  
-        checkRequestHasContent(request);
-        ServletInputStream body = request.getInputStream();
-        String jsonBody = new String (body.readAllBytes(),StandardCharsets.UTF_8);
-        body.close();
+        logger.info("ResourcesRoute - handlePostRequest() entered");
+
+        JsonObject jsonBody = parseRequestBody(request, JsonObject.class);
         List<String> errorsList = processRequest(jsonBody);
         if (errorsList.size() >0){
             response = getResponseBuilder().buildResponse(request, response, "application/json", getErrorsAsJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
@@ -71,13 +67,13 @@ public class ResourcesRoute  extends BaseRoute{
             response = getResponseBuilder().buildResponse(request, response, "application/json", "", HttpServletResponse.SC_OK);
         }
         errors.clear();
+
+        logger.info("ResourcesRoute - handlePostRequest() exiting");
         return response;
 
     }
 
-    protected List<String> processRequest(String jsonBody) throws InternalServletException{
-        
-        JsonObject body = gson.fromJson(jsonBody, JsonObject.class);
+    protected List<String> processRequest(JsonObject body) throws InternalServletException{
         String action = body.get("action").getAsString().toLowerCase().trim();
         if (validActions.contains(action)){
             JsonArray jsonArray = body.get("data").getAsJsonArray();
@@ -149,7 +145,7 @@ public class ResourcesRoute  extends BaseRoute{
                     }
 
             } else {
-                String message = "The 'metadata' field can not be empty. The fields 'name' and 'namespace' are mandaotry for the type GalasaProperty.";
+                String message = "The 'metadata' field cannot be empty. The fields 'name' and 'namespace' are mandatory for the type GalasaProperty.";
                 ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
                 validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
             }
@@ -160,13 +156,13 @@ public class ResourcesRoute  extends BaseRoute{
                 if (data.has("value")){
                     String value = data.get("value").getAsString();
                     if (value == null || value.isBlank()) {
-                        String message = "The 'value' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.";
+                        String message = "The 'value' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.";
                         ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
                         validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
                     }
                 }
             } else {
-                String message = "The 'data' field can not be empty. The field 'value' is mandaotry for the type GalasaProperty.";
+                String message = "The 'data' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.";
                 ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
                 validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
             }
@@ -187,8 +183,8 @@ public class ResourcesRoute  extends BaseRoute{
                 String expectedApiVersion = GalasaProperty.DEFAULTAPIVERSION;
                 if (apiversion.equals(expectedApiVersion)) {
                     GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
-                    CPSFacade cps = new CPSFacade(framework);
                     CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
+
                     //getPropertyFromStore() will only return null if the property is in a hidden namespace
                     CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
 

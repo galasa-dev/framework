@@ -248,8 +248,9 @@ function launch_etcd_in_docker {
 function launch_dex_in_docker {
     h2 "Launching Dex inside a docker image"
 
+    DEX_VERSION="v2.38.0"
     info "Pulling the image down"
-    docker pull ghcr.io/dexidp/dex:v2.38.0
+    docker pull ghcr.io/dexidp/dex:$DEX_VERSION
 
     info "Setting up the dex admin password."
     if [[ "$DEX_ADMIN_PASSWORD" == "" ]]; then 
@@ -334,7 +335,12 @@ EOF
 
     docker stop dex
     docker rm dex
-    docker run -d -v ~/.dex/config-dev.yaml:/etc/dex/config.docker.yaml -p 5556:5556 -p 5558:5558 -p 5557:5557 --name dex ghcr.io/dexidp/dex:v2.38.0
+    docker run -d -v ~/.dex/config-dev.yaml:/etc/dex/config.docker.yaml \
+        -p 5556:5556 \
+        -p 5558:5558 \
+        -p 5557:5557 \
+        --name dex \
+        ghcr.io/dexidp/dex:$DEX_VERSION
 }
 
 set_up_bootstrap

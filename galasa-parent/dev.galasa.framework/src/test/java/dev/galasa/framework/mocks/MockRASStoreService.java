@@ -18,10 +18,23 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 public class MockRASStoreService implements IResultArchiveStoreService{
 
     Map<String,String> properties ;
+    Path rasRootPath;
+
 
     public MockRASStoreService( Map<String,String> properties ) {
-        this.properties = properties ;
+        this(properties, null);
     }
+
+    public MockRASStoreService( Map<String,String> properties, Path rasRootPath ) {
+        this.properties = properties ;
+        this.rasRootPath = rasRootPath ;
+    }
+    @Override
+    public Path getStoredArtifactsRoot() {
+        return rasRootPath;
+    }
+
+    // un-implemented methods are below.
 
     @Override
     public void writeLog(@NotNull String message) throws ResultArchiveStoreException {
@@ -36,11 +49,6 @@ public class MockRASStoreService implements IResultArchiveStoreService{
     @Override
     public void updateTestStructure(@NotNull TestStructure testStructure) throws ResultArchiveStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
-    }
-
-    @Override
-    public Path getStoredArtifactsRoot() {
-        throw new UnsupportedOperationException("Unimplemented method 'getStoredArtifactsRoot'");
     }
 
     @Override

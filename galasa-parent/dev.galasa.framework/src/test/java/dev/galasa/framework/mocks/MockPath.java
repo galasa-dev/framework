@@ -60,6 +60,13 @@ public class MockPath implements Path {
     }
 
     @Override
+    public Path resolve(Path other) {
+        return new MockPath(this.path + "/" + other.toString(), fileSystem );
+    }
+
+    
+
+    @Override
     public boolean isAbsolute() {
         throw new UnsupportedOperationException("Unimplemented method 'isAbsolute'");
     }
@@ -98,11 +105,6 @@ public class MockPath implements Path {
     @Override
     public Path normalize() {
         throw new UnsupportedOperationException("Unimplemented method 'normalize'");
-    }
-
-    @Override
-    public Path resolve(Path other) {
-        throw new UnsupportedOperationException("Unimplemented method 'resolve'");
     }
 
     @Override

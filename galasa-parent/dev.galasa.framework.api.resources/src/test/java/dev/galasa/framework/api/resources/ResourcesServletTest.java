@@ -17,6 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
@@ -55,6 +58,10 @@ public class ResourcesServletTest extends BaseServletTest {
 		this.servlet = new MockResourcesServlet();
         servlet.setResponseBuilder(new ResponseBuilder(new MockEnvironment()));
 
+        ServletOutputStream outStream = new MockServletOutputStream();
+		PrintWriter writer = new PrintWriter(outStream);
+        this.resp = new MockHttpServletResponse(writer, outStream);
+
 		IConfigurationPropertyStoreService cpsstore;
 		if (namespace != null){
 			cpsstore = new MockIConfigurationPropertyStoreService(namespace);
@@ -67,26 +74,17 @@ public class ResourcesServletTest extends BaseServletTest {
 	
 	protected void setServlet(String path,String namespace, Map<String, String[]> parameterMap){
 		setServlet(namespace);
-		ServletOutputStream outStream = new MockServletOutputStream();
-		PrintWriter writer = new PrintWriter(outStream);
 		this.req = new MockHttpServletRequest(parameterMap,path);
-		this.resp = new MockHttpServletResponse(writer, outStream);
 	}
 
-	protected void setServlet( String path,String namespace, String value, String method){
+	protected void setServlet( String path,String namespace, JsonObject requestBody, String method){
 		setServlet(namespace);
-		ServletOutputStream outStream = new MockServletOutputStream();
-        PrintWriter writer = new PrintWriter(outStream);
-		this.req = new MockHttpServletRequest(path, value, method);
-		this.resp = new MockHttpServletResponse(writer, outStream);
+		this.req = new MockHttpServletRequest(path, gson.toJson(requestBody), method);
 	}
 
-	protected void setServlet( String path,String namespace, String value, String method, Map<String,String> headerMap){
+	protected void setServlet( String path,String namespace, JsonObject requestBody, String method, Map<String,String> headerMap) {
 		setServlet(namespace);
-		ServletOutputStream outStream = new MockServletOutputStream();
-        PrintWriter writer = new PrintWriter(outStream);
-		this.req = new MockHttpServletRequest(path, value, method, headerMap);
-		this.resp = new MockHttpServletResponse(writer, outStream);
+		this.req = new MockHttpServletRequest(path, gson.toJson(requestBody), method, headerMap);
 	}
 
 	protected MockResourcesServlet getServlet(){
@@ -132,32 +130,69 @@ public class ResourcesServletTest extends BaseServletTest {
 		assertThat(match).isTrue();
 	}
 
-	protected String generatePropertyJSON(String namespace, String propertyName, String propertyValue, String apiVersion){
-		return "{\n    \"apiVersion\": \""+apiVersion+"\",\n"+
-        "    \"kind\": \"GalasaProperty\",\n"+
-        "    \"metadata\": {\n"+
-        "      \"namespace\": \""+namespace+"\",\n"+
-        "      \"name\": \""+propertyName+"\"\n"+
-        "    },\n"+
-        "    \"data\": {\n"+
-        "      \"value\": \""+propertyValue+"\"\n    }\n  }";
+	protected JsonObject generatePropertyJson(String namespace, String propertyName, String propertyValue, String apiVersion) {
+        JsonObject propertyJson = new JsonObject();
+        propertyJson.addProperty("apiVersion", apiVersion);
+        propertyJson.addProperty("kind", "GalasaProperty");
+
+        JsonObject propertyMetadata = new JsonObject();
+        propertyMetadata.addProperty("namespace", namespace);
+        propertyMetadata.addProperty("name", propertyName);
+
+        JsonObject propertyData = new JsonObject();
+        propertyData.addProperty("value", propertyValue);
+
+        propertyJson.add("metadata", propertyMetadata);
+        propertyJson.add("data", propertyData);
+
+        // Expecting a JSON structure in the form:
+        // {
+        //     "apiVersion": "galasa-dev/v1alpha1",
+        //     "kind": "GalasaProperty",
+        //     "metadata": {
+        //         "namespace": "mynamespace",
+        //         "name": "my.property.name"
+        //     },
+        //     "data": {
+        //         "value": "my-property-value"
+        //     }
+        // }
+		return propertyJson;
 	}
 
-	protected String generateArrayJson(String namespace, String propertyName, String propertyValue, String apiVersion){
-        return "[\n  "+generatePropertyJSON(namespace, propertyName, propertyValue, apiVersion)+"\n]";
+	protected JsonArray generatePropertyArrayJson(String namespace, String propertyName, String propertyValue, String apiVersion){
+        JsonArray propertyArray = new JsonArray();
+        propertyArray.add(generatePropertyJson(namespace, propertyName, propertyValue, apiVersion));
+        return propertyArray;
     }
 
-		protected String generateRequestJson(String action, String namespace, String propertyName, String propertyValue, String apiVersion){
-        return "{\n \"action\":\""+action+"\", \"data\":"+generateArrayJson(namespace, propertyName, propertyValue, apiVersion)+"\n}";
+    protected JsonObject generateRequestJson(String action, String namespace, String propertyName, String propertyValue, String apiVersion) {
+        JsonObject requestJson = new JsonObject();
+        requestJson.addProperty("action", action);
+        requestJson.add("data", generatePropertyArrayJson(namespace, propertyName, propertyValue, apiVersion));
+        return requestJson;
+    }
+
+    protected JsonObject generateRequestJson(String action, List<JsonObject> properties) {
+        JsonObject requestJson = new JsonObject();
+        requestJson.addProperty("action", action);
+
+        JsonArray dataArray = new JsonArray();
+        for (JsonObject property : properties) {
+            dataArray.add(property);
+        }
+
+        requestJson.add("data", dataArray);
+        return requestJson;
     }
 
 	protected String generateExpectedJson(Map<String, String> properties){
-		String results ="";
+		JsonArray results = new JsonArray();
 		for (Map.Entry<String,String> entry : properties.entrySet()){
 			// Key Value namesapce.propertyname value value
 			String[] splitName = entry.getKey().split("[.]", 2);
-			results += generatePropertyJSON(splitName[0], splitName[1],entry.getValue(),"galasa-dev/v1alpha1");
+			results.add(generatePropertyJson(splitName[0], splitName[1],entry.getValue(),"galasa-dev/v1alpha1"));
 		} 
-        return "[\n  "+results+"\n]";
+        return gson.toJson(results);
     }
 }

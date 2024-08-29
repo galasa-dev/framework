@@ -14,6 +14,7 @@ public enum ServletErrorMessage {
     GAL5004_ERROR_RETRIEVING_PAGE                     (5004,"E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."),
     GAL5005_INVALID_QUERY_PARAM_NOT_INTEGER           (5005,"E: Error parsing the query parameter ''{0}'' in the request URL. Invalid value ''{1}''. Expecting an integer."),
     GAL5006_INVALID_QUERY_PARAM_DUPLICATES            (5006,"E: Error parsing the query parameters. Duplicate instances of query parameter ''{0}'' found in the request URL. Expecting only one."),
+    GAL5090_INVALID_QUERY_PARAM_NOT_BOOLEAN           (5090,"E: Error parsing the query parameter ''{0}'' in the request URL. Invalid value ''{1}''. Expecting a boolean."),
 
     GAL5010_FROM_DATE_IS_REQUIRED                     (5010,"E: Error parsing the query parameters. 'from' time is a mandatory field if no 'runname' is supplied."),
     GAL5011_SORT_VALUE_NOT_RECOGNIZED                 (5011,"E: Error parsing the query parameters. 'sort' value ''{0}'' not recognised. Expected query parameter in the format 'sort={fieldName}:{order}' where order is 'asc' for ascending or 'desc' for descending."),
@@ -104,7 +105,11 @@ public enum ServletErrorMessage {
     GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS                (5066, "E: No such token with the given ID exists. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
 
     // OpenAPI Servlet...
-    GAL5071_FAILED_TO_PARSE_YAML_INTO_JSON           (5071, "E: Internal server error. Failed to convert OpenAPI specification from YAML into JSON. Report the problem to your Galasa Ecosystem owner"),
+    GAL5071_FAILED_TO_PARSE_YAML_INTO_JSON            (5071, "E: Internal server error. Failed to convert OpenAPI specification from YAML into JSON. Report the problem to your Galasa Ecosystem owner"),
+
+    // User APIs...
+    GAL5081_INVALID_QUERY_PARAM_VALUE                 (5081, "E: A request to get the user details for a particular user failed. The query parameter provided is not valid. Supported values for the ‘loginId’ query parameter are : ‘me’. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program."),
+    GAL5082_NO_LOGINID_PARAM_PROVIDED                 (5082, "E: A request to get the user details failed. The request did not supply a ‘loginId’ filter. A ‘loginId’ query parameter with a value of : ‘me’ was expected. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program.")
     ;
 
 

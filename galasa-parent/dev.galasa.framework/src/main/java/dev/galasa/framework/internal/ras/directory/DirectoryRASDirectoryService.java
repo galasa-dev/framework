@@ -27,6 +27,8 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasRunResultPage;
+import dev.galasa.framework.spi.ras.RasSortField;
 import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -66,6 +68,12 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
         }
 
         return runs;
+    }
+
+    @Override
+    public @NotNull RasRunResultPage getRunsPage(int maxResults, RasSortField primarySort, String pageToken, @NotNull IRasSearchCriteria... searchCriteria)
+            throws ResultArchiveStoreException {
+        return new RasRunResultPage(getRuns(searchCriteria), null);
     }
 
     @Override
@@ -219,6 +227,4 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
             return null; // Ignore errors as this run id may not belong to this RAS  
         }
     }
-
-
 }

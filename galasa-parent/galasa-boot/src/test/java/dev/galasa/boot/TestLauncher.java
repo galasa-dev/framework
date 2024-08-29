@@ -153,11 +153,11 @@ public class TestLauncher {
     }
 
     @Test
-    public void testJava11Passes() {
+    public void testJava17Passes() {
         Launcher l  = new Launcher();
         MockEnvironment me = new MockEnvironment();
 
-        me.setProperty("java.version","11");
+        me.setProperty("java.version","17");
 
         try{
             l.validateJavaLevel(me);
