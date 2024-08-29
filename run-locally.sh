@@ -61,6 +61,8 @@ function usage {
 Options are:
 --api : Run the framework API server
 --couchdb : Run the couchdb server in a docker container
+--etcd : Run etcd inside docker.
+--dex : Run dex inside docker.
 -h | --help : get this help text.
 
 Environment variables:
@@ -81,7 +83,11 @@ while [ "$1" != "" ]; do
     case $1 in
              --api  )           run_component="api"
                                 ;;
-            --couchdb )  run_component="couchdb"
+            --couchdb )         run_component="couchdb"
+                                ;;
+            --etcd )            run_component="etcd"
+                                ;;
+            --dex )             run_component="dex"
                                 ;;
         -h | --help )           usage
                                 exit
@@ -139,7 +145,7 @@ function set_up_bootstrap {
 
 
 function launch_api_server {
-    h1 "Launching API server"
+    h2 "Launching API server"
 
     cmd="${JAVA_HOME}/bin/java \
     -jar ${boot_jar_name} \
@@ -159,19 +165,20 @@ function launch_api_server {
 
 function loop_get_url_until_success {
     url=$1
-    info "Looping to wait for things to start up"
+    h2 "Looping to wait for things to start up"
     http_status=""
     while [[ "$http_status" != "200" ]]; do
         info "sleeping for 5 secs..."
         sleep 5
-        info "querying to see if things are started yet..."
+        info "querying $url to see if things are started yet..."
         http_status=$(curl -s -o /dev/null -w "%{http_code}" $url)
+        info "returned http status code was $http_status"
     done
     success "Things are started"
 }
 
 function launch_couchdb_in_docker {
-    h1 "Launching Couchdb inside docker"
+    h2 "Launching Couchdb inside docker"
     export COUCHDB_VERSION="3.3.3"
     info "Pulling the image down"
     docker pull couchdb:$COUCHDB_VERSION
@@ -205,6 +212,131 @@ function launch_couchdb_in_docker {
     open http://localhost:5984/_utils
 }
 
+
+function launch_etcd_in_docker {
+    h2 "Launching etcd inside a docker container"
+
+    info "pulling the docker image..."
+    export ETCD_TAG="3.3.27-debian-11-r100@sha256:9031d80adc91562b634ca08dc92add303dd50502c49622e162678caa9dbe36d5"
+    docker pull bitnami/etcd:${ETCD_TAG}
+    
+
+
+    image_count=$(docker ps -a | grep etcd | wc -l | xargs)
+    if [[ "$image_count" == "1" ]]; then 
+        info "etcd docker image already exists."
+        docker start etcd
+    else 
+        info "running the image"
+        docker network create app-tier --driver bridge
+
+        docker run -d --name etcd \
+            --network app-tier \
+            --publish 2379:2379 \
+            --publish 2380:2380 \
+            --env ALLOW_NONE_AUTHENTICATION=yes \
+            --env ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379 \
+            --env ETCD_UNSUPPORTED_ARCH=arm64 \
+            bitnami/etcd:${ETCD_TAG}
+    fi
+
+    info "Waiting for etcd to start."
+    loop_get_url_until_success http://localhost:2379/version
+    success "etcd started ok"
+}
+
+function launch_dex_in_docker {
+    h2 "Launching Dex inside a docker image"
+
+    info "Pulling the image down"
+    docker pull ghcr.io/dexidp/dex:v2.38.0
+
+    info "Setting up the dex admin password."
+    if [[ "$DEX_ADMIN_PASSWORD" == "" ]]; then 
+        info "Creating a DEX_ADMIN_PASSWORD"
+
+        export DEX_ADMIN_PASSWORD=$(echo password | htpasswd -BinC 10 admin | cut -d: -f2)
+        info "Dex admin password is $DEX_ADMIN_PASSWORD"
+        warn "Put this value into your .zprofile! eg: export DEX_ADMIN_PASSWORD=\"$DEX_ADMIN_PASSWORD\""
+    fi
+
+    info "Making sure the .dex config is set up"
+    mkdir -p ~/.dex
+    cat << EOF >> ~/.dex/config-dev.yaml
+
+# The base path of dex and the external name of the OpenID Connect service.
+# This is the canonical URL that all clients MUST use to refer to dex. If a
+# path is provided, dex's HTTP service will listen at a non-root URL.
+issuer: http://127.0.0.1:5556/dex
+
+# The storage configuration determines where dex stores its state. Supported
+# options include SQL flavors and Kubernetes third party resources.
+#
+# See the documentation (https://dexidp.io/docs/storage/) for further information.
+storage:
+  type: sqlite3
+  config:
+    file: var/dex/dex.db
+
+# Configuration for the HTTP endpoints.
+web:
+  http: 0.0.0.0:5556
+
+# Configuration for telemetry
+telemetry:
+  http: 0.0.0.0:5558
+
+# Uncomment this block to enable the gRPC API. This values MUST be different
+# from the HTTP endpoints.
+grpc:
+  addr: 0.0.0.0:5557
+  reflection: true
+
+# Uncomment this block to enable configuration for the expiration time durations.
+# Is possible to specify units using only s, m and h suffixes.
+expiry:
+  # deviceRequests: "5m"
+  signingKeys: "6h"
+  idTokens: "24h"
+  refreshTokens:
+    disableRotation: true
+    validIfNotUsedFor: "2160h" # 90 days
+
+# Default values shown below
+oauth2:
+  skipApprovalScreen: true
+
+# Instead of reading from an external storage, use this list of clients.
+#
+# If this option isn't chosen clients may be added through the gRPC API.
+staticClients:
+- id: galasa-webui
+  redirectURIs:
+  - 'http://localhost:8080/auth/callback'
+  name: 'Galasa Web UI'
+  secret: example-webui-client-secret
+
+# Let dex keep a list of passwords which can be used to login to dex.
+enablePasswordDB: true
+
+# A static list of passwords to login the end user. By identifying here, dex
+# won't look in its underlying storage for passwords.
+#
+# If this option isn't chosen users may be added through the gRPC API.
+
+staticPasswords:
+- email: "admin@example.com"
+  hash: "${DEX_ADMIN_PASSWORD}"
+  username: "admin"
+  userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+
+EOF
+
+    docker stop dex
+    docker rm dex
+    docker run -d -v ~/.dex/config-dev.yaml:/etc/dex/config.docker.yaml -p 5556:5556 -p 5558:5558 -p 5557:5557 --name dex ghcr.io/dexidp/dex:v2.38.0
+}
+
 set_up_bootstrap
 
 case $run_component in
@@ -212,4 +344,7 @@ case $run_component in
   ;;
   couchdb ) launch_couchdb_in_docker
   ;;
+  etcd ) launch_etcd_in_docker
+  ;;
+  dex ) launch_dex_in_docker
 esac
