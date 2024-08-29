@@ -44,3 +44,5 @@ See [test-api-locally.md](./test-api-locally.md) for instructions on how to set 
 ## License
 This code is under the [Eclipse Public License 2.0](https://github.com/galasa-dev/maven/blob/main/LICENSE).
 
+## Developer setup instructions
+See the developer instructions [here](./dev-instructions.md)
