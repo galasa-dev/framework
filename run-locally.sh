@@ -40,26 +40,17 @@ blue=$(tput setaf 25)
 #-----------------------------------------------------------------------------------------                   
 # Headers and Logging
 #-----------------------------------------------------------------------------------------                   
-underline() { printf "${underline}${bold}%s${reset}\n" "$@"
-}
-h1() { printf "\n${underline}${bold}${blue}%s${reset}\n" "$@"
-}
-h2() { printf "\n${underline}${bold}${white}%s${reset}\n" "$@"
-}
-debug() { printf "${white}%s${reset}\n" "$@"
-}
-info() { printf "${white}➜ %s${reset}\n" "$@"
-}
-success() { printf "${green}✔ %s${reset}\n" "$@"
-}
-error() { printf "${red}✖ %s${reset}\n" "$@"
-}
-warn() { printf "${tan}➜ %s${reset}\n" "$@"
-}
-bold() { printf "${bold}%s${reset}\n" "$@"
-}
-note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@"
-}
+underline() { printf "${underline}${bold}%s${reset}\n" "$@" ;}
+h1() { printf "\n${underline}${bold}${blue}%s${reset}\n" "$@" ;}
+h2() { printf "\n${underline}${bold}${white}%s${reset}\n" "$@" ;}
+debug() { printf "${white}%s${reset}\n" "$@" ;}
+info() { printf "${white}➜ %s${reset}\n" "$@" ;}
+success() { printf "${green}✔ %s${reset}\n" "$@" ;}
+error() { printf "${red}✖ %s${reset}\n" "$@" ;}
+warn() { printf "${tan}➜ %s${reset}\n" "$@" ;}
+bold() { printf "${bold}%s${reset}\n" "$@" ;}
+note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@" ;}
+
 
 #-----------------------------------------------------------------------------------------                   
 # Functions
@@ -69,6 +60,7 @@ function usage {
     cat << EOF
 Options are:
 --api : Run the framework API server
+--couchdb : Run the couchdb server in a docker container
 -h | --help : get this help text.
 
 Environment variables:
@@ -88,6 +80,8 @@ run_component=""
 while [ "$1" != "" ]; do
     case $1 in
              --api  )           run_component="api"
+                                ;;
+            --couchdb )  run_component="couchdb"
                                 ;;
         -h | --help )           usage
                                 exit
@@ -163,5 +157,59 @@ function launch_api_server {
     success "Launched OK"
 }
 
+function loop_get_url_until_success {
+    url=$1
+    info "Looping to wait for things to start up"
+    http_status=""
+    while [[ "$http_status" != "200" ]]; do
+        info "sleeping for 5 secs..."
+        sleep 5
+        info "querying to see if things are started yet..."
+        http_status=$(curl -s -o /dev/null -w "%{http_code}" $url)
+    done
+    success "Things are started"
+}
+
+function launch_couchdb_in_docker {
+    h1 "Launching Couchdb inside docker"
+    export COUCHDB_VERSION="3.3.3"
+    info "Pulling the image down"
+    docker pull couchdb:$COUCHDB_VERSION
+    info "Removing any running instances of couchdb"
+    docker stop couchdb
+
+    # info "Creating a couchdb folder to store data in, unless it already exists."
+    mkdir -p $HOME/.couchdb/data
+    chmod 0777 $HOME/.couchdb
+    chmod 0777 $HOME/.couchdb/data
+
+    # -v /home/couchdb/data:/opt/couchdb/data
+    info "running the image"
+    image_count=$(docker ps -a | grep couchdb | wc -l | xargs)
+    if [[ "$image_count" == "1" ]]; then 
+        info "couchdb docker image already exists."
+        docker start couchdb
+    else 
+        warn "coucdb docker image needs setting up using the wizard in the web UI."
+        docker run -p 5984:5984 \
+            -d \
+            -e COUCHDB_USER=${COUCHDB_USER} \
+            -e COUCHDB_PASSWORD=${COUCHDB_PASSWORD} \
+            --name couchdb \
+            couchdb:$COUCHDB_VERSION
+    fi
+
+    info "Waiting for couchdb to start."
+    loop_get_url_until_success http://localhost:5984
+    info "launching the couchdb web UI"
+    open http://localhost:5984/_utils
+}
+
 set_up_bootstrap
-launch_api_server
+
+case $run_component in
+  api ) launch_api_server
+  ;;
+  couchdb ) launch_couchdb_in_docker
+  ;;
+esac
