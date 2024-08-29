@@ -33,7 +33,6 @@ import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.ResourceNameValidator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class ResourcesRoute  extends BaseRoute{
@@ -50,9 +49,9 @@ public class ResourcesRoute  extends BaseRoute{
 
     private CPSFacade cps;
 
-    public ResourcesRoute(ResponseBuilder responseBuilder, IFramework framework) throws ConfigurationPropertyStoreException {
+    public ResourcesRoute(ResponseBuilder responseBuilder, CPSFacade cps) {
         super(responseBuilder, path);
-        this.cps = new CPSFacade(framework);
+        this.cps = cps;
     }
 
     @Override
