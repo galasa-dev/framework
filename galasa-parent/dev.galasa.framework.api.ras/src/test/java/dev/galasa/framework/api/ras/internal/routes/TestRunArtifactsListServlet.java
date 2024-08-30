@@ -553,7 +553,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		//   "error_message" : "GAL5002E: Error retrieving ras run from identifier 'badRunId'.""
 		// }
 		assertThat(resp.getStatus()).isEqualTo(404);
-		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
+		checkErrorStructure(outStream.toString() , 5091 , "GAL5091E", "badRunId" );
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 	}

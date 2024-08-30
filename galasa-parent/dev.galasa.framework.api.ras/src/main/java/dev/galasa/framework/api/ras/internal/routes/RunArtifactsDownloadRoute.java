@@ -50,7 +50,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
 
     static final GalasaGson gson = new GalasaGson();
 
-    protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)";
+    protected static final String path = "\\/runs\\/([A-Za-z0-9.\\-=]+)\\/files\\/([A-Za-z0-9.\\-=\\/]+)";
 
     private Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
 
