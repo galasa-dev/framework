@@ -40,9 +40,6 @@ allprojects {
         maven {
             url "https://development.galasa.dev/main/maven-repo/maven/"
         }
-        maven {
-            url "https://development.galasa.dev/gh/maven-repo/maven/"
-        }
         mavenCentral()
     }
 }
