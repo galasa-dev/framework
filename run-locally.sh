@@ -63,6 +63,7 @@ Options are:
 --couchdb : Run the couchdb server in a docker container
 --etcd : Run etcd inside docker.
 --dex : Run dex inside docker.
+--all : Start all of the servers/services.
 -h | --help : get this help text.
 
 Environment variables:
@@ -88,6 +89,8 @@ while [ "$1" != "" ]; do
             --etcd )            run_component="etcd"
                                 ;;
             --dex )             run_component="dex"
+                                ;;
+            -all )              run_component="all"
                                 ;;
         -h | --help )           usage
                                 exit
@@ -126,18 +129,26 @@ mkdir -p temp
 cd temp
 
 
-
+function assert_previous_command_worked {
+    exit_code=$?
+    error_message="$1"
+    if [[ "${exit_code}" != "0" ]]; then 
+        error "${error_message} - Exit code was ${exit_code}"
+        exit 1
+    fi
+}
 
 function set_up_bootstrap {
-
     export GALASA_HOME="${BASEDIR}/temp/home"
     info "Environment variable GALASA_HOME is ${GALASA_HOME}"
 
     export GALASA_BOOTSTRAP="file://${GALASA_HOME}/bootstrap.properties"
     info "Environment variable GALASA_BOOTSTRAP is $GALASA_BOOTSTRAP"
 
-    h1 "Setting up the bootstrap to refer to the prod ecosystem"
+    h2 "Setting up the bootstrap to refer to the prod ecosystem"
     galasactl local init
+    assert_previous_command_worked "Failed to set up local galasa environment"
+
     echo >> ${GALASA_HOME}/bootstrap.properties
     echo "framework.config.store=etcd:http://galasa-galasa-prod.cicsk8s.hursley.ibm.com:32189" >> ${GALASA_HOME}/bootstrap.properties
     echo "framework.extra.bundles=dev.galasa.cps.etcd,dev.galasa.ras.couchdb,dev.galasa.phoenix2.manager" >> ${GALASA_HOME}/bootstrap.properties
@@ -159,7 +170,7 @@ function launch_api_server {
     info "Command is ${cmd}"
 
     ${cmd} 2>&1 > log.txt
-
+    assert_previous_command_worked "Launch of api server failed."
     success "Launched OK"
 }
 
@@ -196,6 +207,7 @@ function launch_couchdb_in_docker {
     if [[ "$image_count" == "1" ]]; then 
         info "couchdb docker image already exists."
         docker start couchdb
+        assert_previous_command_worked "Failed to re-start the existing couchdb docker container"
     else 
         warn "coucdb docker image needs setting up using the wizard in the web UI."
         docker run -p 5984:5984 \
@@ -204,12 +216,14 @@ function launch_couchdb_in_docker {
             -e COUCHDB_PASSWORD=${COUCHDB_PASSWORD} \
             --name couchdb \
             couchdb:$COUCHDB_VERSION
+        assert_previous_command_worked "Failed to launch the new couchdb docker container"
     fi
 
     info "Waiting for couchdb to start."
     loop_get_url_until_success http://localhost:5984
     info "launching the couchdb web UI"
     open http://localhost:5984/_utils
+    success
 }
 
 
@@ -219,16 +233,16 @@ function launch_etcd_in_docker {
     info "pulling the docker image..."
     export ETCD_TAG="3.3.27-debian-11-r100@sha256:9031d80adc91562b634ca08dc92add303dd50502c49622e162678caa9dbe36d5"
     docker pull bitnami/etcd:${ETCD_TAG}
-    
-
 
     image_count=$(docker ps -a | grep etcd | wc -l | xargs)
     if [[ "$image_count" == "1" ]]; then 
         info "etcd docker image already exists."
         docker start etcd
+        assert_previous_command_worked "Failed to re-start the existing etcd docker container"
     else 
         info "running the image"
         docker network create app-tier --driver bridge
+        assert_previous_command_worked "Failed to create a nework bridge driver for etcd"
 
         docker run -d --name etcd \
             --network app-tier \
@@ -238,6 +252,7 @@ function launch_etcd_in_docker {
             --env ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379 \
             --env ETCD_UNSUPPORTED_ARCH=arm64 \
             bitnami/etcd:${ETCD_TAG}
+        assert_previous_command_worked "Failed to launch a new etcd docker container"
     fi
 
     info "Waiting for etcd to start."
@@ -261,7 +276,7 @@ function launch_dex_in_docker {
         warn "Put this value into your .zprofile! eg: export DEX_ADMIN_PASSWORD=\"$DEX_ADMIN_PASSWORD\""
     fi
 
-    info "Making sure the .dex config is set up"
+    info "Making sure the .dex config is set up, containing the dex admin password."
     mkdir -p ~/.dex
     cat << EOF >> ~/.dex/config-dev.yaml
 
@@ -341,6 +356,8 @@ EOF
         -p 5557:5557 \
         --name dex \
         ghcr.io/dexidp/dex:$DEX_VERSION
+    assert_previous_command_worked "Failed to create a new dex container"
+    success "Launched dex ok."
 }
 
 set_up_bootstrap
@@ -353,4 +370,11 @@ case $run_component in
   etcd ) launch_etcd_in_docker
   ;;
   dex ) launch_dex_in_docker
+  ;;
+  all )
+    launch_etcd_in_docker
+    launch_couchdb_in_docker
+    launch_dex_in_docker
+    launch_api_server
+
 esac
