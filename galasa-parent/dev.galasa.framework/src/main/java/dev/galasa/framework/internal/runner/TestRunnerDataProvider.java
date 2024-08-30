@@ -25,9 +25,10 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     private IDynamicStatusStoreService         dss;
     private IResultArchiveStore                ras;
     private IRun                               run;
-    private IShuttableFramework                 framework;
+    private IShuttableFramework                framework;
     private Properties                         overrideProperties;
     private IFileSystem                        fileSystem;
+    private ITestRunnerEventsProducer          eventsProducer;
 
     public TestRunnerDataProvider(Properties bootstrapProperties, Properties overrideProperties) throws TestRunException {
         
@@ -46,6 +47,7 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
         ras = framework.getResultArchiveStore();
         fileSystem = new FileSystem();
 
+        this.eventsProducer = new TestRunnerEventsProducer( framework.getEventsService() , cps );
         this.overrideProperties = overrideProperties;
 
     }
@@ -105,6 +107,11 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     @Override
     public IFileSystem getFileSystem() {
         return this.fileSystem;
+    }
+
+    @Override 
+    public ITestRunnerEventsProducer getEventsProducer() {
+        return this.eventsProducer;
     }
 
 }
