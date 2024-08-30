@@ -226,7 +226,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.resources
-    version: 0.36.0
+    version: 0.37.0
     obr:          true
     mvp:          false
     bom:          false
