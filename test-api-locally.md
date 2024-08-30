@@ -5,7 +5,43 @@
 In order to test new developments on the Galasa API servlets you need to be able to run them locally.
 The below instructions will help you setup couchDB, etcd and a local API server in order to run tests against the corresponding Galasa APIs.
 
-## External Applications
+## External Applications - Using Docker
+
+Use the `run-locally.sh` script to launch services inside docker containers.
+
+Get gelp for the command is: `run-locally.sh --help`
+
+eg: 
+```
+run-locally.sh --all
+```
+
+or 
+```
+run-locally.sh --etcd
+run-locally.sh --couchdb
+run-locally.sh --dex
+```
+
+Note: When you start couchdb for the first time you need to set up a user database using the 
+wizards accessed from the settings page of the UI.
+
+
+### Environment variables used
+For couchdb: You get to make up the admin password.
+```
+export COUCHDB_PASSWORD=123xxxx4asxredactedxxxxxxasd
+export COUCHDB_USER=admin
+```
+
+
+Note: dex requires a password. It will be created on the first run, and you need to put the value
+into your .zprofile or similar to make sure the value is retained.
+```
+export DEX_ADMIN_PASSWORD="$2y$10$hMpxxxxxredactedxxxxxxxxxgAu3Rfjq"
+```
+
+## External Applications - Manually
 
 If you want to test the API server as if it was running as part of an ecosystem you will need to install and run applications external to galasa.
 
