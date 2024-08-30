@@ -1,90 +1,5 @@
-# Setup local Galasa APIs for testing
-
-## Overview
-
-In order to test new developments on the Galasa API servlets you need to be able to run them locally.
-The below instructions will help you setup couchDB, etcd and a local API server in order to run tests against the corresponding Galasa APIs.
-
-## External Applications - Using Docker
-
-Use the `run-locally.sh` script to launch services inside docker containers.
-
-Get gelp for the command is: `run-locally.sh --help`
-
-eg: 
-```
-run-locally.sh --all
-```
-
-or 
-```
-run-locally.sh --etcd
-run-locally.sh --couchdb
-run-locally.sh --dex
-```
-
-Note: When you start couchdb for the first time you need to set up a user database using the 
-wizards accessed from the settings page of the UI.
-
-
-### Environment variables used
-For couchdb: You get to make up the admin password.
-```
-export COUCHDB_PASSWORD=123xxxx4asxredactedxxxxxxasd
-export COUCHDB_USER=admin
-```
-
-
-Note: dex requires a password. It will be created on the first run, and you need to put the value
-into your .zprofile or similar to make sure the value is retained.
-```
-export DEX_ADMIN_PASSWORD="$2y$10$hMpxxxxxredactedxxxxxxxxxgAu3Rfjq"
-```
-
-## External Applications - Manually
-
-If you want to test the API server as if it was running as part of an ecosystem you will need to install and run applications external to galasa.
-
-The Galasa API service will still run if none of these applications is installed. It will use the local Galasa settings in the `.galasa` directory.
-
-### 1.1 CouchDB
-
-The current version of CouchDB that is used by Galasa is version 3.3.3.
-
-#### Docker install (recommended)
-docker pull couchdb:3.3.3
-docker run -it -p 5984:5984 couchdb:3.3.3
-
-#### Local/Native install (not recommended)
-It can be downloaded [here](https://couchdb.apache.org/#download) or you can downlaod it from the [archive](http://archive.apache.org/dist/couchdb/binary/)
-
-Once you have installed CouchDB you will need to create a username and password in order to authorise tranactions with the database. Keep this in mind as you will need it to view and access the database.
-
-You should now be able access your local couchDB by going to [http://127.0.0.1:5984/_utils](http://127.0.0.1:5984/_utils)
-Once you have logged in you should be able to go to the verification page and verify the couchDB Installation by clicking the green "Verify Installation" button and getting a success message.
-
-### 1.2 etcd
-
-Install etcd on your machine by following the official instructions [here](https://etcd.io/docs/v3.5/install/)
-
-### 1.3 Dex
-Galasa uses [Dex](https://dexidp.io) for authentication using OpenID Connect and needs a Dex server to be running for it to authenticate users.
-
-For instructions on installing and configuring Dex, please refer to Dex's documentation on building the Dex binary locally [here](https://dexidp.io/docs/getting-started).
-
-When configuring Dex, ensure that you uncomment the `grpc` section in the `config-dev.yaml` file, so that the following values are set:
-
-```yaml
-grpc:
-  addr: 127.0.0.1:5557
-  reflection: true
-```
-
-Take note of the `addr` value above as well as the `issuer` value within your `config-dev.yaml` file as these will need to be set as environment variables before starting the Galasa API server, which is shown in the next section.
-
-If you would like to configure Dex to authenticate with an upstream identity provider, like GitHub, Google, or Microsoft, please refer to the appropriate instructions in Dex's documentation on [connectors](https://dexidp.io/docs/connectors).
-
-## 2. Set Environment variables and aliases
+# Old instructions
+Set Environment variables and aliases
 
 As the commands for running the API server or even a test are so big, it would be wise to make aliases for them by placing the text below into your shell's rc file.
 Additionally setting the export for the authorization token from above means you will only need to do it once in the rc file.
@@ -133,13 +48,13 @@ You will need to reload the file to take effect using the following command and 
 % source ~/.zshrc
 ```
 
-## 3. Update Properties files
+## Old instructions : 3. Update Properties files
 
 Before you can run a test against the new database you will need to tell Galasa where your database is. To do this insert the below lines into the corresponding files in your .galasa direcotry.
 
 Please note that if you make future runs against a Galasa ecosystem you will need to override these properties.
 
-#### cps.properties
+#### Old instructions: cps.properties
 
 ```shell
 framework.resultarchive.store=couchdb:http://127.0.0.1:5984
@@ -153,46 +68,46 @@ To do this run the command below using `galasactl`.
 galasactl properties set --namespace framework --name resultarchive.store --value "http://127.0.0.1:5984"
 ```
 
-#### bootstrap.properties
+#### Old instructions: bootstrap.properties
 
 ```shell
 framework.config.store=etcd\:http\://127.0.0.1\:2379
 framework.extra.bundles=dev.galasa.cps.etcd,dev.galasa.ras.couchdb
 ```
 
-### 3.1 Update Properties for CouchDB only
+### Old instructions: 3.1 Update Properties for CouchDB only
 
 If you are only using the couchDB external application you will need to use the lines in this section with your local Galasa API instance.
 
-#### 3.1.1 cps.properties
+#### Old instructions: 3.1.1 cps.properties
 
 ```shell
 framework.resultarchive.store=couchdb:http://127.0.0.1:5984
 ```
 
-#### 3.1.2 bootstrap.properties
+#### Old instructions: 3.1.2 bootstrap.properties
 
 ```shell
 framework.extra.bundles=dev.galasa.ras.couchdb
 ```
 
-### 3.2 Update Properties for etcd only
+### Old instructions: 3.2 Update Properties for etcd only
 
 If you are only using the etcd external application you will need to use the lines in this section with your local Galasa API instance.
 
-#### 3.2.1 bootstrap.properties
+#### Old instructions: 3.2.1 bootstrap.properties
 
 ```shell
 framework.config.store=etcd\:http\://127.0.0.1\:2379
 framework.extra.bundles=dev.galasa.cps.etcd
 ```
 
-### 4. Build the framework locally
+### Old instructions: 4. Build the framework locally
 
 In order to run the full functionality you will need to have all core framework projects downloaded and built by using the [build-all-locally.sh](../200-automation/building-locally.md) script. If you do not have that script speak to another developer to get it.
 You will not be able to continue without a full local build.
 
-### 5. Start the API server
+### 5. Old instructions: Start the API server
 
 You are now ready to run your test file.
 
