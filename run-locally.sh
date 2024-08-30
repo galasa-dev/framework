@@ -90,7 +90,7 @@ while [ "$1" != "" ]; do
                                 ;;
             --dex )             run_component="dex"
                                 ;;
-            -all )              run_component="all"
+            --all )             run_component="all"
                                 ;;
         -h | --help )           usage
                                 exit
