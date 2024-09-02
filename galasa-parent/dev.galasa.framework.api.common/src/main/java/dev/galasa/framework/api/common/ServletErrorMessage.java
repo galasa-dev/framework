@@ -37,6 +37,9 @@ public enum ServletErrorMessage {
     GAL5008_ERROR_LOCATING_ARTIFACT                   (5008,"E: Error locating artifact ''{0}'' for run with identifier ''{1}''."),
     GAL5009_ERROR_RETRIEVING_ARTIFACT                 (5009,"E: Error retrieving artifact ''{0}'' for run with identifier ''{1}''."),
 
+    // RunDelete...
+    GAL5091_ERROR_RUN_NOT_FOUND_BY_ID                 (5091,"E: Error occured when seaching for a run with identifier ''{0}''."),
+
     // GenericErrors...
     GAL5000_GENERIC_API_ERROR                         (5000,"E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."),
     GAL5400_BAD_REQUEST                               (5400,"E: Error occured when trying to execute request ''{0}''. Please check your request parameters or report the problem to your Galasa Ecosystem owner."),
@@ -111,6 +114,8 @@ public enum ServletErrorMessage {
     GAL5081_INVALID_QUERY_PARAM_VALUE                 (5081, "E: A request to get the user details for a particular user failed. The query parameter provided is not valid. Supported values for the ‘loginId’ query parameter are : ‘me’. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program."),
     GAL5082_NO_LOGINID_PARAM_PROVIDED                 (5082, "E: A request to get the user details failed. The request did not supply a ‘loginId’ filter. A ‘loginId’ query parameter with a value of : ‘me’ was expected. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program.")
     ;
+
+
 
 
     private String template ;

@@ -28,7 +28,7 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
  */
 public class RunLogRoute extends RunsRoute {
 
-    protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/runlog\\/?";
+    protected static final String path = "\\/runs\\/([A-Za-z0-9.\\-=]+)\\/runlog\\/?";
 
     public RunLogRoute(ResponseBuilder responseBuilder, IFramework framework) {
         //  Regex to match endpoint: /ras/runs/{runid}/runlog
@@ -55,7 +55,7 @@ public class RunLogRoute extends RunsRoute {
         IRunResult run = getRunByRunId(runId);
         String runLog = null;
 
-        if(run != null) {
+        if (run != null) {
            runLog = run.getLog();
         }
 

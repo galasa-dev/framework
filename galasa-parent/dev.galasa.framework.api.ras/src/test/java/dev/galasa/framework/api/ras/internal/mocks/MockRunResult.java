@@ -17,6 +17,7 @@ public class MockRunResult implements IRunResult {
     private TestStructure testStructure;
     private Path artifactRoot;
     private String log;
+    private boolean isDiscarded = false;
 
     public MockRunResult( 
         String runId,
@@ -52,7 +53,11 @@ public class MockRunResult implements IRunResult {
 
     @Override
     public void discard() throws ResultArchiveStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'discard'");
+        isDiscarded = true;
     }
     
+
+    public boolean isDiscarded() {
+        return this.isDiscarded;
+    }
 }

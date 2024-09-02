@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -78,18 +79,29 @@ public abstract class RunsRoute extends BaseRoute {
 	}
 
 
-    protected IRunResult getRunByRunId(String id) throws ResultArchiveStoreException {
+    /**
+     * 
+     * @param id The id of the run. This is not the shortName, but the longer one starting with 'cdb-'. This is unique over the system.
+     * @return The run we found with that ID. Or null if the run was not found
+     * @throws ResultArchiveStoreException
+     * @throws InternalServletException
+     */
+    protected @NotNull IRunResult getRunByRunId(@NotNull String id) throws ResultArchiveStoreException, InternalServletException {
         IRunResult run = null;
 
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
 
             run = directoryService.getRunById(id);
-
             if (run != null) {
-                return run;
+                break;
             }
         }
-        return null;
+
+        if (run == null) {
+            ServletError error = new ServletError(GAL5091_ERROR_RUN_NOT_FOUND_BY_ID, id);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+        return run;
     }
 
     protected List<String> getRequestors() throws ResultArchiveStoreException{

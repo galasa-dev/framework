@@ -24,6 +24,7 @@ import org.junit.Test;
 import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.mocks.MockRasServletEnvironment;
+import dev.galasa.framework.api.common.ServletErrorMessage;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
 import dev.galasa.framework.mocks.MockPath;
@@ -367,7 +368,7 @@ public class TestRunLogRoute extends RasServletTest {
 		//   "error_message" : "GAL5002E: Error retrieving ras run from identifier 'badRunId'.""
 		// }
 		assertThat(resp.getStatus()).isEqualTo(404);
-		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
+		checkErrorStructure(outStream.toString() , ServletErrorMessage.GAL5091_ERROR_RUN_NOT_FOUND_BY_ID.getTemplateNumber() , "GAL5091E", "badRunId" );
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 }

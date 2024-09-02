@@ -15,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.api.ras.internal.common.RunActionJson;
 import dev.galasa.framework.api.ras.internal.common.RunActionStatus;
@@ -40,7 +41,7 @@ public class RunDetailsRoute extends RunsRoute {
 
    static final GalasaGson gson = new GalasaGson();
 
-   protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/?";
+   protected static final String path = "\\/runs\\/([A-Za-z0-9.\\-=]+)\\/?";
 
    public RunDetailsRoute(ResponseBuilder responseBuilder, IFramework framework) {
       //  Regex to match endpoint: /ras/runs/{runid}
@@ -66,12 +67,22 @@ public class RunDetailsRoute extends RunsRoute {
       String runId = getRunIdFromPath(pathInfo);
       String runName = getRunNameFromRunId(runId);
 
-      checkRequestHasContent(request);
       RunActionJson runAction = getUpdatedRunActionFromRequestBody(request);
       
       return getResponseBuilder().buildResponse(request, response, "text/plain", updateRunStatus(runName, runAction), HttpServletResponse.SC_ACCEPTED);
    } 
 
+
+   @Override
+   public HttpServletResponse handleDeleteRequest(String pathInfo, QueryParameters queryParameters, HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException, FrameworkException {
+      String runId = getRunIdFromPath(pathInfo);
+      IRunResult run = getRunByRunId(runId);
+      
+      run.discard();
+
+      response = getResponseBuilder().buildResponse(request, response, HttpServletResponse.SC_NO_CONTENT);
+      return response;
+   } 
 
    private String updateRunStatus(String runName, RunActionJson runAction) throws InternalServletException, ResultArchiveStoreException {
       String responseBody = "";
@@ -93,13 +104,8 @@ public class RunDetailsRoute extends RunsRoute {
       return responseBody;
    }
 
-   public RasRunResult getRunFromFramework(String id) throws ResultArchiveStoreException {
-
+   private @NotNull RasRunResult getRunFromFramework(@NotNull String id) throws ResultArchiveStoreException, InternalServletException {
       IRunResult run = getRunByRunId(id);
-
-      if (run == null) {
-         return null;
-      }
       return RunResultUtility.toRunResult(run, false);
    }
 
@@ -110,7 +116,14 @@ public class RunDetailsRoute extends RunsRoute {
       return runId;
    }
 
-   private String getRunNameFromRunId(String runId) throws ResultArchiveStoreException {
+   /**
+    * 
+    * @param runId
+    * @return The short run name of the run.
+    * @throws ResultArchiveStoreException
+    * @throws InternalServletException If the runID was not found.
+    */
+   private String getRunNameFromRunId(@NotNull String runId) throws ResultArchiveStoreException, InternalServletException {
       IRunResult run = getRunByRunId(runId);
       String runName = run.getTestStructure().getRunName();
       return runName;

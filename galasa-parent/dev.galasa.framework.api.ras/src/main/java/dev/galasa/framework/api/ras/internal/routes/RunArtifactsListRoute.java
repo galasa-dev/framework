@@ -42,7 +42,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
 
     static final GalasaGson gson = new GalasaGson();
 
-    protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/artifacts\\/?";
+    protected static final String path = "\\/runs\\/([A-Za-z0-9.\\-=]+)\\/artifacts\\/?";
 
     private List<IRunRootArtifact> rootArtifacts = new ArrayList<>();
 
