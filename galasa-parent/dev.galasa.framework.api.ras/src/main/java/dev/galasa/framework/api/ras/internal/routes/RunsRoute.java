@@ -38,6 +38,14 @@ public abstract class RunsRoute extends BaseRoute {
 
     static final GalasaGson gson = new GalasaGson();
 
+    // A pattern for run IDs allowing IDs containing at least one character of:
+    // Alphanumeric characters (A-Za-z0-9)
+    // Periods (.)
+    // Dashes (-)
+    // Equals signs (=)
+    // Underscores (_)
+    protected static final String RUN_ID_PATTERN = "([A-Za-z0-9.\\-=_]+)";
+
     // Define a default filter to accept everything
     static DirectoryStream.Filter<Path> defaultFilter = path -> { return true; };
 
