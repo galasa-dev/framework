@@ -13,4 +13,10 @@ public class SystemTimeService implements ITimeService {
     public Instant now() {
         return Instant.now();
     }
+
+    @Override
+    public void sleepMillis(long millisToSleep) throws InterruptedException {
+        Thread.sleep(millisToSleep);
+    }
+    
 }
