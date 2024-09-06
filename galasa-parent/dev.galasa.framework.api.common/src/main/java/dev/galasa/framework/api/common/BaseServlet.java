@@ -149,7 +149,7 @@ public class BaseServlet extends HttpServlet {
         } else if (requestMethod == DELETE) {
             route.handleDeleteRequest(pathInfo, queryParameters, req, res);
         } else {
-            // The request was sent wih an unsupported method, so throw an error
+            // The request was sent with an unsupported method, so throw an error
             ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED, pathInfo, requestMethodStr);
             throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);     
         }
