@@ -106,7 +106,7 @@ public class ResourceNameValidator {
             } else {
                 // Check a following character.
                 if(propertyValidFollowingCharacters.indexOf(c) < 0 ) {
-                    ServletError errorDetails = new ServletError(GAL5039_INVALID_PROPERTY_NAME_SUUFIX_INVALID_CHAR, suffix,  Character.toString(c));
+                    ServletError errorDetails = new ServletError(GAL5039_INVALID_PROPERTY_NAME_SUFFIX_INVALID_CHAR, suffix,  Character.toString(c));
                     throw new InternalServletException(errorDetails, HttpServletResponse.SC_BAD_REQUEST);
                 }
             }

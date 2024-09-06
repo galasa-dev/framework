@@ -63,7 +63,7 @@ paths:
                 missingparametererror:
                   value:
                     error_code: 5400
-                    error_message: "E: Error occured when trying to execute request '/user'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                    error_message: "E: Error occurred when trying to execute request '/user'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required query parameters are missing
         '500':
           $ref: '#/components/responses/InternalServerError'
@@ -99,7 +99,7 @@ paths:
                 missingparametererror:
                   value:
                     error_code: 5400
-                    error_message: "E: Error occured when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                    error_message: "E: Error occurred when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required body properties are missing
         '500':
           $ref: '#/components/responses/InternalServerError'
@@ -143,7 +143,7 @@ paths:
                 missingparametererror:
                   value:
                     error_code: 5400
-                    error_message: "E: Error occured when trying to execute request '/auth/callback'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                    error_message: "E: Error occurred when trying to execute request '/auth/callback'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required query parameters are missing
   /auth/clients:
     parameters:
@@ -223,7 +223,7 @@ paths:
                 missingparametererror:
                   value:
                     error_code: 5400
-                    error_message: "E: Error occured when trying to execute request '/auth/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                    error_message: "E: Error occurred when trying to execute request '/auth/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required body properties are missing
         '500':
           $ref: '#/components/responses/InternalServerError'
@@ -282,8 +282,8 @@ paths:
                 genericerror:
                   value:
                     error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+                    error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to access the endpoint
                   
 ##################################################################################
 # Users API
@@ -322,7 +322,7 @@ paths:
                 missingparametererror:
                   value:
                     error_code: 5400
-                    error_message: "E: Error occured when trying to execute request '/users'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                    error_message: "E: Error occurred when trying to execute request '/users'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required query parameters are missing
 ##################################################################################
 # CPS API
@@ -427,8 +427,8 @@ paths:
                 namespacerror:
                   value:
                     error_code: 5016
-                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. Namespace 'xyz' is not available."
-                  summary: An error occured when trying to retrieve the CPS namespaces
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. Namespace 'xyz' is not available."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
@@ -477,13 +477,13 @@ paths:
                 namespaceerror:
                   value:
                     error_code: 5016
-                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
-                  summary: An error occured when trying to retrieve the CPS namespaces
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
                 existingpropertyerror:
                   value:
                     error_code: 5018
-                    error_message: "GAL5018E: Error occured when trying to access property 'propertyName'. The property name provided already exists in the 'framework' namespace."
-                  summary: An error occured because the property already exists
+                    error_message: "GAL5018E: Error occurred when trying to access property 'propertyName'. The property name provided already exists in the 'framework' namespace."
+                  summary: An Error occurred because the property already exists
         '411':
           description: Content Length Required
           content:
@@ -494,8 +494,8 @@ paths:
                 nocontenterror:
                   value:
                     error_code: 5411
-                    error_message: "GAL5411E: Error occured when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
-                  summary: An error occured when no value was supplied in the request body
+                    error_message: "GAL5411E: Error occurred when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
+                  summary: An Error occurred when no value was supplied in the request body
         '500':
           $ref: '#/components/responses/InternalServerError'
   #--------------------------------------
@@ -577,8 +577,8 @@ paths:
                 invalidnamespaceerror:
                   value:
                     error_code: 5016
-                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
-                  summary: An error occured when trying to retrieve the CPS namespaces
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
         '500':
           $ref: '#/components/responses/InternalServerError'
     put:
@@ -636,13 +636,13 @@ paths:
                 namespaceerror:
                   value:
                     error_code: 5016
-                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
-                  summary: An error occured when trying to retrieve the CPS namespaces
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
                 newpropertyerror:
                   value:
                     error_code: 5017
-                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
-                  summary: An error occured because the property does not exist
+                    error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
+                  summary: An Error occurred because the property does not exist
         '411':
           description: Content Length Required
           content:
@@ -653,8 +653,8 @@ paths:
                 nocontenterror:
                   value:
                     error_code: 5411
-                    error_message: "GAL5411E: Error occured when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
-                  summary: An error occured when no value was supplied in the request body
+                    error_message: "GAL5411E: Error occurred when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
+                  summary: An Error occurred when no value was supplied in the request body
         '500':
           $ref: '#/components/responses/InternalServerError'
     delete:
@@ -705,13 +705,13 @@ paths:
                 namespaceerror:
                   value:
                     error_code: 5016
-                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
-                  summary: An error occured when trying to retrieve the CPS namespaces
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
                 newpropertyerror:
                   value:
                     error_code: 5017
-                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
-                  summary: An error occured because the property does not exist
+                    error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
+                  summary: An Error occurred because the property does not exist
         '500':
           $ref: '#/components/responses/InternalServerError'
 ##################################################################################
@@ -778,8 +778,8 @@ paths:
                 namespaceerror:
                   value:
                     error_code: 5016
-                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
-                  summary: An error occured when trying to retrieve the CPS namespaces
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
         '500':
           $ref: '#/components/responses/InternalServerError'
   /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
@@ -969,13 +969,13 @@ paths:
                 singleError:
                   value:
                   - error_code: 5017
-                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
+                    error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
                 multipleErrors:
                   value:
                   - error_code: 5017
-                    error_message: "GAL5017E: Error occured when trying to access property 'propertyName'. The property name provided is invalid."
+                    error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
                   - error_code: 5016
-                    error_message: "GAL5016E: Error occured when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
         '401':
           $ref: "#/components/responses/Unauthorized"
         '500':
@@ -1238,22 +1238,22 @@ paths:
                   value:
                     error_code: 5001
                     error_message: "GAL5001E: Error parsing the date-time field 'from' in the request URL. Invalid value '202E-04-12T13:08:10.295971Z'. Expecting a java LocalDateTime format. For example: '2023-04-11T09:42:06.589180Z'"
-                  summary: An error occured parsing the from date-time field
+                  summary: An Error occurred parsing the from date-time field
                 toerror:
                   value:
                     error_code: 5001
                     error_message: "GAL5001E: Error parsing the date-time field 'to' in the request URL. Invalid value '2023-0F-12T13:08:10.295971Z'. Expecting a java LocalDateTime format. For example: '2023-04-11T09:52:56.586180Z'"
-                  summary: An error occured parsing the to date-time field
+                  summary: An Error occurred parsing the to date-time field
                 interror:
                   value:
                     error_code: 5005
                     error_message: "GAL5005E: Error parsing the query parameter 'page'' in the request URL. Invalid value 'five'. Expecting an integer."
-                  summary: An error occured parsing integer parameter
+                  summary: An Error occurred parsing integer parameter
                 duplicateerror:
                   value:
                     error_code: 5006
                     error_message: "GAL5006E: Error parsing the query parameters. Duplicate instances of query parameter 'size' found in the request URL. Expecting only one."
-                  summary: An error occured parsing duplicate parameter
+                  summary: An Error occurred parsing duplicate parameter
         '401':
           $ref: "#/components/responses/Unauthorized"
         '404':
@@ -1267,7 +1267,7 @@ paths:
                   value:
                     error_code: 5002
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-xxx'."
-                  summary: An error occured when trying to retrieve a specific run using a runId
+                  summary: An Error occurred when trying to retrieve a specific run using a runId
         '500':
           $ref: '#/components/responses/InternalServerError'
           examples:
@@ -1275,12 +1275,12 @@ paths:
               value:
                 error_code: 5003
                 error_message: "GAL5003E: Error retrieving runs. Report the problem to your Galasa Ecosystem owner."
-              summary: An error occured when trying to retireve the runs
+              summary: An Error occurred when trying to retireve the runs
             pageerror:
               value:
                 error_code: 5004
                 error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
-              summary: An error occured when trying to return a results page
+              summary: An Error occurred when trying to return a results page
 
 
   #--------------------------------------
@@ -1320,7 +1320,7 @@ paths:
                   value:
                     error_code: 5091
                     error_message: "GAL5091E: Error deleting ras run from RunID 'cdb-xxx'."
-                  summary: An error occured when trying to delete a run using the given runId
+                  summary: An Error occurred when trying to delete a run using the given runId
         '401':
           $ref: "#/components/responses/Unauthorized"
         '500':
@@ -1405,22 +1405,22 @@ paths:
                 invalidStatusUpdateRequest:
                   value:
                     error_code: 5045
-                    error_message: "GAL5045E: Error occured. The field 'status' in the request body is invalid. The 'status' value 'create' supplied is not supported. Supported values are: 'cancel' and 'reset'"
-                  summary: An error occured because the status field does not contain an expected action
+                    error_message: "GAL5045E: Error occurred. The field 'status' in the request body is invalid. The 'status' value 'create' supplied is not supported. Supported values are: 'cancel' and 'reset'"
+                  summary: An Error occurred because the status field does not contain an expected action
                 runNameDoesNotMatch:
                   value:
                     error_code: 5046
                     error_message: "GAL5046E: The 'runName' 'badRun' from the request body does not match the  'runName' 'U123'  associated with the runID in the url 'xx12345xx'."
-                  summary: An error occured because the runName in the request body does not match the runName derived from runID in the URL
+                  summary: An Error occurred because the runName in the request body does not match the runName derived from runID in the URL
                 resetRunHasAlreadyCompleted:
                   value:
                     error_code: 5049
-                    error_message: "GAL5049E: Error occured when trying to reset the run ''{0}''. The run has already completed."
+                    error_message: "GAL5049E: Error occurred when trying to reset the run ''{0}''. The run has already completed."
                   summary: The run in the request has already completed and can not be reset
                 cancelRunHasAlreadyCompleted:
                   value:
                     error_code: 5050
-                    error_message: "GAL5050E: Error occured when trying to cancel the run 'U123'. The run has already completed."
+                    error_message: "GAL5050E: Error occurred when trying to cancel the run 'U123'. The run has already completed."
                   summary: The run in the request has already completed and can not be cancelled
         '401':
           $ref: "#/components/responses/Unauthorized"
@@ -1434,18 +1434,18 @@ paths:
                 genericerror:
                   value:
                     error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+                    error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to access the endpoint
                 unableToReset:
                   value:
                    error_code: 5047
-                   error_message: "GAL5047E: Error occured when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to action the run reset
+                   error_message: "GAL5047E: Error occurred when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to action the run reset
                 unableToCancel:
                   value:
                     error_code: 5048
-                    error_message: "GAL5048E: Error occured when trying to cancel the run 'U123'. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to action the run cancel
+                    error_message: "GAL5048E: Error occurred when trying to cancel the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to action the run cancel
   #--------------------------------------
   # Retrieve Run Log.
   #--------------------------------------
@@ -1525,7 +1525,7 @@ paths:
                   value:
                     error_code: 5002
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-xxx'."
-                  summary: An error occured when trying to retrieve a specific run using a runId
+                  summary: An Error occurred when trying to retrieve a specific run using a runId
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -1581,7 +1581,7 @@ paths:
                   value:
                     error_code: 5002
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-xxx'."
-                  summary: An error occured when trying to retrieve a specific run  using a runId
+                  summary: An Error occurred when trying to retrieve a specific run  using a runId
         '500':
           description: Internal Server Error
           content:
@@ -1592,18 +1592,18 @@ paths:
                 genericerror:
                   value:
                     error_code: 5000
-                    error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An error occured when trying to access the endpoint
+                    error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to access the endpoint
                 locatingerror:
                   value:
                     error_code: 5008
                     error_message: "GAL5008E: Error locating artifact '/unlocated.file' for run with identifier 'U116'."
-                  summary: An error occured when trying to locate the artifact
+                  summary: An Error occurred when trying to locate the artifact
                 retrievingerror:
                   value:
                     error_code: 5009
                     error_message: "GAL5009E: Error retrieving artifact  '/framework/cps_record.properties' for run with identifier 'U116'."
-                  summary: An error occured when trying to retrieve the artifact
+                  summary: An Error occurred when trying to retrieve the artifact
 
   #--------------------------------------
   # List all testclasses.
@@ -1741,8 +1741,8 @@ components:
             genericerror:
               value:
                 error_code: 5000
-                error_message: "GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-              summary: An error occured when trying to access the endpoint
+                error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+              summary: An Error occurred when trying to access the endpoint
     Unauthorized:
       description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
       content:

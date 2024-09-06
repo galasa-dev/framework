@@ -183,7 +183,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 			outStream.toString(),
 			5000,
 			"GAL5000E: ",
-			"Error occured when trying to access the endpoint"
+			"Error occurred when trying to access the endpoint"
 		);
     }
 
@@ -267,7 +267,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5015,
-			"E: Error occured when trying to access the Configuration Property Store.",
+			"E: Error occurred when trying to access the Configuration Property Store.",
 			" Report the problem to your Galasa Ecosystem owner."
 		);
     }
@@ -293,7 +293,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"E: Error occured when trying to identify the endpoint '.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"E: Error occurred when trying to identify the endpoint '.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);
     }
 
@@ -321,7 +321,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/namespace'. The method 'PUT' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/namespace'. The method 'PUT' is not allowed."
 		);
     }
 
@@ -349,7 +349,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/namespace'. The method 'POST' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/namespace'. The method 'POST' is not allowed."
 		);
     }
 
@@ -377,7 +377,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/namespace'. The method 'DELETE' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/namespace'. The method 'DELETE' is not allowed."
 		);
     }
 

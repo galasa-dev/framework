@@ -222,7 +222,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/namespace/framework/property/property.456'. The method 'GET' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/namespace/framework/property/property.456'. The method 'GET' is not allowed."
 		);
 	}
 
@@ -364,7 +364,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/namespace/framework/property/property.456'. The method 'POST' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/namespace/framework/property/property.456'. The method 'POST' is not allowed."
 		);
     }
 
@@ -392,7 +392,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/namespace/framework/property/property.456'. The method 'DELETE' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/namespace/framework/property/property.456'. The method 'DELETE' is not allowed."
 		);
     }
 

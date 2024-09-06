@@ -42,7 +42,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5405","E: Error occured when trying to access the endpoint ''. The method 'GET' is not allowed");
+        assertThat(thrown.getMessage()).contains("GAL5405","E: Error occurred when trying to access the endpoint ''. The method 'GET' is not allowed");
     }
 
     @Test
@@ -59,7 +59,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5405","E: Error occured when trying to access the endpoint ''. The method 'PUT' is not allowed");
+        assertThat(thrown.getMessage()).contains("GAL5405","E: Error occurred when trying to access the endpoint ''. The method 'PUT' is not allowed");
     }
     
     @Test
@@ -76,7 +76,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5405","E: Error occured when trying to access the endpoint ''. The method 'POST' is not allowed");
+        assertThat(thrown.getMessage()).contains("GAL5405","E: Error occurred when trying to access the endpoint ''. The method 'POST' is not allowed");
     }
 
     @Test
@@ -93,7 +93,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5405","E: Error occured when trying to access the endpoint ''. The method 'DELETE' is not allowed");
+        assertThat(thrown.getMessage()).contains("GAL5405","E: Error occurred when trying to access the endpoint ''. The method 'DELETE' is not allowed");
     }
     
     @Test
@@ -109,7 +109,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5411","E: Error occured when trying to access the endpoint ''. The request body is empty.");
+        assertThat(thrown.getMessage()).contains("GAL5411","E: Error occurred when trying to access the endpoint ''. The request body is empty.");
     }
 
     @Test
@@ -125,7 +125,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5411","E: Error occured when trying to access the endpoint ''. The request body is empty.");
+        assertThat(thrown.getMessage()).contains("GAL5411","E: Error occurred when trying to access the endpoint ''. The request body is empty.");
     }
 
     @Test
@@ -170,7 +170,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5068","E: Error occured. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
+        assertThat(thrown.getMessage()).contains("GAL5068","E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
     }
 
     @Test
@@ -185,7 +185,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5067","E: Error occured. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
+        assertThat(thrown.getMessage()).contains("GAL5067","E: Error occurred. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
     }
     
     @Test
