@@ -451,7 +451,7 @@ public class TestTestClassesRoute extends RasServletTest{
 			outStream.toString(),
 			5000,
 			"GAL5000E: ",
-			"Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+			"Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
 		);
 	}
 

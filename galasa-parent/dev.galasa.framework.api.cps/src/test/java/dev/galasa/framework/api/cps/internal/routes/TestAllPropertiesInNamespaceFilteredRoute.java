@@ -222,7 +222,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 			outStream.toString(),
 			5000,
 			"GAL5000E: ",
-			"Error occured when trying to access the endpoint"
+			"Error occurred when trying to access the endpoint"
 		);
     }
 
@@ -245,7 +245,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5016,
-			": Error occured when trying to access namespace 'framework'. The namespace provided is invalid."
+			": Error occurred when trying to access namespace 'framework'. The namespace provided is invalid."
 		);
     }
 
@@ -329,7 +329,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"E: Error occured when trying to identify the endpoint '.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"E: Error occurred when trying to identify the endpoint '.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);
     }
 
@@ -357,7 +357,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/namespace/framework/prefix/prop/suffix/erty'. The method 'PUT' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/namespace/framework/prefix/prop/suffix/erty'. The method 'PUT' is not allowed."
 		);
     }
 
@@ -385,7 +385,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/namespace/framework/prefix/prop/suffix/erty'. The method 'POST' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/namespace/framework/prefix/prop/suffix/erty'. The method 'POST' is not allowed."
 		);
     }
 
@@ -413,7 +413,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/namespace/framework/prefix/prop/suffix/erty'. The method 'DELETE' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/namespace/framework/prefix/prop/suffix/erty'. The method 'DELETE' is not allowed."
 		);
     }
 

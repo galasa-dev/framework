@@ -343,7 +343,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(500);
-        checkErrorStructure(outStream.toString(), 5000, "GAL5000E", "Error occured when trying to access the endpoint");
+        checkErrorStructure(outStream.toString(), 5000, "GAL5000E", "Error occurred when trying to access the endpoint");
     }
 
     @Test

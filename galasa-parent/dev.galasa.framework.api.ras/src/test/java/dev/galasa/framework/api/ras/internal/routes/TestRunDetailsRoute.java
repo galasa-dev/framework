@@ -553,7 +553,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5045, 
-			"E: Error occured. The field 'status' in the request body is invalid. The 'status' value 'submitted' supplied is not supported. Supported values are: 'queued' and 'finished'.");
+			"E: Error occurred. The field 'status' in the request body is invalid. The 'status' value 'submitted' supplied is not supported. Supported values are: 'queued' and 'finished'.");
 	}
 	
 	@Test
@@ -594,7 +594,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 
 			5047, 
-			"E: Error occured when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
+			"E: Error occurred when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
 	}
 
 	@Test
@@ -635,7 +635,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 
 			5048, 
-			"E: Error occured when trying to cancel the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
+			"E: Error occurred when trying to cancel the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
 	}
 	
 	@Test
@@ -676,7 +676,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5049, 
-			"E: Error occured when trying to reset the run 'U123'. The run has already completed.");
+			"E: Error occurred when trying to reset the run 'U123'. The run has already completed.");
 	}
 
 	@Test
@@ -717,7 +717,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5050, 
-			"E: Error occured when trying to cancel the run 'U123'. The run has already completed.");
+			"E: Error occurred when trying to cancel the run 'U123'. The run has already completed.");
 	}
 
 	@Test
@@ -753,7 +753,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5046, 
-			"E: Error occured when trying to cancel the run 'U123'. The 'result' 'deleted' supplied is not supported. Supported values are: 'cancelled'.");
+			"E: Error occurred when trying to cancel the run 'U123'. The 'result' 'deleted' supplied is not supported. Supported values are: 'cancelled'.");
 	}
 
 
