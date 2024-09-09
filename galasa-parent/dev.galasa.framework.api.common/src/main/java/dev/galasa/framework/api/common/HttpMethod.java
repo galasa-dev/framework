@@ -17,5 +17,17 @@ public enum HttpMethod {
     PATCH,
     TRACE,
     OPTIONS,
-    CONNECT,
+    CONNECT
+    ;
+
+    public static HttpMethod getFromString(String httpMethodStr) {
+        HttpMethod match = null;
+        for (HttpMethod possibleMatch : values()) {
+            if (possibleMatch.toString().equalsIgnoreCase(httpMethodStr)) {
+                match = possibleMatch;
+                break;
+            }
+        }
+        return match;
+    }
 }

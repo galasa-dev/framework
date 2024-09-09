@@ -12,4 +12,6 @@ import java.time.Instant;
  */
 public interface ITimeService {
     Instant now();
+
+    void sleepMillis(long millisToSleep) throws InterruptedException ;
 }

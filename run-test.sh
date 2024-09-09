@@ -11,5 +11,5 @@ rc=$? ; if [[ "$rc" != "0" ]]; then error "Failed to build" ; exit 1 ; fi
 galasactl runs submit local  \
 --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr  \
 --class dev.galasa.example.banking.payee/dev.galasa.example.banking.payee.TestPayee \
---galasahome /Users/mcobbett/builds/galasa/code/src/github.com/galasa-dev/cli/temp/home \
+--galasahome $BASEDIR/temp/home \
 --log -

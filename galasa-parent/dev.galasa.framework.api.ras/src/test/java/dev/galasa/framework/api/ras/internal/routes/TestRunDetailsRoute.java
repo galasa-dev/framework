@@ -12,6 +12,8 @@ import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.mocks.MockArchiveStore;
 import dev.galasa.framework.api.ras.internal.mocks.MockRasServletEnvironment;
 import dev.galasa.framework.api.ras.internal.mocks.MockResultArchiveStoreDirectoryService;
+import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
+import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockIFrameworkRuns;
@@ -227,6 +229,20 @@ public class TestRunDetailsRoute extends RasServletTest {
 		//Then...
 		assertThat(matches).isFalse();
 	} 
+
+
+	@Test
+	public void TestRegexWithMaliciousHtmlInsideFailsRegexMatching(){
+		//Given...
+		String expectedPath = RunDetailsRoute.path;
+		String inputPath = "/runs/ABC-<href>/";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).as("malicious regex containing html was not treated as invalid input.").isFalse();
+	}
 
 	/*
 	 * GET Requests
@@ -537,7 +553,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5045, 
-			"E: Error occured. The field 'status' in the request body is invalid. The 'status' value 'submitted' supplied is not supported. Supported values are: 'queued' and 'finished'.");
+			"E: Error occurred. The field 'status' in the request body is invalid. The 'status' value 'submitted' supplied is not supported. Supported values are: 'queued' and 'finished'.");
 	}
 	
 	@Test
@@ -578,7 +594,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 
 			5047, 
-			"E: Error occured when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
+			"E: Error occurred when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
 	}
 
 	@Test
@@ -619,7 +635,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(500);
 		checkErrorStructure(outStream.toString(), 
 			5048, 
-			"E: Error occured when trying to cancel the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
+			"E: Error occurred when trying to cancel the run 'U123'. Report the problem to your Galasa Ecosystem owner.");
 	}
 	
 	@Test
@@ -660,7 +676,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5049, 
-			"E: Error occured when trying to reset the run 'U123'. The run has already completed.");
+			"E: Error occurred when trying to reset the run 'U123'. The run has already completed.");
 	}
 
 	@Test
@@ -701,7 +717,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5050, 
-			"E: Error occured when trying to cancel the run 'U123'. The run has already completed.");
+			"E: Error occurred when trying to cancel the run 'U123'. The run has already completed.");
 	}
 
 	@Test
@@ -737,7 +753,94 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5046, 
-			"E: Error occured when trying to cancel the run 'U123'. The 'result' 'deleted' supplied is not supported. Supported values are: 'cancelled'.");
+			"E: Error occurred when trying to cancel the run 'U123'. The 'result' 'deleted' supplied is not supported. Supported values are: 'cancelled'.");
 	}
 
+
+	//
+	// DELETE Requests
+	//
+
+	@Test
+	public void testDeleteRunNoReqPayloadWithGoodRunIdReturnsOK() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+		MockRasServletEnvironment mockServletEnvironment = setUpDeleteByRunIdMockServices( runId , mockInputRunResults);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(204);
+		assertThat(((MockRunResult) mockInputRunResults.get(0)).isDiscarded()).as("The fake run result has not been discarded.").isTrue();
+	}
+
+
+	@Test
+	public void testDeleteRunFailsWhenRunDoesNotExist() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+
+		List<IRunResult> mockInputRunResults = new ArrayList<>(); // Note: There are no runs returned when the servlet looks for matching runs.
+		MockRasServletEnvironment mockServletEnvironment = setUpDeleteByRunIdMockServices( runId , mockInputRunResults);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_FOUND);
+		checkErrorStructure(resp.getOutputStream().toString(), 
+		5091,
+		"GAL5091E",runId);
+	}
+
+	private MockRasServletEnvironment setUpDeleteByRunIdMockServices(String runId, List<IRunResult> mockInputRunResults) {
+	
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, null, HttpMethod.DELETE.toString());
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockrasService);
+
+		return mockServletEnvironment;
+	}
+
+	@Test
+	public void testDeleteRunFailsWhenRunIdIsNotFormedCorrectly() throws Exception {
+		// Given...
+		String runId = "cdb-<href>";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+		
+		MockRasServletEnvironment mockServletEnvironment = setUpDeleteByRunIdMockServices( runId , mockInputRunResults);
+	
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_FOUND);
+		checkErrorStructure(resp.getOutputStream().toString(), 
+		5404,
+		"GAL5404E");
+	}
 }

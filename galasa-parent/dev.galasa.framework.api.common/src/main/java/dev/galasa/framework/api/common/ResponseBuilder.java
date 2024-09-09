@@ -41,7 +41,7 @@ public class ResponseBuilder {
 		int status
 	) {
 		//Set headers for HTTP Response
-        resp = buildResponseHeaders(req, resp, contentType, status);
+        resp = buildResponse(req, resp, contentType, status);
 
 		try(PrintWriter out = resp.getWriter()) {
 			out.print(content);
@@ -53,15 +53,25 @@ public class ResponseBuilder {
 		return resp;
 	}
 
-	public HttpServletResponse buildResponseHeaders(
+	public HttpServletResponse buildResponse(
         HttpServletRequest req,
 		HttpServletResponse resp,
 		String contentType,
 		int status
 	) {
+		resp = buildResponse(req, resp, status);
+		resp.setContentType(contentType);
+
+		return resp;
+	}
+
+	public HttpServletResponse buildResponse(
+        HttpServletRequest req,
+		HttpServletResponse resp,
+		int status
+	) {
 		//Set headers for HTTP Response
 		resp.setStatus(status);
-		resp.setContentType(contentType);
 
         String origin = validateRequestOrigin(req);
         if (origin != null) {

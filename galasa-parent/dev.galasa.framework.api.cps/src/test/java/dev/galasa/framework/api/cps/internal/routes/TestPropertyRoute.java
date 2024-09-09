@@ -284,7 +284,7 @@ public class TestPropertyRoute extends CpsServletTest{
 			outStream.toString(),
 			5000,
 			"GAL5000E: ",
-			"Error occured when trying to access the endpoint"
+			"Error occurred when trying to access the endpoint"
 		);
     }
 
@@ -310,7 +310,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5016,
-			"GAL5016E: Error occured when trying to access namespace 'badnamespace'. The namespace provided is invalid."
+			"GAL5016E: Error occurred when trying to access namespace 'badnamespace'. The namespace provided is invalid."
 		);
     }
 
@@ -394,7 +394,7 @@ public class TestPropertyRoute extends CpsServletTest{
 			outStream.toString(),
 			5016,
 			"GAL5016E: ",
-			"Error occured when trying to access namespace 'dss'. The namespace provided is invalid"
+			"Error occurred when trying to access namespace 'dss'. The namespace provided is invalid"
 		);
     }
 
@@ -420,7 +420,7 @@ public class TestPropertyRoute extends CpsServletTest{
 			outStream.toString(),
 			5404,
 			"GAL5404E:",
-			" Error occured when trying to identify the endpoint '/j!ndex/properties'. ",
+			" Error occurred when trying to identify the endpoint '/j!ndex/properties'. ",
 			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);
 	}
@@ -973,7 +973,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/multi/properties?prefix=.&suffix=1'. The method 'PUT' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/multi/properties?prefix=.&suffix=1'. The method 'PUT' is not allowed."
 		);
     }
 
@@ -1001,7 +1001,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/multi/properties?prefix=.&suffix=1'. The method 'DELETE' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/multi/properties?prefix=.&suffix=1'. The method 'DELETE' is not allowed."
 		);
     }
 
@@ -1033,7 +1033,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5000,
-			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+			"GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
 		);
     }
 
@@ -1062,7 +1062,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5000,
-			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+			"GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
 		);
     }
 
@@ -1116,7 +1116,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"Error occured when trying to identify the endpoint '/camelCase/properties'. "+
+			"Error occurred when trying to identify the endpoint '/camelCase/properties'. "+
 			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);
     }
@@ -1145,7 +1145,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"Error occured when trying to identify the endpoint '/NotCamelcase/properties'. "+
+			"Error occurred when trying to identify the endpoint '/NotCamelcase/properties'. "+
 			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);     
     }
@@ -1174,7 +1174,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"Error occured when trying to identify the endpoint '/notcamelcasE/properties'. "+
+			"Error occurred when trying to identify the endpoint '/notcamelcasE/properties'. "+
 			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);   
     }
@@ -1203,7 +1203,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"Error occured when trying to identify the endpoint '/camel3Case/properties'. "+
+			"Error occurred when trying to identify the endpoint '/camel3Case/properties'. "+
 			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);      
     }
@@ -1232,7 +1232,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"Error occured when trying to identify the endpoint '/camelCase3/properties'. "+
+			"Error occurred when trying to identify the endpoint '/camelCase3/properties'. "+
 			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);         
     }
@@ -1344,7 +1344,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5016,
-			"GAL5016E: Error occured when trying to access namespace 'dss'. The namespace provided is invalid."
+			"GAL5016E: Error occurred when trying to access namespace 'dss'. The namespace provided is invalid."
 		);    
     }
 
@@ -1371,7 +1371,7 @@ public class TestPropertyRoute extends CpsServletTest{
        checkErrorStructure(
 			outStream.toString(),
 			5018,
-			"E: Error occured when trying to access property 'property.5'.",
+			"E: Error occurred when trying to access property 'property.5'.",
             " The property name provided already exists in the 'framework' namespace."
 		);        
     }
@@ -1451,7 +1451,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5411,
-            "E: Error occured when trying to access the endpoint '/framew0rk/properties'.",
+            "E: Error occurred when trying to access the endpoint '/framew0rk/properties'.",
             " The request body is empty."
 		); 
     }
@@ -1477,7 +1477,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5411,
-            "E: Error occured when trying to access the endpoint '/framework/properties'.",
+            "E: Error occurred when trying to access the endpoint '/framework/properties'.",
             " The request body is empty."
 		); 
     }

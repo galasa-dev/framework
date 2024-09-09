@@ -190,6 +190,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
         this.headerMap.put(header, value);
     }
 
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
     @Override
     public Object getAttribute(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getAttribute'");

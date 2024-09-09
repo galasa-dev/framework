@@ -431,7 +431,7 @@ public class TestRunQuery extends RasServletTest {
 			outStream.toString(),
 			5000,
 			"GAL5000E: ",
-			"Error occured when trying to access the endpoint"
+			"Error occurred when trying to access the endpoint"
 		);
 	}
 

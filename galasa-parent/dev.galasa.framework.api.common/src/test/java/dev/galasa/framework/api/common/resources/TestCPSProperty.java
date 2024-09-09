@@ -354,7 +354,7 @@ public class TestCPSProperty extends BaseServletTest {
         //Then...
         assertThat(thrown).isNotNull();
         checkErrorStructure(thrown.getMessage(),5030,
-            "GAL5030E: Error occured when trying to delete Property 'properly.name'.",
+            "GAL5030E: Error occurred when trying to delete Property 'properly.name'.",
             "Report the problem to your Galasa Ecosystem owner.");        
     }
 
@@ -403,7 +403,7 @@ public class TestCPSProperty extends BaseServletTest {
         //Then...
         assertThat(thrown).isNotNull();
         checkErrorStructure(thrown.getMessage(),5030,
-            "GAL5030E: Error occured when trying to delete Property 'property.name'.",
+            "GAL5030E: Error occurred when trying to delete Property 'property.name'.",
             "Report the problem to your Galasa Ecosystem owner.");        
     }
 

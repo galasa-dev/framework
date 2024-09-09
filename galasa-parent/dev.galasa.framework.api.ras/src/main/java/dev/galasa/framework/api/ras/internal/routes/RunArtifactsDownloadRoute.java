@@ -50,18 +50,27 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
 
     static final GalasaGson gson = new GalasaGson();
 
-    protected static final String path = "\\/runs\\/([A-z0-9.\\-=]+)\\/files\\/([A-z0-9.\\-=\\/]+)";
+    // A pattern for artifact file paths that allows file paths containing at least one character of:
+    // Alphanumeric characters (A-Za-z0-9)
+    // periods (.)
+    // dashes (-)
+    // Equals signs (=)
+    // Underscores (_)
+    // Slashes (/)
+    // Parentheses ( '('' and ')' )
+    private static final String ARTIFACT_PATH_PATTERN = "([A-Za-z0-9.\\-=_\\/\\(\\)]+)";
+
+    // The regex pattern for the "/ras/runs/{run-id}/files/{artifact-path}" endpoint
+    private static final String path = "\\/runs\\/" + RUN_ID_PATTERN + "\\/files\\/" + ARTIFACT_PATH_PATTERN;
 
     private Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
 
     public RunArtifactsDownloadRoute(ResponseBuilder responseBuilder, IFileSystem fileSystem, IFramework framework) {
-        //  Regex to match endpoint: /ras/runs/{runId}/files/{artifactPath}
         super(responseBuilder,
               path,
               fileSystem,
               framework
         );
-
 
         rootArtifacts.put("run.log", new RunLogArtifact());
         rootArtifacts.put("structure.json", new StructureJsonArtifact());

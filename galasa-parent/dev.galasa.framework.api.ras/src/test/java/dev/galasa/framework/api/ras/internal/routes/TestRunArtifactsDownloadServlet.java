@@ -37,13 +37,36 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
      */
 
 	@Test
+	public void TestPathRegexWithAcceptedSpecialCharactersReturnsTrue() {
+		//Given...
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
+
+		//Then...
+		assertThat(expectedPath.matcher("/runs/cdb_1234/files/my.properties").matches())
+            .as("Underscores in the run ID should be allowed")
+            .isTrue();
+
+        assertThat(expectedPath.matcher("/runs/4331cdb-1234/files/my/cps_record.properties").matches())
+            .as("Underscores in the file path should be allowed")
+            .isTrue();
+
+        assertThat(expectedPath.matcher("/runs/4331cdb_1234/files/my/cps-record.properties").matches())
+            .as("Dashes in the file path should be allowed")
+            .isTrue();
+
+        assertThat(expectedPath.matcher("/runs/4331cdb_1234/files/my/cps-record(1).properties").matches())
+            .as("Parentheses in the file path should be allowed")
+            .isTrue();
+	}
+
+	@Test
 	public void TestPathRegexExpectedLocalPathReturnsTrue(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/lcl-abcd-1234.run/files/run.log";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isTrue();
@@ -52,11 +75,11 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	@Test
 	public void TestPathRegexExpectedPathReturnsTrue(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/lcl-abcd-1234.run/files/artifacts/image123.png";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isTrue();
@@ -65,11 +88,11 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	@Test
 	public void TestPathRegexExpectedCouchDBPathReturnsTrue(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/cdb-efgh-5678.run/files/run.log";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isTrue();
@@ -78,11 +101,11 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	@Test
 	public void TestPathRegexLowerCasePathReturnsTrue(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/cdbstoredrun/files/run.log";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isTrue();
@@ -91,11 +114,11 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	@Test
 	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/ABC-DEFG-5678.run/files/run.log";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isTrue();
@@ -104,11 +127,11 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	@Test
 	public void TestPathRegexUpperCasePathReturnsFalse(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/cdb-EFGH-5678.run/FILES/run.log";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isFalse();
@@ -117,11 +140,11 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	@Test
 	public void TestPathRegexExpectedPathWithLeadingNumberReturnsTrue(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/cdb-EFGH-5678.run/files/1run.log";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isTrue();
@@ -130,11 +153,11 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	@Test
 	public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/cdb-EFGH-5678.run/files/run.log/";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isTrue();
@@ -143,11 +166,11 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	@Test
 	public void TestPathRegexNumberPathReturnsTrue(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/cdb-EFGH-5678.run/files/run1.log";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isTrue();
@@ -156,11 +179,11 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	@Test
 	public void TestPathRegexUnexpectedPathReturnsFalse(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/cdb-EFGH-5678.run/file/run.log";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isFalse();
@@ -169,37 +192,39 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	@Test
 	public void TestPathRegexEmptyPathReturnsFalse(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isFalse();
 	}
 
 	@Test
-	public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+	public void TestPathRegexSpecialCharactersInFilePathReturnsFalse() {
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
-		String inputPath = "/runs/cdb-EFGH-5678.run/files/run.log?";
-
-		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 
 		//Then...
-		assertThat(matches).isFalse();
+		assertThat(expectedPath.matcher("/runs/cdb-EFGH-5678.run/files/run.log?").matches())
+            .as("Question marks in the file name should be rejected")
+            .isFalse();
+
+        assertThat(expectedPath.matcher("/runs/cdb-EFGH-5678/files/<a href='blah'>run.log</a>").matches())
+            .as("HTML in the file name should be rejected")
+            .isFalse();
 	}
 
 	@Test
 	public void TestPathRegexMultipleForwardSlashPathReturnsTrue(){
 		//Given...
-		String expectedPath = RunArtifactsDownloadRoute.path;
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, null).getPath();
 		String inputPath = "/runs/cdb-EFGH-5678.run/files/run.log//////";
 
 		//When...
-		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+		boolean matches = expectedPath.matcher(inputPath).matches();
 
 		//Then...
 		assertThat(matches).isTrue();
@@ -335,7 +360,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		//   "error_message" : "GAL5002E: Error retrieving ras run from identifier 'badRunId'.""
 		// }
 		assertThat(resp.getStatus()).isEqualTo(404);
-		checkErrorStructure(outStream.toString() , 5002 , "GAL5002E", "badRunId" );
+		checkErrorStructure(outStream.toString() , 5091 , "GAL5091E", "badRunId" );
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
 	}

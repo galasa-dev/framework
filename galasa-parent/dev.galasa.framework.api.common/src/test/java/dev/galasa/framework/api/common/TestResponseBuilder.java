@@ -54,7 +54,7 @@ public class TestResponseBuilder {
         String contentType = "application/json";
 
         // When...
-        HttpServletResponse actualResp = responseBuilder.buildResponseHeaders(req, resp, contentType, HttpServletResponse.SC_OK);
+        HttpServletResponse actualResp = responseBuilder.buildResponse(req, resp, contentType, HttpServletResponse.SC_OK);
 
         // Then...
         assertThat(actualResp.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -77,7 +77,7 @@ public class TestResponseBuilder {
         String contentType = "application/json";
 
         // When...
-        HttpServletResponse actualResp = responseBuilder.buildResponseHeaders(req, resp, contentType, HttpServletResponse.SC_OK);
+        HttpServletResponse actualResp = responseBuilder.buildResponse(req, resp, contentType, HttpServletResponse.SC_OK);
 
         // Then...
         assertThat(actualResp.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -100,7 +100,7 @@ public class TestResponseBuilder {
         String contentType = "application/json";
 
         // When...
-        HttpServletResponse actualResp = responseBuilder.buildResponseHeaders(req, resp, contentType, HttpServletResponse.SC_OK);
+        HttpServletResponse actualResp = responseBuilder.buildResponse(req, resp, contentType, HttpServletResponse.SC_OK);
 
         // Then...
         assertThat(actualResp.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -123,7 +123,7 @@ public class TestResponseBuilder {
         String contentType = "application/json";
 
         // When...
-        HttpServletResponse actualResp = responseBuilder.buildResponseHeaders(req, resp, contentType, HttpServletResponse.SC_OK);
+        HttpServletResponse actualResp = responseBuilder.buildResponse(req, resp, contentType, HttpServletResponse.SC_OK);
 
         // Then...
         assertThat(actualResp.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -146,7 +146,7 @@ public class TestResponseBuilder {
         String contentType = "application/json";
 
         // When...
-        HttpServletResponse actualResp = responseBuilder.buildResponseHeaders(req, resp, contentType, HttpServletResponse.SC_OK);
+        HttpServletResponse actualResp = responseBuilder.buildResponse(req, resp, contentType, HttpServletResponse.SC_OK);
 
         // Then...
         assertThat(actualResp.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -169,7 +169,7 @@ public class TestResponseBuilder {
         String contentType = "application/json";
 
         // When...
-        HttpServletResponse actualResp = responseBuilder.buildResponseHeaders(req, resp, contentType, HttpServletResponse.SC_OK);
+        HttpServletResponse actualResp = responseBuilder.buildResponse(req, resp, contentType, HttpServletResponse.SC_OK);
 
         // Then...
         assertThat(actualResp.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -192,7 +192,7 @@ public class TestResponseBuilder {
         String contentType = "application/json";
 
         // When...
-        HttpServletResponse actualResp = responseBuilder.buildResponseHeaders(req, resp, contentType, HttpServletResponse.SC_OK);
+        HttpServletResponse actualResp = responseBuilder.buildResponse(req, resp, contentType, HttpServletResponse.SC_OK);
 
         // Then...
         assertThat(actualResp.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -214,7 +214,7 @@ public class TestResponseBuilder {
         String contentType = "application/json";
 
         // When...
-        HttpServletResponse actualResp = responseBuilder.buildResponseHeaders(req, resp, contentType, HttpServletResponse.SC_OK);
+        HttpServletResponse actualResp = responseBuilder.buildResponse(req, resp, contentType, HttpServletResponse.SC_OK);
 
         // Then...
         assertThat(actualResp.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -233,7 +233,7 @@ public class TestResponseBuilder {
         String contentType = "application/json";
 
         // When...
-        HttpServletResponse actualResp = responseBuilder.buildResponseHeaders(req, resp, contentType, HttpServletResponse.SC_OK);
+        HttpServletResponse actualResp = responseBuilder.buildResponse(req, resp, contentType, HttpServletResponse.SC_OK);
 
         // Then...
         assertThat(actualResp.getStatus()).isEqualTo(HttpServletResponse.SC_OK);

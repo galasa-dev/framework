@@ -218,7 +218,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5016,
-			"GAL5016E: Error occured when trying to access namespace 'namespace1'. The namespace provided is invalid."
+			"GAL5016E: Error occurred when trying to access namespace 'namespace1'. The namespace provided is invalid."
 		);
     }
 
@@ -243,7 +243,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5016,
-			"E: Error occured when trying to access namespace 'error'. The namespace provided is invalid."
+			"E: Error occurred when trying to access namespace 'error'. The namespace provided is invalid."
 		);
     }
 
@@ -313,7 +313,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 			outStream.toString(),
 			5016,
 			"GAL5016E: ",
-			"Error occured when trying to access namespace 'dss'. The namespace provided is invalid"
+			"Error occurred when trying to access namespace 'dss'. The namespace provided is invalid"
 		);
     }
 
@@ -401,7 +401,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 			outStream.toString(),
 			5024,
 			"GAL5024E: ",
-			"Error occured because the Galasa Property is invalid. 'Invalid property name. Property name much have at least two parts seperated by a '.' (dot)"
+			"Error occurred because the Galasa Property is invalid. 'Invalid property name. Property name much have at least two parts seperated by a '.' (dot)"
 		);
     }
 
@@ -427,7 +427,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 			outStream.toString(),
 			5404,
 			"GAL5404E: ",
-			"Error occured when trying to identify the endpoint '/framework/properties/.badproperty'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"Error occurred when trying to identify the endpoint '/framework/properties/.badproperty'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);
     }
 
@@ -453,7 +453,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 			outStream.toString(),
 			5024,
 			"GAL5024E: ",
-			"Error occured because the Galasa Property is invalid. 'Invalid property name. Property name 'badproperty.' can not end with a '.' (dot) seperator."
+			"Error occurred because the Galasa Property is invalid. 'Invalid property name. Property name 'badproperty.' can not end with a '.' (dot) seperator."
 		);
     }
 
@@ -483,7 +483,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5016,
-			"GAL5016E: Error occured when trying to access namespace 'namespace1'. The namespace provided is invalid."
+			"GAL5016E: Error occurred when trying to access namespace 'namespace1'. The namespace provided is invalid."
 		);
     }
     
@@ -591,7 +591,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 			outStream.toString(),
 			5016,
 			"GAL5016E: ",
-			"Error occured when trying to access namespace 'dss'. The namespace provided is invalid"
+			"Error occurred when trying to access namespace 'dss'. The namespace provided is invalid"
 		);
     }
 
@@ -619,7 +619,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
        checkErrorStructure(
 			outStream.toString(),
 			5017,
-			"E: Error occured when trying to access property 'property.6'. The property does not exist."
+			"E: Error occurred when trying to access property 'property.6'. The property does not exist."
 		);        
     }
 
@@ -673,7 +673,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5411,
-            "E: Error occured when trying to access the endpoint '/framew0rk/properties/property5'.",
+            "E: Error occurred when trying to access the endpoint '/framew0rk/properties/property5'.",
             " The request body is empty."
 		); 
     }
@@ -700,7 +700,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5411,
-            "E: Error occured when trying to access the endpoint '/framework/properties/property6'.",
+            "E: Error occurred when trying to access the endpoint '/framework/properties/property6'.",
             " The request body is empty."
 		); 
     }
@@ -730,7 +730,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5000,
-			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+			"GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
         );
     }
         
@@ -757,7 +757,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 			outStream.toString(),
 			5016,
 			"GAL5016E: ",
-			"Error occured when trying to access namespace 'dss'. The namespace provided is invalid"
+			"Error occurred when trying to access namespace 'dss'. The namespace provided is invalid"
 		);
     }
     
@@ -782,7 +782,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5000,
-			"GAL5000E: Error occured when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+			"GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
         );
         }
         
@@ -885,7 +885,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5405,
-			"E: Error occured when trying to access the endpoint '/framework/properties/property1'. The method 'POST' is not allowed."
+			"E: Error occurred when trying to access the endpoint '/framework/properties/property1'. The method 'POST' is not allowed."
 		);
     }
 }

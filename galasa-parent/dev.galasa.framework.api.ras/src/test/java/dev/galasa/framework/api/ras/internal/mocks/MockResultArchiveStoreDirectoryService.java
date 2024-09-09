@@ -93,18 +93,29 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 	@Override
 	public IRunResult getRunById(@NotNull String runId) throws ResultArchiveStoreException {
+		IRunResult resultToReturn = null;
 		List <IRunResult> runResults = this.getRunsResults;
 		if (runResults != null) {
-			for (int c =0; c < runResults.size(); c++){
-				IRunResult match = runResults.get(c);
-				if ( match.getRunId().equals(runId)){
-					return  match;
+
+			if (runResults.isEmpty()) {
+				// There is nothing the testcase wanted us to return.
+			} else {
+
+				for (int c =0; c < runResults.size(); c++){
+					IRunResult match = runResults.get(c);
+					if ( match.getRunId().equals(runId)){
+						resultToReturn = match;
+						break;
+					}
 				}
-			}	
-		} else {
-			return null;
+
+				if (resultToReturn==null) {
+					throw new ResultArchiveStoreException("Run id not found in mock getRunById().");
+				}
+			}
 		}
-		throw new ResultArchiveStoreException("Run id not found in mock getRunById().");
+		return resultToReturn;
+		
 	}
 
     public void setNextCursor(String nextCursor) {

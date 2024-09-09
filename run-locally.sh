@@ -155,13 +155,38 @@ function set_up_bootstrap {
     assert_previous_command_worked "Failed to set up local galasa environment"
 
     echo >> ${GALASA_HOME}/bootstrap.properties
-    echo "framework.config.store=etcd:http://galasa-galasa-prod.cicsk8s.hursley.ibm.com:32189" >> ${GALASA_HOME}/bootstrap.properties
-    echo "framework.extra.bundles=dev.galasa.cps.etcd,dev.galasa.ras.couchdb,dev.galasa.phoenix2.manager" >> ${GALASA_HOME}/bootstrap.properties
+    # echo "framework.config.store=etcd:http://galasa-galasa-prod.cicsk8s.hursley.ibm.com:32189" >> ${GALASA_HOME}/bootstrap.properties
+    echo "framework.resultarchive.store=couchdb:http://127.0.0.1:5984" >> ${GALASA_HOME}/bootstrap.properties
+    echo "framework.config.store=etcd:http://127.0.0.1:2379" >> ${GALASA_HOME}/bootstrap.properties
+    echo "framework.auth.store=couchdb:http://127.0.0.1:5984" >> ${GALASA_HOME}/bootstrap.properties
+    echo "framework.extra.bundles=dev.galasa.ras.couchdb,dev.galasa.cps.etcd" >> ${GALASA_HOME}/bootstrap.properties
+    echo "api.extra.bundles=dev.galasa.auth.couchdb" >> ${GALASA_HOME}/bootstrap.properties
 }
+
+function setup_galasa_dev() {
+    info "Setting environment variables"
+    export GALASA_OBR_VERSION=0.36.0
+    export GALASA_BOOT_JAR_VERSION=0.36.0
+    export GALASA_EXTERNAL_API_URL="http://localhost:8080"
+    export GALASA_USERNAME_CLAIMS="preferred_username,name,sub"
+    export GALASA_ALLOWED_ORIGINS="*"
+
+    # The GALASA_DEX_ISSUER environment variable must match the "issuer" value
+    # within your local Dex server's configuration
+    export GALASA_DEX_ISSUER="http://127.0.0.1:5556/dex"
+
+    # The GALASA_DEX_GRPC_HOSTNAME environment variable must match the "addr" value
+    # within the "grpc" section in your local Dex server's configuration 
+    export GALASA_DEX_GRPC_HOSTNAME="127.0.0.1:5557"
+}
+
+
 
 
 function launch_api_server {
     h2 "Launching API server"
+
+    setup_galasa_dev
 
     cmd="${JAVA_HOME}/bin/java \
     -jar ${boot_jar_name} \
@@ -276,9 +301,13 @@ function launch_dex_in_docker {
     if [[ "$DEX_ADMIN_PASSWORD" == "" ]]; then 
         info "Creating a DEX_ADMIN_PASSWORD"
 
-        export DEX_ADMIN_PASSWORD=$(echo password | htpasswd -BinC 10 admin | cut -d: -f2)
+        export DEX_ADMIN_PASSWORD_RAW=$(echo password)
+        info "When you log in to the UI, use admin@example.com, \"password\""
+        
+        export DEX_ADMIN_PASSWORD=$(echo -n "$DEX_ADMIN_PASSWORD_RAW" | htpasswd -BinC 10 admin | cut -d: -f2)
         info "Dex admin password is $DEX_ADMIN_PASSWORD"
         warn "Put this value into your .zprofile! eg: export DEX_ADMIN_PASSWORD=\"$DEX_ADMIN_PASSWORD\""
+        info "Just for info: this is an encoded/hashed password taken from the raw password of $DEX_ADMIN_PASSWORD_RAW"
     fi
 
     info "Making sure the .dex config is set up, containing the dex admin password."
