@@ -86,4 +86,18 @@ public class MockAuthStoreService implements IAuthStoreService {
         }
         return tokenToReturn;
     }
+
+    @Override
+    public List<IInternalAuthToken> getTokensByLoginId(String loginId) throws AuthStoreException {
+        if (throwException) {
+            throwAuthStoreException();
+        }
+        List<IInternalAuthToken> tokensToReturn = new ArrayList<>();
+        for (IInternalAuthToken token : tokens) {
+            if (token.getOwner().getLoginId().equals(loginId)) {
+                tokensToReturn.add(token);
+            }
+        }
+        return tokensToReturn;
+    }
 }

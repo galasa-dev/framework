@@ -21,6 +21,7 @@ import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.authentication.internal.routes.AuthCallbackRoute;
 import dev.galasa.framework.api.authentication.internal.routes.AuthClientsRoute;
 import dev.galasa.framework.api.authentication.internal.routes.AuthRoute;
+import dev.galasa.framework.api.authentication.internal.routes.AuthTokensByLoginIdRoute;
 import dev.galasa.framework.api.authentication.internal.routes.AuthTokensDetailsRoute;
 import dev.galasa.framework.api.authentication.internal.routes.AuthTokensRoute;
 import dev.galasa.framework.api.common.BaseServlet;
@@ -42,6 +43,8 @@ public class AuthenticationServlet extends BaseServlet {
     protected IFramework framework;
 
     private static final long serialVersionUID = 1L;
+
+    public static final String QUERY_PARAM_LOGIN_ID = "loginId";
 
     private Log logger = LogFactory.getLog(getClass());
 
@@ -69,6 +72,7 @@ public class AuthenticationServlet extends BaseServlet {
         addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl));
         addRoute(new AuthTokensRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService, env));
         addRoute(new AuthTokensDetailsRoute(getResponseBuilder(), dexGrpcClient, authStoreService));
+        addRoute(new AuthTokensByLoginIdRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService,env));
 
         logger.info("Galasa Authentication API initialised");
     }

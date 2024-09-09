@@ -52,4 +52,9 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     public void deleteToken(String tokenId) throws AuthStoreException {
         authStore.deleteToken(tokenId);
     }
+
+    @Override
+    public List<IInternalAuthToken> getTokensByLoginId(String loginId) throws AuthStoreException {
+        return authStore.getTokensByLoginId(loginId);
+    }
 }
