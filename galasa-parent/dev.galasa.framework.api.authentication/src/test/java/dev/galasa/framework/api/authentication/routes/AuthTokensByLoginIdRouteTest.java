@@ -30,7 +30,7 @@ import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 
-public class AuthTokensByLoginIdTest extends BaseServletTest {
+public class AuthTokensByLoginIdRouteTest extends BaseServletTest {
 
     Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
