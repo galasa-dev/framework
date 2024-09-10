@@ -171,7 +171,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
 			outStream.toString(),
 			5000,
 			"GAL5000E: ",
-			"Error occured when trying to access the endpoint"
+			"Error occurred when trying to access the endpoint"
 		);
     }
 
@@ -383,7 +383,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
 			outStream.toString(),
 			5000,
 			"GAL5000E: ",
-			"Error occured when trying to access the endpoint"
+			"Error occurred when trying to access the endpoint"
 		);
     }
 
@@ -407,7 +407,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5411, "GAL5411E: Error occured when trying to access the endpoint '/valid'. The request body is empty."
+			5411, "GAL5411E: Error occurred when trying to access the endpoint '/valid'. The request body is empty."
 		);
     }
 
@@ -431,7 +431,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
 
 		checkErrorStructure(
 			outStream.toString(),
-			5020, "GAL5020E: Error occured when trying to translate the payload into a run."
+			5020, "GAL5020E: Error occurred when trying to translate the payload into a run."
 		);
     }
 
@@ -464,7 +464,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         assertThat(resp.getStatus()).isEqualTo(400);
         checkErrorStructure(
 			outStream.toString(),
-			5020, "E: Error occured when trying to translate the payload into a run."
+			5020, "E: Error occurred when trying to translate the payload into a run."
 		);
     }
     
@@ -497,7 +497,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         assertThat(resp.getStatus()).isEqualTo(500);
         checkErrorStructure(
 			outStream.toString(),
-			5022, "GAL5022E: Error occured trying parse the sharedEnvironmentPhase 'envPhase'. Valid options are BUILD, DISCARD."
+			5022, "GAL5022E: Error occurred trying parse the sharedEnvironmentPhase 'envPhase'. Valid options are BUILD, DISCARD."
 		);
     }
 
@@ -579,7 +579,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         assertThat(resp.getStatus()).isEqualTo(500);
         checkErrorStructure(
 			outStream.toString(),
-			5021, "E: Error occured when trying to submit run 'Class/name'."
+			5021, "E: Error occurred when trying to submit run 'Class/name'."
 		);
     }
 

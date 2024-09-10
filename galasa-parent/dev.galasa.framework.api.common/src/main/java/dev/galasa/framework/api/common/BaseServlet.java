@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
+import static dev.galasa.framework.api.common.HttpMethod.*;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
@@ -117,15 +118,7 @@ public class BaseServlet extends HttpServlet {
             if (matcher.matches()) {
                 pathMatched = true;
                 logger.info("BaseServlet: Found a route that matches.");
-                if (req.getMethod().contains("PUT")){
-                    route.handlePutRequest(url, queryParameters, req, res);
-                } else if (req.getMethod().contains("POST")){
-                    route.handlePostRequest(url, queryParameters, req, res);
-                } else if (req.getMethod().contains("DELETE")){
-                    route.handleDeleteRequest(url, queryParameters, req, res);
-                } else {
-                    route.handleGetRequest(url, queryParameters, req, res);
-                }
+                handleRoute(route, url, queryParameters, req, res);
                 break;
             }
         }
@@ -135,6 +128,30 @@ public class BaseServlet extends HttpServlet {
             logger.info("BaseServlet: No matching route found.");
             ServletError error = new ServletError(GAL5404_UNRESOLVED_ENDPOINT_ERROR, url);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    private void handleRoute(
+        IRoute route,
+        String pathInfo,
+        QueryParameters queryParameters,
+        HttpServletRequest req,
+        HttpServletResponse res
+    ) throws ServletException, IOException, FrameworkException {
+        String requestMethodStr = req.getMethod();
+        HttpMethod requestMethod = HttpMethod.getFromString(requestMethodStr);
+        if (requestMethod == GET) {
+            route.handleGetRequest(pathInfo, queryParameters, req, res);
+        } else if (requestMethod == POST) {
+            route.handlePostRequest(pathInfo, queryParameters, req, res);
+        } else if (requestMethod == PUT) {
+            route.handlePutRequest(pathInfo, queryParameters, req, res);
+        } else if (requestMethod == DELETE) {
+            route.handleDeleteRequest(pathInfo, queryParameters, req, res);
+        } else {
+            // The request was sent with an unsupported method, so throw an error
+            ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED, pathInfo, requestMethodStr);
+            throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);     
         }
     }
 }

@@ -173,7 +173,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5043E: Invalid property name. Property name 'property1!' much have at least two parts seperated by a . (dot).");
+        assertThat(errors.get(0)).contains("GAL5043E: Invalid property name. Property name 'property1!' much have at least two parts separated by a . (dot).");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -196,7 +196,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5044E: Invalid property name. Property name 'property.name.' must not end with a . (dot) seperator.");
+        assertThat(errors.get(0)).contains("GAL5044E: Invalid property name. Property name 'property.name.' must not end with a . (dot) separator.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -242,7 +242,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5043E: Invalid property name. Property name 'property' much have at least two parts seperated by a . (dot).");
+        assertThat(errors.get(0)).contains("GAL5043E: Invalid property name. Property name 'property' much have at least two parts separated by a . (dot).");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -380,7 +380,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+        assertThat(errors.get(0)).contains("GAL5024E: Error occurred because the Galasa Property is invalid.",
             "The 'value' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
@@ -406,7 +406,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.size()).isEqualTo(3);
         assertThat(errors.get(0)).contains("GAL5040E: Invalid property name. Property name is missing or empty.");
         assertThat(errors.get(1)).contains("GAL5031E: Invalid namespace. Namespace is empty.");
-        assertThat(errors.get(2)).contains("GAL5024E: Error occured because the Galasa Property is invalid. 'The 'value' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.'");
+        assertThat(errors.get(2)).contains("GAL5024E: Error occurred because the Galasa Property is invalid. 'The 'value' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.'");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -430,9 +430,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(2);
-        assertThat(errors.get(0)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+        assertThat(errors.get(0)).contains("GAL5024E: Error occurred because the Galasa Property is invalid.",
             "The 'metadata' field cannot be empty. The fields 'name' and 'namespace' are mandatory for the type GalasaProperty.");
-        assertThat(errors.get(1)).contains("GAL5024E: Error occured because the Galasa Property is invalid.",
+        assertThat(errors.get(1)).contains("GAL5024E: Error occurred because the Galasa Property is invalid.",
             "The 'data' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
@@ -456,7 +456,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5027E: Error occured. The field apiVersion in the request body is invalid. The value '' is not a supported version." +
+        assertThat(thrown.getMessage()).contains("GAL5027E: Error occurred. The field apiVersion in the request body is invalid. The value '' is not a supported version." +
             " Currently the ecosystem accepts the 'galasa-dev/v1alpha1' api version. This could indicate a mis-match between client and server levels." +
             " Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
@@ -482,7 +482,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors).isNotNull();
         assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5400E: Error occured when trying to execute request ",". Please check your request parameters or report the problem to your Galasa Ecosystem owner.");
+        assertThat(errors.get(0)).contains("GAL5400E: Error occurred when trying to execute request ",". Please check your request parameters or report the problem to your Galasa Ecosystem owner.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -505,7 +505,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size()).isEqualTo(3);
-        checkErrorListContainsError(errors,"GAL5068E: Error occured. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
+        checkErrorListContainsError(errors,"GAL5068E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
     
@@ -528,7 +528,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size()).isEqualTo(1);
-        checkErrorListContainsError(errors,"GAL5400E: Error occured when trying to execute request ");
+        checkErrorListContainsError(errors,"GAL5400E: Error occurred when trying to execute request ");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -551,7 +551,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size()).isEqualTo(1);
-        checkErrorListContainsError(errors,"GAL5026E: Error occured. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
+        checkErrorListContainsError(errors,"GAL5026E: Error occurred. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
             " This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level." +
             " You may have to upgrade/downgrade your client program.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
@@ -574,7 +574,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size()).isEqualTo(1);
-        checkErrorListContainsError(errors,"GAL5067E: Error occured. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
+        checkErrorListContainsError(errors,"GAL5067E: Error occurred. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
     }
 
     @Test
@@ -618,12 +618,12 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size()).isEqualTo(4);
-        checkErrorListContainsError(errors,"GAL5067E: Error occured. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
-        checkErrorListContainsError(errors,"GAL5400E: Error occured when trying to execute request ");
-        checkErrorListContainsError(errors,"GAL5026E: Error occured. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
+        checkErrorListContainsError(errors,"GAL5067E: Error occurred. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
+        checkErrorListContainsError(errors,"GAL5400E: Error occurred when trying to execute request ");
+        checkErrorListContainsError(errors,"GAL5026E: Error occurred. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
             " This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level." +
             " You may have to upgrade/downgrade your client program.");
-        checkErrorListContainsError(errors,"GAL5068E: Error occured. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
+        checkErrorListContainsError(errors,"GAL5068E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -651,7 +651,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.size()).isEqualTo(1);
         checkPropertyInNamespace(namespace,propertyname,value);
         checkPropertyNotInNamespace(namespace,propertyNameTwo,valueTwo);
-        assertThat(errors.get(0)).contains("GAL5018E: Error occured when trying to access property 'property.1'. "+
+        assertThat(errors.get(0)).contains("GAL5018E: Error occurred when trying to access property 'property.1'. "+
                 "The property name provided already exists in the 'framework' namespace.");
     }
 
@@ -679,9 +679,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.size()).isEqualTo(2);
         checkPropertyNotInNamespace(namespace,propertyname,value);
         checkPropertyNotInNamespace(namespace,propertyname,value);
-        assertThat(errors.get(0)).contains("GAL5018E: Error occured when trying to access property 'property.1'. "+
+        assertThat(errors.get(0)).contains("GAL5018E: Error occurred when trying to access property 'property.1'. "+
                 "The property name provided already exists in the 'framework' namespace.");
-        assertThat(errors.get(1)).contains("GAL5018E: Error occured when trying to access property 'property.2'. "+
+        assertThat(errors.get(1)).contains("GAL5018E: Error occurred when trying to access property 'property.2'. "+
                 "The property name provided already exists in the 'framework' namespace.");
     }
 
@@ -709,7 +709,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.size()).isEqualTo(1);
         checkPropertyNotInNamespace(namespace,propertyname,value);
         checkPropertyInNamespace(namespace,propertyNameTwo,valueTwo);
-        assertThat(errors.get(0)).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property does not exist.");
+        assertThat(errors.get(0)).contains("GAL5017E: Error occurred when trying to access property 'property.name'. The property does not exist.");
     }
 
     @Test
@@ -736,8 +736,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.size()).isEqualTo(2);
         checkPropertyNotInNamespace(namespace,propertyname,value);
         checkPropertyNotInNamespace(namespace,propertyname,value);
-        assertThat(errors.get(0)).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property does not exist.");
-        assertThat(errors.get(1)).contains("GAL5017E: Error occured when trying to access property 'property.name.2'. The property does not exist");
+        assertThat(errors.get(0)).contains("GAL5017E: Error occurred when trying to access property 'property.name'. The property does not exist.");
+        assertThat(errors.get(1)).contains("GAL5017E: Error occurred when trying to access property 'property.name.2'. The property does not exist");
     }
 
     /*
@@ -833,7 +833,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String message = thrown.getMessage();
         checkErrorStructure(message, 
             5025,
-            "GAL5025E: Error occured. The field action in the request body is invalid. The action value'badaction' supplied is not supported." +
+            "GAL5025E: Error occurred. The field action in the request body is invalid. The action value'badaction' supplied is not supported." +
                 " Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels." +
                 " Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
@@ -910,7 +910,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String output = outStream.toString();
         assertThat(status).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-        assertThat(output).contains("GAL5017E: Error occured when trying to access property 'property.name'. The property does not exist.");
+        assertThat(output).contains("GAL5017E: Error occurred when trying to access property 'property.name'. The property does not exist.");
         checkPropertyNotInNamespace(namespace, propertyname, value);
     }
 
@@ -1240,7 +1240,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String output = outStream.toString();
         assertThat(status).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-        assertThat(output).contains("GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        assertThat(output).contains("GAL5030E: Error occurred when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
         checkPropertyNotInNamespace(namespace, propertyname, value);
     }
 
@@ -1272,8 +1272,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String output = outStream.toString();
         assertThat(status).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json"); 
-        assertThat(output).contains("GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
-        assertThat(output).contains("GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
+        assertThat(output).contains("GAL5030E: Error occurred when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        assertThat(output).contains("GAL5030E: Error occurred when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
         checkPropertyNotInNamespace(namespace, propertyname, value);
         checkPropertyNotInNamespace(namespace, propertynametwo, valuetwo);
     }
@@ -1312,7 +1312,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String output = outStream.toString();
         assertThat(status).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json"); 
-        assertThat(output).contains("GAL5067E: Error occured. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
+        assertThat(output).contains("GAL5067E: Error occurred. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
         checkPropertyInNamespace(namespace, propertyname, value);
         checkPropertyInNamespace(namespace, propertynametwo, valuetwo);
     }
@@ -1343,8 +1343,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
     public void TestGetErrorsAsJsonReturnsJsonString() throws Exception{
         // Given...
         List<String> errors = new ArrayList<String>();
-        errors.add("{\"error_code\":5030,\"error_message\":\"GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.\"}");
-        errors.add("{\"error_code\":5030,\"error_message\":\"GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.\"}");
+        errors.add("{\"error_code\":5030,\"error_message\":\"GAL5030E: Error occurred when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.\"}");
+        errors.add("{\"error_code\":5030,\"error_message\":\"GAL5030E: Error occurred when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.\"}");
         setServlet("framework");
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
@@ -1358,10 +1358,10 @@ public class TestResourcesRoute extends ResourcesServletTest{
         JsonArray expectedJsonArray = new JsonArray();
         JsonObject errorProp5 = new JsonObject();
         errorProp5.addProperty("error_code" , 5030);
-        errorProp5.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
+        errorProp5.addProperty("error_message" , "GAL5030E: Error occurred when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
         JsonObject errorProp1 = new JsonObject();
         errorProp1.addProperty("error_code" , 5030);
-        errorProp1.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        errorProp1.addProperty("error_message" , "GAL5030E: Error occurred when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
         expectedJsonArray.add(errorProp5);
         expectedJsonArray.add(errorProp1);
         GalasaGson gson = new GalasaGson();
@@ -1401,10 +1401,10 @@ public class TestResourcesRoute extends ResourcesServletTest{
         JsonArray expectedJsonArray = new JsonArray();
         JsonObject errorProp5 = new JsonObject();
         errorProp5.addProperty("error_code" , 5030);
-        errorProp5.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
+        errorProp5.addProperty("error_message" , "GAL5030E: Error occurred when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.");
         JsonObject errorProp1 = new JsonObject();
         errorProp1.addProperty("error_code" , 5030);
-        errorProp1.addProperty("error_message" , "GAL5030E: Error occured when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
+        errorProp1.addProperty("error_message" , "GAL5030E: Error occurred when trying to delete Property 'property.1'. Report the problem to your Galasa Ecosystem owner.");
         expectedJsonArray.add(errorProp5);
         expectedJsonArray.add(errorProp1);
         GalasaGson gson = new GalasaGson();

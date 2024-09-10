@@ -370,11 +370,11 @@ public class AuthRouteTest extends BaseServletTest {
         // Expecting this json:
         // {
         // "error_code" : 5000,
-        // "error_message" : "GAL5000E: Error occured when trying to access the
+        // "error_message" : "GAL5000E: Error occurred when trying to access the
         // endpoint. Report the problem to your Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(500);
-        checkErrorStructure(outStream.toString(), 5000, "GAL5000E", "Error occured when trying to access the endpoint");
+        checkErrorStructure(outStream.toString(), 5000, "GAL5000E", "Error occurred when trying to access the endpoint");
     }
 
     @Test
@@ -494,11 +494,11 @@ public class AuthRouteTest extends BaseServletTest {
         // Expecting this json:
         // {
         // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occured when trying to execute request
+        // "error_message" : "GAL5400E: Error occurred when trying to execute request
         // "/auth". Please check your request parameters or report the problem to your Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occured when trying to execute request");
+        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occurred when trying to execute request");
     }
 
     @Test
@@ -519,11 +519,11 @@ public class AuthRouteTest extends BaseServletTest {
         // Expecting this json:
         // {
         // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occured when trying to execute request
+        // "error_message" : "GAL5400E: Error occurred when trying to execute request
         // "/auth". Please check your request parameters or report the problem to your Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occured when trying to execute request");
+        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occurred when trying to execute request");
     }
 
     @Test
@@ -544,11 +544,11 @@ public class AuthRouteTest extends BaseServletTest {
         // Expecting this json:
         // {
         // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occured when trying to execute request
+        // "error_message" : "GAL5400E: Error occurred when trying to execute request
         // "/auth". Please check your request parameters or report the problem to your Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occured when trying to execute request");
+        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occurred when trying to execute request");
     }
 
     @Test
@@ -572,11 +572,11 @@ public class AuthRouteTest extends BaseServletTest {
         // Expecting this json:
         // {
         // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occured when trying to execute request
+        // "error_message" : "GAL5400E: Error occurred when trying to execute request
         // "/auth". Please check your request parameters or report the problem to your Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occured when trying to execute request");
+        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occurred when trying to execute request");
     }
 
     @Test

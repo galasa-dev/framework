@@ -44,11 +44,11 @@ public class AuthClientsRouteTest extends BaseServletTest {
         // Expecting this json:
         // {
         // "error_code" : 5000,
-        // "error_message" : "GAL5000E: Error occured when trying to access the
+        // "error_message" : "GAL5000E: Error occurred when trying to access the
         // endpoint. Report the problem to your Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(500);
-        checkErrorStructure(outStream.toString(), 5000, "GAL5000E", "Error occured when trying to access the endpoint");
+        checkErrorStructure(outStream.toString(), 5000, "GAL5000E", "Error occurred when trying to access the endpoint");
     }
 
     @Test

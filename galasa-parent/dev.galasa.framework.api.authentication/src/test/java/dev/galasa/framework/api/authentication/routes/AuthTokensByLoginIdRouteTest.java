@@ -58,7 +58,7 @@ public class AuthTokensByLoginIdRouteTest extends BaseServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(outStream.toString(), 5400, "GAL5400E",
-                "Error occured when trying to execute request '/getTokensByLoginId'. Please check your request parameters or report the problem to your Galasa Ecosystem owner.");
+                "Error occurred when trying to execute request '/getTokensByLoginId'. Please check your request parameters or report the problem to your Galasa Ecosystem owner.");
     }
 
     @Test
