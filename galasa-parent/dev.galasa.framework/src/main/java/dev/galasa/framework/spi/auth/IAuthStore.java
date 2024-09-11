@@ -19,7 +19,7 @@ public interface IAuthStore {
 
 
     /**
-     * Returns a list of all the token records stored in the auth store by login ID.
+     * Returns a list of token records stored in the auth store that match a given login ID.
      *
      * @return a list of all token records stored in the auth store by login ID.
      * @throws AuthStoreException if there is an issue accessing the auth store.
