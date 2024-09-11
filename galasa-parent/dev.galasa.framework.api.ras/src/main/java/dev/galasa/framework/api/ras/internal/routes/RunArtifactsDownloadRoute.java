@@ -95,6 +95,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
         // Get run details in order to find artifacts
         try {
             run = getRunByRunId(runId);
+            run.loadArtifacts();
             runName = run.getTestStructure().getRunName();
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);

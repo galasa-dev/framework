@@ -18,6 +18,7 @@ public class MockRunResult implements IRunResult {
     private Path artifactRoot;
     private String log;
     private boolean isDiscarded = false;
+    private boolean areArtifactsLoaded = false;
 
     public MockRunResult( 
         String runId,
@@ -55,9 +56,17 @@ public class MockRunResult implements IRunResult {
     public void discard() throws ResultArchiveStoreException {
         isDiscarded = true;
     }
-    
+
+    @Override
+    public void loadArtifacts() throws ResultArchiveStoreException {
+        areArtifactsLoaded = true;
+    }
 
     public boolean isDiscarded() {
         return this.isDiscarded;
+    }
+
+    public boolean areArtifactsLoaded() {
+        return areArtifactsLoaded;
     }
 }
