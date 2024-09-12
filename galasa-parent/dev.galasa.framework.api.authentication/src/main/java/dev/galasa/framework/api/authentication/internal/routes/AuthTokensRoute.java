@@ -95,7 +95,7 @@ public class AuthTokensRoute extends BaseRoute {
             String loginId = queryParams.getSingleString(QUERY_PARAM_LOGIN_ID, null);
             validateLoginId(loginId, pathInfo);
             authTokensFromAuthStore = getTokensByLoginId(loginId);
-            
+
         } else {
             authTokensFromAuthStore = getAllTokens();
         }
@@ -298,7 +298,7 @@ public class AuthTokensRoute extends BaseRoute {
     private void validateLoginId(String loginId, String servletPath) throws InternalServletException {
 
         if (loginId == null || loginId.trim().length() == 0) {
-            ServletError error = new ServletError(GAL5067_ERROR_MALFORMED_LOGINID, servletPath);
+            ServletError error = new ServletError(GAL5067_ERROR_INVALID_LOGINID, servletPath);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 

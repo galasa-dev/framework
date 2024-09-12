@@ -258,7 +258,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(outStream.toString(), 5057, "GAL5057E",
-                "Failed to validate loginId. This could be because loginId is null or an empty string. Please check the loginId in the query paramaters provided.");
+                "Invalid login ID provided. This could be because no value was given for the loginId query parameter. Please check your provided loginId query parameter value and try again.");
     }
 
     @Test
@@ -285,7 +285,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(outStream.toString(), 5057, "GAL5057E",
-                "Failed to validate loginId. This could be because loginId is null or an empty string. Please check the loginId in the query paramaters provided.");
+                "Invalid login ID provided. This could be because no value was given for the loginId query parameter. Please check your provided loginId query parameter value and try again.");
     }
 
     @Test
