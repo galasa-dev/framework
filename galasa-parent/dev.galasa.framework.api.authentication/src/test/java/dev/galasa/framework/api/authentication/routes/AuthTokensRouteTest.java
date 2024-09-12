@@ -238,7 +238,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
     public void testTokenByLoginIdGetRequestWithNullLoginIdReturnsBadRequest() throws Exception {
 
         // Given...
-        String requestorLoginId = " ";
+        String requestorLoginId = null;
         Map<String, String[]> queryParams = new HashMap<>();
 
         queryParams.put("loginId", new String[] { requestorLoginId });
@@ -257,8 +257,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
         servlet.doGet(mockRequest, servletResponse);
 
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E",
-                "Error occurred when trying to execute request '/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner.");
+        checkErrorStructure(outStream.toString(), 5057, "GAL5057E",
+                "Failed to validate loginId. This could be because loginId is null or an empty string. Please check the loginId in the query paramaters provided.");
     }
 
     @Test
@@ -284,8 +284,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
         servlet.doGet(mockRequest, servletResponse);
 
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E",
-                "Error occurred when trying to execute request '/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner.");
+        checkErrorStructure(outStream.toString(), 5057, "GAL5057E",
+                "Failed to validate loginId. This could be because loginId is null or an empty string. Please check the loginId in the query paramaters provided.");
     }
 
     @Test
@@ -454,7 +454,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(200);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
-        // checkOrderMatches(expectedTokenOrder, getJsonArrayFromJson(output, "tokens"));
+        checkOrderMatches(expectedTokenOrder, getJsonArrayFromJson(output, "tokens"));
     }
 
     @Test

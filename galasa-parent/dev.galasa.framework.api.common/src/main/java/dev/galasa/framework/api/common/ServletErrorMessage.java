@@ -106,6 +106,7 @@ public enum ServletErrorMessage {
     GAL5064_FAILED_TO_REVOKE_TOKEN                    (5064, "E: Failed to revoke the token with the given ID. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     GAL5065_FAILED_TO_GET_TOKEN_ID_FROM_URL           (5065, "E: Failed to retrieve a token ID from the request path. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS                (5066, "E: No such token with the given ID exists. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
+    GAL5067_ERROR_MALFORMED_LOGINID                   (5057, "E: Failed to validate loginId. This could be because loginId is null or an empty string. Please check the loginId in the query paramaters provided."),
 
     // OpenAPI Servlet...
     GAL5071_FAILED_TO_PARSE_YAML_INTO_JSON            (5071, "E: Internal server error. Failed to convert OpenAPI specification from YAML into JSON. Report the problem to your Galasa Ecosystem owner"),

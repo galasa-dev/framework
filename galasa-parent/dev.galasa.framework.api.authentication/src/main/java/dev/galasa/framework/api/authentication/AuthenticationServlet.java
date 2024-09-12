@@ -43,8 +43,6 @@ public class AuthenticationServlet extends BaseServlet {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String QUERY_PARAM_LOGIN_ID = "loginId";
-
     private Log logger = LogFactory.getLog(getClass());
 
     protected Environment env = new SystemEnvironment();

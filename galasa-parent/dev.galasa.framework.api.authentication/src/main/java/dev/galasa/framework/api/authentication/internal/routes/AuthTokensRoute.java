@@ -23,7 +23,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import dev.galasa.framework.api.authentication.AuthenticationServlet;
 import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
 import dev.galasa.framework.api.authentication.internal.TokenPayloadValidator;
@@ -54,6 +53,7 @@ public class AuthTokensRoute extends BaseRoute {
 
     private static final String ID_TOKEN_KEY = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
+    public static final String QUERY_PARAM_LOGIN_ID = "loginId";
 
     // Regex to match /auth/tokens and /auth/tokens/ only
     private static final String PATH_PATTERN = "\\/tokens\\/?";
@@ -76,76 +76,73 @@ public class AuthTokensRoute extends BaseRoute {
     /**
      * GET requests to /auth/tokens return all the tokens stored in the tokens
      * database, sorted by creation date order by default.
-     * This endpoint takes an optional query paramater 'loginId' for e.g loginId=admin
-     * Passing it returns a filtered list of token records stored in the auth store that matches the given login ID
+     * This endpoint takes an optional query parameter 'loginId' for e.g
+     * loginId=admin
+     * Passing it returns a filtered list of token records stored in the auth store
+     * that matches the given login ID
      */
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
             HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, FrameworkException {
+            throws FrameworkException {
 
         logger.info("handleGetRequest() entered");
-        
-        List<AuthToken> tokensToReturn = new ArrayList<>();
-        String loginId = queryParams.getSingleString(AuthenticationServlet.QUERY_PARAM_LOGIN_ID, null);
-        
-        if(queryParams.checkAtLeastOneQueryParameterPresent("loginId")){
-            validateLoginId(loginId, pathInfo);        
+
+        List<IInternalAuthToken> authTokensFromAuthStore = new ArrayList<>();
+
+        if (queryParams.isParameterPresent(QUERY_PARAM_LOGIN_ID)) {
+
+            String loginId = queryParams.getSingleString(QUERY_PARAM_LOGIN_ID, null);
+            validateLoginId(loginId, pathInfo);
+            authTokensFromAuthStore = getTokensByLoginId(loginId);
+            
+        } else {
+            authTokensFromAuthStore = getAllTokens();
         }
 
-        if(loginId == null){
-            tokensToReturn = handleGetAllTokens();
-        }
-        else{
-            tokensToReturn = handleGetTokensByLoginId(loginId);
-        }
+        // Convert the token received from the auth store into the token bean that will
+        // be returned as JSON
+        List<AuthToken>tokensToReturn = convertAuthStoreTokenIntoTokenBeans(authTokensFromAuthStore);
 
         return getResponseBuilder().buildResponse(request, response, "application/json",
                 getTokensAsJsonString(tokensToReturn), HttpServletResponse.SC_OK);
     }
 
-    public List<AuthToken> handleGetAllTokens() throws ServletException, IOException, FrameworkException{
+    private List<IInternalAuthToken> getAllTokens() throws FrameworkException {
 
-        List<AuthToken> tokensToReturn = new ArrayList<>();
         try {
             // Retrieve all the tokens and put them into a mutable list before sorting them
             // based on their creation time
             List<IInternalAuthToken> tokens = new ArrayList<>(authStoreService.getTokens());
             Collections.sort(tokens, Comparator.comparing(IInternalAuthToken::getCreationTime));
 
-            // Convert the token received from the auth store into the token bean that will
-            // be returned as JSON
-            tokensToReturn = convertAuthStoreTokenIntoTokenBean(tokens);
+            return tokens;
 
         } catch (AuthStoreException e) {
             ServletError error = new ServletError(GAL5053_FAILED_TO_RETRIEVE_TOKENS);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
 
-        return tokensToReturn;
-
     }
 
-    public List<AuthToken> handleGetTokensByLoginId(String loginId)
-            throws ServletException, IOException, FrameworkException {
+    public List<IInternalAuthToken> getTokensByLoginId(String loginId)
+            throws FrameworkException {
 
         logger.info("fetching access tokens by loginId");
 
-        List<AuthToken> tokensToReturn = new ArrayList<>();
+        try {
 
-        try{
             List<IInternalAuthToken> tokens = new ArrayList<>(authStoreService.getTokensByLoginId(loginId));
+            Collections.sort(tokens, Comparator.comparing(IInternalAuthToken::getCreationTime));
 
-        // Convert the token received from the auth store into the token bean that will
-        // be returned as JSON
-        tokensToReturn = convertAuthStoreTokenIntoTokenBean(tokens);
-            
-        }catch(AuthStoreException e){
+            logger.info("Access tokens by loginId fetched from auth store");
+            return tokens;
+
+        } catch (AuthStoreException e) {
             ServletError error = new ServletError(GAL5053_FAILED_TO_RETRIEVE_TOKENS);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
 
-        return tokensToReturn;
     }
 
     /**
@@ -280,10 +277,10 @@ public class AuthTokensRoute extends BaseRoute {
         logger.info("Stored token record in the auth store OK");
     }
 
-    private List<AuthToken> convertAuthStoreTokenIntoTokenBean(List<IInternalAuthToken> authStoreTokens){
+    private List<AuthToken> convertAuthStoreTokenIntoTokenBeans(List<IInternalAuthToken> authStoreTokens) {
 
         List<AuthToken> tokensToReturn = new ArrayList<>();
-        
+
         for (IInternalAuthToken token : authStoreTokens) {
 
             User user = new User(token.getOwner().getLoginId());
@@ -300,8 +297,8 @@ public class AuthTokensRoute extends BaseRoute {
 
     private void validateLoginId(String loginId, String servletPath) throws InternalServletException {
 
-        if (loginId ==null || loginId.trim() == null) {
-            ServletError error = new ServletError(GAL5400_BAD_REQUEST, servletPath);
+        if (loginId == null || loginId.trim().length() == 0) {
+            ServletError error = new ServletError(GAL5067_ERROR_MALFORMED_LOGINID, servletPath);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
