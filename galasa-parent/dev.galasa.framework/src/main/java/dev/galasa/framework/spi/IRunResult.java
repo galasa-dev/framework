@@ -21,4 +21,6 @@ public interface IRunResult {
 
     void discard() throws ResultArchiveStoreException;
 
+    void loadArtifacts() throws ResultArchiveStoreException;
+
 }
