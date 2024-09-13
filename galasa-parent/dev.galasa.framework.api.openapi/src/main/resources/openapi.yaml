@@ -183,6 +183,14 @@ paths:
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Authentication API
+      parameters:
+      - name: loginId
+        in: query
+        description: |
+            The loginId of the user whose details will be returned.
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: Returns a JSON Object containing the list of tokens
@@ -190,6 +198,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthTokens'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."        
         '401':
           $ref: "#/components/responses/Unauthorized"
         '500':
@@ -284,6 +303,7 @@ paths:
                     error_code: 5000
                     error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An Error occurred when trying to access the endpoint
+
                   
 ##################################################################################
 # Users API
