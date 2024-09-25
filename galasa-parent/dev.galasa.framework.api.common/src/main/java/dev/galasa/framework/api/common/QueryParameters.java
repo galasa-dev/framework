@@ -150,6 +150,12 @@ public class QueryParameters {
 		return returnedValue;
 	}
 
+	public boolean isParameterPresent(String queryParameter) {		
+        return params.containsKey(queryParameter)
+            && params.get(queryParameter) != null 
+            && params.get(queryParameter)[0] != "";
+    }
+
 	public boolean checkAtLeastOneQueryParameterPresent(String... queryParameters ) throws InternalServletException {
 		// This function will return false when none of the parameters provided are in the query
 		boolean result = false;

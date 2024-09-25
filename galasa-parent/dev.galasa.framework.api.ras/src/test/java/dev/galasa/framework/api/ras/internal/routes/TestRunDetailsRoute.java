@@ -779,8 +779,10 @@ public class TestRunDetailsRoute extends RasServletTest {
 		servlet.doDelete(req,resp);
 
 		// Then...
+        MockRunResult deletedRun = (MockRunResult) mockInputRunResults.get(0);
 		assertThat(resp.getStatus()).isEqualTo(204);
-		assertThat(((MockRunResult) mockInputRunResults.get(0)).isDiscarded()).as("The fake run result has not been discarded.").isTrue();
+		assertThat(deletedRun.isLoadingArtifactsEnabled()).as("The fake run result's artifacts should not have been loaded.").isFalse();
+		assertThat(deletedRun.isDiscarded()).as("The fake run result has not been discarded.").isTrue();
 	}
 
 

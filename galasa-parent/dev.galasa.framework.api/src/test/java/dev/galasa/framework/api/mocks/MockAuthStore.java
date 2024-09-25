@@ -21,6 +21,11 @@ public class MockAuthStore implements IAuthStore, IAuthStoreService {
     }
 
     @Override
+    public List<IInternalAuthToken> getTokensByLoginId(String loginId) throws AuthStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'getTokens'");
+    }
+
+    @Override
     public void shutdown() throws AuthStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
     }
