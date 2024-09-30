@@ -200,7 +200,7 @@ public class GherkinTestRunner extends BaseTestRunner {
                 managers.provisionGenerate();
                 createEnvironment(testObject, managers);
             } catch (Exception e) { 
-                logger.info("Provision Generate failed", e);
+                logger.error("Provision Generate failed", e);
                 if (e instanceof FrameworkResourceUnavailableException) {
                     isResourcesAvailable = false;
                 }
