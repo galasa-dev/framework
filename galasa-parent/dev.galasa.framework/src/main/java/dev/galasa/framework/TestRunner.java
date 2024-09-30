@@ -291,7 +291,7 @@ public class TestRunner extends BaseTestRunner {
                 managers.provisionGenerate();
                 createEnvironment(testClassWrapper, managers, dss, runName, isRunOK);
             } catch (Exception e) { 
-                logger.info("Provision Generate failed", e);
+                logger.error("Provision Generate failed", e);
                 if (e instanceof FrameworkResourceUnavailableException) {
                     this.isResourcesAvailable = false;
                 }
