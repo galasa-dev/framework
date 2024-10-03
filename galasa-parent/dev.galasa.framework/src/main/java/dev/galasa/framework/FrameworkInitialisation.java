@@ -8,7 +8,6 @@ package dev.galasa.framework;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
-import java.util.Map.Entry;
 import java.nio.file.*;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.*;
@@ -144,18 +143,20 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         // *** If this is a test run, add the overrides from the run dss properties to
         // these overrides
         if (testrun) {
-            String prefix = "run." + framework.getTestRunName() + ".override.";
-            int len = prefix.length();
-
-            Map<String, String> runOverrides = this.dssFramework.getPrefix(prefix);
-            for (Entry<String, String> override : runOverrides.entrySet()) {
-                String key = override.getKey().substring(len);
-                String value = override.getValue();
-
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Setting run override " + key + "=" + value);
+            String runOverridesProp = "run." + framework.getTestRunName() + ".overrides";
+            String runOverrides = this.dssFramework.get(runOverridesProp);
+            if (runOverrides != null && !runOverrides.isBlank()) {
+                for (String override : runOverrides.split("\n")) {
+                    // Each override is of the form "key=value"
+                    String[] overrideParts = override.split("=");
+                    String key = overrideParts[0];
+                    String value = overrideParts[1];
+    
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Setting run override " + key + "=" + value);
+                    }
+                    overrideProperties.put(key, value);
                 }
-                overrideProperties.put(override.getKey(), override.getValue());
             }
         }
     }

@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
@@ -24,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -144,211 +146,67 @@ public class FrameworkRuns implements IFrameworkRuns {
         return runNames;
     }
 
+    private @NotNull IRun submitRun(SubmitRunRequest runRequest) throws FrameworkException {
+        IRun run = null;
+        setRunRequestDefaultsIfNotSet(runRequest);
+
+        if (runRequest.getSharedEnvironmentPhase() != null) {
+            run = submitSharedEnvironmentRun(runRequest);
+        } else {
+            try {
+                String runName = assignNewRunName(runRequest);
+                run = new RunImpl(runName, this.dss);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new FrameworkException("Interrupted", e);
+            } catch (Exception e) {
+                throw new FrameworkException("Problem submitting job", e);
+            }
+        }
+        return run;
+    }
+
     @Override
     @NotNull
     public @NotNull IRun submitRun(String runType, String requestor, String bundleName,
             @NotNull String testName, String groupName, String mavenRepository, String obr, String stream,
             boolean local, boolean trace, Properties overrides, SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName,
             String language) throws FrameworkException {
-        if (testName == null) {
-            throw new FrameworkException("Missing test name");
-        }
-        String bundleTest = null;
-        if (language == null) {
-            language = "java";
-        }
-        if(language.equals("java")) {
-            if(bundleName == null) {
-                throw new FrameworkException("Missing bundle name");
-            } else {
-                bundleTest = bundleName + "/" + testName;
-            }
-        }
-
-        groupName = AbstractManager.nulled(groupName);
-        if (groupName == null) {
-            groupName = NO_GROUP;
-        }
-        runType = AbstractManager.nulled(runType);
-        if (runType == null) {
-            runType = NO_RUNTYPE;
-        }
-        runType = runType.toUpperCase();
-        requestor = AbstractManager.nulled(requestor);
-        if (requestor == null) {
-            requestor = AbstractManager.nulled(cps.getProperty("run", "requestor"));
-            if (requestor == null) {
-                requestor = "unknown";
-            }
-        }
-        stream = AbstractManager.nulled(stream);
-
-        String runName = null;
-
-        // *** Allocate the next number for the run type
-
-        if (sharedEnvironmentPhase != null && sharedEnvironmentPhase == SharedEnvironmentPhase.BUILD) {
-            if (sharedEnvironmentRunName == null || sharedEnvironmentRunName.trim().isEmpty()) {
-                throw new FrameworkException("Missing run name for shared environment");
-            }
-
-            sharedEnvironmentRunName = sharedEnvironmentRunName.trim().toUpperCase();
-
-            if (!storeRun(sharedEnvironmentRunName, 
-                    bundleTest, 
-                    bundleName, 
-                    testName, 
-                    runType, 
-                    trace, 
-                    local, 
-                    mavenRepository, 
-                    obr, 
-                    stream, 
-                    groupName, 
-                    requestor, 
-                    overrides,
-                    sharedEnvironmentPhase,
-                    language)) {
-                throw new FrameworkException("Unable to submit shared environment run " + sharedEnvironmentRunName + ", is there a duplicate runname?");
-            }
-
-            return new RunImpl(sharedEnvironmentRunName, this.dss);
-        }
-
-        //*** If this is discard,  tweak the current run parameters
-
-        if (sharedEnvironmentPhase != null && sharedEnvironmentPhase == SharedEnvironmentPhase.DISCARD) {
-            if (sharedEnvironmentRunName == null || sharedEnvironmentRunName.trim().isEmpty()) {
-                throw new FrameworkException("Missing run name for shared environment");
-            }
-
-            sharedEnvironmentRunName = sharedEnvironmentRunName.trim().toUpperCase();
-
-            RunImpl run = new RunImpl(sharedEnvironmentRunName, this.dss);
-            if (!run.isSharedEnvironment()) {
-                throw new FrameworkException("Run " + sharedEnvironmentRunName + " is not a shared environment");
-            }
-
-            if (!"UP".equalsIgnoreCase(run.getStatus())) {
-                throw new FrameworkException("Shared Environment " + sharedEnvironmentRunName + " is not up and running");
-            }
-
-            HashMap<String, String> otherProperties = new HashMap<>();
-            otherProperties.put(RUN_PREFIX + sharedEnvironmentRunName + ".override.framework.run.shared.environment.phase", sharedEnvironmentPhase.toString());
-            if (groupName != null) {
-                otherProperties.put(RUN_PREFIX + sharedEnvironmentRunName + ".group", groupName);
-            }
-            if (!this.dss.putSwap(RUN_PREFIX + sharedEnvironmentRunName + ".status", "up", "queued", otherProperties)) {
-                throw new FrameworkException("Failed to switch Shared Environment " + sharedEnvironmentRunName + " to discard");
-            }
-
-            return new RunImpl(sharedEnvironmentRunName, this.dss);
-        }
-
-        // *** Get the prefix of this run type
-        String typePrefix = AbstractManager.nulled(this.cps.getProperty("request.type." + runType, "prefix"));
-        if (typePrefix == null) {
-            if ("local".equals(runType)) {
-                typePrefix = "L";
-            } else {
-                typePrefix = "U"; // *** For unknown prefix
-            }
-        }
-
-        // *** Get the maximum number for this prefix
-        int maxNumber = Integer.MAX_VALUE;
-        String sMaxNumber = AbstractManager.nulled(this.cps.getProperty("request.prefix", "maximum", typePrefix));
-        if (sMaxNumber != null) {
-            maxNumber = Integer.parseInt(sMaxNumber);
-        }
-
-        try {
-            // *** Now loop until we find the next free number for this run type
-            boolean maxlooped = false;
-            while (runName == null) {
-                String pLastused = "request.prefix." + typePrefix + ".lastused";
-                String sLatestNumber = this.dss.get(pLastused);
-                int latestNumber = 0;
-                if (sLatestNumber != null && !sLatestNumber.trim().isEmpty()) {
-                    latestNumber = Integer.parseInt(sLatestNumber);
-                }
-
-                // *** Add 1 to the run number and see if we get it
-                latestNumber++;
-                if (latestNumber > maxNumber) { // *** have we gone past the maximum number
-                    if (maxlooped) {
-                        throw new FrameworkException("Not enough request type numbers available, looped twice");
-                    }
-                    latestNumber = 1;
-                    maxlooped = true; // *** Safety check to make sure we havent gone through all the numbers again
-                }
-
-                String sNewNumber = Integer.toString(latestNumber);
-                if (!this.dss.putSwap(pLastused, sLatestNumber, sNewNumber)) {
-                    Thread.sleep(this.framework.getRandom().nextInt(200)); // *** Wait for a bit, to avoid race
-                    // conditions
-                    continue; // Try again with the new latest number
-                }
-
-                String tempRunName = typePrefix + sNewNumber;
-
-                if (!storeRun(tempRunName, 
-                        bundleTest, 
-                        bundleName, 
-                        testName, 
-                        runType, 
-                        trace, 
-                        local, 
-                        mavenRepository, 
-                        obr, 
-                        stream, 
-                        groupName, 
-                        requestor, 
-                        overrides,
-                        null,
-                        language)) {
-                    Thread.sleep(this.framework.getRandom().nextInt(200)); // *** Wait for a bit, to avoid race
-                    // conditions
-                    continue; // *** Try again
-                }
-
-                runName = tempRunName; // *** Got it
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new FrameworkException("Interrupted", e);
-        } catch (Exception e) {
-            throw new FrameworkException("Problem submitting job", e);
-        }
-
-        return new RunImpl(runName, this.dss);
+        SubmitRunRequest runRequest = new SubmitRunRequest(
+            runType,
+            requestor,
+            bundleName,
+            testName,
+            groupName,
+            mavenRepository,
+            obr,
+            stream,
+            local,
+            trace,
+            overrides,
+            sharedEnvironmentPhase,
+            sharedEnvironmentRunName,
+            language
+        );
+        return submitRun(runRequest);
     }
 
-    private boolean storeRun(String runName,
-            String bundleTest,
-            String bundleName, 
-            String testName, 
-            String runType,
-            boolean trace,
-            boolean local,
-            String mavenRepository,
-            String obr,
-            String stream,
-            String groupName,
-            String requestor,
-            Properties overrides, 
-            SharedEnvironmentPhase sharedEnvironmentPhase,
-            String language) throws DynamicStatusStoreException {
+    private boolean storeRun(String runName, SubmitRunRequest runRequest) throws DynamicStatusStoreException {
+        String bundleName = runRequest.getBundleName();
+        String testName = runRequest.getTestName();
+        String bundleTest = runRequest.getBundleTest();
+        String gherkinTest = runRequest.getGherkinTest();
+        String runType = runRequest.getRunType();
+        String mavenRepository = runRequest.getMavenRepository();
+        String obr = runRequest.getObr();
+        String stream = runRequest.getStream();
+        String groupName = runRequest.getGroupName();
+        String requestor = runRequest.getRequestor();
+        SharedEnvironmentPhase sharedEnvironmentPhase = runRequest.getSharedEnvironmentPhase();
+        Properties overrides = runRequest.getOverrides();
+        boolean local = runRequest.isLocalRun();
+        boolean trace = runRequest.isTraceEnabled();
 
-        if (overrides == null) {
-            overrides = new Properties();
-        }
-        String gherkinTest = null;
-        if(language.equals("gherkin")) {
-            bundleTest = NO_BUNDLE;
-            gherkinTest = testName;
-            bundleName = NO_BUNDLE;
-        }
         // *** Set up the otherRunProperties that will go with the Run number
         HashMap<String, String> otherRunProperties = new HashMap<>();
         otherRunProperties.put(RUN_PREFIX + runName + ".status", "queued");
@@ -384,23 +242,19 @@ public class FrameworkRuns implements IFrameworkRuns {
             otherRunProperties.put(RUN_PREFIX + runName + ".gherkin", gherkinTest);
         }
 
-        // *** Add in the overrides
-        if (overrides != null) {
-            for (java.util.Map.Entry<Object, Object> entry : overrides.entrySet()) {
-                String key = (String) entry.getKey();
-                String value = (String) entry.getValue();
+        // *** Add in the overrides as a single property
+        if (!overrides.isEmpty()) {
+            String overridesStr = overrides.entrySet()
+                .stream()
+                .map((entry) -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("\n"));
 
-                otherRunProperties.put(RUN_PREFIX + runName + ".override." + key, value);
-            }
+            otherRunProperties.put(RUN_PREFIX + runName + ".overrides", overridesStr);
         }
-
+        
         // *** See if we can setup the runnumber properties (clashes possible if low max
         // number or sharing prefix
-        if (!this.dss.putSwap(RUN_PREFIX + runName + ".test", null, bundleTest, otherRunProperties)) {
-            return false; // *** Try again
-        }
-
-        return true;
+        return this.dss.putSwap(RUN_PREFIX + runName + ".test", null, bundleTest, otherRunProperties);
     }
 
     @Override
@@ -446,4 +300,180 @@ public class FrameworkRuns implements IFrameworkRuns {
         return new RunImpl(runname, this.dss);
     }
 
+    /**
+     * Get the prefix of a given run type
+     */ 
+    private String getRunTypePrefix(String runType) throws ConfigurationPropertyStoreException {
+        String typePrefix = AbstractManager.nulled(this.cps.getProperty("request.type." + runType, "prefix"));
+        if (typePrefix == null) {
+            if ("local".equalsIgnoreCase(runType)) {
+                typePrefix = "L";
+            } else {
+                typePrefix = "U"; // *** For unknown prefix
+            }
+        }
+        return typePrefix;
+    }
+
+    /**
+     * Get the maximum number for the given type prefix
+     */
+    private int getPrefixMaxNumber(String typePrefix) throws ConfigurationPropertyStoreException {
+        int maxNumber = Integer.MAX_VALUE;
+        String sMaxNumber = AbstractManager.nulled(this.cps.getProperty("request.prefix", "maximum", typePrefix));
+        if (sMaxNumber != null) {
+            maxNumber = Integer.parseInt(sMaxNumber);
+        }
+        return maxNumber;
+    }
+
+    /**
+     * Sets the relevant DSS properties when a shared environment run is being discarded
+     */
+    private void setDiscardSharedEnvironmentPhaseProperties(IRun run, String sharedEnvironmentRunName, String groupName) throws FrameworkException {
+        if (!run.isSharedEnvironment()) {
+            throw new FrameworkException("Run " + sharedEnvironmentRunName + " is not a shared environment");
+        }
+
+        if (!"UP".equalsIgnoreCase(run.getStatus())) {
+            throw new FrameworkException("Shared Environment " + sharedEnvironmentRunName + " is not up and running");
+        }
+
+        HashMap<String, String> otherProperties = new HashMap<>();
+        otherProperties.put(RUN_PREFIX + sharedEnvironmentRunName + ".overrides", "framework.run.shared.environment.phase=" + SharedEnvironmentPhase.DISCARD.toString());
+        if (groupName != null) {
+            otherProperties.put(RUN_PREFIX + sharedEnvironmentRunName + ".group", groupName);
+        }
+        if (!this.dss.putSwap(RUN_PREFIX + sharedEnvironmentRunName + ".status", "up", "queued", otherProperties)) {
+            throw new FrameworkException("Failed to switch Shared Environment " + sharedEnvironmentRunName + " to discard");
+        }
+    }
+
+    private String assignNewRunName(SubmitRunRequest runRequest) throws FrameworkException, InterruptedException {
+        String typePrefix = getRunTypePrefix(runRequest.getRunType());
+        int maxNumber = getPrefixMaxNumber(typePrefix);
+        runRequest.setSharedEnvironmentPhase(null);
+
+        // *** Now loop until we find the next free number for this run type
+        String runName = null;
+        boolean maxlooped = false;
+        while (runName == null) {
+            String pLastused = "request.prefix." + typePrefix + ".lastused";
+            String sLatestNumber = this.dss.get(pLastused);
+            int latestNumber = 0;
+            if (sLatestNumber != null && !sLatestNumber.trim().isEmpty()) {
+                latestNumber = Integer.parseInt(sLatestNumber);
+            }
+
+            // *** Add 1 to the run number and see if we get it
+            latestNumber++;
+            if (latestNumber > maxNumber) { // *** have we gone past the maximum number
+                if (maxlooped) {
+                    throw new FrameworkException("Not enough request type numbers available, looped twice");
+                }
+                latestNumber = 1;
+                maxlooped = true; // *** Safety check to make sure we havent gone through all the numbers again
+            }
+
+            String sNewNumber = Integer.toString(latestNumber);
+            if (!this.dss.putSwap(pLastused, sLatestNumber, sNewNumber)) {
+                Thread.sleep(this.framework.getRandom().nextInt(200)); // *** Wait for a bit, to avoid race
+                // conditions
+                continue; // Try again with the new latest number
+            }
+
+            String tempRunName = typePrefix + sNewNumber;
+
+            if (!storeRun(tempRunName, runRequest)) {
+                Thread.sleep(this.framework.getRandom().nextInt(200)); // *** Wait for a bit, to avoid race
+                // conditions
+                continue; // *** Try again
+            }
+
+            runName = tempRunName; // *** Got it
+        }
+        return runName;
+    }
+
+    private IRun submitSharedEnvironmentRun(SubmitRunRequest runRequest) throws FrameworkException {
+        String sharedEnvironmentRunName = runRequest.getSharedEnvironmentRunName();
+        SharedEnvironmentPhase sharedEnvironmentPhase = runRequest.getSharedEnvironmentPhase();
+        IRun run = new RunImpl(sharedEnvironmentRunName, this.dss);
+
+        if (sharedEnvironmentPhase == SharedEnvironmentPhase.BUILD
+                && !storeRun(sharedEnvironmentRunName, runRequest)) {
+            throw new FrameworkException("Unable to submit shared environment run " + sharedEnvironmentRunName + ", is there a duplicate runname?");
+        } else if (sharedEnvironmentPhase == SharedEnvironmentPhase.DISCARD) {
+            //*** If this is discard,  tweak the current run parameters
+            setDiscardSharedEnvironmentPhaseProperties(run, sharedEnvironmentRunName, runRequest.getGroupName());
+        }
+        return run;
+    }
+
+    private void setRunRequestDefaultsIfNotSet(SubmitRunRequest runRequest) throws FrameworkException {
+        setRunRequestTestDetails(runRequest);
+
+        if (AbstractManager.nulled(runRequest.getGroupName()) == null) {
+            runRequest.setGroupName(NO_GROUP);
+        }
+    
+        String runType = AbstractManager.nulled(runRequest.getRunType());
+        if (runType == null) {
+            runType = NO_RUNTYPE;
+        }
+        runRequest.setRunType(runType.toUpperCase());
+
+        setRunRequestRequestorDefault(runRequest);
+
+        runRequest.setStream(AbstractManager.nulled(runRequest.getStream()));
+
+        if (runRequest.getOverrides() == null) {
+            runRequest.setOverrides(new Properties());
+        }
+
+        formatSharedEnvironmentRunName(runRequest);
+    }
+
+    private void setRunRequestTestDetails(SubmitRunRequest runRequest) throws FrameworkException {
+        String language = runRequest.getLanguage();
+        if (language == null) {
+            language = "java";
+            runRequest.setLanguage(language);
+        }
+
+        if (language.equals("java")) {
+            if (runRequest.getBundleName() == null) {
+                throw new FrameworkException("Missing bundle name");
+            }
+            runRequest.setBundleTest(runRequest.getBundleName() + "/" + runRequest.getTestName());
+        } else if (language.equals("gherkin")) {
+            runRequest.setBundleTest(NO_BUNDLE);
+            runRequest.setGherkinTest(runRequest.getTestName());
+            runRequest.setBundleName(NO_BUNDLE);
+        }
+    }
+
+    private void setRunRequestRequestorDefault(SubmitRunRequest runRequest) throws FrameworkException {
+        String requestor = AbstractManager.nulled(runRequest.getRequestor());
+        if (requestor == null) {
+            requestor = AbstractManager.nulled(cps.getProperty("run", "requestor"));
+            if (requestor == null) {
+                requestor = "unknown";
+            }
+            runRequest.setRequestor(requestor);
+        }
+    }
+
+    private void formatSharedEnvironmentRunName(SubmitRunRequest runRequest) throws FrameworkException {
+        SharedEnvironmentPhase sharedEnvironmentPhase = runRequest.getSharedEnvironmentPhase();
+        if (sharedEnvironmentPhase != null) {
+            String sharedEnvironmentRunName = runRequest.getSharedEnvironmentRunName();
+    
+            if (sharedEnvironmentRunName == null || sharedEnvironmentRunName.trim().isEmpty()) {
+                throw new FrameworkException("Missing run name for shared environment");
+            }
+    
+            runRequest.setSharedEnvironmentRunName(sharedEnvironmentRunName.trim().toUpperCase());
+        }
+    }
 }

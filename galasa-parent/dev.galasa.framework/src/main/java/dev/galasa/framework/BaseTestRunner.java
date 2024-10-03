@@ -14,14 +14,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.Map.Entry;
 
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.framework.internal.runner.ITestRunnerEventsProducer;
 import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -166,12 +164,16 @@ public class BaseTestRunner {
                                         IDynamicStatusStoreService dss) throws TestRunException {
         //*** Load the overrides if present
         try {
-            String prefix = "run." + run.getName() + ".override.";
-            Map<String, String> runOverrides = dss.getPrefix(prefix);
-            for(Entry<String, String> entry : runOverrides.entrySet()) {
-                String key = entry.getKey().substring(prefix.length());
-                String value = entry.getValue();
-                overrideProperties.put(key, value);
+            String runOverridesProp = "run." + run.getName() + ".overrides";
+            String runOverrides = dss.get(runOverridesProp);
+            if (runOverrides != null && !runOverrides.isBlank()) {
+                for(String override : runOverrides.split(",")) {
+                    // Each override is of the form "key=value"
+                    String[] overrideParts = override.split("=");
+                    String key = overrideParts[0];
+                    String value = overrideParts[1];
+                    overrideProperties.put(key, value);
+                }
             }
         } catch(Exception e) {
             throw new TestRunException("Problem loading overrides from the run properties", e);

@@ -37,7 +37,7 @@ public class MockCPSStore implements IConfigurationPropertyStore, IConfiguration
 
     @Override
     public void setProperty(@NotNull String key, @NotNull String value) throws ConfigurationPropertyStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'setProperty'");
+        this.properties.put(key, value);
     }
 
     @Override
