@@ -164,11 +164,12 @@ public class BaseTestRunner {
                                         IDynamicStatusStoreService dss) throws TestRunException {
         //*** Load the overrides if present
         try {
+            // The overrides DSS property contains a map of overrides, separated by newline characters in the form:
+            // dss.framework.run.<run-name>.overrides=override1=value1\noverride2=value2
             String runOverridesProp = "run." + run.getName() + ".overrides";
             String runOverrides = dss.get(runOverridesProp);
             if (runOverrides != null && !runOverrides.isBlank()) {
-                for(String override : runOverrides.split(",")) {
-                    // Each override is of the form "key=value"
+                for (String override : runOverrides.split(",")) {
                     String[] overrideParts = override.split("=");
                     String key = overrideParts[0];
                     String value = overrideParts[1];
