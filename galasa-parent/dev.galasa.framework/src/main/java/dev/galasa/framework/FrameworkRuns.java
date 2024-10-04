@@ -251,7 +251,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 
             otherRunProperties.put(RUN_PREFIX + runName + ".overrides", overridesStr);
         }
-        
+
         // *** See if we can setup the runnumber properties (clashes possible if low max
         // number or sharing prefix
         return this.dss.putSwap(RUN_PREFIX + runName + ".test", null, bundleTest, otherRunProperties);
@@ -302,7 +302,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     /**
      * Get the prefix of a given run type
-     */ 
+     */
     private String getRunTypePrefix(String runType) throws ConfigurationPropertyStoreException {
         String typePrefix = AbstractManager.nulled(this.cps.getProperty("request.type." + runType, "prefix"));
         if (typePrefix == null) {
@@ -416,7 +416,7 @@ public class FrameworkRuns implements IFrameworkRuns {
         if (AbstractManager.nulled(runRequest.getGroupName()) == null) {
             runRequest.setGroupName(NO_GROUP);
         }
-    
+
         String runType = AbstractManager.nulled(runRequest.getRunType());
         if (runType == null) {
             runType = NO_RUNTYPE;
@@ -468,11 +468,11 @@ public class FrameworkRuns implements IFrameworkRuns {
         SharedEnvironmentPhase sharedEnvironmentPhase = runRequest.getSharedEnvironmentPhase();
         if (sharedEnvironmentPhase != null) {
             String sharedEnvironmentRunName = runRequest.getSharedEnvironmentRunName();
-    
+
             if (sharedEnvironmentRunName == null || sharedEnvironmentRunName.trim().isEmpty()) {
                 throw new FrameworkException("Missing run name for shared environment");
             }
-    
+
             runRequest.setSharedEnvironmentRunName(sharedEnvironmentRunName.trim().toUpperCase());
         }
     }

@@ -169,11 +169,13 @@ public class BaseTestRunner {
             String runOverridesProp = "run." + run.getName() + ".overrides";
             String runOverrides = dss.get(runOverridesProp);
             if (runOverrides != null && !runOverrides.isBlank()) {
-                for (String override : runOverrides.split(",")) {
+                for (String override : runOverrides.split("\n")) {
                     String[] overrideParts = override.split("=");
-                    String key = overrideParts[0];
-                    String value = overrideParts[1];
-                    overrideProperties.put(key, value);
+                    if (overrideParts.length == 2) {
+                        String key = overrideParts[0];
+                        String value = overrideParts[1];
+                        overrideProperties.put(key, value);
+                    }
                 }
             }
         } catch(Exception e) {
