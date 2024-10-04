@@ -10,6 +10,9 @@ import java.util.Properties;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
 
+/**
+ * An internal bean class containing the details required to submit a test run to the Galasa framework.
+ */
 public class SubmitRunRequest {
 
     private String runType;
@@ -45,10 +48,11 @@ public class SubmitRunRequest {
         String sharedEnvironmentRunName,
         String language
     ) throws FrameworkException {
+        setTestName(testName);
+
         this.runType = runType;
         this.requestor = requestor;
         this.bundleName = bundleName;
-        setTestName(testName);
         this.groupName = groupName;
         this.mavenRepository = mavenRepository;
         this.obr = obr;

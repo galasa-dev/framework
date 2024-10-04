@@ -143,22 +143,26 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         // *** If this is a test run, add the overrides from the run dss properties to
         // these overrides
         if (testrun) {
-            // The overrides DSS property contains a map of overrides, separated by newline characters in the form:
-            // dss.framework.run.<run-name>.overrides=override1=value1\noverride2=value2
-            String runOverridesProp = "run." + framework.getTestRunName() + ".overrides";
-            String runOverrides = this.dssFramework.get(runOverridesProp);
-            if (runOverrides != null && !runOverrides.isBlank()) {
-                for (String override : runOverrides.split("\n")) {
-                    String[] overrideParts = override.split("=");
-                    if (overrideParts.length == 2) {
-                        String key = overrideParts[0];
-                        String value = overrideParts[1];
-        
-                        if (logger.isTraceEnabled()) {
-                            logger.trace("Setting run override " + key + "=" + value);
-                        }
-                        overrideProperties.put(key, value);
+            loadOverridePropertiesFromDss(overrideProperties);
+        }
+    }
+
+    private void loadOverridePropertiesFromDss(Properties overrideProperties) throws DynamicStatusStoreException {
+        // The overrides DSS property contains a map of overrides, separated by newline characters in the form:
+        // dss.framework.run.<run-name>.overrides=override1=value1\noverride2=value2
+        String runOverridesProp = "run." + framework.getTestRunName() + ".overrides";
+        String runOverrides = this.dssFramework.get(runOverridesProp);
+        if (runOverrides != null && !runOverrides.isBlank()) {
+            for (String override : runOverrides.split("\n")) {
+                String[] overrideParts = override.split("=");
+                if (overrideParts.length == 2) {
+                    String key = overrideParts[0];
+                    String value = overrideParts[1];
+    
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Setting run override " + key + "=" + value);
                     }
+                    overrideProperties.put(key, value);
                 }
             }
         }
