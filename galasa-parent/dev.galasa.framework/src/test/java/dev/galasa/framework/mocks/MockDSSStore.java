@@ -7,6 +7,7 @@ package dev.galasa.framework.mocks;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,20 +20,25 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreMatchException;
 import dev.galasa.framework.spi.IDssAction;
+import dev.galasa.framework.spi.IDynamicResource;
+import dev.galasa.framework.spi.IDynamicRun;
 import dev.galasa.framework.spi.IDynamicStatusStore;
+import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 
-public class MockDSSStore implements IDynamicStatusStore {
+public class MockDSSStore implements IDynamicStatusStore, IDynamicStatusStoreService {
 
     private Map<String,String> valueMap ;
     private Log logger = LogFactory.getLog(MockDSSStore.class.getName());
+    private boolean isSwapSetToFail = false;
+
     public MockDSSStore(Map<String,String> valueMap) {
         this.valueMap = valueMap;
     }
 
     @Override
     public void put(@NotNull String key, @NotNull String value) throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'put'");
+        valueMap.put(key, value);
     }
 
     @Override
@@ -52,8 +58,14 @@ public class MockDSSStore implements IDynamicStatusStore {
     public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue,
             @NotNull Map<String, String> others) throws DynamicStatusStoreException {
         logger.debug("DSS putswap of property "+key+" oldValue:"+oldValue+" newValue:"+newValue);
-        valueMap.put(key,newValue);
-        return true;
+        boolean isSuccessful = !isSwapSetToFail;
+        if (isSuccessful) {
+            valueMap.put(key,newValue);
+            for (Entry<String, String> entry : others.entrySet()) {
+                valueMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return isSuccessful;
     }
 
     @Override
@@ -73,6 +85,10 @@ public class MockDSSStore implements IDynamicStatusStore {
         }
         logger.debug("DSS getPrefix of property "+keyPrefix+" returning "+results.toString());
         return results;
+    }
+
+    public void setSwapSetToFail(boolean isSwapSetToFail) {
+        this.isSwapSetToFail = isSwapSetToFail;
     }
 
     @Override
@@ -114,6 +130,16 @@ public class MockDSSStore implements IDynamicStatusStore {
     @Override
     public void shutdown() throws DynamicStatusStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
+    }
+
+    @Override
+    public IDynamicResource getDynamicResource(String resourceKey) {
+        throw new UnsupportedOperationException("Unimplemented method 'getDynamicResource'");
+    }
+
+    @Override
+    public IDynamicRun getDynamicRun() throws DynamicStatusStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'getDynamicRun'");
     }
     
 }

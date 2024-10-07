@@ -14,14 +14,13 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.Map.Entry;
 
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ResultArchiveStoreContentType;
+import dev.galasa.framework.beans.Property;
 import dev.galasa.framework.internal.runner.ITestRunnerEventsProducer;
 import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -33,6 +32,7 @@ import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class BaseTestRunner {
 
@@ -60,6 +60,8 @@ public class BaseTestRunner {
 
 
     protected Properties overrideProperties;
+
+    private static final GalasaGson gson = new GalasaGson();
 
     protected void init(ITestRunnerDataProvider dataProvider) throws TestRunException {
         this.run = dataProvider.getRun() ;
@@ -166,12 +168,15 @@ public class BaseTestRunner {
                                         IDynamicStatusStoreService dss) throws TestRunException {
         //*** Load the overrides if present
         try {
-            String prefix = "run." + run.getName() + ".override.";
-            Map<String, String> runOverrides = dss.getPrefix(prefix);
-            for(Entry<String, String> entry : runOverrides.entrySet()) {
-                String key = entry.getKey().substring(prefix.length());
-                String value = entry.getValue();
-                overrideProperties.put(key, value);
+            // The overrides DSS property contains a JSON array of overrides in the form:
+            // dss.framework.run.X.overrides=[{ "key1": "value1" }, { "key2", "value2" }]
+            String runOverridesProp = "run." + run.getName() + ".overrides";
+            String runOverrides = dss.get(runOverridesProp);
+            if (runOverrides != null && !runOverrides.isBlank()) {
+                Property[] properties = gson.fromJson(runOverrides, Property[].class);
+                for (Property override : properties) {
+                    overrideProperties.put(override.getKey(), override.getValue());
+                }
             }
         } catch(Exception e) {
             throw new TestRunException("Problem loading overrides from the run properties", e);
