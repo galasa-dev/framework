@@ -207,39 +207,41 @@ public class FrameworkRuns implements IFrameworkRuns {
         boolean local = runRequest.isLocalRun();
         boolean trace = runRequest.isTraceEnabled();
 
+        String runPropertyPrefix = RUN_PREFIX + runName;
+
         // *** Set up the otherRunProperties that will go with the Run number
         HashMap<String, String> otherRunProperties = new HashMap<>();
-        otherRunProperties.put(RUN_PREFIX + runName + ".status", "queued");
-        otherRunProperties.put(RUN_PREFIX + runName + ".queued", Instant.now().toString());
-        otherRunProperties.put(RUN_PREFIX + runName + ".testbundle", bundleName);
-        otherRunProperties.put(RUN_PREFIX + runName + ".testclass", testName);
-        otherRunProperties.put(RUN_PREFIX + runName + ".request.type", runType);
-        otherRunProperties.put(RUN_PREFIX + runName + ".local", Boolean.toString(local));
+        otherRunProperties.put(runPropertyPrefix + ".status", "queued");
+        otherRunProperties.put(runPropertyPrefix + ".queued", Instant.now().toString());
+        otherRunProperties.put(runPropertyPrefix + ".testbundle", bundleName);
+        otherRunProperties.put(runPropertyPrefix + ".testclass", testName);
+        otherRunProperties.put(runPropertyPrefix + ".request.type", runType);
+        otherRunProperties.put(runPropertyPrefix + ".local", Boolean.toString(local));
         if (trace) {
-            otherRunProperties.put(RUN_PREFIX + runName + ".trace", "true");
+            otherRunProperties.put(runPropertyPrefix + ".trace", "true");
         }
         if (mavenRepository != null) {
-            otherRunProperties.put(RUN_PREFIX + runName + ".repository", mavenRepository);
+            otherRunProperties.put(runPropertyPrefix + ".repository", mavenRepository);
         }
         if (obr != null) {
-            otherRunProperties.put(RUN_PREFIX + runName + ".obr", obr);
+            otherRunProperties.put(runPropertyPrefix + ".obr", obr);
         }
         if (stream != null) {
-            otherRunProperties.put(RUN_PREFIX + runName + ".stream", stream);
+            otherRunProperties.put(runPropertyPrefix + ".stream", stream);
         }
         if (groupName != null) {
-            otherRunProperties.put(RUN_PREFIX + runName + ".group", groupName);
+            otherRunProperties.put(runPropertyPrefix + ".group", groupName);
         } else {
-            otherRunProperties.put(RUN_PREFIX + runName + ".group", UUID.randomUUID().toString());
+            otherRunProperties.put(runPropertyPrefix + ".group", UUID.randomUUID().toString());
         }
-        otherRunProperties.put(RUN_PREFIX + runName + ".requestor", requestor.toLowerCase());
+        otherRunProperties.put(runPropertyPrefix + ".requestor", requestor.toLowerCase());
 
         if (sharedEnvironmentPhase != null) {
-            otherRunProperties.put(RUN_PREFIX + runName + ".shared.environment", "true");
+            otherRunProperties.put(runPropertyPrefix + ".shared.environment", "true");
             overrides.put("framework.run.shared.environment.phase", sharedEnvironmentPhase.toString());
         }
-        if(gherkinTest != null) {
-            otherRunProperties.put(RUN_PREFIX + runName + ".gherkin", gherkinTest);
+        if (gherkinTest != null) {
+            otherRunProperties.put(runPropertyPrefix + ".gherkin", gherkinTest);
         }
 
         // *** Add in the overrides as a single property
@@ -249,12 +251,12 @@ public class FrameworkRuns implements IFrameworkRuns {
                 .map((entry) -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining("\n"));
 
-            otherRunProperties.put(RUN_PREFIX + runName + ".overrides", overridesStr);
+            otherRunProperties.put(runPropertyPrefix + ".overrides", overridesStr);
         }
 
         // *** See if we can setup the runnumber properties (clashes possible if low max
         // number or sharing prefix
-        return this.dss.putSwap(RUN_PREFIX + runName + ".test", null, bundleTest, otherRunProperties);
+        return this.dss.putSwap(runPropertyPrefix + ".test", null, bundleTest, otherRunProperties);
     }
 
     @Override
@@ -340,11 +342,12 @@ public class FrameworkRuns implements IFrameworkRuns {
         }
 
         HashMap<String, String> otherProperties = new HashMap<>();
-        otherProperties.put(RUN_PREFIX + sharedEnvironmentRunName + ".overrides", "framework.run.shared.environment.phase=" + SharedEnvironmentPhase.DISCARD.toString());
+        String runPropertyPrefix = RUN_PREFIX + sharedEnvironmentRunName;
+        otherProperties.put(runPropertyPrefix + ".overrides", "framework.run.shared.environment.phase=" + SharedEnvironmentPhase.DISCARD.toString());
         if (groupName != null) {
-            otherProperties.put(RUN_PREFIX + sharedEnvironmentRunName + ".group", groupName);
+            otherProperties.put(runPropertyPrefix + ".group", groupName);
         }
-        if (!this.dss.putSwap(RUN_PREFIX + sharedEnvironmentRunName + ".status", "up", "queued", otherProperties)) {
+        if (!this.dss.putSwap(runPropertyPrefix + ".status", "up", "queued", otherProperties)) {
             throw new FrameworkException("Failed to switch Shared Environment " + sharedEnvironmentRunName + " to discard");
         }
     }
