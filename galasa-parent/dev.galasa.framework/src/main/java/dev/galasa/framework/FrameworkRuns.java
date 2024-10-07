@@ -37,6 +37,7 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.utils.GalasaGson;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 public class FrameworkRuns implements IFrameworkRuns {
 
@@ -55,12 +56,13 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     private final String                             RUN_PREFIX   = "run.";
 
-    private static final GalasaGson gson = new GalasaGson();
+    private final GalasaGson gson = new GalasaGson();
 
     public FrameworkRuns(IFramework framework) throws FrameworkException {
         this.framework = framework;
         this.dss = framework.getDynamicStatusStoreService("framework");
         this.cps = framework.getConfigurationPropertyService("framework");
+        gson.setGsonBuilder(new GalasaGsonBuilder(false));
     }
 
     @Override

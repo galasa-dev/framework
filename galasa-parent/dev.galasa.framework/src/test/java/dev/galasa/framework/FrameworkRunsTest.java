@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.Map.Entry;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.gson.JsonArray;
@@ -23,10 +24,16 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
 import dev.galasa.framework.spi.utils.GalasaGson;
+import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 
 public class FrameworkRunsTest {
 
     private static final GalasaGson gson = new GalasaGson();
+
+    @BeforeClass
+    public static void setUp() {
+        gson.setGsonBuilder(new GalasaGsonBuilder(false));
+    }
 
     private String getExpectedOverridesJson(Properties properties) {
         JsonArray overridesArray = new JsonArray();
