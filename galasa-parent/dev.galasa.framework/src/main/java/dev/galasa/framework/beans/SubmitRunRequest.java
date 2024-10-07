@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework;
+package dev.galasa.framework.beans;
 
 import java.util.Properties;
 

@@ -17,13 +17,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.gson.JsonArray;
+
+import dev.galasa.framework.beans.Property;
+import dev.galasa.framework.beans.SubmitRunRequest;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -33,6 +36,7 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class FrameworkRuns implements IFrameworkRuns {
 
@@ -50,6 +54,8 @@ public class FrameworkRuns implements IFrameworkRuns {
     // private final String                             NO_REQUESTER = "unknown";
 
     private final String                             RUN_PREFIX   = "run.";
+
+    private static final GalasaGson gson = new GalasaGson();
 
     public FrameworkRuns(IFramework framework) throws FrameworkException {
         this.framework = framework;
@@ -246,12 +252,14 @@ public class FrameworkRuns implements IFrameworkRuns {
 
         // *** Add in the overrides as a single property
         if (!overrides.isEmpty()) {
-            String overridesStr = overrides.entrySet()
-                .stream()
-                .map((entry) -> entry.getKey() + "=" + entry.getValue())
-                .collect(Collectors.joining("\n"));
+            JsonArray overridesArray = new JsonArray();
+            for (Map.Entry<Object, Object> entry : overrides.entrySet()) {
+                String key = (String) entry.getKey();
+                String value = (String) entry.getValue();
+                overridesArray.add(gson.toJsonTree(new Property(key, value)));
+            }
 
-            otherRunProperties.put(runPropertyPrefix + ".overrides", overridesStr);
+            otherRunProperties.put(runPropertyPrefix + ".overrides", gson.toJson(overridesArray));
         }
 
         // *** See if we can setup the runnumber properties (clashes possible if low max

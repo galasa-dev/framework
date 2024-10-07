@@ -12,8 +12,11 @@ import java.nio.file.*;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.*;
 import org.osgi.framework.*;
+
+import dev.galasa.framework.beans.Property;
 import dev.galasa.framework.spi.*;
 import dev.galasa.framework.spi.creds.*;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
@@ -34,6 +37,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
     private String galasaHome;
 
+    private static final GalasaGson gson = new GalasaGson();
     
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
@@ -148,22 +152,19 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
     private void loadOverridePropertiesFromDss(Properties overrideProperties) throws DynamicStatusStoreException {
-        // The overrides DSS property contains a map of overrides, separated by newline characters in the form:
-        // dss.framework.run.<run-name>.overrides=override1=value1\noverride2=value2
+        // The overrides DSS property contains a JSON array of overrides in the form:
+        // dss.framework.run.X.overrides=[{ "key1": "value1" }, { "key2", "value2" }]
         String runOverridesProp = "run." + framework.getTestRunName() + ".overrides";
         String runOverrides = this.dssFramework.get(runOverridesProp);
         if (runOverrides != null && !runOverrides.isBlank()) {
-            for (String override : runOverrides.split("\n")) {
-                String[] overrideParts = override.split("=");
-                if (overrideParts.length == 2) {
-                    String key = overrideParts[0];
-                    String value = overrideParts[1];
-    
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Setting run override " + key + "=" + value);
-                    }
-                    overrideProperties.put(key, value);
+            Property[] properties = gson.fromJson(runOverrides, Property[].class);
+            for (Property override : properties) {
+                String key = override.getKey();
+                String value = override.getValue();
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Setting run override " + key + "=" + value);
                 }
+                overrideProperties.put(key, value);
             }
         }
     }

@@ -9,8 +9,12 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import org.junit.Test;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import dev.galasa.framework.mocks.MockCPSStore;
 import dev.galasa.framework.mocks.MockDSSStore;
@@ -18,8 +22,23 @@ import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class FrameworkRunsTest {
+
+    private static final GalasaGson gson = new GalasaGson();
+
+    private String getExpectedOverridesJson(Properties properties) {
+        JsonArray overridesArray = new JsonArray();
+
+        for (Entry<Object, Object> entry : properties.entrySet()) {
+            JsonObject propertyJson = new JsonObject();
+            propertyJson.addProperty("key", (String) entry.getKey());
+            propertyJson.addProperty("value", (String) entry.getValue());
+            overridesArray.add(propertyJson);
+        }
+        return gson.toJson(overridesArray);
+    }
    
     @Test
     public void testSubmitRunReturnsSubmittedRun() throws Exception {
@@ -89,10 +108,7 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run.U1.trace")).isEqualTo(Boolean.toString(trace));
         assertThat(mockDss.get("run.U1.request.type")).isEqualTo(runType.toUpperCase());
         assertThat(mockDss.get("run.U1.status")).isEqualTo("queued");
-        assertThat(mockDss.get("run.U1.overrides")).isEqualTo(
-            override1Key + "=" + override1Value + "\n" +
-            override2Key + "=" + override2Value
-        );
+        assertThat(mockDss.get("run.U1.overrides")).isEqualTo(getExpectedOverridesJson(overrides));
     }
    
     @Test
@@ -167,10 +183,7 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run.U1.trace")).isEqualTo(Boolean.toString(trace));
         assertThat(mockDss.get("run.U1.request.type")).isEqualTo(runType.toUpperCase());
         assertThat(mockDss.get("run.U1.status")).isEqualTo("queued");
-        assertThat(mockDss.get("run.U1.overrides")).isEqualTo(
-            override1Key + "=" + override1Value + "\n" +
-            override2Key + "=" + override2Value
-        );
+        assertThat(mockDss.get("run.U1.overrides")).isEqualTo(getExpectedOverridesJson(overrides));
     }
    
     @Test
@@ -557,8 +570,11 @@ public class FrameworkRunsTest {
         assertThat(run).isNotNull();
         assertThat(run.getName()).isEqualTo(sharedEnvironmentRunName);
 
+        Properties expectedOverrides = new Properties();
+        expectedOverrides.put("framework.run.shared.environment.phase", "BUILD");
+
         // Check that the DSS has been populated with the correct run-related properties
-        assertThat(mockDss.get("run.SHARED-RUN1.overrides")).isEqualTo("framework.run.shared.environment.phase=BUILD");
+        assertThat(mockDss.get("run.SHARED-RUN1.overrides")).isEqualTo(getExpectedOverridesJson(expectedOverrides));
         assertThat(mockDss.get("run.SHARED-RUN1.shared.environment")).isEqualTo("true");
         assertThat(mockDss.get("run.SHARED-RUN1.obr")).isEqualTo(obr);
         assertThat(mockDss.get("run.SHARED-RUN1.group")).isEqualTo(groupName);
