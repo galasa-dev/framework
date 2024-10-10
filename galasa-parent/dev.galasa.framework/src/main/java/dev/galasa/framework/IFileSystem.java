@@ -35,7 +35,9 @@ public interface IFileSystem {
 
     Path createFile(Path path, FileAttribute<?>... attrs) throws IOException;
 
-    void write(Path rasProperties, byte[] bytes) throws IOException ;
+    void write(Path rasProperties, byte[] bytes) throws IOException;
 
-    List<String> readLines(URI uri) throws IOException ;
+    List<String> readLines(URI uri) throws IOException;
+
+    String readString(Path path) throws IOException;
 }

@@ -15,7 +15,12 @@ public class CredentialsToken extends Credentials implements ICredentialsToken {
     public CredentialsToken(SecretKeySpec key, String stoken) throws CredentialsException {
         super(key);
 
-        this.token = decode(stoken);
+        String decryptedToken = decryptToString(stoken);
+        if (decryptedToken == null) {
+            this.token = decode(stoken);
+        } else {
+            this.token = decryptedToken.getBytes();
+        }
     }
 
     public byte[] getToken() {

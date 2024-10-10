@@ -5,7 +5,7 @@
  */
 package dev.galasa.framework.spi.creds;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -19,15 +19,16 @@ public class CredentialsUsernamePassword extends Credentials implements ICredent
             throws CredentialsException {
         super(key);
 
-        try {
-            this.username = new String(decode(username), "utf-8");
-            this.password = new String(decode(password), "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new CredentialsException("utf-8 is not available for credentials", e);
-        } catch (CredentialsException e) {
-            throw e;
+        this.username = decryptToString(username);
+        this.password = decryptToString(password);
+
+        if (this.username == null) {
+            this.username = new String(decode(username), StandardCharsets.UTF_8);
         }
 
+        if (this.password == null) {
+            this.password = new String(decode(password), StandardCharsets.UTF_8);
+        }
     }
 
     public String getUsername() {
