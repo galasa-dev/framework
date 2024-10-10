@@ -21,7 +21,6 @@ import dev.galasa.framework.spi.Environment;
 import dev.galasa.framework.spi.SystemEnvironment;
 
 public class FrameworkEncryptionService implements IEncryptionService {
-
     public static final String ENCRYPTION_KEYS_PATH_ENV = "GALASA_ENCRYPTION_KEYS_PATH";
 
     private static final String KEY_ALGORITHM = "AES";
