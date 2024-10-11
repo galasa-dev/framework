@@ -88,6 +88,7 @@ public class K8sController {
         // *** Fetch the settings
 
         settings = new Settings(this, api);
+        settings.init();
 
         // *** Setup defaults and properties
 
@@ -233,7 +234,7 @@ public class K8sController {
         return value;
     }
 
-    public void pollUpated() {
+    public void pollUpdated() {
         if (pollFuture == null) {
             return;
         }
