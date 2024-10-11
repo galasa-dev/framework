@@ -26,6 +26,7 @@ import com.google.gson.JsonParser;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.resources.ResourcesServletTest;
 import dev.galasa.framework.api.resources.mocks.MockResourcesServlet;
+import dev.galasa.framework.api.resources.processors.GalasaPropertyProcessor;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class TestResourcesRoute extends ResourcesServletTest{
@@ -125,11 +126,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         checkPropertyInNamespace(namespace,propertyname,value);
@@ -144,11 +145,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet("framework");
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
+        propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         checkPropertyInNamespace(namespace,propertyname,value);
@@ -163,12 +164,12 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
+
 
         //Then...
         assertThat(errors).isNotNull();
@@ -186,12 +187,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -209,12 +209,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -232,12 +231,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -255,12 +253,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -278,12 +275,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -301,12 +297,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -324,12 +319,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -347,12 +341,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -370,12 +363,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -394,12 +386,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -419,13 +410,12 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         String jsonString = "{\"apiVersion\": \"galasa-dev/v1alpha1\",\n\"kind\": \"GalasaProperty\",\"metadata\": {},\"data\": {}}";
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();
@@ -446,12 +436,12 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "");
 
         //When...
         Throwable thrown = catchThrowable(() -> {
-            resourcesRoute.processGalasaProperty(propertyJson, "apply");
+            propertyProcessor.processResource(propertyJson, "apply");
         });
 
         //Then...
@@ -471,13 +461,12 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        GalasaPropertyProcessor propertyProcessor = new GalasaPropertyProcessor(cps);
         String jsonString = "{\"apiVersion\":\"galasa-dev/v1alpha1\","+namespace+"."+propertyname+":"+value+"}";
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
-        resourcesRoute.processGalasaProperty(propertyJson, "apply");
-        List<String> errors = resourcesRoute.errors;
+        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
 
         //Then...
         assertThat(errors).isNotNull();

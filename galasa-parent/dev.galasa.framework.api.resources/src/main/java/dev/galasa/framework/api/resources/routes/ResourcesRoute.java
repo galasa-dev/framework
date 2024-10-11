@@ -6,11 +6,14 @@
 package dev.galasa.framework.api.resources.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.resources.GalasaResourceType.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -21,17 +24,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.beans.GalasaProperty;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
-import dev.galasa.framework.api.common.resources.CPSNamespace;
-import dev.galasa.framework.api.common.resources.CPSProperty;
+import dev.galasa.framework.api.common.resources.GalasaResourceType;
 import dev.galasa.framework.api.common.resources.ResourceNameValidator;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.api.resources.processors.GalasaPropertyProcessor;
+import dev.galasa.framework.api.resources.processors.GalasaSecretProcessor;
+import dev.galasa.framework.api.resources.processors.IGalasaResourceProcessor;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
@@ -43,15 +46,16 @@ public class ResourcesRoute  extends BaseRoute{
 
     protected static final String path = "\\/";
     private static final Set<String> validActions = Collections.unmodifiableSet(Set.of("apply","create","update", "delete"));
-    private static final Set<String> updateActions = Collections.unmodifiableSet(Set.of("apply","update"));
+
+    private Map<GalasaResourceType, IGalasaResourceProcessor> resourceProcessors = new HashMap<>();
     
     protected List<String> errors = new ArrayList<String>();
 
-    private CPSFacade cps;
-
     public ResourcesRoute(ResponseBuilder responseBuilder, CPSFacade cps) {
         super(responseBuilder, path);
-        this.cps = cps;
+
+        resourceProcessors.put(GALASA_PROPERTY, new GalasaPropertyProcessor(cps));
+        resourceProcessors.put(GALASA_SECRET, new GalasaSecretProcessor());
     }
 
     @Override
@@ -102,120 +106,23 @@ public class ResourcesRoute  extends BaseRoute{
     }
 
     protected void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{
-        for (JsonElement element: jsonArray){
+        for (JsonElement element: jsonArray) {
             try {
                 checkJsonElementIsValidJSON(element);
                 JsonObject resource = element.getAsJsonObject();
-                String kind = resource.get("kind").getAsString();
-                switch (kind){
-                    case "GalasaProperty":
-                        processGalasaProperty(resource,action);
-                        break;
-                    default:
-                        ServletError error = new ServletError(GAL5026_UNSUPPORTED_RESOURCE_TYPE,kind);
-                        throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-                }
-            } catch(InternalServletException s){
-                errors.add(s.getMessage());
-            }
-        }
-    }
-    
-    private boolean checkGalasaPropertyJsonStructure(JsonObject propertyJson) throws InternalServletException{
-        List<String> validationErrors = new ArrayList<String>();
-        if (propertyJson.has("apiVersion")&& propertyJson.has("metadata")&&propertyJson.has("data")){
-            //Check metadata is not null and contains name and namespace fields in the correct format
-            JsonObject metadata = propertyJson.get("metadata").getAsJsonObject();
-            if (metadata.size() > 0){
-                JsonElement name = metadata.get("name");
-                JsonElement namespace = metadata.get("namespace"); 
-                    // Use the ResourceNameValidator to check that the name is correctly formatted and not null
-                    try {
-                        nameValidator.assertPropertyNameCharPatternIsValid(name.getAsString());
-                    } catch (InternalServletException e){
-                        // All ResourceNameValidator error should be added to the list of reasons why the property action has failed
-                        validationErrors.add(e.getMessage());
-                    }
-                    // Use the ResourceNameValidator to check that the namesapce is correctly formatted and not null
-                    try {
-                        nameValidator.assertNamespaceCharPatternIsValid(namespace.getAsString());
-                    } catch (InternalServletException e){
-                        // All ResourceNameValidator error should be added to the list of reasons why the property action has failed
-                        validationErrors.add(e.getMessage());
-                    }
+                String kindStr = resource.get("kind").getAsString();
 
-            } else {
-                String message = "The 'metadata' field cannot be empty. The fields 'name' and 'namespace' are mandatory for the type GalasaProperty.";
-                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
-                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-            }
-            
-            //Check that data is not null and contains the value field
-            JsonObject data = propertyJson.get("data").getAsJsonObject();
-            if (data.size() > 0){
-                if (data.has("value")){
-                    String value = data.get("value").getAsString();
-                    if (value == null || value.isBlank()) {
-                        String message = "The 'value' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.";
-                        ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
-                        validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-                    }
-                }
-            } else {
-                String message = "The 'data' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.";
-                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
-                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-            }
-
-        } else {
-            // Caused by bad Key Names in the JSON object i.e. apiversion instead of apiVersion
-            ServletError error = new ServletError(GAL5400_BAD_REQUEST,propertyJson.toString());
-            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-        }
-        errors.addAll(validationErrors);
-        return validationErrors.size() ==0;
-    }
-
-    protected void processGalasaProperty(JsonObject resource, String action) throws InternalServletException{
-        try {
-            if (checkGalasaPropertyJsonStructure(resource)){
-                String apiversion = resource.get("apiVersion").getAsString();
-                String expectedApiVersion = GalasaProperty.DEFAULTAPIVERSION;
-                if (apiversion.equals(expectedApiVersion)) {
-                    GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
-                    CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
-
-                    //getPropertyFromStore() will only return null if the property is in a hidden namespace
-                    CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
-
-                    if (action.equals("delete")) {
-                        property.deletePropertyFromStore();
-                    } else {
-                        /*
-                        * The logic below is used to determine if the exclusive Not Or condition in property.setPropertyToStore 
-                        * (i.e. "the property exists" must equal to "is this an update action") will action the request or error
-                        *
-                        * Logic Table to Determine actions
-                        * If the action is equal to "update" (force update) the updateProperty is set to true (update property,
-                        * will error if the property does not exist in CPS)
-                        * If the action is either "update" or "apply" and the property exists in CPS the updateProperty is set to true (update property)
-                        * If the action is equal to "apply" and the property does not exist in CPS the updateProperty is set to false (create property)
-                        * If the action is equal to "create" (force create) the updateProperty is set to false (create property, will error if the property exists in CPS)
-                        */
-                        boolean updateProperty = false;
-                        if ((updateActions.contains(action) && property.existsInStore()) || action.equals("update")){
-                            updateProperty = true;
-                        }
-                        property.setPropertyToStore(galasaProperty, updateProperty);
-                    }
-                } else {
-                    ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion, expectedApiVersion);
+                GalasaResourceType kind = GalasaResourceType.getFromString(kindStr);
+                if (kind == null) {
+                    ServletError error = new ServletError(GAL5026_UNSUPPORTED_RESOURCE_TYPE, kindStr);
                     throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
                 }
+
+                errors.addAll(resourceProcessors.get(kind).processResource(resource, action));
+
+            } catch (InternalServletException s) {
+                errors.add(s.getMessage());
             }
-        } catch (ConfigurationPropertyStoreException e){
-            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR, e.getMessage());
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
     }
 }
