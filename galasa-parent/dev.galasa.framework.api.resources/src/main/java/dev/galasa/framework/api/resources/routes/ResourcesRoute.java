@@ -36,6 +36,7 @@ import dev.galasa.framework.api.resources.processors.GalasaPropertyProcessor;
 import dev.galasa.framework.api.resources.processors.GalasaSecretProcessor;
 import dev.galasa.framework.api.resources.processors.IGalasaResourceProcessor;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class ResourcesRoute  extends BaseRoute{
@@ -51,11 +52,11 @@ public class ResourcesRoute  extends BaseRoute{
     
     protected List<String> errors = new ArrayList<String>();
 
-    public ResourcesRoute(ResponseBuilder responseBuilder, CPSFacade cps) {
+    public ResourcesRoute(ResponseBuilder responseBuilder, CPSFacade cps, ICredentialsService credentialsService) {
         super(responseBuilder, path);
 
         resourceProcessors.put(GALASA_PROPERTY, new GalasaPropertyProcessor(cps));
-        resourceProcessors.put(GALASA_SECRET, new GalasaSecretProcessor());
+        resourceProcessors.put(GALASA_SECRET, new GalasaSecretProcessor(credentialsService));
     }
 
     @Override

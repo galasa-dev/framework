@@ -65,7 +65,7 @@ public enum ServletErrorMessage {
     GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE  (5022, "E: Error occurred trying parse the sharedEnvironmentPhase ''{0}''. Valid options are 'BUILD', 'DISCARD'."),
 
     //Galasa Property...
-    GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY          (5023, "E: Error occurred trying to interpret resource ''{0}''. P This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
+    GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY          (5023, "E: Error occurred trying to interpret resource ''{0}''. This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program."),
     GAL5024_INVALID_GALASAPROPERTY                    (5024, "E: Error occurred because the Galasa Property is invalid. ''{0}''"),
     GAL5031_EMPTY_NAMESPACE                           (5031, "E: Invalid namespace. Namespace is empty."),
     GAL5032_INVALID_FIRST_CHARACTER_NAMESPACE         (5032, "E: Invalid namespace name. ''{0}'' must not start with the ''{1}'' character. Allowable first characters are 'a'-'z' or 'A'-'Z'."),
@@ -83,11 +83,18 @@ public enum ServletErrorMessage {
     GAL5044_INVALID_PROPERTY_NAME_TRAILING_DOT        (5044, "E: Invalid property name. Property name ''{0}'' must not end with a '.' (dot) separator."),
 
     //Resources APIs...
-    GAL5025_UNSUPPORTED_ACTION                        (5025, "E: Error occurred. The field 'action' in the request body is invalid. The 'action' value''{0}'' supplied is not supported. Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
-    GAL5026_UNSUPPORTED_RESOURCE_TYPE                 (5026, "E: Error occurred. The field 'kind' in the request body is invalid. The value ''{0}'' is not supported. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
-    GAL5027_UNSUPPORTED_API_VERSION                   (5027, "E: Error occurred. The field 'apiVersion' in the request body is invalid. The value ''{0}'' is not a supported version. Currently the ecosystem accepts the ''{1}'' api version. This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program."),
+    GAL5025_UNSUPPORTED_ACTION                        (5025, "E: Error occurred. The field 'action' in the request body is invalid. The 'action' value''{0}'' supplied is not supported. Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program."),
+    GAL5026_UNSUPPORTED_RESOURCE_TYPE                 (5026, "E: Error occurred. The field 'kind' in the request body is invalid. The value ''{0}'' is not supported. This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program."),
+    GAL5027_UNSUPPORTED_API_VERSION                   (5027, "E: Error occurred. The field 'apiVersion' in the request body is invalid. The value ''{0}'' is not a supported version. Currently the ecosystem accepts the ''{1}'' api version. This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program."),
     GAL5067_NULL_RESOURCE_IN_BODY                     (5067, "E: Error occurred. A ''NULL'' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator."),
     GAL5068_EMPTY_JSON_RESOURCE_IN_BODY               (5068, "E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator."),
+    GAL5069_MISSING_REQUIRED_FIELDS                   (5069, "E: Invalid request body provided. One or more of the following mandatory fields are missing from the request body: [apiVersion, metadata, data]. Please check that your request body contains these fields and try again."),
+
+    // GalasaSecret validation...
+    GAL5070_INVALID_GALASA_SECRET_MISSING_FIELDS      (5070, "E: Invalid GalasaSecret provided. One or more of the following mandatory fields are missing from the ''{0}'' field: [{1}]. Check that your request payload is correct and try again."),
+    GAL5072_INVALID_GALASA_SECRET_MISSING_TYPE_DATA   (5072, "E: Invalid GalasaSecret provided. The ''{0}'' type was provided but the following fields are missing from the data: [{1}]. Check that your request payload is correct and try again."),
+    GAL5073_UNSUPPORTED_GALASA_SECRET_ENCODING        (5072, "E: Unsupported data encoding scheme provided. Supported encoding schemes are: [{0}]. Check that your request payload is correct and try again."),
+    GAL5073_UNKNOWN_GALASA_SECRET_TYPE                (5073, "E: Unknown GalasaSecret type provided. Supported GalasaSecret types are: [{0}]. Check that your request payload is correct and try again."),
 
     // Auth APIs...
     GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),

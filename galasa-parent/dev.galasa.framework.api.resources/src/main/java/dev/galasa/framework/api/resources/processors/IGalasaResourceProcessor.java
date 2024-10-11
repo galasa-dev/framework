@@ -12,5 +12,14 @@ import com.google.gson.JsonObject;
 import dev.galasa.framework.api.common.InternalServletException;
 
 public interface IGalasaResourceProcessor {
-    List<String> processResource(JsonObject json, String action) throws InternalServletException;
+    /**
+     * Performs a given action on a provided Galasa resource.
+     * The action could be to create, update, or delete the given resource.
+     * 
+     * @param resourceJson the resource to perform an action on
+     * @param action the action to perform
+     * @return a list of validation errors encountered when processing the given JSON payload
+     * @throws InternalServletException if there was an issue processing the resource
+     */
+    List<String> processResource(JsonObject resourceJson, String action) throws InternalServletException;
 }

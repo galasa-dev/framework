@@ -1881,6 +1881,54 @@ components:
               description: |
                 The value of the property, maximum length of approximately 1,500,000 characters.
                 It cannot be a blank value.
+    GalasaSecret:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+          enum: [GalasaSecret]
+        metadata:
+          type: object
+          properties:
+            name:
+              type: string
+              description: |
+                The name of the Galasa Secret to perform a resource action on.
+            encoding:
+              type: string
+              enum: [base64]
+              description: |
+                The character encoding scheme that has already been applied to all the values within the 'data' field.
+                Currently, 'base64' is the only supported encoding scheme.
+            type:
+              type: string
+              enum: [UsernamePassword, Username, UsernameToken, Token]
+              description: |
+                The type of the Galasa Secret resource. Supported types are 'UsernamePassword', 'Username',
+                'UsernameToken', 'Token'.
+        data:
+          type: object
+          properties:
+            username:
+              type: string
+              description: |
+                A username for a system. Required if the Secret 'type' is set to 'UsernamePassword', 'Username',
+                or 'UsernameToken'. If the 'encoding' has been set in the metadata, this value must already be
+                encoded with the given encoding scheme (e.g. base64).
+            password:
+              type: string
+              description: |
+                A password for a system. Required if the Secret 'type' is set to 'UsernamePassword'.
+                If the 'encoding' has been set in the metadata, this value must already be encoded
+                with the given encoding scheme (e.g. base64).
+            token:
+              type: string
+              description: |
+                A token for a system. Required if the Secret 'type' is set to 'UsernameToken' or 'Token'.
+                If the 'encoding' has been set in the metadata, this value must already be encoded with
+                the given encoding scheme (e.g. base64).
     APIErrorArray:
       type: array
       description: An array of API Errors relating to the resources that failed to complete as expected

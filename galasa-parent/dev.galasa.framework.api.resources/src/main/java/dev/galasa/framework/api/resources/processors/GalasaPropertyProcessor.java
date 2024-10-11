@@ -38,38 +38,31 @@ public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor imp
         List<String> errors = checkGalasaPropertyJsonStructure(resource);
         try {
             if (errors.isEmpty()) {
-                String apiversion = resource.get("apiVersion").getAsString();
-                String expectedApiVersion = GalasaProperty.DEFAULTAPIVERSION;
-                if (apiversion.equals(expectedApiVersion)) {
-                    GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
-                    CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
+                GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
+                CPSNamespace namespace = cps.getNamespace(galasaProperty.getNamespace());
 
-                    //getPropertyFromStore() will only return null if the property is in a hidden namespace
-                    CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
+                //getPropertyFromStore() will only return null if the property is in a hidden namespace
+                CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
 
-                    if (action.equals("delete")) {
-                        property.deletePropertyFromStore();
-                    } else {
-                        /*
-                        * The logic below is used to determine if the exclusive Not Or condition in property.setPropertyToStore 
-                        * (i.e. "the property exists" must equal to "is this an update action") will action the request or error
-                        *
-                        * Logic Table to Determine actions
-                        * If the action is equal to "update" (force update) the updateProperty is set to true (update property,
-                        * will error if the property does not exist in CPS)
-                        * If the action is either "update" or "apply" and the property exists in CPS the updateProperty is set to true (update property)
-                        * If the action is equal to "apply" and the property does not exist in CPS the updateProperty is set to false (create property)
-                        * If the action is equal to "create" (force create) the updateProperty is set to false (create property, will error if the property exists in CPS)
-                        */
-                        boolean updateProperty = false;
-                        if ((updateActions.contains(action) && property.existsInStore()) || action.equals("update")){
-                            updateProperty = true;
-                        }
-                        property.setPropertyToStore(galasaProperty, updateProperty);
-                    }
+                if (action.equals("delete")) {
+                    property.deletePropertyFromStore();
                 } else {
-                    ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiversion, expectedApiVersion);
-                    throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+                    /*
+                    * The logic below is used to determine if the exclusive Not Or condition in property.setPropertyToStore 
+                    * (i.e. "the property exists" must equal to "is this an update action") will action the request or error
+                    *
+                    * Logic Table to Determine actions
+                    * If the action is equal to "update" (force update) the updateProperty is set to true (update property,
+                    * will error if the property does not exist in CPS)
+                    * If the action is either "update" or "apply" and the property exists in CPS the updateProperty is set to true (update property)
+                    * If the action is equal to "apply" and the property does not exist in CPS the updateProperty is set to false (create property)
+                    * If the action is equal to "create" (force create) the updateProperty is set to false (create property, will error if the property exists in CPS)
+                    */
+                    boolean updateProperty = false;
+                    if ((updateActions.contains(action) && property.existsInStore()) || action.equals("update")){
+                        updateProperty = true;
+                    }
+                    property.setPropertyToStore(galasaProperty, updateProperty);
                 }
             }
         } catch (ConfigurationPropertyStoreException e){
@@ -79,15 +72,12 @@ public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor imp
         return errors;
     }
 
-    private List<String> checkGalasaPropertyJsonStructure(JsonObject propertyJson) {
+    private List<String> checkGalasaPropertyJsonStructure(JsonObject propertyJson) throws InternalServletException {
+        checkResourceHasRequiredFields(propertyJson, GalasaProperty.DEFAULTAPIVERSION);
+
         List<String> validationErrors = new ArrayList<String>();
-        try {
-            checkResourceHasRequiredFields(propertyJson);
-            validatePropertyMetadata(propertyJson, validationErrors);
-            validatePropertyData(propertyJson, validationErrors);
-        } catch (InternalServletException e) {
-            validationErrors.add(e.getMessage());
-        }
+        validatePropertyMetadata(propertyJson, validationErrors);
+        validatePropertyData(propertyJson, validationErrors);
         return validationErrors;
     }
 

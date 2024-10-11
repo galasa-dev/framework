@@ -22,12 +22,18 @@ public abstract class AbstractGalasaResourceProcessor {
     protected static final Set<String> updateActions = Collections.unmodifiableSet(Set.of("apply","update"));
     protected static final GalasaGson gson = new GalasaGson();
 
-    protected void checkResourceHasRequiredFields(JsonObject resourceJson) throws InternalServletException {
+    protected void checkResourceHasRequiredFields(JsonObject resourceJson, String expectedApiVersion) throws InternalServletException {
         if (!resourceJson.has("apiVersion")
                 || !resourceJson.has("metadata")
                 || !resourceJson.has("data")) {
             // Caused by bad Key Names in the JSON object i.e. apiversion instead of apiVersion
-            ServletError error = new ServletError(GAL5400_BAD_REQUEST, resourceJson.toString());
+            ServletError error = new ServletError(GAL5069_MISSING_REQUIRED_FIELDS);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        String apiVersion = resourceJson.get("apiVersion").getAsString();
+        if (!apiVersion.equals(expectedApiVersion)) {
+            ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiVersion, expectedApiVersion);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }

@@ -448,7 +448,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(thrown).isNotNull();
         assertThat(thrown.getMessage()).contains("GAL5027E: Error occurred. The field apiVersion in the request body is invalid. The value '' is not a supported version." +
             " Currently the ecosystem accepts the 'galasa-dev/v1alpha1' api version. This could indicate a mis-match between client and server levels." +
-            " Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program.");
+            " Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -466,12 +466,19 @@ public class TestResourcesRoute extends ResourcesServletTest{
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, "apply");
+        Throwable thrown = catchThrowable(() -> {
+            propertyProcessor.processResource(propertyJson, "apply");
+        });
 
         //Then...
-        assertThat(errors).isNotNull();
-        assertThat(errors.size()).isEqualTo(1);
-        assertThat(errors.get(0)).contains("GAL5400E: Error occurred when trying to execute request ",". Please check your request parameters or report the problem to your Galasa Ecosystem owner.");
+        assertThat(thrown).isNotNull();
+        checkErrorStructure(
+            thrown.getMessage(),
+            5069,
+            "GAL5069E",
+            "Invalid request body provided. One or more of the following mandatory fields are missing",
+            "[apiVersion, metadata, data]"
+        );
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -484,7 +491,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         String jsonString = "[{},{},{}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
@@ -507,7 +514,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         String jsonString = "[{\"kind\":\"GalasaProperty\",\"apiVersion\":\"galasa-dev/v1alpha1\","+namespace+"."+propertyname+":"+value+"}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
@@ -517,7 +524,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size()).isEqualTo(1);
-        checkErrorListContainsError(errors,"GAL5400E: Error occurred when trying to execute request ");
+        checkErrorListContainsError(errors,"GAL5069E: Invalid request body provided. One or more of the following mandatory fields are missing from the request body");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -530,7 +537,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         String jsonString = "[{\"kind\":\"GalasaProperly\",\"apiVersion\":\"v1alpha1\","+namespace+"."+propertyname+":"+value+"}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
@@ -541,7 +548,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors.size()).isEqualTo(1);
         checkErrorListContainsError(errors,"GAL5026E: Error occurred. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
-            " This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level." +
+            " This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator." +
             " You may have to upgrade/downgrade your client program.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
@@ -553,7 +560,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         String jsonString = "[null]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
@@ -575,7 +582,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         JsonArray propertyJson = generatePropertyArrayJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -596,7 +603,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         String jsonString = "[null, {\"kind\":\"GalasaProperty\",\"apiVersion\":\"galasa-dev/v1alpha1\","+namespace+"."+propertyname+":"+value+"},"+
             "{\"kind\":\"GalasaProperly\",\"apiVersion\":\"v1alpha1\","+namespace+"."+propertyname+":"+value+"},{}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -608,9 +615,9 @@ public class TestResourcesRoute extends ResourcesServletTest{
         //Then...
         assertThat(errors.size()).isEqualTo(4);
         checkErrorListContainsError(errors,"GAL5067E: Error occurred. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
-        checkErrorListContainsError(errors,"GAL5400E: Error occurred when trying to execute request ");
+        checkErrorListContainsError(errors,"GAL5069E: Invalid request body provided. One or more of the following mandatory fields are missing from the request body");
         checkErrorListContainsError(errors,"GAL5026E: Error occurred. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
-            " This could indicate a mis-match between client and server levels. Please check with your Ecosystem administrator the level." +
+            " This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator." +
             " You may have to upgrade/downgrade your client program.");
         checkErrorListContainsError(errors,"GAL5068E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
@@ -627,7 +634,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -655,7 +662,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -685,7 +692,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -712,7 +719,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -743,7 +750,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         JsonObject requestJson = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -765,7 +772,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -787,7 +794,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -809,7 +816,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -824,7 +831,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
             5025,
             "GAL5025E: Error occurred. The field action in the request body is invalid. The action value'badaction' supplied is not supported." +
                 " Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels." +
-                " Please check with your Ecosystem administrator the level. You may have to upgrade/downgrade your client program.");
+                " Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -1337,7 +1344,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet("framework");
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
 
         // When...
         String json = resourcesRoute.getErrorsAsJson(errors);
