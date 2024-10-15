@@ -16,7 +16,7 @@ dependencies {
 
     implementation 'org.apache.commons:commons-lang3:3.14.0'
 
-    implementation 'dev.galasa:io.grpc.java:1.60.0'
+    implementation 'dev.galasa:dev.galasa.wrapping.io.grpc.java:0.38.0'
     compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
     
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))

@@ -136,7 +136,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.authentication
-    version: 0.37.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
