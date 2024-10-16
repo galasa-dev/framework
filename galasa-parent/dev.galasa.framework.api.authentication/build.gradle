@@ -8,7 +8,7 @@ plugins {
 
 description = 'Galasa Authentication API'
 
-version = '0.37.0'
+version = '0.38.0'
 
 dependencies {
     implementation project(':dev.galasa.framework')
@@ -18,7 +18,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.14.0'
     implementation 'dev.galasa:com.auth0.jwt:4.4.1'
 
-    implementation 'dev.galasa:io.grpc.java:1.60.0'
+    implementation 'dev.galasa:dev.galasa.wrapping.io.grpc.java:0.38.0'
     compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
 
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
@@ -26,11 +26,11 @@ dependencies {
 
 protobuf {
   protoc {
-    artifact = "com.google.protobuf:protoc:3.25.1"
+    artifact = "com.google.protobuf:protoc:3.25.5"
   }
   plugins {
     grpc {
-      artifact = 'io.grpc:protoc-gen-grpc-java:1.60.0'
+      artifact = 'io.grpc:protoc-gen-grpc-java:1.68.0'
     }
   }
   generateProtoTasks {
