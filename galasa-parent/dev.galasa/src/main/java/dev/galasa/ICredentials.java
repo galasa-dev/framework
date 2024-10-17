@@ -5,6 +5,8 @@
  */
 package dev.galasa;
 
-public interface ICredentials {
+import java.util.Properties;
 
+public interface ICredentials {
+    Properties toProperties(String credentialsId);
 }

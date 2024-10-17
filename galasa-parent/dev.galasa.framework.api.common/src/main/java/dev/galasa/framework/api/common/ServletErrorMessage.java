@@ -88,13 +88,18 @@ public enum ServletErrorMessage {
     GAL5027_UNSUPPORTED_API_VERSION                   (5027, "E: Error occurred. The field 'apiVersion' in the request body is invalid. The value ''{0}'' is not a supported version. Currently the ecosystem accepts the ''{1}'' api version. This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program."),
     GAL5067_NULL_RESOURCE_IN_BODY                     (5067, "E: Error occurred. A ''NULL'' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator."),
     GAL5068_EMPTY_JSON_RESOURCE_IN_BODY               (5068, "E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator."),
-    GAL5069_MISSING_REQUIRED_FIELDS                   (5069, "E: Invalid request body provided. One or more of the following mandatory fields are missing from the request body: [apiVersion, metadata, data]. Please check that your request body contains these fields and try again."),
+    GAL5069_MISSING_REQUIRED_FIELDS                   (5069, "E: Invalid request body provided. The following mandatory fields are missing from the request body: [{0}]. Please check that your request body contains these fields and try again."),
 
     // GalasaSecret validation...
     GAL5070_INVALID_GALASA_SECRET_MISSING_FIELDS      (5070, "E: Invalid GalasaSecret provided. One or more of the following mandatory fields are missing from the ''{0}'' field: [{1}]. Check that your request payload is correct and try again."),
-    GAL5072_INVALID_GALASA_SECRET_MISSING_TYPE_DATA   (5072, "E: Invalid GalasaSecret provided. The ''{0}'' type was provided but the following fields are missing from the data: [{1}]. Check that your request payload is correct and try again."),
-    GAL5073_UNSUPPORTED_GALASA_SECRET_ENCODING        (5072, "E: Unsupported data encoding scheme provided. Supported encoding schemes are: [{0}]. Check that your request payload is correct and try again."),
-    GAL5073_UNKNOWN_GALASA_SECRET_TYPE                (5073, "E: Unknown GalasaSecret type provided. Supported GalasaSecret types are: [{0}]. Check that your request payload is correct and try again."),
+    GAL5072_INVALID_GALASA_SECRET_MISSING_TYPE_DATA   (5072, "E: Invalid GalasaSecret provided. The ''{0}'' type was provided but the following fields are missing from the ''data'' field: [{1}]. Check that your request payload is correct and try again."),
+    GAL5073_UNSUPPORTED_GALASA_SECRET_ENCODING        (5073, "E: Unsupported data encoding scheme provided. Supported encoding schemes are: [{0}]. Check that your request payload is correct and try again."),
+    GAL5074_UNKNOWN_GALASA_SECRET_TYPE                (5074, "E: Unknown GalasaSecret type provided. Supported GalasaSecret types are: [{0}]. Check that your request payload is correct and try again."),
+    GAL5075_ERROR_SECRET_ALREADY_EXISTS               (5075, "E: Error occurred when trying to create a secret with the given ID. A secret with the provided ID already exists."),
+    GAL5076_ERROR_SECRET_DOES_NOT_EXIST               (5076, "E: Error occurred when trying to update a secret with the given ID. A secret with the provided ID does not exist and therefore cannot be updated."),
+    GAL5077_FAILED_TO_SET_SECRET                      (5077, "E: Failed to set a secret with the given ID in the credentials store. The credentials store might be experiencing temporary issues. Report the problem to your Galasa Ecosystem owner."),
+    GAL5078_FAILED_TO_DELETE_SECRET                   (5078, "E: Failed to delete a secret with the given ID from the credentials store. The credentials store might be experiencing temporary issues. Report the problem to your Galasa Ecosystem owner."),
+    GAL5079_FAILED_TO_GET_SECRET                      (5079, "E: Failed to retrieve the secret with the given ID from the credentials store. A secret with the provided ID does not exist and therefore cannot be updated."),
 
     // Auth APIs...
     GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),

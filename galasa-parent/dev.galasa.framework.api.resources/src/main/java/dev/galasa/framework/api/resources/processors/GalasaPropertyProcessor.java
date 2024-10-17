@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.resources.processors;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.resources.ResourceAction.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
+import dev.galasa.framework.api.common.resources.ResourceAction;
 import dev.galasa.framework.api.common.resources.ResourceNameValidator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 
@@ -34,8 +36,8 @@ public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor imp
     }
 
     @Override
-    public List<String> processResource(JsonObject resource, String action) throws InternalServletException {
-        List<String> errors = checkGalasaPropertyJsonStructure(resource);
+    public List<String> processResource(JsonObject resource, ResourceAction action) throws InternalServletException {
+        List<String> errors = checkGalasaPropertyJsonStructure(resource, action);
         try {
             if (errors.isEmpty()) {
                 GalasaProperty galasaProperty = gson.fromJson(resource, GalasaProperty.class);           
@@ -44,7 +46,7 @@ public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor imp
                 //getPropertyFromStore() will only return null if the property is in a hidden namespace
                 CPSProperty property = namespace.getPropertyFromStore(galasaProperty.getName());
 
-                if (action.equals("delete")) {
+                if (action == DELETE) {
                     property.deletePropertyFromStore();
                 } else {
                     /*
@@ -59,7 +61,7 @@ public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor imp
                     * If the action is equal to "create" (force create) the updateProperty is set to false (create property, will error if the property exists in CPS)
                     */
                     boolean updateProperty = false;
-                    if ((updateActions.contains(action) && property.existsInStore()) || action.equals("update")){
+                    if ((updateActions.contains(action) && property.existsInStore()) || action == UPDATE) {
                         updateProperty = true;
                     }
                     property.setPropertyToStore(galasaProperty, updateProperty);
@@ -72,12 +74,17 @@ public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor imp
         return errors;
     }
 
-    private List<String> checkGalasaPropertyJsonStructure(JsonObject propertyJson) throws InternalServletException {
-        checkResourceHasRequiredFields(propertyJson, GalasaProperty.DEFAULTAPIVERSION);
+    private List<String> checkGalasaPropertyJsonStructure(JsonObject propertyJson, ResourceAction action) throws InternalServletException {
+        checkResourceHasRequiredFields(propertyJson, GalasaProperty.DEFAULTAPIVERSION, action);
 
         List<String> validationErrors = new ArrayList<String>();
         validatePropertyMetadata(propertyJson, validationErrors);
-        validatePropertyData(propertyJson, validationErrors);
+
+        // Delete operations shouldn't require a 'data' section, just the metadata to identify
+        // the property to delete
+        if (action != DELETE) {
+            validatePropertyData(propertyJson, validationErrors);
+        }
         return validationErrors;
     }
 

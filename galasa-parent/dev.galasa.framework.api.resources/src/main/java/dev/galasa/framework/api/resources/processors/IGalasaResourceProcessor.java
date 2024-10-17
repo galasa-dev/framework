@@ -10,6 +10,7 @@ import java.util.List;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.resources.ResourceAction;
 
 public interface IGalasaResourceProcessor {
     /**
@@ -21,5 +22,5 @@ public interface IGalasaResourceProcessor {
      * @return a list of validation errors encountered when processing the given JSON payload
      * @throws InternalServletException if there was an issue processing the resource
      */
-    List<String> processResource(JsonObject resourceJson, String action) throws InternalServletException;
+    List<String> processResource(JsonObject resourceJson, ResourceAction action) throws InternalServletException;
 }

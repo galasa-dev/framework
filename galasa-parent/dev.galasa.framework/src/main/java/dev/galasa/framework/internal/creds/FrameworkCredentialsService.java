@@ -95,4 +95,14 @@ public class FrameworkCredentialsService implements ICredentialsService {
 
         return creds;
     }
+
+    @Override
+    public void setCredentials(String credentialsId, ICredentials credentials) throws CredentialsException {
+        credsStore.setCredentials(credentialsId, credentials);
+    }
+
+    @Override
+    public void deleteCredentials(String credentialsId) throws CredentialsException {
+        credsStore.deleteCredentials(credentialsId);
+    }
 }

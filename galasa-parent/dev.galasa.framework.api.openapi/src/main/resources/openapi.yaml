@@ -1898,7 +1898,6 @@ components:
                 The name of the Galasa Secret to perform a resource action on.
             encoding:
               type: string
-              enum: [base64]
               description: |
                 The character encoding scheme that has already been applied to all the values within the 'data' field.
                 Currently, 'base64' is the only supported encoding scheme.

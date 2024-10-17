@@ -10,11 +10,9 @@ import static dev.galasa.framework.api.common.resources.GalasaResourceType.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +29,7 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.GalasaResourceType;
+import dev.galasa.framework.api.common.resources.ResourceAction;
 import dev.galasa.framework.api.common.resources.ResourceNameValidator;
 import dev.galasa.framework.api.resources.processors.GalasaPropertyProcessor;
 import dev.galasa.framework.api.resources.processors.GalasaSecretProcessor;
@@ -46,7 +45,6 @@ public class ResourcesRoute  extends BaseRoute{
     static final ResourceNameValidator nameValidator = new ResourceNameValidator();
 
     protected static final String path = "\\/";
-    private static final Set<String> validActions = Collections.unmodifiableSet(Set.of("apply","create","update", "delete"));
 
     private Map<GalasaResourceType, IGalasaResourceProcessor> resourceProcessors = new HashMap<>();
     
@@ -79,12 +77,13 @@ public class ResourcesRoute  extends BaseRoute{
     }
 
     protected List<String> processRequest(JsonObject body) throws InternalServletException{
-        String action = body.get("action").getAsString().toLowerCase().trim();
-        if (validActions.contains(action)){
+        String actionStr = body.get("action").getAsString().toLowerCase().trim();
+        ResourceAction action = ResourceAction.getFromString(actionStr);
+        if (action != null){
             JsonArray jsonArray = body.get("data").getAsJsonArray();
             processDataArray(jsonArray, action);
         } else {
-            ServletError error = new ServletError(GAL5025_UNSUPPORTED_ACTION, action);
+            ServletError error = new ServletError(GAL5025_UNSUPPORTED_ACTION, actionStr);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
         return errors;
@@ -106,7 +105,7 @@ public class ResourcesRoute  extends BaseRoute{
         return gson.toJson(json);
     }
 
-    protected void processDataArray(JsonArray jsonArray, String action) throws InternalServletException{
+    protected void processDataArray(JsonArray jsonArray, ResourceAction action) throws InternalServletException{
         for (JsonElement element: jsonArray) {
             try {
                 checkJsonElementIsValidJSON(element);
