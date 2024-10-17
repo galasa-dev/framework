@@ -136,7 +136,7 @@ public class RunPollTest {
         // Given...
         MockEnvironment mockEnvironment = new MockEnvironment();
 
-        String encryptionKeysMountPath = "/encryption-keys.yaml";
+        String encryptionKeysMountPath = "/encryption/encryption-keys.yaml";
         mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, encryptionKeysMountPath);
 
         MockK8sController controller = new MockK8sController();
@@ -157,6 +157,7 @@ public class RunPollTest {
         V1Pod pod = runPoll.createTestPod(runName, podName, isTraceEnabled);
 
         // Then...
-        assertPodDetailsAreCorrect(pod, runName, podName, encryptionKeysMountPath, settings);
+        String expectedEncryptionKeysMountPath = "/encryption";
+        assertPodDetailsAreCorrect(pod, runName, podName, expectedEncryptionKeysMountPath, settings);
     }
 }

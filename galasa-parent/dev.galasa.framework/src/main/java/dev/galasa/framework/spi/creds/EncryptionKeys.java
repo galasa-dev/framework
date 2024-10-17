@@ -9,7 +9,7 @@ import java.util.List;
 
 public class EncryptionKeys {
     private String encryptionKey;
-    private List<String> oldDecryptionKeys;
+    private List<String> fallbackDecryptionKeys;
 
     public String getEncryptionKey() {
         return encryptionKey;
@@ -19,11 +19,11 @@ public class EncryptionKeys {
         this.encryptionKey = encryptionKey;
     }
 
-    public List<String> getOldDecryptionKeys() {
-        return oldDecryptionKeys;
+    public List<String> getFallbackDecryptionKeys() {
+        return fallbackDecryptionKeys;
     }
 
-    public void setOldDecryptionKeys(List<String> oldDecryptionKeys) {
-        this.oldDecryptionKeys = oldDecryptionKeys;
+    public void setFallbackDecryptionKeys(List<String> fallbackDecryptionKeys) {
+        this.fallbackDecryptionKeys = fallbackDecryptionKeys;
     }
 }

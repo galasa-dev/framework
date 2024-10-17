@@ -5,6 +5,8 @@
  */
 package dev.galasa.framework.k8s.controller;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -324,9 +326,11 @@ public class RunPoll implements Runnable {
 
         String encryptionKeysMountPath = env.getenv(ENCRYPTION_KEYS_PATH_ENV);
         if (encryptionKeysMountPath != null && !encryptionKeysMountPath.isBlank()) {
+            Path encryptionKeysDirectory = Paths.get(encryptionKeysMountPath).getParent().toAbsolutePath();
+
             V1VolumeMount encryptionKeysVolumeMount = new V1VolumeMount();
             encryptionKeysVolumeMount.setName(ENCRYPTION_KEYS_VOLUME_NAME);
-            encryptionKeysVolumeMount.setMountPath(encryptionKeysMountPath);
+            encryptionKeysVolumeMount.setMountPath(encryptionKeysDirectory.toString());
             encryptionKeysVolumeMount.setReadOnly(true);
 
             volumeMounts.add(encryptionKeysVolumeMount);

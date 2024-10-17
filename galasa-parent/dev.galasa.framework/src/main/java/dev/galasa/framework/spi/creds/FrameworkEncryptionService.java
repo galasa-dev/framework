@@ -5,7 +5,6 @@
  */
 package dev.galasa.framework.spi.creds;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
@@ -14,7 +13,6 @@ import java.util.Base64;
 import java.util.List;
 
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -28,6 +26,7 @@ import dev.galasa.framework.spi.Environment;
 import dev.galasa.framework.spi.SystemEnvironment;
 
 public class FrameworkEncryptionService implements IEncryptionService {
+
     public static final String ENCRYPTION_KEYS_PATH_ENV = "GALASA_ENCRYPTION_KEYS_PATH";
 
     private static final String KEY_ALGORITHM = "AES";
@@ -36,13 +35,17 @@ public class FrameworkEncryptionService implements IEncryptionService {
     private static final int GCM_AUTH_TAG_LENGTH_BITS = 128;
     private static final int GCM_IV_BYTES_LENGTH = 12;
 
-    private SecretKey encryptionKey;
-    private List<SecretKey> decryptionKeys = new ArrayList<>();
+    private SecretKeySpec encryptionKey;
+    private List<SecretKeySpec> decryptionKeys = new ArrayList<>();
 
     private Environment environment = new SystemEnvironment();
     private IFileSystem fileSystem = new FileSystem();
 
-    public FrameworkEncryptionService(SecretKey encryptionKey, IFileSystem fileSystem, Environment environment) throws CredentialsException {
+    public FrameworkEncryptionService(SecretKeySpec encryptionKey) throws CredentialsException {
+        this(encryptionKey, new FileSystem(), new SystemEnvironment());
+    }
+
+    public FrameworkEncryptionService(SecretKeySpec encryptionKey, IFileSystem fileSystem, Environment environment) throws CredentialsException {
         this.fileSystem = fileSystem;
         this.environment = environment;
         this.encryptionKey = encryptionKey;
@@ -73,7 +76,7 @@ public class FrameworkEncryptionService implements IEncryptionService {
                     Yaml yamlParser = new Yaml(new Constructor(EncryptionKeys.class, new LoaderOptions()));
                     encryptionKeys = yamlParser.load(encryptionKeysYamlStr);
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new CredentialsException("Failed to read encryption keys file", e);
             }
         }
@@ -91,22 +94,22 @@ public class FrameworkEncryptionService implements IEncryptionService {
         return encryptionKey;
     }
 
-    private List<SecretKey> loadDecryptionKeys(EncryptionKeys encryptionKeysYaml) throws CredentialsException {
-        List<SecretKey> decryptionKeys = new ArrayList<>();
+    private List<SecretKeySpec> loadDecryptionKeys(EncryptionKeys encryptionKeysYaml) throws CredentialsException {
+        List<SecretKeySpec> decryptionKeys = new ArrayList<>();
 
         // The encryption keys secret is mounted as a file of the form:
         //   encryptionKey: <current-base64-encoded-key>
-        //   oldDecryptionKeys:
-        //   - <encoded-old-key-1>
-        //   - <encoded-old-key-2>
-        SecretKey primaryEncryptionKey = loadPrimaryEncryptionKey(encryptionKeysYaml);
+        //   fallbackDecryptionKeys:
+        //   - <encoded-fallback-key-1>
+        //   - <encoded-fallback-key-2>
+        SecretKeySpec primaryEncryptionKey = loadPrimaryEncryptionKey(encryptionKeysYaml);
         if (primaryEncryptionKey != null) {
             decryptionKeys.add(primaryEncryptionKey);
         }
 
-        for (String oldKey : encryptionKeysYaml.getOldDecryptionKeys()) {
+        for (String oldKey : encryptionKeysYaml.getFallbackDecryptionKeys()) {
             byte[] oldKeyDecodedBytes = Base64.getDecoder().decode(oldKey);
-            SecretKey key = new SecretKeySpec(oldKeyDecodedBytes, KEY_ALGORITHM);
+            SecretKeySpec key = new SecretKeySpec(oldKeyDecodedBytes, KEY_ALGORITHM);
             decryptionKeys.add(key);
         }
         return decryptionKeys;
@@ -114,6 +117,10 @@ public class FrameworkEncryptionService implements IEncryptionService {
 
     @Override
     public String encrypt(String plainText) throws CredentialsException {
+        if (this.encryptionKey == null) {
+            throw new CredentialsException("Unable to encrypt the provided data. No encryption key has been set");
+        }
+
         // Generate a random initialization vector (IV)
         byte[] initVector = new byte[GCM_IV_BYTES_LENGTH];
         SecureRandom secureRandom = new SecureRandom();
@@ -137,14 +144,13 @@ public class FrameworkEncryptionService implements IEncryptionService {
         } catch (Exception e) {
             throw new CredentialsException("Failed to encrypt the provided data", e);
         }
-
         return Base64.getEncoder().encodeToString(encryptedIvAndText);
     }
 
     @Override
     public String decrypt(String encryptedText) throws CredentialsException {
         String decryptedText = null;
-        for (SecretKey key : decryptionKeys) {
+        for (SecretKeySpec key : decryptionKeys) {
             try {
                 decryptedText = decrypt(encryptedText, key);
             } catch (CredentialsException e) {
@@ -154,7 +160,7 @@ public class FrameworkEncryptionService implements IEncryptionService {
         return decryptedText;
     }
 
-    private String decrypt(String encryptedText, SecretKey decryptionKey) throws CredentialsException {
+    private String decrypt(String encryptedText, SecretKeySpec decryptionKey) throws CredentialsException {
         String decryptedText = null;
         try {
             byte[] decodedBytes = Base64.getDecoder().decode(encryptedText);

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -25,7 +24,7 @@ import dev.galasa.framework.mocks.MockFileSystem;
 
 public class FrameworkEncryptionServiceTest {
 
-    private SecretKey generateEncryptionKey() throws NoSuchAlgorithmException {
+    private SecretKeySpec generateEncryptionKey() throws NoSuchAlgorithmException {
         byte[] keyBytes = RandomStringUtils.randomAlphanumeric(32).getBytes();
         return new SecretKeySpec(keyBytes, "AES");
     }
@@ -39,7 +38,7 @@ public class FrameworkEncryptionServiceTest {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("encryptionKey: " + primaryEncryptionKey);
         stringBuilder.append("\n");
-        stringBuilder.append("oldDecryptionKeys: ");
+        stringBuilder.append("fallbackDecryptionKeys: ");
 
         if (oldEncryptionKeys.isEmpty()) {
             stringBuilder.append("[]");
@@ -56,7 +55,7 @@ public class FrameworkEncryptionServiceTest {
     @Test
     public void testCanEncryptAndDecryptTextOk() throws Exception {
         // Given...
-        SecretKey key = generateEncryptionKey();
+        SecretKeySpec key = generateEncryptionKey();
         MockFileSystem mockFileSystem = new MockFileSystem();
         MockEnvironment mockEnvironment = new MockEnvironment();
         FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(key, mockFileSystem, mockEnvironment);
@@ -67,11 +66,11 @@ public class FrameworkEncryptionServiceTest {
         assertThat(encryptedText).isNotNull();
 
         String decryptedText = encryptionService.decrypt(encryptedText);
-        
+
         // Then...
         assertThat(decryptedText).isEqualTo(plainText);
     }
-   
+
     @Test
     public void testCanLoadAndUseEncryptionKeysFromFileSystemOk() throws Exception {
         // Given...
@@ -80,24 +79,24 @@ public class FrameworkEncryptionServiceTest {
 
         String mockEncryptionKeysFilePath = "/encryption-keys.yaml";
         mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, mockEncryptionKeysFilePath);
-        
+
         List<String> oldDecryptionKeys = new ArrayList<>();
         String encodedEncryptionkey = generateEncodedEncryptionKeyString();
         String yaml = createEncryptionKeysYaml(encodedEncryptionkey, oldDecryptionKeys);
         mockFileSystem.write(Paths.get(mockEncryptionKeysFilePath), yaml.getBytes(StandardCharsets.UTF_8));
-        
+
         FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(mockFileSystem, mockEnvironment);
 
         String plainText = "encrypt me!";
-        
+
         // When...
         String encryptedText = encryptionService.encrypt(plainText);
         String decryptedText = encryptionService.decrypt(encryptedText);
 
         // Then...
-        assertThat(decryptedText).isEqualTo(plainText);       
+        assertThat(decryptedText).isEqualTo(plainText);
     }
-   
+
     @Test
     public void testDecryptTextWithWrongKeyReturnsNullText() throws Exception {
         // Given...
@@ -106,7 +105,7 @@ public class FrameworkEncryptionServiceTest {
 
         String mockEncryptionKeysFilePath = "/encryption-keys.yaml";
         mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, mockEncryptionKeysFilePath);
-        
+
         List<String> oldDecryptionKeys = List.of(
             generateEncodedEncryptionKeyString(),
             generateEncodedEncryptionKeyString()
@@ -121,8 +120,52 @@ public class FrameworkEncryptionServiceTest {
         // When...
         // The decryption should fail since the provided text was not encrypted with any known encryption keys
         String decryptedText = encryptionService.decrypt(mockEncryptedText);
-        
+
         // Then...
         assertThat(decryptedText).isNull();
+    }
+
+    @Test
+    public void testCreateEncryptionServiceFailsWhenNoKeysFileExists() throws Exception {
+        // Given...
+        MockFileSystem mockFileSystem = new MockFileSystem();
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String mockEncryptionKeysFilePath = "/encryption-keys.yaml";
+        mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, mockEncryptionKeysFilePath);
+
+        // When...
+        CredentialsException thrown = catchThrowableOfType(() -> {
+            new FrameworkEncryptionService(mockFileSystem, mockEnvironment);
+        }, CredentialsException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("Failed to read encryption keys file");
+    }
+
+    @Test
+    public void testEncryptTextWithNoKeyThrowsError() throws Exception {
+        // Given...
+        MockFileSystem mockFileSystem = new MockFileSystem();
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String mockEncryptionKeysFilePath = "/encryption-keys.yaml";
+        mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, mockEncryptionKeysFilePath);
+
+        mockFileSystem.write(Paths.get(mockEncryptionKeysFilePath), null);
+
+        FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(mockFileSystem, mockEnvironment);
+        String plainText = "encrypt me";
+
+        // When...
+        // The encryption should fail since the service does not have an encryption key to use
+        CredentialsException thrown = catchThrowableOfType(() -> {
+            encryptionService.encrypt(plainText);
+        }, CredentialsException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("Unable to encrypt the provided data");
     }
 }
