@@ -5,7 +5,14 @@
  */
 package dev.galasa.framework.mocks;
 
+import java.util.Properties;
+
 import dev.galasa.ICredentials;
 
 class MockCredentials implements ICredentials {
+
+    @Override
+    public Properties toProperties(String credentialsId) {
+        throw new UnsupportedOperationException("Unimplemented method 'toProperties'");
+    }
 };

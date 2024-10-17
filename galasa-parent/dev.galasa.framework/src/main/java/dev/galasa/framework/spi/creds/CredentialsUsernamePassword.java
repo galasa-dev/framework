@@ -6,6 +6,7 @@
 package dev.galasa.framework.spi.creds;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -14,6 +15,11 @@ import dev.galasa.ICredentialsUsernamePassword;
 public class CredentialsUsernamePassword extends Credentials implements ICredentialsUsernamePassword {
     private String username;
     private String password;
+
+    public CredentialsUsernamePassword(String plainTextUsername, String plainTextPassword) {
+        this.username = plainTextUsername;
+        this.password = plainTextPassword;
+    }
 
     public CredentialsUsernamePassword(SecretKeySpec key, String username, String password)
             throws CredentialsException {
@@ -37,5 +43,13 @@ public class CredentialsUsernamePassword extends Credentials implements ICredent
 
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public Properties toProperties(String credentialsId) {
+        Properties credsProperties = new Properties();
+        credsProperties.setProperty("secure.credentials." + credentialsId + ".username" , this.username);
+        credsProperties.setProperty("secure.credentials." + credentialsId + ".password" , this.password);
+        return credsProperties;
     }
 }

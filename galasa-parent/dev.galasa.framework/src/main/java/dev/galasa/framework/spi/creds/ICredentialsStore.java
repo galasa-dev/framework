@@ -11,5 +11,9 @@ public interface ICredentialsStore {
 
     ICredentials getCredentials(String credsId) throws CredentialsException;
 
+    void setCredentials(String credsId, ICredentials credentials) throws CredentialsException;
+
+    void deleteCredentials(String credsId) throws CredentialsException;
+
     void shutdown() throws CredentialsException;
 }

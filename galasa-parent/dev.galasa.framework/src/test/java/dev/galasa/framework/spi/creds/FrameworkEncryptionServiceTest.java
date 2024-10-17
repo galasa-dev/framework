@@ -116,7 +116,6 @@ public class FrameworkEncryptionServiceTest {
 
         String mockEncryptionKeysFilePath = "/encryption-keys.yaml";
         mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, mockEncryptionKeysFilePath);
-
         List<String> oldDecryptionKeys = new ArrayList<>();
         String encodedEncryptionkey = generateEncodedEncryptionKeyString();
         String yaml = createEncryptionKeysYaml(encodedEncryptionkey, oldDecryptionKeys);
@@ -143,7 +142,6 @@ public class FrameworkEncryptionServiceTest {
 
         String mockEncryptionKeysFilePath = "/encryption-keys.yaml";
         mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, mockEncryptionKeysFilePath);
-
         List<String> oldDecryptionKeys = List.of(
             generateEncodedEncryptionKeyString(),
             generateEncodedEncryptionKeyString()

@@ -22,4 +22,13 @@ public class InMemoryCreds implements ICredentialsService {
         return credentials.get(credentialsId);
     }
 
+    @Override
+    public void setCredentials(String credentialsId, ICredentials credentials) throws CredentialsException {
+        throw new UnsupportedOperationException("Unimplemented method 'setCredentials'");
+    }
+
+    @Override
+    public void deleteCredentials(String credentialsId) throws CredentialsException {
+        throw new UnsupportedOperationException("Unimplemented method 'deleteCredentials'");
+    }
 }
