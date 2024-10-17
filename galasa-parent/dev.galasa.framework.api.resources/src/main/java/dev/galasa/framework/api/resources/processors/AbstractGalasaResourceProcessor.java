@@ -39,7 +39,7 @@ public abstract class AbstractGalasaResourceProcessor {
 
         String apiVersion = resourceJson.get("apiVersion").getAsString();
         if (!apiVersion.equals(expectedApiVersion)) {
-            ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, apiVersion, expectedApiVersion);
+            ServletError error = new ServletError(GAL5027_UNSUPPORTED_API_VERSION, expectedApiVersion);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }

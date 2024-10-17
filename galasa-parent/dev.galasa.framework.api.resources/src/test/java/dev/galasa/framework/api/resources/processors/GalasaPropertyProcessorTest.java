@@ -350,9 +350,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
 
         //Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5027E: Error occurred. The field apiVersion in the request body is invalid. The value '' is not a supported version." +
-            " Currently the ecosystem accepts the 'galasa-dev/v1alpha1' api version. This could indicate a mis-match between client and server levels." +
-            " Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program.");
+        assertThat(thrown.getMessage()).contains("GAL5027E: Error occurred. The field 'apiVersion' in the request body is invalid.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 

@@ -83,7 +83,7 @@ public class ResourcesRoute  extends BaseRoute{
             JsonArray jsonArray = body.get("data").getAsJsonArray();
             processDataArray(jsonArray, action);
         } else {
-            ServletError error = new ServletError(GAL5025_UNSUPPORTED_ACTION, actionStr);
+            ServletError error = new ServletError(GAL5025_UNSUPPORTED_ACTION);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
         return errors;
@@ -114,7 +114,7 @@ public class ResourcesRoute  extends BaseRoute{
 
                 GalasaResourceType kind = GalasaResourceType.getFromString(kindStr);
                 if (kind == null) {
-                    ServletError error = new ServletError(GAL5026_UNSUPPORTED_RESOURCE_TYPE, kindStr);
+                    ServletError error = new ServletError(GAL5026_UNSUPPORTED_RESOURCE_TYPE);
                     throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
                 }
 

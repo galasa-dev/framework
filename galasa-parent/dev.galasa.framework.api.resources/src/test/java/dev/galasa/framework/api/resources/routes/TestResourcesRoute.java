@@ -182,9 +182,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size()).isEqualTo(1);
-        checkErrorListContainsError(errors,"GAL5026E: Error occurred. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
-            " This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator." +
-            " You may have to upgrade/downgrade your client program.");
+        checkErrorListContainsError(errors,"GAL5026E: Error occurred. The field 'kind' in the request body is invalid");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -251,9 +249,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         assertThat(errors.size()).isEqualTo(4);
         checkErrorListContainsError(errors,"GAL5067E: Error occurred. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
         checkErrorListContainsError(errors,"GAL5069E: Invalid request body provided. The following mandatory fields are missing from the request body");
-        checkErrorListContainsError(errors,"GAL5026E: Error occurred. The field kind in the request body is invalid. The value 'GalasaProperly' is not supported." +
-            " This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator." +
-            " You may have to upgrade/downgrade your client program.");
+        checkErrorListContainsError(errors,"GAL5026E: Error occurred. The field 'kind' in the request body is invalid.");
         checkErrorListContainsError(errors,"GAL5068E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
@@ -464,9 +460,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String message = thrown.getMessage();
         checkErrorStructure(message, 
             5025,
-            "GAL5025E: Error occurred. The field action in the request body is invalid. The action value'badaction' supplied is not supported." +
-                " Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels." +
-                " Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program.");
+            "GAL5025E: Error occurred. The field 'action' in the request body is invalid.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
