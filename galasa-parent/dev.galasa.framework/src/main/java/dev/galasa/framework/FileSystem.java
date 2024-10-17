@@ -95,4 +95,9 @@ public class FileSystem implements IFileSystem {
         }
         return lines ;
     }
+
+    @Override
+    public String readString(Path path) throws IOException {
+        return Files.readString(path);
+    }
 }

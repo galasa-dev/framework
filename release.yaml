@@ -51,7 +51,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.k8s.controller
-    version: 0.36.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
