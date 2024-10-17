@@ -27,7 +27,7 @@ import io.kubernetes.client.openapi.models.V1PodSpec;
 import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 
-public class RunPollTest {
+public class TestPodSchedulerTest {
 
     class MockSettings extends Settings {
 
@@ -114,7 +114,7 @@ public class RunPollTest {
         assertThat(testContainerVolumeMounts).hasSize(1);
 
         V1VolumeMount encryptionKeysVolumeMount = testContainerVolumeMounts.get(0);
-        assertThat(encryptionKeysVolumeMount.getName()).isEqualTo(RunPoll.ENCRYPTION_KEYS_VOLUME_NAME);
+        assertThat(encryptionKeysVolumeMount.getName()).isEqualTo(TestPodScheduler.ENCRYPTION_KEYS_VOLUME_NAME);
         assertThat(encryptionKeysVolumeMount.getMountPath()).isEqualTo(expectedEncryptionKeysMountPath);
         assertThat(encryptionKeysVolumeMount.getReadOnly()).isTrue();
     }
@@ -127,7 +127,7 @@ public class RunPollTest {
         assertThat(actualVolumes).hasSize(1);
 
         V1Volume encryptionKeysVolume = actualVolumes.get(0);
-        assertThat(encryptionKeysVolume.getName()).isEqualTo(RunPoll.ENCRYPTION_KEYS_VOLUME_NAME);
+        assertThat(encryptionKeysVolume.getName()).isEqualTo(TestPodScheduler.ENCRYPTION_KEYS_VOLUME_NAME);
         assertThat(encryptionKeysVolume.getSecret().getSecretName()).isEqualTo(settings.getEncryptionKeysSecretName());
     }
 
@@ -147,7 +147,7 @@ public class RunPollTest {
         MockSettings settings = new MockSettings(mockConfigMap, controller, null);
         settings.init();
         
-        RunPoll runPoll = new RunPoll(mockEnvironment, mockDss, settings, null, mockFrameworkRuns);
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, null, mockFrameworkRuns);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;

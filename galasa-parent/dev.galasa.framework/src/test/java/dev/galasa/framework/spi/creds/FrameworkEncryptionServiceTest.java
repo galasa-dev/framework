@@ -10,7 +10,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -23,6 +25,16 @@ import dev.galasa.framework.mocks.MockEnvironment;
 import dev.galasa.framework.mocks.MockFileSystem;
 
 public class FrameworkEncryptionServiceTest {
+
+    private final byte MOCK_IV_BYTE = (byte) 1;
+
+    private 
+    class MockRandom extends SecureRandom {
+        @Override
+        public void nextBytes(byte[] bytes) {
+            Arrays.fill(bytes, MOCK_IV_BYTE);
+        }
+    }
 
     private SecretKeySpec generateEncryptionKey() throws NoSuchAlgorithmException {
         byte[] keyBytes = RandomStringUtils.randomAlphanumeric(32).getBytes();
@@ -53,12 +65,37 @@ public class FrameworkEncryptionServiceTest {
     }
 
     @Test
+    public void testCanEncryptTextOk() throws Exception {
+        // Given...
+        SecretKeySpec key = generateEncryptionKey();
+        MockFileSystem mockFileSystem = new MockFileSystem();
+        MockEnvironment mockEnvironment = new MockEnvironment();
+        MockRandom random = new MockRandom();
+        FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(key, mockFileSystem, mockEnvironment, random);
+        String plainText = "encrypt me!";
+
+        // When...
+        String encryptedText = encryptionService.encrypt(plainText);
+        
+        // Then...
+        assertThat(encryptedText).isNotNull();
+        assertThat(encryptedText).isNotEqualTo(plainText);
+
+        // Check that 12 bytes have been set as the initialization vector
+        byte[] decodedBytes = Base64.getDecoder().decode(encryptedText);
+        for (int i = 0; i < 12; i++) {
+            assertThat(decodedBytes[i]).isEqualTo(MOCK_IV_BYTE);
+        }
+    }
+
+    @Test
     public void testCanEncryptAndDecryptTextOk() throws Exception {
         // Given...
         SecretKeySpec key = generateEncryptionKey();
         MockFileSystem mockFileSystem = new MockFileSystem();
         MockEnvironment mockEnvironment = new MockEnvironment();
-        FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(key, mockFileSystem, mockEnvironment);
+        SecureRandom random = new SecureRandom();
+        FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(key, mockFileSystem, mockEnvironment, random);
         String plainText = "encrypt me!";
 
         // When...
@@ -85,7 +122,8 @@ public class FrameworkEncryptionServiceTest {
         String yaml = createEncryptionKeysYaml(encodedEncryptionkey, oldDecryptionKeys);
         mockFileSystem.write(Paths.get(mockEncryptionKeysFilePath), yaml.getBytes(StandardCharsets.UTF_8));
 
-        FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(mockFileSystem, mockEnvironment);
+        SecureRandom random = new SecureRandom();
+        FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(null, mockFileSystem, mockEnvironment, random);
 
         String plainText = "encrypt me!";
 
@@ -114,7 +152,8 @@ public class FrameworkEncryptionServiceTest {
         String yaml = createEncryptionKeysYaml(encodedEncryptionkey, oldDecryptionKeys);
         mockFileSystem.write(Paths.get(mockEncryptionKeysFilePath), yaml.getBytes(StandardCharsets.UTF_8));
 
-        FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(mockFileSystem, mockEnvironment);
+        SecureRandom random = new SecureRandom();
+        FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(null, mockFileSystem, mockEnvironment, random);
         String mockEncryptedText = "letspretendthatthisisencrypted";
 
         // When...
@@ -133,10 +172,11 @@ public class FrameworkEncryptionServiceTest {
 
         String mockEncryptionKeysFilePath = "/encryption-keys.yaml";
         mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, mockEncryptionKeysFilePath);
+        SecureRandom random = new SecureRandom();
 
         // When...
         CredentialsException thrown = catchThrowableOfType(() -> {
-            new FrameworkEncryptionService(mockFileSystem, mockEnvironment);
+            new FrameworkEncryptionService(null, mockFileSystem, mockEnvironment, random);
         }, CredentialsException.class);
 
         // Then...
@@ -155,7 +195,8 @@ public class FrameworkEncryptionServiceTest {
 
         mockFileSystem.write(Paths.get(mockEncryptionKeysFilePath), null);
 
-        FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(mockFileSystem, mockEnvironment);
+        SecureRandom random = new SecureRandom();
+        FrameworkEncryptionService encryptionService = new FrameworkEncryptionService(null, mockFileSystem, mockEnvironment, random);
         String plainText = "encrypt me";
 
         // When...

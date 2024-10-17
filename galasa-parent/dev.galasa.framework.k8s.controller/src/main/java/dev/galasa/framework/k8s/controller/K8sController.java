@@ -43,7 +43,7 @@ public class K8sController {
 
     private Health                   healthServer;
 
-    private RunPoll runPoll;
+    private TestPodScheduler podScheduler;
     private ScheduledFuture<?> pollFuture;
 
     private RunDeleted runDeleted;
@@ -139,7 +139,7 @@ public class K8sController {
         // *** Start the run polling
         runDeleted = new RunDeleted(settings, api, pc, framework.getFrameworkRuns());
         scheduleDelete();
-        runPoll = new RunPoll(dss, settings, api, framework.getFrameworkRuns());
+        podScheduler = new TestPodScheduler(dss, settings, api, framework.getFrameworkRuns());
         schedulePoll();
 
         
@@ -184,7 +184,7 @@ public class K8sController {
             this.pollFuture.cancel(false);
         }
         
-        pollFuture = scheduledExecutorService.scheduleWithFixedDelay(runPoll, 1, settings.getPoll(), TimeUnit.SECONDS);
+        pollFuture = scheduledExecutorService.scheduleWithFixedDelay(podScheduler, 1, settings.getPoll(), TimeUnit.SECONDS);
     }
 
     private void scheduleDelete() {

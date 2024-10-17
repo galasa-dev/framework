@@ -52,7 +52,7 @@ import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.prometheus.client.Counter;
 
-public class RunPoll implements Runnable {
+public class TestPodScheduler implements Runnable {
 
     private static final String RAS_TOKEN_ENV = "GALASA_RAS_TOKEN";
     private static final String EVENT_TOKEN_ENV = "GALASA_EVENT_STREAMS_TOKEN";
@@ -72,11 +72,11 @@ public class RunPoll implements Runnable {
     private Environment                      env              = new SystemEnvironment();
 
 
-    public RunPoll(IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
+    public TestPodScheduler(IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
         this(new SystemEnvironment(), dss, settings, api, runs);
     }
 
-    public RunPoll(Environment env, IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
+    public TestPodScheduler(Environment env, IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
         this.env = env;
         this.settings = settings;
         this.api = api;
