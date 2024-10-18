@@ -21,6 +21,10 @@ public abstract class Credentials {
     private IEncryptionService encryptionService;
     private final SecretKeySpec key;
 
+    public Credentials() {
+        this.key = null;
+    }
+
     public Credentials(SecretKeySpec key) throws CredentialsException {
         this(key, new FileSystem(), new SystemEnvironment());
     }

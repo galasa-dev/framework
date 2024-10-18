@@ -26,6 +26,7 @@ import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.Random;
 import javax.validation.constraints.NotNull;
@@ -34,6 +35,7 @@ public class MockFramework implements IFramework {
     IResultArchiveStore archiveStore;
     IFrameworkRuns frameworkRuns;
     MockIConfigurationPropertyStoreService cpsService = new MockIConfigurationPropertyStoreService("framework");
+    MockCredentialsService creds = new MockCredentialsService(new HashMap<>());
     IAuthStoreService authStoreService;
 
     public MockFramework() {
@@ -86,6 +88,11 @@ public class MockFramework implements IFramework {
     }
 
     @Override
+    public @NotNull ICredentialsService getCredentialsService() throws CredentialsException {
+        return this.creds;
+    }
+
+    @Override
     public void setFrameworkProperties(Properties overrideProperties) {
         throw new UnsupportedOperationException("Unimplemented method 'setFrameworkProperties'");
     }
@@ -114,11 +121,6 @@ public class MockFramework implements IFramework {
     @Override
     public @NotNull IConfidentialTextService getConfidentialTextService() {
         throw new UnsupportedOperationException("Unimplemented method 'getConfidentialTextService'");
-    }
-
-    @Override
-    public @NotNull ICredentialsService getCredentialsService() throws CredentialsException {
-        throw new UnsupportedOperationException("Unimplemented method 'getCredentialsService'");
     }
 
     @Override

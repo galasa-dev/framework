@@ -106,4 +106,13 @@ public class FileCredentialsStore implements ICredentialsStore {
         }
     }
 
+    @Override
+    public void setCredentials(String credsId, ICredentials credentials) throws CredentialsException {
+        // Not implemented for local credentials...
+    }
+
+    @Override
+    public void deleteCredentials(String credsId) throws CredentialsException {
+        // Not implemented for local credentials...
+    }
 }
