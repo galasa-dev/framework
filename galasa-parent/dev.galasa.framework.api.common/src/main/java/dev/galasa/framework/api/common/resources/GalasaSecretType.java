@@ -11,6 +11,8 @@ public enum GalasaSecretType {
     USERNAME("Username", "username"),
     TOKEN("Token", "token");
 
+    public static final String DEFAULT_API_VERSION = "galasa-dev/v1alpha1";
+
     private String name;
     private String[] requiredDataFields;
 

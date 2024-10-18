@@ -44,7 +44,6 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private static final String DEFAULT_API_VERSION = "galasa-dev/v1alpha1";
     private static final List<String> SUPPORTED_ENCODING_SCHEMES = List.of("base64");
 
     private ICredentialsService credentialsService;
@@ -128,7 +127,7 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
     }
 
     private List<String> checkGalasaSecretJsonStructure(JsonObject secretJson, ResourceAction action) throws InternalServletException {
-        checkResourceHasRequiredFields(secretJson, DEFAULT_API_VERSION, action);
+        checkResourceHasRequiredFields(secretJson, GalasaSecretType.DEFAULT_API_VERSION, action);
         
         List<String> validationErrors = new ArrayList<>();
         validateSecretMetadata(secretJson, validationErrors);
