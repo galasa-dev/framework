@@ -5,6 +5,8 @@
  */
 package dev.galasa.framework.k8s.controller;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SystemEnvironment;
+import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Affinity;
@@ -44,12 +47,18 @@ import io.kubernetes.client.openapi.models.V1PodStatus;
 import io.kubernetes.client.openapi.models.V1PreferredSchedulingTerm;
 import io.kubernetes.client.openapi.models.V1ResourceRequirements;
 import io.kubernetes.client.openapi.models.V1SecretKeySelector;
+import io.kubernetes.client.openapi.models.V1SecretVolumeSource;
+import io.kubernetes.client.openapi.models.V1Volume;
+import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.prometheus.client.Counter;
 
-public class RunPoll implements Runnable {
+public class TestPodScheduler implements Runnable {
 
     private static final String RAS_TOKEN_ENV = "GALASA_RAS_TOKEN";
     private static final String EVENT_TOKEN_ENV = "GALASA_EVENT_STREAMS_TOKEN";
+
+    private static final String ENCRYPTION_KEYS_PATH_ENV = FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV;
+    public static final String ENCRYPTION_KEYS_VOLUME_NAME = "encryption-keys";
 
     private final Log                        logger           = LogFactory.getLog(getClass());
 
@@ -63,7 +72,12 @@ public class RunPoll implements Runnable {
     private Environment                      env              = new SystemEnvironment();
 
 
-    public RunPoll(IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
+    public TestPodScheduler(IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
+        this(new SystemEnvironment(), dss, settings, api, runs);
+    }
+
+    public TestPodScheduler(Environment env, IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
+        this.env = env;
         this.settings = settings;
         this.api = api;
         this.runs = runs;
@@ -160,118 +174,7 @@ public class RunPoll implements Runnable {
                 return;
             }
 
-            V1Pod newPod = new V1Pod();
-            newPod.setApiVersion("v1");
-            newPod.setKind("Pod");
-
-            V1ObjectMeta metadata = new V1ObjectMeta();
-            newPod.setMetadata(metadata);
-            metadata.setName(engineName);
-            metadata.putLabelsItem("galasa-engine-controller", this.settings.getEngineLabel());
-            metadata.putLabelsItem("galasa-run", runName);
-
-            V1PodSpec podSpec = new V1PodSpec();
-            newPod.setSpec(podSpec);
-            podSpec.setRestartPolicy("Never");
-
-            String nodeArch = this.settings.getNodeArch();
-            if (!nodeArch.isEmpty()) {
-                HashMap<String, String> nodeSelector = new HashMap<>();
-                nodeSelector.put("beta.kubernetes.io/arch", nodeArch);
-                podSpec.setNodeSelector(nodeSelector);
-            }
-
-            String nodePreferredAffinity = this.settings.getNodePreferredAffinity();
-            if (!nodePreferredAffinity.isEmpty()) {
-                String[] selection = nodePreferredAffinity.split("=");
-                if (selection.length == 2) {
-                    V1Affinity affinity = new V1Affinity();
-                    podSpec.setAffinity(affinity);
-
-                    V1NodeAffinity nodeAffinity = new V1NodeAffinity();
-                    affinity.setNodeAffinity(nodeAffinity);
-
-                    V1PreferredSchedulingTerm preferred = new V1PreferredSchedulingTerm();
-                    nodeAffinity.addPreferredDuringSchedulingIgnoredDuringExecutionItem(preferred);
-                    preferred.setWeight(1);
-
-                    V1NodeSelectorTerm selectorTerm = new V1NodeSelectorTerm();
-                    preferred.setPreference(selectorTerm);
-
-                    V1NodeSelectorRequirement requirement = new V1NodeSelectorRequirement();
-                    selectorTerm.addMatchExpressionsItem(requirement);
-                    requirement.setKey(selection[0]);
-                    requirement.setOperator("In");
-                    requirement.addValuesItem(selection[1]);
-                }
-            }
-
-            V1Container container = new V1Container();
-            podSpec.addContainersItem(container);
-            container.setName("engine");
-            container.setImage(this.settings.getEngineImage());
-            container.setImagePullPolicy("Always"); // TODO parameterise
-
-            ArrayList<String> commands = new ArrayList<>();
-            container.setCommand(commands);
-            commands.add("java");
-
-            ArrayList<String> args = new ArrayList<>();
-            container.setArgs(args);
-            args.add("-jar");
-            args.add("boot.jar");
-            args.add("--obr");
-            args.add("file:galasa.obr");
-            args.add("--bootstrap");
-            args.add(settings.getBootstrap());
-            args.add("--run");
-            args.add(runName);
-            if (run.isTrace()) {
-                args.add("--trace");
-            }
-
-            V1ResourceRequirements resources = new V1ResourceRequirements();
-            container.setResources(resources);
-
-            // TODO reinstate
-            // System.out.println("requests=" +
-            // Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi");
-            // System.out.println("limit=" +
-            // Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi");
-            // resources.putRequestsItem("memory", new
-            // Quantity(Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi"));
-            // resources.putLimitsItem("memory", new
-            // Quantity(Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi"));
-
-            ArrayList<V1EnvVar> envs = new ArrayList<>();
-            container.setEnv(envs);
-            // envs.add(createConfigMapEnv("GALASA_URL", configMapName, "galasa_url"));
-            // envs.add(createConfigMapEnv("GALASA_INFRA_OBR", configMapName,
-            // "galasa_maven_infra_obr"));
-            // envs.add(createConfigMapEnv("GALASA_INFRA_REPO", configMapName,
-            // "galasa_maven_infra_repo"));
-            // envs.add(createConfigMapEnv("GALASA_TEST_REPO", configMapName,
-            // "galasa_maven_test_repo"));
-            // envs.add(createConfigMapEnv("GALASA_HELPER_REPO", configMapName,
-            // "galasa_maven_helper_repo"));
-            //
-            // envs.add(createValueEnv("GALASA_ENGINE_TYPE", engineLabel));
-            envs.add(createValueEnv("MAX_HEAP", Integer.toString(this.settings.getEngineMemory()) + "m"));
-            envs.add(createValueEnv(RAS_TOKEN_ENV, env.getenv(RAS_TOKEN_ENV)));
-            envs.add(createValueEnv(EVENT_TOKEN_ENV, env.getenv(EVENT_TOKEN_ENV)));
-            //
-            // envs.add(createSecretEnv("GALASA_SERVER_USER", "galasa-secret",
-            // "galasa-server-username"));
-            // envs.add(createSecretEnv("GALASA_SERVER_PASSWORD", "galasa-secret",
-            // "galasa-server-password"));
-            // envs.add(createSecretEnv("GALASA_MAVEN_USER", "galasa-secret",
-            // "galasa-maven-username"));
-            // envs.add(createSecretEnv("GALASA_MAVEN_PASSWORD", "galasa-secret",
-            // "galasa-maven-password"));
-            //
-            // envs.add(createValueEnv("GALASA_RUN_ID", runUUID.toString()));
-            // envs.add(createFieldEnv("GALASA_ENGINE_ID", "metadata.name"));
-            // envs.add(createFieldEnv("GALASA_K8S_NODE", "spec.nodeName"));
+            V1Pod newPod = createTestPod(runName, engineName, run.isTrace());
 
             boolean successful = false;
             int retry = 0;
@@ -308,7 +211,164 @@ public class RunPoll implements Runnable {
         } catch (Exception e) {
             logger.error("Failed to start new engine", e);
         }
-        return;
+    }
+
+    V1Pod createTestPod(String runName, String engineName, boolean isTraceEnabled) {
+        V1Pod newPod = new V1Pod();
+        newPod.setApiVersion("v1");
+        newPod.setKind("Pod");
+
+        V1ObjectMeta metadata = new V1ObjectMeta();
+        newPod.setMetadata(metadata);
+        metadata.setName(engineName);
+        metadata.putLabelsItem("galasa-engine-controller", this.settings.getEngineLabel());
+        metadata.putLabelsItem("galasa-run", runName);
+
+        V1PodSpec podSpec = new V1PodSpec();
+        newPod.setSpec(podSpec);
+        podSpec.setRestartPolicy("Never");
+
+        String nodeArch = this.settings.getNodeArch();
+        if (!nodeArch.isEmpty()) {
+            HashMap<String, String> nodeSelector = new HashMap<>();
+            nodeSelector.put("beta.kubernetes.io/arch", nodeArch);
+            podSpec.setNodeSelector(nodeSelector);
+        }
+
+        String nodePreferredAffinity = this.settings.getNodePreferredAffinity();
+        if (!nodePreferredAffinity.isEmpty()) {
+            String[] selection = nodePreferredAffinity.split("=");
+            if (selection.length == 2) {
+                V1Affinity affinity = new V1Affinity();
+                podSpec.setAffinity(affinity);
+
+                V1NodeAffinity nodeAffinity = new V1NodeAffinity();
+                affinity.setNodeAffinity(nodeAffinity);
+
+                V1PreferredSchedulingTerm preferred = new V1PreferredSchedulingTerm();
+                nodeAffinity.addPreferredDuringSchedulingIgnoredDuringExecutionItem(preferred);
+                preferred.setWeight(1);
+
+                V1NodeSelectorTerm selectorTerm = new V1NodeSelectorTerm();
+                preferred.setPreference(selectorTerm);
+
+                V1NodeSelectorRequirement requirement = new V1NodeSelectorRequirement();
+                selectorTerm.addMatchExpressionsItem(requirement);
+                requirement.setKey(selection[0]);
+                requirement.setOperator("In");
+                requirement.addValuesItem(selection[1]);
+            }
+        }
+
+        podSpec.setVolumes(createTestPodVolumes());
+        podSpec.addContainersItem(createTestContainer(runName, engineName, isTraceEnabled));
+        return newPod;
+    }
+
+    private V1Container createTestContainer(String runName, String engineName, boolean isTraceEnabled) {
+        V1Container container = new V1Container();
+        container.setName("engine");
+        container.setImage(this.settings.getEngineImage());
+        container.setImagePullPolicy("Always"); // TODO parameterise
+
+        ArrayList<String> commands = new ArrayList<>();
+        container.setCommand(commands);
+        commands.add("java");
+
+        ArrayList<String> args = new ArrayList<>();
+        container.setArgs(args);
+        args.add("-jar");
+        args.add("boot.jar");
+        args.add("--obr");
+        args.add("file:galasa.obr");
+        args.add("--bootstrap");
+        args.add(settings.getBootstrap());
+        args.add("--run");
+        args.add(runName);
+        if (isTraceEnabled) {
+            args.add("--trace");
+        }
+
+        V1ResourceRequirements resources = new V1ResourceRequirements();
+        container.setResources(resources);
+
+        // TODO reinstate
+        // System.out.println("requests=" +
+        // Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi");
+        // System.out.println("limit=" +
+        // Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi");
+        // resources.putRequestsItem("memory", new
+        // Quantity(Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi"));
+        // resources.putLimitsItem("memory", new
+        // Quantity(Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi"));
+
+        container.setVolumeMounts(createTestContainerVolumeMounts());
+        container.setEnv(createTestContainerEnvVariables());
+        return container;
+    }
+
+    private List<V1Volume> createTestPodVolumes() {
+        List<V1Volume> volumes = new ArrayList<>();
+
+        V1Volume encryptionKeysVolume = new V1Volume();
+        encryptionKeysVolume.setName(ENCRYPTION_KEYS_VOLUME_NAME);
+
+        V1SecretVolumeSource encryptionKeysSecretSource = new V1SecretVolumeSource();
+        encryptionKeysSecretSource.setSecretName(this.settings.getEncryptionKeysSecretName());
+
+        encryptionKeysVolume.setSecret(encryptionKeysSecretSource);
+        volumes.add(encryptionKeysVolume);
+        return volumes;
+    }
+
+    private List<V1VolumeMount> createTestContainerVolumeMounts() {
+        List<V1VolumeMount> volumeMounts = new ArrayList<>();
+
+        String encryptionKeysMountPath = env.getenv(ENCRYPTION_KEYS_PATH_ENV);
+        if (encryptionKeysMountPath != null && !encryptionKeysMountPath.isBlank()) {
+            Path encryptionKeysDirectory = Paths.get(encryptionKeysMountPath).getParent().toAbsolutePath();
+
+            V1VolumeMount encryptionKeysVolumeMount = new V1VolumeMount();
+            encryptionKeysVolumeMount.setName(ENCRYPTION_KEYS_VOLUME_NAME);
+            encryptionKeysVolumeMount.setMountPath(encryptionKeysDirectory.toString());
+            encryptionKeysVolumeMount.setReadOnly(true);
+
+            volumeMounts.add(encryptionKeysVolumeMount);
+        }
+        return volumeMounts;
+    }
+
+    private List<V1EnvVar> createTestContainerEnvVariables() {
+        ArrayList<V1EnvVar> envs = new ArrayList<>();
+        // envs.add(createConfigMapEnv("GALASA_URL", configMapName, "galasa_url"));
+        // envs.add(createConfigMapEnv("GALASA_INFRA_OBR", configMapName,
+        // "galasa_maven_infra_obr"));
+        // envs.add(createConfigMapEnv("GALASA_INFRA_REPO", configMapName,
+        // "galasa_maven_infra_repo"));
+        // envs.add(createConfigMapEnv("GALASA_TEST_REPO", configMapName,
+        // "galasa_maven_test_repo"));
+        // envs.add(createConfigMapEnv("GALASA_HELPER_REPO", configMapName,
+        // "galasa_maven_helper_repo"));
+        //
+        // envs.add(createValueEnv("GALASA_ENGINE_TYPE", engineLabel));
+        envs.add(createValueEnv("MAX_HEAP", Integer.toString(this.settings.getEngineMemory()) + "m"));
+        envs.add(createValueEnv(RAS_TOKEN_ENV, env.getenv(RAS_TOKEN_ENV)));
+        envs.add(createValueEnv(EVENT_TOKEN_ENV, env.getenv(EVENT_TOKEN_ENV)));
+        envs.add(createValueEnv(ENCRYPTION_KEYS_PATH_ENV, env.getenv(ENCRYPTION_KEYS_PATH_ENV)));
+        //
+        // envs.add(createSecretEnv("GALASA_SERVER_USER", "galasa-secret",
+        // "galasa-server-username"));
+        // envs.add(createSecretEnv("GALASA_SERVER_PASSWORD", "galasa-secret",
+        // "galasa-server-password"));
+        // envs.add(createSecretEnv("GALASA_MAVEN_USER", "galasa-secret",
+        // "galasa-maven-username"));
+        // envs.add(createSecretEnv("GALASA_MAVEN_PASSWORD", "galasa-secret",
+        // "galasa-maven-password"));
+        //
+        // envs.add(createValueEnv("GALASA_RUN_ID", runUUID.toString()));
+        // envs.add(createFieldEnv("GALASA_ENGINE_ID", "metadata.name"));
+        // envs.add(createFieldEnv("GALASA_K8S_NODE", "spec.nodeName"));
+        return envs;
     }
 
     private HashMap<String, Pool> getPools(@NotNull List<IRun> runs) {

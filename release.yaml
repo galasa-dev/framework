@@ -51,7 +51,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.k8s.controller
-    version: 0.36.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
@@ -114,7 +114,7 @@ framework:
     codecoverage: true
 
   - artifact: galasa-testharness
-    version: 0.34.0
+    version: 0.38.0
     obr:          false
     mvp:          false
     bom:          false
@@ -163,7 +163,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.common
-    version: 0.37.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
@@ -226,7 +226,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.resources
-    version: 0.37.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false

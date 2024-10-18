@@ -237,6 +237,15 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         return lines ;
     }
 
+
+    @Override
+    public String readString(Path path) throws IOException {
+        if (!exists(path)) {
+            throw new FileNotFoundException("File "+path+" was not found");
+        }
+        return getContentsAsString(path);
+    }
+
     // -------------- Un-implemented methods follow ------------------
 
     @Override

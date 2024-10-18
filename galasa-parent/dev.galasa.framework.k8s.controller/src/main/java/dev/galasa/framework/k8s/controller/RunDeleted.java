@@ -39,8 +39,8 @@ public class RunDeleted implements Runnable {
         logger.info("Starting Deleted runs scan");
 
         try {
-            List<V1Pod> pods = RunPoll.getPods(api, settings);
-            RunPoll.filterTerminated(pods);
+            List<V1Pod> pods = TestPodScheduler.getPods(api, settings);
+            TestPodScheduler.filterTerminated(pods);
 
             for (V1Pod pod : pods) {
                 Map<String, String> labels = pod.getMetadata().getLabels();

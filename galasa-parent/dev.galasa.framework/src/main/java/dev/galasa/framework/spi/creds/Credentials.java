@@ -11,12 +11,31 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import dev.galasa.framework.FileSystem;
+import dev.galasa.framework.IFileSystem;
+import dev.galasa.framework.spi.Environment;
+import dev.galasa.framework.spi.SystemEnvironment;
+
 public abstract class Credentials {
 
+    private IEncryptionService encryptionService;
     private final SecretKeySpec key;
 
-    public Credentials(SecretKeySpec key) {
+    public Credentials() {
+        this.key = null;
+    }
+
+    public Credentials(SecretKeySpec key) throws CredentialsException {
+        this(key, new FileSystem(), new SystemEnvironment());
+    }
+
+    public Credentials(SecretKeySpec key, IFileSystem fileSystem, Environment environment) throws CredentialsException {
         this.key = key;
+        this.encryptionService = new FrameworkEncryptionService(key, fileSystem, environment);
+    }
+
+    protected String decryptToString(String encryptedText) throws CredentialsException {
+        return encryptionService.decrypt(encryptedText);
     }
 
     protected byte[] decode(String text) throws CredentialsException {

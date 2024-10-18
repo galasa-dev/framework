@@ -32,4 +32,13 @@ public class MockCredentialsStore implements ICredentialsStore {
         throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
     }
 
+    @Override
+    public void setCredentials(String credsId, ICredentials credentials) throws CredentialsException {
+        throw new UnsupportedOperationException("Unimplemented method 'setCredentials'");
+    }
+
+    @Override
+    public void deleteCredentials(String credsId) throws CredentialsException {
+        throw new UnsupportedOperationException("Unimplemented method 'deleteCredentials'");
+    }
 }

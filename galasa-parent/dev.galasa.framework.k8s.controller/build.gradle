@@ -5,7 +5,7 @@ plugins {
 
 description = 'Galasa Kubernetes Controller'
 
-version '0.36.0'
+version '0.38.0'
 
 dependencies {
 
@@ -36,6 +36,7 @@ dependencies {
         }
     }
 
+    testImplementation project(':dev.galasa.framework').sourceSets.test.output
 }
 
 // Note: These values are consumed by the parent build process
