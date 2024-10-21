@@ -609,7 +609,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
     @Test
     public void testAuthPostRequestWithValidRefreshTokenRequestPayloadReturnsJWT() throws Exception {
         // Given...
-        String dummyJwt = "this-is-a-jwt";
+        String dummyJwt = DUMMY_JWT;
         String dummyRefreshToken = "this-is-a-refresh-token";
         String mockResponseJson = buildTokenResponse(dummyJwt, dummyRefreshToken);
 
@@ -723,7 +723,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
     @Test
     public void testAuthPostRequestWithValidAuthCodeRequestPayloadReturnsJWT() throws Exception {
         // Given...
-        String dummyJwt = "this-is-a-jwt";
+        String dummyJwt = DUMMY_JWT;
         String dummyRefreshToken = "this-is-a-refresh-token";
         String mockResponseJson = buildTokenResponse(dummyJwt, dummyRefreshToken);
 

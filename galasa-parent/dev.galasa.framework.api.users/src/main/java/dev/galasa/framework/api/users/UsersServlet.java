@@ -19,13 +19,14 @@ import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
         "osgi.http.whiteboard.servlet.pattern=/users/*" }, name = "Galasa Users microservice")
 public class UsersServlet extends BaseServlet {
 
     @Reference
-    private IFramework framework;
+    protected IFramework framework;
 
     public static final String QUERY_PARAM_LOGIN_ID = "loginId";
 
@@ -49,7 +50,8 @@ public class UsersServlet extends BaseServlet {
 
         super.init();
 
-        addRoute(new UsersRoute(getResponseBuilder(), framework, env));
+        IAuthStoreService authStoreService = framework.getAuthStoreService();
+        addRoute(new UsersRoute(getResponseBuilder(), framework, env,authStoreService));
 
         logger.info("Galasa Users API initialised");
     }

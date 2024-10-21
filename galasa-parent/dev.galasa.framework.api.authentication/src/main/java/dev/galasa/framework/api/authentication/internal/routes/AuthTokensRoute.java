@@ -42,6 +42,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
+import dev.galasa.framework.spi.auth.UserDoc;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 public class AuthTokensRoute extends BaseRoute {
@@ -102,7 +103,7 @@ public class AuthTokensRoute extends BaseRoute {
 
         // Convert the token received from the auth store into the token bean that will
         // be returned as JSON
-        List<AuthToken>tokensToReturn = convertAuthStoreTokenIntoTokenBeans(authTokensFromAuthStore);
+        List<AuthToken> tokensToReturn = convertAuthStoreTokenIntoTokenBeans(authTokensFromAuthStore);
 
         return getResponseBuilder().buildResponse(request, response, "application/json",
                 getTokensAsJsonString(tokensToReturn), HttpServletResponse.SC_OK);
@@ -181,6 +182,8 @@ public class AuthTokensRoute extends BaseRoute {
                 if (requestPayload.getRefreshToken() == null && tokenDescription != null) {
                     addTokenToAuthStore(requestPayload.getClientId(), jwt, tokenDescription);
                 }
+
+                recordUserJustLoggedIn(isLoggingIntoWebUI(requestPayload.getRefreshToken(), tokenDescription), jwt);
 
             } else {
                 logger.info("Unable to get new bearer and refresh tokens from issuer.");
@@ -295,6 +298,29 @@ public class AuthTokensRoute extends BaseRoute {
 
     }
 
+    private void recordUserJustLoggedIn(boolean isWebUI, String jwt)
+            throws InternalServletException, AuthStoreException {
+
+        JwtWrapper jwtWrapper = new JwtWrapper(jwt, env);
+        String loginId = jwtWrapper.getUsername();
+        String clientName = "rest-api";
+
+        UserDoc userDoc = new UserDoc(loginId);
+
+        if (isWebUI) {
+            clientName = "web-ui";
+        }
+
+        userDoc = authStoreService.getUserByLoginId(loginId);
+
+        if (userDoc == null) {
+            authStoreService.createUser(loginId, clientName);
+        } else {
+            authStoreService.updateUserClientActivity(loginId, clientName);
+        }
+
+    }
+
     private void validateLoginId(String loginId, String servletPath) throws InternalServletException {
 
         if (loginId == null || loginId.trim().length() == 0) {
@@ -303,4 +329,11 @@ public class AuthTokensRoute extends BaseRoute {
         }
 
     }
+
+    private boolean isLoggingIntoWebUI(String refreshToken, String tokenDescription) {
+
+        return (refreshToken == null && tokenDescription == null);
+
+    }
+
 }

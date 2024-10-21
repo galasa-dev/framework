@@ -12,8 +12,10 @@ import java.util.List;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
+import dev.galasa.framework.spi.auth.UserDoc;
 import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
+import dev.galasa.framework.spi.auth.FrontendClient;
 
 public class MockAuthStoreService implements IAuthStoreService {
 
@@ -99,5 +101,49 @@ public class MockAuthStoreService implements IAuthStoreService {
             }
         }
         return tokensToReturn;
+    }
+
+    @Override
+    public List<UserDoc> getAllUsers() throws AuthStoreException {
+        
+        List<UserDoc> users = new ArrayList<>();
+
+        UserDoc user1 = new UserDoc("user-1");
+        UserDoc user2 = new UserDoc("user-2");
+
+        user1.setUserNumber("docid");
+        user1.setVersion("revVersion");
+        user1.setClients(List.of(new FrontendClient("web-ui", Instant.parse("2024-10-18T14:49:50.096329Z"))));
+
+        user2.setUserNumber("docid-2");
+        user2.setVersion("revVersion2");
+        user2.setClients(List.of(new FrontendClient("rest-api", Instant.parse("2024-10-18T14:49:50.096329Z"))));
+
+        users.add(user1);
+        users.add(user2);
+
+        return users;
+    }
+
+    @Override
+    public void createUser(String loginId, String clientName) throws AuthStoreException {
+        // Do nothing
+    }
+
+    @Override
+    public UserDoc getUserByLoginId(String loginId) throws AuthStoreException {
+        
+        UserDoc user = new UserDoc(loginId);
+
+        user.setUserNumber("docid");
+        user.setVersion("revVersion");
+        user.setClients(List.of(new FrontendClient("web-ui", Instant.parse("2024-10-18T14:49:50.096329Z"))));
+
+        return user;
+    }
+
+    @Override
+    public void updateUserClientActivity(String loginId, String clientName) throws AuthStoreException {
+        // Do nothing
     }
 }
