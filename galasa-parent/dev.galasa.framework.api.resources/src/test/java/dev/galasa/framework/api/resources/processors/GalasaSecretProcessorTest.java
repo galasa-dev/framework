@@ -531,7 +531,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Then...
         assertThat(thrown).isNotNull();
         checkErrorStructure(thrown.getMessage(), 5075, "GAL5075E",
-            "A secret with the provided ID already exists.");
+            "A secret with the provided name already exists.");
     }
 
     @Test

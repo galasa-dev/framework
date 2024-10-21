@@ -292,19 +292,6 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JsonError'
-              examples:
-                genericerror:
-                  value:
-                    error_code: 5000
-                    error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
-                  summary: An Error occurred when trying to access the endpoint
-
-                  
 ##################################################################################
 # Users API
 ##################################################################################
@@ -1725,6 +1712,94 @@ paths:
         '401':
           $ref: "#/components/responses/Unauthorized"
 ##################################################################################
+# Secrets API
+##################################################################################
+  /secrets:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      summary: Get a list of Galasa Secrets from the Credentials store
+      description: |
+        Returns a list of Galasa Secrets stored in the Credentials store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: getSecrets
+      tags:
+      - Secrets API
+      parameters:
+        - name: name
+          in: query
+          description: The name of a specific Galasa Secret to be retrieved
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of Galasa Secrets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GalasaSecret'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      summary: Create a new Galasa Secret
+      description: |
+        Creates a new Galasa Secret and stores it in the Credentials store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: createSecret
+      tags:
+      - Secrets API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecretRequest'
+      responses:
+        '201':
+          description: A new Galasa Secret was created successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+  /secrets/{secretName}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    delete:
+      operationId: deleteSecret
+      summary: Deletes a secret from the Credentials Store
+      description: |
+        Deletes a secret with the given name from the Credentials Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Secrets API
+      parameters:
+      - name: name
+        in: path
+        description: The name of the secret to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No content response indicating that the given secret has been deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+##################################################################################
 # Bootstrap API
 ##################################################################################
   /bootstrap:
@@ -1763,6 +1838,12 @@ components:
                 error_code: 5000
                 error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
               summary: An Error occurred when trying to access the endpoint
+    NotFound:
+      description: The requested resource could not be found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
     Unauthorized:
       description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
       content:
@@ -1952,6 +2033,49 @@ components:
           items:
             anyOf:
               - $ref: '#/components/schemas/GalasaProperty'
+              - $ref: '#/components/schemas/GalasaSecret'
+    SecretRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the secret to create or update
+        username:
+          type: object
+          description: The username to create or update in the Credentials Store.
+          properties:
+            value:
+              type: string
+              description: The username value to set into the secret
+            encoding:
+              type: string
+              description: |
+                The character encoding scheme that has been applied to the username.
+                Currently, base64 is the only supported encoding scheme
+        password:
+          type: object
+          description: The password to create or update in the Credentials Store. Cannot be used alongside 'token'
+          properties:
+            value:
+              type: string
+              description: The password value to set into the secret
+            encoding:
+              type: string
+              description: |
+                The character encoding scheme that has been applied to the password.
+                Currently, base64 is the only supported encoding scheme
+        token:
+          type: object
+          description: The token to create or update in the Credentials Store. Cannot be used alongside 'password'
+          properties:
+            value:
+              type: string
+              description: The token value to set into the secret
+            encoding:
+              type: string
+              description: |
+                The character encoding scheme that has been applied to the token.
+                Currently, base64 is the only supported encoding scheme
     TestRuns:
       type: object
       properties:
