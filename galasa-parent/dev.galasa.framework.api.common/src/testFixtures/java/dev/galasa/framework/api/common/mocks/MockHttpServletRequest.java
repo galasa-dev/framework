@@ -186,6 +186,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
         this.contentType = contentType;
     }
 
+    public void setQueryParameter(String parameter, String value) {
+        this.parameterMap.put(parameter, new String[] { value });
+    }
+
     public void setHeader(String header, String value) {
         this.headerMap.put(header, value);
     }

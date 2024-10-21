@@ -4,12 +4,17 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.common.resources;
- 
+
+import java.util.List;
+
 public enum GalasaSecretType {
     USERNAME_PASSWORD("UsernamePassword", "username", "password"),
     USERNAME_TOKEN("UsernameToken", "username", "token"),
     USERNAME("Username", "username"),
     TOKEN("Token", "token");
+
+    public static final String DEFAULT_API_VERSION = "galasa-dev/v1alpha1";
+    public static final List<String> SUPPORTED_ENCODING_SCHEMES = List.of("base64");
 
     private String name;
     private String[] requiredDataFields;
