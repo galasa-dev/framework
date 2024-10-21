@@ -5,28 +5,29 @@
  */
 package dev.galasa.framework.api.common.resources;
  
- public enum GalasaResourceType{
-        GALASAPROPERTY("GalasaProperty"),
-        ;
-        private String value;
+public enum GalasaResourceType {
+    GALASA_PROPERTY("GalasaProperty"),
+    GALASA_SECRET("GalasaSecret");
 
-        private GalasaResourceType(String type){
-            this.value = type;
-        }
+    private String name;
 
-        public static GalasaResourceType getfromString(String typeAsString){
-            GalasaResourceType match = null;
-            for (GalasaResourceType type : GalasaResourceType.values()){
-                if (type.toString().equalsIgnoreCase(typeAsString)){
-                    match = type;
-                }
-            }
-            return match;
-        }
-
-        @Override
-        public String toString(){
-            return value;
-        }
-
+    private GalasaResourceType(String name) {
+        this.name = name;
     }
+
+    public static GalasaResourceType getFromString(String resourceAsString) {
+        GalasaResourceType match = null;
+        for (GalasaResourceType resource : values()) {
+            if (resource.toString().equalsIgnoreCase(resourceAsString.trim())) {
+                match = resource;
+                break;
+            }
+        }
+        return match;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+}

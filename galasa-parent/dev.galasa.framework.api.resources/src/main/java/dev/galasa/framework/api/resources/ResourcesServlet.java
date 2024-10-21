@@ -22,6 +22,7 @@ import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.resources.routes.ResourcesRoute;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.creds.CredentialsException;
 /*
  * Proxy Servlet for the /resources/* endpoints
  */
@@ -53,8 +54,8 @@ public class ResourcesServlet extends BaseServlet {
 		super.init();
 
 		try {
-            addRoute(new ResourcesRoute(getResponseBuilder(), new CPSFacade(framework)));
-        } catch (ConfigurationPropertyStoreException e) {
+            addRoute(new ResourcesRoute(getResponseBuilder(), new CPSFacade(framework), framework.getCredentialsService()));
+        } catch (ConfigurationPropertyStoreException | CredentialsException e) {
             logger.error("Failed to initialise the Resources servlet", e);
             throw new ServletException("Failed to initialise the Resources servlet", e);
         }
