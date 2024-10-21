@@ -5,8 +5,6 @@
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
-import org.apache.commons.collections4.ListUtils;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -81,10 +79,8 @@ public class RunQueryRoute extends RunsRoute {
 
 	private String retrieveResults(RasQueryParameters queryParams) throws InternalServletException {
 
-		int pageNum = queryParams.getPageNumber();
 		int pageSize = queryParams.getPageSize();
 
-        boolean includeCursor = queryParams.getIncludeCursor();
         String pageCursor = queryParams.getPageCursor();
 
 		List<RasRunResult> runs = new ArrayList<>();
@@ -101,27 +97,16 @@ public class RunQueryRoute extends RunsRoute {
         String responseJson = null;
         try {
             if (runIds != null && runIds.size() > 0) {
-                runs = getRunsByIds(runIds);
+                runs = sortResults(getRunsByIds(runIds), queryParams, sortValue);
+                responseJson = buildResponseBody(runs, pageSize, null);
             } else {
-                List<IRasSearchCriteria> criteria = getCriteria(queryParams);
-                if (includeCursor || pageCursor != null) {
-                    runsPage = getRunsPage(pageCursor, pageSize, formatSortField(sortValue), criteria);
-                } else {
-                    runs = getRuns(criteria);
-                }
-            }
-    
-            if (runsPage == null) {
-                runs = sortResults(runs, queryParams, sortValue);
-                responseJson = buildResponseBody(runs, pageNum, pageSize);
-            } else {
+                runsPage = getRunsPage(pageCursor, pageSize, formatSortField(sortValue), getCriteria(queryParams));
                 responseJson = buildResponseBody(runsPage, pageSize);
             }
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);   
         }
-
         return responseJson;
 	}
 
@@ -178,46 +163,21 @@ public class RunQueryRoute extends RunsRoute {
 		return criteria ;
 	}
 
-	private String buildResponseBody(List<RasRunResult> runs, int pageNum, int pageSize) throws InternalServletException {
+	private String buildResponseBody(List<RasRunResult> runs, int pageSize, String nextPageCursor) {
+        JsonObject pageJson = new JsonObject();
 
-		//Splits up the pages based on the page size
-		List<List<RasRunResult>> paginatedResults = ListUtils.partition(runs, pageSize);
-
-		//Building the object to be returned by the API and splitting
-        JsonObject runsPage = null;
-        try {
-            if ((pageNum == 1) && paginatedResults.isEmpty()) {
-                // No results at all, so return one page saying that.
-                runsPage = pageToJson(runs, runs.size(), 1, pageSize,1);
-            } else {
-                runsPage = pageToJson(
-                    paginatedResults.get(pageNum - 1),
-                    runs.size(),
-                    pageNum,
-                    pageSize,
-                    paginatedResults.size()
-                );
-            }
-        } catch (IndexOutOfBoundsException e) {
-            ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
-        }
-        return gson.toJson(runsPage);
-	}
-
-	private String buildResponseBody(RasRunResultPage runsPage, int pageSize) throws ResultArchiveStoreException {
-
-		//Building the object to be returned by the API and splitting
-        JsonObject pageJson = new JsonObject();        
-
-        List<RasRunResult> runs = convertRunsToRunResults(runsPage.getRuns());
         JsonElement tree = gson.toJsonTree(runs);
         pageJson.addProperty("pageSize", pageSize);
         pageJson.addProperty("amountOfRuns", runs.size());
-        pageJson.addProperty("nextCursor", runsPage.getNextCursor());
+        pageJson.addProperty("nextCursor", nextPageCursor);
         pageJson.add("runs", tree);
 
         return gson.toJson(pageJson);
+	}
+
+	private String buildResponseBody(RasRunResultPage runsPage, int pageSize) throws ResultArchiveStoreException {
+        List<RasRunResult> runs = convertRunsToRunResults(runsPage.getRuns());
+        return buildResponseBody(runs, pageSize, runsPage.getNextCursor());
 	}
 
 	private List<IRasSearchCriteria> getCriteria(
@@ -269,37 +229,6 @@ public class RunQueryRoute extends RunsRoute {
 			critList.add(runNameCriteria);
 		}
 		return critList;
-	}
-
-	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageNum, int pageSize, int numPages) {
-		JsonObject obj = new JsonObject();
-
-		obj.addProperty("pageNum", pageNum);
-		obj.addProperty("pageSize", pageSize);
-		obj.addProperty("numPages", numPages);
-		obj.addProperty("amountOfRuns", totalRuns);
-
-		JsonElement tree = gson.toJsonTree(resultsInPage);
-
-		obj.add("runs", tree);
-		return obj;
-	}
-
-	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException, InternalServletException {
-
-		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
-
-		critList.toArray(criteria);
-
-		// Collect all the runs from all the RAS stores into a single list
-		List<IRunResult> runs = new ArrayList<>();
-		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
-			runs.addAll(directoryService.getRuns(criteria));
-		}
-
-		List<RasRunResult> runResults = convertRunsToRunResults(runs);
-
-		return runResults;
 	}
 
 	private RasRunResultPage getRunsPage(String pageCursor, int maxResults, RasSortField primarySort, List<IRasSearchCriteria> critList) throws ResultArchiveStoreException {

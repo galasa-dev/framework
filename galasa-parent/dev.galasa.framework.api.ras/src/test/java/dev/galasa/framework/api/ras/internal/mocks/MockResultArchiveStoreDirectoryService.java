@@ -48,6 +48,9 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 
 	@Override
 	public @NotNull RasRunResultPage getRunsPage(int maxResults, RasSortField primarySort, String pageCursor, @NotNull IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
+        if (pageCursor != null && pageCursor.equals("error")) {
+            throw new ResultArchiveStoreException("simulating a RAS error!");
+        }
         return new RasRunResultPage(getRuns(searchCriterias), nextCursor);
 	}
 
