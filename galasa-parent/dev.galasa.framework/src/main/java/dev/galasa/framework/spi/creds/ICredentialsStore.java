@@ -5,11 +5,15 @@
  */
 package dev.galasa.framework.spi.creds;
 
+import java.util.Map;
+
 import dev.galasa.ICredentials;
 
 public interface ICredentialsStore {
 
     ICredentials getCredentials(String credsId) throws CredentialsException;
+
+    Map<String, ICredentials> getAllCredentials() throws CredentialsException;
 
     void setCredentials(String credsId, ICredentials credentials) throws CredentialsException;
 

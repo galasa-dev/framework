@@ -16,10 +16,10 @@ import javax.servlet.ServletOutputStream;
 
 import org.junit.Test;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.ICredentials;
-import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.mocks.MockCredentialsService;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -31,24 +31,7 @@ import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
 
-public class SecretsRouteTest extends BaseServletTest {
-
-    private JsonObject createSecretJson(String value, String encoding) {
-        JsonObject secretJson = new JsonObject();
-        if (value != null) {
-            secretJson.addProperty("value", value);
-        }
-
-        if (encoding != null) {
-            secretJson.addProperty("encoding", encoding);
-        }
-
-        return secretJson;
-    }
-
-    private JsonObject createSecretJson(String value) {
-        return createSecretJson(value, null);
-    }
+public class SecretsRouteTest extends SecretsServletTest {
 
     @Test
     public void testSecretsRouteRegexMatchesExpectedPaths() throws Exception {
@@ -64,6 +47,49 @@ public class SecretsRouteTest extends BaseServletTest {
         // The route should not accept the following
         assertThat(routePattern.matcher("////").matches()).isFalse();
         assertThat(routePattern.matcher("/wrongpath!").matches()).isFalse();
+    }
+
+    @Test
+    public void testGetSecretsReturnsAllSecretsOk() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName1 = "BOB";
+        String username1 = "my-username";
+        String password1 = "not-a-password";
+
+        String secretName2 = "ITS_BOB_AGAIN";
+        String username2 = "another-username";
+
+        String secretName3 = "not-b0b";
+        String token3 = "this-is-a-token";
+
+        creds.put(secretName1, new CredentialsUsernamePassword(username1, password1));
+        creds.put(secretName2, new CredentialsUsername(username2));
+        creds.put(secretName3, new CredentialsToken(token3));
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/");
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        JsonArray expectedJson = new JsonArray();
+        expectedJson.add(generateSecretJson(secretName2, "Username", username2, null, null));
+        expectedJson.add(generateSecretJson(secretName1, "UsernamePassword", username1, password1, null));
+        expectedJson.add(generateSecretJson(secretName3, "Token", null, null, token3));
+
+        String output = outStream.toString();
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(output).isEqualTo(gson.toJson(expectedJson));
     }
 
     @Test

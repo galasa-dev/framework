@@ -41,4 +41,9 @@ public class MockCredentialsStore implements ICredentialsStore {
     public void deleteCredentials(String credsId) throws CredentialsException {
         throw new UnsupportedOperationException("Unimplemented method 'deleteCredentials'");
     }
+
+    @Override
+    public Map<String, ICredentials> getAllCredentials() throws CredentialsException {
+        throw new UnsupportedOperationException("Unimplemented method 'getAllCredentials'");
+    }
 }
