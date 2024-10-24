@@ -9,9 +9,10 @@ import java.util.List;
 
 import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
-import dev.galasa.framework.spi.auth.UserDoc;
+import dev.galasa.framework.spi.auth.IUser;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 /**
@@ -60,7 +61,7 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public List<UserDoc> getAllUsers() throws AuthStoreException {
+    public List<IUser> getAllUsers() throws AuthStoreException {
         return authStore.getAllUsers();
     }
 
@@ -70,12 +71,22 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public UserDoc getUserByLoginId(String loginId) throws AuthStoreException {
+    public IUser getUserByLoginId(String loginId) throws AuthStoreException {
         return authStore.getUserByLoginId(loginId);
     }
 
     @Override
-    public void updateUserClientActivity(String loginId, String clientName) throws AuthStoreException {
-        authStore.updateUserClientActivity(loginId,clientName);
+    public IUser updateUser(IUser user) throws AuthStoreException {
+        return authStore.updateUser(user);
+    }
+
+    @Override
+    public void deleteUser(IUser user) throws AuthStoreException {
+        authStore.deleteUser(user);
+    }
+
+    @Override
+    public IFrontEndClient createClient(String clientName) {
+        return authStore.createClient(clientName);
     }
 }

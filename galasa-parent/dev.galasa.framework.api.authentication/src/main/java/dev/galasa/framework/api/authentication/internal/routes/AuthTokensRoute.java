@@ -40,9 +40,12 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
-import dev.galasa.framework.spi.auth.UserDoc;
+import dev.galasa.framework.spi.auth.IUser;
+import dev.galasa.framework.spi.utils.ITimeService;
+import dev.galasa.framework.spi.utils.SystemTimeService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 public class AuthTokensRoute extends BaseRoute {
@@ -59,8 +62,14 @@ public class AuthTokensRoute extends BaseRoute {
     // Regex to match /auth/tokens and /auth/tokens/ only
     private static final String PATH_PATTERN = "\\/tokens\\/?";
 
+    private static final String REST_API_CLIENT = "rest-api";
+    private static final String WEB_UI_CLIENT = "web-ui";
+
     private static final IBeanValidator<TokenPayload> validator = new TokenPayloadValidator();
 
+    private ITimeService timeService ;
+
+    // TODO: Need to be passed a framework so we can get a timer service from it.
     public AuthTokensRoute(
             ResponseBuilder responseBuilder,
             IOidcProvider oidcProvider,
@@ -72,6 +81,8 @@ public class AuthTokensRoute extends BaseRoute {
         this.dexGrpcClient = dexGrpcClient;
         this.authStoreService = authStoreService;
         this.env = env;
+
+        this.timeService = new SystemTimeService();
     }
 
     /**
@@ -183,7 +194,8 @@ public class AuthTokensRoute extends BaseRoute {
                     addTokenToAuthStore(requestPayload.getClientId(), jwt, tokenDescription);
                 }
 
-                recordUserJustLoggedIn(isLoggingIntoWebUI(requestPayload.getRefreshToken(), tokenDescription), jwt);
+                boolean isWebUiLogin = isLoggingIntoWebUI(requestPayload.getRefreshToken(), tokenDescription);
+                recordUserJustLoggedIn(isWebUiLogin , jwt , this.timeService, this.env);
 
             } else {
                 logger.info("Unable to get new bearer and refresh tokens from issuer.");
@@ -298,27 +310,35 @@ public class AuthTokensRoute extends BaseRoute {
 
     }
 
-    private void recordUserJustLoggedIn(boolean isWebUI, String jwt)
+    // This method is protected so we can unit test it easily.
+    protected void recordUserJustLoggedIn(boolean isWebUI, String jwt, ITimeService timeService , Environment env)
             throws InternalServletException, AuthStoreException {
 
         JwtWrapper jwtWrapper = new JwtWrapper(jwt, env);
         String loginId = jwtWrapper.getUsername();
-        String clientName = "rest-api";
+        IUser user;
 
-        UserDoc userDoc = new UserDoc(loginId);
-
+        String clientName = REST_API_CLIENT;
         if (isWebUI) {
-            clientName = "web-ui";
+            clientName = WEB_UI_CLIENT;
         }
 
-        userDoc = authStoreService.getUserByLoginId(loginId);
+        user = authStoreService.getUserByLoginId(loginId);
 
-        if (userDoc == null) {
+        if (user == null) {
             authStoreService.createUser(loginId, clientName);
         } else {
-            authStoreService.updateUserClientActivity(loginId, clientName);
-        }
 
+            IFrontEndClient client = user.getClient(clientName);
+            if (client == null) {
+                client = authStoreService.createClient(clientName);
+                user.addClient(client);
+            }
+
+            client.setLastLogin(timeService.now());
+
+            authStoreService.updateUser(user);
+        }
     }
 
     private void validateLoginId(String loginId, String servletPath) throws InternalServletException {

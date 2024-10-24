@@ -51,7 +51,7 @@ public class UsersServlet extends BaseServlet {
         super.init();
 
         IAuthStoreService authStoreService = framework.getAuthStoreService();
-        addRoute(new UsersRoute(getResponseBuilder(), framework, env,authStoreService));
+        addRoute(new UsersRoute(getResponseBuilder(), env,authStoreService));
 
         logger.info("Galasa Users API initialised");
     }

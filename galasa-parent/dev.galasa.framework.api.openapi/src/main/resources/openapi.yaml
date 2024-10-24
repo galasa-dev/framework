@@ -1998,7 +1998,7 @@ components:
       properties:
         id:
           type: string
-          description: The ID representing the user record in CouchDB.
+          description: The ID representing the user record in Auth Store.
         login-id:
           type: string
           description: The ID representing the user's username. Returned from queries about users.
@@ -2006,11 +2006,11 @@ components:
           type: array
           description: The list of client activities, containing client names and last login times.
           items:
-            $ref: '#/components/schemas/FrontendClient'
+            $ref: '#/components/schemas/FrontEndClient'
         url:
           type: string
           description: The API URL for accessing the user data.
-    FrontendClient:
+    FrontEndClient:
       type: object
       properties:
         client-name:

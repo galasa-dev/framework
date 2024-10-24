@@ -6,18 +6,22 @@
 package dev.galasa.framework.api.common.mocks;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
-import dev.galasa.framework.spi.auth.UserDoc;
+import dev.galasa.framework.spi.auth.IUser;
 import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
-import dev.galasa.framework.spi.auth.FrontendClient;
+
+import static org.assertj.core.api.Assertions.*;
 
 public class MockAuthStoreService implements IAuthStoreService {
+
+    public static final String DEFAULT_USER_VERSION_NUMBER = "567897867566";
+    public static final String DEFAULT_USER_NUMBER = "hqjwkeh2q1223";
 
     List<IInternalAuthToken> tokens = new ArrayList<>();
     private ITimeService timeService;
@@ -104,46 +108,56 @@ public class MockAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public List<UserDoc> getAllUsers() throws AuthStoreException {
+    public Collection<IUser> getAllUsers() throws AuthStoreException {
         
-        List<UserDoc> users = new ArrayList<>();
+        return users.values();
 
-        UserDoc user1 = new UserDoc("user-1");
-        UserDoc user2 = new UserDoc("user-2");
+    }
 
-        user1.setUserNumber("docid");
-        user1.setVersion("revVersion");
-        user1.setClients(List.of(new FrontendClient("web-ui", Instant.parse("2024-10-18T14:49:50.096329Z"))));
+    @Override
+    public void deleteUser(IUser user) throws AuthStoreException {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+    }
 
-        user2.setUserNumber("docid-2");
-        user2.setVersion("revVersion2");
-        user2.setClients(List.of(new FrontendClient("rest-api", Instant.parse("2024-10-18T14:49:50.096329Z"))));
+  
+    private Map<String,IUser> users = new HashMap<String,IUser>();
 
-        users.add(user1);
-        users.add(user2);
+    public void addUser(IUser user) {
+        String loginId = user.getLoginId();
+        users.put(loginId,user);
+    }
 
-        return users;
+    @Override
+    public IUser getUserByLoginId(String loginId) throws AuthStoreException {
+        return users.get(loginId);
+    }
+
+    @Override
+    public IUser updateUser(IUser userToUpdate) throws AuthStoreException {
+        String loginId = userToUpdate.getLoginId();
+        IUser userGot = users.get(loginId);
+        assertThat(userGot).isNotNull();
+        users.put(loginId,userToUpdate);
+
+        return userToUpdate;
     }
 
     @Override
     public void createUser(String loginId, String clientName) throws AuthStoreException {
-        // Do nothing
+        MockUser user = new MockUser();
+        user.loginId = loginId ;
+        MockFrontEndClient client = new MockFrontEndClient(clientName);
+        client.lastLoginTime = timeService.now();
+        user.addClient(client);
+        user.version = DEFAULT_USER_VERSION_NUMBER ;
+        user.userNumber = DEFAULT_USER_NUMBER;
+
+        users.put(loginId, user);
     }
 
     @Override
-    public UserDoc getUserByLoginId(String loginId) throws AuthStoreException {
-        
-        UserDoc user = new UserDoc(loginId);
-
-        user.setUserNumber("docid");
-        user.setVersion("revVersion");
-        user.setClients(List.of(new FrontendClient("web-ui", Instant.parse("2024-10-18T14:49:50.096329Z"))));
-
-        return user;
-    }
-
-    @Override
-    public void updateUserClientActivity(String loginId, String clientName) throws AuthStoreException {
-        // Do nothing
+    public IFrontEndClient createClient (String clientName) {
+        return new MockFrontEndClient(clientName);
     }
 }
