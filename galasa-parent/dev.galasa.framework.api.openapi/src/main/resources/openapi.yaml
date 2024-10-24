@@ -1718,9 +1718,9 @@ paths:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
     get:
-      summary: Get a list of Galasa Secrets from the Credentials store
+      summary: Get a list of secrets from the Credentials Store
       description: |
-        Returns a list of Galasa Secrets stored in the Credentials store.
+        Returns a list of secrets stored in the Credentials Store.
 
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
@@ -1730,27 +1730,27 @@ paths:
       parameters:
         - name: name
           in: query
-          description: The name of a specific Galasa Secret to be retrieved
+          description: The name of a specific secret to be retrieved
           required: false
           schema:
             type: string
       responses:
         '200':
-          description: A list of Galasa Secrets
+          description: A list of secrets
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/GalasaSecret'
-        '404':
-          $ref: '#/components/responses/NotFound'
         '401':
           $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
-      summary: Create a new Galasa Secret
+      summary: Create a new secret
       description: |
-        Creates a new Galasa Secret and stores it in the Credentials store.
+        Creates a new secret and stores it in the Credentials Store.
 
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
@@ -1765,14 +1765,69 @@ paths:
               $ref: '#/components/schemas/SecretRequest'
       responses:
         '201':
-          description: A new Galasa Secret was created successfully
+          description: A new secret was created successfully
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /secrets/{secretName}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      summary: Gets a secret with the given name from the Credentials Store
+      description: |
+        Returns a secret with the given name from the Credentials Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: getSecret
+      tags:
+      - Secrets API
+      responses:
+        '200':
+          description: The secret with the provided name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaSecret'
         '404':
           $ref: '#/components/responses/NotFound'
         '401':
           $ref: "#/components/responses/Unauthorized"
-  /secrets/{secretName}:
-    parameters:
-      - $ref: '#/components/parameters/ClientApiVersion'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      summary: Create or update a secret
+      description: |
+        Updates an existing secret with the given name in the Credentials Store.
+        If no such secret exists, a new secret will be created.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: updateSecret
+      tags:
+      - Secrets API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecretRequest'
+      responses:
+        '204':
+          description: The existing secret was updated successfully
+        '201':
+          description: A new secret was created successfully
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       operationId: deleteSecret
       summary: Deletes a secret from the Credentials Store
@@ -1826,6 +1881,18 @@ paths:
 ##################################################################################
 components:
   responses:
+    BadRequest:
+      description: The provided request payload was not valid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    Conflict:
+      description: The requested resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
     InternalServerError:
       description: An internal server error occurred
       content:
