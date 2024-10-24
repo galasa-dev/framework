@@ -1777,6 +1777,12 @@ paths:
   /secrets/{secretName}:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
+      - name: secretName
+        in: path
+        description: The name of the secret resource to manage
+        required: true
+        schema:
+          type: string
     get:
       summary: Gets a secret with the given name from the Credentials Store
       description: |
@@ -1838,13 +1844,6 @@ paths:
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
       - Secrets API
-      parameters:
-      - name: name
-        in: path
-        description: The name of the secret to delete
-        required: true
-        schema:
-          type: string
       responses:
         '204':
           description: No content response indicating that the given secret has been deleted
