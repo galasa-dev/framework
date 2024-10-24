@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.authentication.routes;
+package dev.galasa.framework.api.authentication.internal.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -16,7 +16,6 @@ import javax.servlet.ServletOutputStream;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.authentication.internal.routes.AuthTokensDetailsRoute;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
 import dev.galasa.framework.api.common.BaseServletTest;

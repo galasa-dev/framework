@@ -9,8 +9,10 @@ import java.util.List;
 
 import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
+import dev.galasa.framework.spi.auth.IUser;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 /**
@@ -56,5 +58,35 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     @Override
     public List<IInternalAuthToken> getTokensByLoginId(String loginId) throws AuthStoreException {
         return authStore.getTokensByLoginId(loginId);
+    }
+
+    @Override
+    public List<IUser> getAllUsers() throws AuthStoreException {
+        return authStore.getAllUsers();
+    }
+
+    @Override
+    public void createUser(String loginId, String clientName) throws AuthStoreException {
+        authStore.createUser(loginId, clientName);
+    }
+
+    @Override
+    public IUser getUserByLoginId(String loginId) throws AuthStoreException {
+        return authStore.getUserByLoginId(loginId);
+    }
+
+    @Override
+    public IUser updateUser(IUser user) throws AuthStoreException {
+        return authStore.updateUser(user);
+    }
+
+    @Override
+    public void deleteUser(IUser user) throws AuthStoreException {
+        authStore.deleteUser(user);
+    }
+
+    @Override
+    public IFrontEndClient createClient(String clientName) {
+        return authStore.createClient(clientName);
     }
 }

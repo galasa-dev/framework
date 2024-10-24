@@ -9,8 +9,10 @@ import java.util.List;
 
 import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
+import dev.galasa.framework.spi.auth.IUser;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 public class MockAuthStore implements IAuthStore, IAuthStoreService {
@@ -43,5 +45,35 @@ public class MockAuthStore implements IAuthStore, IAuthStoreService {
     @Override
     public IInternalAuthToken getToken(String tokenId) throws AuthStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'getToken'");
+    }
+
+    @Override
+    public List<IUser> getAllUsers() throws AuthStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'getAllUsers'");
+    }
+
+    @Override
+    public void createUser(String loginId, String clientName) throws AuthStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'createUser'");
+    }
+
+    @Override
+    public IUser getUserByLoginId(String loginId) throws AuthStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'getUserByLoginId'");
+    }
+
+    @Override
+    public IUser updateUser(IUser user) throws AuthStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'updateUserClientActivity'");
+    }
+
+    @Override
+    public void deleteUser(IUser user) throws AuthStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+    }
+
+    @Override
+    public IFrontEndClient createClient(String clientName) {
+        throw new UnsupportedOperationException("Unimplemented method 'createClient'");
     }
 }

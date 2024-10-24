@@ -12,22 +12,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import dev.galasa.framework.api.beans.generated.UserData;
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.Environment;
-import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.users.UsersServlet;
 import dev.galasa.framework.api.common.JwtWrapper;
-import dev.galasa.framework.api.beans.generated.UserData;
 
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.IFramework;
-
-import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+import dev.galasa.framework.spi.auth.AuthStoreException;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IUser;
 
 public class UsersRoute extends BaseRoute {
 
@@ -36,13 +37,19 @@ public class UsersRoute extends BaseRoute {
 
     public static final String QUERY_PARAMETER_LOGIN_ID_VALUE_MYSELF = "me";
 
-    private IFramework framework;
     private Environment env;
+    private IAuthStoreService authStoreService;
+    private BeanTransformer beanTransformer ;
 
-    public UsersRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) {
+    public UsersRoute(ResponseBuilder responseBuilder, Environment env,
+            IAuthStoreService authStoreService) {
         super(responseBuilder, path);
-        this.framework = framework;
         this.env = env;
+        this.authStoreService = authStoreService;
+
+        String baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
+
+        this.beanTransformer = new BeanTransformer(baseServletUrl);
     }
 
     @Override
@@ -52,44 +59,49 @@ public class UsersRoute extends BaseRoute {
 
         logger.info("UserRoute: handleGetRequest() entered.");
 
-        validateQueryParam(queryParams, request.getServletPath());
+        List<UserData> usersList = new ArrayList<>();
+        String payloadContent = "[]";
 
-        List<UserData> usersList = getUsersList(request);
+        String loginId = queryParams.getSingleString(UsersServlet.QUERY_PARAM_LOGIN_ID, null);
 
-        String payloadContent = gson.toJson(usersList);
+        if (loginId != null) {
+            usersList = getUserByLoginIdList(request, loginId);
+        }
+        else{
+            Collection<IUser> users = authStoreService.getAllUsers();
+            usersList = beanTransformer.convertAllUsersToUserBean(users);
+        }
+
+        if (!usersList.isEmpty()) {
+            payloadContent = gson.toJson(usersList);
+        }
 
         return getResponseBuilder().buildResponse(
                 request, response, "application/json", payloadContent, HttpServletResponse.SC_OK);
     }
 
-    private void validateQueryParam(QueryParameters queryParams, String servletPath) throws InternalServletException {
-
-        String loginId = queryParams.getSingleString(UsersServlet.QUERY_PARAM_LOGIN_ID, null);
-
-        if(loginId == null){
-            ServletError error = new ServletError(GAL5082_NO_LOGINID_PARAM_PROVIDED, servletPath);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
-        
-        if (!loginId.trim().equalsIgnoreCase(QUERY_PARAMETER_LOGIN_ID_VALUE_MYSELF)) {
-            ServletError error = new ServletError(GAL5081_INVALID_QUERY_PARAM_VALUE, servletPath);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
-    }
-
-    private List<UserData> getUsersList(HttpServletRequest request) throws InternalServletException {
-
-        UserData userData = new UserData();
-        JwtWrapper jwtWrapper = new JwtWrapper(request, env);
-
-        String extractedUsernameFromToken = jwtWrapper.getUsername();
-
-        userData.setLoginId(extractedUsernameFromToken);
+    private List<UserData> getUserByLoginIdList(HttpServletRequest request, String loginId)
+            throws InternalServletException, AuthStoreException {
 
         List<UserData> usersList = new ArrayList<>();
-        usersList.add(userData);
+        List<IUser> userDocs = new ArrayList<>();
 
+        JwtWrapper jwtWrapper = new JwtWrapper(request, env);
+
+        if (loginId.equals("me")) {
+            loginId = jwtWrapper.getUsername();
+        }
+
+        IUser currentUser = authStoreService.getUserByLoginId(loginId);
+
+        if (currentUser != null) {
+            userDocs.add(currentUser);
+            usersList = beanTransformer.convertAllUsersToUserBean(userDocs);
+        }
+    
         return usersList;
     }
+
+    
 
 }

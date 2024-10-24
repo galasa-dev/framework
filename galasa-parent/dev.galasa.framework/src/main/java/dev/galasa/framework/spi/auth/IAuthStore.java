@@ -7,6 +7,7 @@ package dev.galasa.framework.spi.auth;
 
 import java.util.List;
 
+
 public interface IAuthStore {
 
     /**
@@ -44,5 +45,42 @@ public interface IAuthStore {
      */
     void deleteToken(String tokenId) throws AuthStoreException;
 
+    /**
+     * Returns a list of all the users using the system.
+     *
+     * @return a list of all users stored in the users store.
+     * @throws AuthStoreException if there is an issue accessing the users store.
+     */
+    List<IUser> getAllUsers() throws AuthStoreException;
+
+    /**
+     * Stores a new user record in the users store's database.
+     *
+     * @param loginId    the loginId of the user trying to access Galasa API
+     * @param clientName the name of the frontend client being used.
+     * @throws AuthStoreException if there is an issue accessing the users store.
+     */
+    void createUser(String loginId, String clientName) throws AuthStoreException;
+
+    /**
+     * Retrieves a user record in the users store's database.
+     *
+     * @param loginId    the loginId of the user trying to access Galasa API
+     * @throws AuthStoreException if there is an issue accessing the users store.
+     */
+    IUser getUserByLoginId(String loginId) throws AuthStoreException;
+
+    /**
+     * Updates a user record in the users store's database.
+     *
+     * @param user    The user that needs to be updated
+     * @throws AuthStoreException if there is an issue accessing the users store.
+     */
+    IUser updateUser(IUser user) throws AuthStoreException;
+
     void shutdown() throws AuthStoreException;
+
+    void deleteUser(IUser user) throws AuthStoreException;
+
+    IFrontEndClient createClient(String clientName);
 }

@@ -9,6 +9,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,8 +41,12 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
+import dev.galasa.framework.spi.auth.IUser;
+import dev.galasa.framework.spi.utils.ITimeService;
+import dev.galasa.framework.spi.utils.SystemTimeService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 public class AuthTokensRoute extends BaseRoute {
@@ -58,19 +63,27 @@ public class AuthTokensRoute extends BaseRoute {
     // Regex to match /auth/tokens and /auth/tokens/ only
     private static final String PATH_PATTERN = "\\/tokens\\/?";
 
+    private static final String REST_API_CLIENT = "rest-api";
+    private static final String WEB_UI_CLIENT = "web-ui";
+
     private static final IBeanValidator<TokenPayload> validator = new TokenPayloadValidator();
+
+    private ITimeService timeService;
 
     public AuthTokensRoute(
             ResponseBuilder responseBuilder,
             IOidcProvider oidcProvider,
             DexGrpcClient dexGrpcClient,
             IAuthStoreService authStoreService,
+            ITimeService timeService,
             Environment env) {
         super(responseBuilder, PATH_PATTERN);
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = dexGrpcClient;
         this.authStoreService = authStoreService;
         this.env = env;
+
+        this.timeService = timeService;
     }
 
     /**
@@ -102,7 +115,7 @@ public class AuthTokensRoute extends BaseRoute {
 
         // Convert the token received from the auth store into the token bean that will
         // be returned as JSON
-        List<AuthToken>tokensToReturn = convertAuthStoreTokenIntoTokenBeans(authTokensFromAuthStore);
+        List<AuthToken> tokensToReturn = convertAuthStoreTokenIntoTokenBeans(authTokensFromAuthStore);
 
         return getResponseBuilder().buildResponse(request, response, "application/json",
                 getTokensAsJsonString(tokensToReturn), HttpServletResponse.SC_OK);
@@ -181,6 +194,9 @@ public class AuthTokensRoute extends BaseRoute {
                 if (requestPayload.getRefreshToken() == null && tokenDescription != null) {
                     addTokenToAuthStore(requestPayload.getClientId(), jwt, tokenDescription);
                 }
+
+                boolean isWebUiLogin = isLoggingIntoWebUI(requestPayload.getRefreshToken(), tokenDescription);
+                recordUserJustLoggedIn(isWebUiLogin , jwt, this.timeService, this.env);
 
             } else {
                 logger.info("Unable to get new bearer and refresh tokens from issuer.");
@@ -295,6 +311,37 @@ public class AuthTokensRoute extends BaseRoute {
 
     }
 
+    // This method is protected so we can unit test it easily.
+    protected void recordUserJustLoggedIn(boolean isWebUI, String jwt, ITimeService timeService, Environment env)
+            throws InternalServletException, AuthStoreException {
+
+        JwtWrapper jwtWrapper = new JwtWrapper(jwt, env);
+        String loginId = jwtWrapper.getUsername();
+        IUser user;
+
+        String clientName = REST_API_CLIENT;
+        if (isWebUI) {
+            clientName = WEB_UI_CLIENT;
+        }
+
+        user = authStoreService.getUserByLoginId(loginId);
+
+        if (user == null) {
+            authStoreService.createUser(loginId, clientName);
+        } else {
+
+            IFrontEndClient client = user.getClient(clientName);
+            if (client == null) {
+                client = authStoreService.createClient(clientName);
+                user.addClient(client);
+            }
+
+            client.setLastLogin(timeService.now());
+
+            authStoreService.updateUser(user);
+        }
+    }
+
     private void validateLoginId(String loginId, String servletPath) throws InternalServletException {
 
         if (loginId == null || loginId.trim().length() == 0) {
@@ -303,4 +350,11 @@ public class AuthTokensRoute extends BaseRoute {
         }
 
     }
+
+    private boolean isLoggingIntoWebUI(String refreshToken, String tokenDescription) {
+
+        return (refreshToken == null && tokenDescription == null);
+
+    }
+
 }

@@ -46,6 +46,7 @@ public class MockAuthenticationServlet extends AuthenticationServlet {
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = dexGrpcClient;
         this.framework = framework;
+        this.timeService = timeService;
         setResponseBuilder(new ResponseBuilder(env));
     }
 
