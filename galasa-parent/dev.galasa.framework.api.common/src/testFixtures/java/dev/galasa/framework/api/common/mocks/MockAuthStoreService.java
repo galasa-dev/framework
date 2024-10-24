@@ -116,7 +116,6 @@ public class MockAuthStoreService implements IAuthStoreService {
 
     @Override
     public void deleteUser(IUser user) throws AuthStoreException {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
     }
 

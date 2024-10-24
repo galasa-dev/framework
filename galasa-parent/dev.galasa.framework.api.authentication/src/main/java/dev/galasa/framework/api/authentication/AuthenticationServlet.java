@@ -29,6 +29,8 @@ import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
+import dev.galasa.framework.spi.utils.ITimeService;
+import dev.galasa.framework.spi.utils.SystemTimeService;
 
 /**
  * Authentication Servlet that acts as a proxy to send requests to Dex's /token
@@ -46,6 +48,7 @@ public class AuthenticationServlet extends BaseServlet {
     private Log logger = LogFactory.getLog(getClass());
 
     protected Environment env = new SystemEnvironment();
+    protected ITimeService timeService = new SystemTimeService();
     protected IOidcProvider oidcProvider;
     protected DexGrpcClient dexGrpcClient;
 
@@ -67,7 +70,7 @@ public class AuthenticationServlet extends BaseServlet {
         addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService, env));
         addRoute(new AuthClientsRoute(getResponseBuilder(), dexGrpcClient));
         addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl));
-        addRoute(new AuthTokensRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService, env));
+        addRoute(new AuthTokensRoute(getResponseBuilder(), oidcProvider, dexGrpcClient, authStoreService,timeService,env));
         addRoute(new AuthTokensDetailsRoute(getResponseBuilder(), dexGrpcClient, authStoreService));
 
         logger.info("Galasa Authentication API initialised");

@@ -9,6 +9,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -67,14 +68,14 @@ public class AuthTokensRoute extends BaseRoute {
 
     private static final IBeanValidator<TokenPayload> validator = new TokenPayloadValidator();
 
-    private ITimeService timeService ;
+    private ITimeService timeService;
 
-    // TODO: Need to be passed a framework so we can get a timer service from it.
     public AuthTokensRoute(
             ResponseBuilder responseBuilder,
             IOidcProvider oidcProvider,
             DexGrpcClient dexGrpcClient,
             IAuthStoreService authStoreService,
+            ITimeService timeService,
             Environment env) {
         super(responseBuilder, PATH_PATTERN);
         this.oidcProvider = oidcProvider;
@@ -82,7 +83,7 @@ public class AuthTokensRoute extends BaseRoute {
         this.authStoreService = authStoreService;
         this.env = env;
 
-        this.timeService = new SystemTimeService();
+        this.timeService = timeService;
     }
 
     /**
@@ -195,7 +196,7 @@ public class AuthTokensRoute extends BaseRoute {
                 }
 
                 boolean isWebUiLogin = isLoggingIntoWebUI(requestPayload.getRefreshToken(), tokenDescription);
-                recordUserJustLoggedIn(isWebUiLogin , jwt , this.timeService, this.env);
+                recordUserJustLoggedIn(isWebUiLogin , jwt, this.timeService, this.env);
 
             } else {
                 logger.info("Unable to get new bearer and refresh tokens from issuer.");
@@ -311,7 +312,7 @@ public class AuthTokensRoute extends BaseRoute {
     }
 
     // This method is protected so we can unit test it easily.
-    protected void recordUserJustLoggedIn(boolean isWebUI, String jwt, ITimeService timeService , Environment env)
+    protected void recordUserJustLoggedIn(boolean isWebUI, String jwt, ITimeService timeService, Environment env)
             throws InternalServletException, AuthStoreException {
 
         JwtWrapper jwtWrapper = new JwtWrapper(jwt, env);

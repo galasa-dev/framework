@@ -57,6 +57,7 @@ public interface IAuthStore {
      * Stores a new user record in the users store's database.
      *
      * @param loginId    the loginId of the user trying to access Galasa API
+     * @param clientName the name of the frontend client being used.
      * @throws AuthStoreException if there is an issue accessing the users store.
      */
     void createUser(String loginId, String clientName) throws AuthStoreException;
@@ -70,7 +71,7 @@ public interface IAuthStore {
     IUser getUserByLoginId(String loginId) throws AuthStoreException;
 
     /**
-     * Retrieves a user record in the users store's database.
+     * Updates a user record in the users store's database.
      *
      * @param user    The user that needs to be updated
      * @throws AuthStoreException if there is an issue accessing the users store.

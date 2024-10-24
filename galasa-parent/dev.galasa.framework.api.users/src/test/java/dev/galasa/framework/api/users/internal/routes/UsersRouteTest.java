@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import javax.servlet.ServletOutputStream;
 
@@ -29,7 +28,6 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockTimeService;
 import dev.galasa.framework.api.common.mocks.MockUser;
 import dev.galasa.framework.api.users.mocks.MockUsersServlet;
-import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 
@@ -63,52 +61,20 @@ public class UsersRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
-        {
-            MockFrontEndClient newClient = new MockFrontEndClient("web-ui");
-            newClient.name = "web-ui";
-            newClient.lastLoginTime = Instant.parse("2024-10-18T14:49:50.096329Z");
-            
-
-            MockUser user1Data = new MockUser();
-            user1Data.userNumber = "docid";
-            user1Data.loginId = "user-1";
-            user1Data.addClient(newClient);
-
-            authStoreService.addUser(user1Data);
-        }
-
-        {
-            MockFrontEndClient newClient = new MockFrontEndClient("rest-api");
-            newClient.name = "rest-api";
-            newClient.lastLoginTime = Instant.parse("2024-10-18T14:49:50.096329Z");
-            
-
-            MockUser user1Data = new MockUser();
-            user1Data.userNumber = "docid-2";
-            user1Data.loginId = "user-2";
-            user1Data.addClient(newClient);
-
-            authStoreService.addUser(user1Data);
-        }
+        MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui");
+        authStoreService.addUser(mockUser1);
+    
+        MockUser mockUser2 = createMockUser("user-2", "docid-2", "rest-api");
+        authStoreService.addUser(mockUser2);
 
         // When...
         servlet.init();
         servlet.doGet(mockRequest, servletResponse);
 
 
-        FrontEndClient[] user1clients = new FrontEndClient[1];
-        FrontEndClient newClient = new FrontEndClient();
-        newClient.setClientName("web-ui");
-        newClient.setLastLogin("2024-10-18T14:49:50.096329Z");
-        user1clients[0] = newClient;
+        UserData user1GotBack = createUserGotBack("user-1","docid","web-ui", baseUrl);
 
-        UserData user1Data = new UserData();
-        user1Data.setid("docid");
-        user1Data.setLoginId("user-1");
-        user1Data.setclients(user1clients);
-        user1Data.seturl(baseUrl + "/users/" + user1Data.getid());
-
-        List<UserData> users = List.of(user1Data);
+        List<UserData> users = List.of(user1GotBack);
 
         String gotBackPayload = outStream.toString();
         String expectedPayload = gson.toJson(users);
@@ -137,64 +103,22 @@ public class UsersRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
-        {
-            MockFrontEndClient newClient = new MockFrontEndClient("web-ui");
-            newClient.name = "web-ui";
-            newClient.lastLoginTime = Instant.parse("2024-10-18T14:49:50.096329Z");
-            
-
-            MockUser user1Data = new MockUser();
-            user1Data.userNumber = "docid";
-            user1Data.loginId = "user-1";
-            user1Data.addClient(newClient);
-
-            authStoreService.addUser(user1Data);
-        }
-
-        {
-            MockFrontEndClient newClient = new MockFrontEndClient("rest-api");
-            newClient.name = "rest-api";
-            newClient.lastLoginTime = Instant.parse("2024-10-18T14:49:50.096329Z");
-            
-
-            MockUser user1Data = new MockUser();
-            user1Data.userNumber = "docid-2";
-            user1Data.loginId = "user-2";
-            user1Data.addClient(newClient);
-
-            authStoreService.addUser(user1Data);
-        }
+        
+        MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui");
+        authStoreService.addUser(mockUser1);
+    
+        MockUser mockUser2 = createMockUser("user-2", "docid-2", "rest-api");
+        authStoreService.addUser(mockUser2);
+        
 
         // When...
         servlet.init();
         servlet.doGet(mockRequest, servletResponse);
 
+        UserData user1GotBack = createUserGotBack("user-1","docid","web-ui", baseUrl);
+        UserData user2GotBack = createUserGotBack("user-2","docid-2","rest-api", baseUrl);
 
-        FrontEndClient[] user1clients = new FrontEndClient[1];
-        FrontEndClient newClient = new FrontEndClient();
-        newClient.setClientName("web-ui");
-        newClient.setLastLogin("2024-10-18T14:49:50.096329Z");
-        user1clients[0] = newClient;
-
-        UserData user1Data = new UserData();
-        user1Data.setid("docid");
-        user1Data.setLoginId("user-1");
-        user1Data.setclients(user1clients);
-        user1Data.seturl(baseUrl + "/users/" + user1Data.getid());
-
-        FrontEndClient[] user2clients = new FrontEndClient[1];
-        FrontEndClient newClient2 = new FrontEndClient();
-        newClient2.setClientName("rest-api");
-        newClient2.setLastLogin("2024-10-18T14:49:50.096329Z");
-        user2clients[0] = newClient2;
-
-        UserData user2Data = new UserData();
-        user2Data.setid("docid-2");
-        user2Data.setLoginId("user-2");
-        user2Data.setclients(user2clients);
-        user2Data.seturl(baseUrl + "/users/" + user2Data.getid());
-
-        List<UserData> users = List.of(user1Data, user2Data);
+        List<UserData> users = List.of(user1GotBack, user2GotBack);
 
         String gotBackPayload = outStream.toString();
         String expectedPayload = gson.toJson(users);
@@ -202,6 +126,38 @@ public class UsersRouteTest extends BaseServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(200);
         assertThat(gotBackPayload).isEqualTo(expectedPayload);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+    }
+
+    private MockUser createMockUser(String loginId, String userNumber, String clientName){
+
+        MockFrontEndClient newClient = new MockFrontEndClient("web-ui");
+        newClient.name = clientName;
+        newClient.lastLoginTime = Instant.parse("2024-10-18T14:49:50.096329Z");
+            
+
+        MockUser mockUser = new MockUser();
+        mockUser.userNumber = userNumber;
+        mockUser.loginId = loginId;
+        mockUser.addClient(newClient);
+
+        return mockUser;
+
+    }
+
+    private UserData createUserGotBack(String loginId, String userNumber, String clientName, String baseUrl){
+        FrontEndClient[] user1clients = new FrontEndClient[1];
+        FrontEndClient newClient = new FrontEndClient();
+        newClient.setClientName(clientName);
+        newClient.setLastLogin("2024-10-18T14:49:50.096329Z");
+        user1clients[0] = newClient;
+
+        UserData userData = new UserData();
+        userData.setid(userNumber);
+        userData.setLoginId(loginId);
+        userData.setclients(user1clients);
+        userData.seturl(baseUrl + "/users/" + userData.getid());
+
+        return userData;
     }
 
 }

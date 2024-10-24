@@ -104,7 +104,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
     @Test
     public void testAuthTokensRouteRegexMatchesOnlyTokens(){
         //Given...
-        String tokensRoutePath = new AuthTokensRoute(null, null, null, null, null).getPath().toString();
+        String tokensRoutePath = new AuthTokensRoute(null, null, null, null,null, null).getPath().toString();
 
         //When...
         Pattern tokensRoutePattern = Pattern.compile(tokensRoutePath);
@@ -895,7 +895,6 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         // Given...
         JsonObject dummyErrorJson = new JsonObject();
-        dummyErrorJson.addProperty("error", "oh no, something went wrong!");
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(gson.toJson(dummyErrorJson));
 
         ResponseBuilder responseBuilder = new ResponseBuilder();
@@ -928,6 +927,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
             mockOidcProvider,
             mockDexGrpcClient,
             authStoreService,
+            mockTimeService,
             mockEnv);
 
         boolean isWebUiJustLoggedIn = true ;
@@ -960,7 +960,6 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         // Given...
         JsonObject dummyErrorJson = new JsonObject();
-        dummyErrorJson.addProperty("error", "oh no, something went wrong!");
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(gson.toJson(dummyErrorJson));
 
         ResponseBuilder responseBuilder = new ResponseBuilder();
@@ -970,7 +969,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
 
         
-        Instant now = Instant.MIN.plusMillis(3) ;
+        Instant now = Instant.MIN.plusMillis(3);
         MockTimeService mockTimeService = new MockTimeService(now);
 
         String userNumberInput = "567890";
@@ -997,10 +996,11 @@ public class AuthTokensRouteTest extends BaseServletTest {
             mockOidcProvider,
             mockDexGrpcClient,
             authStoreService,
+            mockTimeService,
             mockEnv);
 
         // When...
-        route.recordUserJustLoggedIn(isWebUiJustLoggedIn,dummyJwt, mockTimeService, mockEnv);
+        route.recordUserJustLoggedIn(isWebUiJustLoggedIn,dummyJwt, mockTimeService,mockEnv);
 
         // Then...
         IUser userGotBack = authStoreService.getUserByLoginId("requestorId");
@@ -1019,7 +1019,6 @@ public class AuthTokensRouteTest extends BaseServletTest {
         // Given...
 
         JsonObject dummyErrorJson = new JsonObject();
-        dummyErrorJson.addProperty("error", "oh no, something went wrong!");
         HttpResponse<String> mockResponse = new MockHttpResponse<String>(gson.toJson(dummyErrorJson));
 
         ResponseBuilder responseBuilder = new ResponseBuilder();
@@ -1044,6 +1043,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
             mockOidcProvider,
             mockDexGrpcClient,
             authStoreService,
+            mockTimeService,
             mockEnv);
 
         boolean isWebUiJustLoggedIn = true ;
