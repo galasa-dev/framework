@@ -128,13 +128,14 @@ public enum ServletErrorMessage {
     GAL5082_NO_LOGINID_PARAM_PROVIDED                 (5082, "E: A request to get the user details failed. The request did not supply a ‘loginId’ filter. A ‘loginId’ query parameter with a value of : ‘me’ was expected. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program."),
 
     // Secrets APIs...
-    GAL5090_INVALID_SECRET_NAME_PROVIDED              (5090, "E: Invalid secret name provided. The name of a Galasa secret cannot be empty or contain only spaces or tabs. Check your request payload and try again."),
-    GAL5091_ERROR_SECRET_NOT_FOUND                    (5091, "E: Unable to retrieve a secret with the given name. No such secret exists. Check your request query parameters and try again."),
-    GAL5092_FAILED_TO_GET_SECRET_FROM_CREDS           (5092, "E: Failed to retrieve a secret with the given name from the credentials store. The credentials store might be badly configured or could be experiencing a temporary issue. Report the problem to your Galasa Ecosystem owner."),
-    GAL5093_ERROR_PASSWORD_AND_TOKEN_PROVIDED         (5093, "E: Invalid secret payload provided. The ''password'' and ''token'' fields are mutually exclusive and cannot be provided in the same secret. Check your request payload and try again."),
-    GAL5094_ERROR_MISSING_SECRET_VALUE                (5094, "E: Invalid secret payload provided. One or more secret fields in your request payload are missing a ''value''. Check your request payload and try again."),
-    GAL5095_FAILED_TO_DECODE_SECRET_VALUE             (5095, "E: Failed to decode a provided secret value. Expected the value to be encoded in ''{0}'' format but it was not. Check your request values are properly encoded and try again."),
-    GAL5096_ERROR_PASSWORD_MISSING_USERNAME           (5096, "E: Invalid secret payload provided. A ''password'' field was provided but the ''username'' field was missing. Check your request payload and try again."),
+    GAL5092_INVALID_SECRET_NAME_PROVIDED              (5092, "E: Invalid secret name provided. The name of a Galasa secret cannot be empty or contain only spaces or tabs. Check your request payload and try again."),
+    GAL5093_ERROR_SECRET_NOT_FOUND                    (5093, "E: Unable to retrieve a secret with the given name. No such secret exists. Check your request query parameters and try again."),
+    GAL5094_FAILED_TO_GET_SECRET_FROM_CREDS           (5094, "E: Failed to retrieve a secret with the given name from the credentials store. The credentials store might be badly configured or could be experiencing a temporary issue. Report the problem to your Galasa Ecosystem owner."),
+    GAL5095_ERROR_PASSWORD_AND_TOKEN_PROVIDED         (5095, "E: Invalid secret payload provided. The ''password'' and ''token'' fields are mutually exclusive and cannot be provided in the same secret. Check your request payload and try again."),
+    GAL5096_ERROR_MISSING_SECRET_VALUE                (5096, "E: Invalid secret payload provided. One or more secret fields in your request payload are missing a ''value''. Check your request payload and try again."),
+    GAL5097_FAILED_TO_DECODE_SECRET_VALUE             (5097, "E: Failed to decode a provided secret value. Expected the value to be encoded in ''{0}'' format but it was not. Check your request values are properly encoded and try again."),
+    GAL5098_ERROR_PASSWORD_MISSING_USERNAME           (5098, "E: Invalid secret payload provided. A ''password'' field was provided but the ''username'' field was missing. Check your request payload and try again."),
+    GAL5099_ERROR_MISSING_REQUIRED_SECRET_FIELD       (5099, "E: Invalid secret payload provided. The ''{0}'' type was provided but the required ''{1}'' field was missing. Check your request payload and try again."),
     ;
 
 

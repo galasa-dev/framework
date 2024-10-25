@@ -19,14 +19,21 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.ICredentials;
 import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.SecretRequest;
-import dev.galasa.framework.api.common.HttpMethod;
+import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
+import dev.galasa.framework.api.beans.generated.SecretRequesttoken;
+import dev.galasa.framework.api.beans.generated.SecretRequestusername;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.secrets.internal.SecretRequestValidator;
+import dev.galasa.framework.api.secrets.internal.UpdateSecretRequestValidator;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.creds.CredentialsException;
+import dev.galasa.framework.spi.creds.CredentialsToken;
+import dev.galasa.framework.spi.creds.CredentialsUsername;
+import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
+import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 
 public class SecretDetailsRoute extends AbstractSecretsRoute {
@@ -41,15 +48,13 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
 
     private ICredentialsService credentialsService;
 
-    private SecretRequestValidator updateSecretValidator = new SecretRequestValidator(HttpMethod.PUT);
-
     private Log logger = LogFactory.getLog(getClass());
 
     public SecretDetailsRoute(ResponseBuilder responseBuilder, ICredentialsService credentialsService) {
         super(responseBuilder, PATH_PATTERN);
         this.credentialsService = credentialsService;
     }
-    
+
     @Override
     public HttpServletResponse handleGetRequest(
         String pathInfo,
@@ -76,25 +81,40 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
     ) throws FrameworkException, IOException {
         logger.info("handlePutRequest() entered. Validating request payload");
         checkRequestHasContent(request);
+
+        String secretName = getSecretNameFromPath(pathInfo);
+        ICredentials existingSecret = credentialsService.getCredentials(secretName);
+
+        boolean isCreatingSecret = (existingSecret == null);
+        SecretRequestValidator updateSecretValidator = new UpdateSecretRequestValidator(isCreatingSecret);
+
         SecretRequest secretPayload = parseRequestBody(request, SecretRequest.class);
         updateSecretValidator.validate(secretPayload);
 
         logger.info("Request payload validated OK");
 
-        String secretName = getSecretNameFromPath(pathInfo);
-        ICredentials decodedSecret = decodeCredentialsFromSecretPayload(secretPayload);
+        ICredentials decodedSecret = null;
 
         int responseCode = HttpServletResponse.SC_NO_CONTENT;
-        if (credentialsService.getCredentials(secretName) == null) {
-            // The secret doesn't already exist, so the secret will be created
+        if (isCreatingSecret) {
+            // No secret with the given name exists, so create a new one
+            decodedSecret = decodeCredentialsFromSecretPayload(secretPayload);
             responseCode = HttpServletResponse.SC_CREATED;
+        } else if (secretPayload.gettype() != null) {
+            // When a secret type is given, all relevant fields for that type are required,
+            // so overwrite the existing secret to change its type
+            decodedSecret = decodeCredentialsFromSecretPayload(secretPayload);
+        } else {
+            // A secret already exists and no type was given, so just update the secret by
+            // overriding its existing values with the values provided in the request
+            decodedSecret = getOverriddenSecret(existingSecret, secretPayload);
         }
         credentialsService.setCredentials(secretName, decodedSecret);
 
         logger.info("handlePutRequest() exiting");
         return getResponseBuilder().buildResponse(request, response, responseCode);
     }
-    
+
     @Override
     public HttpServletResponse handleDeleteRequest(
         String pathInfo,
@@ -123,7 +143,7 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
             ICredentials credentials = credentialsService.getCredentials(secretName);
 
             if (credentials == null) {
-                ServletError error = new ServletError(GAL5091_ERROR_SECRET_NOT_FOUND);
+                ServletError error = new ServletError(GAL5093_ERROR_SECRET_NOT_FOUND);
                 throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
 
@@ -131,7 +151,7 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
 
             secret = createGalasaSecretFromCredentials(secretName, credentials);
         } catch (CredentialsException e) {
-            ServletError error = new ServletError(GAL5092_FAILED_TO_GET_SECRET_FROM_CREDS);
+            ServletError error = new ServletError(GAL5094_FAILED_TO_GET_SECRET_FROM_CREDS);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         return secret;
@@ -153,5 +173,65 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
             ServletError error = new ServletError(GAL5078_FAILED_TO_DELETE_SECRET);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private ICredentials getOverriddenSecret(ICredentials existingSecret, SecretRequest secretRequest) throws InternalServletException {
+        ICredentials overriddenSecret = existingSecret;
+
+        if (existingSecret instanceof CredentialsUsername) {
+            CredentialsUsername usernameSecret = (CredentialsUsername) existingSecret;
+            String overriddenUsername = getOverriddenUsername(usernameSecret.getUsername(), secretRequest.getusername());
+            overriddenSecret = new CredentialsUsername(overriddenUsername);
+        } else if (existingSecret instanceof CredentialsToken) {
+            CredentialsToken tokenSecret = (CredentialsToken) existingSecret;
+            String overriddenToken = getOverriddenToken(new String(tokenSecret.getToken()), secretRequest.gettoken());
+            overriddenSecret = new CredentialsToken(overriddenToken);
+        } else if (existingSecret instanceof CredentialsUsernamePassword) {
+            CredentialsUsernamePassword usernamePasswordSecret = (CredentialsUsernamePassword) existingSecret;
+            String overriddenUsername = getOverriddenUsername(usernamePasswordSecret.getUsername(), secretRequest.getusername());
+            String overriddenPassword = getOverriddenPassword(usernamePasswordSecret.getPassword(), secretRequest.getpassword());
+            overriddenSecret = new CredentialsUsernamePassword(overriddenUsername, overriddenPassword);
+        } else if (existingSecret instanceof CredentialsUsernameToken) {
+            CredentialsUsernameToken usernameTokenSecret = (CredentialsUsernameToken) existingSecret;
+            String overriddenUsername = getOverriddenUsername(usernameTokenSecret.getUsername(), secretRequest.getusername());
+            String overriddenToken = getOverriddenToken(new String(usernameTokenSecret.getToken()), secretRequest.gettoken());
+            overriddenSecret = new CredentialsUsernameToken(overriddenUsername, overriddenToken);
+        }
+        return overriddenSecret;
+    }
+
+    private String getOverriddenValue(String originalValue, String possibleOverride) {
+        String newValue = originalValue;
+        if (possibleOverride != null) {
+            newValue = possibleOverride;
+        }
+        return newValue;
+    }
+
+    private String getOverriddenUsername(String existingUsername, SecretRequestusername requestUsername) throws InternalServletException {
+        String overriddenUsername = existingUsername;
+        if (requestUsername != null) {
+            String possiblyDecodedUsername = decodeSecretValue(requestUsername.getvalue(), requestUsername.getencoding());
+            overriddenUsername = getOverriddenValue(existingUsername, possiblyDecodedUsername);
+        }
+        return overriddenUsername;
+    }
+
+    private String getOverriddenPassword(String existingPassword, SecretRequestpassword requestPassword) throws InternalServletException {
+        String overriddenPassword = existingPassword;
+        if (requestPassword != null) {
+            String possiblyDecodedPassword = decodeSecretValue(requestPassword.getvalue(), requestPassword.getencoding());
+            overriddenPassword = getOverriddenValue(existingPassword, possiblyDecodedPassword);
+        }
+        return overriddenPassword;
+    }
+
+    private String getOverriddenToken(String existingToken, SecretRequesttoken requestToken) throws InternalServletException {
+        String overriddenToken = existingToken;
+        if (requestToken != null) {
+            String possiblyDecodedToken = decodeSecretValue(requestToken.getvalue(), requestToken.getencoding());
+            overriddenToken = getOverriddenValue(existingToken, possiblyDecodedToken);
+        }
+        return overriddenToken;
     }
 }

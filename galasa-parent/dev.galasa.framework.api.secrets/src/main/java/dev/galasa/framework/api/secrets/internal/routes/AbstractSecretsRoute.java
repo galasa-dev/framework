@@ -5,7 +5,8 @@
  */
 package dev.galasa.framework.api.secrets.internal.routes;
 
-import static dev.galasa.framework.api.common.ServletErrorMessage.GAL5095_FAILED_TO_DECODE_SECRET_VALUE;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+import static dev.galasa.framework.api.beans.generated.GalasaSecretType.*;
 
 import java.util.Base64;
 
@@ -19,7 +20,6 @@ import dev.galasa.ICredentialsUsernameToken;
 import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.GalasaSecretdata;
 import dev.galasa.framework.api.beans.generated.GalasaSecretmetadata;
-import dev.galasa.framework.api.beans.generated.GalasaSecretmetadatatype;
 import dev.galasa.framework.api.beans.generated.SecretRequest;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
 import dev.galasa.framework.api.beans.generated.SecretRequesttoken;
@@ -87,16 +87,16 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
         return credentials;
     }
 
-    private String decodeSecretValue(String possiblyEncodedValue, String encoding) throws InternalServletException {
+    protected String decodeSecretValue(String possiblyEncodedValue, String encoding) throws InternalServletException {
         String decodedValue = possiblyEncodedValue;
-        if (encoding != null) {
+        if (encoding != null && possiblyEncodedValue != null) {
             try {
                 if (encoding.equalsIgnoreCase(DEFAULT_RESPONSE_ENCODING)) {
                     byte[] decodedBytes = Base64.getDecoder().decode(possiblyEncodedValue);
                     decodedValue = new String(decodedBytes);
                 }
             } catch (IllegalArgumentException e) {
-                ServletError error = new ServletError(GAL5095_FAILED_TO_DECODE_SECRET_VALUE, DEFAULT_RESPONSE_ENCODING);
+                ServletError error = new ServletError(GAL5097_FAILED_TO_DECODE_SECRET_VALUE, DEFAULT_RESPONSE_ENCODING);
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
         }
@@ -108,24 +108,24 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
             ICredentialsUsername usernameCredentials = (ICredentialsUsername) credentials;
             data.setusername(encodeValue(usernameCredentials.getUsername()));
 
-            metadata.settype(GalasaSecretmetadatatype.Username);
+            metadata.settype(Username);
         } else if (credentials instanceof CredentialsUsernamePassword) {
             ICredentialsUsernamePassword usernamePasswordCredentials = (ICredentialsUsernamePassword) credentials;
             data.setusername(encodeValue(usernamePasswordCredentials.getUsername()));
             data.setpassword(encodeValue(usernamePasswordCredentials.getPassword()));
 
-            metadata.settype(GalasaSecretmetadatatype.USERNAME_PASSWORD);
+            metadata.settype(USERNAME_PASSWORD);
         } else if (credentials instanceof CredentialsUsernameToken) {
             ICredentialsUsernameToken usernameTokenCredentials = (ICredentialsUsernameToken) credentials;
             data.setusername(encodeValue(usernameTokenCredentials.getUsername()));
             data.settoken(encodeValue(new String(usernameTokenCredentials.getToken())));
 
-            metadata.settype(GalasaSecretmetadatatype.USERNAME_TOKEN);
+            metadata.settype(USERNAME_TOKEN);
         } else if (credentials instanceof CredentialsToken) {
             ICredentialsToken tokenCredentials = (ICredentialsToken) credentials;
             data.settoken(encodeValue(new String(tokenCredentials.getToken())));
 
-            metadata.settype(GalasaSecretmetadatatype.Token);
+            metadata.settype(Token);
         }
     }
 

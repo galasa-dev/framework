@@ -2049,8 +2049,7 @@ components:
                 The character encoding scheme that has already been applied to all the values within the 'data' field.
                 Currently, 'base64' is the only supported encoding scheme.
             type:
-              type: string
-              enum: [UsernamePassword, Username, UsernameToken, Token]
+              $ref: '#/components/schemas/GalasaSecretType'
               description: |
                 The type of the Galasa Secret resource. Supported types are 'UsernamePassword', 'Username',
                 'UsernameToken', 'Token'.
@@ -2075,6 +2074,10 @@ components:
                 A token for a system. Required if the Secret 'type' is set to 'UsernameToken' or 'Token'.
                 If the 'encoding' has been set in the metadata, this value must already be encoded with
                 the given encoding scheme (e.g. base64).
+    GalasaSecretType:
+      type: string
+      description: The type of a Galasa Secret
+      enum: [UsernamePassword, Username, UsernameToken, Token]
     APIErrorArray:
       type: array
       description: An array of API Errors relating to the resources that failed to complete as expected
@@ -2106,6 +2109,10 @@ components:
         name:
           type: string
           description: The name of the secret to create or update
+        type:
+          type: string
+          description: The type of the secret to create or update
+          $ref: '#/components/schemas/GalasaSecretType'
         username:
           type: object
           description: The username to create or update in the Credentials Store.

@@ -22,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.ICredentials;
 import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.SecretRequest;
-import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -37,7 +36,7 @@ public class SecretsRoute extends AbstractSecretsRoute {
     private static final String PATH_PATTERN = "\\/?";
 
     private ICredentialsService credentialsService;
-    private SecretRequestValidator createSecretValidator = new SecretRequestValidator(HttpMethod.POST);
+    private SecretRequestValidator createSecretValidator = new SecretRequestValidator();
 
     private Log logger = LogFactory.getLog(getClass());
 

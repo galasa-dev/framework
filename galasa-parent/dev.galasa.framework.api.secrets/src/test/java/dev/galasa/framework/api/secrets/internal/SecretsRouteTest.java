@@ -242,7 +242,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5095, "GAL5095E",
+        checkErrorStructure(output, 5097, "GAL5097E",
             "Expected the value to be encoded in 'base64' format but it was not.");
     }
 
@@ -278,7 +278,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5093, "GAL5093E",
+        checkErrorStructure(output, 5095, "GAL5095E",
             "The 'password' and 'token' fields are mutually exclusive");
     }
 
@@ -312,7 +312,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5090, "GAL5090E",
+        checkErrorStructure(output, 5092, "GAL5092E",
             "The name of a Galasa secret cannot be empty or contain only spaces or tabs");
     }
 
@@ -348,7 +348,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5090, "GAL5090E",
+        checkErrorStructure(output, 5092, "GAL5092E",
             "The name of a Galasa secret cannot be empty or contain only spaces or tabs");
     }
 
@@ -384,7 +384,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5094, "GAL5094E",
+        checkErrorStructure(output, 5096, "GAL5096E",
             "One or more secret fields in your request payload are missing a 'value'");
     }
 
@@ -420,7 +420,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5094, "GAL5094E",
+        checkErrorStructure(output, 5096, "GAL5096E",
             "One or more secret fields in your request payload are missing a 'value'");
     }
 
@@ -456,7 +456,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5094, "GAL5094E",
+        checkErrorStructure(output, 5096, "GAL5096E",
             "One or more secret fields in your request payload are missing a 'value'");
     }
 
@@ -492,7 +492,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5094, "GAL5094E",
+        checkErrorStructure(output, 5096, "GAL5096E",
             "One or more secret fields in your request payload are missing a 'value'");
     }
 
@@ -528,7 +528,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5094, "GAL5094E",
+        checkErrorStructure(output, 5096, "GAL5096E",
             "One or more secret fields in your request payload are missing a 'value'");
     }
 
@@ -562,7 +562,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5094, "GAL5094E",
+        checkErrorStructure(output, 5096, "GAL5096E",
             "One or more secret fields in your request payload are missing a 'value'");
     }
 
@@ -631,7 +631,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5096, "GAL5096E",
+        checkErrorStructure(output, 5098, "GAL5098E",
             "A 'password' field was provided but the 'username' field was missing");
     }
 

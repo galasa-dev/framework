@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.secrets.internal;
 
 import static org.assertj.core.api.Assertions.*;
+import static dev.galasa.framework.api.common.resources.GalasaSecretType.*;
 
 import java.util.Base64;
 import java.util.HashMap;
@@ -111,7 +112,7 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(404);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
-        checkErrorStructure(outStream.toString(), 5091, "GAL5091E",
+        checkErrorStructure(outStream.toString(), 5093, "GAL5093E",
             "Unable to retrieve a secret with the given name");
     }
 
@@ -142,7 +143,7 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(500);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
-        checkErrorStructure(outStream.toString(), 5092, "GAL5092E",
+        checkErrorStructure(outStream.toString(), 5094, "GAL5094E",
             "Failed to retrieve a secret with the given name from the credentials store");
     }
 
@@ -269,9 +270,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         assertThat(outStream.toString()).isEmpty();
 
         assertThat(credsService.getAllCredentials()).hasSize(1);
-        CredentialsUsername updatedCredentials = (CredentialsUsername) credsService.getCredentials(secretName);
+        CredentialsUsernamePassword updatedCredentials = (CredentialsUsernamePassword) credsService.getCredentials(secretName);
         assertThat(updatedCredentials).isNotNull();
         assertThat(updatedCredentials.getUsername()).isEqualTo(newUsername);
+        assertThat(updatedCredentials.getPassword()).isEqualTo(oldPassword);
     }
 
     @Test
@@ -319,15 +321,15 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
     }
 
     @Test
-    public void testUpdateSecretUsernameTokenUpdatesSecretOk() throws Exception {
+    public void testUpdateTokenSecretUpdatesValueOk() throws Exception {
         // Given...
         Map<String, ICredentials> creds = new HashMap<>();
         String secretName = "BOB";
-        String oldUsername = "my-username";
+        String oldToken = "my-old-token";
         String newToken = "my-new-token";
 
         // Put an existing secret into the credentials store
-        creds.put(secretName, new CredentialsUsername(oldUsername));
+        creds.put(secretName, new CredentialsToken(oldToken));
 
         JsonObject secretJson = new JsonObject();
         secretJson.add("token", createSecretJson(newToken));
@@ -359,6 +361,245 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
     }
 
     @Test
+    public void testUpdateUsernameTokenSecretUpdatesValueOk() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldUsername = "my-old-username";
+        String oldToken = "my-old-token";
+        String newToken = "my-new-token";
+
+        // Put an existing secret into the credentials store
+        creds.put(secretName, new CredentialsUsernameToken(oldUsername, oldToken));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("token", createSecretJson(newToken));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsUsernameToken updatedCredentials = (CredentialsUsernameToken) credsService.getCredentials(secretName);
+        assertThat(updatedCredentials).isNotNull();
+        assertThat(updatedCredentials.getUsername()).isEqualTo(oldUsername);
+        assertThat(updatedCredentials.getToken()).isEqualTo(newToken.getBytes());
+    }
+
+    @Test
+    public void testUpdateUsernameSecretUpdatesValueOk() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldUsername = "my-old-username";
+        String newUsername = "my-new-username";
+
+        // Put an existing secret into the credentials store
+        creds.put(secretName, new CredentialsUsername(oldUsername));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("username", createSecretJson(newUsername));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsUsername updatedCredentials = (CredentialsUsername) credsService.getCredentials(secretName);
+        assertThat(updatedCredentials).isNotNull();
+        assertThat(updatedCredentials.getUsername()).isEqualTo(newUsername);
+    }
+
+    @Test
+    public void testUpdateSecretToTokenChangesSecretTypeOk() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldUsername = "my-username";
+        String newToken = "my-new-token";
+
+        // Put an existing secret into the credentials store
+        creds.put(secretName, new CredentialsUsername(oldUsername));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("type", TOKEN.toString());
+        secretJson.add("token", createSecretJson(newToken));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsToken updatedCredentials = (CredentialsToken) credsService.getCredentials(secretName);
+        assertThat(updatedCredentials).isNotNull();
+        assertThat(updatedCredentials.getToken()).isEqualTo(newToken.getBytes());
+    }
+
+    @Test
+    public void testUpdateSecretWithUnknownTypeReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldUsername = "my-username";
+        String newUsername = "my-new-username";
+
+        // Put an existing secret into the credentials store
+        creds.put(secretName, new CredentialsUsername(oldUsername));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("type", "UNKNOWN TYPE");
+        secretJson.add("username", createSecretJson(newUsername));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+        checkErrorStructure(outStream.toString(), 5074, "GAL5074E",
+            "Unknown GalasaSecret type provided");
+    }
+
+    @Test
+    public void testUpdateSecretWithTypeAndMissingFieldsReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldUsername = "my-username";
+        String newUsername = "my-new-username";
+
+        // Put an existing secret into the credentials store
+        creds.put(secretName, new CredentialsUsername(oldUsername));
+
+        // Create a request to change a secret into a UsernameToken, but is missing a token
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("type", USERNAME_TOKEN.toString());
+        secretJson.add("username", createSecretJson(newUsername));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+        checkErrorStructure(outStream.toString(), 5099, "GAL5099E",
+            "The 'UsernameToken' type was provided but the required 'token' field was missing");
+    }
+
+    @Test
+    public void testUpdateSecretWithPasswordAndTokenPayloadReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldToken = "my-old-token";
+        String newToken = "my-new-token";
+        String newPassword = "my-new-password";
+
+        // Put an existing secret into the credentials store
+        creds.put(secretName, new CredentialsToken(oldToken));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("password", createSecretJson(newPassword));
+        secretJson.add("token", createSecretJson(newToken));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+        checkErrorStructure(outStream.toString(), 5095, "GAL5095E",
+            "The 'password' and 'token' fields are mutually exclusive");
+    }
+
+    @Test
     public void testUpdateSecretWithMixedEncodingUpdatesSecretOk() throws Exception {
         // Given...
         Map<String, ICredentials> creds = new HashMap<>();
@@ -372,6 +613,7 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         creds.put(secretName, new CredentialsUsername(oldUsername));
 
         JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("type", USERNAME_TOKEN.toString());
         secretJson.add("username", createSecretJson(newUsername));
         secretJson.add("token", createSecretJson(newTokenEncoded, "base64"));
         String secretJsonStr = gson.toJson(secretJson);
@@ -437,6 +679,74 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         CredentialsToken updatedCredentials = (CredentialsToken) credsService.getCredentials(secretName);
         assertThat(updatedCredentials).isNotNull();
         assertThat(updatedCredentials.getToken()).isEqualTo(newToken.getBytes());
+    }
+
+    @Test
+    public void testUpdateNonExistantSecretWithPasswordAndTokenPayloadReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String newToken = "my-new-token";
+        String newPassword = "my-new-password";
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("password", createSecretJson(newPassword));
+        secretJson.add("token", createSecretJson(newToken));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+        checkErrorStructure(outStream.toString(), 5095, "GAL5095E",
+            "The 'password' and 'token' fields are mutually exclusive");
+    }
+
+    @Test
+    public void testUpdateNonExistantSecretWithPasswordOnlyPayloadReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String newPassword = "my-new-password";
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("password", createSecretJson(newPassword));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+        checkErrorStructure(outStream.toString(), 5098, "GAL5098E",
+            "A 'password' field was provided but the 'username' field was missing");
     }
 
     @Test
