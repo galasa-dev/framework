@@ -200,7 +200,7 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(404);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
         checkErrorStructure(outStream.toString(), 5076, "GAL5076E",
-            "Error occurred. A secret with the provided ID does not exist.");
+            "Error occurred. A secret with the provided name does not exist.");
     }
 
     @Test

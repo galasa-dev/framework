@@ -554,7 +554,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Then...
         assertThat(thrown).isNotNull();
         checkErrorStructure(thrown.getMessage(), 5076, "GAL5076E",
-            "A secret with the provided ID does not exist");
+            "A secret with the provided name does not exist");
     }
 
     @Test

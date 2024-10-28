@@ -96,10 +96,10 @@ public enum ServletErrorMessage {
     GAL5073_UNSUPPORTED_GALASA_SECRET_ENCODING        (5073, "E: Unsupported data encoding scheme provided. Supported encoding schemes are: [{0}]. Check that your request payload is correct and try again."),
     GAL5074_UNKNOWN_GALASA_SECRET_TYPE                (5074, "E: Unknown GalasaSecret type provided. Supported GalasaSecret types are: [{0}]. Check that your request payload is correct and try again."),
     GAL5075_ERROR_SECRET_ALREADY_EXISTS               (5075, "E: Error occurred when trying to create a secret with the given name. A secret with the provided name already exists."),
-    GAL5076_ERROR_SECRET_DOES_NOT_EXIST               (5076, "E: Error occurred. A secret with the provided ID does not exist. Check that your provided secret name is correct and try again."),
+    GAL5076_ERROR_SECRET_DOES_NOT_EXIST               (5076, "E: Error occurred. A secret with the provided name does not exist. Check that your provided secret name is correct and try again."),
     GAL5077_FAILED_TO_SET_SECRET                      (5077, "E: Failed to set a secret with the given ID in the credentials store. The credentials store might be experiencing temporary issues. Report the problem to your Galasa Ecosystem owner."),
     GAL5078_FAILED_TO_DELETE_SECRET                   (5078, "E: Failed to delete a secret with the given ID from the credentials store. The credentials store might be experiencing temporary issues. Report the problem to your Galasa Ecosystem owner."),
-    GAL5079_FAILED_TO_GET_SECRET                      (5079, "E: Failed to retrieve the secret with the given ID from the credentials store. A secret with the provided ID does not exist and therefore cannot be updated."),
+    GAL5079_FAILED_TO_GET_SECRET                      (5079, "E: Failed to retrieve the secret with the given ID from the credentials store. A secret with the provided name does not exist and therefore cannot be updated."),
 
     // Auth APIs...
     GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
