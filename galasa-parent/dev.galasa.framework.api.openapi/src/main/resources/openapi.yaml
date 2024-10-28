@@ -320,7 +320,7 @@ paths:
         - name: loginId
           in: query
           description: The loginId of the user whose details will be returned. #If the keyword of 'me' is used, the details of the requesting user will be returned.
-          required: true
+          required: false
           schema:
             type: string
       responses:
@@ -2043,9 +2043,30 @@ components:
     UserData:
       type: object
       properties:
-        login_id:
+        id:
+          type: string
+          description: The ID representing the user record in Auth Store.
+        login-id:
           type: string
           description: The ID representing the user's username. Returned from queries about users.
+        clients:
+          type: array
+          description: The list of client activities, containing client names and last login times.
+          items:
+            $ref: '#/components/schemas/FrontEndClient'
+        url:
+          type: string
+          description: The API URL for accessing the user data.
+    FrontEndClient:
+      type: object
+      properties:
+        client-name:
+          type: string
+          description: The name of the client (e.g., "web-ui" or "rest-api").
+        last-login:
+          type: string
+          format: date-time
+          description: The timestamp of the user's last login on the respective client.
     Requestors:
       type: object
       properties:

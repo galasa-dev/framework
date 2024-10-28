@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.authentication.routes;
+package dev.galasa.framework.api.authentication.internal.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -25,21 +25,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
-import dev.galasa.framework.api.authentication.internal.routes.AuthTokensRoute;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockDexGrpcClient;
 import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
 import dev.galasa.framework.api.beans.AuthToken;
 import dev.galasa.framework.api.beans.User;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.InternalUser;
-import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
-import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.mocks.MockInternalAuthToken;
-import dev.galasa.framework.api.common.mocks.MockTimeService;
-import dev.galasa.framework.api.common.mocks.MockAuthStoreService;
+import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.mocks.*;
+import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
+import dev.galasa.framework.spi.auth.IUser;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
@@ -105,7 +104,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
     @Test
     public void testAuthTokensRouteRegexMatchesOnlyTokens(){
         //Given...
-        String tokensRoutePath = new AuthTokensRoute(null, null, null, null, null).getPath().toString();
+        String tokensRoutePath = new AuthTokensRoute(null, null, null, null,null, null).getPath().toString();
 
         //When...
         Pattern tokensRoutePattern = Pattern.compile(tokensRoutePath);
@@ -609,7 +608,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
     @Test
     public void testAuthPostRequestWithValidRefreshTokenRequestPayloadReturnsJWT() throws Exception {
         // Given...
-        String dummyJwt = "this-is-a-jwt";
+        String dummyJwt = DUMMY_JWT;
         String dummyRefreshToken = "this-is-a-refresh-token";
         String mockResponseJson = buildTokenResponse(dummyJwt, dummyRefreshToken);
 
@@ -723,7 +722,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
     @Test
     public void testAuthPostRequestWithValidAuthCodeRequestPayloadReturnsJWT() throws Exception {
         // Given...
-        String dummyJwt = "this-is-a-jwt";
+        String dummyJwt = DUMMY_JWT;
         String dummyRefreshToken = "this-is-a-refresh-token";
         String mockResponseJson = buildTokenResponse(dummyJwt, dummyRefreshToken);
 
@@ -889,4 +888,176 @@ public class AuthTokensRouteTest extends BaseServletTest {
         checkErrorStructure(outStream.toString(), 5055, "GAL5055E", "Failed to get a JWT and a refresh token from the Galasa Dex server", "The Dex server did not respond with a JWT and refresh token");
     }
 
+
+
+    @Test
+    public void testRecordingUserJustLoggedInEventWhenUserAlreadyExistButClientDoesNotShouldUpdateExistingUserRecordClientLoginTime() throws Exception {
+
+        // Given...
+        JsonObject dummyErrorJson = new JsonObject();
+        HttpResponse<String> mockResponse = new MockHttpResponse<String>(gson.toJson(dummyErrorJson));
+
+        ResponseBuilder responseBuilder = new ResponseBuilder();
+        MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
+
+        String clientId = "myclient";
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
+
+
+        Instant now = Instant.MIN.plusMillis(3) ;
+        MockTimeService mockTimeService = new MockTimeService(now);
+
+        String userNumberInput = "567890";
+        String versionInput = "98767898yhj";
+        
+        MockUser mockUser = new MockUser();
+        mockUser.loginId = "requestorId";
+        mockUser.userNumber = userNumberInput;
+        mockUser.version = versionInput;
+
+        MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
+        authStoreService.addUser(mockUser);
+
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS,"sub");
+        String dummyJwt = DUMMY_JWT;
+
+        AuthTokensRoute route = new AuthTokensRoute(
+            responseBuilder,
+            mockOidcProvider,
+            mockDexGrpcClient,
+            authStoreService,
+            mockTimeService,
+            mockEnv);
+
+        boolean isWebUiJustLoggedIn = true ;
+
+        // When...
+        route.recordUserJustLoggedIn(isWebUiJustLoggedIn,dummyJwt, mockTimeService, mockEnv);
+
+        // Then...
+        IUser userGotBack = authStoreService.getUserByLoginId("requestorId");
+        assertThat(userGotBack).isNotNull();
+        assertThat(userGotBack.getUserNumber()).isEqualTo(userNumberInput);
+        assertThat(userGotBack.getVersion()).isEqualTo(versionInput);
+
+        IFrontEndClient clientGotBack = userGotBack.getClient("web-ui");
+        assertThat(clientGotBack.getLastLogin()).isEqualTo(now);
+    }
+
+
+    @Test
+    public void testRecordingUserJustLoggedInUsingTokenEventWhenUserAlreadyExistsAndClientDoesExistTooShouldUpdateExistingClientLoginTime() throws Exception {
+        testRecordingUserJustLoggedInUEventWhenUserAlreadyExistsAndClientDoesExistTooShouldUpdateExistingClientLoginTime(false, "rest-api");
+    }
+
+    @Test
+    public void testRecordingUserJustLoggedInUsingWebUiEventWhenUserAlreadyExistsAndClientDoesExistTooShouldUpdateExistingClientLoginTime() throws Exception {
+        testRecordingUserJustLoggedInUEventWhenUserAlreadyExistsAndClientDoesExistTooShouldUpdateExistingClientLoginTime(true, "web-ui");
+    }
+
+    public void testRecordingUserJustLoggedInUEventWhenUserAlreadyExistsAndClientDoesExistTooShouldUpdateExistingClientLoginTime(boolean isWebUiJustLoggedIn, String expectedClientName) throws Exception {
+
+        // Given...
+        JsonObject dummyErrorJson = new JsonObject();
+        HttpResponse<String> mockResponse = new MockHttpResponse<String>(gson.toJson(dummyErrorJson));
+
+        ResponseBuilder responseBuilder = new ResponseBuilder();
+        MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
+
+        String clientId = "myclient";
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
+
+        
+        Instant now = Instant.MIN.plusMillis(3);
+        MockTimeService mockTimeService = new MockTimeService(now);
+
+        String userNumberInput = "567890";
+        String versionInput = "98767898yhj";
+        
+        MockUser mockUser = new MockUser();
+        mockUser.loginId = "requestorId";
+        mockUser.userNumber = userNumberInput;
+        mockUser.version = versionInput;
+
+        MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
+        authStoreService.addUser(mockUser);
+
+        MockFrontEndClient existingClient = new MockFrontEndClient(expectedClientName);
+        existingClient.lastLoginTime = Instant.MIN; // This client has an old time on it to start with. We expect this to be updated to now.
+        mockUser.addClient(existingClient);
+
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS,"sub");
+        String dummyJwt = DUMMY_JWT;
+
+        AuthTokensRoute route = new AuthTokensRoute(
+            responseBuilder,
+            mockOidcProvider,
+            mockDexGrpcClient,
+            authStoreService,
+            mockTimeService,
+            mockEnv);
+
+        // When...
+        route.recordUserJustLoggedIn(isWebUiJustLoggedIn,dummyJwt, mockTimeService,mockEnv);
+
+        // Then...
+        IUser userGotBack = authStoreService.getUserByLoginId("requestorId");
+        assertThat(userGotBack).isNotNull();
+        assertThat(userGotBack.getUserNumber()).isEqualTo(userNumberInput);
+        assertThat(userGotBack.getVersion()).isEqualTo(versionInput);
+
+        IFrontEndClient clientGotBack = userGotBack.getClient(expectedClientName);
+        assertThat(clientGotBack.getLastLogin()).isEqualTo(now);
+    }
+
+
+    @Test
+    public void testRecordingUserJustLoggedInEventWhenUserDoesntExistCreatesNewUserRecord() throws Exception {
+
+        // Given...
+
+        JsonObject dummyErrorJson = new JsonObject();
+        HttpResponse<String> mockResponse = new MockHttpResponse<String>(gson.toJson(dummyErrorJson));
+
+        ResponseBuilder responseBuilder = new ResponseBuilder();
+        MockOidcProvider mockOidcProvider = new MockOidcProvider(mockResponse);
+
+        String clientId = "myclient";
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
+
+
+        Instant now = Instant.MIN.plusMillis(3) ;
+        MockTimeService mockTimeService = new MockTimeService(now);
+        
+
+        MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
+
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS,"sub");
+        String dummyJwt = DUMMY_JWT;
+
+        AuthTokensRoute route = new AuthTokensRoute(
+            responseBuilder,
+            mockOidcProvider,
+            mockDexGrpcClient,
+            authStoreService,
+            mockTimeService,
+            mockEnv);
+
+        boolean isWebUiJustLoggedIn = true ;
+
+        // When...
+        route.recordUserJustLoggedIn(isWebUiJustLoggedIn,dummyJwt, mockTimeService, mockEnv);
+
+        // Then...
+        IUser userGotBack = authStoreService.getUserByLoginId("requestorId");
+        assertThat(userGotBack).isNotNull();
+        assertThat(userGotBack.getUserNumber()).isEqualTo(MockAuthStoreService.DEFAULT_USER_NUMBER);
+        assertThat(userGotBack.getVersion()).isEqualTo(MockAuthStoreService.DEFAULT_USER_VERSION_NUMBER);
+
+        IFrontEndClient clientGotBack = userGotBack.getClient("web-ui");
+        assertThat(clientGotBack.getLastLogin()).isEqualTo(now);
+    }
 }
