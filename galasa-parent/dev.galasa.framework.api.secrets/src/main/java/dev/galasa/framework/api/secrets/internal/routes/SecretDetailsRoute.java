@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.secrets.internal.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
+import static dev.galasa.framework.api.common.resources.GalasaSecretType.*;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -26,6 +27,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.GalasaSecretType;
 import dev.galasa.framework.api.secrets.internal.SecretRequestValidator;
 import dev.galasa.framework.api.secrets.internal.UpdateSecretRequestValidator;
 import dev.galasa.framework.spi.FrameworkException;
@@ -83,20 +85,15 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
         checkRequestHasContent(request);
 
         String secretName = getSecretNameFromPath(pathInfo);
-        ICredentials existingSecret = credentialsService.getCredentials(secretName);
-
-        boolean isCreatingSecret = (existingSecret == null);
-        SecretRequestValidator updateSecretValidator = new UpdateSecretRequestValidator(isCreatingSecret);
-
         SecretRequest secretPayload = parseRequestBody(request, SecretRequest.class);
-        updateSecretValidator.validate(secretPayload);
 
-        logger.info("Request payload validated OK");
+        ICredentials existingSecret = credentialsService.getCredentials(secretName);
+        GalasaSecretType existingSecretType = getSecretType(existingSecret);
+        validateUpdateRequest(existingSecretType, secretPayload, existingSecret);
 
         ICredentials decodedSecret = null;
-
         int responseCode = HttpServletResponse.SC_NO_CONTENT;
-        if (isCreatingSecret) {
+        if (existingSecret == null) {
             // No secret with the given name exists, so create a new one
             decodedSecret = decodeCredentialsFromSecretPayload(secretPayload);
             responseCode = HttpServletResponse.SC_CREATED;
@@ -107,7 +104,7 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
         } else {
             // A secret already exists and no type was given, so just update the secret by
             // overriding its existing values with the values provided in the request
-            decodedSecret = getOverriddenSecret(existingSecret, secretPayload);
+            decodedSecret = getOverriddenSecret(existingSecretType, existingSecret, secretPayload);
         }
         credentialsService.setCredentials(secretName, decodedSecret);
 
@@ -129,6 +126,13 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
 
         logger.info("handleDeleteRequest() exiting");
         return getResponseBuilder().buildResponse(request, response, HttpServletResponse.SC_NO_CONTENT);
+    }
+
+    private void validateUpdateRequest(GalasaSecretType existingSecretType, SecretRequest secretPayload, ICredentials existingSecret) throws InternalServletException {
+        SecretRequestValidator updateSecretValidator = new UpdateSecretRequestValidator(existingSecretType);
+        updateSecretValidator.validate(secretPayload);
+
+        logger.info("Request payload validated OK");
     }
 
     private String getSecretNameFromPath(String pathInfo) throws InternalServletException {
@@ -175,27 +179,31 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
         }
     }
 
-    private ICredentials getOverriddenSecret(ICredentials existingSecret, SecretRequest secretRequest) throws InternalServletException {
+    private ICredentials getOverriddenSecret(GalasaSecretType existingSecretType, ICredentials existingSecret, SecretRequest secretRequest) throws InternalServletException {
         ICredentials overriddenSecret = existingSecret;
 
-        if (existingSecret instanceof CredentialsUsername) {
+        if (existingSecretType == USERNAME) {
             CredentialsUsername usernameSecret = (CredentialsUsername) existingSecret;
             String overriddenUsername = getOverriddenUsername(usernameSecret.getUsername(), secretRequest.getusername());
             overriddenSecret = new CredentialsUsername(overriddenUsername);
-        } else if (existingSecret instanceof CredentialsToken) {
+        } else if (existingSecretType == TOKEN) {
             CredentialsToken tokenSecret = (CredentialsToken) existingSecret;
             String overriddenToken = getOverriddenToken(new String(tokenSecret.getToken()), secretRequest.gettoken());
             overriddenSecret = new CredentialsToken(overriddenToken);
-        } else if (existingSecret instanceof CredentialsUsernamePassword) {
+        } else if (existingSecretType == USERNAME_PASSWORD) {
             CredentialsUsernamePassword usernamePasswordSecret = (CredentialsUsernamePassword) existingSecret;
             String overriddenUsername = getOverriddenUsername(usernamePasswordSecret.getUsername(), secretRequest.getusername());
             String overriddenPassword = getOverriddenPassword(usernamePasswordSecret.getPassword(), secretRequest.getpassword());
             overriddenSecret = new CredentialsUsernamePassword(overriddenUsername, overriddenPassword);
-        } else if (existingSecret instanceof CredentialsUsernameToken) {
+        } else if (existingSecretType == USERNAME_TOKEN) {
             CredentialsUsernameToken usernameTokenSecret = (CredentialsUsernameToken) existingSecret;
             String overriddenUsername = getOverriddenUsername(usernameTokenSecret.getUsername(), secretRequest.getusername());
             String overriddenToken = getOverriddenToken(new String(usernameTokenSecret.getToken()), secretRequest.gettoken());
             overriddenSecret = new CredentialsUsernameToken(overriddenUsername, overriddenToken);
+        } else {
+            // The credentials are in an unknown format, throw an error
+            ServletError error = new ServletError(GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         return overriddenSecret;
     }

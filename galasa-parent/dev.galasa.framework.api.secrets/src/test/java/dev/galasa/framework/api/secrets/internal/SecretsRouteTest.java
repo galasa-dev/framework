@@ -93,6 +93,33 @@ public class SecretsRouteTest extends SecretsServletTest {
     }
 
     @Test
+    public void testGetSecretsWithUnknownSecretTypeReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName1 = "BOB";
+        creds.put(secretName1, new MockCredentials());
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/");
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(500);
+        checkErrorStructure(outStream.toString(), 5101, "GAL5101E",
+            "Unknown secret type detected");
+    }
+
+    @Test
     public void testCreateUsernamePasswordSecretCreatesSecretOk() throws Exception {
         // Given...
         Map<String, ICredentials> creds = new HashMap<>();

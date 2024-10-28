@@ -8,6 +8,8 @@ package dev.galasa.framework.api.secrets.internal;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,15 +29,15 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
 
     private static final GalasaGson gson = new GalasaGson();
 
-    private boolean isCreatingSecret = false;
+    private GalasaSecretType existingSecretType;
 
-    public UpdateSecretRequestValidator(boolean isCreatingSecret) {
-        this.isCreatingSecret = isCreatingSecret;
+    public UpdateSecretRequestValidator(GalasaSecretType existingSecretType) {
+        this.existingSecretType = existingSecretType;
     }
 
     @Override
     public void validate(SecretRequest secretRequest) throws InternalServletException {
-        if (isCreatingSecret) {
+        if (existingSecretType == null) {
             validateCreateSecretRequest(secretRequest);
         } else {
             validateUpdateSecretRequest(secretRequest);
@@ -67,8 +69,18 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
         SecretRequestpassword password = secretRequest.getpassword();
         SecretRequesttoken token = secretRequest.gettoken();
 
+        // Password and token are mutually exclusive, so error if both are provided
+        if (password != null && token != null) {
+            ServletError error = new ServletError(GAL5095_ERROR_PASSWORD_AND_TOKEN_PROVIDED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
         String requestedType = secretRequest.gettype();
-        if (requestedType != null) {
+        if (existingSecretType != null && requestedType == null) {
+            // The user intends to update an existing secret without changing its type
+            // so make sure that the relevant fields have been supplied
+            checkProvidedSecretFieldsAreRelevant(existingSecretType, secretRequest);
+        } else if (requestedType != null) {
             GalasaSecretType secretType = GalasaSecretType.getFromString(requestedType.toString());
             if (secretType == null) {
                 // An unknown type was provided, so throw an error
@@ -80,22 +92,33 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
             }
             // A specific type of secret was given, so make sure that all of the required fields
             // for the given type have been provided
-            validateRequestedSecretTypeFields(secretType, secretRequest);
-        }
-
-        // Password and token are mutually exclusive, so error if both are provided
-        if (password != null && token != null) {
-            ServletError error = new ServletError(GAL5095_ERROR_PASSWORD_AND_TOKEN_PROVIDED);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+            validateSecretTypeFields(secretType, secretRequest);
+            checkProvidedSecretFieldsAreRelevant(secretType, secretRequest);
         }
         validateSecretRequestFields(username, password, token);
     }
 
-    private void validateRequestedSecretTypeFields(GalasaSecretType secretType, SecretRequest secretRequest) throws InternalServletException {
+    private void validateSecretTypeFields(GalasaSecretType secretType, SecretRequest secretRequest) throws InternalServletException {
         JsonObject secretRequestJson = gson.toJsonTree(secretRequest).getAsJsonObject();
         for (String requiredField : secretType.getRequiredDataFields()) {
             if (!secretRequestJson.has(requiredField)) {
                 ServletError error = new ServletError(GAL5099_ERROR_MISSING_REQUIRED_SECRET_FIELD, secretType.toString(), requiredField);
+                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+            }
+        }
+    }
+
+    private void checkProvidedSecretFieldsAreRelevant(GalasaSecretType secretType, SecretRequest secretRequest) throws InternalServletException {
+        JsonObject secretRequestJson = gson.toJsonTree(secretRequest).getAsJsonObject();
+        Set<String> secretRequestFields = secretRequestJson.keySet()
+            .stream()
+            .filter(key -> !key.equals("name") && !key.equals("type"))
+            .collect(Collectors.toSet());
+
+        List<String> requiredTypeFields = Arrays.asList(secretType.getRequiredDataFields());
+        for (String field : secretRequestFields) {
+            if (!requiredTypeFields.contains(field)) {
+                ServletError error = new ServletError(GAL5100_ERROR_UNEXPECTED_SECRET_FIELD_PROVIDED, secretType.toString(), String.join(", ", requiredTypeFields));
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
         }

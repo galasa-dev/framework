@@ -9,6 +9,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static dev.galasa.framework.api.beans.generated.GalasaSecretType.*;
 
 import java.util.Base64;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -38,11 +39,18 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
 
     private static final String DEFAULT_RESPONSE_ENCODING = "base64";
 
+    private static final Map<Class<? extends ICredentials>, GalasaSecretType> credentialsToSecretTypes = Map.of(
+        CredentialsUsername.class, GalasaSecretType.USERNAME,
+        CredentialsToken.class, GalasaSecretType.TOKEN,
+        CredentialsUsernamePassword.class, GalasaSecretType.USERNAME_PASSWORD,
+        CredentialsUsernameToken.class, GalasaSecretType.USERNAME_TOKEN
+    );
+
     public AbstractSecretsRoute(ResponseBuilder responseBuilder, String path) {
         super(responseBuilder, path);
     }
 
-    protected GalasaSecret createGalasaSecretFromCredentials(String secretName, ICredentials credentials) {
+    protected GalasaSecret createGalasaSecretFromCredentials(String secretName, ICredentials credentials) throws InternalServletException {
         GalasaSecretmetadata metadata = new GalasaSecretmetadata(null);
         GalasaSecretdata data = new GalasaSecretdata();
         
@@ -103,29 +111,34 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
         return decodedValue;
     }
 
-    private void setSecretTypeValuesFromCredentials(GalasaSecretmetadata metadata, GalasaSecretdata data, ICredentials credentials) {
-        if (credentials instanceof CredentialsUsername) {
+    private void setSecretTypeValuesFromCredentials(GalasaSecretmetadata metadata, GalasaSecretdata data, ICredentials credentials) throws InternalServletException {
+        GalasaSecretType secretType = getSecretType(credentials);
+        if (secretType == GalasaSecretType.USERNAME) {
             ICredentialsUsername usernameCredentials = (ICredentialsUsername) credentials;
             data.setusername(encodeValue(usernameCredentials.getUsername()));
 
             metadata.settype(Username);
-        } else if (credentials instanceof CredentialsUsernamePassword) {
+        } else if (secretType == GalasaSecretType.USERNAME_PASSWORD) {
             ICredentialsUsernamePassword usernamePasswordCredentials = (ICredentialsUsernamePassword) credentials;
             data.setusername(encodeValue(usernamePasswordCredentials.getUsername()));
             data.setpassword(encodeValue(usernamePasswordCredentials.getPassword()));
 
             metadata.settype(USERNAME_PASSWORD);
-        } else if (credentials instanceof CredentialsUsernameToken) {
+        } else if (secretType == GalasaSecretType.USERNAME_TOKEN) {
             ICredentialsUsernameToken usernameTokenCredentials = (ICredentialsUsernameToken) credentials;
             data.setusername(encodeValue(usernameTokenCredentials.getUsername()));
             data.settoken(encodeValue(new String(usernameTokenCredentials.getToken())));
 
             metadata.settype(USERNAME_TOKEN);
-        } else if (credentials instanceof CredentialsToken) {
+        } else if (secretType == GalasaSecretType.TOKEN) {
             ICredentialsToken tokenCredentials = (ICredentialsToken) credentials;
             data.settoken(encodeValue(new String(tokenCredentials.getToken())));
 
             metadata.settype(Token);
+        } else {
+            // The credentials are in an unknown format, throw an error
+            ServletError error = new ServletError(GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -135,5 +148,13 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
             encodedValue = Base64.getEncoder().encodeToString(value.getBytes());
         }
         return encodedValue;
+    }
+
+    protected GalasaSecretType getSecretType(ICredentials existingSecret) {
+        GalasaSecretType existingSecretType = null;
+        if (existingSecret != null) {
+            existingSecretType = credentialsToSecretTypes.get(existingSecret.getClass());
+        }
+        return existingSecretType;
     }
 }

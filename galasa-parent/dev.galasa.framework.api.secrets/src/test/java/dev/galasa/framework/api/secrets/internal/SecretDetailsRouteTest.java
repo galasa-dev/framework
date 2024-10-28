@@ -812,4 +812,113 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         checkErrorStructure(outStream.toString(), 5073, "GAL5073E",
             "Unsupported data encoding scheme provided");
     }
+
+    @Test
+    public void testUpdateSecretWithUnexpectedFieldsReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldUsername = "my-old-username";
+        creds.put(secretName, new CredentialsUsername(oldUsername));
+
+        JsonObject secretJson = new JsonObject();
+
+        // "password" isn't a valid field in the Username type, so this should throw an error
+        secretJson.add("password", createSecretJson("bad"));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5100, "GAL5100E",
+            "An unexpected field was given to update a 'Username' secret");
+    }
+
+    @Test
+    public void testUpdateSecretWithTooManyFieldsReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldToken = "my-old-token";
+        String newToken = "my-new-token";
+        creds.put(secretName, new CredentialsToken(oldToken));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("token", createSecretJson(newToken));
+        
+        // "username" isn't a valid field in the Token type, so this should throw an error
+        secretJson.add("username", createSecretJson("my-username"));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5100, "GAL5100E",
+            "An unexpected field was given to update a 'Token' secret");
+    }
+
+    @Test
+    public void testUpdateSecretWithUnsupportedTypeReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String newToken = "my-new-token";
+
+        // The mock credentials type is not a supported type, so this should cause an error
+        creds.put(secretName, new MockCredentials());
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("token", createSecretJson(newToken));
+
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(500);
+        checkErrorStructure(outStream.toString(), 5101, "GAL5101E",
+            "Unknown secret type detected");
+    }
 }
+

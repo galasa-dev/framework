@@ -136,6 +136,8 @@ public enum ServletErrorMessage {
     GAL5097_FAILED_TO_DECODE_SECRET_VALUE             (5097, "E: Failed to decode a provided secret value. Expected the value to be encoded in ''{0}'' format but it was not. Check your request values are properly encoded and try again."),
     GAL5098_ERROR_PASSWORD_MISSING_USERNAME           (5098, "E: Invalid secret payload provided. A ''password'' field was provided but the ''username'' field was missing. Check your request payload and try again."),
     GAL5099_ERROR_MISSING_REQUIRED_SECRET_FIELD       (5099, "E: Invalid secret payload provided. The ''{0}'' type was provided but the required ''{1}'' field was missing. Check your request payload and try again."),
+    GAL5100_ERROR_UNEXPECTED_SECRET_FIELD_PROVIDED    (5100, "E: Invalid secret payload provided. An unexpected field was given to update a ''{0}'' secret. Only the following fields can be provided to update this secret: ''{1}''. Check your request payload and try again."),
+    GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED     (5101, "E: Unknown secret type detected. A secret retrieved from the credentials store is in an unknown or unsupported format. Report the problem to your Galasa Ecosystem owner."),
     ;
 
 
