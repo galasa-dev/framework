@@ -120,18 +120,19 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessDataArrayBadJsonArrayReturnsError() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         String jsonString = "[{},{},{}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
-        resourcesRoute.processDataArray(propertyJson, APPLY);
+        resourcesRoute.processDataArray(propertyJson, APPLY, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -143,18 +144,19 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessDataArrayBadJsonReturnsError() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         String jsonString = "[{\"kind\":\"GalasaProperty\",\"apiVersion\":\"galasa-dev/v1alpha1\","+namespace+"."+propertyname+":"+value+"}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
-        resourcesRoute.processDataArray(propertyJson, APPLY);
+        resourcesRoute.processDataArray(propertyJson, APPLY, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -166,18 +168,19 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessDataArrayBadKindReturnsError() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         String jsonString = "[{\"kind\":\"GalasaProperly\",\"apiVersion\":\"v1alpha1\","+namespace+"."+propertyname+":"+value+"}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
-        resourcesRoute.processDataArray(propertyJson, APPLY);
+        resourcesRoute.processDataArray(propertyJson, APPLY, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -189,16 +192,17 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessDataArrayNullJsonObjectReturnsError() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         String jsonString = "[null]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
-        resourcesRoute.processDataArray(propertyJson, APPLY);
+        resourcesRoute.processDataArray(propertyJson, APPLY, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -209,17 +213,18 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessDataArrayCorrectJSONReturnsOK() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         JsonArray propertyJson = generatePropertyArrayJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processDataArray(propertyJson, APPLY);
+        resourcesRoute.processDataArray(propertyJson, APPLY, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -230,19 +235,20 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessDataArrayThreeBadJsonReturnsErrors() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         String jsonString = "[null, {\"kind\":\"GalasaProperty\",\"apiVersion\":\"galasa-dev/v1alpha1\","+namespace+"."+propertyname+":"+value+"},"+
             "{\"kind\":\"GalasaProperly\",\"apiVersion\":\"v1alpha1\","+namespace+"."+propertyname+":"+value+"},{}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
-        resourcesRoute.processDataArray(propertyJson, APPLY);
+        resourcesRoute.processDataArray(propertyJson, APPLY, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -257,6 +263,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessDataArrayCreateWithOneExistingRecordJSONReturnsOneError() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
@@ -265,13 +272,13 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
-        resourcesRoute.processDataArray(propertyJson, CREATE);
+        resourcesRoute.processDataArray(propertyJson, CREATE, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -285,6 +292,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessDataArrayCreateWithTwoExistingRecordsJSONReturnsTwoErrors() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.1";
         String value = "value";
@@ -293,13 +301,13 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
-        resourcesRoute.processDataArray(propertyJson, CREATE);
+        resourcesRoute.processDataArray(propertyJson, CREATE, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -315,6 +323,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessDataArrayUpdateWithOneNewRecordJSONReturnsOneError() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
@@ -323,13 +332,13 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
-        resourcesRoute.processDataArray(propertyJson, UPDATE);
+        resourcesRoute.processDataArray(propertyJson, UPDATE, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -342,6 +351,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessDataArrayUpdateWithTwoNewRecordsJSONReturnsTwoError() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
@@ -350,13 +360,13 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
         //When...
-        resourcesRoute.processDataArray(propertyJson, UPDATE);
+        resourcesRoute.processDataArray(propertyJson, UPDATE, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -374,6 +384,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
      @Test
     public void TestProcessRequestApplyActionReturnsOK() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
@@ -381,11 +392,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         JsonObject requestJson = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processRequest(requestJson);
+        resourcesRoute.processRequest(requestJson, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -396,6 +407,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessRequestCreateActionReturnsOK() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
@@ -403,11 +415,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processRequest(jsonString);
+        resourcesRoute.processRequest(jsonString, username);
         List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -418,6 +430,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessRequestUpdateActionReturnsOK() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.1";
         String value = "value";
@@ -425,11 +438,11 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
-        resourcesRoute.processRequest(jsonString);
+        resourcesRoute.processRequest(jsonString, username);
          List<String> errors = resourcesRoute.errors;
 
         //Then...
@@ -440,6 +453,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     @Test
     public void TestProcessRequestBadActionReturnsError() throws Exception{
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
@@ -447,12 +461,12 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet(namespace);
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
         Throwable thrown = catchThrowable(() -> {
-          resourcesRoute.processRequest(jsonString);
+          resourcesRoute.processRequest(jsonString, username);
         });
 
         //Then...
@@ -973,7 +987,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         setServlet("framework");
         MockResourcesServlet servlet = getServlet();
         CPSFacade cps = new CPSFacade(servlet.getFramework());
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
 
         // When...
         String json = resourcesRoute.getErrorsAsJson(errors);

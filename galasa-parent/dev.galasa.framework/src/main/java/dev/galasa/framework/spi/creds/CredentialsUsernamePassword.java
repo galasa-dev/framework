@@ -12,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import dev.galasa.ICredentialsUsernamePassword;
 
-public class CredentialsUsernamePassword extends Credentials implements ICredentialsUsernamePassword {
+public class CredentialsUsernamePassword extends AbstractCredentials implements ICredentialsUsernamePassword {
     private String username;
     private String password;
 
@@ -48,8 +48,8 @@ public class CredentialsUsernamePassword extends Credentials implements ICredent
     @Override
     public Properties toProperties(String credentialsId) {
         Properties credsProperties = new Properties();
-        credsProperties.setProperty("secure.credentials." + credentialsId + ".username" , this.username);
-        credsProperties.setProperty("secure.credentials." + credentialsId + ".password" , this.password);
+        credsProperties.setProperty(CREDS_PROPERTY_PREFIX + credentialsId + ".username" , this.username);
+        credsProperties.setProperty(CREDS_PROPERTY_PREFIX + credentialsId + ".password" , this.password);
         return credsProperties;
     }
 }

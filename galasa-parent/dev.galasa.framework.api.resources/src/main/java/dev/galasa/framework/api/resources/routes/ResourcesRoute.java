@@ -23,7 +23,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.BaseRoute;
+import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -37,6 +39,7 @@ import dev.galasa.framework.api.resources.processors.IGalasaResourceProcessor;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.utils.GalasaGson;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 public class ResourcesRoute  extends BaseRoute{
 
@@ -50,11 +53,20 @@ public class ResourcesRoute  extends BaseRoute{
     
     protected List<String> errors = new ArrayList<String>();
 
-    public ResourcesRoute(ResponseBuilder responseBuilder, CPSFacade cps, ICredentialsService credentialsService) {
+    private Environment env;
+
+    public ResourcesRoute(
+        ResponseBuilder responseBuilder,
+        CPSFacade cps,
+        ICredentialsService credentialsService,
+        ITimeService timeService,
+        Environment env
+    ) {
         super(responseBuilder, path);
+        this.env = env;
 
         resourceProcessors.put(GALASA_PROPERTY, new GalasaPropertyProcessor(cps));
-        resourceProcessors.put(GALASA_SECRET, new GalasaSecretProcessor(credentialsService));
+        resourceProcessors.put(GALASA_SECRET, new GalasaSecretProcessor(credentialsService, timeService));
     }
 
     @Override
@@ -63,7 +75,9 @@ public class ResourcesRoute  extends BaseRoute{
         logger.info("ResourcesRoute - handlePostRequest() entered");
 
         JsonObject jsonBody = parseRequestBody(request, JsonObject.class);
-        List<String> errorsList = processRequest(jsonBody);
+
+        String requestUsername = new JwtWrapper(request, env).getUsername();
+        List<String> errorsList = processRequest(jsonBody, requestUsername);
         if (errorsList.size() >0){
             response = getResponseBuilder().buildResponse(request, response, "application/json", getErrorsAsJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);
         } else {
@@ -76,12 +90,12 @@ public class ResourcesRoute  extends BaseRoute{
 
     }
 
-    protected List<String> processRequest(JsonObject body) throws InternalServletException{
+    protected List<String> processRequest(JsonObject body, String username) throws InternalServletException{
         String actionStr = body.get("action").getAsString().toLowerCase().trim();
         ResourceAction action = ResourceAction.getFromString(actionStr);
         if (action != null){
             JsonArray jsonArray = body.get("data").getAsJsonArray();
-            processDataArray(jsonArray, action);
+            processDataArray(jsonArray, action, username);
         } else {
             ServletError error = new ServletError(GAL5025_UNSUPPORTED_ACTION);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
@@ -105,7 +119,7 @@ public class ResourcesRoute  extends BaseRoute{
         return gson.toJson(json);
     }
 
-    protected void processDataArray(JsonArray jsonArray, ResourceAction action) throws InternalServletException{
+    protected void processDataArray(JsonArray jsonArray, ResourceAction action, String username) throws InternalServletException{
         for (JsonElement element: jsonArray) {
             try {
                 checkJsonElementIsValidJSON(element);
@@ -118,7 +132,7 @@ public class ResourcesRoute  extends BaseRoute{
                     throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
                 }
 
-                errors.addAll(resourceProcessors.get(kind).processResource(resource, action));
+                errors.addAll(resourceProcessors.get(kind).processResource(resource, action, username));
 
             } catch (InternalServletException s) {
                 errors.add(s.getMessage());

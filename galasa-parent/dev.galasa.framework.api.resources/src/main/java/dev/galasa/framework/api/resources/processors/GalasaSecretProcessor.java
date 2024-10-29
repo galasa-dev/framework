@@ -26,8 +26,10 @@ import com.google.gson.JsonObject;
 import dev.galasa.ICredentials;
 import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.GalasaSecretdata;
+import dev.galasa.framework.api.beans.generated.GalasaSecretmetadata;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.BaseResourceValidator;
 import dev.galasa.framework.api.common.resources.GalasaSecretType;
 import dev.galasa.framework.api.common.resources.ResourceAction;
 import dev.galasa.framework.api.common.resources.Secret;
@@ -36,6 +38,7 @@ import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
 import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 /**
  * Processor class to handle creating, updating, and deleting GalasaSecret resources
@@ -47,20 +50,24 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
     private static final List<String> SUPPORTED_ENCODING_SCHEMES = List.of("base64");
 
     private ICredentialsService credentialsService;
+    private ITimeService timeService;
 
-    public GalasaSecretProcessor(ICredentialsService credentialsService) {
+    private BaseResourceValidator validator = new BaseResourceValidator();
+
+    public GalasaSecretProcessor(ICredentialsService credentialsService, ITimeService timeService) {
         this.credentialsService = credentialsService;
+        this.timeService = timeService;
     }
 
     @Override
-    public List<String> processResource(JsonObject resourceJson, ResourceAction action) throws InternalServletException {
+    public List<String> processResource(JsonObject resourceJson, ResourceAction action, String username) throws InternalServletException {
         logger.info("Processing GalasaSecret resource");
         List<String> errors = checkGalasaSecretJsonStructure(resourceJson, action);
         if (errors.isEmpty()) {
             logger.info("GalasaSecret validated successfully");
             GalasaSecret galasaSecret = gson.fromJson(resourceJson, GalasaSecret.class);
             String credentialsId = galasaSecret.getmetadata().getname();
-            Secret secret = new Secret(credentialsService, credentialsId);
+            Secret secret = new Secret(credentialsService, credentialsId, timeService);
 
             if (action == DELETE) {
                 logger.info("Deleting secret from credentials store");
@@ -77,12 +84,13 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
                     throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
                 }
                 
-                GalasaSecretType secretType = GalasaSecretType.getFromString(galasaSecret.getmetadata().gettype().toString());
+                GalasaSecretmetadata metadata = galasaSecret.getmetadata();
+                GalasaSecretType secretType = GalasaSecretType.getFromString(metadata.gettype().toString());
                 GalasaSecretdata decodedData = decodeSecretData(galasaSecret);
-                ICredentials credentials = getCredentialsFromSecret(secretType, decodedData);
+                ICredentials credentials = getCredentialsFromSecret(secretType, decodedData, metadata);
 
                 logger.info("Setting secret in credentials store");
-                secret.setSecretToCredentialsStore(credentials);
+                secret.setSecretToCredentialsStore(credentials, username);
                 logger.info("Secret set in credentials store OK");
             }
             logger.info("Processed GalasaSecret resource OK");
@@ -140,7 +148,11 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
         return validationErrors;
     }
 
-    private ICredentials getCredentialsFromSecret(GalasaSecretType secretType, GalasaSecretdata decodedData) {
+    private ICredentials getCredentialsFromSecret(
+        GalasaSecretType secretType,
+        GalasaSecretdata decodedData,
+        GalasaSecretmetadata metadata
+    ) {
         ICredentials credentials = null;
         switch (secretType) {
             case USERNAME:
@@ -158,6 +170,10 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
             default:
                 break;
         }
+
+        if (credentials != null) {
+            credentials.setDescription(metadata.getdescription());
+        }
         return credentials;
     }
 
@@ -168,6 +184,15 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
         if (!metadata.has("name") || !metadata.has("type")) {
             ServletError error = new ServletError(GAL5070_INVALID_GALASA_SECRET_MISSING_FIELDS, "metadata", "name, type");
             validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+        }
+
+        // If a description is provided, check that it is valid
+        if (metadata.has("description")) {
+            String description = metadata.get("description").getAsString();
+            if (description.isBlank() || !validator.isLatin1(description)) {
+                ServletError error = new ServletError(GAL5102_INVALID_SECRET_DESCRIPTION_PROVIDED);
+                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+            }
         }
 
         // Check if the given secret type is a valid type

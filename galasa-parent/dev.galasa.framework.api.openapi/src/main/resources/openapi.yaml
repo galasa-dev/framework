@@ -2042,7 +2042,20 @@ components:
             name:
               type: string
               description: |
-                The name of the Galasa Secret to perform a resource action on.
+                The name that identifies the Galasa Secret.
+            description:
+              type: string
+              description: |
+                The description to be associated with the Galasa Secret.
+            lastUpdatedTime:
+              type: string
+              format: date-time
+              description: |
+                The timestamp at which the Galasa Secret was last updated.
+            lastUpdatedBy:
+              type: string
+              description: |
+                The ID of the last user that updated the Galasa Secret.
             encoding:
               type: string
               description: |
@@ -2109,6 +2122,9 @@ components:
         name:
           type: string
           description: The name of the secret to create or update
+        description:
+          type: string
+          description: The description to associate with the secret to create or update
         type:
           type: string
           description: The type of the secret to create or update

@@ -8,6 +8,7 @@ package dev.galasa.framework.api.resources.processors;
 import static org.assertj.core.api.Assertions.*;
 import static dev.galasa.framework.api.common.resources.ResourceAction.*;
 
+import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.google.gson.JsonObject;
 import dev.galasa.ICredentials;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.mocks.MockCredentialsService;
+import dev.galasa.framework.api.common.mocks.MockTimeService;
 import dev.galasa.framework.api.resources.ResourcesServletTest;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
@@ -29,17 +31,29 @@ import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
 
 public class GalasaSecretProcessorTest extends ResourcesServletTest {
 
-	private JsonObject generateSecretJson(String secretName, String type, String encoding, String username, String password) {
+    private JsonObject generateSecretJson(String secretName, String type, String encoding, String username, String password) {
         return generateSecretJson(secretName, type, encoding, username, password, null);
-	}
+    }
 
-	private JsonObject generateSecretJson(
+    private JsonObject generateSecretJson(
         String secretName,
         String type,
         String encoding,
         String username,
         String password,
-        String token
+        String description
+    ) {
+        return generateSecretJson(secretName, type, encoding, username, password, null, description);
+    }
+
+    private JsonObject generateSecretJson(
+        String secretName,
+        String type,
+        String encoding,
+        String username,
+        String password,
+        String token,
+        String description
     ) {
         JsonObject secretJson = new JsonObject();
         secretJson.addProperty("apiVersion", "galasa-dev/v1alpha1");
@@ -48,6 +62,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         JsonObject secretMetadata = new JsonObject();
         secretMetadata.addProperty("name", secretName);
         secretMetadata.addProperty("type", type);
+
+        if (description != null) {
+            secretMetadata.addProperty("description", description);
+        }
 
         if (encoding != null) {
             secretMetadata.addProperty("encoding", encoding);
@@ -82,14 +100,16 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         //         "username": "a-username"
         //     }
         // }
-		return secretJson;
-	}
+        return secretJson;
+    }
 
     @Test
     public void testApplySecretWithMissingNameReturnsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
         String encoding = null;
@@ -101,7 +121,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         secretJson.get("metadata").getAsJsonObject().remove("name");
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, APPLY);
+        List<String> errors = secretProcessor.processResource(secretJson, APPLY, requestUsername);
 
         // Then...
         assertThat(errors).hasSize(1);
@@ -113,8 +133,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testApplySecretWithMissingSecretTypeReturnsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
         String encoding = null;
@@ -126,7 +148,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         secretJson.get("metadata").getAsJsonObject().remove("type");
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, APPLY);
+        List<String> errors = secretProcessor.processResource(secretJson, APPLY, requestUsername);
 
         // Then...
         assertThat(errors).hasSize(1);
@@ -138,8 +160,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testApplySecretWithMissingDataThrowsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
         String encoding = null;
@@ -152,7 +176,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            secretProcessor.processResource(secretJson, APPLY);
+            secretProcessor.processResource(secretJson, APPLY, requestUsername);
         }, InternalServletException.class);
 
         // Then...
@@ -165,8 +189,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testApplySecretWithMissingMetadataThrowsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
         String encoding = null;
@@ -179,7 +205,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            secretProcessor.processResource(secretJson, APPLY);
+            secretProcessor.processResource(secretJson, APPLY, requestUsername);
         }, InternalServletException.class);
 
         // Then...
@@ -192,8 +218,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testApplySecretWithMissingApiVersionThrowsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
         String encoding = null;
@@ -206,7 +234,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            secretProcessor.processResource(secretJson, APPLY);
+            secretProcessor.processResource(secretJson, APPLY, requestUsername);
         }, InternalServletException.class);
 
         // Then...
@@ -219,8 +247,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testApplySecretWithMissingUsernamePasswordFieldsReturnsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
         String encoding = null;
@@ -229,7 +259,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         JsonObject secretJson = generateSecretJson(secretName, type, encoding, username, password);
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, APPLY);
+        List<String> errors = secretProcessor.processResource(secretJson, APPLY, requestUsername);
 
         // Then...
         assertThat(errors).hasSize(1);
@@ -241,8 +271,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testApplySecretWithUnsupportedEncodingReturnsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
         String encoding = "UNKNOWN!!!";
@@ -251,7 +283,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         JsonObject secretJson = generateSecretJson(secretName, type, encoding, username, password);
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, APPLY);
+        List<String> errors = secretProcessor.processResource(secretJson, APPLY, requestUsername);
 
         // Then...
         assertThat(errors).hasSize(1);
@@ -262,8 +294,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testApplySecretWithUnknownSecretTypeReturnsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UNKNOWN TYPE!";
         String encoding = null;
@@ -272,7 +306,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         JsonObject secretJson = generateSecretJson(secretName, type, encoding, username, password);
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, APPLY);
+        List<String> errors = secretProcessor.processResource(secretJson, APPLY, requestUsername);
 
         // Then...
         assertThat(errors).hasSize(1);
@@ -283,8 +317,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testApplySecretWithNoNameAndUnknownSecretTypeAndUnknownEncodingReturnsMultipleErrors() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UNKNOWN TYPE!";
         String encoding = "UNKNOWN ENCODING!";
@@ -296,7 +332,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         secretJson.get("metadata").getAsJsonObject().remove("name");
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, APPLY);
+        List<String> errors = secretProcessor.processResource(secretJson, APPLY, requestUsername);
 
         // Then...
         assertThat(errors).hasSize(3);
@@ -312,17 +348,21 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testCreateUsernamePasswordSecretSetsCredentialsOk() throws Exception {
         // Given...
+        Instant lastUpdatedTime = Instant.EPOCH;
+        MockTimeService mockTimeService = new MockTimeService(lastUpdatedTime);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
         String encoding = null;
         String username = "my-username";
         String password = "a-password";
-        JsonObject secretJson = generateSecretJson(secretName, type, encoding, username, password);
+        String description = "my new credentials";
+        JsonObject secretJson = generateSecretJson(secretName, type, encoding, username, password, description);
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, CREATE);
+        List<String> errors = secretProcessor.processResource(secretJson, CREATE, requestUsername);
 
         // Then...
         assertThat(errors).isEmpty();
@@ -331,13 +371,18 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         assertThat(credentials).isNotNull();
         assertThat(credentials.getUsername()).isEqualTo(username);
         assertThat(credentials.getPassword()).isEqualTo(password);
+        assertThat(credentials.getDescription()).isEqualTo(description);
+        assertThat(credentials.getLastUpdatedTime()).isEqualTo(lastUpdatedTime);
+        assertThat(credentials.getLastUpdatedByUser()).isEqualTo(requestUsername);
     }
 
     @Test
     public void testCreateEncodedUsernamePasswordSecretSetsCredentialsOk() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
 
@@ -352,7 +397,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         JsonObject secretJson = generateSecretJson(secretName, type, encoding, encodedUsername, encodedPassword);
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, CREATE);
+        List<String> errors = secretProcessor.processResource(secretJson, CREATE, requestUsername);
 
         // Then...
         assertThat(errors).isEmpty();
@@ -367,8 +412,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testCreateEncodedTokenSecretSetsCredentialsOk() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Token";
 
@@ -378,10 +425,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         String token = "my-token";
         String encodedToken = encoder.encodeToString(token.getBytes());
 
-        JsonObject secretJson = generateSecretJson(secretName, type, encoding, null, null, encodedToken);
+        JsonObject secretJson = generateSecretJson(secretName, type, encoding, null, null, encodedToken, null);
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, CREATE);
+        List<String> errors = secretProcessor.processResource(secretJson, CREATE, requestUsername);
 
         // Then...
         assertThat(errors).isEmpty();
@@ -395,8 +442,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testCreateEncodedUsernameTokenSecretSetsCredentialsOk() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernameToken";
 
@@ -408,10 +457,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         String encodedUsername = encoder.encodeToString(username.getBytes());
         String encodedToken = encoder.encodeToString(token.getBytes());
 
-        JsonObject secretJson = generateSecretJson(secretName, type, encoding, encodedUsername, null, encodedToken);
+        JsonObject secretJson = generateSecretJson(secretName, type, encoding, encodedUsername, null, encodedToken, null);
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, CREATE);
+        List<String> errors = secretProcessor.processResource(secretJson, CREATE, requestUsername);
 
         // Then...
         assertThat(errors).isEmpty();
@@ -426,8 +475,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testCreateEncodedUsernameSecretSetsCredentialsOk() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Username";
 
@@ -440,7 +491,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         JsonObject secretJson = generateSecretJson(secretName, type, encoding, encodedUsername, null, null);
 
         // When...
-        List<String> errors = secretProcessor.processResource(secretJson, CREATE);
+        List<String> errors = secretProcessor.processResource(secretJson, CREATE, requestUsername);
 
         // Then...
         assertThat(errors).isEmpty();
@@ -454,6 +505,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testDeleteSecretDeletesCredentialsOk() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         String secretName = "ABC";
         String username = "my-username";
         Map<String, ICredentials> existingCreds = new HashMap<>();
@@ -461,7 +513,8 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         existingCreds.put("another-secret", new CredentialsUsername("another-username"));
 
         MockCredentialsService mockCreds = new MockCredentialsService(existingCreds);
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String type = "Username";
         String encoding = null;
 
@@ -470,7 +523,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // When...
         assertThat(mockCreds.getAllCredentials()).hasSize(2);
         assertThat(mockCreds.getCredentials(secretName)).isNotNull();
-        List<String> errors = secretProcessor.processResource(secretJson, DELETE);
+        List<String> errors = secretProcessor.processResource(secretJson, DELETE, requestUsername);
 
         // Then...
         assertThat(errors).isEmpty();
@@ -481,6 +534,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testDeleteSecretDoesNotInsistOnData() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         String secretName = "ABC";
         String username = "my-username";
         Map<String, ICredentials> existingCreds = new HashMap<>();
@@ -488,7 +542,8 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         existingCreds.put("another-secret", new CredentialsUsername("another-username"));
 
         MockCredentialsService mockCreds = new MockCredentialsService(existingCreds);
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String type = "Username";
         String encoding = null;
 
@@ -500,7 +555,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // When...
         assertThat(mockCreds.getAllCredentials()).hasSize(2);
         assertThat(mockCreds.getCredentials(secretName)).isNotNull();
-        List<String> errors = secretProcessor.processResource(secretJson, DELETE);
+        List<String> errors = secretProcessor.processResource(secretJson, DELETE, requestUsername);
 
         // Then...
         assertThat(errors).isEmpty();
@@ -511,11 +566,13 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testCreateSecretThatAlreadyExistsThrowsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         Map<String, ICredentials> credsMap = new HashMap<>();
         credsMap.put("ABC", new CredentialsUsername("my-username"));
 
         MockCredentialsService mockCreds = new MockCredentialsService(credsMap);
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Username";
         String encoding = null;
@@ -525,7 +582,7 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            secretProcessor.processResource(secretJson, CREATE);
+            secretProcessor.processResource(secretJson, CREATE, requestUsername);
         }, InternalServletException.class);
 
         // Then...
@@ -537,18 +594,20 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testUpdateSecretThatDoesNotExistThrowsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Token";
         String encoding = null;
         String token = "another-token";
 
-        JsonObject secretJson = generateSecretJson(secretName, type, encoding, null, null, token);
+        JsonObject secretJson = generateSecretJson(secretName, type, encoding, null, null, token, null);
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            secretProcessor.processResource(secretJson, UPDATE);
+            secretProcessor.processResource(secretJson, UPDATE, requestUsername);
         }, InternalServletException.class);
 
         // Then...
@@ -560,20 +619,22 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testApplySecretWithFailingCredsServiceThrowsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
         mockCreds.setThrowError(true);
 
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Token";
         String encoding = null;
         String token = "a-token";
 
-        JsonObject secretJson = generateSecretJson(secretName, type, encoding, null, null, token);
+        JsonObject secretJson = generateSecretJson(secretName, type, encoding, null, null, token, null);
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            secretProcessor.processResource(secretJson, APPLY);
+            secretProcessor.processResource(secretJson, APPLY, requestUsername);
         }, InternalServletException.class);
 
         // Then...
@@ -585,10 +646,12 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
     @Test
     public void testDeleteSecretWithFailingCredsServiceThrowsError() throws Exception {
         // Given...
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
         mockCreds.setThrowError(true);
 
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Token";
         String encoding = null;
@@ -598,12 +661,65 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            secretProcessor.processResource(secretJson, DELETE);
+            secretProcessor.processResource(secretJson, DELETE, requestUsername);
         }, InternalServletException.class);
 
         // Then...
         assertThat(thrown).isNotNull();
         checkErrorStructure(thrown.getMessage(), 5078, "GAL5078E",
             "Failed to delete a secret with the given ID from the credentials store");
+    }
+
+    @Test
+    public void testCreateUsernamePasswordSecretWithBlankDescriptionThrowsError() throws Exception {
+        // Given...
+        Instant lastUpdatedTime = Instant.EPOCH;
+        MockTimeService mockTimeService = new MockTimeService(lastUpdatedTime);
+        MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
+        String secretName = "ABC";
+        String type = "UsernamePassword";
+        String encoding = null;
+        String username = "my-username";
+        String password = "a-password";
+        String description = "    ";
+        JsonObject secretJson = generateSecretJson(secretName, type, encoding, username, password, description);
+
+        // When...
+        List<String> errors = secretProcessor.processResource(secretJson, CREATE, requestUsername);
+
+        // Then...
+        assertThat(errors).hasSize(1);
+        checkErrorStructure(errors.get(0), 5102, "GAL5102E",
+            "Invalid secret description provided");
+    }
+
+    @Test
+    public void testCreateUsernamePasswordSecretWithNonLatin1DescriptionThrowsError() throws Exception {
+        // Given...
+        Instant lastUpdatedTime = Instant.EPOCH;
+        MockTimeService mockTimeService = new MockTimeService(lastUpdatedTime);
+        MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        String requestUsername = "myuser";
+        String secretName = "ABC";
+        String type = "UsernamePassword";
+        String encoding = null;
+        String username = "my-username";
+        String password = "a-password";
+
+        // Latin-1 characters are in the 0-255 range, so set one that is outside this range
+        char nonLatin1Character = (char) 300;
+        String description = "this is my bad description " + nonLatin1Character;
+        JsonObject secretJson = generateSecretJson(secretName, type, encoding, username, password, description);
+
+        // When...
+        List<String> errors = secretProcessor.processResource(secretJson, CREATE, requestUsername);
+
+        // Then...
+        assertThat(errors).hasSize(1);
+        checkErrorStructure(errors.get(0), 5102, "GAL5102E",
+            "Invalid secret description provided");
     }
 }

@@ -8,9 +8,11 @@ package dev.galasa.framework.api.secrets.internal.routes;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static dev.galasa.framework.api.beans.generated.GalasaSecretType.*;
 
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.ICredentials;
@@ -26,7 +28,9 @@ import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
 import dev.galasa.framework.api.beans.generated.SecretRequesttoken;
 import dev.galasa.framework.api.beans.generated.SecretRequestusername;
 import dev.galasa.framework.api.common.BaseRoute;
+import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.GalasaSecretType;
@@ -34,10 +38,14 @@ import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
 import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 public abstract class AbstractSecretsRoute extends BaseRoute {
 
     private static final String DEFAULT_RESPONSE_ENCODING = "base64";
+
+    private Environment env;
+    protected ITimeService timeService;
 
     private static final Map<Class<? extends ICredentials>, GalasaSecretType> credentialsToSecretTypes = Map.of(
         CredentialsUsername.class, GalasaSecretType.USERNAME,
@@ -46,8 +54,10 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
         CredentialsUsernameToken.class, GalasaSecretType.USERNAME_TOKEN
     );
 
-    public AbstractSecretsRoute(ResponseBuilder responseBuilder, String path) {
+    public AbstractSecretsRoute(ResponseBuilder responseBuilder, String path, Environment env, ITimeService timeService) {
         super(responseBuilder, path);
+        this.env = env;
+        this.timeService = timeService;
     }
 
     protected GalasaSecret createGalasaSecretFromCredentials(String secretName, ICredentials credentials) throws InternalServletException {
@@ -57,7 +67,7 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
         metadata.setname(secretName);
         metadata.setencoding(DEFAULT_RESPONSE_ENCODING);
         setSecretTypeValuesFromCredentials(metadata, data, credentials);
-
+        setSecretMetadata(metadata, credentials.getDescription(), credentials.getLastUpdatedByUser(), credentials.getLastUpdatedTime());
         GalasaSecret secret = new GalasaSecret();
         secret.setApiVersion(GalasaSecretType.DEFAULT_API_VERSION);
         secret.setdata(data);
@@ -66,7 +76,13 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
         return secret;
     }
 
-    protected ICredentials decodeCredentialsFromSecretPayload(SecretRequest secretRequest) throws InternalServletException {
+    protected ICredentials buildDecodedCredentialsToSet(SecretRequest secretRequest, String lastUpdatedByUser) throws InternalServletException {
+        ICredentials decodedSecret = decodeCredentialsFromSecretPayload(secretRequest);
+        setSecretMetadataProperties(decodedSecret, secretRequest.getdescription(), lastUpdatedByUser);
+        return decodedSecret;
+    }
+
+    private ICredentials decodeCredentialsFromSecretPayload(SecretRequest secretRequest) throws InternalServletException {
         ICredentials credentials = null;
         SecretRequestusername username = secretRequest.getusername();
         SecretRequestpassword password = secretRequest.getpassword();
@@ -142,6 +158,15 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
         }
     }
 
+    private void setSecretMetadata(GalasaSecretmetadata metadata, String description, String username, Instant timestamp) {
+        metadata.setdescription(description);
+        metadata.setLastUpdatedBy(username);
+
+        if (timestamp != null) {
+            metadata.setLastUpdatedTime(timestamp.toString());
+        }
+    }
+
     private String encodeValue(String value) {
         String encodedValue = value;
         if (DEFAULT_RESPONSE_ENCODING.equals("base64")) {
@@ -156,5 +181,17 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
             existingSecretType = credentialsToSecretTypes.get(existingSecret.getClass());
         }
         return existingSecretType;
+    }
+
+    protected String getUsernameFromRequestJwt(HttpServletRequest request) throws InternalServletException {
+        return new JwtWrapper(request, env).getUsername();
+    }
+
+    protected void setSecretMetadataProperties(ICredentials secret, String description, String lastUpdatedByUser) {
+        if (description != null && !description.isBlank()) {
+            secret.setDescription(description);
+        }
+        secret.setLastUpdatedByUser(lastUpdatedByUser);
+        secret.setLastUpdatedTime(timeService.now());
     }
 }

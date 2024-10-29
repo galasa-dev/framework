@@ -36,7 +36,7 @@ public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor imp
     }
 
     @Override
-    public List<String> processResource(JsonObject resource, ResourceAction action) throws InternalServletException {
+    public List<String> processResource(JsonObject resource, ResourceAction action, String username) throws InternalServletException {
         List<String> errors = checkGalasaPropertyJsonStructure(resource, action);
         try {
             if (errors.isEmpty()) {

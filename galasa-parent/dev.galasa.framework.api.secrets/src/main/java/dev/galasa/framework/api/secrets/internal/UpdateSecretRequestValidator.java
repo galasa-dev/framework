@@ -49,6 +49,8 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
         SecretRequestpassword password = secretRequest.getpassword();
         SecretRequesttoken token = secretRequest.gettoken();
 
+        validateDescription(secretRequest.getdescription());
+
         // Password and token are mutually exclusive, so error if both are provided
         if (password != null && token != null) {
             ServletError error = new ServletError(GAL5095_ERROR_PASSWORD_AND_TOKEN_PROVIDED);
@@ -68,6 +70,8 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
         SecretRequestusername username = secretRequest.getusername();
         SecretRequestpassword password = secretRequest.getpassword();
         SecretRequesttoken token = secretRequest.gettoken();
+
+        validateDescription(secretRequest.getdescription());
 
         // Password and token are mutually exclusive, so error if both are provided
         if (password != null && token != null) {
@@ -112,7 +116,7 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
         JsonObject secretRequestJson = gson.toJsonTree(secretRequest).getAsJsonObject();
         Set<String> secretRequestFields = secretRequestJson.keySet()
             .stream()
-            .filter(key -> !key.equals("name") && !key.equals("type"))
+            .filter(key -> !key.equals("name") && !key.equals("type") && !key.equals("description"))
             .collect(Collectors.toSet());
 
         List<String> requiredTypeFields = Arrays.asList(secretType.getRequiredDataFields());

@@ -12,11 +12,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.api.common.BaseServlet;
+import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.secrets.internal.routes.SecretDetailsRoute;
 import dev.galasa.framework.api.secrets.internal.routes.SecretsRoute;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.utils.ITimeService;
+import dev.galasa.framework.spi.utils.SystemTimeService;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -31,6 +35,9 @@ public class SecretsServlet extends BaseServlet {
 	@Reference
 	protected IFramework framework;
 
+    protected Environment env = new SystemEnvironment();
+    protected ITimeService timeService = new SystemTimeService();
+
 	private static final long serialVersionUID = 1L;
 
 	private Log logger = LogFactory.getLog(this.getClass());
@@ -41,8 +48,8 @@ public class SecretsServlet extends BaseServlet {
 
         try {
             ICredentialsService credentialsService = framework.getCredentialsService();
-            addRoute(new SecretsRoute(getResponseBuilder(), credentialsService));
-            addRoute(new SecretDetailsRoute(getResponseBuilder(), credentialsService));
+            addRoute(new SecretsRoute(getResponseBuilder(), credentialsService, env, timeService));
+            addRoute(new SecretDetailsRoute(getResponseBuilder(), credentialsService, env, timeService));
         } catch (CredentialsException e) {
             throw new ServletException("Failed to initialise the Secrets servlet");
         }

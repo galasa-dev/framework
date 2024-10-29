@@ -17,8 +17,9 @@ import dev.galasa.framework.api.beans.generated.SecretRequestusername;
 import dev.galasa.framework.api.common.IBeanValidator;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.BaseResourceValidator;
 
-public class SecretRequestValidator implements IBeanValidator<SecretRequest> {
+public class SecretRequestValidator extends BaseResourceValidator implements IBeanValidator<SecretRequest> {
 
     @Override
     public void validate(SecretRequest secretRequest) throws InternalServletException {
@@ -28,10 +29,12 @@ public class SecretRequestValidator implements IBeanValidator<SecretRequest> {
 
         // Check that the secret has been given a name
         String secretName = secretRequest.getname();
-        if (secretName == null || secretName.isBlank()) {
+        if (secretName == null || secretName.isBlank() || !isLatin1(secretName)) {
             ServletError error = new ServletError(GAL5092_INVALID_SECRET_NAME_PROVIDED);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
+
+        validateDescription(secretRequest.getdescription());
 
         // Password and token are mutually exclusive, so error if both are provided
         if (password != null && token != null) {
@@ -77,4 +80,12 @@ public class SecretRequestValidator implements IBeanValidator<SecretRequest> {
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }
+
+    protected void validateDescription(String description) throws InternalServletException {
+        if (description != null && (description.isBlank() || !isLatin1(description))) {
+            ServletError error = new ServletError(GAL5102_INVALID_SECRET_DESCRIPTION_PROVIDED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
+
 }

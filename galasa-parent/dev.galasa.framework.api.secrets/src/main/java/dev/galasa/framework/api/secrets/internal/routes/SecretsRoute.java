@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.ICredentials;
 import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.SecretRequest;
+import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -29,6 +30,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.secrets.internal.SecretRequestValidator;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 public class SecretsRoute extends AbstractSecretsRoute {
 
@@ -40,8 +42,12 @@ public class SecretsRoute extends AbstractSecretsRoute {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    public SecretsRoute(ResponseBuilder responseBuilder, ICredentialsService credentialsService) {
-        super(responseBuilder, PATH_PATTERN);
+    public SecretsRoute(
+        ResponseBuilder responseBuilder,
+        ICredentialsService credentialsService,
+        Environment env,
+        ITimeService timeService) {
+        super(responseBuilder, PATH_PATTERN, env, timeService);
         this.credentialsService = credentialsService;
     }
 
@@ -93,7 +99,8 @@ public class SecretsRoute extends AbstractSecretsRoute {
         }
 
         logger.info("Setting secret in credentials store");
-        ICredentials decodedSecret = decodeCredentialsFromSecretPayload(secretPayload);
+        String lastUpdatedByUser = getUsernameFromRequestJwt(request);
+        ICredentials decodedSecret = buildDecodedCredentialsToSet(secretPayload, lastUpdatedByUser);
         credentialsService.setCredentials(secretName, decodedSecret);
 
         logger.info("Secret set in credentials store OK");

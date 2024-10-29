@@ -8,6 +8,7 @@ package dev.galasa.framework.api.secrets.internal;
 import static org.assertj.core.api.Assertions.*;
 import static dev.galasa.framework.api.common.resources.GalasaSecretType.*;
 
+import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ import dev.galasa.framework.api.common.mocks.MockCredentialsService;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
+import dev.galasa.framework.api.common.mocks.MockTimeService;
 import dev.galasa.framework.api.secrets.internal.routes.SecretDetailsRoute;
 import dev.galasa.framework.api.secrets.mocks.MockSecretsServlet;
 import dev.galasa.framework.spi.creds.CredentialsToken;
@@ -37,7 +39,7 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
     @Test
     public void testSecretDetailsRouteRegexMatchesExpectedPaths() throws Exception {
         // Given...
-        Pattern routePattern = new SecretDetailsRoute(null, null).getPath();
+        Pattern routePattern = new SecretDetailsRoute(null, null, null, null).getPath();
 
         // Then...
         // The servlet's whiteboard pattern will match /secrets, so this route should
@@ -69,9 +71,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -98,9 +101,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -128,9 +132,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
 
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
         mockRequest.setQueryParameter("name", secretName);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -157,9 +162,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
         mockRequest.setMethod(HttpMethod.DELETE.toString());
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -184,9 +190,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
         mockRequest.setMethod(HttpMethod.DELETE.toString());
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -215,9 +222,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
 
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
         mockRequest.setMethod(HttpMethod.DELETE.toString());
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -253,10 +261,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -297,10 +305,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -338,10 +346,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -379,10 +387,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -420,10 +428,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -461,10 +469,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -502,10 +510,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -541,10 +549,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -580,10 +588,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -621,10 +629,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -658,10 +666,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -697,10 +705,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -730,10 +738,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -763,10 +771,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -795,10 +803,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -830,10 +838,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -867,10 +875,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -903,10 +911,10 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
 
-        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework);
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(secretJsonStr, "/" + secretName);
-        mockRequest.setMethod(HttpMethod.PUT.toString());
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -919,6 +927,135 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(500);
         checkErrorStructure(outStream.toString(), 5101, "GAL5101E",
             "Unknown secret type detected");
+    }
+
+    @Test
+    public void testUpdateSecretWithBlankDescriptionReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldToken = "my-old-token";
+        String newToken = "my-new-token";
+        String newDescription = "   ";
+
+        creds.put(secretName, new CredentialsToken(oldToken));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("token", createSecretJson(newToken));
+        secretJson.addProperty("description", newDescription);
+
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5102, "GAL5102E",
+            "Invalid secret description provided");
+    }
+
+    @Test
+    public void testUpdateSecretWithNonLatin1DescriptionReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldToken = "my-old-token";
+        String newToken = "my-new-token";
+
+        // Latin-1 characters are in the range 0-255, so get one that is outside this range
+        char nonLatin1Character = (char)300;
+        String description = Character.toString(nonLatin1Character) + " more text here!";
+
+        creds.put(secretName, new CredentialsToken(oldToken));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("token", createSecretJson(newToken));
+        secretJson.addProperty("description", description);
+
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5102, "GAL5102E",
+            "Invalid secret description provided");
+    }
+
+    @Test
+    public void testUpdateSecretWithValidLatin1DescriptionUpdatesSecret() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldToken = "my-old-token";
+        String newToken = "my-new-token";
+
+        Instant lastUpdatedTime = Instant.EPOCH;
+
+        // Latin-1 characters are in the range 0-255
+        char latin1Character = (char)255;
+        String description = Character.toString(latin1Character) + " more text here!";
+
+        creds.put(secretName, new CredentialsToken(oldToken));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("token", createSecretJson(newToken));
+        secretJson.addProperty("description", description);
+
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(lastUpdatedTime);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsToken updatedCredentials = (CredentialsToken) credsService.getCredentials(secretName);
+        assertThat(updatedCredentials).isNotNull();
+        assertThat(updatedCredentials.getToken()).isEqualTo(newToken.getBytes());
+        assertThat(updatedCredentials.getDescription()).isEqualTo(description);
+        assertThat(updatedCredentials.getLastUpdatedTime()).isEqualTo(lastUpdatedTime);
+        assertThat(updatedCredentials.getLastUpdatedByUser()).isEqualTo(JWT_USERNAME);
     }
 }
 

@@ -24,6 +24,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyValidPropertyReturnsOK() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "myvalue";
@@ -34,7 +35,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        propertyProcessor.processResource(propertyJson, APPLY);
+        propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         checkPropertyInNamespace(namespace,propertyname,value);
@@ -43,6 +44,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyPropertyWithNewNamespaceReturnsOK() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "newnamespace";
         String propertyname = "property.name";
         String value = "myvalue";
@@ -53,7 +55,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        propertyProcessor.processResource(propertyJson, APPLY);
+        propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         checkPropertyInNamespace(namespace,propertyname,value);
@@ -62,6 +64,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyInvalidPropertyNameReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property1!";
         String value = "myvalue";
@@ -72,7 +75,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
 
         //Then...
@@ -85,6 +88,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyPropertyNameWithTrailingDotReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name.";
         String value = "myvalue";
@@ -95,7 +99,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -107,6 +111,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyPropertyNameWithLeadingDotReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = ".property.name";
         String value = "myvalue";
@@ -117,7 +122,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -129,6 +134,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyBadPropertyNameReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property";
         String value = "myvalue";
@@ -139,7 +145,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -151,6 +157,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyMissingPropertyNameReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "";
         String value = "myvalue";
@@ -161,7 +168,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -173,6 +180,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyMissingPropertyNamespaceReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "";
         String propertyname = "property.name";
         String value = "myvalue";
@@ -183,7 +191,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -195,6 +203,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyBadNamespaceReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "namespace@";
         String propertyname = "property.name";
         String value = "myvalue";
@@ -205,7 +214,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -217,6 +226,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyNamespaceWithTrailingDotReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "namespace.";
         String propertyname = "property.name";
         String value = "myvalue";
@@ -227,7 +237,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -239,6 +249,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyNamespaceWithLeadingDotReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = ".namespace";
         String propertyname = "property.name";
         String value = "myvalue";
@@ -249,7 +260,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -261,6 +272,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyMissingPropertyValueReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "";
@@ -271,7 +283,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -284,6 +296,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyEmptyFieldsReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "";
         String propertyname = "";
         String value = "";
@@ -294,7 +307,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = generatePropertyJson(namespace, propertyname, value, "galasa-dev/v1alpha1");
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -308,6 +321,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyNoMetadataOrDataReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "";
         String propertyname = "";
         String value = "";
@@ -319,7 +333,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
         JsonObject propertyJson = JsonParser.parseString(jsonString).getAsJsonObject();
 
         //When...
-        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY);
+        List<String> errors = propertyProcessor.processResource(propertyJson, APPLY, username);
 
         //Then...
         assertThat(errors).isNotNull();
@@ -334,6 +348,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyMissingApiVersionReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
@@ -345,7 +360,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
 
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyProcessor.processResource(propertyJson, APPLY);
+            propertyProcessor.processResource(propertyJson, APPLY, username);
         });
 
         //Then...
@@ -357,6 +372,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
     @Test
     public void testProcessGalasaPropertyBadJsonReturnsError() throws Exception {
         //Given...
+        String username = "myuser";
         String namespace = "framework";
         String propertyname = "property.name";
         String value = "value";
@@ -369,7 +385,7 @@ public class GalasaPropertyProcessorTest extends ResourcesServletTest {
 
         //When...
         Throwable thrown = catchThrowable(() -> {
-            propertyProcessor.processResource(propertyJson, APPLY);
+            propertyProcessor.processResource(propertyJson, APPLY, username);
         });
 
         //Then...

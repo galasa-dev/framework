@@ -28,6 +28,7 @@ public class BaseServletTest {
     //   "iat": 1516239022
     // }
     public static final String DUMMY_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0UmVxdWVzdG9yIiwic3ViIjoicmVxdWVzdG9ySWQiLCJuYW1lIjoiSmFjayBTa2VsbGluZ3RvbiIsImlhdCI6MTUxNjIzOTAyMn0.kW1arFknbywrtRrxsLjB2MiXcM6oSgnUrOpuAlE5dhk"; //Dummy JWT
+    public static final String JWT_USERNAME = "testRequestor";
 
     protected static final GalasaGson gson = new GalasaGson();
 

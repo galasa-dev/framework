@@ -23,6 +23,7 @@ import dev.galasa.framework.api.beans.generated.SecretRequest;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
 import dev.galasa.framework.api.beans.generated.SecretRequesttoken;
 import dev.galasa.framework.api.beans.generated.SecretRequestusername;
+import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -37,6 +38,7 @@ import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
 import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 public class SecretDetailsRoute extends AbstractSecretsRoute {
 
@@ -52,8 +54,13 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    public SecretDetailsRoute(ResponseBuilder responseBuilder, ICredentialsService credentialsService) {
-        super(responseBuilder, PATH_PATTERN);
+    public SecretDetailsRoute(
+        ResponseBuilder responseBuilder,
+        ICredentialsService credentialsService,
+        Environment env,
+        ITimeService timeService
+    ) {
+        super(responseBuilder, PATH_PATTERN, env, timeService);
         this.credentialsService = credentialsService;
     }
 
@@ -85,6 +92,7 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
         checkRequestHasContent(request);
 
         String secretName = getSecretNameFromPath(pathInfo);
+        String lastUpdatedByUser = getUsernameFromRequestJwt(request);
         SecretRequest secretPayload = parseRequestBody(request, SecretRequest.class);
 
         ICredentials existingSecret = credentialsService.getCredentials(secretName);
@@ -95,16 +103,17 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
         int responseCode = HttpServletResponse.SC_NO_CONTENT;
         if (existingSecret == null) {
             // No secret with the given name exists, so create a new one
-            decodedSecret = decodeCredentialsFromSecretPayload(secretPayload);
+            decodedSecret = buildDecodedCredentialsToSet(secretPayload, lastUpdatedByUser);
             responseCode = HttpServletResponse.SC_CREATED;
         } else if (secretPayload.gettype() != null) {
             // When a secret type is given, all relevant fields for that type are required,
             // so overwrite the existing secret to change its type
-            decodedSecret = decodeCredentialsFromSecretPayload(secretPayload);
+            decodedSecret = buildDecodedCredentialsToSet(secretPayload, lastUpdatedByUser);
         } else {
             // A secret already exists and no type was given, so just update the secret by
             // overriding its existing values with the values provided in the request
             decodedSecret = getOverriddenSecret(existingSecretType, existingSecret, secretPayload);
+            setSecretMetadataProperties(decodedSecret, secretPayload.getdescription(), lastUpdatedByUser);
         }
         credentialsService.setCredentials(secretName, decodedSecret);
 

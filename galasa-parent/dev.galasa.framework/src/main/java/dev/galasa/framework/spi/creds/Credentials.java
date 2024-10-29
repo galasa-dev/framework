@@ -64,5 +64,4 @@ public abstract class Credentials {
             throw new CredentialsException("Unable to decrypt credentials", e);
         }
     }
-
 }
