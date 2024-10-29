@@ -8,7 +8,7 @@ package dev.galasa.framework.api.common.resources;
 /**
  * A base validator class that contains commonly-used validation methods
  */
-public class BaseResourceValidator {
+public abstract class AbstractValidator {
 
     /**
      * Checks whether a given string is in valid Latin-1 format (e.g. characters in the range 0 - 255)

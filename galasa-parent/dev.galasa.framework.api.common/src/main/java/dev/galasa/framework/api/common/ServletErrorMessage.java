@@ -128,7 +128,7 @@ public enum ServletErrorMessage {
     GAL5082_NO_LOGINID_PARAM_PROVIDED                 (5082, "E: A request to get the user details failed. The request did not supply a ‘loginId’ filter. A ‘loginId’ query parameter with a value of : ‘me’ was expected. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program."),
 
     // Secrets APIs...
-    GAL5092_INVALID_SECRET_NAME_PROVIDED              (5092, "E: Invalid secret name provided. The name of a Galasa secret cannot be empty or contain only spaces or tabs, and must only contain characters in the Latin-1 character set. Check your request payload and try again."),
+    GAL5092_INVALID_SECRET_NAME_PROVIDED              (5092, "E: Invalid secret name provided. The name of a Galasa secret cannot be empty, contain only spaces or tabs, or contain dots ('.'), and must only contain characters in the Latin-1 character set. Check your request payload and try again."),
     GAL5093_ERROR_SECRET_NOT_FOUND                    (5093, "E: Unable to retrieve a secret with the given name. No such secret exists. Check your request query parameters and try again."),
     GAL5094_FAILED_TO_GET_SECRET_FROM_CREDS           (5094, "E: Failed to retrieve a secret with the given name from the credentials store. The credentials store might be badly configured or could be experiencing a temporary issue. Report the problem to your Galasa Ecosystem owner."),
     GAL5095_ERROR_PASSWORD_AND_TOKEN_PROVIDED         (5095, "E: Invalid secret payload provided. The ''password'' and ''token'' fields are mutually exclusive and cannot be provided in the same secret. Check your request payload and try again."),

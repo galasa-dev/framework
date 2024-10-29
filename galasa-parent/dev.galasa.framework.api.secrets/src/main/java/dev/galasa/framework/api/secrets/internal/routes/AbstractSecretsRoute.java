@@ -33,6 +33,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
 import dev.galasa.framework.api.common.resources.GalasaSecretType;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
@@ -69,7 +70,7 @@ public abstract class AbstractSecretsRoute extends BaseRoute {
         setSecretTypeValuesFromCredentials(metadata, data, credentials);
         setSecretMetadata(metadata, credentials.getDescription(), credentials.getLastUpdatedByUser(), credentials.getLastUpdatedTime());
         GalasaSecret secret = new GalasaSecret();
-        secret.setApiVersion(GalasaSecretType.DEFAULT_API_VERSION);
+        secret.setApiVersion(GalasaResourceValidator.DEFAULT_API_VERSION);
         secret.setdata(data);
         secret.setmetadata(metadata);
 

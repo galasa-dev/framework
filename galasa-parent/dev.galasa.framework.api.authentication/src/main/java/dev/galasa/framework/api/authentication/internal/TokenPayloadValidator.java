@@ -9,13 +9,13 @@ import dev.galasa.framework.api.beans.TokenPayload;
 import dev.galasa.framework.api.common.IBeanValidator;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.common.resources.BaseResourceValidator;
+import dev.galasa.framework.api.common.resources.AbstractValidator;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import javax.servlet.http.HttpServletResponse;
 
-public class TokenPayloadValidator extends BaseResourceValidator implements IBeanValidator<TokenPayload> {
+public class TokenPayloadValidator extends AbstractValidator implements IBeanValidator<TokenPayload> {
 
     @Override
     public void validate(TokenPayload tokenPayload) throws InternalServletException {

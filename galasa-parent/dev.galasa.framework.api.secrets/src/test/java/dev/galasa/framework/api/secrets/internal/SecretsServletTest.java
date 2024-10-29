@@ -13,7 +13,7 @@ import java.util.Map;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.BaseServletTest;
-import dev.galasa.framework.api.common.resources.GalasaSecretType;
+import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
 
 public class SecretsServletTest extends BaseServletTest {
 
@@ -57,7 +57,7 @@ public class SecretsServletTest extends BaseServletTest {
         Instant lastUpdatedTime
     ) {
         JsonObject secretJson = new JsonObject();
-        secretJson.addProperty("apiVersion", GalasaSecretType.DEFAULT_API_VERSION);
+        secretJson.addProperty("apiVersion", GalasaResourceValidator.DEFAULT_API_VERSION);
 
         secretJson.add("metadata", generateExpectedMetadata(secretName, type, description, lastUpdatedUser, lastUpdatedTime));
         secretJson.add("data", generateExpectedData(username, password, token));

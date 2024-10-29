@@ -374,7 +374,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(output, 5092, "GAL5092E",
-            "The name of a Galasa secret cannot be empty or contain only spaces or tabs");
+            "The name of a Galasa secret cannot be empty, contain only spaces or tabs, or contain dots (.), and must only contain characters in the Latin-1 character set");
     }
 
     @Test
@@ -410,7 +410,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(output, 5092, "GAL5092E",
-            "The name of a Galasa secret cannot be empty or contain only spaces or tabs");
+            "The name of a Galasa secret cannot be empty, contain only spaces or tabs, or contain dots (.), and must only contain characters in the Latin-1 character set");
     }
 
     @Test

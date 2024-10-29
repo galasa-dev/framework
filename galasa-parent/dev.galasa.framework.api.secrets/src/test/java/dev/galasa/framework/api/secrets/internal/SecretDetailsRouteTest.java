@@ -48,11 +48,11 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         assertThat(routePattern.matcher("/MYSECRET/").matches()).isTrue();
         assertThat(routePattern.matcher("/mysecret").matches()).isTrue();
         assertThat(routePattern.matcher("/myS3cret123").matches()).isTrue();
-        assertThat(routePattern.matcher("/123My.Secret.456").matches()).isTrue();
-        assertThat(routePattern.matcher("/My-Secret.456").matches()).isTrue();
         assertThat(routePattern.matcher("/My-Secret_456").matches()).isTrue();
 
         // The route should not accept the following
+        assertThat(routePattern.matcher("/My-Secret.456").matches()).isFalse();
+        assertThat(routePattern.matcher("/123My.Secret.456").matches()).isFalse();
         assertThat(routePattern.matcher("////").matches()).isFalse();
         assertThat(routePattern.matcher("").matches()).isFalse();
         assertThat(routePattern.matcher("/my secret").matches()).isFalse();

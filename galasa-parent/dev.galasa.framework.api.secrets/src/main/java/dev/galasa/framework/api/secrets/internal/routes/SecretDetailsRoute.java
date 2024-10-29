@@ -46,9 +46,8 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
     // where {secret-id} can consist of the following characters:
     // - Alphanumeric characters (a-zA-Z0-9)
     // - Underscores (_)
-    // - Dots (.)
     // - Dashes (-)
-    private static final String PATH_PATTERN = "\\/([a-zA-Z0-9_.-]+)\\/?";
+    private static final String PATH_PATTERN = "\\/([a-zA-Z0-9_-]+)\\/?";
 
     private ICredentialsService credentialsService;
 

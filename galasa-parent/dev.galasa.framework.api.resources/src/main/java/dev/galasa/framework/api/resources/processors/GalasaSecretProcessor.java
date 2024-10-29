@@ -9,12 +9,9 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static dev.galasa.framework.api.common.resources.ResourceAction.*;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Base64.Decoder;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,10 +26,10 @@ import dev.galasa.framework.api.beans.generated.GalasaSecretdata;
 import dev.galasa.framework.api.beans.generated.GalasaSecretmetadata;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.common.resources.BaseResourceValidator;
 import dev.galasa.framework.api.common.resources.GalasaSecretType;
 import dev.galasa.framework.api.common.resources.ResourceAction;
 import dev.galasa.framework.api.common.resources.Secret;
+import dev.galasa.framework.api.resources.validators.GalasaSecretValidator;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
@@ -47,12 +44,8 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private static final List<String> SUPPORTED_ENCODING_SCHEMES = List.of("base64");
-
     private ICredentialsService credentialsService;
     private ITimeService timeService;
-
-    private BaseResourceValidator validator = new BaseResourceValidator();
 
     public GalasaSecretProcessor(ICredentialsService credentialsService, ITimeService timeService) {
         this.credentialsService = credentialsService;
@@ -128,24 +121,15 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
             logger.info("Decoded the provided GalasaSecret resource data OK");
         } else {
             // This should never be reached since the secret JSON has already been validated
-            ServletError error = new ServletError(GAL5073_UNSUPPORTED_GALASA_SECRET_ENCODING, String.join(", ", SUPPORTED_ENCODING_SCHEMES));
+            ServletError error = new ServletError(GAL5073_UNSUPPORTED_GALASA_SECRET_ENCODING, String.join(", ", GalasaSecretValidator.SUPPORTED_ENCODING_SCHEMES));
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
         return decodedData;
     }
 
     private List<String> checkGalasaSecretJsonStructure(JsonObject secretJson, ResourceAction action) throws InternalServletException {
-        checkResourceHasRequiredFields(secretJson, GalasaSecretType.DEFAULT_API_VERSION, action);
-        
-        List<String> validationErrors = new ArrayList<>();
-        validateSecretMetadata(secretJson, validationErrors);
-
-        // Delete operations shouldn't require a 'data' section, just the metadata to identify
-        // the credentials entry to delete
-        if (validationErrors.isEmpty() && action != DELETE) {
-            validateSecretData(secretJson, validationErrors);
-        }
-        return validationErrors;
+        GalasaSecretValidator validator = new GalasaSecretValidator(action);
+        return checkGalasaResourceJsonStructure(validator, secretJson);
     }
 
     private ICredentials getCredentialsFromSecret(
@@ -175,57 +159,5 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
             credentials.setDescription(metadata.getdescription());
         }
         return credentials;
-    }
-
-    private void validateSecretMetadata(JsonObject secretJson, List<String> validationErrors) {
-        JsonObject metadata = secretJson.get("metadata").getAsJsonObject();
-
-        // Check if the secret has a name and a type
-        if (!metadata.has("name") || !metadata.has("type")) {
-            ServletError error = new ServletError(GAL5070_INVALID_GALASA_SECRET_MISSING_FIELDS, "metadata", "name, type");
-            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-        }
-
-        // If a description is provided, check that it is valid
-        if (metadata.has("description")) {
-            String description = metadata.get("description").getAsString();
-            if (description.isBlank() || !validator.isLatin1(description)) {
-                ServletError error = new ServletError(GAL5102_INVALID_SECRET_DESCRIPTION_PROVIDED);
-                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-            }
-        }
-
-        // Check if the given secret type is a valid type
-        if (metadata.has("type")) {
-            GalasaSecretType secretType = GalasaSecretType.getFromString(metadata.get("type").getAsString());
-            if (secretType == null) {
-                String supportedSecretTypes = Arrays.stream(GalasaSecretType.values())
-                    .map(GalasaSecretType::toString)
-                    .collect(Collectors.joining(", "));
-    
-                ServletError error = new ServletError(GAL5074_UNKNOWN_GALASA_SECRET_TYPE, supportedSecretTypes);
-                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-            }
-        }
-
-        // Check if the given encoding scheme is supported
-        if (metadata.has("encoding") && !SUPPORTED_ENCODING_SCHEMES.contains(metadata.get("encoding").getAsString())) {
-            ServletError error = new ServletError(GAL5073_UNSUPPORTED_GALASA_SECRET_ENCODING, String.join(", ", SUPPORTED_ENCODING_SCHEMES));
-            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-        }
-    }
-
-    private void validateSecretData(JsonObject secretJson, List<String> validationErrors) {
-        JsonObject metadata = secretJson.get("metadata").getAsJsonObject();
-        JsonObject data = secretJson.get("data").getAsJsonObject();
-
-        GalasaSecretType secretType = GalasaSecretType.getFromString(metadata.get("type").getAsString());
-        String[] requiredTypeFields = secretType.getRequiredDataFields();
-        List<String> missingFields = getMissingResourceFields(data, Arrays.asList(requiredTypeFields));
-
-        if (!missingFields.isEmpty()) {
-            ServletError error = new ServletError(GAL5072_INVALID_GALASA_SECRET_MISSING_TYPE_DATA, secretType.toString(), String.join(", ", missingFields));
-            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-        }
     }
 }

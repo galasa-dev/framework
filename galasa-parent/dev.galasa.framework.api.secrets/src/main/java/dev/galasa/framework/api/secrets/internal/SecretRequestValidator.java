@@ -6,7 +6,6 @@
 package dev.galasa.framework.api.secrets.internal;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-import static dev.galasa.framework.api.common.resources.GalasaSecretType.*;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,12 +13,11 @@ import dev.galasa.framework.api.beans.generated.SecretRequest;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
 import dev.galasa.framework.api.beans.generated.SecretRequesttoken;
 import dev.galasa.framework.api.beans.generated.SecretRequestusername;
-import dev.galasa.framework.api.common.IBeanValidator;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
-import dev.galasa.framework.api.common.resources.BaseResourceValidator;
+import dev.galasa.framework.api.common.resources.SecretValidator;
 
-public class SecretRequestValidator extends BaseResourceValidator implements IBeanValidator<SecretRequest> {
+public class SecretRequestValidator extends SecretValidator<SecretRequest> {
 
     @Override
     public void validate(SecretRequest secretRequest) throws InternalServletException {
@@ -28,11 +26,7 @@ public class SecretRequestValidator extends BaseResourceValidator implements IBe
         SecretRequesttoken token = secretRequest.gettoken();
 
         // Check that the secret has been given a name
-        String secretName = secretRequest.getname();
-        if (secretName == null || secretName.isBlank() || !isLatin1(secretName)) {
-            ServletError error = new ServletError(GAL5092_INVALID_SECRET_NAME_PROVIDED);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
+        validateSecretName(secretRequest.getname());
 
         validateDescription(secretRequest.getdescription());
 
@@ -80,12 +74,4 @@ public class SecretRequestValidator extends BaseResourceValidator implements IBe
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }
-
-    protected void validateDescription(String description) throws InternalServletException {
-        if (description != null && (description.isBlank() || !isLatin1(description))) {
-            ServletError error = new ServletError(GAL5102_INVALID_SECRET_DESCRIPTION_PROVIDED);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
-    }
-
 }
