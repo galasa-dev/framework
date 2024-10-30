@@ -112,7 +112,8 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
             // A secret already exists and no type was given, so just update the secret by
             // overriding its existing values with the values provided in the request
             decodedSecret = getOverriddenSecret(existingSecretType, existingSecret, secretPayload);
-            setSecretMetadataProperties(decodedSecret, secretPayload.getdescription(), lastUpdatedByUser);
+            String description = getOverriddenValue(existingSecret.getDescription(), secretPayload.getdescription());
+            setSecretMetadataProperties(decodedSecret, description, lastUpdatedByUser);
         }
         credentialsService.setCredentials(secretName, decodedSecret);
 
