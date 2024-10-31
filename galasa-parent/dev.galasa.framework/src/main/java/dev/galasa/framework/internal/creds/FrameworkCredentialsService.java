@@ -5,6 +5,8 @@
  */
 package dev.galasa.framework.internal.creds;
 
+import java.util.Map;
+
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.IConfidentialTextService;
@@ -104,5 +106,10 @@ public class FrameworkCredentialsService implements ICredentialsService {
     @Override
     public void deleteCredentials(String credentialsId) throws CredentialsException {
         credsStore.deleteCredentials(credentialsId);
+    }
+
+    @Override
+    public Map<String, ICredentials> getAllCredentials() throws CredentialsException {
+        return credsStore.getAllCredentials();
     }
 }

@@ -42,6 +42,10 @@ public class MockFramework implements IFramework {
         // Do nothing...
     }
 
+    public MockFramework(MockCredentialsService credsService) {
+        this.creds = credsService;
+    }
+
     public MockFramework(IAuthStoreService authStoreService) {
         this.authStoreService = authStoreService;
     }

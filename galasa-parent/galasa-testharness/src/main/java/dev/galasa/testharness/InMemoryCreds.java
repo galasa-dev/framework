@@ -6,6 +6,7 @@
 package dev.galasa.testharness;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
@@ -30,5 +31,10 @@ public class InMemoryCreds implements ICredentialsService {
     @Override
     public void deleteCredentials(String credentialsId) throws CredentialsException {
         throw new UnsupportedOperationException("Unimplemented method 'deleteCredentials'");
+    }
+
+    @Override
+    public Map<String, ICredentials> getAllCredentials() throws CredentialsException {
+        throw new UnsupportedOperationException("Unimplemented method 'getAllCredentials'");
     }
 }

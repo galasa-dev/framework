@@ -19,8 +19,9 @@ public interface IGalasaResourceProcessor {
      * 
      * @param resourceJson the resource to perform an action on
      * @param action the action to perform
+     * @param username the username of the user performing the action
      * @return a list of validation errors encountered when processing the given JSON payload
      * @throws InternalServletException if there was an issue processing the resource
      */
-    List<String> processResource(JsonObject resourceJson, ResourceAction action) throws InternalServletException;
+    List<String> processResource(JsonObject resourceJson, ResourceAction action, String username) throws InternalServletException;
 }

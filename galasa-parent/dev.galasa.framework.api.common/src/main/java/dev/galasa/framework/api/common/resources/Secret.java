@@ -10,6 +10,7 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -19,11 +20,13 @@ public class Secret {
 
     private String secretId;
     private ICredentialsService credentialsService;
+    private ITimeService timeService;
     private ICredentials value;
 
-    public Secret(ICredentialsService credentialsService, String secretName) {
+    public Secret(ICredentialsService credentialsService, String secretName, ITimeService timeService) {
         this.secretId = secretName;
         this.credentialsService = credentialsService;
+        this.timeService = timeService;
     }
 
     public boolean existsInCredentialsStore() {
@@ -39,8 +42,10 @@ public class Secret {
         }
     }
 
-    public void setSecretToCredentialsStore(ICredentials newValue) throws InternalServletException {
+    public void setSecretToCredentialsStore(ICredentials newValue, String username) throws InternalServletException {
         try {
+            newValue.setLastUpdatedTime(timeService.now());
+            newValue.setLastUpdatedByUser(username);
             credentialsService.setCredentials(secretId, newValue);
         } catch (CredentialsException e) {
             ServletError error = new ServletError(GAL5077_FAILED_TO_SET_SECRET);

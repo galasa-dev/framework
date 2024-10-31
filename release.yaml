@@ -243,6 +243,15 @@ api:
     isolated:     true
     codecoverage: true
 
+  - artifact: dev.galasa.framework.api.secrets
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
   - artifact: dev.galasa.framework.api.testcatalog
     version: 0.34.0
     obr:          true

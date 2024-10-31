@@ -7,10 +7,18 @@ package dev.galasa.framework.api.resources.mocks;
 
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.common.mocks.IServletUnderTest;
+import dev.galasa.framework.api.common.mocks.MockEnvironment;
+import dev.galasa.framework.api.common.mocks.MockTimeService;
 import dev.galasa.framework.api.resources.ResourcesServlet;
 import dev.galasa.framework.spi.IFramework;
 
 public class MockResourcesServlet extends ResourcesServlet implements IServletUnderTest{
+
+    public MockResourcesServlet(IFramework framework, MockEnvironment env, MockTimeService timeService) {
+        this.framework = framework;
+        this.env = env;
+        this.timeService = timeService;
+    }
 
 	@Override
 	public void setFramework(IFramework framework) {

@@ -9,6 +9,7 @@ package dev.galasa.framework.api.resources;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.PrintWriter;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -28,7 +30,7 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
-
+import dev.galasa.framework.api.common.mocks.MockTimeService;
 import dev.galasa.framework.api.resources.mocks.MockResourcesServlet;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -43,6 +45,8 @@ public class ResourcesServletTest extends BaseServletTest {
 	HttpServletRequest req;
 	HttpServletResponse resp;
 
+    private Map<String, String> headers = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
 	private class MockICPSServiceWithError extends MockIConfigurationPropertyStoreService {
         protected MockICPSServiceWithError(String namespace){
             super.namespaceInput= namespace;
@@ -55,13 +59,6 @@ public class ResourcesServletTest extends BaseServletTest {
     }
 
 	protected void setServlet(String namespace){
-		this.servlet = new MockResourcesServlet();
-        servlet.setResponseBuilder(new ResponseBuilder(new MockEnvironment()));
-
-        ServletOutputStream outStream = new MockServletOutputStream();
-		PrintWriter writer = new PrintWriter(outStream);
-        this.resp = new MockHttpServletResponse(writer, outStream);
-
 		IConfigurationPropertyStoreService cpsstore;
 		if (namespace != null){
 			cpsstore = new MockIConfigurationPropertyStoreService(namespace);
@@ -69,17 +66,28 @@ public class ResourcesServletTest extends BaseServletTest {
 			cpsstore = new MockICPSServiceWithError("framework");
 		}
 		IFramework framework = new MockFramework(cpsstore);
-		this.servlet.setFramework(framework);
+
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+		this.servlet = new MockResourcesServlet(framework, env, timeService);
+
+        servlet.setResponseBuilder(new ResponseBuilder(env));
+
+        ServletOutputStream outStream = new MockServletOutputStream();
+		PrintWriter writer = new PrintWriter(outStream);
+        this.resp = new MockHttpServletResponse(writer, outStream);
 	}
 	
 	protected void setServlet(String path,String namespace, Map<String, String[]> parameterMap){
 		setServlet(namespace);
-		this.req = new MockHttpServletRequest(parameterMap,path);
+		this.req = new MockHttpServletRequest(parameterMap, path, headers);
 	}
 
 	protected void setServlet( String path,String namespace, JsonObject requestBody, String method){
 		setServlet(namespace);
-		this.req = new MockHttpServletRequest(path, gson.toJson(requestBody), method);
+		this.req = new MockHttpServletRequest(path, gson.toJson(requestBody), method, headers);
 	}
 
 	protected void setServlet( String path,String namespace, JsonObject requestBody, String method, Map<String,String> headerMap) {

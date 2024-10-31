@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -114,5 +115,11 @@ public class FileCredentialsStore implements ICredentialsStore {
     @Override
     public void deleteCredentials(String credsId) throws CredentialsException {
         // Not implemented for local credentials...
+    }
+
+    @Override
+    public Map<String, ICredentials> getAllCredentials() throws CredentialsException {
+        // Not implemented for local credentials...
+        throw new UnsupportedOperationException("Unimplemented method 'getAllCredentials'");
     }
 }

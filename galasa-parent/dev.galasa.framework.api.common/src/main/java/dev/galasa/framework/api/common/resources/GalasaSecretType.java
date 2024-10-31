@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.common.resources;
- 
+
 public enum GalasaSecretType {
     USERNAME_PASSWORD("UsernamePassword", "username", "password"),
     USERNAME_TOKEN("UsernameToken", "username", "token"),
